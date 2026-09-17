@@ -391,7 +391,7 @@ trait ChartQueries
     public function getOutstandingQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
@@ -417,7 +417,7 @@ trait ChartQueries
     public function getAggregateOutstandingQuery($start_date, $end_date)
     {
 
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
         //AND invoices.balance > 0
         return DB::select("
@@ -485,7 +485,7 @@ trait ChartQueries
 
     public function getAggregateInvoicesQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         //AND invoices.amount > 0 @2024-12-03 - allow negative invoices to be included
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
@@ -513,7 +513,7 @@ trait ChartQueries
 
     public function getInvoicesQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
@@ -537,7 +537,7 @@ trait ChartQueries
 
     public function getAggregateOutstandingChartQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
@@ -569,7 +569,7 @@ trait ChartQueries
 
     public function getOutstandingChartQuery($start_date, $end_date, $currency_id)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
@@ -604,7 +604,7 @@ trait ChartQueries
 
     public function getOutstandingChartQueryForAllCurrencies(string $start_date, string $end_date): array
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
@@ -645,7 +645,7 @@ trait ChartQueries
 
     public function getAggregateInvoiceChartQuery($start_date, $end_date)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
@@ -663,6 +663,7 @@ trait ChartQueries
             {$status_filter}
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY invoices.date
+            ORDER BY invoices.date ASC
         ", [
             'company_id' => $this->company->id,
             'start_date' => $start_date,
@@ -672,7 +673,7 @@ trait ChartQueries
 
     public function getInvoiceChartQuery($start_date, $end_date, $currency_id)
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
@@ -691,6 +692,7 @@ trait ChartQueries
             AND (invoices.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             GROUP BY invoices.date
+            ORDER BY invoices.date ASC
             ", [
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
@@ -703,7 +705,7 @@ trait ChartQueries
 
     public function getInvoiceChartQueryForAllCurrencies(string $start_date, string $end_date): array
     {
-        $user_filter = $this->is_admin ? '' : 'AND clients.user_id = ' . $this->user->id;
+        $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 

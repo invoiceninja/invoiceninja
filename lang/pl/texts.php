@@ -4049,7 +4049,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 wykorzystuje Stripe Connect do połączenia Twojego konta Stripe z Invoice Ninja. Zapewnia to dodatkową warstwę bezpieczeństwa dla Twojego konta. Po migracji danych musisz zezwolić Stripe na akceptowanie płatności w wersji 5.<br><br> Aby to zrobić, przejdź do Ustawienia &gt; Płatności online &gt; Konfiguruj bramki. Kliknij Stripe Connect, a następnie w Ustawieniach kliknij Skonfiguruj bramkę. Spowoduje to przejście do Stripe, gdzie będziesz mógł autoryzować Invoice Ninja, a po powrocie Twoje konto zostanie pomyślnie połączone!',
     'email_quota_exceeded_subject' => 'Przekroczono limit adresu e-mail na koncie.',
     'email_quota_exceeded_body' => 'W ciągu 24 godzin wysłałeś wiadomości e-mail o treści :quota .<br> Wstrzymaliśmy wysyłanie wiadomości e-mail.<br><br> Twój limit adresu e-mail zostanie zresetowany o godzinie 23:00 UTC.',
-    'auto_bill_option' => 'Zaznacz lub zrezygnuj z automatycznego obciążania tej faktury.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'arabski',
     'lang_Persian' => 'perski',
     'lang_Latvian' => 'łotewski',
@@ -6375,6 +6375,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'total_tasks_over_estimate' => 'Zadania przeszacowane',
     'total_overdue_tasks' => 'Zaległe zadania',
     'total_tasks_due' => 'Zadania do oddania',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

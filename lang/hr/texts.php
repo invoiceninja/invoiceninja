@@ -4052,7 +4052,7 @@ Nevažeći kontakt email',
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 koristi Stripe Connect za povezivanje vašeg Stripe računa s Invoice Ninjom. Ovo pruža dodatni sloj sigurnosti za vaš račun. Sada kada su vaši podaci migrirani, morat ćete autorizirati Stripe za prihvaćanje plaćanja u v5.<br><br> Da biste to učinili, idite na Postavke &gt; Online plaćanja &gt; Konfiguriraj pristupnike. Kliknite na Stripe Connect, a zatim u odjeljku Postavke kliknite Postavi pristupnik. Ovo će vas odvesti na Stripe da autorizirate Invoice Ninju i po povratku vaš račun će biti uspješno povezan!',
     'email_quota_exceeded_subject' => 'Kvota e-pošte računa premašena.',
     'email_quota_exceeded_body' => 'U razdoblju od 24 sata poslali ste :quota e-poruka.<br> Pauzirali smo vašu odlaznu e-poštu.<br><br> Vaša kvota e-pošte poništit će se u 23:00 UTC.',
-    'auto_bill_option' => 'Uključite ili odjavite automatsku naplatu ove fakture.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'arapski',
     'lang_Persian' => 'perzijski',
     'lang_Latvian' => 'latvijski',
@@ -6378,6 +6378,7 @@ Nevažeći kontakt email',
     'total_tasks_over_estimate' => 'Zadaci precijenjeni',
     'total_overdue_tasks' => 'Zakašnjeli zadaci',
     'total_tasks_due' => 'Rok za izvršenje zadataka',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

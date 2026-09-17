@@ -4038,7 +4038,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 používa Stripe Connect na prepojenie vášho účtu Stripe s Invoice Ninja. To poskytuje ďalšiu úroveň zabezpečenia vášho účtu. Teraz, keď sa vaše údaje migrovali, budete musieť autorizovať pruh, aby ste mohli prijímať platby vo verzii 5.<br><br> Ak to chcete urobiť, prejdite do časti Nastavenia &gt; Online platby &gt; Konfigurovať brány. Kliknite na Stripe Connect a potom v časti Nastavenia kliknite na položku Nastaviť bránu. Tým sa dostanete do služby Stripe, kde budete autorizovať Invoice Ninja a po návrate bude váš účet úspešne prepojený!',
     'email_quota_exceeded_subject' => 'E-mailová kvóta účtu bola prekročená.',
     'email_quota_exceeded_body' => 'V priebehu 24 hodín ste odoslali e-maily :quota.<br> Pozastavili sme vaše odchádzajúce e-maily.<br><br> Vaša e-mailová kvóta sa resetuje o 23:00 UTC.',
-    'auto_bill_option' => 'Aktivujte alebo deaktivujte automatické účtovanie tejto faktúry.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Arabsky',
     'lang_Persian' => 'Perzsky',
     'lang_Latvian' => 'Lotyšsky',
@@ -6364,6 +6364,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'Nadhodnotenie úloh',
     'total_overdue_tasks' => 'Oneskorené úlohy',
     'total_tasks_due' => 'Úlohy s termínom',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

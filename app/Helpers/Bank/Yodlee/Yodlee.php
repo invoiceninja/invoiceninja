@@ -112,6 +112,8 @@ class Yodlee
         $this->accessToken = $response->token->accessToken;
         $this->accessTokenIsAdmin = $is_admin;
 
+        sleep(1);
+        
         return $this->accessToken;
     }
 

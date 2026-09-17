@@ -392,8 +392,16 @@ class ChartSummaryPayloadTest extends TestCase
         ]);
         $otherClient = $this->createChartClient(3, $otherUser);
 
-        $this->createChartInvoice($this->usdClient, ['date' => '2026-01-10', 'amount' => 10]);
-        $this->createChartInvoice($otherClient, ['date' => '2026-01-11', 'amount' => 30]);
+        $this->createChartInvoice($this->usdClient, [
+            'date' => '2026-01-10',
+            'amount' => 10,
+            'user_id' => $this->user->id,
+        ]);
+        $this->createChartInvoice($otherClient, [
+            'date' => '2026-01-11',
+            'amount' => 30,
+            'user_id' => $otherUser->id,
+        ]);
         $this->createChartPayment($this->usdClient, ['date' => '2026-01-12', 'amount' => 10]);
         $this->createChartPayment($otherClient, [
             'date' => '2026-01-13',
@@ -709,6 +717,9 @@ class ChartSummaryPayloadTest extends TestCase
     }
 
     /**
+     * Chart invoice metrics scope on invoices.user_id (not clients.user_id).
+     * Pass user_id in $attributes when attribution should differ from the client owner.
+     *
      * @param array<string, mixed> $attributes
      */
     private function createChartInvoice(Client $client, array $attributes = []): Invoice
@@ -716,7 +727,7 @@ class ChartSummaryPayloadTest extends TestCase
         return Invoice::factory()->create(array_merge([
             'client_id' => $client->id,
             'company_id' => $this->chartCompany->id,
-            'user_id' => $client->user_id,
+            'user_id' => $attributes['user_id'] ?? $client->user_id,
             'amount' => 10,
             'balance' => 0,
             'paid_to_date' => 10,

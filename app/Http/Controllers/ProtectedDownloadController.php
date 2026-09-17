@@ -17,6 +17,17 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+/**
+ * Serves temporary downloads keyed by cache hash.
+ *
+ * Cache payload shape:
+ *   array{
+ *     disk: string,
+ *     path: string,
+ *     download_name: string,
+ *     expires_at: int
+ *   }
+ */
 class ProtectedDownloadController extends BaseController
 {
     public function index(string $hash): StreamedResponse
@@ -27,11 +38,7 @@ class ProtectedDownloadController extends BaseController
             throw new SystemError('File no longer available', 404);
         }
 
-        if (is_string($download)) {
-            $disk = config('filesystems.default');
-            $storage_path = $download;
-            $download_name = basename($storage_path);
-        } elseif (
+        if (
             is_array($download)
             && is_string($download['disk'] ?? null)
             && is_string($download['path'] ?? null)

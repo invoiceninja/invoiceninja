@@ -236,7 +236,7 @@ class CompanyTransformer extends EntityTransformer
      */
     private function transformQuickbooks(Company $company): ?array
     {
-        if (!$company->getRawOriginal('quickbooks')) {
+        if ($company->quickbooks->isEmpty() || !$company->getRawOriginal('quickbooks')) {
             return null;
         }
 

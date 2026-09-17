@@ -57,23 +57,6 @@ class ProtectedDownloadControllerTest extends TestCase
         $this->assertSame('archive contents', $response->streamedContent());
     }
 
-    public function testSignedUrlSupportsLegacyStringRecord(): void
-    {
-        $hash = Str::uuid()->toString();
-        $expires_at = now()->addHour();
-        $storage_path = 'downloads/legacy-report.zip';
-
-        Storage::disk('legacy-downloads')->put($storage_path, 'legacy contents');
-        Cache::put($hash, $storage_path, $expires_at);
-
-        $url = URL::temporarySignedRoute('protected_download', $expires_at, ['hash' => $hash], absolute: false);
-        $response = $this->get($url);
-
-        $response->assertOk();
-        $response->assertDownload('legacy-report.zip');
-        $this->assertSame('legacy contents', $response->streamedContent());
-    }
-
     public function testUnsignedUrlIsRejected(): void
     {
         $response = $this->get(route('protected_download', ['hash' => Str::uuid()->toString()]));

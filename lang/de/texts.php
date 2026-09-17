@@ -4053,7 +4053,7 @@ https://invoiceninja.github.io/docs/migration/#troubleshooting',
     'stripe_connect_migration_desc' => 'Verbinden Sie Ihre Rechnung Ninja v5 verwendet Stripe Connect, um Ihr Stripe-Konto mit Invoice Ninja zu verbinden. Dies bietet eine zusätzliche Sicherheitsebene für Ihr Konto. Nachdem Ihre Daten migriert wurden, müssen Sie Stripe autorisieren, Zahlungen in v5 zu akzeptieren. <br><br>Navigieren Sie dazu zu Einstellungen > Online-Zahlungen > Gateways konfigurieren. Klicken Sie auf Stripe Connect und dann unter Einstellungen auf Gateway einrichten. Dadurch werden Sie zu Stripe weitergeleitet, um Invoice Ninja zu autorisieren, und bei Ihrer Rückkehr wird Ihr Konto erfolgreich verknüpft sein!',
     'email_quota_exceeded_subject' => 'E-Mail-Kontingent überschritten.',
     'email_quota_exceeded_body' => 'In einem Zeitraum von 24 Stunden haben Sie : quota emails gesendet.<br> Wir haben Ihre ausgehenden E-Mails pausiert.<br><br> Ihr E-Mail-Kontingent wird um 23:00 UTC zurückgesetzt.',
-    'auto_bill_option' => 'Aktivieren oder deaktivieren Sie die automatische Belastung dieser Rechnung.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Arabisch',
     'lang_Persian' => 'Persisch',
     'lang_Latvian' => 'Lettisch',
@@ -6381,6 +6381,7 @@ Leistungsempfängers',
     'total_tasks_over_estimate' => 'Aufgaben überschätzen',
     'total_overdue_tasks' => 'Überfällige Aufgaben',
     'total_tasks_due' => 'Aufgaben fällig',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

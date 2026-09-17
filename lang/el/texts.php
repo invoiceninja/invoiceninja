@@ -4051,7 +4051,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Το Invoice Ninja v5 χρησιμοποιεί το Stripe Connect για να συνδέσει τον λογαριασμό σας Stripe με το Invoice Ninja. Αυτό παρέχει ένα επιπλέον επίπεδο ασφάλειας για τον λογαριασμό σας. Τώρα που τα δεδομένα σας έχουν μετεγκατασταθεί, θα πρέπει να εξουσιοδοτήσετε το Stripe για να αποδεχτείτε πληρωμές στην έκδοση 5.<br><br> Για να το κάνετε αυτό, μεταβείτε στις Ρυθμίσεις &gt; Ηλεκτρονικές πληρωμές &gt; Διαμόρφωση πυλών. Κάντε κλικ στο Stripe Connect και, στη συνέχεια, στην ενότητα Ρυθμίσεις, κάντε κλικ στην Πύλη εγκατάστασης. Αυτό θα σας οδηγήσει στο Stripe για να εξουσιοδοτήσετε το Invoice Ninja και με την επιστροφή σας ο λογαριασμός σας θα συνδεθεί με επιτυχία!',
     'email_quota_exceeded_subject' => 'Υπέρβαση ορίου email λογαριασμού.',
     'email_quota_exceeded_body' => 'Σε ένα 24ωρο έχετε στείλει email :quota .<br> Έχουμε θέσει σε παύση τα εξερχόμενα email σας.<br><br> Το όριο του email σας θα επαναφερθεί στις 23:00 UTC.',
-    'auto_bill_option' => 'Συμμετοχή ή εξαίρεση από την αυτόματη χρέωση αυτού του τιμολογίου.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'αραβικός',
     'lang_Persian' => 'περσικός',
     'lang_Latvian' => 'λετονική',
@@ -6377,6 +6377,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'Υπέρβαση Εκτίμησης Εργασιών',
     'total_overdue_tasks' => 'Εκπρόθεσμες Εργασίες',
     'total_tasks_due' => 'Εργασίες που πρέπει να παραδοθούν',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;
