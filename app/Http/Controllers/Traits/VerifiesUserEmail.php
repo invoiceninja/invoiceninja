@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -65,7 +66,7 @@ trait VerifiesUserEmail
         }
 
         if (is_null($user->password) || empty($user->password) || Hash::check('', $user->password)) {
-            return $this->render('auth.confirmation_with_password', ['root' => 'themes', 'user_id' => $user->hashed_id, 'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/')]);
+            return $this->render('auth.confirmation_with_password', ['confirmation_code' => request()->confirmation_code, 'root' => 'themes', 'user_id' => $user->hashed_id, 'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/')]);
         }
 
         return $this->render('auth.confirmed', [
@@ -75,14 +76,20 @@ trait VerifiesUserEmail
         ]);
     }
 
-    public function confirmWithPassword()
+    public function confirmWithPassword(Request $request)
     {
-        $user = User::where('id', $this->decodePrimaryKey(request()->user_id))->firstOrFail();
+
+        $user = User::where('id', $this->decodePrimaryKey($request->user_id))
+                    ->where('confirmation_code', $request->confirmation_code)
+                    ->whereNotNull('confirmation_code')
+                    ->firstOrFail();
+
         $react = request()->has('react') ? true : false;
 
         $validator = Validator::make(request()->all(), [
             'password' => 'min:6|required_with:password_confirmation|same:password_confirmation',
             'password_confirmation' => 'min:6',
+            'confirmation_code' => 'required|exists:users,confirmation_code',
         ]);
 
         if ($validator->fails()) {

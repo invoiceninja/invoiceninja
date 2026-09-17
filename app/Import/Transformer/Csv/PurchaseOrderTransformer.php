@@ -25,7 +25,7 @@ class PurchaseOrderTransformer extends BaseTransformer
     use CleanLineItems;
 
     /**
-     * @param $data
+     * @param $line_items_data
      *
      * @return bool|array
      */
@@ -50,9 +50,18 @@ class PurchaseOrderTransformer extends BaseTransformer
             'cancelled' => PurchaseOrder::STATUS_CANCELLED,
         ];
 
+        $status = strtolower($this->getString($purchase_order_data, 'purchase_order.status'));
+        $statusId = $purchaseOrderStatusMap[$status] ?? PurchaseOrder::STATUS_SENT;
+
+        if ($status === '' && array_key_exists('purchase_order.is_sent', $purchase_order_data)) {
+            $statusId = $this->toBoolean($purchase_order_data['purchase_order.is_sent'])
+                ? PurchaseOrder::STATUS_SENT
+                : PurchaseOrder::STATUS_DRAFT;
+        }
+
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($purchase_order_data, 'purchase_order.number'),
+            'number' => $this->getString($purchase_order_data, 'purchase_order.number', null),
             'user_id' => $this->getString($purchase_order_data, 'purchase_order.user_id'),
             'amount' => ($amount = $this->getFloat(
                 $purchase_order_data,
@@ -87,22 +96,22 @@ class PurchaseOrderTransformer extends BaseTransformer
             'tax_rate2' => $this->getFloat($purchase_order_data, 'purchase_order.tax_rate2'),
             'tax_name3' => $this->getString($purchase_order_data, 'purchase_order.tax_name3'),
             'tax_rate3' => $this->getFloat($purchase_order_data, 'purchase_order.tax_rate3'),
-            'custom_value1' => $this->getString(
+            'custom_value1' => $this->getCustomFieldValue('invoice1', $this->getString(
                 $purchase_order_data,
                 'purchase_order.custom_value1'
-            ),
-            'custom_value2' => $this->getString(
+            )),
+            'custom_value2' => $this->getCustomFieldValue('invoice2', $this->getString(
                 $purchase_order_data,
                 'purchase_order.custom_value2'
-            ),
-            'custom_value3' => $this->getString(
+            )),
+            'custom_value3' => $this->getCustomFieldValue('invoice3', $this->getString(
                 $purchase_order_data,
                 'purchase_order.custom_value3'
-            ),
-            'custom_value4' => $this->getString(
+            )),
+            'custom_value4' => $this->getCustomFieldValue('invoice4', $this->getString(
                 $purchase_order_data,
                 'purchase_order.custom_value4'
-            ),
+            )),
             'footer' => $this->getString($purchase_order_data, 'purchase_order.footer'),
             'partial' => $this->getFloat($purchase_order_data, 'purchase_order.partial'),
             'partial_due_date' => isset($purchase_order_data['purchase_order.partial_due_date']) ? $this->parseDate($purchase_order_data['purchase_order.partial_due_date']) : null,
@@ -126,15 +135,20 @@ class PurchaseOrderTransformer extends BaseTransformer
                 $purchase_order_data,
                 'purchase_order.exchange_rate'
             ),
-            'status_id' => $purchaseOrderStatusMap[
-                    strtolower(
-                        $this->getString($purchase_order_data, 'purchase_order.status')
-                    )
-                ] ?? PurchaseOrder::STATUS_SENT,
+            'status_id' => $statusId,
         ];
 
+        if (array_key_exists('purchase_order.uses_inclusive_taxes', $purchase_order_data)) {
+            $transformed['uses_inclusive_taxes'] = $this->toBoolean(
+                $purchase_order_data['purchase_order.uses_inclusive_taxes']
+            );
+        }
+
         if (isset($purchase_order_data['purchase_order.currency_id'])) {
-            $currency_id = $this->getCurrencyByCode($purchase_order_data['purchase_order.currency_id']);
+            $currency_id = $this->getCurrencyByCode(
+                $purchase_order_data,
+                'purchase_order.currency_id'
+            );
             if ($currency_id) {
                 $transformed['currency_id'] = $currency_id;
             }
@@ -145,6 +159,7 @@ class PurchaseOrderTransformer extends BaseTransformer
             $line_items[] = [
                 'quantity' => $this->getFloat($record, 'item.quantity'),
                 'cost' => $this->getFloat($record, 'item.cost'),
+                'product_cost' => $this->getFloat($record, 'item.product_cost'),
                 'product_key' => $this->getString($record, 'item.product_key'),
                 'notes' => $this->getString($record, 'item.notes'),
                 'discount' => $this->getFloat($record, 'item.discount'),
@@ -158,23 +173,24 @@ class PurchaseOrderTransformer extends BaseTransformer
                 'tax_rate2' => $this->getFloat($record, 'item.tax_rate2'),
                 'tax_name3' => $this->getString($record, 'item.tax_name3'),
                 'tax_rate3' => $this->getFloat($record, 'item.tax_rate3'),
-                'custom_value1' => $this->getString(
+                'custom_value1' => $this->getCustomFieldValue('product1', $this->getString(
                     $record,
                     'item.custom_value1'
-                ),
-                'custom_value2' => $this->getString(
+                )),
+                'custom_value2' => $this->getCustomFieldValue('product2', $this->getString(
                     $record,
                     'item.custom_value2'
-                ),
-                'custom_value3' => $this->getString(
+                )),
+                'custom_value3' => $this->getCustomFieldValue('product3', $this->getString(
                     $record,
                     'item.custom_value3'
-                ),
-                'custom_value4' => $this->getString(
+                )),
+                'custom_value4' => $this->getCustomFieldValue('product4', $this->getString(
                     $record,
                     'item.custom_value4'
-                ),
+                )),
                 'type_id' => '1',
+                'tax_id' => $this->getString($record, 'item.tax_id'),
             ];
         }
         $transformed['line_items'] = $this->cleanItems($line_items);

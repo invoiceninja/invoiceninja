@@ -54,6 +54,19 @@ class QuickbooksBatchCollector
     private const CACHE_PREFIX = 'qb_batch_collector';
 
     /**
+     * How long a pending batch survives in cache.
+     *
+     * This deliberately has NOTHING to do with the collection window. The
+     * flush job ({@see \App\Jobs\Quickbooks\FlushQuickbooksBatch}) is dispatched
+     * after the (short) collection window, but on a busy queue it may not
+     * actually execute for minutes. If the batch expired before the flush ran,
+     * Cache::pull() returned empty and every collected entity was silently
+     * dropped — never reaching QuickBooks. Decoupling the data lifetime from
+     * the flush schedule guarantees the flush always finds its data.
+     */
+    private const BATCH_TTL_SECONDS = 86400; // 24 hours
+
+    /**
      * Add an entity to the batch collector
      *
      * IMPORTANT: All entities in a batch MUST belong to the same QuickBooks realm.
@@ -105,9 +118,10 @@ class QuickbooksBatchCollector
 
         $collectionWindow = self::getCollectionWindow($priority);
 
-        // Store batch — TTL must outlive the flush job delay so data is
-        // still in cache when FlushQuickbooksBatch runs.
-        Cache::put($key, $batch, now()->addSeconds($collectionWindow + 30));
+        // Store batch with a long, durable TTL that outlives any realistic
+        // queue backlog — NOT just the flush delay. A batch must never expire
+        // before the flush has a chance to dispatch it (see BATCH_TTL_SECONDS).
+        Cache::put($key, $batch, now()->addSeconds(self::BATCH_TTL_SECONDS));
 
         if (count($batch) >= self::MAX_BATCH_SIZE) {
             // Batch is full, dispatch right now
@@ -138,7 +152,7 @@ class QuickbooksBatchCollector
             return;
         }
 
-        $entityIds = array_column($batch, 'id');
+        $entityIds = array_values(array_unique(array_column($batch, 'id')));
 
         nlog("QB Batch Collector: Dispatching {$priority} batch of " . count($entityIds) . " {$entityType}(s)");
 

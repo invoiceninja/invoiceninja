@@ -56,6 +56,8 @@ class ChargePaymentProfile
         $invoiceTotal = 0;
         $invoiceTaxes = 0;
 
+        $amount = round($amount, 2);
+        
         if ($this->authorize->payment_hash->data) {
             $invoice_numbers = collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
             $invObj = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
@@ -88,6 +90,10 @@ class ChargePaymentProfile
         $duplicateWindowSetting->setSettingName("duplicateWindow");
         $duplicateWindowSetting->setSettingValue("3");
 
+        $emailSetting = new SettingType();
+        $emailSetting->setSettingName('emailCustomer');
+        $emailSetting->setSettingValue('false');
+
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
@@ -97,6 +103,7 @@ class ChargePaymentProfile
         $transactionRequestType->setProfile($profileToCharge);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
         $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+        $transactionRequestType->addToTransactionSettings($emailSetting);
 
         $solution = new \net\authorize\api\contract\v1\SolutionType();
         $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');

@@ -13,7 +13,7 @@ namespace App\Services\EDocument\Standards\France;
 
 enum ReportingProfile: string
 {
-    case TenDay = 'ten_days';      // transaction reporting: 1-10, 11-20, 21-EOM
+    case TenDay = 'ten_day';      // transaction reporting: 1-10, 11-20, 21-EOM
     case Monthly = 'monthly';    // 1st-EOM
     case BiMonthly = 'bi_monthly'; // Jan-Feb, Mar-Apr, etc.
 }

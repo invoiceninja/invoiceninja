@@ -457,4 +457,26 @@ class LocationApiTest extends TestCase
 
         $this->assertNull($location->fresh()->deleted_at);
     }
+
+    public function testLocationBulkDelete(): void
+    {
+        $location = Location::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/locations/bulk', [
+            'action' => 'delete',
+            'ids' => [$location->hashed_id],
+        ]);
+
+        $response->assertStatus(200);
+
+        $data = $response->json('data.0');
+
+        $this->assertNotNull($data['archived_at']);
+        $this->assertTrue($data['is_deleted']);
+    }
 }

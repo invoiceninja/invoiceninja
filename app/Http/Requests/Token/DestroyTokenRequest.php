@@ -23,6 +23,6 @@ class DestroyTokenRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->can('edit', $this->route('token'));
+        return auth()->user()->can('edit', $this->route('token')) && $this->route('token')->is_system === false;
     }
 }

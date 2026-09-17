@@ -75,7 +75,7 @@ class ClientContactReportController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-        PreviewReport::dispatch($user->company(), $request->all(), ContactExport::class, $hash);
+        PreviewReport::dispatch($user->company(), $request->all(), ContactExport::class, $hash, $this->filename, $user);
 
         return response()->json(['message' => $hash], 200);
 

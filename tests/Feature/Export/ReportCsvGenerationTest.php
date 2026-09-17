@@ -210,7 +210,7 @@ class ReportCsvGenerationTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $settings = CompanySettings::defaults();
@@ -674,7 +674,7 @@ class ReportCsvGenerationTest extends TestCase
             'balance' => 1000,
             'number' => '123456',
             'status_id' => 2,
-            'discount' => 10,
+            // 'discount' => 10,
             'po_number' => '12345',
             'public_notes' => 'Public5',
             'private_notes' => 'Private5',
@@ -1789,7 +1789,6 @@ class ReportCsvGenerationTest extends TestCase
            'po_number' => '1234',
            'status_id' => 2,
            'discount' => 10,
-           'po_number' => '1234',
            'public_notes' => 'Public',
            'private_notes' => 'Private',
            'terms' => 'Terms',
@@ -2158,7 +2157,6 @@ class ReportCsvGenerationTest extends TestCase
             'due_date' => '2021-01-02',
             'partial_due_date' => '2021-01-03',
             'partial' => 10,
-            'discount' => 10,
             'custom_value1' => 'Custom 1',
             'custom_value2' => 'Custom 2',
             'custom_value3' => 'Custom 3',
@@ -2244,7 +2242,6 @@ class ReportCsvGenerationTest extends TestCase
             'due_date' => '2021-01-02',
             'partial_due_date' => '2021-01-03',
             'partial' => 10,
-            'discount' => 10,
             'custom_value1' => 'Custom 1',
             'custom_value2' => 'Custom 2',
             'custom_value3' => 'Custom 3',
@@ -2329,7 +2326,6 @@ class ReportCsvGenerationTest extends TestCase
             'due_date' => '2020-01-01',
             'partial_due_date' => '2021-01-03',
             'partial' => 10,
-            'discount' => 10,
             'custom_value1' => 'Custom 1',
             'custom_value2' => 'Custom 2',
             'custom_value3' => 'Custom 3',
@@ -2679,6 +2675,140 @@ class ReportCsvGenerationTest extends TestCase
         $this->assertEquals(40, (float) $rows[1]['Payment Applied Amount']);
         $this->assertEquals(5, (float) $rows[1]['Payment Applied Refunded']);
         $this->assertEquals($expected_date_b, $rows[1]['Payment Applied Date']);
+
+        $this->account->forceDelete();
+    }
+
+    public function testPaymentReportDisplaysArchivedInvoicePropertiesWithoutChangingTheGlobalPaymentableRelation()
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-ARCHIVED',
+            'amount' => 125.50,
+            'balance' => 0,
+            'date' => '2026-03-10',
+            'due_date' => '2026-04-10',
+            'private_notes' => 'Archived invoice details',
+            'status_id' => 4,
+        ]);
+
+        $payment = \App\Models\Payment::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'amount' => 125.50,
+            'applied' => 125.50,
+            'refunded' => 0,
+            'date' => '2026-03-10',
+            'number' => 'PAY-ARCHIVED-INVOICE',
+            'is_deleted' => 0,
+        ]);
+
+        $paymentable = \App\Models\Paymentable::create([
+            'payment_id' => $payment->id,
+            'paymentable_type' => 'invoices',
+            'paymentable_id' => $invoice->id,
+            'amount' => 125.50,
+            'refunded' => 0,
+        ]);
+
+        $invoice->delete();
+
+        $this->assertNull(
+            $paymentable->paymentable,
+            'The default Paymentable relation should continue to exclude archived models.'
+        );
+
+        $export = new PaymentExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => [
+                'payment.number',
+                'invoice.number',
+                'invoice.amount',
+                'invoice.date',
+                'invoice.due_date',
+                'invoice.private_notes',
+            ],
+            'send_email' => false,
+            'user_id' => $this->user->id,
+        ]);
+
+        $reader = Reader::fromString($export->run());
+        $reader->setHeaderOffset(0);
+        $rows = iterator_to_array($reader->getRecords(), false);
+
+        $this->assertCount(1, $rows);
+        $this->assertSame('PAY-ARCHIVED-INVOICE', $rows[0]['Payment Number']);
+        $this->assertSame('INV-ARCHIVED', $rows[0]['Invoice Invoice Number']);
+        $this->assertEquals(125.50, (float) $rows[0]['Invoice Amount']);
+        $this->assertSame('2026-03-10', $rows[0]['Invoice Date']);
+        $this->assertSame('2026-04-10', $rows[0]['Invoice Due Date']);
+        $this->assertSame('Archived invoice details', $rows[0]['Invoice Private Notes']);
+
+        $this->account->forceDelete();
+    }
+
+    public function testPaymentReportDisplaysArchivedCreditProperties()
+    {
+        $credit = Credit::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'CR-ARCHIVED',
+            'amount' => 45.25,
+            'balance' => 0,
+            'date' => '2026-03-11',
+            'private_notes' => 'Archived credit details',
+            'status_id' => 4,
+        ]);
+
+        $payment = \App\Models\Payment::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'amount' => 45.25,
+            'applied' => 45.25,
+            'refunded' => 0,
+            'date' => '2026-03-11',
+            'number' => 'PAY-ARCHIVED-CREDIT',
+            'is_deleted' => 0,
+        ]);
+
+        \App\Models\Paymentable::create([
+            'payment_id' => $payment->id,
+            'paymentable_type' => Credit::class,
+            'paymentable_id' => $credit->id,
+            'amount' => 45.25,
+            'refunded' => 0,
+        ]);
+
+        $credit->delete();
+
+        $export = new PaymentExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => [
+                'payment.number',
+                'credit.number',
+                'credit.amount',
+                'credit.date',
+                'credit.private_notes',
+            ],
+            'send_email' => false,
+            'user_id' => $this->user->id,
+        ]);
+
+        $reader = Reader::fromString($export->run());
+        $reader->setHeaderOffset(0);
+        $rows = iterator_to_array($reader->getRecords(), false);
+
+        $this->assertCount(1, $rows);
+        $this->assertSame('PAY-ARCHIVED-CREDIT', $rows[0]['Payment Number']);
+        $this->assertSame('CR-ARCHIVED', $rows[0]['Credit Credit Number']);
+        $this->assertEquals(45.25, (float) $rows[0]['Credit Amount']);
+        $this->assertSame('2026-03-11', $rows[0]['Credit Date']);
+        $this->assertSame('Archived credit details', $rows[0]['Credit Private Notes']);
 
         $this->account->forceDelete();
     }

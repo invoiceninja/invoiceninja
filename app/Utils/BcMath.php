@@ -383,6 +383,21 @@ class BcMath
     }
 
     /**
+     * Convert a decimal amount to integer minor units for gateway APIs.
+     *
+     * Rounds to the currency precision first, then multiplies by 10^precision.
+     *
+     * @param string|float|int $amount
+     */
+    public static function toMinorUnits($amount, int $precision): int
+    {
+        $normalized = self::round($amount, $precision);
+        $multiplier = bcpow('10', (string) $precision, 0);
+
+        return (int) bcmul($normalized, $multiplier, 0);
+    }
+
+    /**
      * Format a number as currency string with proper precision
      *
      * @param string|float|int $number

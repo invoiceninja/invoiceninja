@@ -107,7 +107,7 @@ class PaymentController extends BaseController
      */
     public function index(PaymentFilters $filters)
     {
-        $payments = Payment::filter($filters);
+        $payments = Payment::filter($filters)->with('tags');
 
         return $this->listResponse($payments);
     }
@@ -776,7 +776,7 @@ class PaymentController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $payment, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $payment, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($payment->fresh());

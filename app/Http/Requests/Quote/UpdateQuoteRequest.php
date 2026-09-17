@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Quote;
 
 use App\Http\Requests\Request;
+use App\Models\Quote;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -23,6 +24,9 @@ class UpdateQuoteRequest extends Request
     use MakesHash;
     use CleanLineItems;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Quote::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -71,7 +75,7 @@ class UpdateQuoteRequest extends Request
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->quote->client_id)];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()

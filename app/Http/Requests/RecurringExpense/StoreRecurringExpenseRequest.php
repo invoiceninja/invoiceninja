@@ -21,6 +21,9 @@ class StoreRecurringExpenseRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = RecurringExpense::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -87,7 +90,7 @@ class StoreRecurringExpenseRequest extends Request
             $input['next_send_date_client'] = $input['next_send_date'];
         }
 
-        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
+        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id'] ?? '') == 0) {
             $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 

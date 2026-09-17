@@ -23,6 +23,9 @@ class StorePurchaseOrderRequest extends Request
     use MakesHash;
     use CleanLineItems;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = PurchaseOrder::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -47,7 +50,6 @@ class StorePurchaseOrderRequest extends Request
 
         $rules = [];
 
-        $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . $user->company()->id . ',is_deleted,0';
         $rules['client_id'] = ['nullable', 'bail', 'integer', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
@@ -73,12 +75,20 @@ class StorePurchaseOrderRequest extends Request
         $rules['custom_surcharge3'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['custom_surcharge4'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes', 'bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('vendor_id', $this->vendor_id)];
+        $rules['invoice_id'] = ['nullable', 'sometimes', 'bail', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
+        $rules['quote_id'] = ['nullable', 'sometimes', 'bail', Rule::exists('quotes', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
+        $rules = $this->globalRules($rules);
+        $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . $user->company()->id . ',is_deleted,0';
         return $rules;
+
     }
 
     public function prepareForValidation()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
@@ -110,6 +120,10 @@ class StorePurchaseOrderRequest extends Request
             $input['exchange_rate'] = 1;
         }
 
+        if (!isset($input['date'])) {
+            $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
+        }
+        
         if (isset($input['footer']) && $this->hasHeader('X-REACT')) {
             $input['footer'] = str_replace("\n", "", $input['footer']);
         }

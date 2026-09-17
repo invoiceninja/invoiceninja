@@ -21,7 +21,6 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Paymentable;
 use App\Models\User;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
@@ -69,7 +68,7 @@ class CheckDataTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $settings = CompanySettings::defaults();
@@ -134,23 +133,34 @@ class CheckDataTest extends TestCase
             'company_id' => $this->company->id,
         ]);
 
-        Invoice::where('status_id', 2)->cursor()->each(function ($i) {
+        Invoice::where('company_id', $this->company->id)
+            ->where('status_id', 2)
+            ->cursor()
+            ->each(function ($i) {
+                $i->service()->markPaid()->save();
+            });
 
-            $i->service()->markPaid()->save();
+        $payments = Payment::with('paymentables')
+            ->where('company_id', $this->company->id)
+            ->get();
 
-        });
+        $this->assertNotEmpty($payments);
 
-        Payment::with('paymentables')->cursor()->each(function ($payment) {
+        $payments->each(function ($payment) {
             $this->assertNotNull($payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()
-            ->sum(\DB::raw('amount')->getValue(\DB::connection()->getQueryGrammar())));
+                ->sum(\DB::raw('amount')->getValue(\DB::connection()->getQueryGrammar())));
         });
 
-        Payment::with('paymentables')->cursor()->each(function ($payment) {
+        $payments->each(function ($payment) {
             $this->assertNotNull($payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()
-            ->sum('amount'));
+                ->sum('amount'));
         });
 
-        $amount = Paymentable::first()->payment->paymentables()->where('paymentable_type', 'invnoices')->get()->sum('amount');
+        $amount = $payments->first()
+            ->paymentables()
+            ->where('paymentable_type', 'invoices')
+            ->get()
+            ->sum('amount');
 
         $this->assertNotNull($amount);
 
@@ -183,12 +193,12 @@ class CheckDataTest extends TestCase
 
         User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $user_hash = 'a';

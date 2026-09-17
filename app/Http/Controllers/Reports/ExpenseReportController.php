@@ -77,7 +77,7 @@ class ExpenseReportController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-        PreviewReport::dispatch($user->company(), $request->all(), ExpenseExport::class, $hash);
+        PreviewReport::dispatch($user->company(), $request->all(), ExpenseExport::class, $hash, $this->filename, $user);
 
         return response()->json(['message' => $hash], 200);
 

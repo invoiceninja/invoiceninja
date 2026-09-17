@@ -29,14 +29,7 @@ class DocumentRepository extends BaseRepository
         }
     }
 
-    public function restore($document)
-    {
-        // if (! $document->trashed()) {
-        //     return;
-        // }
-
-        // $document->restore();
-    }
+    public function restore($document) {}
 
     public function archive($document) {}
 }

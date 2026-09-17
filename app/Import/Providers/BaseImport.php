@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Utils\Ninja;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
+use Throwable;
 use League\Csv\Reader;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -45,10 +46,14 @@ use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Notifications\Ninja\GenericNinjaAdminNotification;
+use Illuminate\Support\Str;
+use Sentry\State\Scope;
 
 class BaseImport
 {
     use CleanLineItems;
+
+    private const SYSTEM_ERROR_ROW_SAMPLE_LIMIT = 5;
 
     public Company $company;
 
@@ -77,6 +82,15 @@ class BaseImport
     public array $entity_count = [];
 
     public bool $store_import_for_research = false;
+
+    protected ?Throwable $first_system_exception = null;
+
+    protected ?string $system_error_reference = null;
+
+    /** @var array<string, array{count: int, rows: array<int>, exception_types: array<string, int>}> */
+    protected array $system_errors = [];
+
+    protected bool $system_errors_reported = false;
 
     public function __construct(array $request, Company $company)
     {
@@ -134,9 +148,7 @@ class BaseImport
             ) {
                 $first_cell = $headers[0];
                 if (strstr($first_cell, config('ninja.app_name'))) {
-                    array_shift($data); // Invoice Ninja...
-                    array_shift($data); // <blank line>
-                    array_shift($data); // Enitty Type Header
+                    $data = array_slice($data, 3, null, true);
                 }
             }
         }
@@ -178,21 +190,23 @@ class BaseImport
     private function groupTasks($csvData, $key)
     {
 
-        if (! $key || !is_array($csvData) || count($csvData) == 0 || !isset($csvData[0]['task.number']) || empty($csvData[0]['task.number'])) {
+        $first_item = is_array($csvData) ? reset($csvData) : false;
+
+        if (! $key || !is_array($csvData) || count($csvData) == 0 || !is_array($first_item) || empty($first_item['task.number'])) {
             return $csvData;
         }
 
         // Group by tasks.
         $grouped = [];
 
-        foreach ($csvData as $item) {
+        foreach ($csvData as $source_row => $item) {
             if (empty($item[$key])) {
                 $this->error_array['task'][] = [
                     'task' => $item,
                     'error' => 'No task number',
                 ];
             } else {
-                $grouped[$item[$key]][] = $item;
+                $grouped[$item[$key]][$source_row] = $item;
             }
         }
 
@@ -203,12 +217,14 @@ class BaseImport
 
     public function groupClients($csvData, $key)
     {
-        if (!($key && isset($csvData[0][$key]))) {
+        $first_item = is_array($csvData) ? reset($csvData) : false;
+
+        if (!($key && is_array($first_item) && isset($first_item[$key]))) {
             // Transform the flat array to match the expected grouped structure
             // Each row becomes its own group to maintain consistency
             $grouped = [];
             foreach ($csvData as $index => $item) {
-                $grouped[$index] = [$item];
+                $grouped[$index] = [$index => $item];
             }
             return $grouped;
         }
@@ -218,14 +234,14 @@ class BaseImport
         // Group by client name / id.
         $grouped = [];
 
-        foreach ($csvData as $contact_item) {
+        foreach ($csvData as $source_row => $contact_item) {
             if (empty($contact_item[$key])) {
                 $this->error_array['client'][] = [
                     'client' => $contact_item,
                     'error' => 'No client identifier',
                 ];
             } else {
-                $grouped[$contact_item[$key]][] = $contact_item;
+                $grouped[$contact_item[$key]][$source_row] = $contact_item;
             }
         }
 
@@ -239,30 +255,200 @@ class BaseImport
             return $csvData;
         }
 
-        if (is_array($csvData) && !isset($csvData[0][$key])) {
+        $first_item = is_array($csvData) ? reset($csvData) : false;
+
+        if (is_array($csvData) && (!is_array($first_item) || !isset($first_item[$key]))) {
             return $csvData;
         }
 
         // Group by invoice.
         $grouped = [];
 
-        foreach ($csvData as $line_item) {
-            if (empty($line_item[$key])) {
-                $this->error_array['invoice'][] = [
-                    'invoice' => $line_item,
-                    'error' => 'No invoice number',
-                ];
-            } else {
-                $grouped[$line_item[$key]][] = $line_item;
-            }
+        foreach ($csvData as $source_row => $line_item) {
+            // if (empty($line_item[$key])) {
+            //     $this->error_array['invoice'][] = [
+            //         'invoice' => $line_item,
+            //         'error' => 'No invoice number',
+            //     ];
+            // } else {
+            $grouped[$line_item[$key]][$source_row] = $line_item;
+            // }
         }
 
         return $grouped;
     }
 
-    public function getErrors()
+    public function getErrors(): array
     {
-        return $this->error_array;
+        $errors = $this->error_array;
+
+        foreach ($this->system_errors as $entity_type => $system_error) {
+            $entity_label = str_replace('_', ' ', $entity_type);
+            $record_label = $system_error['count'] === 1 ? 'record' : 'records';
+
+            $errors[$entity_type][] = [
+                $entity_type => [
+                    'failed_records' => $system_error['count'],
+                    'sample_rows' => $system_error['rows'],
+                    'reference' => $this->system_error_reference,
+                ],
+                'code' => 'system_error',
+                'reference' => $this->system_error_reference,
+                'error' => sprintf(
+                    '%d %s %s could not be imported because of a system error. Contact support with reference %s.',
+                    $system_error['count'],
+                    $entity_label,
+                    $record_label,
+                    $this->system_error_reference
+                ),
+            ];
+        }
+
+        return $errors;
+    }
+
+    protected function handleImportFailure(
+        Throwable $exception,
+        string $entity_type,
+        mixed $record,
+        int|string|null $source_row = null
+    ): void {
+        $this->rollBackActiveTransaction();
+
+        if ($exception instanceof ImportException) {
+            $this->error_array[$entity_type][] = [
+                $entity_type => $record,
+                'error' => $exception->getMessage(),
+            ];
+
+            return;
+        }
+
+        $this->system_error_reference ??= 'IMP-' . Str::upper(Str::random(10));
+        $this->first_system_exception ??= $exception;
+        $this->system_errors[$entity_type] ??= [
+            'count' => 0,
+            'rows' => [],
+            'exception_types' => [],
+        ];
+
+        $this->system_errors[$entity_type]['count']++;
+
+        $exception_type = $exception::class;
+        $this->system_errors[$entity_type]['exception_types'][$exception_type]
+            = ($this->system_errors[$entity_type]['exception_types'][$exception_type] ?? 0) + 1;
+
+        foreach ($this->getSourceRows($record, $source_row) as $row_number) {
+            if (count($this->system_errors[$entity_type]['rows']) >= self::SYSTEM_ERROR_ROW_SAMPLE_LIMIT) {
+                break;
+            }
+
+            if (!in_array($row_number, $this->system_errors[$entity_type]['rows'], true)) {
+                $this->system_errors[$entity_type]['rows'][] = $row_number;
+            }
+        }
+
+        $this->store_import_for_research = true;
+    }
+
+    protected function reportSystemImportErrors(): void
+    {
+        if ($this->system_errors_reported || !$this->first_system_exception) {
+            return;
+        }
+
+        $this->system_errors_reported = true;
+
+        $context = [
+            'reference' => $this->system_error_reference,
+            'hash' => $this->hash,
+            'import_type' => $this->import_type,
+            'company_id' => $this->company->id,
+            'company_db' => $this->company->db,
+            'failures' => array_sum(array_column($this->system_errors, 'count')),
+            'entities' => $this->system_errors,
+            'column_map' => $this->sanitizedColumnMap(),
+        ];
+
+        nlog(sprintf(
+            'Import system error [%s] failures=%d entities=%s',
+            $this->system_error_reference,
+            $context['failures'],
+            implode(',', array_keys($this->system_errors))
+        ));
+
+        try {
+            $this->captureSystemImportException($this->first_system_exception, $context);
+        } catch (Throwable $reporting_exception) {
+            nlog(sprintf(
+                'Unable to report import system error [%s]: %s',
+                $this->system_error_reference,
+                $reporting_exception::class
+            ));
+        }
+    }
+
+    protected function captureSystemImportException(Throwable $exception, array $context): void
+    {
+        if (!app()->bound('sentry')) {
+            report($exception);
+
+            return;
+        }
+
+        \Sentry\withScope(function (Scope $scope) use ($exception, $context): void {
+            $scope->setTag('feature', 'csv_import');
+            $scope->setTag('import_type', (string) $this->import_type);
+            $scope->setTag('import_reference', (string) $this->system_error_reference);
+            $scope->setTag('exception_type', class_basename($exception));
+            $scope->setContext('import', $context);
+
+            \Sentry\captureException($exception);
+        });
+    }
+
+    private function rollBackActiveTransaction(): void
+    {
+        $connection = \DB::connection(config('database.default'));
+
+        if ($connection->transactionLevel() > 0) {
+            $connection->rollBack();
+        }
+    }
+
+    /** @return array<int> */
+    private function getSourceRows(mixed $record, int|string|null $source_row): array
+    {
+        if ($this->import_type !== 'csv') {
+            return [];
+        }
+
+        if (is_array($record) && is_array(reset($record))) {
+            $rows = array_filter(array_keys($record), 'is_int');
+
+            return array_values(array_map(static fn(int $row): int => $row + 1, $rows));
+        }
+
+        return is_int($source_row) ? [$source_row + 1] : [];
+    }
+
+    /** @return array<string, array<int, string>> */
+    private function sanitizedColumnMap(): array
+    {
+        $column_map = [];
+
+        foreach ($this->column_map ?? [] as $entity_type => $mapping) {
+            if (!is_array($mapping)) {
+                continue;
+            }
+
+            $column_map[$entity_type] = array_values(array_filter(
+                $mapping,
+                static fn($destination): bool => is_string($destination) && $destination !== ''
+            ));
+        }
+
+        return $column_map;
     }
 
 
@@ -298,6 +484,12 @@ class BaseImport
 
         foreach ($data as $key => $record) {
 
+            $record_for_context = $record;
+
+            if (is_array($record) && is_array(reset($record))) {
+                $record = array_values($record);
+            }
+
             unset($record['']);
 
             if (!is_array($record)) {
@@ -329,38 +521,8 @@ class BaseImport
                     $entity->saveQuietly();
                     $count++;
                 }
-            } catch (\Exception $ex) {
-                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
-                    \DB::connection(config('database.default'))->rollBack();
-                }
-
-                if ($ex instanceof ImportException) {
-                    $message = $ex->getMessage();
-                } else {
-                    report($ex);
-                    $message = 'Unknown error';
-                }
-
-                $this->error_array[$entity_type][] = [
-                    $entity_type => $record,
-                    'error' => $message,
-                ];
-
-                nlog("Ingest {$ex->getMessage()}");
-                nlog($record);
-
-                $this->store_import_for_research = true;
-
-            } catch (\Throwable $ex) {
-                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
-                    \DB::connection(config('database.default'))->rollBack();
-                }
-
-                nlog("Throwable:: Ingest {$ex->getMessage()}");
-                nlog($record);
-
-                $this->store_import_for_research = true;
-
+            } catch (Throwable $ex) {
+                $this->handleImportFailure($ex, $entity_type, $record_for_context, $key);
             }
         }
 
@@ -401,22 +563,8 @@ class BaseImport
                     $entity->saveQuietly();
                     $count++;
                 }
-            } catch (\Exception $ex) {
-                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
-                    \DB::connection(config('database.default'))->rollBack();
-                }
-
-                if ($ex instanceof ImportException) {
-                    $message = $ex->getMessage();
-                } else {
-                    report($ex);
-                    $message = 'Unknown error';
-                }
-
-                $this->error_array[$entity_type][] = [
-                    $entity_type => $record,
-                    'error' => $message,
-                ];
+            } catch (Throwable $ex) {
+                $this->handleImportFailure($ex, $entity_type, $record, $key);
             }
         }
 
@@ -438,11 +586,14 @@ class BaseImport
 
         $invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
-        foreach ($invoices as $raw_invoice) {
+        foreach ($invoices as $record_key => $raw_invoice) {
 
             if (!is_array($raw_invoice)) {
                 continue;
             }
+
+            $record_for_context = $raw_invoice;
+            $raw_invoice = is_array(reset($raw_invoice)) ? array_values($raw_invoice) : $raw_invoice;
 
             try {
                 $invoice_data = $invoice_transformer->transform($raw_invoice);
@@ -496,24 +647,8 @@ class BaseImport
 
 
                 }
-            } catch (\Exception $ex) {
-                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
-                    \DB::connection(config('database.default'))->rollBack();
-                }
-
-                if ($ex instanceof ImportException) {
-                    $message = $ex->getMessage();
-                } else {
-                    report($ex);
-                    $message = 'Unknown error ';
-                    nlog($ex->getMessage());
-                    nlog($invoice_data);
-                }
-
-                $this->error_array['recurring_invoice'][] = [
-                    'recurring_invoice' => $raw_invoice,
-                    'error' => $message,
-                ];
+            } catch (Throwable $ex) {
+                $this->handleImportFailure($ex, 'recurring_invoice', $record_for_context, $record_key);
             }
         }
 
@@ -530,12 +665,15 @@ class BaseImport
 
         $tasks = $this->groupTasks($tasks, $task_number_key);
 
-        foreach ($tasks as $raw_task) {
+        foreach ($tasks as $record_key => $raw_task) {
             $task_data = [];
 
             if (!is_array($raw_task)) {
                 continue;
             }
+
+            $record_for_context = $raw_task;
+            $raw_task = is_array(reset($raw_task)) ? array_values($raw_task) : $raw_task;
 
             try {
                 $task_data = $task_transformer->transform($raw_task);
@@ -559,24 +697,8 @@ class BaseImport
                     $count++;
 
                 }
-            } catch (\Exception $ex) {
-                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
-                    \DB::connection(config('database.default'))->rollBack();
-                }
-
-                if ($ex instanceof ImportException) {
-                    $message = $ex->getMessage();
-                } else {
-                    report($ex);
-                    $message = 'Unknown error ';
-                    nlog($ex->getMessage());
-                    nlog($task_data);
-                }
-
-                $this->error_array['task'][] = [
-                    'task' => $task_data,
-                    'error' => $message,
-                ];
+            } catch (Throwable $ex) {
+                $this->handleImportFailure($ex, 'task', $record_for_context, $record_key);
             }
         }
 
@@ -604,11 +726,14 @@ class BaseImport
 
         $invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
-        foreach ($invoices as $raw_invoice) {
+        foreach ($invoices as $record_key => $raw_invoice) {
 
             if (!is_array($raw_invoice)) {
                 continue;
             }
+
+            $record_for_context = $raw_invoice;
+            $raw_invoice = is_array(reset($raw_invoice)) ? array_values($raw_invoice) : $raw_invoice;
 
             try {
                 $invoice_data = $invoice_transformer->transform($raw_invoice);
@@ -708,14 +833,6 @@ class BaseImport
                                         )
                                     );
 
-                                    $payment_date = Carbon::parse($payment->date);
-
-                                    if (!$payment_date->isToday()) {
-
-                                        $payment->paymentables()->update(['created_at' => $payment_date]);
-
-                                    }
-
                                 }
                             }
                         }
@@ -727,24 +844,8 @@ class BaseImport
                         $invoice_repository
                     );
                 }
-            } catch (\Exception $ex) {
-                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
-                    \DB::connection(config('database.default'))->rollBack();
-                }
-
-                if ($ex instanceof ImportException) {
-                    $message = $ex->getMessage();
-                } else {
-                    report($ex);
-                    $message = 'Unknown error ';
-                    nlog($ex->getMessage());
-                    nlog($raw_invoice);
-                }
-
-                $this->error_array['invoice'][] = [
-                    'invoice' => $raw_invoice,
-                    'error' => $message,
-                ];
+            } catch (Throwable $ex) {
+                $this->handleImportFailure($ex, 'invoice', $record_for_context, $record_key);
             }
         }
 
@@ -835,11 +936,14 @@ class BaseImport
 
         $quotes = $this->groupInvoices($quotes, $quote_number_key);
 
-        foreach ($quotes as $raw_quote) {
+        foreach ($quotes as $record_key => $raw_quote) {
 
             if (!is_array($raw_quote)) {
                 continue;
             }
+
+            $record_for_context = $raw_quote;
+            $raw_quote = is_array(reset($raw_quote)) ? array_values($raw_quote) : $raw_quote;
 
             try {
                 $quote_data = $quote_transformer->transform($raw_quote);
@@ -900,18 +1004,8 @@ class BaseImport
                         $quote_repository
                     );
                 }
-            } catch (\Exception $ex) {
-                if ($ex instanceof ImportException) {
-                    $message = $ex->getMessage();
-                } else {
-                    report($ex);
-                    $message = 'Unknown error';
-                }
-
-                $this->error_array['quote'][] = [
-                    'invoice' => $raw_quote,
-                    'error' => $message,
-                ];
+            } catch (Throwable $ex) {
+                $this->handleImportFailure($ex, 'quote', $record_for_context, $record_key);
             }
         }
 
@@ -945,11 +1039,14 @@ class BaseImport
 
         $purchase_orders = $this->groupInvoices($purchase_orders, $purchase_order_number_key);
 
-        foreach ($purchase_orders as $raw_purchase_order) {
+        foreach ($purchase_orders as $record_key => $raw_purchase_order) {
 
             if (!is_array($raw_purchase_order)) {
                 continue;
             }
+
+            $record_for_context = $raw_purchase_order;
+            $raw_purchase_order = is_array(reset($raw_purchase_order)) ? array_values($raw_purchase_order) : $raw_purchase_order;
 
             try {
                 $purchase_order_data = $purchase_order_transformer->transform($raw_purchase_order);
@@ -985,18 +1082,8 @@ class BaseImport
                         $purchase_order_repository
                     );
                 }
-            } catch (\Exception $ex) {
-                if ($ex instanceof ImportException) {
-                    $message = $ex->getMessage();
-                } else {
-                    report($ex);
-                    $message = 'Unknown error';
-                }
-
-                $this->error_array['purchase_order'][] = [
-                    'purchase_order' => $raw_purchase_order,
-                    'error' => $message,
-                ];
+            } catch (Throwable $ex) {
+                $this->handleImportFailure($ex, 'purchase_order', $record_for_context, $record_key);
             }
         }
 
@@ -1039,10 +1126,12 @@ class BaseImport
         }
     }
 
-    public function finalizeImport()
+    public function finalizeImport(): void
     {
+        $this->reportSystemImportErrors();
+
         $data = [
-            'errors'  => $this->error_array,
+            'errors'  => $this->getErrors(),
             'company' => $this->company,
             'entity_count' => $this->entity_count,
         ];
@@ -1100,43 +1189,95 @@ class BaseImport
         }, $data);
     }
 
-    public function preTransformCsv(array $data, $entity_type)
+    public function preTransformCsv(array $data, string $entity_type): array|false
     {
         if (empty($this->column_map[$entity_type])) {
             return false;
         }
 
-        if ($this->skip_header) {
-            array_shift($data);
+        $first_row = reset($data);
+
+        if (!is_array($first_row)) {
+            return [];
         }
 
-        //sort the array by key
-        $keys = $this->column_map[$entity_type];
-        ksort($keys);
+        $expected_column_count = count($first_row);
 
-        $data = array_map(function ($row) use ($keys) {
+        if ($this->skip_header) {
+            unset($data[array_key_first($data)]);
+        }
 
-            /** 12-04-2024 If we do not have matching keys - then this row import is _not_ valid */
-            $row_keys = array_keys($row);
-            $key_keys = array_keys($keys);
+        $column_map = $this->column_map[$entity_type];
+        ksort($column_map);
 
-            $diff = array_diff($key_keys, $row_keys);
-
-            if (count($key_keys) > count($row_keys)) {
-                // Truncate key_keys to match the length of row_keys
-                $key_keys = array_slice($key_keys, 0, count($row_keys));
-                // Rebuild the $keys array with only the kept columns
-                $keys = array_intersect_key($keys, array_flip($key_keys));
-            } elseif (!empty($diff)) {
-                return false;
+        foreach ($column_map as $source_column => $destination) {
+            if ($destination === '') {
+                continue;
             }
 
-            /** 12-04-2024 If we do not have matching keys - then this row import is _not_ valid */
+            if (!is_int($source_column) || $source_column < 0 || $source_column >= $expected_column_count) {
+                $this->error_array[$entity_type][] = [
+                    $entity_type => ['source_column' => $source_column],
+                    'code' => 'invalid_column_mapping',
+                    'error' => sprintf(
+                        'The selected source column %s is outside the CSV width of %d columns.',
+                        (string) $source_column,
+                        $expected_column_count
+                    ),
+                ];
 
-            return array_combine($keys, array_intersect_key($row, $keys));
-        }, $data);
+                return [];
+            }
+        }
 
-        return $data;
+        $transformed = [];
+
+        foreach ($data as $source_row => $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $row = array_values($row);
+            $actual_column_count = count($row);
+            $row_number = is_int($source_row) ? $source_row + 1 : null;
+
+            if ($actual_column_count > $expected_column_count) {
+                $this->error_array[$entity_type][] = [
+                    $entity_type => [
+                        'row' => $row_number,
+                        'expected_columns' => $expected_column_count,
+                        'actual_columns' => $actual_column_count,
+                    ],
+                    'code' => 'invalid_column_count',
+                    'error' => sprintf(
+                        'CSV row %s has %d columns; expected %d. Check for an unescaped delimiter.',
+                        $row_number ?? 'unknown',
+                        $actual_column_count,
+                        $expected_column_count
+                    ),
+                ];
+
+                continue;
+            }
+
+            if ($actual_column_count < $expected_column_count) {
+                $row = array_pad($row, $expected_column_count, '');
+            }
+
+            $mapped_record = [];
+
+            foreach ($column_map as $source_column => $destination) {
+                if ($destination === '') {
+                    continue;
+                }
+
+                $mapped_record[$destination] = $row[$source_column];
+            }
+
+            $transformed[$source_row] = $mapped_record;
+        }
+
+        return $transformed;
     }
 
     private function convertData(array $data): array

@@ -3200,7 +3200,7 @@ class QuickbooksUSATest extends TestCase
         $contact->client_id = $client->id;
         $contact->first_name = 'Test';
         $contact->last_name = 'User';
-        $contact->email = 'test-' . $qb_id . '@example.com';
+        $contact->email = 'test-' . $qb_id . '@gmail.com';
         $contact->is_primary = true;
         $contact->send_email = true;
         $contact->saveQuietly();

@@ -90,7 +90,7 @@ class SendEDocument implements ShouldQueue
 
         $model = $model->service()->markSent()->save();
 
-        // ── Step 1: Build Peppol UBL document (once) ──
+        // ── Step 1: Classify + build PEPPOL UBL (380/381) ──
         $peppol = new Peppol($model);
         $peppol->run();
 
@@ -115,9 +115,9 @@ class SendEDocument implements ShouldQueue
             return;
         }
 
-        // ── Step 3: Serialize to Storecove + decorate ──
+        // ── Step 2: Serialize validated UBL to Storecove wire model ──
         $storecove->adapter
-            ->transformFromPeppol($model, $peppol->getDocument(), $peppol->isCreditNote())
+            ->transformFromPeppol($model, $peppol->getDocument(), $peppol->getDocumentKind(), $peppol->toXml())
             ->decorate();
 
         $result = $storecove->adapter->getDocument();

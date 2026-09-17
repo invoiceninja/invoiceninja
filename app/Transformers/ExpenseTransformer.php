@@ -163,6 +163,7 @@ class ExpenseTransformer extends EntityTransformer
             'calculate_tax_by_amount' => (bool) $expense->calculate_tax_by_amount,
             'entity_type' => 'expense',
             'e_invoice' => $expense->e_invoice ?: new \stdClass(),
+            'tags' => $this->transformTags($expense),
 
         ];
     }

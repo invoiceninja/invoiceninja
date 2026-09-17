@@ -112,6 +112,8 @@ class Yodlee
         $this->accessToken = $response->token->accessToken;
         $this->accessTokenIsAdmin = $is_admin;
 
+        sleep(1);
+        
         return $this->accessToken;
     }
 
@@ -218,7 +220,7 @@ class Yodlee
 
         $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->delete($this->getEndpoint() . "/accounts/{$account_id}", []);
 
-        if ($response->successful()) {
+        if ($response->successful() || $response->status() === 404) {
             return true;
         }
 

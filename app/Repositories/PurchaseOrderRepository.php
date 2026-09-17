@@ -26,6 +26,8 @@ class PurchaseOrderRepository extends BaseRepository
 
     public function save(array $data, PurchaseOrder $purchase_order): ?PurchaseOrder
     {
+        $tag_ids = $this->resolveTagIdsForSync($data, $purchase_order);
+
         $purchase_order->fill($data);
 
         $purchase_order->save();
@@ -94,6 +96,8 @@ class PurchaseOrderRepository extends BaseRepository
 
         /* Recalculate invoice amounts */
         $purchase_order = $purchase_order->calc()->getPurchaseOrder();
+
+        $this->syncResolvedTags($purchase_order, $tag_ids);
 
         return $purchase_order;
     }

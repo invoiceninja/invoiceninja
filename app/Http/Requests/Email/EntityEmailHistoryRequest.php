@@ -53,8 +53,8 @@ class EntityEmailHistoryRequest extends Request
     {
         $input = $this->all();
 
-        $this->entity_plural = Str::plural($input['entity']) ?? '';
-        $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
+        $this->entity_plural = Str::plural($input['entity'] ?? '');
+        $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'] ?? '');
 
         $this->replace($input);
     }

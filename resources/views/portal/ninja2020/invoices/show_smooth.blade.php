@@ -4,7 +4,7 @@
 @section('body')
     @if(Route::is('client.invoice.show'))
         <dialog class="w-full bg-white rounded-lg px-4 pt-5 pb-4 shadow-xl transform transition-all sm:p-6" id="dialogPdf">
-            @livewire('pdf-slot', ['class' => get_class($invoice), 'entity_id' => $invoice->id, 'invitation_id' => $invitation->id ?? false, 'db' => $invoice->company->db, 'with_close_button' => 'dialog#dialogPdf'])
+            @livewire('pdf-slot', ['entity_type' => 'invoice', 'entity_key' => $invoice->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $invoice->company->db, 'with_close_button' => 'dialog#dialogPdf'])
 
         </dialog>
 

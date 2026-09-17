@@ -41,7 +41,6 @@ class UpdateSubscriptionRequest extends Request
         $rules = [
             'name' => ['bail','sometimes', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)->ignore($this->subscription->id)],
             'group_id' => ['bail','sometimes', 'nullable', Rule::exists('group_settings', 'id')->where('company_id', auth()->user()->company()->id)],
-            'assigned_user_id' => ['bail','sometimes', 'nullable', Rule::exists('users', 'id')->where('account_id', auth()->user()->account_id)],
             'product_ids' => 'bail|sometimes|nullable|string',
             'recurring_product_ids' => 'bail|sometimes|nullable|string',
             'is_recurring' => 'bail|sometimes|bool',
@@ -80,6 +79,10 @@ class UpdateSubscriptionRequest extends Request
      */
     public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
             $this->validateWebhookUrl($validator, 'webhook_configuration.post_purchase_url');
         });

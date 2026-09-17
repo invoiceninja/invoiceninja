@@ -92,7 +92,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('put test token');
 
         $data = [
             'name' => 'newname',
@@ -114,7 +114,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('get test token');
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -129,7 +129,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('not archived test token');
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -237,7 +237,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('put collision test token');
 
         // Real clients PUT the full token resource. The body contains a
         // `token` field (the raw token string) which collides with the
@@ -262,7 +262,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('get query test token');
 
         // Query-string `?token=...` is merged into $this->all() and would
         // shadow the bound route param the same way a body field does.
@@ -279,7 +279,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('edit query test token');
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -357,5 +357,19 @@ class CompanyTokenApiTest extends TestCase
         $ids = array_column($response->json('data'), 'id');
         $this->assertContains($userToken->hashed_id, $ids);
         $this->assertNotContains($systemToken->hashed_id, $ids);
+    }
+
+    private function createCustomToken(string $name): CompanyToken
+    {
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = $name;
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        return $company_token;
     }
 }

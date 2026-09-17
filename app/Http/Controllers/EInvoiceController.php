@@ -50,6 +50,7 @@ class EInvoiceController extends BaseController
             $data = [
                 'passes' => true,
                 'invoices' => [],
+                'credits' => [],
                 'recurring_invoices' => [],
                 'clients' => [],
                 'companies' => [],
@@ -67,6 +68,7 @@ class EInvoiceController extends BaseController
             'recurring_invoices' => $data = $el->checkRecurringInvoice($request->getEntity()),
             'clients' => $data = $el->checkClient($request->getEntity()),
             'companies' => $data = $el->checkCompany($request->getEntity()),
+            'credits' => $data = $el->checkCredit($request->getEntity()),
             default => $data['passes'] = false,
         };
 

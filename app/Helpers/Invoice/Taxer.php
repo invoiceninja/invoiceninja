@@ -40,6 +40,8 @@ trait Taxer
 
     public function calcInclusiveLineTax($tax_rate, $amount)
     {
-        return $this->formatValue($amount - ($amount / (1 + ($tax_rate / 100))), 2);
+        // Single-rate back-out routed through the single source of truth.
+        // For one rate this is identical to amount - amount/(1 + rate/100).
+        return InclusiveTax::backout((float) $amount, [(float) $tax_rate], 2)['tax'];
     }
 }

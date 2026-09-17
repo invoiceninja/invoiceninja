@@ -39,8 +39,8 @@ class UserPolicy extends EntityPolicy
     */
     public function edit(User $user, $user_entity): bool
     {
-        $company_user = CompanyUser::whereUserId($user->id)->AuthCompany()->first();
+        $company_user = CompanyUser::whereUserId($user_entity->id)->AuthCompany()->exists();
 
-        return $user->isAdmin() && $company_user;
+        return $user->isAdmin() && $company_user && ($user->account_id === $user_entity->account_id);
     }
 }

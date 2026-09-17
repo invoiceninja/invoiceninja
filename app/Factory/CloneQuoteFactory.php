@@ -29,6 +29,9 @@ class CloneQuoteFactory
         $clone_quote->amount = $quote->amount;
         $clone_quote->line_items = $quote->line_items;
 
+        $clone_quote->sync = null;
+        $clone_quote->backup = null; // @phpstan-ignore-line
+        
         return $clone_quote;
     }
 }

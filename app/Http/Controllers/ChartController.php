@@ -15,7 +15,10 @@ namespace App\Http\Controllers;
 use App\Services\Chart\ChartService;
 use App\Http\Requests\Chart\ShowChartRequest;
 use App\Http\Requests\Chart\ShowForecastRequest;
+use App\Http\Requests\Chart\ShowProjectAnalyticsRequest;
+use App\Http\Requests\Chart\ShowProjectBurnUpRequest;
 use App\Http\Requests\Chart\ShowCalculatedFieldRequest;
+use App\Models\Project;
 use Illuminate\Support\Facades\Cache;
 
 class ChartController extends BaseController
@@ -36,7 +39,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->totals(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     public function chart_summary(ShowChartRequest $request)
@@ -48,7 +55,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->chart_summary(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     /**
@@ -62,7 +73,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $request->input('include_drafts', false));
 
-        return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->totals(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     public function chart_summaryV2(ShowChartRequest $request)
@@ -74,7 +89,11 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
+        return response()->json($cs->chart_summary(
+            $request->input('start_date'),
+            $request->input('end_date'),
+            $request->input('date_range') === 'all_time',
+        ), 200);
     }
 
     public function analytics_summary(ShowChartRequest $request)
@@ -85,11 +104,12 @@ class ChartController extends BaseController
 
         $start = $request->input('start_date');
         $end = $request->input('end_date');
-        $cacheKey = "analytics_summary:{$user->company()->id}:{$user->id}:{$start}:{$end}";
+        $all_time = $request->input('date_range') === 'all_time';
+        $cacheKey = "analytics_summary:{$user->company()->id}:{$user->id}:{$start}:{$end}:" . (int) $all_time;
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $all_time) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->analytics_summary($start, $end);
+            return $cs->analytics_summary($start, $end, $all_time);
         });
 
         return response()->json($data, 200);
@@ -103,11 +123,12 @@ class ChartController extends BaseController
 
         $start = $request->input('start_date');
         $end = $request->input('end_date');
-        $cacheKey = "analytics_totals:{$user->company()->id}:{$user->id}:{$start}:{$end}";
+        $all_time = $request->input('date_range') === 'all_time';
+        $cacheKey = "analytics_totals:{$user->company()->id}:{$user->id}:{$start}:{$end}:" . (int) $all_time;
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $all_time) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->analytics_totals($start, $end);
+            return $cs->analytics_totals($start, $end, $all_time);
         });
 
         return response()->json($data, 200);
@@ -122,11 +143,12 @@ class ChartController extends BaseController
         $start = $request->input('start_date');
         $end = $request->input('end_date');
         $bucket = $request->input('bucket_type', 'monthly');
-        $cacheKey = "cashflow_forecast:{$user->company()->id}:{$user->id}:{$start}:{$end}:{$bucket}";
+        $all_time = $request->input('date_range') === 'all_time';
+        $cacheKey = "cashflow_forecast:{$user->company()->id}:{$user->id}:{$start}:{$end}:{$bucket}:" . (int) $all_time;
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $bucket) {
+        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions, $start, $end, $bucket, $all_time) {
             $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->cashflow_forecast($start, $end, $bucket);
+            return $cs->cashflow_forecast($start, $end, $bucket, $all_time);
         });
 
         return response()->json($data, 200);
@@ -148,20 +170,31 @@ class ChartController extends BaseController
         return response()->json($data, 200);
     }
 
-    public function project_analytics(ShowChartRequest $request)
+    public function project_analytics(ShowProjectAnalyticsRequest $request, Project $project)
     {
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
         $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+        $includeDrafts = $request->input('include_drafts', false);
 
-        $cacheKey = "project_analytics:{$user->company()->id}:{$user->id}";
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $includeDrafts);
 
-        $data = Cache::remember($cacheKey, (int)0, function () use ($user, $admin_equivalent_permissions) {
-            $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
-            return $cs->project_analytics();
-        });
+        return response()->json($cs->project_analytics($project), 200);
+    }
 
-        return response()->json($data, 200);
+    public function projectBurnup(ShowProjectBurnUpRequest $request, Project $project)
+    {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+        $bucket = $request->input('bucket_type', 'daily');
+        $include_drafts = $request->input('include_drafts', false);
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $include_drafts);
+
+        return response()->json($cs->projectBurnup($project, $start, $end, $bucket), 200);
     }
 
     public function calculatedFields(ShowCalculatedFieldRequest $request)

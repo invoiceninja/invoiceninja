@@ -77,6 +77,10 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
      */
     public function authorizeResponse($request)
     {
+        $request->merge([
+            'home_phone' => $this->normalizePhoneNumber($request->input('home_phone')),
+            'phone' => $this->normalizePhoneNumber($request->input('phone')),
+        ]);
 
         $request->validate([
             'gateway_type_id' => ['required','integer'],
@@ -91,7 +95,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
             'account_number' => ['required'],
             'bank_name' => ['required'],
             'phone' => ['required'],
-            'home_phone' => ['required','size:10'],
+            'home_phone' => ['required','digits:10'],
             'bank_account_type' => ['required_if:country,US'],
             'routing_number' => ['required_if:country,US'],
             'institution_number' => ['required_if:country,CA','numeric','digits:3'],
@@ -106,11 +110,10 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
         try {
             $this->rotessa->findOrCreateCustomer($customer);
         } catch (\Exception $e) {
-
-            $message = json_decode($e->getMessage(), true);
-
-            return redirect()->route('client.payment_methods.index')->withErrors(array_values($message['errors'] ?? [$e->getMessage()]));
-
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors($this->parseApiErrors($e->getMessage()));
         }
 
         if ($request->authorize_then_redirect) {
@@ -130,6 +133,54 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
         }
 
         return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
+    }
+
+    /**
+     * Normalize a North American phone number into bare digits.
+     *
+     * Accepts common formats such as "(867) 202-1634", "867-202-1634",
+     * "+1 (867) 202-1634" or "867.202.1634" and strips them down to the
+     * 10 digit national number Rotessa expects.
+     *
+     * @param string|null $phone
+     * @return string
+     */
+    private function normalizePhoneNumber(?string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $phone);
+
+        if (strlen($digits) === 11 && str_starts_with($digits, '1')) {
+            $digits = substr($digits, 1);
+        }
+
+        return $digits;
+    }
+
+    /**
+     * Translate a Rotessa API error response into a flat list of messages.
+     *
+     * Rotessa returns errors as {"errors":[{"error_code":"...","error_message":"..."}]}.
+     *
+     * @param string $message
+     * @return array<int, string>
+     */
+    private function parseApiErrors(string $message): array
+    {
+        $decoded = json_decode($message, true);
+
+        if (is_array($decoded) && isset($decoded['errors']) && is_array($decoded['errors'])) {
+            $errors = collect($decoded['errors'])
+                ->map(fn ($error) => is_array($error) ? ($error['error_message'] ?? json_encode($error)) : $error)
+                ->filter()
+                ->values()
+                ->all();
+
+            if (count($errors) > 0) {
+                return $errors;
+            }
+        }
+
+        return [$message];
     }
 
     /**

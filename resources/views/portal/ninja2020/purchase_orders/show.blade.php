@@ -46,7 +46,7 @@
     @endif
 
     <div id="pdf-slot-container" class="">
-        @livewire('pdf-slot', ['class' => get_class($purchase_order), 'entity_id' => $purchase_order->id, 'invitation_id' => $invitation->id ?? false, 'db' => $purchase_order->company->db])
+        @livewire('pdf-slot', ['entity_type' => 'purchase_order', 'entity_key' => $purchase_order->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $purchase_order->company->db])
     </div>
 
 @endsection
@@ -75,4 +75,3 @@
 
     </script>
 @endpush
-

@@ -22,6 +22,9 @@ class StoreTaskRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Task::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -56,6 +59,8 @@ class StoreTaskRequest extends Request
         }
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
+        $rules['due_date'] = 'bail|sometimes|nullable|date:Y-m-d';
+        $rules['estimated_duration'] = 'bail|sometimes|nullable|integer|min:0';
 
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 
@@ -107,7 +112,7 @@ class StoreTaskRequest extends Request
             }
 
             if (!$this->checkTimeLog($values)) {
-                return $fail('Please correct overlapping values');
+                return $fail($this->timeLogValidationError ?? 'Please correct overlapping values');
             }
         }];
 
@@ -179,7 +184,7 @@ class StoreTaskRequest extends Request
             } else {
                 unset($input['project_id']);
             }
-        } elseif (array_key_exists('email', $input) && isset($input['email']) && strlen($input['email']) > 3) { // if creating a task via the chrome extension, we can associate the task to the client email.
+        } elseif (array_key_exists('email', $input) && strlen($input['email'] ?? '') > 3) { // if creating a task via the chrome extension, we can associate the task to the client email.
             $contact = \App\Models\ClientContact::where('email', $input['email'])->company()->first();
             if ($contact) {
                 $input['client_id'] = $contact->client_id;

@@ -32,7 +32,7 @@ class Token
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $amount = $payment_hash->amount_with_fee();
 
         $invoice_numbers = '';
 
@@ -72,7 +72,7 @@ class Token
 
     private function processSuccessfulPayment($response, $cgt)
     {
-        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
+        $amount = $this->eway_driver->payment_hash->amount_with_fee();
 
         $data = [
             'gateway_type_id' => GatewayType::CREDIT_CARD,

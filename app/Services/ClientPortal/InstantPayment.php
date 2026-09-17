@@ -45,9 +45,17 @@ class InstantPayment
     {
         /** @var \App\Models\ClientContact $cc */
         $cc = auth()->guard('contact')->user();
-        $cc->first_name = $this->request->contact_first_name;
-        $cc->last_name = $this->request->contact_last_name;
-        $cc->email = $this->request->contact_email;
+        if (strlen($this->request->contact_first_name ?? '') > 0) {
+            $cc->first_name = $this->request->contact_first_name;
+        }
+
+        if (strlen($this->request->contact_last_name ?? '') > 0) {
+            $cc->last_name = $this->request->contact_last_name;
+        }
+
+        if (filter_var($this->request->contact_email, FILTER_VALIDATE_EMAIL)) {
+            $cc->email = $this->request->contact_email;
+        }
         $cc->client->postal_code = strlen($cc->client->postal_code ?? '') > 1 ? $cc->client->postal_code : $this->request->client_postal_code;
         $cc->client->city = strlen($cc->client->city ?? '') > 1 ? $cc->client->city : $this->request->client_city;
         $cc->client->shipping_postal_code = strlen($cc->client->shipping_postal_code ?? '') > 1 ? $cc->client->shipping_postal_code : $cc->client->postal_code;
@@ -71,19 +79,25 @@ class InstantPayment
          */
         $payable_invoices = collect($this->request->payable_invoices);
 
-        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
+        $invoices = Invoice::withTrashed()
+                            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
+                            ->where('is_deleted', 0)
+                            ->where('client_id', $cc->client_id)
+                            ->get()
+                            ->map(function (Invoice $invoice): ?Invoice {
+                                $invoice = $invoice->service()
+                                    ->markSent()
+                                    ->save();
 
-        $invoices->each(function ($invoice) {
-            $invoice->service()
-                    ->markSent()
-                    ->removeUnpaidGatewayFees()
-                    ->save();
-        });
+                                return $invoice?->isPayable() ? $invoice : null;
+                            })
+                            ->filter()
+                            ->values();
 
         /* pop non payable invoice from the $payable_invoices array */
 
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
-            return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first()->isPayable();
+            return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first();
         });
 
         /*return early if no invoices*/
@@ -94,13 +108,10 @@ class InstantPayment
                 ->with(['message' => 'No payable invoices selected.']);
         }
 
-        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
-
         $client = $invoices->first()->client;
         $settings = $client->getMergedSettings();
 
         /* This loop checks for under / over payments and returns the user if a check fails */
-
         foreach ($payable_invoices as $payable_invoice) {
             /*Match the payable invoice to the Model Invoice*/
 
@@ -182,6 +193,7 @@ class InstantPayment
             }
 
             $payable_invoice['additional_info'] = $additional_info;
+            $payable_invoice['recurring_invoice_id'] = $invoice->recurring_id;
 
             $payable_invoice_collection->push($payable_invoice);
         }
@@ -201,20 +213,19 @@ class InstantPayment
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
-        $starting_invoice_amount = $first_invoice->balance;
 
         $payment_hash_string = Str::random(32);
 
-        if ($gateway) {
-            $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
-        }
+        $fee_totals = 0;
+        $fee_net = 0;
 
-        /**
-         * Gateway fee is calculated
-         * by adding it as a line item, and then subtract
-         * the starting and finishing amounts of the invoice.
-         */
-        $fee_totals = round(($first_invoice->balance - $starting_invoice_amount), $client->currency()->precision);
+        if ($gateway) {
+            /** The invoice is not touched - the fee reaches it when the payment is confirmed. */
+            $fee = $first_invoice->service()->quoteGatewayFee($gateway, $payment_method_id, $invoice_totals);
+
+            $fee_totals = $fee['gross'];
+            $fee_net = $fee['net'];
+        }
 
         if ($gateway) {
             $tokens = $client->gateway_tokens()
@@ -236,6 +247,7 @@ class InstantPayment
             'frequency_id' => $this->request->frequency_id,
             'remaining_cycles' => $this->request->remaining_cycles,
             'is_recurring' => $this->request->is_recurring,
+            'fee_net' => $fee_net,
         ];
 
         if ($this->request->query('hash')) {
@@ -267,7 +279,7 @@ class InstantPayment
             'credit_totals' => $credit_totals,
             'invoice_totals' => $invoice_totals,
             'fee_total' => $fee_totals,
-            'amount_with_fee' => $amount_with_fee,
+            'amount_with_fee' => round($amount_with_fee, $client->currency()->precision),
         ];
 
         $data = [
@@ -276,7 +288,7 @@ class InstantPayment
             'invoices' => $payable_invoices,
             'tokens' => $tokens,
             'payment_method_id' => $payment_method_id,
-            'amount_with_fee' => $invoice_totals + $fee_totals,
+            'amount_with_fee' => round($invoice_totals + $fee_totals, $client->currency()->precision),
             'client' => $client,
             'pre_payment' => $this->request->pre_payment,
             'is_recurring' => $this->request->is_recurring,

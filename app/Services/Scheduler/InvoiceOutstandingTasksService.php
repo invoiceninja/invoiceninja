@@ -151,10 +151,11 @@ class InvoiceOutstandingTasksService
                 Task::query() //@phpstan-ignore-line
                     ->where('company_id', $this->scheduler->company_id)
                     ->where('is_deleted', 0)
+                    ->where('calculated_start_date', '!=', '0000-00-00')
                     ->selectRaw('MIN(tasks.calculated_start_date) as start_date')
                     ->pluck('start_date')
                     ->first()
-                    ?: Carbon::now()->format('Y-m-d'),
+                    ?: '2000-01-01',
                 Carbon::now()->format('Y-m-d'),
             ],
             EmailStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],

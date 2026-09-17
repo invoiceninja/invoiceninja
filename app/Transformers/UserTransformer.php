@@ -12,6 +12,8 @@
 
 namespace App\Transformers;
 
+use App\DataMapper\Referral\ReferralMeta;
+use App\DataMapper\UserSettings;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
@@ -41,17 +43,19 @@ class UserTransformer extends EntityTransformer
 
     public function transform(User $user)
     {
-        $ref = new \stdClass();
-        $ref->free = 0;
-        $ref->pro = 0;
-        $ref->enterprise = 0;
+        $referralMeta = $user->referral_meta instanceof ReferralMeta
+            ? $user->referral_meta
+            : new ReferralMeta($user->referral_meta);
+        $settings = $user->settings instanceof UserSettings
+            ? $user->settings
+            : new UserSettings($user->settings);
 
         return [
             'id' => $this->encodePrimaryKey($user->id),
             'first_name' => $user->first_name ?: '',
             'last_name' => $user->last_name ?: '',
             'email' => $user->email ?: '',
-            'last_login' => Carbon::parse($user->last_login)->timestamp,
+            'last_login' => $user->last_login ? Carbon::parse($user->last_login)->timestamp : 0,
             'created_at' => (int) $user->created_at,
             'updated_at' => (int) $user->updated_at,
             'archived_at' => (int) $user->deleted_at,
@@ -74,7 +78,8 @@ class UserTransformer extends EntityTransformer
             'language_id' => (string) $user->language_id ?: '',
             'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
             'referral_code' => (string) $user->referral_code,
-            'referral_meta' => $user->referral_meta ? (object) $user->referral_meta : $ref,
+            'referral_meta' => (object) $referralMeta->toArray(),
+            'settings' => $settings->toResponseObject(),
         ];
     }
 
@@ -119,7 +124,9 @@ class UserTransformer extends EntityTransformer
 
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        $cu = $user->company_users()->where('company_id', $user->company_id)->first();
+        $cu = $user->relationLoaded('company_users')
+            ? $user->company_users->firstWhere('company_id', $user->company_id)
+            : $user->company_users()->where('company_id', $user->company_id)->first();
 
         if (!$cu) {
             return null;

@@ -37,7 +37,11 @@ class UpdateBankTransactionRuleRequest extends Request
             'rules' => 'bail|array',
             'rules.*.operator' => 'bail|required|nullable',
             'rules.*.search_key' => 'bail|required|nullable',
-            'rules.*.value' => 'bail|required|nullable',
+            'rules.*.value' => [
+                'bail',
+                'required_unless:rules.*.operator,is_empty',
+                'nullable',
+            ],
             'auto_convert' => 'bail|sometimes|bool',
             'matches_on_all' => 'bail|sometimes|bool',
             'applies_to' => 'bail|sometimes|string',

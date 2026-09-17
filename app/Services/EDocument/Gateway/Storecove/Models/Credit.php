@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
 use DateTime;
@@ -92,6 +100,9 @@ class Credit
 
     // no mapping
     public ?string $preferred_invoice_type;
+
+    /** France AFNOR invoicing context. */
+    public ?string $fr_cadre_de_facturation = null;
 
     #[SerializedPath('[cac:LegalMonetaryTotal][cbc:PrepaidAmount]')]
     public ?string $prepaid_amount;
@@ -424,6 +435,11 @@ class Credit
         return $this->preferred_invoice_type;
     }
 
+    public function getFrCadreDeFacturation(): ?string
+    {
+        return $this->fr_cadre_de_facturation;
+    }
+
     public function getPrepaidAmount(): ?string
     {
         return $this->prepaid_amount;
@@ -740,6 +756,12 @@ class Credit
     public function setPreferredInvoiceType(?string $preferred_invoice_type): self
     {
         $this->preferred_invoice_type = $preferred_invoice_type;
+        return $this;
+    }
+
+    public function setFrCadreDeFacturation(?string $fr_cadre_de_facturation): self
+    {
+        $this->fr_cadre_de_facturation = $fr_cadre_de_facturation;
         return $this;
     }
 

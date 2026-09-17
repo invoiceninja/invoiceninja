@@ -101,6 +101,21 @@ abstract class QueryFilters
                 continue;
             }
 
+            $method = new \ReflectionMethod($this, $name);
+
+            if (! $method->isPublic()) {
+                continue;
+            }
+
+            if ($name === 'filter' && is_string($value) && strlen($value)) {
+                $value = $this->cleanFilterString($value);
+
+                if (strlen($value) == 0) {
+                    $this->emptyFilterResults();
+                    continue;
+                }
+            }
+
             // potential multi column sort
             if ($name === 'sort' && is_array($value)) {
                 foreach ($value as $sort) {
@@ -167,6 +182,31 @@ abstract class QueryFilters
         $table = $this->builder->getModel()->getTable();
 
         return $this->column_cache[$table] ??= Schema::getColumnListing($table);
+    }
+
+    /**
+     * Normalize user-provided filter text into a query-safe string.
+     */
+    protected function cleanFilterString(string $filter): string
+    {
+        if (! mb_check_encoding($filter, 'UTF-8')) {
+            $filter = mb_scrub($filter, 'UTF-8');
+        }
+
+        $filter = preg_replace('/[\x{0000}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}-\x{009F}\x{10000}-\x{10FFFF}]/u', ' ', $filter);
+
+        if ($filter === null) {
+            return '';
+        }
+
+        $filter = preg_replace('/\s+/u', ' ', trim($filter));
+
+        return $filter ?? '';
+    }
+
+    protected function emptyFilterResults(): Builder
+    {
+        return $this->builder->whereIn($this->builder->getModel()->getQualifiedKeyName(), []);
     }
 
     /**
@@ -658,6 +698,18 @@ abstract class QueryFilters
         return $this->builder->where('custom_value4', 'like', '%' . $value . '%');
     }
 
+    public function tag_ids(string $tag_ids = ''): Builder
+    {
+        if (strlen($tag_ids) == 0 || !method_exists($this->builder->getModel(), 'tags')) {
+            return $this->builder;
+        }
+
+        $ids = $this->transformKeys(explode(',', $tag_ids));
+
+        return $this->builder->whereHas('tags', function (Builder $query) use ($ids) {
+            $query->whereIn('tags.id', $ids);
+        });
+    }
     /**
      * Filter by due date range.
      *

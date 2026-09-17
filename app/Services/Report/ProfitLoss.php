@@ -19,14 +19,17 @@ use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Models\TransactionEvent;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
 use League\Csv\Writer;
-
-use function Sentry\continueTrace;
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
+use App\Services\Payment\PaymentApplicationDateResolver;
+use App\Services\Report\TaxPeriod\CashTaxEventProjector;
 
 class ProfitLoss
 {
@@ -264,74 +267,82 @@ class ProfitLoss
     private function paymentEloquentIncome()
     {
         $this->invoice_payment_map = [];
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $start_date = Carbon::parse($this->start_date)->toDateString();
+        $end_date = Carbon::parse($this->end_date)->toDateString();
+        [$query_start, $query_end] = app(PaymentApplicationDateResolver::class)
+            ->candidateBounds($start_date, $end_date, $timezone);
 
-        Payment::query()->where('company_id', $this->company->id)
-                        ->whereIn('status_id', [1, 4, 5])
-                        ->where('is_deleted', 0)
-                        ->whereBetween('date', [$this->start_date, $this->end_date])
-                        ->whereHas('client', function ($query) {
-                            $query->where('is_deleted', 0);
-                        })
-                        ->with(['company', 'client'])
-                        ->cursor()
-                        ->each(function ($payment) {
+        Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->whereNull('deleted_at')
+            ->where('created_at', '>=', $query_start)
+            ->where('created_at', '<', $query_end)
+            ->whereHas('payment', fn ($query) => $query
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false))
+            ->orderBy('id')
+            ->lazyById(500)
+            ->filter(function (Paymentable $paymentable) use ($start_date, $end_date, $timezone): bool {
+                $date = app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone);
 
-                            $map = new \stdClass();
-                            $amount_payment_paid = 0;
-                            $amount_credit_paid = 0;
-                            $amount_payment_paid_converted = 0;
-                            $amount_credit_paid_converted = 0;
-                            $tax_amount = 0;
-                            $tax_amount_converted = 0;
-                            $tax_amount_credit = 0;
-                            $tax_amount_credit_converted = $tax_amount_credit_converted = 0;
+                return $date !== null && $date >= $start_date && $date <= $end_date;
+            })
+            ->each(function (Paymentable $paymentable): void {
+                $invoice = Invoice::withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->find($paymentable->paymentable_id);
 
-                            $invoice = false;
+                if ($invoice && ! $invoice->client->is_deleted) {
+                    app(InvoiceTransactionEventEntryCash::class)->runForPaymentable($invoice, $paymentable);
+                }
+            });
 
-                            foreach ($payment->paymentables as $pivot) {
-                                if ($pivot->paymentable_type == 'invoices') {
-                                    $invoice = Invoice::query()->withTrashed()->find($pivot->paymentable_id);
+        $reportable_payment_ids = Payment::query()
+            ->withTrashed()
+            ->where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->select('id');
 
-                                    if (!$invoice) {
-                                        continue;
-                                    }
+        $events = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->whereIn('payment_id', $reportable_payment_ids)
+            ->whereIn('event_id', [
+                TransactionEvent::PAYMENT_CASH,
+                TransactionEvent::PAYMENT_REFUNDED,
+            ])
+            ->whereHas('invoice.client', fn ($query) => $query->where('is_deleted', false))
+            ->whereBetween('period', [
+                Carbon::parse($start_date)->startOfMonth()->toDateString(),
+                Carbon::parse($end_date)->endOfMonth()->toDateString(),
+            ])
+            ->orderBy('period')
+            ->orderBy('id')
+            ->get();
+        $rows = app(CashTaxEventProjector::class)->project($events, $start_date, $end_date);
 
-                                    $pivot_diff = $pivot->amount - $pivot->refunded;
-                                    $amount_payment_paid += $pivot_diff;
-                                    $amount_payment_paid_converted += $pivot_diff * ($payment->exchange_rate ?: 1);
+        foreach ($rows as $row) {
+            $map = new \stdClass();
+            $map->amount_payment_paid = $row['gross_amount'];
+            $map->amount_payment_paid_converted = $row['gross_amount'];
+            $map->tax_amount = $row['tax_amount'];
+            $map->tax_amount_converted = $row['tax_amount'];
+            $map->amount_credit_paid = 0;
+            $map->amount_credit_paid_converted = 0;
+            $map->tax_amount_credit = 0;
+            $map->tax_amount_credit_converted = 0;
+            $map->currency_id = $this->company->settings->currency_id;
+            $this->invoice_payment_map[] = $map;
+        }
 
-                                    if ($invoice->amount > 0) {
-                                        $tax_amount += ($pivot_diff / $invoice->amount) * $invoice->total_taxes;
-                                        $tax_amount_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $invoice->exchange_rate;
-                                    }
-
-                                }
-
-                                if (!$invoice) {
-                                    continue;
-                                }
-
-                                if ($pivot->paymentable_type == 'credits') {
-                                    $amount_credit_paid += $pivot->amount - $pivot->refunded;
-                                    $amount_credit_paid_converted += $pivot_diff * ($payment->exchange_rate ?: 1);
-
-                                    $tax_amount_credit += ($pivot_diff / $invoice->amount) * $invoice->total_taxes;
-                                    $tax_amount_credit_converted += (($pivot_diff / $invoice->amount) * $invoice->total_taxes) / $invoice->exchange_rate;
-                                }
-                            }
-
-                            $map->amount_payment_paid = $amount_payment_paid;
-                            $map->amount_payment_paid_converted = $amount_payment_paid_converted;
-                            $map->tax_amount = $tax_amount;
-                            $map->tax_amount_converted = $tax_amount_converted;
-                            $map->amount_credit_paid = $amount_credit_paid;
-                            $map->amount_credit_paid_converted = $amount_credit_paid_converted;
-                            $map->tax_amount_credit = $tax_amount_credit;
-                            $map->tax_amount_credit_converted = $tax_amount_credit_converted;
-                            $map->currency_id = $payment->currency_id;
-
-                            $this->invoice_payment_map[] = $map;
-                        });
+        $this->income_map = $this->invoice_payment_map;
+        $this->foreign_income = [[
+            'currency' => $this->company->currency()->code,
+            'amount' => array_sum(array_column($rows, 'gross_amount')),
+            'total_taxes' => array_sum(array_column($rows, 'tax_amount')),
+        ]];
 
         return $this;
     }
@@ -356,9 +367,7 @@ class ProfitLoss
      */
     public function getCsv()
     {
-        nlog($this->income);
-        nlog($this->income_taxes);
-        nlog(array_sum(array_column($this->expense_break_down, 'total')));
+        // nlog($this->income); column($this->expense_break_down, 'total')));
 
         $csv = Writer::fromString();
 
@@ -519,13 +528,9 @@ class ProfitLoss
         }
 
         if ($expense->uses_inclusive_taxes) {
-            $inclusive = 0;
+            $rates = [(float) $expense->tax_rate1, (float) $expense->tax_rate2, (float) $expense->tax_rate3];
 
-            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate1 / 100))));
-            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate2 / 100))));
-            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate3 / 100))));
-
-            return round($inclusive, 2);
+            return \App\Helpers\Invoice\InclusiveTax::backout((float) $amount, $rates, 2)['tax'];
         }
 
         $exclusive = 0;
@@ -574,12 +579,19 @@ class ProfitLoss
         return $this;
     }
 
-    private function addDateRange()
+    private function addDateRange(): self
     {
         $date_range = 'this_year';
 
         if (array_key_exists('date_range', $this->payload)) {
             $date_range = $this->payload['date_range'];
+        }
+
+        if ($date_range === 'all_time') {
+            $this->start_date = $this->firstRecordDate();
+            $this->end_date = now()->format('Y-m-d');
+
+            return $this;
         }
 
         try {
@@ -665,5 +677,52 @@ class ProfitLoss
         }
 
         return $this;
+    }
+
+    private function firstRecordDate(): string
+    {
+        $dates = [
+            Expense::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', now()->format('Y-m-d'))
+                ->where(fn ($query) => $query
+                    ->whereNull('client_id')
+                    ->orWhereHas('client', fn ($client_query) => $client_query->where('is_deleted', false)))
+                ->min('date'),
+        ];
+
+        if ($this->is_income_billed) {
+            $dates[] = Invoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', now()->format('Y-m-d'))
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->min('date');
+        } else {
+            $first_payment_application = Paymentable::query()
+                ->where('paymentable_type', 'invoices')
+                ->whereNull('deleted_at')
+                ->where('created_at', '>', 0)
+                ->whereHas('payment', fn ($query) => $query
+                    ->withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->where('is_deleted', false))
+                ->min('created_at');
+
+            $dates[] = app(PaymentApplicationDateResolver::class)->resolveTimestamp(
+                $first_payment_application,
+                $this->company->timezone()?->name ?: config('app.timezone'),
+            );
+        }
+
+        $dates = array_values(array_filter($dates));
+
+        return $dates === [] ? '2000-01-01' : min($dates);
     }
 }

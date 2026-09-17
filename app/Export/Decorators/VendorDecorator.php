@@ -53,7 +53,8 @@ class VendorDecorator extends Decorator implements DecoratorInterface
 
     public function classification(Vendor $vendor)
     {
-        ctrans("texts.{$vendor->classification}") ?? '';
+        $classification = $vendor->classification ?? 'business';
+        return ctrans("texts.{$classification}");
     }
 
     public function status(Vendor $vendor)

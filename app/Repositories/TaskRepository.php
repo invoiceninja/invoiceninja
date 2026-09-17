@@ -12,13 +12,20 @@
 
 namespace App\Repositories;
 
-use App\Models\Task;
-use App\Models\Project;
+use App\DataMapper\TaskMeta;
 use App\Factory\TaskFactory;
 use App\Jobs\Task\TaskAssigned;
-use App\Utils\Traits\MakesHash;
+use App\Models\Client;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\User;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\ValidationException;
 
 /**
  * App\Repositories\TaskRepository.
@@ -36,6 +43,117 @@ class TaskRepository extends BaseRepository
 
     private int $task_round_to_nearest = 1;
 
+    private const CALENDAR_EVENT_LOCK_SECONDS = 10;
+
+    private const CALENDAR_EVENT_LOCK_WAIT_SECONDS = 1;
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     *
+     * @throws ValidationException
+     */
+    private function prepareCalendarEventMeta(array $data, Task $task): array
+    {
+        $meta = $this->calendarEventMeta($data, $task);
+
+        if (! $meta) {
+            if (array_key_exists('meta', $data)) {
+                $data['meta'] = null;
+            }
+
+            return $data;
+        }
+
+        $userId = (int) $task->user_id;
+
+        $originalCalendarEventId = $meta->calendar_event_id;
+        $meta->calendar_event_id = $this->userScopedCalendarEventId($userId, $meta->calendar_event_id);
+
+        $this->guardDuplicateCalendarEventTask($userId, $meta->calendar_event_id, $originalCalendarEventId, $task);
+
+        $data['meta'] = $meta;
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function calendarEventMeta(array $data, Task $task): ?TaskMeta
+    {
+        if (! array_key_exists('meta', $data) || is_null($data['meta']) || $data['meta'] === '') {
+            return null;
+        }
+
+        $task->meta = $data['meta'];
+
+        return $task->meta;
+    }
+
+    private function userScopedCalendarEventId(int $userId, string $calendarEventId): string
+    {
+        $calendarEventId = trim($calendarEventId);
+
+        if ($calendarEventId === '' || str_starts_with($calendarEventId, $userId . ':')) {
+            return $calendarEventId;
+        }
+
+        return $userId . ':' . $calendarEventId;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @throws ValidationException
+     */
+    private function calendarEventLockKey(array $data, Task $task): ?string
+    {
+        $meta = $this->calendarEventMeta($data, $task);
+
+        if (! $meta) {
+            return null;
+        }
+
+        $calendarEventId = $this->userScopedCalendarEventId($task->user_id, $meta->calendar_event_id);
+
+        if ($calendarEventId === '') {
+            return null;
+        }
+
+        return 'task-calendar-event:' . $task->user_id . ':' . sha1($calendarEventId);
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    private function guardDuplicateCalendarEventTask(int $userId, string $calendarEventId, string $originalCalendarEventId, Task $task): void
+    {
+        $query = Task::query()
+            ->where('company_id', $task->company_id)
+            ->where('user_id', $userId)
+            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
+            ->when($task->id, function (Builder $query) use ($task): void {
+                $query->where('id', '!=', $task->id);
+            })
+            ->where(function (Builder $query) use ($calendarEventId, $originalCalendarEventId): void {
+                $query->where('meta->calendar_event_id', $calendarEventId);
+
+                if ($originalCalendarEventId !== $calendarEventId) {
+                    $query->orWhere('meta->calendar_event_id', $originalCalendarEventId);
+                }
+            });
+
+        if (! $query->exists()) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'meta.calendar_event_id' => 'A task already exists for this calendar event.',
+        ]);
+    }
+
     /**
      * Saves the task and its contacts.
      *
@@ -50,12 +168,38 @@ class TaskRepository extends BaseRepository
             $this->new_task = false;
         }
 
-        if (!is_numeric($task->rate) && !isset($data['rate'])) {
+        $rate_provided = isset($data['rate']) && is_numeric($data['rate']);
+
+        if (!is_numeric($task->rate) && !$rate_provided) {
             $data['rate'] = 0;
         }
 
-        $task->fill($data);
-        $task->saveQuietly();
+        $tag_ids = $this->resolveTagIdsForSync($data, $task);
+
+        $lockKey = $this->new_task ? $this->calendarEventLockKey($data, $task) : null;
+
+        if ($lockKey) {
+            try {
+                $data = Cache::lock($lockKey, self::CALENDAR_EVENT_LOCK_SECONDS)
+                    ->block(self::CALENDAR_EVENT_LOCK_WAIT_SECONDS, function () use ($data, $task): array {
+                        $data = $this->prepareCalendarEventMeta($data, $task);
+
+                        $task->fill($data);
+                        $task->saveQuietly();
+
+                        return $data;
+                    });
+            } catch (LockTimeoutException) {
+                throw ValidationException::withMessages([
+                    'meta.calendar_event_id' => 'A task is already being created for this calendar event.',
+                ]);
+            }
+        } else {
+            $data = $this->prepareCalendarEventMeta($data, $task);
+
+            $task->fill($data);
+            $task->saveQuietly();
+        }
 
         if (isset($data['assigned_user_id']) && $data['assigned_user_id'] != $task->assigned_user_id) {
             TaskAssigned::dispatch($task, $task->company->db)->delay(2);
@@ -67,7 +211,7 @@ class TaskRepository extends BaseRepository
             $task->status_id = $this->setDefaultStatus($task);
         }
 
-        if ($this->new_task && (!$task->rate || $task->rate <= 0)) {
+        if ($this->new_task && !$rate_provided && (!$task->rate || $task->rate <= 0)) {
             $task->rate = $task->getRate();
         }
 
@@ -168,10 +312,13 @@ class TaskRepository extends BaseRepository
             $this->saveDocuments($data['documents'], $task);
         }
 
+        $this->syncResolvedTags($task, $tag_ids);
+
         $this->calculateProjectDuration($task);
 
         return $task;
     }
+
 
     private function harvestStartDate($time_log, $task)
     {
@@ -402,7 +549,7 @@ class TaskRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $task
      */
     public function restore($task)
     {
@@ -417,7 +564,7 @@ class TaskRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $task
      */
     public function delete($task)
     {
@@ -445,9 +592,9 @@ class TaskRepository extends BaseRepository
         if ($column === 'project_id') {
             // Handle project_id updates with client_id synchronization
             $project = Project::withTrashed()
-                ->where('id', $new_value)
-                ->company()
-                ->first();
+                            ->where('id', $new_value)
+                            ->company()
+                            ->first();
 
             if ($project) {
                 /** @var \App\Models\Project $project */
@@ -457,8 +604,28 @@ class TaskRepository extends BaseRepository
                 ]);
             }
         } elseif ($column === 'client_id') {
+
+            $client = Client::withTrashed()
+                    ->where('id', $new_value)
+                    ->company()
+                    ->first();
+
+            if ($client) {
             // If you are updating the client - we will unset the project id!
-            $models->update([$column => $new_value, 'project_id' => null]);
+                $models->update(['client_id' => $client->id, 'project_id' => null]);
+            }
+            
+        } elseif ($column === 'assigned_user_id') {
+
+            $user = User::withTrashed()
+                    ->where('id', $new_value)
+                    ->where('account_id', auth()->user()->account_id)
+                    ->first();
+
+            if ($user) {
+                $models->update(['assigned_user_id' => $user->id]);
+            }
+            
         } else {
             // Assigned User
             $models->update([$column => $new_value]);

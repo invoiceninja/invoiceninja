@@ -322,90 +322,127 @@ class ImportController extends Controller
               && !str_contains($data, 'ï¿½'); // Double-encoded replacement character
     }
 
-    private function setImportHints($entity_type, $available_keys, $headers): array
+    /**
+     * @param array<int, string> $availableKeys
+     * @param array<int, string> $headers
+     * @return array<int, int|null>
+     */
+    private function setImportHints(string $entityType, array $availableKeys, array $headers): array
     {
-        $hints = [];
+        $hints = array_fill_keys(array_keys($headers), null);
+        $primaryIndex = match ($entityType) {
+            'bank_transaction' => 'transaction',
+            'recurring_invoice' => 'invoice',
+            default => $entityType,
+        };
+        $candidates = $this->buildImportHintCandidates($availableKeys, $primaryIndex);
+        $proposals = [];
 
-        $translated_keys = collect($available_keys)->map(function ($value, $key) {
+        foreach ($headers as $headerKey => $header) {
+            $scores = [];
 
-            $parts = explode(".", $value);
-            $index = $parts[0];
-            $label = $parts[1] ?? $parts[0];
+            foreach ($candidates as $candidate) {
+                $score = $this->getImportHintScore($header, $candidate);
 
-            return ['key' => $key, 'index' => ctrans("texts.{$index}"), 'label' => ctrans("texts.{$label}")];
-
-        })->toArray();
-
-        //Exact string match
-        foreach ($headers as $key => $value) {
-
-            foreach ($translated_keys as $tkey => $tvalue) {
-
-                $concat_needle = str_ireplace(" ", "", $tvalue['index'] . $tvalue['label']);
-                $concat_value = str_ireplace(" ", "", $value);
-
-                if ($this->testMatch($concat_value, $concat_needle)) {
-
-                    $hit = $tvalue['key'];
-                    $hints[$key] = $hit;
-                    unset($translated_keys[$tkey]);
-                    break;
-
-                } else {
-                    $hints[$key] = null;
+                if ($score > 0) {
+                    $scores[$candidate['key']] = $score;
                 }
-
             }
 
-        }
-
-        //Label Match
-        foreach ($headers as $key => $value) {
-
-            if (isset($hints[$key])) {
+            if ($scores === []) {
                 continue;
             }
 
-            foreach ($translated_keys as $tkey => $tvalue) {
+            $highestScore = max($scores);
+            $bestCandidates = array_keys(array_filter(
+                $scores,
+                fn (int $score): bool => $score === $highestScore
+            ));
 
-                if ($this->testMatch($value, $tvalue['label'])) {
-                    $hit = $tvalue['key'];
-                    $hints[$key] = $hit;
-                    unset($translated_keys[$tkey]);
-                    break;
-                } else {
-                    $hints[$key] = null;
-                }
-
-            }
-
-        }
-
-        //Index matching pass using the index of the translation here
-        foreach ($headers as $key => $value) {
-            if (isset($hints[$key])) {
+            if (count($bestCandidates) !== 1) {
                 continue;
             }
 
-            foreach ($translated_keys as $tkey => $tvalue) {
-                if ($this->testMatch($value, $tvalue['index'])) {
-                    $hit = $tvalue['key'];
-                    $hints[$key] = $hit;
-                    unset($translated_keys[$tkey]);
-                    break;
-                } else {
-                    $hints[$key] = null;
-                }
+            $proposals[$headerKey] = [
+                'candidate' => $bestCandidates[0],
+                'score' => $highestScore,
+            ];
+        }
+
+        foreach (collect($proposals)->groupBy('candidate', true) as $candidateProposals) {
+            $highestScore = $candidateProposals->max('score');
+            $winners = $candidateProposals->filter(
+                fn (array $proposal): bool => $proposal['score'] === $highestScore
+            );
+
+            if ($winners->count() !== 1) {
+                continue;
             }
 
+            $headerKey = $winners->keys()->first();
+            $hints[$headerKey] = $winners->first()['candidate'];
         }
 
         return $hints;
     }
 
-    private function testMatch($haystack, $needle): bool
+    /**
+     * @param array<int, string> $availableKeys
+     * @return array<int, array{key: int, canonical: string, full_label: string, label: string, field: string, is_primary: bool}>
+     */
+    private function buildImportHintCandidates(array $availableKeys, string $primaryIndex): array
     {
-        return stripos($haystack, $needle) !== false;
+        $candidates = [];
+
+        foreach ($availableKeys as $key => $value) {
+            $parts = explode('.', $value, 2);
+            $index = $parts[0];
+            $field = $parts[1] ?? $parts[0];
+            $translatedIndex = ctrans("texts.{$index}");
+            $translatedLabel = ctrans("texts.{$field}");
+
+            $candidates[] = [
+                'key' => $key,
+                'canonical' => $this->normalizeImportHint($value),
+                'full_label' => $this->normalizeImportHint($translatedIndex.' '.$translatedLabel),
+                'label' => $this->normalizeImportHint($translatedLabel),
+                'field' => $this->normalizeImportHint($field),
+                'is_primary' => $index === $primaryIndex,
+            ];
+        }
+
+        return $candidates;
+    }
+
+    /**
+     * @param array{key: int, canonical: string, full_label: string, label: string, field: string, is_primary: bool} $candidate
+     */
+    private function getImportHintScore(string $header, array $candidate): int
+    {
+        $normalizedHeader = $this->normalizeImportHint($header);
+
+        if ($normalizedHeader === '' || $candidate['label'] === '') {
+            return 0;
+        }
+
+        if ($normalizedHeader === $candidate['canonical']) {
+            return 500;
+        }
+
+        if ($normalizedHeader === $candidate['full_label']) {
+            return 450;
+        }
+
+        if ($normalizedHeader === $candidate['label'] || $normalizedHeader === $candidate['field']) {
+            return 400 + ($candidate['is_primary'] ? 10 : 0);
+        }
+
+        return 0;
+    }
+
+    private function normalizeImportHint(string $value): string
+    {
+        return preg_replace('/[^\pL\pN]+/u', '', mb_strtolower(trim($value))) ?? '';
     }
 
     public function import(ImportRequest $request)

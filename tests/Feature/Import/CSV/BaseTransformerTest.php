@@ -181,7 +181,11 @@ class BaseTransformerTest extends TestCase
 
         $this->assertEquals(840, $base_transformer->getCountryId('us'));
         $this->assertEquals(840, $base_transformer->getCountryId('US'));
+        $this->assertEquals(840, $base_transformer->getCountryId('USA'));
+        $this->assertEquals(840, $base_transformer->getCountryId('840'));
         $this->assertEquals(840, $base_transformer->getCountryId('United States'));
+        $this->assertEquals(840, $base_transformer->getCountryId('United States of America'));
+        $this->assertNull($base_transformer->getCountryId('1'));
     }
 
     public function testGetTaxRate()

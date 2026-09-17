@@ -50,7 +50,7 @@ final readonly class PaymentReportData implements Arrayable, JsonSerializable
      */
     public function toArray(): array
     {
-        return [
+        return array_filter([
             'period' => $this->period,
             'b2biPayments' => array_values(array_map(
                 static fn (B2BIPaymentData $payment): array => $payment->toArray(),
@@ -60,7 +60,7 @@ final readonly class PaymentReportData implements Arrayable, JsonSerializable
                 static fn (B2CPaymentData $payment): array => $payment->toArray(),
                 $this->b2cPayments,
             )),
-        ];
+        ], static fn (mixed $value): bool => $value !== []);
     }
 
     /**
@@ -73,7 +73,7 @@ final readonly class PaymentReportData implements Arrayable, JsonSerializable
 
     private function validate(): void
     {
-        ReportDataValidator::assertNonEmptyString($this->period, 'paymentReport.period');
+        ReportDataValidator::assertPeriod($this->period, 'paymentReport.period');
 
         if ($this->b2biPayments === [] && $this->b2cPayments === []) {
             throw new InvalidArgumentException('paymentReport requires at least one b2biPayments or b2cPayments item.');

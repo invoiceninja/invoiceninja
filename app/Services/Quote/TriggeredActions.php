@@ -46,7 +46,7 @@ class TriggeredActions extends AbstractService
         }
 
         if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true') {
-            $this->quote = $this->quote->service()->markSent()->save();
+            $this->quote = $this->quote->service()->markSent(true)->save();
         }
 
         if ($this->request->has('convert') && $this->request->input('convert') == 'true') {

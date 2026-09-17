@@ -23,12 +23,15 @@ use App\Http\Requests\RecurringQuote\EditRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\ShowRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\StoreRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\UpdateRecurringQuoteRequest;
+use App\Http\Requests\RecurringQuote\UploadRecurringQuoteRequest;
+use App\Models\Account;
 use App\Models\Quote;
 use App\Models\RecurringQuote;
 use App\Repositories\RecurringQuoteRepository;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringQuoteTransformer;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -38,6 +41,7 @@ use Illuminate\Http\Response;
 class RecurringQuoteController extends BaseController
 {
     use MakesHash;
+    use SavesDocuments;
 
     protected $entity_type = RecurringQuote::class;
 
@@ -612,5 +616,18 @@ class RecurringQuoteController extends BaseController
                 // code...
                 break;
         }
+    }
+
+    public function upload(UploadRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
+    {
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
+            return $this->featureFailure();
+        }
+
+        if ($request->has('documents')) {
+            $this->saveDocuments($request->file('documents'), $recurring_quote, $request->has('is_public') ? $request->boolean('is_public') : null);
+        }
+
+        return $this->itemResponse($recurring_quote->fresh());
     }
 }

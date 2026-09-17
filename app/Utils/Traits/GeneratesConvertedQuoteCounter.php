@@ -31,11 +31,22 @@ use Illuminate\Support\Str;
 
 /**
  * Class GeneratesConvertedQuoteCounter.
+ *
+ * Counter helpers used when converting a quote to an invoice so the invoice
+ * can reuse the quote's counter value when patterns allow.
  */
 trait GeneratesConvertedQuoteCounter
 {
     private int $update_counter;
 
+    /**
+     * Builds an invoice number from the counter extracted from the quote number.
+     *
+     * @param  Quote  $quote
+     * @param  Invoice  $invoice
+     * @param  Client  $client
+     * @return string|false  The formatted invoice number, or false if already taken
+     */
     private function harvestQuoteCounter($quote, $invoice, Client $client)
     {
         $settings = $client->getMergedSettings();
@@ -54,6 +65,14 @@ trait GeneratesConvertedQuoteCounter
         return $this->getNextEntityNumber($invoice, $client, intval($counter));
     }
 
+    /**
+     * Formats an invoice number from a harvested counter and checks uniqueness.
+     *
+     * @param  Invoice  $invoice
+     * @param  Client  $client
+     * @param  int|string  $counter
+     * @return string|false  The formatted number, or false if already taken
+     */
     private function getNextEntityNumber($invoice, Client $client, $counter = '')
     {
         $settings = $client->getMergedSettings();
@@ -79,6 +98,13 @@ trait GeneratesConvertedQuoteCounter
         return $number;
     }
 
+    /**
+     * Returns the client-scoped number pattern for the given entity.
+     *
+     * @param  string  $entity  Entity class name
+     * @param  Client  $client
+     * @return string|null
+     */
     private function getNumberPattern($entity, Client $client)
     {
         $pattern_string = '';
@@ -107,6 +133,13 @@ trait GeneratesConvertedQuoteCounter
         return $client->getSetting($pattern_string);
     }
 
+    /**
+     * Maps an entity class to its settings counter property name.
+     *
+     * @param  string  $entity  Entity class name
+     * @param  Client|null  $client  Used to resolve shared quote/credit counters
+     * @return string
+     */
     private function getEntityCounter($entity, $client)
     {
         switch ($entity) {
@@ -153,10 +186,10 @@ trait GeneratesConvertedQuoteCounter
     /**
      * Gets the next invoice number.
      *
-     * @param Client $client The client
-     *
-     * @param Invoice|null $invoice
-     * @return     string              The next invoice number.
+     * @param  Client  $client
+     * @param  Invoice|null  $invoice
+     * @param  bool  $is_recurring
+     * @return string
      */
     public function getNextInvoiceNumber(Client $client, ?Invoice $invoice, $is_recurring = false): string
     {
@@ -168,9 +201,9 @@ trait GeneratesConvertedQuoteCounter
     /**
      * Gets the next credit number.
      *
-     * @param Client $client  The client
-     *
-     * @return     string              The next credit number.
+     * @param  Client  $client
+     * @param  Credit|null  $credit
+     * @return string
      */
     public function getNextCreditNumber(Client $client, ?Credit $credit): string
     {
@@ -182,9 +215,9 @@ trait GeneratesConvertedQuoteCounter
     /**
      * Gets the next quote number.
      *
-     * @param Client $client  The client
-     *
-     * @return     string              The next credit number.
+     * @param  Client  $client
+     * @param  Quote|null  $quote
+     * @return string
      */
     public function getNextQuoteNumber(Client $client, ?Quote $quote)
     {
@@ -193,6 +226,13 @@ trait GeneratesConvertedQuoteCounter
         return $this->replaceUserVars($quote, $entity_number);
     }
 
+    /**
+     * Gets the next recurring invoice number.
+     *
+     * @param  Client  $client
+     * @param  RecurringInvoice|null  $recurring_invoice
+     * @return string
+     */
     public function getNextRecurringInvoiceNumber(Client $client, $recurring_invoice)
     {
         $entity_number = $this->getNextEntityNumber(RecurringInvoice::class, $client);
@@ -200,6 +240,13 @@ trait GeneratesConvertedQuoteCounter
         return $this->replaceUserVars($recurring_invoice, $entity_number);
     }
 
+    /**
+     * Gets the next recurring quote number.
+     *
+     * @param  Client  $client
+     * @param  RecurringQuote|null  $recurring_quote
+     * @return string
+     */
     public function getNextRecurringQuoteNumber(Client $client, $recurring_quote)
     {
         $entity_number = $this->getNextEntityNumber(RecurringQuote::class, $client);
@@ -208,11 +255,11 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Gets the next Payment number.
+     * Gets the next payment number.
      *
-     * @param Client $client  The client
-     *
-     * @return     string              The next payment number.
+     * @param  Client  $client
+     * @param  Payment|null  $payment
+     * @return string
      */
     public function getNextPaymentNumber(Client $client, ?Payment $payment): string
     {
@@ -224,10 +271,8 @@ trait GeneratesConvertedQuoteCounter
     /**
      * Gets the next client number.
      *
-     * @param Client $client The client
-     *
-     * @return     string              The next client number.
-     * @throws \Exception
+     * @param  Client  $client
+     * @return string
      */
     public function getNextClientNumber(Client $client): string
     {
@@ -247,10 +292,10 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Gets the next client number.
+     * Gets the next vendor number.
      *
-     * @param Vendor $vendor    The vendor
-     * @return     string                         The next vendor number.
+     * @param  Vendor  $vendor
+     * @return string
      */
     public function getNextVendorNumber(Vendor $vendor): string
     {
@@ -269,9 +314,10 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Project Number Generator.
-     * @param  Project $project
-     * @return string  The project number
+     * Gets the next project number.
+     *
+     * @param  Project  $project
+     * @return string
      */
     public function getNextProjectNumber(Project $project): string
     {
@@ -283,8 +329,8 @@ trait GeneratesConvertedQuoteCounter
     /**
      * Gets the next task number.
      *
-     * @param   Task    $task    The task
-     * @return  string           The next task number.
+     * @param  Task  $task
+     * @return string
      */
     public function getNextTaskNumber(Task $task): string
     {
@@ -305,8 +351,8 @@ trait GeneratesConvertedQuoteCounter
     /**
      * Gets the next expense number.
      *
-     * @param   Expense    $expense    The expense
-     * @return  string                 The next expense number.
+     * @param  Expense  $expense
+     * @return string
      */
     public function getNextExpenseNumber(Expense $expense): string
     {
@@ -325,10 +371,10 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Gets the next expense number.
+     * Gets the next recurring expense number.
      *
-     * @param   RecurringExpense       $expense    The expense
-     * @return  string                 The next expense number.
+     * @param  RecurringExpense  $expense
+     * @return string
      */
     public function getNextRecurringExpenseNumber(RecurringExpense $expense): string
     {
@@ -356,11 +402,11 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Determines if it has shared counter.
+     * Whether quotes or credits share the invoice counter.
      *
-     * @param Client $client  The client
-     *
-     * @return     bool             True if has shared counter, False otherwise.
+     * @param  Client  $client
+     * @param  string  $type  Either 'quote' or 'credit'
+     * @return bool
      */
     public function hasSharedCounter(Client $client, string $type = 'quote'): bool
     {
@@ -373,16 +419,15 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Checks that the number has not already been used.
+     * Builds a unique entity number, advancing the counter until unused.
      *
-     * @param $class
-     * @param Collection $entity The entity ie App\Models\Client, Invoice, Quote etc
-     * @param int $counter The counter
-     * @param int $padding The padding
-     *
-     * @param      string $pattern
-     * @param      string $prefix
-     * @return     string The padded and prefixed entity number
+     * @param  string  $class  Entity class name
+     * @param  BaseModel  $entity
+     * @param  int  $counter
+     * @param  int  $padding
+     * @param  string  $pattern
+     * @param  string  $prefix
+     * @return string
      */
     private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '')
     {
@@ -409,7 +454,14 @@ trait GeneratesConvertedQuoteCounter
         return $number;
     }
 
-    /*Check if a number is available for use. */
+    /**
+     * Whether the given number is unused for the entity class within the company.
+     *
+     * @param  string  $class  Entity class name
+     * @param  BaseModel  $entity
+     * @param  string  $number
+     * @return bool
+     */
     public function checkNumberAvailable($class, $entity, $number): bool
     {
         if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists()) {
@@ -420,10 +472,11 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Saves counters at both the company and client level.
+     * Persists an incremented counter value on the company, group, or client settings.
      *
-     * @param $entity
-     * @param string $counter_name The counter name
+     * @param  \App\Models\Company|Client|\App\Models\GroupSetting  $entity
+     * @param  string  $counter_name
+     * @return void
      */
     private function incrementCounter($entity, string $counter_name): void
     {
@@ -444,6 +497,13 @@ trait GeneratesConvertedQuoteCounter
         $entity->save();
     }
 
+    /**
+     * Prepends a prefix to the counter string when a prefix is set.
+     *
+     * @param  string  $counter
+     * @param  string  $prefix
+     * @return string
+     */
     private function prefixCounter($counter, $prefix): string
     {
         if (strlen($prefix) == 0) {
@@ -454,12 +514,11 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Pads a number with leading 000000's.
+     * Pads a counter with leading zeros.
      *
-     * @param      int  $counter  The counter
-     * @param      int  $padding  The padding
-     *
-     * @return     string  the padded counter
+     * @param  int  $counter
+     * @param  int  $padding
+     * @return string
      */
     private function padCounter($counter, $padding): string
     {
@@ -467,11 +526,10 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * If we are using counter reset,
-     * check if we need to reset here.
+     * Resets client/company counters when the configured reset date has passed.
      *
-     * @param Client $client client entity
-     * @return void
+     * @param  Client  $client
+     * @return bool|void  False when no reset is due; otherwise void after resetting
      */
     private function resetCounters(Client $client)
     {
@@ -547,6 +605,12 @@ trait GeneratesConvertedQuoteCounter
         $client->company->save();
     }
 
+    /**
+     * Resets company-level counters when the configured reset date has passed.
+     *
+     * @param  \App\Models\Company  $company
+     * @return bool|void  False when no reset is due; otherwise void after resetting
+     */
     private function resetCompanyCounters($company)
     {
         $timezone = Timezone::find($company->settings->timezone_id);
@@ -611,13 +675,12 @@ trait GeneratesConvertedQuoteCounter
     }
 
     /**
-     * Formats a entity number by pattern
+     * Replaces pattern placeholders with counter, date, and entity values.
      *
-     * @param      BaseModel  $entity   The entity object
-     * @param      string                 $counter  The counter
-     * @param      null|string            $pattern  The pattern
-     *
-     * @return     string                The formatted number pattern
+     * @param  BaseModel  $entity
+     * @param  string  $counter
+     * @param  string|null  $pattern
+     * @return string
      */
     private function applyNumberPattern($entity, string $counter, $pattern): string
     {
@@ -726,6 +789,13 @@ trait GeneratesConvertedQuoteCounter
         return str_replace($search, $replace, $pattern);
     }
 
+    /**
+     * Replaces user custom-field placeholders in a number pattern.
+     *
+     * @param  BaseModel|null  $entity
+     * @param  string  $pattern
+     * @return string
+     */
     private function replaceUserVars($entity, $pattern)
     {
         if (! $entity) {

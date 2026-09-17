@@ -22,8 +22,8 @@ class CreditInvitationFactory
         $ci = new CreditInvitation();
         $ci->company_id = $company_id;
         $ci->user_id = $user_id;
-        $ci->client_contact_id = null;
-        $ci->credit_id = null;
+        $ci->client_contact_id = null; //@phpstan-ignore-line
+        $ci->credit_id = null; //@phpstan-ignore-line
         $ci->key = Str::random(config('ninja.key_length'));
         $ci->transaction_reference = null;
         $ci->message_id = null;

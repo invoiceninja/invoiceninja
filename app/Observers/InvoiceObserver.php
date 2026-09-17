@@ -12,7 +12,6 @@
 
 namespace App\Observers;
 
-use App\Jobs\Quickbooks\PushToQuickbooks;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Invoice;
 use App\Models\Webhook;
@@ -38,6 +37,8 @@ class InvoiceObserver
     public function created(Invoice $invoice)
     {
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_CREATE_INVOICE)
                             ->exists();
 
@@ -65,8 +66,9 @@ class InvoiceObserver
             $event = Webhook::EVENT_DELETE_INVOICE;
         }
 
-
         $subscriptions = Webhook::where('company_id', $invoice->company->id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -89,6 +91,8 @@ class InvoiceObserver
         }
 
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_ARCHIVE_INVOICE)
                             ->exists();
 

@@ -155,8 +155,10 @@ class HtmlEngine
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
+        $data['$bill_to'] = ['value' => '', 'label' => ctrans('texts.bill_to')];
         $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
         $data['$ship_to'] = &$data['$shipping'];
+
         $data['$total_tax_labels'] = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
@@ -708,6 +710,7 @@ class HtmlEngine
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
+        $data['$product.tags'] = ['value' => '', 'label' => ctrans('texts.tags')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.net_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
@@ -727,8 +730,11 @@ class HtmlEngine
         $data['$product.product4'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'product4')];
 
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
+        $data['$task.due_date'] = ['value' => '', 'label' => ctrans('texts.due_date')];
+        $data['$task.estimated_duration'] = ['value' => '', 'label' => ctrans('texts.estimated_duration')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
+        $data['$task.tags'] = ['value' => '', 'label' => ctrans('texts.tags')];
         $data['$task.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.cost'] = ['value' => '', 'label' => ctrans('texts.rate')];
@@ -858,13 +864,13 @@ class HtmlEngine
         $data['$payment_error'] = ['value' => '', 'label' => ctrans('texts.error')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
-            $payment_list = '<br><br>';
+            $payment_list = $this->entity->net_payments //@phpstan-ignore-line
+                ->map(function ($payment) {
+                    return ctrans('texts.payment_subject') . ': ' . $this->formatDate($payment->date, $this->client->date_format()) . ' :: ' . Number::formatMoney($payment->amount, $this->client) . ' :: ' . $payment->translatedType();
+                })
+                ->implode("\n");
 
-            foreach ($this->entity->net_payments as $payment) { //@phpstan-ignore-line
-                $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) . " :: " . $payment->translatedType() . "<br>";
-            }
-
-            $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
+            $data['$payments'] = ['value' => '<div data-state="encoded-html">' . htmlspecialchars(\nl2br("\n\n{$payment_list}"), ENT_QUOTES, 'UTF-8') . '</div>', 'label' => ctrans('texts.payments')];
 
             /** @var ?\App\Models\Payment $payment */
             $payment = $this->entity->net_payments()->first();
@@ -1079,7 +1085,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
         return $data;
     }
 
-    public function generateLabelsAndValues()
+    public function generateLabelsAndValues(): array
     {
         $data = [];
 

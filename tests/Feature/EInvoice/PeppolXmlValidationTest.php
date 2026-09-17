@@ -56,7 +56,7 @@ private string $xml = '<?xml version="1.0" encoding="UTF-8"?>
         <cac:Contact>
           <cbc:Name>John Doe</cbc:Name>
           <cbc:Telephone>+31 2 123 45 67</cbc:Telephone>
-          <cbc:ElectronicMail>contact@example.com</cbc:ElectronicMail>
+          <cbc:ElectronicMail>contact@gmail.com</cbc:ElectronicMail>
         </cac:Contact>
       </cac:Party>
     </cac:AccountingSupplierParty>

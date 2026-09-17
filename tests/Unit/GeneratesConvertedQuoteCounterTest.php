@@ -66,7 +66,7 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $this->account->num_users = 3;
         $this->account->save();
 
-        $fake_email = $this->faker->email();
+        $fake_email = uniqid('testuser') . '@gmail.com';
 
         $user = User::whereEmail($fake_email)->first();
 

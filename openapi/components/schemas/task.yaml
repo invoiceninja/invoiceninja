@@ -53,6 +53,15 @@
           description: 'The task duration in seconds'
           type: integer
           example: 3600
+        due_date:
+          description: 'The due date of the task'
+          type: string
+          format: date
+          example: '2024-01-31'
+        estimated_duration:
+          description: 'The estimated duration of the task in seconds'
+          type: integer
+          example: 7200
         task_status_order:
           description: 'The order of the task'
           type: integer
@@ -128,4 +137,9 @@
           description: 'Alternative sort order for status'
           type: integer
           example: 1
+        tags:
+          description: 'Tags assigned to the task'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       type: object

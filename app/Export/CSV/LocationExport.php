@@ -79,7 +79,7 @@ class LocationExport extends BaseExport
 
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()->each(function ($location) {
+        $this->streamQuery($query)->each(function ($location) {
             /** @var \App\Models\Location $location */
             $this->csv->insertOne($this->buildRow($location));
         });
@@ -97,7 +97,7 @@ class LocationExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($location) {
                     /** @var \App\Models\Location $location */
                     $row = $this->buildRow($location);

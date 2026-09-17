@@ -48,7 +48,7 @@ class GenerateDeliveryNote
 
             $pdf = $ts->setCompany($this->invoice->company)
             ->build([
-                'invoices' => collect([$this->invoice]),
+                'invoices' => collect([$this->invoice->loadMissing('tags')]),
             ])->getPdf();
 
             return $pdf;

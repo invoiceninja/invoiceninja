@@ -17,6 +17,11 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\User;
+use App\Models\TransactionEvent;
+use App\Services\Client\Merge;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
 use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -52,7 +57,7 @@ class ClientMergeTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->company = Company::factory()->create([
@@ -100,7 +105,7 @@ class ClientMergeTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $company = Company::factory()->create([
@@ -166,5 +171,99 @@ class ClientMergeTest extends TestCase
 
         // nlog($client->contacts->fresh()->toArray());
         // $this->assertEquals(7, $client->fresh()->contacts->count());
+    }
+
+    public function test_merge_reassigns_regulator_accepted_france_reporting_history(): void
+    {
+        [$company, $user] = $this->companyAndUser();
+        $target = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+        $source = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+        $event = $this->acceptedSnapshot($company, $source);
+
+        (new Merge($target, $source))->run();
+
+        $this->assertSame($target->id, $event->fresh()->client_id);
+        $this->assertNull(Client::withTrashed()->find($source->id));
+    }
+
+    public function test_merge_rolls_back_entirely_when_a_downstream_failure_occurs(): void
+    {
+        [$company, $user] = $this->companyAndUser();
+
+        $settings = $company->settings;
+        $settings->france_reporting_enabled = true;
+        $company->settings = $settings;
+        $company->save();
+
+        $target = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+        $source = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+        $contact = ClientContact::factory()->create([
+            'user_id' => $user->id,
+            'client_id' => $source->id,
+            'company_id' => $company->id,
+            'is_primary' => 1,
+        ]);
+        $event = $this->acceptedSnapshot($company, $source);
+
+        $recorder = \Mockery::mock(FranceScopeInvalidationRecorder::class);
+        $recorder->shouldReceive('recordAndDispatch')
+            ->andThrow(new \RuntimeException('merge failure'));
+        $this->app->instance(FranceScopeInvalidationRecorder::class, $recorder);
+
+        try {
+            (new Merge($target, $source))->run();
+            $this->fail('Expected the merge to fail.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('merge failure', $e->getMessage());
+        }
+
+        $this->assertNotNull(Client::withTrashed()->find($source->id));
+        $this->assertSame($source->id, $event->fresh()->client_id);
+        $this->assertSame($source->id, $contact->fresh()->client_id);
+    }
+
+    /** @return array{0: Company, 1: User} */
+    private function companyAndUser(): array
+    {
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => uniqid('testuser') . '@gmail.com',
+        ]);
+        $company = Company::factory()->create(['account_id' => $account->id]);
+
+        return [$company, $user];
+    }
+
+    private function acceptedSnapshot(Company $company, Client $client): TransactionEvent
+    {
+        return TransactionEvent::create([
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'invoice_id' => 0,
+            'payment_id' => 0,
+            'credit_id' => 0,
+            'event_id' => FranceReportingEventType::TransactionSnapshot->value,
+            'timestamp' => now()->timestamp,
+            'period' => '2026-09-20',
+            'payment_status' => FranceReportingStatus::Accepted->value,
+            'reporting_data' => null,
+            'payment_request' => [
+                'role' => 'projection_snapshot',
+                'subject_key' => 'invoice:1',
+            ],
+        ]);
     }
 }

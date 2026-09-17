@@ -9,6 +9,12 @@
     @endif
     <meta name="stripe-client-secret" content="{{ $client_secret }}">
     <meta name="contact-email" content="{{ auth()->guard('contact')->user()->email }}">
+    <meta name="address-1" content="{{ $gateway->client->address1 }}">
+    <meta name="address-2" content="{{ $gateway->client->address2 }}">
+    <meta name="city" content="{{ $gateway->client->city }}">
+    <meta name="state" content="{{ $gateway->client->state }}">
+    <meta name="postal_code" content="{{ $gateway->client->postal_code }}">
+    <meta name="country" content="{{ $gateway->client->country?->iso_3166_2 }}">
 @endsection
 
 @section('gateway_content')

@@ -31,6 +31,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\LazyCollection;
 
 class CSVIngest implements ShouldQueue
 {
@@ -112,17 +114,28 @@ class CSVIngest implements ShouldQueue
             $new_contact->save();
         }
 
-        Client::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client) {
-            $contact = $client->contacts()->first();
-            $contact->is_primary = true;
-            $contact->save();
+        $this->streamQuery(Client::with('contacts')->where('company_id', $this->company->id))->each(function (Client $client): void {
+            $contact = $client->contacts->first();
+
+            if ($contact) {
+                $contact->is_primary = true;
+                $contact->save();
+            }
         });
 
-        Vendor::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($vendor) {
-            $contact = $vendor->contacts()->first();
-            $contact->is_primary = true;
-            $contact->save();
+        $this->streamQuery(Vendor::with('contacts')->where('company_id', $this->company->id))->each(function (Vendor $vendor): void {
+            $contact = $vendor->contacts->first();
+
+            if ($contact) {
+                $contact->is_primary = true;
+                $contact->save();
+            }
         });
+    }
+
+    private function streamQuery(Builder $query): LazyCollection
+    {
+        return (clone $query)->lazy(500);
     }
 
     private function bootEngine()

@@ -28,7 +28,7 @@ class InvoiceSyncCastTest extends TestCase
         /** @var Company $c */
         $c = Company::factory()->create(['account_id' => $a->id]);
         /** @var User $u */
-        $u = User::factory()->create(['account_id' => $a->id, 'email' => $this->faker->safeEmail()]);
+        $u = User::factory()->create(['account_id' => $a->id, 'email' => uniqid('testuser') . '@gmail.com']);
         /** @var Client $cl */
         $cl = Client::factory()->create(['company_id' => $c->id]);
         /** @var Invoice $invoice */
@@ -65,7 +65,7 @@ class InvoiceSyncCastTest extends TestCase
         /** @var Company $c */
         $c = Company::factory()->create(['account_id' => $a->id]);
         /** @var User $u */
-        $u = User::factory()->create(['account_id' => $a->id, 'email' => $this->faker->safeEmail()]);
+        $u = User::factory()->create(['account_id' => $a->id, 'email' => uniqid('testuser') . '@gmail.com']);
         /** @var Client $cl */
         $cl = Client::factory()->create(['company_id' => $c->id]);
         /** @var Invoice $invoice */

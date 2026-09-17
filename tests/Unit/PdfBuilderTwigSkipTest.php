@@ -34,4 +34,25 @@ class PdfBuilderTwigSkipTest extends TestCase
         $this->assertSame($builder, $method->invoke($builder));
         $this->assertStringContainsString('No twig here', $builder->document->saveHTML());
     }
+
+    public function testFragmentFromHtmlKeepsTableAsImportedNodes(): void
+    {
+        $builder = new PdfBuilder(
+            (new \ReflectionClass(PdfService::class))->newInstanceWithoutConstructor()
+        );
+
+        $document = new DOMDocument();
+        @$document->loadHTML('<!DOCTYPE html><html><body><div id="host"></div></body></html>');
+        $builder->setDocument($document);
+
+        $method = (new \ReflectionClass(PdfBuilder::class))->getMethod('fragmentFromHtml');
+        $fragment = $method->invoke($builder, '<table class="kept"><tr><td>Row</td></tr></table>');
+
+        $host = $document->getElementById('host');
+        $host->appendChild($fragment);
+
+        $xpath = new \DOMXPath($document);
+        $this->assertGreaterThan(0, $xpath->query('//*[@id="host"]//table')->length);
+        $this->assertSame(0, $xpath->query('//body/table')->length);
+    }
 }

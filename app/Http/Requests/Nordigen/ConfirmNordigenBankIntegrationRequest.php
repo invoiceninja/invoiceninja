@@ -38,19 +38,7 @@ class ConfirmNordigenBankIntegrationRequest extends Request
         ];
     }
 
-    /**
-     * @return array{
-     *   user_id: int,
-     *   company_key: string,
-     *   context: string,
-     *   is_react: bool,
-     *   institution_id: string,
-     *   lang: string,
-     *   redirect: string,
-     *   requisitionId: string
-     * }
-     */
-    public function getTokenContent(): array
+    public function getTokenContent(): ?array
     {
         $input = $this->all();
 

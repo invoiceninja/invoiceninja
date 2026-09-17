@@ -14,6 +14,7 @@ namespace App\Export\Decorators;
 
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Payment\PaymentApplicationDateResolver;
 
 class PaymentDecorator extends Decorator implements DecoratorInterface
 {
@@ -23,6 +24,12 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
     {
         $payment = false;
 
+        $loaded_payments = null;
+
+        if (! $entity instanceof Payment && is_object($entity) && method_exists($entity, 'relationLoaded') && $entity->relationLoaded('payments')) {
+            $loaded_payments = $entity->getRelation('payments');
+        }
+
         if ($entity instanceof Payment) {
             $payment = $entity;
         } elseif ($entity instanceof Invoice && $entity->relationLoaded('current_paymentable')) {
@@ -31,17 +38,45 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
                 $payment = $paymentable->payment;
                 $payment->setRelation('current_paymentable', $paymentable);
             }
+        } elseif ($loaded_payments instanceof \Illuminate\Support\Collection && $loaded_payments->isNotEmpty()) {
+            $payment = $loaded_payments->first();
         } elseif ($entity->payment) {
             $payment = $entity->payment;
         } elseif ($entity->payments()->exists()) {
             $payment = $entity->payments()->first();
         }
 
+        if ($payment && $entity instanceof Invoice && $entity->relationLoaded('current_paymentable')) {
+            if (method_exists($this, $key)) {
+                return $this->{$key}($payment);
+            }
+
+            return $payment->{$key} ?? '';
+        }
+
         if ($key == 'amount' && (!$entity instanceof Payment)) {
+            if ($loaded_payments instanceof \Illuminate\Support\Collection) {
+                $active_payments = $this->activePayments($loaded_payments);
+
+                return $active_payments->isNotEmpty() ? $active_payments->sum(fn (Payment $payment): float => (float) ($payment->pivot->amount ?? 0)) : ctrans('texts.unpaid');
+            }
+
             return $entity->payments()->exists() ? $entity->payments()->withoutTrashed()->sum('paymentables.amount') : ctrans('texts.unpaid');
         } elseif ($key == 'refunded' && (!$entity instanceof Payment)) {
+            if ($loaded_payments instanceof \Illuminate\Support\Collection) {
+                return $this->activePayments($loaded_payments)->sum(fn (Payment $payment): float => (float) ($payment->pivot->refunded ?? 0));
+            }
+
             return $entity->payments()->exists() ? $entity->payments()->withoutTrashed()->sum('paymentables.refunded') : '';
         } elseif ($key == 'applied' && (!$entity instanceof Payment)) {
+            if ($loaded_payments instanceof \Illuminate\Support\Collection) {
+                $active_payments = $this->activePayments($loaded_payments);
+                $refunded = $active_payments->sum(fn (Payment $payment): float => (float) ($payment->pivot->refunded ?? 0));
+                $amount = $active_payments->sum(fn (Payment $payment): float => (float) ($payment->pivot->amount ?? 0));
+
+                return $active_payments->isNotEmpty() ? ($amount - $refunded) : '';
+            }
+
             $refunded = $entity->payments()->withoutTrashed()->sum('paymentables.refunded');
             $amount = $entity->payments()->withoutTrashed()->sum('paymentables.amount');
             return $entity->payments()->withoutTrashed()->exists() ? ($amount - $refunded) : '';
@@ -54,6 +89,11 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
         }
 
         return '';
+    }
+
+    private function activePayments(\Illuminate\Support\Collection $payments): \Illuminate\Support\Collection
+    {
+        return $payments->reject(fn (Payment $payment): bool => $payment->trashed());
     }
 
     public function date(Payment $payment)
@@ -69,9 +109,9 @@ class PaymentDecorator extends Decorator implements DecoratorInterface
             return '';
         }
 
-        $ts = $paymentable->created_at;
+        $timezone = $payment->company->timezone()?->name ?: config('app.timezone');
 
-        return $ts ? \Carbon\Carbon::createFromTimestamp($ts)->setTimezone($payment->company->timezone()->name)->format('Y-m-d') : '';
+        return app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone) ?? '';
     }
 
     public function applied_amount(Payment $payment)

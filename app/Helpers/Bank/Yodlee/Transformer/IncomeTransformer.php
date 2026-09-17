@@ -145,6 +145,12 @@ class IncomeTransformer implements BankRevenueInterface
 
     public function transformTransaction($transaction)
     {
+        //participant / participant_name are unused by Yodlee, so we repurpose them to persist the
+        //running balance + check number, which disambiguate genuinely-identical transactions during
+        //deduplication. running_balance is stored fixed-2dp so equality is stable across syncs.
+        $running_balance = data_get($transaction, 'runningBalance.amount');
+        $check_number = data_get($transaction, 'checkNumber');
+
         return [
             'transaction_id' => $transaction->id,
             'amount' => $transaction->amount->amount,
@@ -156,6 +162,8 @@ class IncomeTransformer implements BankRevenueInterface
             'bank_account_id' => $transaction->accountId,
             'description' => $transaction?->description?->original ?? '',
             'base_type' => property_exists($transaction, 'baseType') ? $transaction->baseType : $this->calculateBaseType($transaction),
+            'participant' => is_null($running_balance) ? null : number_format($running_balance, 2, '.', ''),
+            'participant_name' => is_null($check_number) ? null : (string) $check_number,
         ];
     }
 

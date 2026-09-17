@@ -17,6 +17,7 @@ use App\Utils\Ninja;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**
@@ -32,37 +33,36 @@ class QueryLogging
      *
      * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
-
-        // Enable query logging for development
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return $next($request);
         }
 
+        DB::flushQueryLog();
         DB::enableQueryLog();
-        return $next($request);
 
+        return $next($request);
     }
 
-    public function terminate($request, $response)
+    public function terminate(Request $request, Response $response): void
     {
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return;
         }
 
-        // hide requests made by debugbar
-        if (strstr($request->url(), '_debugbar') === false) {
+        try {
+            if (str_contains($request->url(), '_debugbar')) {
+                return;
+            }
 
-            $queries = DB::getQueryLog();
-            $count = count($queries);
+            $count = count(DB::getQueryLog());
             $timeEnd = microtime(true);
             $time = $timeEnd - LARAVEL_START;
 
-            if ($count > 175) {
-                nlog("Query count = {$count}");
-                nlog($queries);
-            }
+            // if ($count > 175) {
+            //     nlog("Query count = {$count}");
+            // }
 
             $ip = '';
 
@@ -89,7 +89,9 @@ class QueryLogging
 
             LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()), 0, 180), $count, $time, $ip, $client_version, $platform))
                 ->batch();
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
         }
-
     }
 }

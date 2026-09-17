@@ -200,14 +200,14 @@ class MultiDB
     public static function hasUser(array $data): ?User
     {
         if (!config('ninja.db.multi_db_enabled')) {
-            return User::where($data)->withTrashed()->first();
+            return User::where($data)->withTrashed()->first(); //@phpstan-ignore-line
         }
 
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {
             self::setDB($db);
-            if ($user = User::where($data)->withTrashed()->first()) {
+            if ($user = User::where($data)->withTrashed()->first()) { //@phpstan-ignore-line
                 return $user;
             }
         }

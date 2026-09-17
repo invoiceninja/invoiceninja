@@ -100,10 +100,12 @@ class InvoicePeriodTest extends TestCase
         $data['e_invoice'] = [
             'Invoice' => [
                 'InvoicePeriod' => [
+                    [
                     'notarealvar' => '2025-01-01',
                     'worseVar' => '2025-01-01',
                     'Description' => 'Mustafa'
-                ]
+                    ],
+                ],
             ]
         ];
 

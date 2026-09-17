@@ -26,6 +26,6 @@ class PurgeVendorRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->isAdmin() && $this->vendor->company_id == $user->company()->id;
     }
 }

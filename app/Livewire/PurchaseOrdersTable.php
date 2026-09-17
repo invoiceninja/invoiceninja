@@ -48,6 +48,17 @@ class PurchaseOrdersTable extends Component
         $this->resetSelection();
     }
 
+    public function toggleStatus(string $value): void
+    {
+        if (in_array($value, $this->status)) {
+            $this->status = array_values(array_diff($this->status, [$value]));
+        } else {
+            $this->status[] = $value;
+        }
+
+        $this->resetSelection();
+    }
+
     public function sortBy($field): void
     {
         $this->sort_field === $field

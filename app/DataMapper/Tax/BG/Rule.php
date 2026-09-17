@@ -40,6 +40,6 @@ class Rule extends DERule
     /** @var float $reduced_tax_rate */
     public float $reduced_tax_rate = 0;
 
-    public string $tax_name1 = 'НДС';
+    public string $tax_name1 = 'ДДС';
 
 }

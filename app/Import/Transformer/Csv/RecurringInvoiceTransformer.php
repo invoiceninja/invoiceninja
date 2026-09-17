@@ -14,7 +14,6 @@ namespace App\Import\Transformer\Csv;
 
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
-use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 
@@ -44,13 +43,23 @@ class RecurringInvoiceTransformer extends BaseTransformer
         }
 
         $invoiceStatusMap = [
-            'sent' => Invoice::STATUS_SENT,
-            'draft' => Invoice::STATUS_DRAFT,
+            'sent' => RecurringInvoice::STATUS_ACTIVE,
+            'active' => RecurringInvoice::STATUS_ACTIVE,
+            'draft' => RecurringInvoice::STATUS_DRAFT,
         ];
+
+        $status = strtolower($this->getString($invoice_data, 'invoice.status'));
+        $statusId = $invoiceStatusMap[$status] ?? RecurringInvoice::STATUS_DRAFT;
+
+        if ($status === '' && array_key_exists('invoice.is_sent', $invoice_data)) {
+            $statusId = $this->toBoolean($invoice_data['invoice.is_sent'])
+                ? RecurringInvoice::STATUS_ACTIVE
+                : RecurringInvoice::STATUS_DRAFT;
+        }
 
         $transformed = [
             'company_id' => $this->company->id,
-            'number' => $this->getString($invoice_data, 'invoice.number'),
+            'number' => $this->getString($invoice_data, 'invoice.number', null),
             'user_id' => $this->getString($invoice_data, 'invoice.user_id'),
             'amount' => ($amount = $this->getFloat(
                 $invoice_data,
@@ -91,22 +100,22 @@ class RecurringInvoiceTransformer extends BaseTransformer
             'tax_rate2' => $this->getFloat($invoice_data, 'invoice.tax_rate2'),
             'tax_name3' => $this->getString($invoice_data, 'invoice.tax_name3'),
             'tax_rate3' => $this->getFloat($invoice_data, 'invoice.tax_rate3'),
-            'custom_value1' => $this->getString(
+            'custom_value1' => $this->getCustomFieldValue('invoice1', $this->getString(
                 $invoice_data,
                 'invoice.custom_value1'
-            ),
-            'custom_value2' => $this->getString(
+            )),
+            'custom_value2' => $this->getCustomFieldValue('invoice2', $this->getString(
                 $invoice_data,
                 'invoice.custom_value2'
-            ),
-            'custom_value3' => $this->getString(
+            )),
+            'custom_value3' => $this->getCustomFieldValue('invoice3', $this->getString(
                 $invoice_data,
                 'invoice.custom_value3'
-            ),
-            'custom_value4' => $this->getString(
+            )),
+            'custom_value4' => $this->getCustomFieldValue('invoice4', $this->getString(
                 $invoice_data,
                 'invoice.custom_value4'
-            ),
+            )),
             'footer' => $this->getString($invoice_data, 'invoice.footer'),
             'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ? $this->getFloat($invoice_data, 'invoice.partial') : null,
             'partial_due_date' => isset($invoice_data['invoice.partial_due_date']) ? $this->parseDate($invoice_data['invoice.partial_due_date']) : null,
@@ -126,20 +135,11 @@ class RecurringInvoiceTransformer extends BaseTransformer
                 $invoice_data,
                 'invoice.custom_surcharge4'
             ),
-            'exchange_rate' => $this->getFloat(
-                $invoice_data,
-                'invoice.exchange_rate'
-            ),
             'is_amount_discount' => filter_var(
                 $this->getString($invoice_data, 'invoice.is_amount_discount'),
                 FILTER_VALIDATE_BOOLEAN
             ),
-            'status_id' => RecurringInvoice::STATUS_DRAFT,
-            // 'status_id' => $invoiceStatusMap[
-            //         ($status = strtolower(
-            //             $this->getString($invoice_data, 'invoice.status')
-            //         ))
-            //     ] ?? Invoice::STATUS_SENT,
+            'status_id' => $statusId,
             'auto_bill' => $this->getAutoBillFlag(
                 $this->getString($invoice_data, 'invoice.auto_bill')
             ),
@@ -151,6 +151,14 @@ class RecurringInvoiceTransformer extends BaseTransformer
             ),
             // 'archived' => $status === 'archived',
         ];
+
+        if (array_key_exists('invoice.exchange_rate', $invoice_data)) {
+            $transformed['exchange_rate'] = $this->getFloatOrOne($invoice_data, 'invoice.exchange_rate');
+        }
+
+        if (array_key_exists('invoice.uses_inclusive_taxes', $invoice_data)) {
+            $transformed['uses_inclusive_taxes'] = $this->toBoolean($invoice_data['invoice.uses_inclusive_taxes']);
+        }
 
         /* If we can't find the client, then lets try and create a client */
         if (! $transformed['client_id']) {
@@ -166,6 +174,7 @@ class RecurringInvoiceTransformer extends BaseTransformer
             $line_items[] = [
                 'quantity' => $this->getFloat($record, 'item.quantity'),
                 'cost' => $this->getFloat($record, 'item.cost'),
+                'product_cost' => $this->getFloat($record, 'item.product_cost'),
                 'product_key' => $this->getString($record, 'item.product_key'),
                 'notes' => $this->getString($record, 'item.notes'),
                 'discount' => $this->getFloat($record, 'item.discount'),
@@ -179,23 +188,24 @@ class RecurringInvoiceTransformer extends BaseTransformer
                 'tax_rate2' => $this->getFloat($record, 'item.tax_rate2'),
                 'tax_name3' => $this->getString($record, 'item.tax_name3'),
                 'tax_rate3' => $this->getFloat($record, 'item.tax_rate3'),
-                'custom_value1' => $this->getString(
+                'custom_value1' => $this->getCustomFieldValue('product1', $this->getString(
                     $record,
                     'item.custom_value1'
-                ),
-                'custom_value2' => $this->getString(
+                )),
+                'custom_value2' => $this->getCustomFieldValue('product2', $this->getString(
                     $record,
                     'item.custom_value2'
-                ),
-                'custom_value3' => $this->getString(
+                )),
+                'custom_value3' => $this->getCustomFieldValue('product3', $this->getString(
                     $record,
                     'item.custom_value3'
-                ),
-                'custom_value4' => $this->getString(
+                )),
+                'custom_value4' => $this->getCustomFieldValue('product4', $this->getString(
                     $record,
                     'item.custom_value4'
-                ),
+                )),
                 'type_id' => $this->getInvoiceTypeId($record, 'item.type_id'),
+                'tax_id' => $this->getString($record, 'item.tax_id'),
             ];
         }
 

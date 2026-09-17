@@ -21,8 +21,12 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Jobs\Util\SystemLogger;
 use App\PaymentDrivers\PayFast\PaymentCompletedWebhook;
+use App\PaymentDrivers\PayFast\CreditCard;
+use App\PaymentDrivers\PayFastPaymentDriver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -123,7 +127,7 @@ class PayFastWebhookTest extends TestCase
         return http_build_query($fields);
     }
 
-    private function makePaymentHash(string $hash, float $amount = 100.00, bool $store_card = false): PaymentHash
+    private function makePaymentHash(string $hash, float $amount = 100.00): PaymentHash
     {
         $invoice = Invoice::factory()->create([
             'company_id' => $this->company->id,
@@ -135,10 +139,6 @@ class PayFastWebhookTest extends TestCase
             'amount_with_fee' => $amount,
             'invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => $amount]],
         ];
-
-        if ($store_card) {
-            $data['store_card'] = true;
-        }
 
         $payment_hash = new PaymentHash();
         $payment_hash->hash = $hash;
@@ -172,7 +172,9 @@ class PayFastWebhookTest extends TestCase
         $response = $this->call(
             'POST',
             $this->webhookUrl(),
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/x-www-form-urlencoded'],
             $body,
         );
@@ -194,7 +196,9 @@ class PayFastWebhookTest extends TestCase
         $response = $this->call(
             'POST',
             $this->webhookUrl(),
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/x-www-form-urlencoded'],
             $body,
         );
@@ -238,7 +242,7 @@ class PayFastWebhookTest extends TestCase
     public function testTokenStoredOnlyWhenStoreCardOptioned(): void
     {
         $hash_no_store = str_repeat('e', 32);
-        $this->makePaymentHash($hash_no_store, 100.00, store_card: false);
+        $this->makePaymentHash($hash_no_store);
 
         $fields = $this->itnFields($hash_no_store, '2000003');
         $fields['token'] = 'pf-token-aaaa';
@@ -248,14 +252,178 @@ class PayFastWebhookTest extends TestCase
         $this->assertEquals(0, ClientGatewayToken::where('client_id', $this->client->id)->where('token', 'pf-token-aaaa')->count());
 
         $hash_store = str_repeat('f', 32);
-        $this->makePaymentHash($hash_store, 100.00, store_card: true);
+        $this->makePaymentHash($hash_store);
 
         $fields = $this->itnFields($hash_store, '2000004');
+        $fields['custom_int1'] = '1';
         $fields['token'] = 'pf-token-bbbb';
 
         (new PaymentCompletedWebhook($fields, $this->company->company_key, $this->company_gateway->id))->handle();
 
         $this->assertEquals(1, ClientGatewayToken::where('client_id', $this->client->id)->where('token', 'pf-token-bbbb')->count());
+
+        $duplicate_hash = str_repeat('5', 32);
+        $this->makePaymentHash($duplicate_hash);
+        $fields = $this->itnFields($duplicate_hash, '2000008');
+        $fields['custom_int1'] = '1';
+        $fields['token'] = 'pf-token-bbbb';
+
+        (new PaymentCompletedWebhook($fields, $this->company->company_key, $this->company_gateway->id))->handle();
+
+        $this->assertSame(1, ClientGatewayToken::where('client_id', $this->client->id)->where('token', 'pf-token-bbbb')->count());
+    }
+
+    public function testUnexpectedStoreCardMarkerDoesNotStoreToken(): void
+    {
+        $hash = str_repeat('0', 32);
+        $this->makePaymentHash($hash);
+
+        $fields = $this->itnFields($hash, '2000006');
+        $fields['custom_int1'] = 'true';
+        $fields['token'] = 'pf-token-cccc';
+
+        (new PaymentCompletedWebhook($fields, $this->company->company_key, $this->company_gateway->id))->handle();
+
+        $this->assertFalse(ClientGatewayToken::where('token', 'pf-token-cccc')->exists());
+    }
+
+    public function testAuthorizationItnIsHandledBeforePaymentWebhookDispatch(): void
+    {
+        Queue::fake();
+
+        $hash = str_repeat('2', 32);
+        Cache::put($hash, 'cc_auth', 300);
+
+        $fields = $this->itnFields($hash, '2000007');
+        $fields['amount_gross'] = '5.00';
+        $fields['custom_int1'] = '1';
+        $fields['token'] = 'pf-auth-token';
+        $body = $this->buildRawBody($fields, $this->sign($fields));
+
+        $response = $this->call(
+            'POST',
+            $this->webhookUrl(),
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/x-www-form-urlencoded'],
+            $body,
+        );
+
+        $response->assertOk();
+        Queue::assertNotPushed(PaymentCompletedWebhook::class);
+        $this->assertSame(1, ClientGatewayToken::where('token', 'pf-auth-token')->count());
+
+        $retry = $this->call(
+            'POST',
+            $this->webhookUrl(),
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/x-www-form-urlencoded'],
+            $body,
+        );
+
+        $retry->assertOk();
+        $this->assertSame(1, ClientGatewayToken::where('token', 'pf-auth-token')->count());
+    }
+
+    public function testCheckoutSignaturesIncludePassphraseWithoutSubmittingIt(): void
+    {
+        $driver = $this->company_gateway->driver($this->client)->init();
+        $data = [
+            'merchant_id' => '10000100',
+            'merchant_key' => '46f0cd694581a',
+            'amount' => '100.00',
+            'item_name' => 'purchase',
+        ];
+
+        $standard = $driver->generateSignature($data, self::PASSPHRASE);
+        $tokenized = $driver->generateSignature(array_merge($data, [
+            'custom_int1' => 1,
+            'payment_method' => 'cc',
+            'subscription_type' => 2,
+        ]), self::PASSPHRASE);
+
+        $this->assertSame(md5(http_build_query($data) . '&passphrase=' . self::PASSPHRASE), $standard);
+        $this->assertNotSame($standard, $tokenized);
+        $this->assertArrayNotHasKey('passphrase', $data);
+    }
+
+    public function testTokenBillingSettingSelectsExpectedInitialPayload(): void
+    {
+        $payment_hash = $this->makePaymentHash(str_repeat('3', 32));
+
+        foreach ([
+            'off' => false,
+            'always' => true,
+            'optin' => false,
+            'optout' => true,
+        ] as $setting => $expected) {
+            $this->company_gateway->token_billing = $setting;
+
+            $driver = $this->company_gateway->driver($this->client)->init();
+            $driver->setPaymentHash($payment_hash);
+            $driver->setPaymentMethod(GatewayType::CREDIT_CARD);
+
+            $data = $driver->payment_method->paymentData(array_merge(
+                (array) $payment_hash->data,
+                ['payment_hash' => $payment_hash->hash],
+            ));
+
+            $this->assertSame($expected, $data['tokenize']);
+            $this->assertSame(
+                $expected ? $data['tokenized_signature'] : $data['standard_signature'],
+                $data['signature'],
+            );
+            $this->assertArrayNotHasKey('passphrase', $data);
+        }
+    }
+
+    public function testStoredTokenPaymentDoesNotRequireItnAmount(): void
+    {
+        $payment_hash = $this->makePaymentHash(str_repeat('4', 32));
+        $driver = $this->company_gateway->driver($this->client)->init();
+        $driver->setPaymentHash($payment_hash);
+        $driver->setPaymentMethod(GatewayType::CREDIT_CARD);
+        $driver->payment_method->authorizeResponse(Request::create('/', 'POST', [
+            'token' => 'pf-existing-token',
+        ]));
+
+        $payfast = $this->createMock(PayFastPaymentDriver::class);
+        $payfast->client = $this->client;
+        $payfast->payment_hash = $payment_hash;
+        $payfast->expects($this->once())
+            ->method('tokenBilling')
+            ->willReturn((object) ['hashed_id' => 'payment-id']);
+
+        $response = (new CreditCard($payfast))->paymentResponse(Request::create('/', 'POST', [
+            'token' => 'pf-existing-token',
+            'payment_hash' => $payment_hash->hash,
+        ]));
+
+        $this->assertTrue($response->isRedirect());
+        $this->assertTrue(PaymentHash::find($payment_hash->id)->data->payfast_token_payment);
+
+        $fields = $this->itnFields($payment_hash->hash, '2000009');
+        $fields['custom_int1'] = '1';
+        $fields['token'] = 'pf-unexpected-new-token';
+
+        (new PaymentCompletedWebhook($fields, $this->company->company_key, $this->company_gateway->id))->handle();
+
+        $this->assertFalse(ClientGatewayToken::where('token', 'pf-unexpected-new-token')->exists());
+    }
+
+    public function testStandaloneAuthorizationDoesNotChargeTheCard(): void
+    {
+        $driver = $this->company_gateway->driver($this->client)->init();
+        $driver->setPaymentMethod(GatewayType::CREDIT_CARD);
+
+        $view = $driver->authorizeView([]);
+        $data = $view->getData();
+
+        $this->assertSame(0, $data['amount']);
+        $this->assertSame(2, $data['subscription_type']);
     }
 
     public function testFailedStatusLogsFailureAndCreatesNoPayment(): void

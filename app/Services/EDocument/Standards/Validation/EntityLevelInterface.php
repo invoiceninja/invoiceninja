@@ -14,6 +14,7 @@ namespace App\Services\EDocument\Standards\Validation;
 
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 
@@ -24,6 +25,8 @@ interface EntityLevelInterface
     public function checkCompany(Company $company): array;
 
     public function checkInvoice(Invoice $invoice): array;
+
+    public function checkCredit(Credit $credit): array;
 
     public function checkRecurringInvoice(RecurringInvoice $recurring_invoice): array;
 

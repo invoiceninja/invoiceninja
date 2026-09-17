@@ -13,11 +13,18 @@
 namespace Tests\Feature\Export;
 
 use App\DataMapper\CompanySettings;
+use App\Export\CSV\BaseExport;
 use App\Export\CSV\CreditExport;
 use App\Export\CSV\ExpenseExport;
 use App\Export\CSV\InvoiceExport;
+use App\Export\CSV\InvoiceItemExport;
 use App\Export\CSV\PaymentExport;
+use App\Export\CSV\PurchaseOrderExport;
+use App\Export\CSV\PurchaseOrderItemExport;
+use App\Export\CSV\QuoteItemExport;
+use App\Export\CSV\RecurringInvoiceItemExport;
 use App\Factory\CompanyUserFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -28,7 +35,12 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use League\Csv\Reader;
@@ -66,7 +78,14 @@ class ReportGroupByTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        config(['queue.default' => 'sync']);
+        config([
+            'cache.default' => 'array',
+            'cache.limiter' => 'array',
+            'queue.default' => 'sync',
+            'scout.driver' => null,
+            'scout.queue.connection' => 'sync',
+            'session.driver' => 'array',
+        ]);
 
         $this->buildData();
 
@@ -88,7 +107,7 @@ class ReportGroupByTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32) . '@example.com',
+            'email' => \Illuminate\Support\Str::random(32) . '@gmail.com',
         ]);
 
         $settings = CompanySettings::defaults();
@@ -202,9 +221,487 @@ class ReportGroupByTest extends TestCase
         file_put_contents($path, $content);
     }
 
+    private function createGroupingInvoice(Client $client, string $number, float $amount, string $po_number = ''): Invoice
+    {
+        return Invoice::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => $number,
+            'po_number' => $po_number,
+            'amount' => $amount,
+            'balance' => 0,
+            'paid_to_date' => $amount,
+            'status_id' => Invoice::STATUS_PAID,
+        ]);
+    }
+
+    private function createGroupingPayment(string $number, float $amount, float $refunded = 0): Payment
+    {
+        return Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => $number,
+            'amount' => $amount,
+            'applied' => $amount,
+            'refunded' => $refunded,
+            'date' => '2026-01-01',
+            'is_deleted' => 0,
+        ]);
+    }
+
+    private function createPaymentApplication(Payment $payment, Invoice|Credit $payable, float $amount): Paymentable
+    {
+        return Paymentable::create([
+            'payment_id' => $payment->id,
+            'paymentable_type' => $payable instanceof Invoice ? 'invoices' : Credit::class,
+            'paymentable_id' => $payable->id,
+            'amount' => $amount,
+            'refunded' => 0,
+        ]);
+    }
+
+    private function createGroupingLineItems(): array
+    {
+        $item_one = InvoiceItemFactory::create();
+        $item_one->product_key = 'GROUP-ITEM-1';
+        $item_one->quantity = 1;
+        $item_one->cost = 60;
+        $item_one->line_total = 60;
+        $item_one->gross_line_total = 60;
+
+        $item_two = InvoiceItemFactory::create();
+        $item_two->product_key = 'GROUP-ITEM-2';
+        $item_two->quantity = 1;
+        $item_two->cost = 40;
+        $item_two->line_total = 40;
+        $item_two->gross_line_total = 40;
+
+        return [$item_one, $item_two];
+    }
+
+    private function groupedRawRow(BaseExport $export): array
+    {
+        $export->captureRawRows()->groupedRun();
+
+        return $export->rawRows()[0];
+    }
+
     // ---------------------------------------------------------------
     // CSV Output Tests
     // ---------------------------------------------------------------
+
+    public function testPaymentFanOutGroupingCountsOneInvoiceOnceAndEveryApplication(): void
+    {
+        $invoice = $this->createGroupingInvoice($this->client, 'INV-FAN-OUT', 100);
+        $payment_one = $this->createGroupingPayment('PAY-FAN-OUT-1', 60);
+        $payment_two = $this->createGroupingPayment('PAY-FAN-OUT-2', 40);
+
+        $this->createPaymentApplication($payment_one, $invoice, 60);
+        $this->createPaymentApplication($payment_two, $invoice, 40);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.number', 'invoice.amount', 'payment.applied_amount'],
+            'send_email' => false,
+            'group_by' => 'invoice.number',
+            'include_deleted' => false,
+        ]);
+
+        $rows = $this->parseCsvByFirstColumn($export->groupedRun());
+
+        $this->assertSame('100.00', $rows['INV-FAN-OUT']['Payment Applied Amount']);
+        $this->assertSame('2', $rows['INV-FAN-OUT']['Count']);
+        $this->assertSame('100.00', $rows['INV-FAN-OUT']['Invoice Amount']);
+    }
+
+    public function testPaymentFanOutGroupingCountsEachInvoiceOnceWhenGroupedByClient(): void
+    {
+        $invoice_one = $this->createGroupingInvoice($this->client, 'INV-CLIENT-1', 100);
+        $invoice_two = $this->createGroupingInvoice($this->client, 'INV-CLIENT-2', 50);
+        $payment_one = $this->createGroupingPayment('PAY-CLIENT-1', 70);
+        $payment_two = $this->createGroupingPayment('PAY-CLIENT-2', 30);
+        $payment_three = $this->createGroupingPayment('PAY-CLIENT-3', 50);
+
+        $this->createPaymentApplication($payment_one, $invoice_one, 70);
+        $this->createPaymentApplication($payment_two, $invoice_one, 30);
+        $this->createPaymentApplication($payment_three, $invoice_two, 50);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'invoice.number', 'invoice.amount', 'payment.applied_amount'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]);
+
+        $rows = $this->parseCsvByFirstColumn($export->groupedRun());
+
+        $this->assertSame('150.00', $rows['Client Alpha']['Payment Applied Amount']);
+        $this->assertSame('3', $rows['Client Alpha']['Count']);
+        $this->assertSame('150.00', $rows['Client Alpha']['Invoice Amount']);
+    }
+
+    public function testPaymentFanOutGroupingCountsOnePaymentOnceAcrossTwoInvoices(): void
+    {
+        $invoice_one = $this->createGroupingInvoice($this->client, 'INV-PAYMENT-1', 60);
+        $invoice_two = $this->createGroupingInvoice($this->client, 'INV-PAYMENT-2', 40);
+        $payment = $this->createGroupingPayment('PAY-MULTI-INVOICE', 100);
+
+        $this->createPaymentApplication($payment, $invoice_one, 60);
+        $this->createPaymentApplication($payment, $invoice_two, 40);
+
+        $export = new PaymentExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['payment.number', 'payment.amount', 'invoice.number'],
+            'send_email' => false,
+            'group_by' => 'payment.number',
+        ]);
+
+        $rows = $this->parseCsvByFirstColumn($export->groupedRun());
+
+        $this->assertSame('100.00', $rows['PAY-MULTI-INVOICE']['Payment Applied Amount']);
+        $this->assertSame('2', $rows['PAY-MULTI-INVOICE']['Count']);
+        $this->assertSame('100.00', $rows['PAY-MULTI-INVOICE']['Payment Amount']);
+    }
+
+    public function testPaymentFanOutGroupingCountsOnePaymentOnceAcrossInvoiceAndCredit(): void
+    {
+        $invoice = $this->createGroupingInvoice($this->client, 'INV-MIXED', 70);
+        $credit = Credit::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'CR-MIXED',
+            'amount' => 30,
+            'balance' => 0,
+            'status_id' => Credit::STATUS_APPLIED,
+        ]);
+        $payment = $this->createGroupingPayment('PAY-MIXED', 100);
+
+        $this->createPaymentApplication($payment, $invoice, 70);
+        $this->createPaymentApplication($payment, $credit, 30);
+
+        $export = new PaymentExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['payment.number', 'payment.amount', 'invoice.number', 'credit.number'],
+            'send_email' => false,
+            'group_by' => 'payment.number',
+        ]);
+
+        $rows = $this->parseCsvByFirstColumn($export->groupedRun());
+
+        $this->assertSame('100.00', $rows['PAY-MIXED']['Payment Applied Amount']);
+        $this->assertSame('2', $rows['PAY-MIXED']['Count']);
+        $this->assertSame('100.00', $rows['PAY-MIXED']['Payment Amount']);
+    }
+
+    public function testPaymentFanOutGroupingLeavesTotalsWithoutApplicationRowsUnchanged(): void
+    {
+        $this->createGroupingInvoice($this->client, 'INV-CONTROL-1', 100);
+        $this->createGroupingInvoice($this->client, 'INV-CONTROL-2', 50);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'invoice.amount'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]);
+
+        $rows = $this->parseCsvByFirstColumn($export->groupedRun());
+
+        $this->assertSame('150.00', $rows['Client Alpha']['Invoice Amount']);
+        $this->assertSame('2', $rows['Client Alpha']['Count']);
+    }
+
+    public function testPaymentFanOutGroupingUsesInternalInvoiceIdsInsteadOfDisplayedLabels(): void
+    {
+        $invoice_one = $this->createGroupingInvoice($this->client, 'INV-DUPLICATE-1', 40, 'PO-DUPLICATE');
+        $invoice_two = $this->createGroupingInvoice($this->client, 'INV-DUPLICATE-2', 60, 'PO-DUPLICATE');
+        $payment_one = $this->createGroupingPayment('PAY-DUPLICATE-1', 30);
+        $payment_two = $this->createGroupingPayment('PAY-DUPLICATE-2', 10);
+        $payment_three = $this->createGroupingPayment('PAY-DUPLICATE-3', 60);
+
+        $this->createPaymentApplication($payment_one, $invoice_one, 30);
+        $this->createPaymentApplication($payment_two, $invoice_one, 10);
+        $this->createPaymentApplication($payment_three, $invoice_two, 60);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.po_number', 'invoice.number', 'invoice.amount', 'payment.applied_amount'],
+            'send_email' => false,
+            'group_by' => 'invoice.po_number',
+            'include_deleted' => false,
+        ]);
+
+        $rows = $this->parseCsvByFirstColumn($export->groupedRun());
+
+        $this->assertSame('100.00', $rows['PO-DUPLICATE']['Payment Applied Amount']);
+        $this->assertSame('3', $rows['PO-DUPLICATE']['Count']);
+        $this->assertSame('100.00', $rows['PO-DUPLICATE']['Invoice Amount']);
+    }
+
+    public function testPaymentFanOutGroupingDoesNotExposeInternalParentMetadata(): void
+    {
+        $invoice = $this->createGroupingInvoice($this->client, 'INV-METADATA', 100);
+        $payment_one = $this->createGroupingPayment('PAY-METADATA-1', 60);
+        $payment_two = $this->createGroupingPayment('PAY-METADATA-2', 40);
+
+        $this->createPaymentApplication($payment_one, $invoice, 60);
+        $this->createPaymentApplication($payment_two, $invoice, 40);
+
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.number', 'invoice.amount', 'payment.applied_amount'],
+            'send_email' => false,
+            'group_by' => 'invoice.number',
+            'include_deleted' => false,
+        ];
+
+        $normal_reader = Reader::createFromString((new InvoiceExport($this->company, $data))->run());
+        $normal_reader->setHeaderOffset(0);
+        $normal_records = iterator_to_array($normal_reader->getRecords(), false);
+
+        $this->assertCount(2, $normal_records);
+        $this->assertNotContains('__grouping_identities', $normal_reader->getHeader());
+        $this->assertSame(
+            [60.0, 40.0],
+            array_map(static fn (array $row): float => (float) $row['Payment Applied Amount'], $normal_records)
+        );
+
+        $export = (new InvoiceExport($this->company, $data))->captureRawRows();
+
+        $reader = Reader::createFromString($export->groupedRun());
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords(), false);
+
+        $this->assertNotContains('__grouping_identities', $reader->getHeader());
+        $this->assertCount(count($reader->getHeader()), $records[0]);
+        $this->assertArrayNotHasKey('__grouping_identities', $export->rawRows()[0]);
+    }
+
+    public function testPaymentFanOutGroupingReturnsCorrectGroupedJsonWithoutInternalMetadata(): void
+    {
+        $invoice = $this->createGroupingInvoice($this->client, 'INV-JSON-FAN-OUT', 100);
+        $payment_one = $this->createGroupingPayment('PAY-JSON-1', 60);
+        $payment_two = $this->createGroupingPayment('PAY-JSON-2', 40);
+
+        $this->createPaymentApplication($payment_one, $invoice, 60);
+        $this->createPaymentApplication($payment_two, $invoice, 40);
+
+        $export = new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.number', 'invoice.amount', 'payment.applied_amount'],
+            'send_email' => false,
+            'group_by' => 'invoice.number',
+            'include_deleted' => false,
+        ]);
+
+        $result = $export->groupedReturnJson();
+        $identifiers = array_column($result['columns'], 'identifier');
+        $data_rows = $this->extractJsonDataRows($result);
+        $row = collect($data_rows)->first(
+            fn (array $row): bool => $this->getJsonCellValue($row, 'invoice.number') === 'INV-JSON-FAN-OUT'
+        );
+
+        $this->assertNotContains('__grouping_identities', $identifiers);
+        $this->assertNotNull($row);
+        $this->assertSame('100.00', $this->getJsonCellValue($row, 'invoice.amount'));
+        $this->assertSame('100.00', $this->getJsonCellValue($row, 'payment.applied_amount'));
+        $this->assertSame(2, $this->getJsonCellValue($row, 'group.count'));
+    }
+
+    public function testScopedGroupingDeduplicatesRelatedPaymentValuesInInvoiceReport(): void
+    {
+        $invoice_one = $this->createGroupingInvoice($this->client, 'INV-PAYMENT-SCOPE-1', 60);
+        $invoice_two = $this->createGroupingInvoice($this->client, 'INV-PAYMENT-SCOPE-2', 40);
+        $payment = $this->createGroupingPayment('PAY-PAYMENT-SCOPE', 100, 10);
+
+        $this->createPaymentApplication($payment, $invoice_one, 60);
+        $this->createPaymentApplication($payment, $invoice_two, 40);
+
+        $row = $this->groupedRawRow(new InvoiceExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => [
+                'client.name',
+                'invoice.number',
+                'invoice.amount',
+                'payment.amount',
+                'payment.applied',
+                'payment.refunded',
+                'payment.applied_amount',
+            ],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]));
+
+        $this->assertSame(100.0, $row['invoice.amount']);
+        $this->assertSame(100.0, $row['payment.amount']);
+        $this->assertSame(100.0, $row['payment.applied']);
+        $this->assertSame(10.0, $row['payment.refunded']);
+        $this->assertSame(100.0, $row['payment.applied_amount']);
+        $this->assertSame(2, $row['group.count']);
+    }
+
+    public function testScopedGroupingCountsInvoiceOnceAndEveryInvoiceItem(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'INV-ITEM-GROUP',
+            'amount' => 100,
+            'line_items' => $this->createGroupingLineItems(),
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $row = $this->groupedRawRow(new InvoiceItemExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'invoice.amount', 'item.line_total'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]));
+
+        $this->assertSame(100.0, $row['invoice.amount']);
+        $this->assertSame(100, $row['item.line_total']);
+        $this->assertSame(2, $row['group.count']);
+    }
+
+    public function testScopedGroupingCountsQuoteOnceAndEveryQuoteItem(): void
+    {
+        Quote::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'QUOTE-ITEM-GROUP',
+            'amount' => 100,
+            'line_items' => $this->createGroupingLineItems(),
+            'status_id' => Quote::STATUS_SENT,
+        ]);
+
+        $row = $this->groupedRawRow(new QuoteItemExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'quote.amount', 'item.line_total'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]));
+
+        $this->assertSame(100.0, $row['quote.amount']);
+        $this->assertSame(100, $row['item.line_total']);
+        $this->assertSame(2, $row['group.count']);
+    }
+
+    public function testScopedGroupingCountsRecurringInvoiceOnceAndEveryRecurringInvoiceItem(): void
+    {
+        RecurringInvoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'RECURRING-ITEM-GROUP',
+            'amount' => 100,
+            'line_items' => $this->createGroupingLineItems(),
+            'status_id' => RecurringInvoice::STATUS_ACTIVE,
+        ]);
+
+        $row = $this->groupedRawRow(new RecurringInvoiceItemExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'recurring_invoice.amount', 'item.line_total'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]));
+
+        $this->assertSame(100.0, $row['recurring_invoice.amount']);
+        $this->assertSame(100, $row['item.line_total']);
+        $this->assertSame(2, $row['group.count']);
+    }
+
+    public function testScopedGroupingCountsPurchaseOrderOnceAndEveryPurchaseOrderItem(): void
+    {
+        $vendor = Vendor::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'Grouping Vendor',
+            'is_deleted' => false,
+        ]);
+
+        PurchaseOrder::factory()->create([
+            'vendor_id' => $vendor->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'PO-ITEM-GROUP',
+            'amount' => 100,
+            'line_items' => $this->createGroupingLineItems(),
+            'status_id' => PurchaseOrder::STATUS_SENT,
+        ]);
+
+        $row = $this->groupedRawRow(new PurchaseOrderItemExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['vendor.name', 'purchase_order.amount', 'item.line_total'],
+            'send_email' => false,
+            'group_by' => 'vendor.name',
+            'include_deleted' => false,
+            'client_id' => null,
+        ]));
+
+        $this->assertSame(100.0, $row['purchase_order.amount']);
+        $this->assertSame(100, $row['item.line_total']);
+        $this->assertSame(2, $row['group.count']);
+    }
+
+    public function testScopedGroupingKeepsPurchaseOrderAndCreditRootTotalsUnchanged(): void
+    {
+        $vendor = Vendor::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'Root Grouping Vendor',
+            'is_deleted' => false,
+        ]);
+
+        foreach ([40, 60] as $amount) {
+            PurchaseOrder::factory()->create([
+                'vendor_id' => $vendor->id,
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'amount' => $amount,
+                'status_id' => PurchaseOrder::STATUS_SENT,
+            ]);
+
+            Credit::factory()->create([
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'amount' => $amount,
+                'status_id' => Credit::STATUS_SENT,
+            ]);
+        }
+
+        $purchase_order_row = $this->groupedRawRow(new PurchaseOrderExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['vendor.name', 'purchase_order.amount'],
+            'send_email' => false,
+            'group_by' => 'vendor.name',
+            'include_deleted' => false,
+            'client_id' => null,
+        ]));
+        $credit_row = $this->groupedRawRow(new CreditExport($this->company, [
+            'date_range' => 'all',
+            'report_keys' => ['client.name', 'credit.amount'],
+            'send_email' => false,
+            'group_by' => 'client.name',
+            'include_deleted' => false,
+        ]));
+
+        $this->assertSame(100.0, $purchase_order_row['purchase_order.amount']);
+        $this->assertSame(2, $purchase_order_row['group.count']);
+        $this->assertSame(100.0, $credit_row['credit.amount']);
+        $this->assertSame(2, $credit_row['group.count']);
+    }
 
     public function testCsvGroupByClientSumsAmountsCorrectly(): void
     {

@@ -37,7 +37,7 @@ class EInvoiceForwarderTest extends TestCase
 
         Bus::assertDispatched(Email::class, function (Email $job) {
             return $this->hasRecipient($job, 'expense-forward@example.test')
-                && $this->hasRecipientName($job, 'expense-forward@example.test', 'E-Invoice Forwarding')
+                && $this->hasRecipientName($job, 'expense-forward@example.test', 'EInvoice Forwarding')
                 && $job->email_object->subject === 'Peppol Document (received): received-guid.xml'
                 && $job->email_object->attachments[0]['name'] === 'received-guid.xml'
                 && base64_decode($job->email_object->attachments[0]['file']) === '<Invoice/>';
@@ -77,7 +77,7 @@ class EInvoiceForwarderTest extends TestCase
 
         Bus::assertDispatched(Email::class, function (Email $job) {
             return $this->hasRecipient($job, 'expense-forward@example.test')
-                && $this->hasRecipientName($job, 'expense-forward@example.test', 'E-Invoice Forwarding')
+                && $this->hasRecipientName($job, 'expense-forward@example.test', 'EInvoice Forwarding')
                 && $job->email_object->subject === 'Peppol Document (received): SUP-123.xml'
                 && $job->email_object->attachments[0]['name'] === 'SUP-123.xml'
                 && base64_decode($job->email_object->attachments[0]['file']) === '<Invoice>hosted</Invoice>';

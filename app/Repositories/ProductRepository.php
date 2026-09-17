@@ -26,12 +26,16 @@ class ProductRepository extends BaseRepository
      */
     public function save(array $data, Product $product): ?Product
     {
+        $tag_ids = $this->resolveTagIdsForSync($data, $product);
+
         $product->fill($data);
         $product->save();
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $product);
         }
+
+        $this->syncResolvedTags($product, $tag_ids);
 
         return $product;
     }

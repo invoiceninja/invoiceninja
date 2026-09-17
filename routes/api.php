@@ -20,6 +20,7 @@ use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\BankTransactionRuleController;
+use App\Http\Controllers\CalendarConnectionController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\BrevoController;
 use App\Http\Controllers\ChartController;
@@ -45,7 +46,6 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FilterController;
 use App\Http\Controllers\GroupSettingController;
-use App\Http\Controllers\HostedMigrationController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ImportJsonController;
 use App\Http\Controllers\ImportQuickbooksController;
@@ -54,6 +54,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\MailerController;
 use App\Http\Controllers\MailgunController;
 use App\Http\Controllers\MigrationController;
 use App\Http\Controllers\OneTimeTokenController;
@@ -120,6 +121,7 @@ use App\Http\Controllers\Support\Messages\SendingController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskSchedulerController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\TemplateController;
@@ -137,14 +139,23 @@ use App\PaymentDrivers\PayPalPPCPPaymentDriver;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
-    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
+    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:signup');
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
+    Route::get('api/v1/oidc/config', [LoginController::class, 'oidcConfig'])->name('oidc.config');
+    Route::post('api/v1/oidc/exchange', [LoginController::class, 'oidcExchange'])->name('oidc.exchange')->middleware('throttle:30,1');
+});
+
+Route::group(['middleware' => ['throttle:precheck']], function () {
+    Route::post('api/v1/login/precheck', [LoginController::class, 'precheck'])->name('login.precheck');
 });
 
 Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
-    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:10,1');
     Route::post('api/v1/passkeys/login/options', [PasskeyController::class, 'loginOptions'])->name('passkeys.login.options');
+});
+
+Route::group(['middleware' => ['throttle:password-reset', 'api_secret_check', 'email_db']], function () {
+    Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
 Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
@@ -185,7 +196,8 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('charts/analytics_totals', [ChartController::class, 'analytics_totals'])->name('chart.analytics_totals');
     Route::post('charts/cashflow_forecast', [ChartController::class, 'cashflow_forecast'])->name('chart.cashflow_forecast');
     Route::post('charts/client_payment_analytics', [ChartController::class, 'client_payment_analytics'])->name('chart.client_payment_analytics');
-    Route::post('charts/project_analytics', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
+    Route::post('charts/project_analytics/{project}', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
+    Route::post('charts/project_burnup/{project}', [ChartController::class, 'projectBurnup'])->name('chart.project_burnup');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
     Route::post('check_license', [LicenseController::class, 'check'])->name('license.check');
@@ -209,6 +221,13 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('connected_account', [ConnectedAccountController::class, 'index']);
     Route::post('connected_account/gmail', [ConnectedAccountController::class, 'handleGmailOauth']);
+
+    Route::get('calendar_connection', [CalendarConnectionController::class, 'show'])->name('calendar_connection.show');
+    Route::post('calendar_connection/{provider}/complete', [CalendarConnectionController::class, 'complete'])->name('calendar_connection.complete')->middleware('throttle:10,1');
+    Route::get('calendar_connection/calendars', [CalendarConnectionController::class, 'calendars'])->name('calendar_connection.calendars');
+    Route::get('calendar_connection/events', [CalendarConnectionController::class, 'events'])->name('calendar_connection.events');
+    Route::put('calendar_connection/calendars', [CalendarConnectionController::class, 'updateCalendars'])->name('calendar_connection.calendars.update');
+    Route::delete('calendar_connection', [CalendarConnectionController::class, 'destroy'])->name('calendar_connection.destroy');
 
     Route::post('client_statement', [ClientStatementController::class, 'statement'])->name('client.statement');
 
@@ -348,6 +367,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, 'downloadEQuote'])->name('quotes.downloadEQuote');
 
     Route::post('quickbooks/sync', [QuickbooksController::class, 'sync'])->name('quickbooks.sync');
+    Route::post('quickbooks/action', [QuickbooksController::class, 'action'])->name('quickbooks.action');
     Route::post('quickbooks/settings', [QuickbooksController::class, 'settings'])->name('quickbooks.settings');
     Route::post('quickbooks/disconnect', [QuickbooksController::class, 'disconnect'])->name('quickbooks.disconnect');
     Route::post('quickbooks/reconnect_url', [QuickbooksController::class, 'reconnectUrl'])->name('quickbooks.reconnect_url');
@@ -422,6 +442,9 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::resource('task_statuses', TaskStatusController::class); // name = (task_statuses. index / create / show / update / destroy / edit
     Route::post('task_statuses/bulk', [TaskStatusController::class, 'bulk'])->name('task_statuses.bulk');
 
+    Route::resource('tags', TagController::class); // name = (tags. index / create / show / update / destroy / edit
+    Route::post('tags/bulk', [TagController::class, 'bulk'])->name('tags.bulk');
+
     Route::resource('tax_rates', TaxRateController::class); // name = (tax_rates. index / create / show / update / destroy / edit
     Route::post('tax_rates/bulk', [TaxRateController::class, 'bulk'])->name('tax_rates.bulk');
 
@@ -470,6 +493,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     // Route::delete('hooks/{subscription_id}', [SubscriptionController::class, 'unsubscribe'])->name('hooks.unsubscribe');
 
     Route::post('smtp/check', [SmtpController::class, 'check'])->name('smtp.check')->middleware('throttle:10,1');
+    Route::post('mailer/check', [MailerController::class, 'check'])->name('mailer.check')->middleware('throttle:10,1');
 
     Route::post('stripe/update_payment_methods', [StripeController::class, 'update'])->middleware('password_protected')->name('stripe.update');
     Route::post('stripe/import_customers', [StripeController::class, 'import'])->middleware('password_protected')->name('stripe.import');
@@ -520,8 +544,12 @@ Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdates
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
-Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
+Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])
+    ->name('protected_download')
+    ->middleware(['protected_download.signature', 'throttle:300,1']);
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
+
+Route::get('api/v1/calendar_connection/{provider}/authorize/{hash}', [CalendarConnectionController::class, 'redirectToProvider'])->name('calendar_connection.authorize')->middleware('throttle:10,1');
 
 Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
 Route::get('quickbooks/reconnect/{token}', [ImportQuickbooksController::class, 'reconnect'])->name('quickbooks.reconnect');

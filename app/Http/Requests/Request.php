@@ -12,14 +12,28 @@
 
 namespace App\Http\Requests;
 
-use App\Http\ValidationRules\User\RelatedUserRule;
+use App\Models\Tag;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class Request extends FormRequest
 {
     use MakesHash;
     use RuntimeFormRequest;
+
+    private const GLOBAL_RULE_METHODS = [
+        'assigned_user_id' => true,
+        'invoice_id' => true,
+        'vendor_id' => true,
+        'tags' => true,
+    ];
+
+    /** @var class-string|null */
+    protected ?string $tag_entity_type = null;
+
+    protected ?string $timeLogValidationError = null;
 
     protected $file_validation = 'sometimes|file|max:100000|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp,txt';
     /**
@@ -42,9 +56,9 @@ class Request extends FormRequest
 
     }
 
-    public function globalRules($rules)
+    public function globalRules(array $rules): array
     {
-        $merge_rules = [];
+        $merge_rules = $rules;
 
         foreach ($this->all() as $key => $value) {
 
@@ -52,17 +66,21 @@ class Request extends FormRequest
                 continue;
             }
 
-            if (method_exists($this, $key)) {
-                $merge_rules = $this->{$key}($rules);
+            if (isset(self::GLOBAL_RULE_METHODS[$key]) && ! $this->hasExistingGlobalRule($key, $merge_rules)) {
+                $merge_rules = $this->{$key}($merge_rules);
             }
         }
 
-        //01-02-2022 needed for CSV Imports
-        if (! $merge_rules) {
-            return $rules;
+        return $merge_rules;
+    }
+
+    private function hasExistingGlobalRule(string $key, array $rules): bool
+    {
+        if ($key === 'tags') {
+            return array_key_exists('tags', $rules) || array_key_exists('tags.*', $rules);
         }
 
-        return array_merge($merge_rules, $rules);
+        return array_key_exists($key, $rules);
     }
 
     private function assigned_user_id($rules)
@@ -71,7 +89,7 @@ class Request extends FormRequest
             'bail',
             'sometimes',
             'nullable',
-            new RelatedUserRule($this->all()),
+            Rule::exists('users', 'id')->where('account_id', auth()->user()->account_id),
         ];
 
         return $rules;
@@ -97,66 +115,40 @@ class Request extends FormRequest
         return $rules;
     }
 
+    private function tags(array $rules): array
+    {
+        if (! $this->tag_entity_type) {
+            return $rules;
+        }
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return array_merge($rules, $this->tagRules($user->company()->id, $this->tag_entity_type));
+    }
+
     public function decodePrimaryKeys($input)
     {
-        if (array_key_exists('group_settings_id', $input) && is_string($input['group_settings_id'])) {
-            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
-        }
-
-        if (array_key_exists('group_id', $input) && is_string($input['group_id'])) {
-            $input['group_id'] = $this->decodePrimaryKey($input['group_id']);
-        }
-
-        if (array_key_exists('subscription_id', $input) && is_string($input['subscription_id'])) {
-            $input['subscription_id'] = $this->decodePrimaryKey($input['subscription_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (array_key_exists('user_id', $input) && is_string($input['user_id'])) {
-            $input['user_id'] = $this->decodePrimaryKey($input['user_id']);
-        }
-
-        if (array_key_exists('vendor_id', $input) && is_string($input['vendor_id'])) {
-            $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
-        }
-
-        if (array_key_exists('location_id', $input) && is_string($input['location_id'])) {
-            $input['location_id'] = $this->decodePrimaryKey($input['location_id']);
-        }
-
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('invoice_id', $input) && is_string($input['invoice_id'])) {
-            $input['invoice_id'] = $this->decodePrimaryKey($input['invoice_id']);
-        }
-
-        if (array_key_exists('expense_id', $input) && is_string($input['expense_id'])) {
-            $input['expense_id'] = $this->decodePrimaryKey($input['expense_id']);
-        }
-
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
-            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
-        }
-
-        if (array_key_exists('company_gateway_id', $input) && is_string($input['company_gateway_id'])) {
-            $input['company_gateway_id'] = $this->decodePrimaryKey($input['company_gateway_id']);
-        }
-
-        if (array_key_exists('transaction_id', $input) && is_string($input['transaction_id'])) {
-            $input['transaction_id'] = $this->decodePrimaryKey($input['transaction_id']);
-        }
-
-        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
-            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
+        foreach([
+            'group_settings_id', 
+            'group_id', 
+            'subscription_id', 
+            'assigned_user_id', 
+            'user_id', 
+            'vendor_id', 
+            'location_id', 
+            'client_id', 
+            'invoice_id',
+            'quote_id', 
+            'expense_id', 
+            'design_id', 
+            'project_id', 
+            'company_gateway_id', 
+            'transaction_id', 
+            'category_id'] as $field) {
+            if (array_key_exists($field, $input) && is_string($input[$field])) {
+                $input[$field] = $this->decodePrimaryKey($input[$field]);
+            }
         }
 
         if (isset($input['client_contacts'])) {
@@ -224,7 +216,87 @@ class Request extends FormRequest
             }
         }
 
+        $input = $this->normalizeTagPayloadForValidation($input);
+
         return $input;
+    }
+
+    /**
+     * @param  array<string, mixed> $input
+     * @return array<string, mixed>
+     */
+    protected function normalizeTagPayloadForValidation(array $input): array
+    {
+        if (! array_key_exists('tags', $input) || ! is_array($input['tags'])) {
+            return $input;
+        }
+
+        if (! array_is_list($input['tags'])) {
+            $input['tags'] = [null];
+
+            return $input;
+        }
+
+        $tag_ids = [];
+
+        foreach ($input['tags'] as $tag) {
+            $tag_ids[] = $this->normalizeTagId($tag);
+        }
+
+        $input['tags'] = array_values(array_unique($tag_ids));
+
+        return $input;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function tagRules(int $company_id, string $entity_type): array
+    {
+        return [
+            'tags' => ['sometimes', 'array', 'list'],
+            'tags.*' => [
+                'bail',
+                'required',
+                'integer',
+                Rule::exists('tags', 'id')
+                    ->where('company_id', $company_id)
+                    ->whereIn('entity_type', [$entity_type, Tag::GLOBAL_ENTITY_TYPE])
+                    ->where('is_deleted', false),
+            ],
+        ];
+    }
+
+    private function normalizeTagId(mixed $tag): ?int
+    {
+        if (is_array($tag) && array_key_exists('id', $tag)) {
+            return $this->decodeTagId($tag['id']);
+        }
+
+        if (is_string($tag)) {
+            return $this->decodeTagId($tag);
+        }
+
+        return null;
+    }
+
+    private function decodeTagId(mixed $tag_id): ?int
+    {
+        if (! is_string($tag_id) || $tag_id === '') {
+            return null;
+        }
+
+        $decoded = $this->decodePrimaryKey($tag_id);
+
+        if (is_int($decoded) && $decoded > 0) {
+            return $decoded;
+        }
+
+        if (is_string($decoded) && ctype_digit($decoded) && (int) $decoded > 0) {
+            return (int) $decoded;
+        }
+
+        return null;
     }
 
     public function prepareForValidation() {}
@@ -241,6 +313,71 @@ class Request extends FormRequest
     }
 
     public function checkTimeLog(array $log): bool
+    {
+        $this->timeLogValidationError = null;
+
+        if ($log === []) {
+            return true;
+        }
+
+        usort(
+            $log,
+            static fn (array $left, array $right): int => $left[0] <=> $right[0]
+        );
+
+        foreach ($log as $index => $entry) {
+            $startTime = $entry[0];
+            $endTime = $entry[1];
+            $nextEntry = $log[$index + 1] ?? null;
+
+            if ($endTime !== 0 && $startTime > $endTime) {
+                return false;
+            }
+
+            if ($nextEntry === null) {
+                continue;
+            }
+
+            if ($endTime === 0) {
+                return false;
+            }
+
+            if ($nextEntry[0] < $endTime) {
+                $overlapStartTime = max($startTime, $nextEntry[0]);
+                $overlapEndTime = $nextEntry[1] === 0
+                    ? $endTime
+                    : min($endTime, $nextEntry[1]);
+
+                $this->timeLogValidationError = sprintf(
+                    'Overlap detected: %s - %s.',
+                    $this->formatTimeLogTimestamp($overlapStartTime),
+                    $this->formatTimeLogTimestamp($overlapEndTime)
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function formatTimeLogTimestamp(int $timestamp): string
+    {
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        $company = $user?->company();
+        $timezone = $company?->timezone()?->name ?: config('app.timezone', 'UTC');
+        $dateFormat = $company?->date_format() ?: 'Y-m-d';
+        $timeFormat = $company?->getSetting('military_time') ? 'H:i:s' : 'h:i:s A';
+        $locale = $company?->locale() ?: app()->getLocale();
+
+        return Carbon::createFromTimestampUTC($timestamp)
+            ->setTimezone($timezone)
+            ->locale($locale)
+            ->translatedFormat("{$dateFormat} {$timeFormat}");
+    }
+
+    public function checkTimeLogOld(array $log): bool
     {
         if (count($log) == 0) {
             return true;

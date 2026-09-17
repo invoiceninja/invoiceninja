@@ -24,31 +24,31 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-        <ul class="list-none">
+        <ul class="payment-method-list">
             @if(count($tokens) > 0)
                 @foreach($tokens as $token)
-                <li class="py-2 cursor-pointer">
-                    <label class="flex items-center cursor-pointer px-2">
-                        <input
+                <li class="payment-method-item">
+                <label class="payment-method-label">
+                <input
                             type="radio"
                             data-token="{{ $token->token }}"
                             name="payment-type"
-                            class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
-                        <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
+                            class="form-radio cursor-pointer toggle-payment-with-token"/>
+                        <span class="ml-1">**** {{ $token->meta?->last4 }}</span>
                     </label>
                 </li>
                 @endforeach
             @endisset
 
-            <li class="py-2 cursor-pointer">
-                <label class="flex items-center cursor-pointer px-2">
+            <li class="payment-method-item">
+            <label class="payment-method-label">
                     <input
                         type="radio"
                         id="toggle-payment-with-new-bank-account"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer"
+                        class="form-radio cursor-pointer"
                         name="payment-type"
                         checked/>
-                    <span class="ml-1 cursor-pointer">{{ __('texts.new_bank_account') }}</span>
+                    <span class="ml-1">{{ __('texts.new_bank_account') }}</span>
                 </label>
             </li>
 

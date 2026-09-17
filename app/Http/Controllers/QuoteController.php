@@ -16,6 +16,7 @@ use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Factory\CloneQuoteFactory;
 use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Factory\CloneQuoteToPurchaseOrderFactory;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
 use App\Http\Requests\Quote\ActionQuoteRequest;
@@ -27,17 +28,20 @@ use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
-use App\Jobs\Quote\ZipQuotes;
+use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
+use App\Services\PdfMaker\BatchPdfService;
 use App\Services\PdfMaker\PdfMerge;
 use App\Services\Template\TemplateAction;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\ProjectTransformer;
+use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
@@ -120,7 +124,7 @@ class QuoteController extends BaseController
      */
     public function index(QuoteFilters $filters)
     {
-        $quotes = Quote::filter($filters);
+        $quotes = Quote::filter($filters)->with('tags');
 
         return $this->listResponse($quotes);
     }
@@ -540,6 +544,16 @@ class QuoteController extends BaseController
             return response()->json(['message' => ctrans('texts.quote_not_found')]);
         }
 
+        if ($action == 'convert_to_purchase_order') {
+            $quote = $quotes->first();
+
+            if (! $quote || $user->cannot('edit', $quote)) {
+                return response()->json(['message' => ctrans('texts.access_denied')], 403);
+            }
+
+            return $this->performAction($quote, $action);
+        }
+
         /*
          * Download Quote/s
          */
@@ -552,7 +566,7 @@ class QuoteController extends BaseController
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 
-            ZipQuotes::dispatch($authorized->pluck('id')->toArray(), $authorized->first()->company, auth()->user());
+            ZipEntity::dispatch($authorized->pluck('id'), $authorized->first()->company, auth()->user(), Quote::class);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -583,28 +597,14 @@ class QuoteController extends BaseController
 
             $start = microtime(true);
 
-            $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Quote::class, $quotes->pluck('id')->toArray(), $user->company()->db))->handle();
-            $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-            $batch_key = $batch->name;
-
-            $finished = false;
-
-            do {
-                usleep(200000);
-                $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-                $finished = $batch->finished();
-            } while (!$finished);
-
-            $paths = $quotes->map(function ($quote) use ($batch_key) {
-                return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$quote->id}");
-            })->filter(function ($value) {
-                return !is_null($value);
-            })->toArray();
-
-            $mergedPdf = (new PdfMerge($paths))->run();
-
-            return response()->streamDownload(function () use ($mergedPdf) {
-                echo $mergedPdf;
+            $merged_pdf = app(BatchPdfService::class)->render(
+                Quote::class,
+                $quotes->pluck('id')->all(),
+                $user->company()->db,
+            );
+            
+            return response()->streamDownload(function () use ($merged_pdf) {
+                echo $merged_pdf;
             }, 'print.pdf', [
                 'Content-Type' => 'application/pdf',
                 'Cache-Control:' => 'no-cache',
@@ -677,6 +677,7 @@ class QuoteController extends BaseController
      *
      *  The current range of actions are as follows
      *  - clone_to_quote
+     *  - convert_to_purchase_order
      *  - history
      *  - delivery_note
      *  - mark_paid
@@ -773,6 +774,15 @@ class QuoteController extends BaseController
 
                 return $this->itemResponse($quote);
 
+            case 'convert_to_purchase_order':
+                $purchase_order = CloneQuoteToPurchaseOrderFactory::create($quote, auth()->user()->id);
+                $purchase_order->design_id = $this->decodePrimaryKey($quote->client->getSetting('purchase_order_design_id'));
+
+                $this->entity_transformer = PurchaseOrderTransformer::class;
+                $this->entity_type = PurchaseOrder::class;
+
+                return $this->itemResponse($purchase_order);
+
             case 'approve':
                 if (! in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT])) {
                     return response()->json(['message' => ctrans('texts.quote_unapprovable')], 400);
@@ -821,7 +831,7 @@ class QuoteController extends BaseController
                 return response()->json(['message' => ctrans('texts.sent_message')], 200);
 
             case 'mark_sent':
-                $quote->service()->markSent()->save();
+                $quote->service()->markSent(true)->save();
 
                 if (! $bulk) {
                     return $this->itemResponse($quote);
@@ -1027,7 +1037,7 @@ class QuoteController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $quote, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $quote, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($quote->fresh());

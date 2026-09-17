@@ -4092,16 +4092,6 @@
       "HEAD"
     ]
   },
-  "gocardless.ibp_redirect": {
-    "name": "gocardless.ibp_redirect",
-    "domain": null,
-    "action": "App\\Http\\Controllers\\Gateways\\GoCardlessController@ibpRedirect",
-    "uri": "gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}",
-    "method": [
-      "GET",
-      "HEAD"
-    ]
-  },
   "generated::2OkrIfB3RYLhUehk": {
     "name": "generated::2OkrIfB3RYLhUehk",
     "domain": null,

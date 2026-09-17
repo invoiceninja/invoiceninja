@@ -3,12 +3,13 @@
         @foreach($context['bundle']['optional_one_time_products'] as $key => $entry)
         @php
             $product = $entry['product'];
+            $notesEntity = auth()->guard('contact')->user()?->client ?? \App\Models\Company::find($this->subscription()->company_id);
         @endphp
 
         <div class="border border-gray-200 rounded-lg p-6">
             @if($product['notes'])
                 <article class="prose prose-sm mb-4 text-gray-600">
-                    {!! \App\Models\Product::markdownHelp($product['notes']) !!}
+                    {!! \App\Models\Product::markdownHelp($product['notes'], $notesEntity) !!}
                 </article>
             @endif
 

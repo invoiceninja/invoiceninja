@@ -51,6 +51,9 @@ class CloneInvoiceToQuoteFactory
         $quote->partial_due_date = null;
         $quote->line_items = $invoice->line_items;
 
+        $quote->sync = null;
+        $quote->backup = null; // @phpstan-ignore-line
+        
         return $quote;
     }
 }

@@ -48,6 +48,36 @@ class InvoiceTest extends TestCase
     }
 
 
+    public function testExplicitAutoBillDisabledOverridesCompanyDefault()
+    {
+        $settings = $this->company->settings;
+        $settings->auto_bill_standard_invoices = true;
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->client->group_settings_id = null;
+        $this->client->save();
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->type_id = '1';
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => [$item],
+            'auto_bill_enabled' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(200);
+
+        $this->assertTrue($response->json('data.auto_bill_enabled'));
+    }
+
     public function testClientIdMustBeInteger()
     {
         $line_items = [];
@@ -90,6 +120,28 @@ class InvoiceTest extends TestCase
         ])->postJson('/api/v1/invoices', $data)
             ->assertStatus(422)
             ->assertJsonValidationErrors(['client_id']);
+    }
+
+    public function testLineItemTagsArePersistedAsNormalizedCommaSeparatedNames(): void
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tags = ' Retail,Priority Customer, Retail,Wholesale ';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => [$item],
+        ])->assertStatus(200);
+
+        $response->assertJsonPath('data.line_items.0.tags', 'Retail,Priority Customer,Wholesale');
+
+        $invoice = Invoice::findOrFail($this->decodePrimaryKey($response->json('data.id')));
+
+        $this->assertSame('Retail,Priority Customer,Wholesale', $invoice->line_items[0]->tags);
     }
 
     public function testLineItemValidation()
@@ -533,6 +585,38 @@ class InvoiceTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $invoice_update)
             ->assertStatus(200);
+    }
+
+    public function testInvoiceRedirectUrlRedirectsAfterPaymentAndIsCleared(): void
+    {
+        $redirect_url = 'https://example.com/invoice-paid?status=success';
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$this->invoice->hashed_id.'?redirect='.rawurlencode($redirect_url), [
+            'client_id' => $this->client->hashed_id,
+        ])->assertStatus(200);
+
+        $this->assertSame($redirect_url, Invoice::find($this->invoice->id)->backup->redirect);
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$this->invoice->hashed_id.'?amount_paid='.$this->invoice->balance, [
+            'client_id' => $this->client->hashed_id,
+        ])->assertStatus(200);
+
+        $payment = Invoice::find($this->invoice->id)->payments()->first();
+
+        $this->assertNotNull($payment);
+
+        $this->actingAs($this->contact, 'contact');
+
+        $this->get(route('client.payments.show', ['payment' => $payment->hashed_id]))
+            ->assertRedirect($redirect_url);
+
+        $this->assertNull(Invoice::find($this->invoice->id)->backup->redirect);
     }
 
     public function testPostNewInvoice()

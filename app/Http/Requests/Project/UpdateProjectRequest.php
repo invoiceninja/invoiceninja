@@ -13,12 +13,16 @@
 namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
+use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Validation\Rule;
 
 class UpdateProjectRequest extends Request
 {
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Project::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -47,11 +51,13 @@ class UpdateProjectRequest extends Request
         }
 
         $rules['budgeted_hours'] = 'sometimes|bail|numeric';
+        $rules['budgeted_amount'] = 'sometimes|bail|numeric';
         $rules['task_rate'] = 'sometimes|bail|numeric';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
+        $rules['color'] = 'sometimes|bail|string|max:7';
 
         return $this->globalRules($rules);
     }
@@ -73,6 +79,10 @@ class UpdateProjectRequest extends Request
 
         if (array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours'])) {
             $input['budgeted_hours'] = 0;
+        }
+
+        if (array_key_exists('budgeted_amount', $input) && empty($input['budgeted_amount'])) {
+            $input['budgeted_amount'] = 0;
         }
 
         if (isset($input['documents'])) {

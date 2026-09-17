@@ -35,6 +35,15 @@ class CheckClientExistence
         auth()->guard('contact')->user()->loadMissing(['company']); // @phpstan-ignore method.notFound
 
         $multiple_contacts = ClientContact::query()
+            ->with([
+                'client' => static function ($query): void {
+                    $query->withOnly([
+                        'company',
+                        'group_settings',
+                        'contacts',
+                    ]);
+                },
+            ])
             ->where('email', auth()->guard('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')

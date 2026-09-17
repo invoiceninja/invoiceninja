@@ -160,7 +160,17 @@ class CheckoutWebhook implements ShouldQueue
                 return;
             }
 
-            $payment->status_id = $type === 'payment_canceled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
+            /**
+             * Declined, expired and cancelled are one outcome for the invoice: the money is
+             * not coming. The payment was applied when Checkout reported it pending or
+             * captured, so it has to come off the invoice, and the failed state is what
+             * releases the gateway fee.
+             *
+             * @see \App\Services\Invoice\ReverseGatewayFee
+             */
+            $payment->service()->deletePayment();
+
+            $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();
 
             SystemLogger::dispatch(
@@ -186,7 +196,6 @@ class CheckoutWebhook implements ShouldQueue
             }
 
             $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init();
-            $driver->unWindGatewayFees($payment_hash);
 
             SystemLogger::dispatch(
                 ['response' => $this->webhook_array],

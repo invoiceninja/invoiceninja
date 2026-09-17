@@ -67,7 +67,7 @@ class LineBuilderConsistencyTest extends TestCase
         $settings->id_number = '01234567890';
         $settings->classification = 'business';
         $settings->country_id = Country::where('iso_3166_2', 'DE')->first()->id;
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
         $settings->currency_id = '3';
 
         $tax_data = new TaxModel();
@@ -120,7 +120,7 @@ class LineBuilderConsistencyTest extends TestCase
             'user_id' => $client->user_id,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         return $client;

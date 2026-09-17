@@ -13,48 +13,44 @@
 namespace App\Http\Requests\RecurringExpense;
 
 use App\Http\Requests\Request;
-use App\Models\RecurringExpense;
-use App\Utils\Traits\BulkOptions;
+use Illuminate\Validation\Rule;
 
 class BulkRecurringExpenseRequest extends Request
 {
-    use BulkOptions;
-
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        if (! $this->has('action')) {
-            return false;
-        }
-
-        if (! in_array($this->action, $this->getBulkOptions(), true)) {
-            return false;
-        }
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        return $user->can('edit', RecurringExpense::class);
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        $rules = $this->getGlobalRules();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-        /* We don't require IDs on bulk storing. */
-        if ($this->action !== self::$STORE_METHOD) {
-            $rules['ids'] = ['required'];
+        return [
+            'action' => ['required', 'bail', 'in:archive,restore,delete,start,stop'],
+            'ids' => [
+                'required',
+                'bail',
+                'array',
+                'min:1',
+                Rule::exists('recurring_expenses', 'id')->where('company_id', $user->company()->id),
+            ],
+            'ids.*' => ['bail', 'integer'],
+        ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $input = $this->all();
+
+        if (isset($input['ids']) && is_array($input['ids'])) {
+            $input['ids'] = $this->transformKeys($input['ids']);
         }
 
-        return $rules;
+        $this->replace($input);
     }
 }

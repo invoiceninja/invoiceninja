@@ -12,16 +12,18 @@
 
 namespace Tests\Integration;
 
+use App\Factory\CompanyUserFactory;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- *
- *  App\Http\Controllers\CompanyUserController
+ * App\Http\Controllers\CompanyUserController
  */
 class UpdateCompanyUserTest extends TestCase
 {
@@ -36,28 +38,16 @@ class UpdateCompanyUserTest extends TestCase
         $this->makeTestData();
     }
 
-
     public function testUpdatingCompanyUserReactSettings()
     {
-
-        $company_user = CompanyUser::whereUserId($this->user->id)->whereCompanyId($this->company->id)->first();
-
-        $this->user->company_user = $company_user;
-
         $settings = [
             'react_settings' => [
                 'show_pdf_preview' => true,
-                'react_notification_link' => false
+                'react_notification_link' => false,
             ],
         ];
 
-        $response = null;
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
-
+        $response = $this->putCompanyUserPreferences($settings);
 
         $response->assertStatus(200);
 
@@ -69,16 +59,11 @@ class UpdateCompanyUserTest extends TestCase
         $settings = [
             'react_settings' => [
                 'show_pdf_preview' => false,
-                'react_notification_link' => true
+                'react_notification_link' => true,
             ],
         ];
 
-        $response = null;
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
+        $response = $this->putCompanyUserPreferences($settings);
 
         $response->assertStatus(200);
 
@@ -86,43 +71,136 @@ class UpdateCompanyUserTest extends TestCase
 
         $this->assertFalse($arr['data']['company_user']['react_settings']['show_pdf_preview']);
         $this->assertTrue($arr['data']['company_user']['react_settings']['react_notification_link']);
-
     }
 
+    public function testUpdateCompanyUserRequiresCompanyUser()
+    {
+        $response = $this->putCompanyUser([]);
 
-    // public function testUpdatingCompanyUserAsAdmin()
-    // {
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['company_user']);
+    }
 
-    //     $settings = new \stdClass();
-    //     $settings->invoice = 'ninja';
+    public function testUpdatingCompanyUserAsAdmin()
+    {
+        CompanyUser::whereUserId($this->user->id)
+            ->whereCompanyId($this->company->id)
+            ->update(['is_admin' => true]);
 
-    //     $company_user = CompanyUser::query()
-    //                     ->where('user_id', $this->user->id)
-    //                     ->where('company_id', $this->company->id)
-    //                     ->first();
+        $response = $this->putCompanyUser([
+            'company_user' => [
+                'settings' => [
+                    'invoice' => 'ninja',
+                ],
+            ],
+        ]);
 
-    //     $this->assertNotNull($company_user);
+        $response->assertStatus(200);
 
-    //     $company_user->settings = $settings;
+        $arr = $response->json();
 
-    //     // $this->user->company_user = $company_user;
-    //     $this->user->setRelation('company_user', $company_user);
-    //     $user = $this->user->toArray();
-    //     $user['company_user'] = $company_user->toArray();
+        $this->assertEquals('ninja', $arr['data']['settings']['invoice']);
 
-    //     $response = null;
+        $company_user = CompanyUser::whereUserId($this->user->id)
+            ->whereCompanyId($this->company->id)
+            ->first();
 
-    //     $response = $this->withHeaders([
-    //         'X-API-SECRET' => config('ninja.api_secret'),
-    //         'X-API-TOKEN' => $this->token,
-    //     ])->putJson("/api/v1/company_users/{$this->user->hashed_id}", $user);
+        $this->assertEquals('ninja', $company_user->settings->invoice);
+    }
 
-    //     $response->assertStatus(200);
+    public function testAdminCanUpdateCompanyUserPermissions()
+    {
+        CompanyUser::whereUserId($this->user->id)
+            ->whereCompanyId($this->company->id)
+            ->update(['is_admin' => true]);
 
-    //     $arr = $response->json();
+        $response = $this->putCompanyUser([
+            'company_user' => [
+                'permissions' => 'create_client,create_invoice',
+            ],
+        ]);
 
-    //     $this->assertEquals('ninja', $arr['data']['settings']['invoice']);
-    // }
+        $response->assertStatus(200);
 
+        $arr = $response->json();
 
+        $this->assertEquals('create_client,create_invoice', $arr['data']['permissions']);
+    }
+
+    public function testUpdatingCompanyUserAsNonAdmin()
+    {
+        CompanyUser::whereUserId($this->user->id)
+            ->whereCompanyId($this->company->id)
+            ->update([
+                'is_admin' => false,
+                'permissions' => 'view_client',
+            ]);
+
+        $response = $this->putCompanyUser([
+            'company_user' => [
+                'settings' => [
+                    'invoice' => 'user_setting',
+                ],
+                'notifications' => [
+                    'email' => ['invoice_sent_all'],
+                ],
+                'react_settings' => [
+                    'show_pdf_preview' => true,
+                ],
+                'permissions' => 'create_client',
+            ],
+        ]);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('user_setting', $arr['data']['settings']['invoice']);
+        $this->assertEquals(['invoice_sent_all'], $arr['data']['notifications']['email']);
+        $this->assertTrue($arr['data']['react_settings']['show_pdf_preview']);
+        $this->assertEquals('view_client', $arr['data']['permissions']);
+    }
+
+    public function testNonAdminCannotUpdateAnotherCompanyUser()
+    {
+        $other_user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => $this->createDbHash(config('database.default')),
+            'email' => uniqid('testuser') . '@gmail.com',
+        ]);
+
+        CompanyUserFactory::create($other_user->id, $this->company->id, $this->account->id)->save();
+
+        CompanyUser::whereUserId($this->user->id)
+            ->whereCompanyId($this->company->id)
+            ->update(['is_admin' => false]);
+
+        $response = $this->putCompanyUser([
+            'company_user' => [
+                'settings' => [
+                    'invoice' => 'blocked',
+                ],
+            ],
+        ], $other_user);
+
+        $response->assertStatus(401);
+    }
+
+    private function putCompanyUser(array $payload, ?User $user = null)
+    {
+        $user ??= $this->user;
+
+        return $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($user->id), $payload);
+    }
+
+    private function putCompanyUserPreferences(array $payload)
+    {
+        return $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $payload);
+    }
 }

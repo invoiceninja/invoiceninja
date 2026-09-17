@@ -12,7 +12,6 @@
 
 namespace App\DataMapper\FranceEReporting;
 
-use App\Models\TransactionEvent;
 use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
 use JsonSerializable;
@@ -39,10 +38,6 @@ final readonly class FRReportEntryData implements Arrayable, JsonSerializable
      */
     public static function fromArray(array $data): self
     {
-        if (self::isB2BIInvoicePayload($data)) {
-            return self::fromB2BIInvoice(B2BIInvoiceData::fromArray($data));
-        }
-
         $schemaVersion = (int) ($data['schemaVersion'] ?? self::CURRENT_SCHEMA_VERSION);
 
         if ($schemaVersion > self::CURRENT_SCHEMA_VERSION) {
@@ -64,30 +59,6 @@ final readonly class FRReportEntryData implements Arrayable, JsonSerializable
                 : null,
             schemaVersion: $schemaVersion,
         );
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    public static function fromTransactionEventPayload(array $data, int $eventId): self
-    {
-        return match ($eventId) {
-            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION => self::fromB2BIInvoice(B2BIInvoiceData::fromArray($data)),
-            TransactionEvent::FR_B2C_TRANSACTION => self::fromB2CTransaction(B2CTransactionData::fromArray($data)),
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT => self::fromB2BIPayment(B2BIPaymentData::fromArray($data)),
-            TransactionEvent::FR_B2C_PAYMENT => self::fromB2CPayment(B2CPaymentData::fromArray($data)),
-            default => throw new InvalidArgumentException("Unsupported France report entry event_id [{$eventId}]."),
-        };
-    }
-
-    public static function supportsTransactionEventId(int $eventId): bool
-    {
-        return in_array($eventId, [
-            TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-            TransactionEvent::FR_B2C_TRANSACTION,
-            TransactionEvent::FR_VAT_EXCLUDED_PAYMENT,
-            TransactionEvent::FR_B2C_PAYMENT,
-        ], true);
     }
 
     public static function fromB2BIInvoice(B2BIInvoiceData $b2biInvoice): self
@@ -127,34 +98,9 @@ final readonly class FRReportEntryData implements Arrayable, JsonSerializable
     /**
      * @return array<string, mixed>
      */
-    public function toStorageArray(): array
-    {
-        return match (true) {
-            ! is_null($this->b2biInvoice) => $this->b2biInvoice->toArray(),
-            ! is_null($this->b2cTransaction) => $this->b2cTransaction->toArray(),
-            ! is_null($this->b2biPayment) => $this->b2biPayment->toArray(),
-            ! is_null($this->b2cPayment) => $this->b2cPayment->toArray(),
-            default => throw new InvalidArgumentException('FRReportEntryData requires one report entry object.'),
-        };
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
     public function jsonSerialize(): array
     {
         return $this->toArray();
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private static function isB2BIInvoicePayload(array $data): bool
-    {
-        return array_key_exists('invoiceNumber', $data)
-            && array_key_exists('issueDate', $data)
-            && array_key_exists('documentCurrency', $data)
-            && array_key_exists('amountIncludingVat', $data);
     }
 
     private function validate(): void

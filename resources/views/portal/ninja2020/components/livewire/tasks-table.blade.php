@@ -41,7 +41,7 @@
                 @foreach($tasks as $task)
                     <tr class="bg-white group hover:bg-gray-100">
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500 task_descripton">
-                            {{ \Illuminate\Support\Str::limit($task->description, 80) }}
+                            {{ \Illuminate\Support\Str::limit($task->description ?? '', 80) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500 task_project">
                             {{ $task->project?->name }}

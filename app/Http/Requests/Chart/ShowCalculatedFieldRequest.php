@@ -14,10 +14,25 @@ namespace App\Http\Requests\Chart;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesDates;
+use Illuminate\Validation\Validator;
 
 class ShowCalculatedFieldRequest extends Request
 {
     use MakesDates;
+
+    /** @var array<int, string> */
+    private const TASK_DURATION_FIELDS = [
+        'task_estimated_duration',
+        'task_remaining_estimated_duration',
+    ];
+
+    /** @var array<int, string> */
+    private const TASK_COUNT_FIELDS = [
+        'unestimated_tasks',
+        'tasks_over_estimate',
+        'overdue_tasks',
+        'tasks_due',
+    ];
 
     /**
      * Determine if the user is authorized to make this request.
@@ -32,20 +47,56 @@ class ShowCalculatedFieldRequest extends Request
         return $user->isAdmin() || $user->hasPermission('view_dashboard');
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'date_range' => 'bail|sometimes|string|in:last7_days,last30_days,last365_days,this_month,last_month,this_quarter,last_quarter,this_year,last_year,all_time,custom',
             'start_date' => 'bail|sometimes|date',
             'end_date' => 'bail|sometimes|date',
-            'field' => 'required|bail|in:active_invoices,outstanding_invoices,completed_payments,refunded_payments,active_quotes,unapproved_quotes,logged_tasks,invoiced_tasks,paid_tasks,logged_expenses,pending_expenses,invoiced_expenses,invoice_paid_expenses',
+            'field' => 'required|bail|in:active_invoices,outstanding_invoices,completed_payments,refunded_payments,active_quotes,unapproved_quotes,logged_tasks,invoiced_tasks,paid_tasks,task_estimated_duration,task_remaining_estimated_duration,unestimated_tasks,tasks_over_estimate,overdue_tasks,tasks_due,logged_expenses,pending_expenses,invoiced_expenses,invoice_paid_expenses',
             'calculation' => 'required|bail|in:sum,avg,count',
             'period' => 'required|bail|in:current,previous,total',
             'format' => 'sometimes|bail|in:time,money',
         ];
     }
 
-    public function prepareForValidation()
+    /**
+     * @return array<int, callable>
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                if ($validator->errors()->has('field') || $validator->errors()->has('calculation') || $validator->errors()->has('format')) {
+                    return;
+                }
+
+                $field = $this->input('field');
+
+                if (in_array($field, self::TASK_DURATION_FIELDS, true)) {
+                    if (! in_array($this->input('calculation'), ['sum', 'avg'], true)) {
+                        $validator->errors()->add('calculation', 'The calculation must be sum or avg for task duration fields.');
+                    }
+
+                    if ($this->input('format') !== 'time') {
+                        $validator->errors()->add('format', 'The format must be time for task duration fields.');
+                    }
+                }
+
+                if (in_array($field, self::TASK_COUNT_FIELDS, true)) {
+                    if ($this->input('calculation') !== 'count') {
+                        $validator->errors()->add('calculation', 'The calculation must be count for task count fields.');
+                    }
+
+                    if ($this->has('format')) {
+                        $validator->errors()->add('format', 'The format field is not supported for task count fields.');
+                    }
+                }
+            },
+        ];
+    }
+
+    public function prepareForValidation(): void
     {
 
         /**@var \App\Models\User auth()->user */

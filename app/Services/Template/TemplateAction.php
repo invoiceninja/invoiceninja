@@ -99,12 +99,13 @@ class TemplateAction implements ShouldQueue
             Credit::class => $resource->with('client'),
             RecurringInvoice::class => $resource->with('client'),
             Project::class => $resource->with('client'),
-            Expense::class => $resource->with('client'),
             Payment::class => $resource->with('invoices', 'client'),
             Client::class => $resource,
             Expense::class => $resource->with('client', 'project', 'vendor', 'invoice'),
             default => $resource,
         };
+
+        $resource->with('tags');
 
         $result = $resource->withTrashed()
             ->whereIn('id', $this->transformKeys($this->ids))
@@ -220,7 +221,6 @@ class TemplateAction implements ShouldQueue
             Payment::class => 'payments',
             Product::class => 'products',
             PurchaseOrder::class => 'purchase_orders',
-            Project::class => 'projects',
             Client::class => 'clients',
             Vendor::class => 'vendors',
             default => 'invoices',

@@ -59,6 +59,5 @@ class Currency extends StaticModel
     public function getName(): string
     {
         return $this->name;
-        // return trans('texts.currency_'.$this->name);
     }
 }

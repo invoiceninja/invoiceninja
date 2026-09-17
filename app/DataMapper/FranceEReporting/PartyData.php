@@ -13,6 +13,7 @@
 namespace App\DataMapper\FranceEReporting;
 
 use Illuminate\Contracts\Support\Arrayable;
+use InvalidArgumentException;
 use JsonSerializable;
 
 /**
@@ -58,6 +59,35 @@ final readonly class PartyData implements Arrayable, JsonSerializable
                 $this->publicIdentifiers,
             ),
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+    }
+
+    /** @return array<string, mixed> */
+    public function toB2BIPartyArray(): array
+    {
+        if ($this->publicIdentifiers !== []) {
+            throw new InvalidArgumentException('B2Bi party identifiers must be supplied on the accounting party wrapper.');
+        }
+
+        $allowedAddressKeys = ['street1', 'street2', 'zip', 'city', 'country'];
+        $unknownAddressKeys = array_diff(array_keys($this->address), $allowedAddressKeys);
+
+        if ($unknownAddressKeys !== []) {
+            throw new InvalidArgumentException('B2Bi party address contains unsupported fields: '.implode(', ', $unknownAddressKeys).'.');
+        }
+
+        $companyName = ReportDataValidator::assertNonEmptyString($this->companyName, 'b2biParty.companyName');
+        $country = ReportDataValidator::assertCountryCode($this->address['country'] ?? null, 'b2biParty.address.country');
+
+        return [
+            'companyName' => $companyName,
+            'address' => array_filter([
+                'street1' => ReportDataValidator::assertOptionalString($this->address['street1'] ?? null, 'b2biParty.address.street1'),
+                'street2' => ReportDataValidator::assertOptionalString($this->address['street2'] ?? null, 'b2biParty.address.street2'),
+                'zip' => ReportDataValidator::assertOptionalString($this->address['zip'] ?? null, 'b2biParty.address.zip'),
+                'city' => ReportDataValidator::assertOptionalString($this->address['city'] ?? null, 'b2biParty.address.city'),
+                'country' => $country,
+            ], static fn (mixed $value): bool => ! is_null($value)),
+        ];
     }
 
     /**

@@ -18,10 +18,11 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Paymentable;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -79,6 +80,7 @@ class PaymentExport extends BaseExport
 
         $query = Payment::query()
                             ->withTrashed()
+                            ->with($this->paymentReportRelations())
                             ->whereHas('client', function ($q) {
                                 $q->where('is_deleted', false);
                             })
@@ -94,6 +96,7 @@ class PaymentExport extends BaseExport
         }
 
         $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
+        $query = $this->addTagFilter($query);
         $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {
@@ -116,7 +119,7 @@ class PaymentExport extends BaseExport
 
         $report = [];
 
-        $query->cursor()->each(function ($payment) use (&$report) {
+        $this->streamQuery($query)->each(function ($payment) use (&$report) {
             /** @var \App\Models\Payment $payment */
             $this->emitRows($payment, function (array $row) use (&$report, $payment) {
                 $report[] = $this->processMetaData($row, $payment);
@@ -137,7 +140,7 @@ class PaymentExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($payment) {
                   /** @var \App\Models\Payment $payment */
                   $this->emitRows($payment, function (array $row) {
@@ -146,6 +149,47 @@ class PaymentExport extends BaseExport
               });
 
         return $this->csv->toString();
+    }
+
+    private function paymentReportRelations(): array
+    {
+        $relations = ['client', 'tags'];
+        $keys = $this->input['report_keys'];
+
+        if (in_array('payment.user_id', $keys, true)) {
+            $relations[] = 'user';
+        }
+
+        if (in_array('payment.assigned_user_id', $keys, true)) {
+            $relations[] = 'assigned_user';
+        }
+
+        if ($this->fan_out) {
+            $relations['paymentables'] = function ($query): void {
+                $query->whereIn('paymentable_type', ['invoices', Credit::class]);
+
+                if (! ($this->input['include_deleted_applications'] ?? false)) {
+                    $query->whereNull('deleted_at');
+                } else {
+                    $query->withTrashed();
+                }
+
+                $query->orderBy('created_at')->orderBy('id');
+            };
+
+            $relations['paymentables.paymentable'] = function (Relation $relation): void {
+                if (! $relation instanceof MorphTo) {
+                    return;
+                }
+
+                $relation->constrain([
+                    Invoice::class => fn($query) => $query->withTrashed(),
+                    Credit::class => fn($query) => $query->withTrashed(),
+                ]);
+            };
+        }
+
+        return $relations;
     }
 
     private function emitRows(Payment $payment, \Closure $emit): void
@@ -173,10 +217,24 @@ class PaymentExport extends BaseExport
 
     private function loadPaymentables(Payment $payment): \Illuminate\Support\Collection
     {
-        $query = Paymentable::query()
-            ->where('payment_id', $payment->id)
+        if ($payment->relationLoaded('paymentables')) {
+            return $payment->paymentables;
+        }
+
+        $query = $payment->paymentables()
             ->whereIn('paymentable_type', ['invoices', Credit::class])
-            ->with('paymentable');
+            ->with([
+                'paymentable' => function (Relation $relation): void {
+                    if (! $relation instanceof MorphTo) {
+                        return;
+                    }
+
+                    $relation->constrain([
+                        Invoice::class => fn($query) => $query->withTrashed(),
+                        Credit::class => fn($query) => $query->withTrashed(),
+                    ]);
+                },
+            ]);
 
         if (! ($this->input['include_deleted_applications'] ?? false)) {
             $query->whereNull('deleted_at');
@@ -197,7 +255,12 @@ class PaymentExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'payment' && array_key_exists($parts[1], $transformed_entity)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $payment);
+                continue;
+            }
+
+            if ($parts[0] === 'payment' && isset($parts[1], $transformed_entity[$parts[1]])) {
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
@@ -208,7 +271,16 @@ class PaymentExport extends BaseExport
         }
 
         $entity = $this->decorateAdvancedFields($payment, $entity);
-        return $this->convertFloats($entity);
+        return $this->convertFloats($entity, $this->fan_out ? ['payment' => $payment->id] : []);
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        $is_payment_column = $this->fan_out
+            && str_starts_with($column, 'payment.')
+            && ! in_array($column, self::APPLIED_INJECTED_KEYS, true);
+
+        return $is_payment_column ? 'payment' : null;
     }
 
     private function decorateAdvancedFields(Payment $payment, array $entity): array

@@ -152,6 +152,8 @@ class VendorContact extends Authenticatable implements HasLocalePreference
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'vendor_id' => $this->vendor->hashed_id,
+            'user_id'          => (string) $this->vendor->user_id,
+            'assigned_user_id' => (string) $this->vendor->assigned_user_id,
         ];
     }
 

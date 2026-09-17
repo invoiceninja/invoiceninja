@@ -147,7 +147,7 @@ class ApplyPayment
         try {
             $this->invoice->loadMissing(['client.country', 'client.company']);
 
-            if ($this->invoice->client?->reportableFrTransaction()) {
+            if ($this->invoice->client->reportableFrTransaction()) {
                 $paymentable = Paymentable::withTrashed()
                     ->where('payment_id', $this->payment->id)
                     ->where('paymentable_id', $this->invoice->id)

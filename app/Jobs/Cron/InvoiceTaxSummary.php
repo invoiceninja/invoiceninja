@@ -20,7 +20,7 @@ use App\Models\Timezone;
 use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
 use App\Jobs\Entity\EmailEntity;
-use App\Models\TransactionEvent;
+use App\Models\Paymentable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Cache;
@@ -28,6 +28,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Listeners\Invoice\InvoiceTransactionEventEntry;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
+use App\Services\Payment\PaymentApplicationDateResolver;
 
 class InvoiceTaxSummary implements ShouldQueue
 {
@@ -175,35 +176,40 @@ class InvoiceTaxSummary implements ShouldQueue
                     (new InvoiceTransactionEventEntry())->run($invoice, $endDate);
                 });
 
-        Invoice::withTrashed()
-                ->with('payments')
+        if ($company->is_disabled || $company->account()->where('is_flagged', true)->exists()) {
+            return;
+        }
+
+        [$cash_start, $cash_end] = app(PaymentApplicationDateResolver::class)
+            ->candidateBounds($startDate, $endDate, $timezone);
+
+        Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->where('created_at', '>=', $cash_start)
+            ->where('created_at', '<', $cash_end)
+            ->whereNull('deleted_at')
+            ->whereHas('payment', fn ($query) => $query
+                ->withTrashed()
                 ->where('company_id', $company->id)
-                ->whereIn('status_id', [3,4]) // Paid statuses
-                ->where('is_deleted', 0)
-                ->whereColumn('amount', '!=', 'balance')
-                ->whereHas('client', function ($query) {
-                    $query->where('is_deleted', false);
-                })
-                ->whereHas('company', function ($query) {
-                    $query->where('is_disabled', 0)
-                    ->whereHas('account', function ($q) {
-                        $q->where('is_flagged', false);
-                    });
-                })
-                ->whereHas('payments', function ($query) use ($startDateUtc, $endDateUtc) {
-                    $query->whereHas('paymentables', function ($subQuery) use ($startDateUtc, $endDateUtc) {
-                        $subQuery->where('paymentable_type', 'invoices')
-                                ->whereBetween('created_at', [$startDateUtc, $endDateUtc]);
-                    });
-                })
-                ->whereDoesntHave('transaction_events', function ($q) use ($endDate) {
-                    $q->where('event_id', TransactionEvent::PAYMENT_CASH)
-                        ->where('period', $endDate);
-                })
-                ->cursor()
-                ->each(function (Invoice $invoice) use ($startDate, $endDate) {
-                    (new InvoiceTransactionEventEntryCash())->run($invoice, $startDate, $endDate);
-                });
+                ->where('is_deleted', false))
+            ->orderBy('id')
+            ->lazyById(500)
+            ->filter(function (Paymentable $paymentable) use ($startDate, $endDate, $timezone): bool {
+                $date = app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone);
+
+                return $date !== null && $date >= $startDate && $date <= $endDate;
+            })
+            ->each(function (Paymentable $paymentable) use ($company): void {
+                $invoice = Invoice::withTrashed()
+                    ->where('company_id', $company->id)
+                    ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                    ->find($paymentable->paymentable_id);
+
+                if ($invoice) {
+                    app(InvoiceTransactionEventEntryCash::class)->runForPaymentable($invoice, $paymentable);
+                }
+            });
 
     }
 

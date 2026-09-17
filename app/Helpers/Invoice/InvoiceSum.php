@@ -419,21 +419,18 @@ class InvoiceSum
     private function getSurchargeTaxTotalForKey($key, $rate)
     {
         $tax_component = 0;
+        $is_peppol = $this->client->getSetting('e_invoice_type') === 'PEPPOL';
 
-        if ($this->invoice->custom_surcharge_tax1) {
-            $tax_component += round($this->invoice->custom_surcharge1 * ($rate / 100), 2);
-        }
+        foreach ([1, 2, 3, 4] as $i) {
+            $amount = $this->invoice->{"custom_surcharge{$i}"};
 
-        if ($this->invoice->custom_surcharge_tax2) {
-            $tax_component += round($this->invoice->custom_surcharge2 * ($rate / 100), 2);
-        }
+            if (! is_numeric($amount) || $amount <= 0) {
+                continue;
+            }
 
-        if ($this->invoice->custom_surcharge_tax3) {
-            $tax_component += round($this->invoice->custom_surcharge3 * ($rate / 100), 2);
-        }
-
-        if ($this->invoice->custom_surcharge_tax4) {
-            $tax_component += round($this->invoice->custom_surcharge4 * ($rate / 100), 2);
+            if ($is_peppol || $this->invoice->{"custom_surcharge_tax{$i}"}) {
+                $tax_component += round($amount * ($rate / 100), 2);
+            }
         }
 
         return $tax_component;

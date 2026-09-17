@@ -13,11 +13,15 @@
 namespace App\Http\Requests\BankTransaction;
 
 use App\Http\Requests\Request;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
 
 class UpdateBankTransactionRequest extends Request
 {
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = BankTransaction::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -41,16 +45,18 @@ class UpdateBankTransactionRequest extends Request
             $rules['currency_id'] = 'sometimes|exists:currencies,id';
         }
 
-        if (isset($this->vendor_id)) {
-            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
-        }
-
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
 
         $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
 
+        $rules = $this->globalRules($rules);
+
+        if (isset($this->vendor_id)) {
+            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
+        }
 
         return $rules;
+
     }
 
     public function prepareForValidation()
@@ -58,27 +64,25 @@ class UpdateBankTransactionRequest extends Request
         $input = $this->all();
 
 
-        if (array_key_exists('baseType', $input) && strlen($input['baseType']) > 1) {
+        if (array_key_exists('baseType', $input) && strlen($input['baseType'] ?? '') > 1) {
             $input['base_type'] = $input['baseType'];
         } //== 'deposit' ? 'CREDIT' : 'DEBIT';
 
-        if (array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) > 1) {
+        if (array_key_exists('vendor_id', $input) && strlen($input['vendor_id'] ?? '') > 1) {
             $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
         }
 
-        // if (array_key_exists('expense_id', $input) && strlen($input['expense_id']) > 1) {
-        //     $input['expense_id'] = $this->decodePrimaryKey($input['expense_id']);
-        // }
-
-        if (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) > 1) {
+        if (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id'] ?? '') > 1) {
             $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
         }
 
         if (array_key_exists('bank_integration_id', $input) && $input['bank_integration_id'] == "") {
             unset($input['bank_integration_id']);
-        } elseif (array_key_exists('bank_integration_id', $input) && strlen($input['bank_integration_id']) > 1) {
+        } elseif (array_key_exists('bank_integration_id', $input) && strlen($input['bank_integration_id'] ?? '') > 1) {
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
+
+        $input = $this->decodePrimaryKeys($input);
 
         $this->replace($input);
     }

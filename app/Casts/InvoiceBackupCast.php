@@ -60,6 +60,8 @@ class InvoiceBackupCast implements CastsAttributes
                 'redirect' => $value->redirect,
                 'adjustable_amount' => $value->adjustable_amount,
                 'notes' => $value->notes,
+                'e_invoice_status' => $value->e_invoice_status,
+                'e_invoice_cleared_at' => $value->e_invoice_cleared_at,
             ]),
         ];
     }

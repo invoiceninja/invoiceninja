@@ -32,6 +32,8 @@ class InvoiceBackup implements Castable
      * @param string $redirect  The redirect url for the invoice
      * @param float $adjustable_amount  The adjustable amount for the invoice
      * @param string $notes The notes field - can be multi purpose, but general usage for Verifactu cancellation reason
+     * @param string|null $e_invoice_status The last Storecove document status received for the e-invoice.
+     * @param string|null $e_invoice_cleared_at The first timestamp when Storecove reported the e-invoice as cleared.
      * @return void
      */
     public function __construct(
@@ -44,6 +46,8 @@ class InvoiceBackup implements Castable
         public ?string $redirect = null,
         public float $adjustable_amount = 0,
         public ?string $notes = null,
+        public ?string $e_invoice_status = null,
+        public ?string $e_invoice_cleared_at = null,
     ) {}
 
     /**
@@ -68,6 +72,8 @@ class InvoiceBackup implements Castable
             redirect: $data['redirect'] ?? null,
             adjustable_amount: $data['adjustable_amount'] ?? 0,
             notes: $data['notes'] ?? null,
+            e_invoice_status: $data['e_invoice_status'] ?? null,
+            e_invoice_cleared_at: $data['e_invoice_cleared_at'] ?? null,
         );
     }
 

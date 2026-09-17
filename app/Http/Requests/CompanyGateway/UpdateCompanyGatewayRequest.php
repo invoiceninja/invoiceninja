@@ -58,7 +58,8 @@ class UpdateCompanyGatewayRequest extends Request
             $input['config'] = json_encode($default_gateway_fields);
         }
 
-        $input['config'] = encrypt($input['config']);
+
+        $input['config'] = encrypt($input['config'] ?? '');
 
         if (isset($input['fees_and_limits']) && is_array($input['fees_and_limits'])) {
             $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);

@@ -36,6 +36,10 @@ class GenerateSmsRequest extends Request
 
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $user = auth()->user();
 
         $key = "phone_verification_code_{$user->id}_{$user->account_id}";

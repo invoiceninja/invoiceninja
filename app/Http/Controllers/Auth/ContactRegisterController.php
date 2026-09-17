@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\RegisterRequest;
 use App\Livewire\BillingPortal\Authentication\ClientRegisterService;
 use App\Models\Company;
+use App\Services\ClientPortal\CustomFieldService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\App;
@@ -53,12 +54,15 @@ class ContactRegisterController extends Controller
             $show_turnstile = true;
         }
 
+        $service = app(CustomFieldService::class);
+
         $data = [
             'formed_disabled' => $company->account->isFreeHostedClient(),
             'register_company' => $company,
             'account' => $company->account,
             'submitsForm' => false,
             'show_turnstile' => $show_turnstile,
+            'custom_field_definitions' => collect($service->buildFields($company))->keyBy('key')->all(),
         ];
 
         return render('auth.register', $data);

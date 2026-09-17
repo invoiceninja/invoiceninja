@@ -135,6 +135,7 @@ class PaymentTransformer extends EntityTransformer
             'currency_id' => (string) $payment->currency_id ?: '',
             'exchange_rate' => (float) $payment->exchange_rate ?: 1,
             'exchange_currency_id' => (string) $payment->exchange_currency_id ?: '',
+            'tags' => $this->transformTags($payment),
         ];
     }
 }

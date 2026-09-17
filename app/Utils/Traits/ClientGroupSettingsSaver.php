@@ -40,11 +40,26 @@ trait ClientGroupSettingsSaver
             return;
         }
 
-        $entity_settings = $this->settings;
+        $settings = (object) $settings;
+        $entity_settings = (object) $this->settings;
+
+        $account = $entity->company->account ?? null;
+
+        if ($account?->isFreeHostedClient()) {
+            foreach ($settings as $key => $value) {
+                if (! array_key_exists($key, CompanySettings::$free_plan_casts)) {
+                    unset($settings->{$key});
+                }
+            }
+        }
 
         //unset protected properties.
         foreach (CompanySettings::$protected_fields as $field) {
-            unset($settings[$field]);
+            unset($settings->{$field});
+        }
+
+        foreach (['translations', 'pdf_variables'] as $field) {
+            unset($settings->{$field}, $entity_settings->{$field});
         }
 
         $company_settings_stub = new CompanySettings();
@@ -171,8 +186,8 @@ trait ClientGroupSettingsSaver
             /*Separate loop if it is a _id field which is an integer cast as a string*/
             if (substr($key, -3) == '_id'
                 || substr($key, -14) == 'number_counter'
-                || ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1)
-                || ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {
+                || ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key} ?? '') >= 1)
+                || ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key} ?? '') >= 1)) {
                 $value = 'integer';
 
                 if (! property_exists($settings, $key)) {

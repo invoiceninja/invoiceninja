@@ -101,6 +101,20 @@ class CompanySettingsTest extends TestCase
         $this->assertEquals($arr['data']['settings']['reset_counter_date'], '');
     }
 
+    public function testCompanyCanSaveTranslationsAndPdfVariables(): void
+    {
+        $settings = $this->company->settings;
+        $settings->translations = (object) ['invoice' => 'Custom Company Invoice'];
+        $settings->pdf_variables = (object) ['invoice_details' => ['$invoice.number']];
+
+        $this->company->saveSettings($settings, $this->company);
+
+        $savedSettings = $this->company->fresh()->settings;
+
+        $this->assertSame('Custom Company Invoice', $savedSettings->translations->invoice);
+        $this->assertSame(['$invoice.number'], $savedSettings->pdf_variables->invoice_details);
+    }
+
     public function testIntegerEdgeCases()
     {
         $settings = $this->company->settings;

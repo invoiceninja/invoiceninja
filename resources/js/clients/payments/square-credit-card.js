@@ -8,7 +8,47 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { wait, instant } from '../wait';
+import { wait, instant } from '../wait.js';
+
+export function buildVerificationDetails(
+    intent,
+    billingContact,
+    amount = null,
+    currencyCode = null
+) {
+    const verificationDetails = {
+        billingContact,
+        customerInitiated: true,
+        intent,
+        sellerKeyedIn: false,
+    };
+
+    if (intent !== 'STORE') {
+        verificationDetails.amount = amount;
+        verificationDetails.currencyCode = currencyCode;
+    }
+
+    return verificationDetails;
+}
+
+export async function tokenizeCard(
+    card,
+    verificationDetails,
+    storedCardId = null
+) {
+    const result = storedCardId
+        ? await card.tokenize(verificationDetails, storedCardId)
+        : await card.tokenize(verificationDetails);
+
+    if (result.status !== 'OK') {
+        throw new Error(
+            result.errors?.[0]?.message ??
+                'An error occurred during payment processing.'
+        );
+    }
+
+    return result.token;
+}
 
 class SquareCreditCard {
     constructor() {
@@ -56,53 +96,28 @@ class SquareCreditCard {
         this.payNowButton.querySelector('span').classList.add('hidden');
 
         try {
-            let result = await this.card.tokenize();
+            const shouldStoreCard =
+                document.querySelector(
+                    'input[name="token-billing-checkbox"]:checked'
+                )?.value === 'true';
 
-            if (result.status !== 'OK') {
-                let errorMessage = result.errors?.[0]?.message
-                    ?? 'An error occurred during payment processing.';
+            document.querySelector('input[name="store_card"]').value =
+                shouldStoreCard ? 'true' : 'false';
 
-                this.showError(errorMessage);
-                this.resetPayButton();
-                return;
-            }
-
-            /* SCA */
-            let verificationToken;
-
-            const verificationDetails = {
-                amount: document.querySelector('meta[name=amount]').content,
-                billingContact: JSON.parse(
-                    document.querySelector('meta[name=square_contact]').content
-                ),
-                currencyCode: document.querySelector('meta[name=currencyCode]')
-                    .content,
-                intent: 'CHARGE',
-            };
-
-            const verificationResults = await this.payments.verifyBuyer(
-                result.token,
-                verificationDetails
+            const sourceId = await tokenizeCard(
+                this.card,
+                this.verificationDetails(
+                    shouldStoreCard ? 'CHARGE_AND_STORE' : 'CHARGE'
+                )
             );
 
-            verificationToken = verificationResults.token;
-
-            document.querySelector('input[name="verificationToken"]').value =
-                verificationToken;
-            document.getElementById('sourceId').value = result.token;
-
-            let tokenBillingCheckbox = document.querySelector(
-                'input[name="token-billing-checkbox"]:checked'
-            );
-
-            if (tokenBillingCheckbox) {
-                document.querySelector('input[name="store_card"]').value =
-                    tokenBillingCheckbox.value;
-            }
+            document.getElementById('sourceId').value = sourceId;
 
             return document.getElementById('server_response').submit();
         } catch (error) {
-            this.showError(error.message ?? 'An error occurred during payment processing.');
+            this.showError(
+                error.message ?? 'An error occurred during payment processing.'
+            );
             this.resetPayButton();
         }
     }
@@ -120,7 +135,7 @@ class SquareCreditCard {
     }
 
     async completePaymentUsingToken(e) {
-        e.target.parentElement.disabled = true;
+        document.querySelector('input[name="store_card"]').value = 'false';
 
         let payNowButton = document.getElementById('pay-now');
         this.payNowButton = payNowButton;
@@ -130,26 +145,26 @@ class SquareCreditCard {
         this.payNowButton.querySelector('svg').classList.remove('hidden');
         this.payNowButton.querySelector('span').classList.add('hidden');
 
-        return document.getElementById('server_response').submit();
-    }
+        document.getElementById('errors').hidden = true;
 
-    /* SCA */
-    async verifyBuyer(token) {
-        const verificationDetails = {
-            amount: document.querySelector('meta[name=amount]').content,
-            billingContact: document.querySelector('meta[name=square_contact]')
-                .content,
-            currencyCode: document.querySelector('meta[name=currencyCode]')
-                .content,
-            intent: 'CHARGE',
-        };
+        try {
+            const storedCardId =
+                document.querySelector('input[name=token]').value;
+            const sourceId = await tokenizeCard(
+                this.card,
+                this.verificationDetails('CHARGE'),
+                storedCardId
+            );
 
-        const verificationResults = await this.payments.verifyBuyer(
-            token,
-            verificationDetails
-        );
+            document.getElementById('sourceId').value = sourceId;
 
-        return verificationResults.token;
+            return document.getElementById('server_response').submit();
+        } catch (error) {
+            this.showError(
+                error.message ?? 'An error occurred during payment processing.'
+            );
+            this.resetPayButton();
+        }
     }
 
     async authorizeCard(e) {
@@ -163,43 +178,37 @@ class SquareCreditCard {
         document.getElementById('errors').hidden = true;
 
         try {
-            let result = await this.card.tokenize();
-
-            if (result.status !== 'OK') {
-                let errorMessage = result.errors?.[0]?.message
-                    ?? 'An error occurred while authorizing the card.';
-
-                this.showError(errorMessage);
-                this.resetPayButton();
-                return;
-            }
-
-            /* SCA - verify with STORE intent for card-on-file */
-            const verificationDetails = {
-                amount: '0',
-                billingContact: JSON.parse(
-                    document.querySelector('meta[name=square_contact]').content
-                ),
-                currencyCode: document.querySelector('meta[name=currencyCode]')
-                    .content,
-                intent: 'STORE',
-            };
-
-            const verificationResults = await this.payments.verifyBuyer(
-                result.token,
-                verificationDetails
+            const sourceId = await tokenizeCard(
+                this.card,
+                this.verificationDetails('STORE')
             );
 
-            document.querySelector('input[name="verificationToken"]').value =
-                verificationResults.token;
-
-            document.getElementById('sourceId').value = result.token;
+            document.getElementById('sourceId').value = sourceId;
 
             return document.getElementById('server_response').submit();
         } catch (error) {
-            this.showError(error.message ?? 'An error occurred while authorizing the card.');
+            this.showError(
+                error.message ?? 'An error occurred while authorizing the card.'
+            );
             this.resetPayButton();
         }
+    }
+
+    verificationDetails(intent) {
+        const billingContact = JSON.parse(
+            document.querySelector('meta[name=square_contact]').content
+        );
+        const amount = document.querySelector('meta[name=amount]')?.content;
+        const currencyCode = document.querySelector(
+            'meta[name=currencyCode]'
+        )?.content;
+
+        return buildVerificationDetails(
+            intent,
+            billingContact,
+            amount,
+            currencyCode
+        );
     }
 
     async handle() {
@@ -291,8 +300,53 @@ class SquareCreditCard {
     }
 }
 
-function boot() {
-    new SquareCreditCard().handle();   
+export function resolveSquarePaymentContainer(documentRoot) {
+    return (
+        documentRoot.getElementById('square-credit-card-payment') ??
+        documentRoot.getElementById('server_response')
+    );
 }
 
-instant() ? boot() : wait('#square-credit-card-payment').then(() => boot());
+export async function bootSquareCreditCard(
+    documentRoot,
+    createSquareCreditCard = () => new SquareCreditCard()
+) {
+    const container = resolveSquarePaymentContainer(documentRoot);
+
+    if (!container || container.dataset.squareInitialized === 'true') {
+        return false;
+    }
+
+    container.dataset.squareInitialized = 'true';
+
+    try {
+        await createSquareCreditCard().handle();
+
+        return true;
+    } catch (error) {
+        delete container.dataset.squareInitialized;
+
+        const errors = documentRoot.getElementById('errors');
+
+        if (errors) {
+            errors.textContent =
+                error?.message ??
+                'Square could not initialize. Please refresh and try again.';
+            errors.hidden = false;
+        }
+
+        Array.from(documentRoot.getElementsByClassName('loader')).forEach(
+            (element) => element.classList.add('hidden')
+        );
+
+        return false;
+    }
+}
+
+if (typeof document !== 'undefined') {
+    instant()
+        ? void bootSquareCreditCard(document)
+        : void wait('#square-credit-card-payment').then(() =>
+              bootSquareCreditCard(document)
+          );
+}

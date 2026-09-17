@@ -231,7 +231,7 @@
                                 <td class="">{{ running_total|format_currency(currency_code) }}</td>
                             </tr>
                             {% for payment in invoice.payments %}
-                            {% for pivot in payment.paymentables %}
+                            {% for pivot in payment.paymentables|filter(p => p.is_credit === false) %}
                             <tr class="item-row border-bottom">
                                 <td class="">{{ invoice.date }}</td>
                                 <td class="">{{ invoice.number }}</td>

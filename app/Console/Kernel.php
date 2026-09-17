@@ -18,6 +18,7 @@ use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Cron\AutoBillCron;
+use App\Jobs\Cron\FranceEReportingCron;
 use App\Jobs\Util\VersionCheck;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Util\SchedulerCheck;
@@ -35,6 +36,7 @@ use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\EDocument\EInvoicePullDocs;
 use App\Jobs\Cron\InvoiceTaxSummary;
+use App\Jobs\Cron\DailyTaskDigestCron;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Invoice\InvoiceCheckOverdue;
@@ -73,6 +75,14 @@ class Kernel extends ConsoleKernel
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
+        /* Finds company users eligible for the daily task digest */
+        $schedule->job(new DailyTaskDigestCron())
+            ->everyFourHours()
+            ->timezone('UTC')
+            ->withoutOverlapping()
+            ->name('daily-task-digest-job')
+            ->onOneServer();
+
         // Run hourly - timezone-aware processing ensures each company
         // is only processed once, at its local month-end midnight
         $schedule->job(new InvoiceTaxSummary())
@@ -80,6 +90,14 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->name('invoice-tax-summary')
             ->onOneServer();
+            
+        /* Runs France e-reporting payment notifications and due report submissions */
+        // $schedule->job(new FranceEReportingCron())
+        //     ->dailyAt('22:00')
+        //     ->timezone('Europe/Paris')
+        //     ->withoutOverlapping()
+        //     ->name('france-e-reporting-job')
+        //     ->onOneServer();
 
         /* Checks Rotessa Transactions */
         $schedule->job(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();
@@ -112,7 +130,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new QuoteCheckExpired())->dailyAt('05:10')->withoutOverlapping()->name('quote-expired-job')->onOneServer();
 
         /* Performs auto billing */
-        $schedule->job(new AutoBillCron())->dailyAt('06:20')->withoutOverlapping()->name('auto-bill-job')->onOneServer();
+        $schedule->job(new AutoBillCron())->dailyAt(config('ninja.auto_bill_time'))->withoutOverlapping()->name('auto-bill-job')->onOneServer();
 
         /* Fires webhooks for overdue Invoice */
         $schedule->job(new InvoiceCheckLateWebhook())->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-webhook-job')->onOneServer();

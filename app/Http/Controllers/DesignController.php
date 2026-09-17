@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\DesignFactory;
 use App\Filters\DesignFilters;
+use App\Http\Requests\Design\BulkDesignRequest;
 use App\Http\Requests\Design\CreateDesignRequest;
 use App\Http\Requests\Design\DefaultDesignRequest;
 use App\Http\Requests\Design\DestroyDesignRequest;
@@ -521,11 +522,11 @@ class DesignController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkDesignRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -533,9 +534,9 @@ class DesignController extends BaseController
 
         if ($action == 'clone') {
             $design = Design::withTrashed()
-                            ->whereIn('id', $this->transformKeys($ids))
-                            ->where(function ($q) {
-                                $q->where('company_id', auth()->user()->company()->id)
+                            ->whereIn('id', $ids)
+                            ->where(function ($q) use ($user) {
+                                $q->where('company_id', $user->company()->id)
                                   ->orWhereNull('company_id');
                             })->first();
 
@@ -548,7 +549,7 @@ class DesignController extends BaseController
 
         Design::withTrashed()
                 ->company()
-                ->whereIn('id', $this->transformKeys($ids))
+                ->whereIn('id', $ids)
                 ->cursor()
                 ->each(function ($design, $key) use ($action, $user) {
                     if ($user->can('edit', $design)) {
@@ -556,7 +557,7 @@ class DesignController extends BaseController
                     }
                 });
 
-        return $this->listResponse(Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Design::withTrashed()->company()->whereIn('id', $ids));
     }
 
     public function default(DefaultDesignRequest $request)

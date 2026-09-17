@@ -30,7 +30,7 @@ class ActionTaskStatusRequest extends Request
     {
         return [
             'ids' => 'required|bail|array',
-            'action' => 'in:archive,restore,delete',
+            'action' => 'required|in:archive,restore,delete',
         ];
     }
 }

@@ -50,12 +50,15 @@ class UpdateDesignRequest extends Request
         return [
             'is_template' => 'sometimes|boolean',
             'entities' => 'sometimes|string|nullable',
+            'design.customCss' => 'sometimes|string|nullable',
         ];
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
+
+        $input['design'] = is_array($input['design'] ?? null) ? $input['design'] : [];
 
         if (! array_key_exists('product', $input['design']) || is_null($input['design']['product'])) {
             $input['design']['product'] = '';

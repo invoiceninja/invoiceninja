@@ -47,7 +47,7 @@ class BankTransactionController extends BaseController
 
     public function index(BankTransactionFilters $filters)
     {
-        $bank_transactions = BankTransaction::filter($filters);
+        $bank_transactions = BankTransaction::filter($filters)->with('tags');
 
         return $this->listResponse($bank_transactions);
     }

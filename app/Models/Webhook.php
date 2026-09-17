@@ -179,6 +179,77 @@ class Webhook extends BaseModel
 
     public const EVENT_ACCEPTED_PURCHASE_ORDER = 65;
 
+    /**
+     * @var array<int, string>
+     */
+    public static array $event_translation_keys = [
+        self::EVENT_CREATE_CLIENT => 'create_client',
+        self::EVENT_UPDATE_CLIENT => 'update_client',
+        self::EVENT_ARCHIVE_CLIENT => 'archive_client',
+        self::EVENT_RESTORE_CLIENT => 'restore_client',
+        self::EVENT_DELETE_CLIENT => 'delete_client',
+        self::EVENT_CREATE_INVOICE => 'create_invoice',
+        self::EVENT_SENT_INVOICE => 'sent_invoice',
+        self::EVENT_UPDATE_INVOICE => 'update_invoice',
+        self::EVENT_LATE_INVOICE => 'late_invoice',
+        self::EVENT_REMIND_INVOICE => 'remind_invoice',
+        self::EVENT_ARCHIVE_INVOICE => 'archive_invoice',
+        self::EVENT_RESTORE_INVOICE => 'restore_invoice',
+        self::EVENT_DELETE_INVOICE => 'delete_invoice',
+        self::EVENT_CREATE_QUOTE => 'create_quote',
+        self::EVENT_SENT_QUOTE => 'sent_quote',
+        self::EVENT_UPDATE_QUOTE => 'update_quote',
+        self::EVENT_APPROVE_QUOTE => 'approve_quote',
+        self::EVENT_EXPIRED_QUOTE => 'expired_quote',
+        self::EVENT_ARCHIVE_QUOTE => 'archive_quote',
+        self::EVENT_RESTORE_QUOTE => 'restore_quote',
+        self::EVENT_DELETE_QUOTE => 'delete_quote',
+        self::EVENT_REMIND_QUOTE => 'remind_quote',
+        self::EVENT_CREATE_CREDIT => 'create_credit',
+        self::EVENT_SENT_CREDIT => 'sent_credit',
+        self::EVENT_UPDATE_CREDIT => 'update_credit',
+        self::EVENT_ARCHIVE_CREDIT => 'archive_credit',
+        self::EVENT_RESTORE_CREDIT => 'restore_credit',
+        self::EVENT_DELETE_CREDIT => 'delete_credit',
+        self::EVENT_CREATE_PAYMENT => 'create_payment',
+        self::EVENT_UPDATE_PAYMENT => 'update_payment',
+        self::EVENT_ARCHIVE_PAYMENT => 'archive_payment',
+        self::EVENT_RESTORE_PAYMENT => 'restore_payment',
+        self::EVENT_DELETE_PAYMENT => 'delete_payment',
+        self::EVENT_CREATE_VENDOR => 'create_vendor',
+        self::EVENT_UPDATE_VENDOR => 'update_vendor',
+        self::EVENT_ARCHIVE_VENDOR => 'archive_vendor',
+        self::EVENT_RESTORE_VENDOR => 'restore_vendor',
+        self::EVENT_DELETE_VENDOR => 'delete_vendor',
+        self::EVENT_CREATE_EXPENSE => 'create_expense',
+        self::EVENT_UPDATE_EXPENSE => 'update_expense',
+        self::EVENT_ARCHIVE_EXPENSE => 'archive_expense',
+        self::EVENT_RESTORE_EXPENSE => 'restore_expense',
+        self::EVENT_DELETE_EXPENSE => 'delete_expense',
+        self::EVENT_CREATE_TASK => 'create_task',
+        self::EVENT_UPDATE_TASK => 'update_task',
+        self::EVENT_ARCHIVE_TASK => 'archive_task',
+        self::EVENT_RESTORE_TASK => 'restore_task',
+        self::EVENT_DELETE_TASK => 'delete_task',
+        self::EVENT_PROJECT_CREATE => 'create_project',
+        self::EVENT_PROJECT_UPDATE => 'update_project',
+        self::EVENT_ARCHIVE_PROJECT => 'archive_project',
+        self::EVENT_RESTORE_PROJECT => 'restore_project',
+        self::EVENT_PROJECT_DELETE => 'delete_project',
+        self::EVENT_CREATE_PRODUCT => 'create_product',
+        self::EVENT_UPDATE_PRODUCT => 'update_product',
+        self::EVENT_DELETE_PRODUCT => 'delete_product',
+        self::EVENT_RESTORE_PRODUCT => 'restore_product',
+        self::EVENT_ARCHIVE_PRODUCT => 'archive_product',
+        self::EVENT_CREATE_PURCHASE_ORDER => 'create_purchase_order',
+        self::EVENT_SENT_PURCHASE_ORDER => 'sent_purchase_order',
+        self::EVENT_UPDATE_PURCHASE_ORDER => 'update_purchase_order',
+        self::EVENT_DELETE_PURCHASE_ORDER => 'delete_purchase_order',
+        self::EVENT_RESTORE_PURCHASE_ORDER => 'restore_purchase_order',
+        self::EVENT_ARCHIVE_PURCHASE_ORDER => 'archive_purchase_order',
+        self::EVENT_ACCEPTED_PURCHASE_ORDER => 'accept_purchase_order',
+    ];
+
     public static $valid_events = [
         self::EVENT_ACCEPTED_PURCHASE_ORDER,
         self::EVENT_REMIND_QUOTE,
@@ -271,5 +342,26 @@ class Webhook extends BaseModel
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public static function eventTranslationKey(int $event_id): ?string
+    {
+        return self::$event_translation_keys[$event_id] ?? null;
+    }
+
+    public static function eventLabel(int $event_id): string
+    {
+        $translation_key = self::eventTranslationKey($event_id);
+
+        if ($translation_key === null) {
+            return '';
+        }
+
+        return ctrans('texts.'.$translation_key);
+    }
+
+    public function getEventLabel(): string
+    {
+        return self::eventLabel($this->event_id);
     }
 }

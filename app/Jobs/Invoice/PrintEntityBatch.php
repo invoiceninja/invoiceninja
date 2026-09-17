@@ -49,13 +49,25 @@ class PrintEntityBatch implements ShouldQueue
 
         $batch_key = Str::uuid();
 
-        $invites = $this->class::with('invitations')->withTrashed()
+        $invites = $this->class::with('invitations')
+                        ->withTrashed()
                         ->whereIn('id', $this->entity_ids)
                         ->get()
                         ->map(function ($entity) use ($batch_key) {
-                            return new CreateBatchablePdf($entity->invitations->first(), "{$batch_key}-{$entity->id}");
-                        })->toArray();
 
+                            $invitation = $entity->invitations->first() ?? $entity->invitations()->withTrashed()->first();
+                            
+                            if (!$invitation) {
+                                return null;
+                            }
+
+                            return new CreateBatchablePdf($invitation, "{$batch_key}-{$entity->id}");
+
+                        })
+                        ->filter()
+                        ->values()
+                        ->toArray();
+                                    
         $mergedPdf = null;
 
         $batch = Bus::batch($invites)

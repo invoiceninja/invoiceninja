@@ -23,7 +23,7 @@ class DuplicatePaymentException extends Exception
      *
      * @return void
      */
-    public function report()
+    public function report(): void
     {
         //
     }
@@ -34,12 +34,17 @@ class DuplicatePaymentException extends Exception
      * @param  Request  $request
      * @return JsonResponse
      */
-    public function render($request)
+    public function render($request): JsonResponse
     {
+        $status_code = $this->getCode();
+
+        if ($status_code < 400 || $status_code > 599) {
+            $status_code = 400;
+        }
 
         return response()->json([
             'message' => 'Duplicate request',
-        ], 400);
+        ], $status_code);
 
     }
 }

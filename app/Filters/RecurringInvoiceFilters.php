@@ -293,7 +293,7 @@ class RecurringInvoiceFilters extends QueryFilters
             $endDate = Carbon::parse($parts[1]);
         }
 
-        if (!$startDate || !$endDate) {
+        if (!$startDate || !$endDate) { //@phpstan-ignore-line - false positive
             return $this->builder;
         }
 

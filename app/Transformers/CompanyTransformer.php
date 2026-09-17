@@ -222,10 +222,29 @@ class CompanyTransformer extends EntityTransformer
             'smtp_verify_peer' => (bool) $company->smtp_verify_peer,
             'e_invoice' => $company->e_invoice ?: new \stdClass(),
             'legal_entity_id' =>  $company->legal_entity_id ? (int) $company->legal_entity_id : null,
-            'quickbooks' => $company->getRawOriginal('quickbooks') ? $company->quickbooks->toArray() : null,
+            'quickbooks' => $this->transformQuickbooks($company),
             'enable_modules' => (bool) $company->enable_modules,
         ];
 
+    }
+
+    /**
+     * Transforms the QuickBooks settings for API output, stripping the OAuth
+     * access/refresh tokens which must never leave the server.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function transformQuickbooks(Company $company): ?array
+    {
+        if ($company->quickbooks->isEmpty() || !$company->getRawOriginal('quickbooks')) {
+            return null;
+        }
+
+        $quickbooks = $company->quickbooks->toArray();
+
+        unset($quickbooks['accessTokenKey'], $quickbooks['refresh_token']);
+
+        return $quickbooks;
     }
 
     private function isLarge(Company $company): bool
@@ -271,9 +290,10 @@ class CompanyTransformer extends EntityTransformer
 
     public function includeTokens(Company $company)
     {
-        $transformer = new CompanyTokenTransformer($this->serializer);
+        // $transformer = new CompanyTokenTransformer($this->serializer);
+        $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
-        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+        return $this->includeCollection($company->tokens_hashed, $transformer, CompanyToken::class);
     }
 
 
@@ -325,7 +345,7 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
-        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+        return $this->includeCollection($company->tokens_hashed, $transformer, CompanyToken::class);
     }
 
     public function includeWebhooks(Company $company)

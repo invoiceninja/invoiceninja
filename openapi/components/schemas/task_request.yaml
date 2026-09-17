@@ -51,8 +51,18 @@
           type: string
           format: date
           example: '2024-01-31'
+        estimated_duration:
+          description: 'Estimated duration for the task in seconds'
+          type: integer
+          example: 7200
         priority:
           description: 'Priority level of the task'
           type: integer
           example: 1
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object

@@ -117,7 +117,20 @@ class DocumentFilters extends QueryFilters
 
         return $this->builder;
     }
-
+    
+    /**
+     * is_deleted
+     *
+     * There is no is_deleted prop, so just return the builder.
+     * 
+     * @param  string $value
+     * @return Builder
+     */
+    public function is_deleted($value = 'true')
+    {
+        return $this->builder;
+    }
+    
     /**
      * Filters the query by the users company ID.
      *

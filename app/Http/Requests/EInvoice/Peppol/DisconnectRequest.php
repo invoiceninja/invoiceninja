@@ -14,9 +14,11 @@ namespace App\Http\Requests\EInvoice\Peppol;
 
 use App\Models\Country;
 use App\Rules\EInvoice\Peppol\SupportsReceiverIdentifier;
+use App\Rules\EInvoice\PeppolLegalEntityState;
 use App\Services\EDocument\Standards\Peppol\ReceiverIdentifier;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class DisconnectRequest extends FormRequest
 {
@@ -31,7 +33,7 @@ class DisconnectRequest extends FormRequest
             return true;
         }
 
-        return $user->account->isPaid()
+        return $user->account->isPaid() && $user->isAdmin()
            && $user->company()->legal_entity_id !== null;
     }
 
@@ -40,8 +42,14 @@ class DisconnectRequest extends FormRequest
      */
     public function rules(): array
     {
+        $company = auth()->user()->company();
+
         return [
-            'company_key' => ['required'],
+            'company_key' => ['required', Rule::in([(string) $company->company_key])],
+            'legal_entity_id' => [
+                'prohibited',
+                PeppolLegalEntityState::present($company),
+            ],
         ];
     }
 

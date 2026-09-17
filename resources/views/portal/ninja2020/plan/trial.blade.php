@@ -1449,7 +1449,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         method="post"
                 >
                 @csrf
-                    <input type="hidden" name="gateway_response"/>
+                    <input type="hidden" name="payment_intent_id"/>
                     <div class="alert alert-failure mb-4" hidden="" id="errors"></div>
                     <div class="form-group mb-[10px] flex">
 
@@ -1554,7 +1554,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         </div>
                     </div>
                     <div class="flex justify-start mb-[25px]">
-                        <span class="text-[12px]">* At the end of your 14 day trial your card will be charged $12/month. Cancel anytime.</span>
+                        <span class="text-[12px]">{{ ctrans('texts.trial_card_authorization_notice') }}</span>
                     </div>
                     <div class="flex justify-end">
                         <button
@@ -1818,12 +1818,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 <script type="text/javascript">
 
-var stripe = Stripe('{{ $gateway->getPublishableKey()}}');
-var client_secret = '{{ $intent->client_secret }}';
-
-var elements = stripe.elements({
-  clientSecret: client_secret,
-});
+const stripe = Stripe('{{ $gateway->getPublishableKey() }}');
+const clientSecret = '{{ $intent->client_secret }}';
+const elements = stripe.elements();
+let requestInFlight = false;
 
 var cardElement = elements.create('card', {
     value: {
@@ -1835,95 +1833,97 @@ var cardElement = elements.create('card', {
 cardElement.mount('#card-element');
 
 const form = document.getElementById('card-form');
+const errors = document.getElementById('errors');
+const payNowButton = document.getElementById('pay-now');
 
 form.addEventListener('submit', (event) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 });
 
-var e = document.getElementById("country");
-var country_value = e.options[e.selectedIndex].value;
+function setLoading(loading) {
+    payNowButton.disabled = loading;
+    payNowButton.querySelector('svg').classList.toggle('hidden', !loading);
+    payNowButton.querySelector('span').classList.toggle('hidden', loading);
+}
 
-  document
-      .getElementById('pay-now')
-      .addEventListener('click', () => {
+function showError(message) {
+    errors.textContent = message;
+    errors.hidden = false;
+}
 
-        //make sure the user has entered their name
+payNowButton.addEventListener('click', async () => {
+    if (requestInFlight) {
+        return;
+    }
 
-        if (document.querySelector('input[name=first_name]').value == '') {
-          let errors = document.getElementById('errors');
-          let payNowButton = document.getElementById('pay-now');
+    if (!form.reportValidity()) {
+        return;
+    }
 
-          errors.textContent = '';
-          errors.textContent = "{{ ctrans('texts.please_enter_a_first_name') }}";
-          errors.hidden = false;
+    requestInFlight = true;
+    errors.hidden = true;
+    setLoading(true);
 
-          payNowButton.disabled = false;
-          payNowButton.querySelector('svg').classList.add('hidden');
-          payNowButton.querySelector('span').classList.remove('hidden');
-          return;
+    try {
+        const result = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: cardElement,
+                billing_details: {
+                    name: `${document.querySelector('input[name=first_name]').value} ${document.querySelector('input[name=last_name]').value}`,
+                    email: '{{ $client->present()->email() }}',
+                    address: {
+                        line1: document.querySelector('input[name=address1]').value,
+                        line2: document.querySelector('input[name=address2]').value,
+                        city: document.querySelector('input[name=city]').value,
+                        postal_code: document.querySelector('input[name=postal_code]').value,
+                        state: document.querySelector('input[name=state]').value,
+                    },
+                },
+            },
+        });
+
+        if (result.error || result.paymentIntent.status !== 'requires_capture') {
+            const detail = result.error?.message ? ` ${result.error.message}` : '';
+
+            throw new Error("{{ ctrans('texts.trial_card_verification_failed') }}" + detail);
         }
 
-        if (document.querySelector('input[name=last_name]').value == '') {
-          let errors = document.getElementById('errors');
-          let payNowButton = document.getElementById('pay-now');
+        document.querySelector('input[name=payment_intent_id]').value = result.paymentIntent.id;
 
-          errors.textContent = '';
-          errors.textContent = "{{ ctrans('texts.please_enter_a_last_name') }}";
-          errors.hidden = false;
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            credentials: 'same-origin',
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        const contentType = response.headers.get('content-type') ?? '';
 
-          payNowButton.disabled = false;
-          payNowButton.querySelector('svg').classList.add('hidden');
-          payNowButton.querySelector('span').classList.remove('hidden');
-          return;
+        if (!contentType.includes('application/json')) {
+            throw new Error(response.status === 419
+                ? "{{ ctrans('texts.token_expired') }}"
+                : "{{ ctrans('texts.trial_card_gateway_error') }}");
         }
 
-        let payNowButton = document.getElementById('pay-now');
-        payNowButton = payNowButton;
-        payNowButton.disabled = true;
-        payNowButton.querySelector('svg').classList.remove('hidden');
-        payNowButton.querySelector('span').classList.add('hidden');
+        const payload = await response.json();
 
-        stripe.handleCardSetup(this.client_secret, cardElement, {
-                payment_method_data: {
-                      billing_details: {
-                        name: document.querySelector('input[name=first_name]').value + ' ' + document.querySelector('input[name=last_name]').value,
-                        email: '{{ $client->present()->email() }}',
-                        address: {
-                          line1: document.querySelector('input[name=address1]').value,
-                          line2: document.querySelector('input[name=address2]').value,
-                          city: document.querySelector('input[name=city]').value,
-                          postal_code: document.querySelector('input[name=postal_code]').value,
-                          state: document.querySelector('input[name=state]').value,
-                        }        
-                }, 
-              }
-            })
-            .then((result) => {
-                if (result.error) {
+        if (!response.ok) {
+            throw new Error(payload.message ?? "{{ ctrans('texts.trial_card_gateway_error') }}");
+        }
 
-                  let errors = document.getElementById('errors');
-                  let payNowButton = document.getElementById('pay-now');
+        if (typeof payload.redirect_url !== 'string' || !payload.redirect_url.startsWith(window.location.origin)) {
+            throw new Error("{{ ctrans('texts.trial_card_gateway_error') }}");
+        }
 
-                  errors.textContent = '';
-                  errors.textContent = result.error.message;
-                  errors.hidden = false;
-
-                  payNowButton.disabled = false;
-                  payNowButton.querySelector('svg').classList.add('hidden');
-                  payNowButton.querySelector('span').classList.remove('hidden');
-                  return;
-
-                }
-
-              document.querySelector(
-                  'input[name="gateway_response"]'
-              ).value = JSON.stringify(result.setupIntent);
-
-                form.submit();
-                
-              });
-
-      });
+        window.location.assign(payload.redirect_url);
+    } catch (error) {
+        showError(error.message ?? "{{ ctrans('texts.trial_card_gateway_error') }}");
+        requestInFlight = false;
+        setLoading(false);
+    }
+});
 
 </script>
 

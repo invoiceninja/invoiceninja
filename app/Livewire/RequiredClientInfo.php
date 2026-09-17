@@ -18,6 +18,7 @@ use App\Libraries\MultiDB;
 use Illuminate\Support\Str;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
+use App\Services\Client\RFFService;
 use App\Utils\Traits\MakesHash;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Cache;
@@ -235,10 +236,7 @@ class RequiredClientInfo extends Component
         }
 
         if (count($this->fields) === 0) {
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $contact->client->postal_code
-            );
+            $this->dispatchPassedRequiredFieldsCheck($contact);
         }
 
         if ($this->unfilled_fields > 0 || ($this->company_gateway->always_show_required_fields || $this->is_subscription)) {
@@ -278,17 +276,7 @@ class RequiredClientInfo extends Component
             $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
         }])->find($this->contact_id);
 
-        $rules = [];
-
-        collect($this->fields)->map(function ($field) use (&$rules) {
-            if (! array_key_exists('filled', $field)) {
-                $rules[$field['name']] = array_key_exists('validation_rules', $field)
-                    ? $field['validation_rules']
-                    : 'required';
-            }
-        });
-
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, RFFService::rulesForFields($this->fields));
 
         if ($validator->fails()) {
             session()->flash('validation_errors', $validator->getMessageBag()->getMessages());
@@ -297,10 +285,7 @@ class RequiredClientInfo extends Component
         }
 
         if ($this->updateClientDetails($data)) {
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $contact->client->postal_code
-            );
+            $this->dispatchPassedRequiredFieldsCheck($contact);
 
             //if stripe is enabled, we want to update the customer at this point.
 
@@ -389,36 +374,31 @@ class RequiredClientInfo extends Component
         MultiDB::setDb($this->db);
         $_contact = ClientContact::withTrashed()->find($this->contact_id);
 
-        foreach ($this->fields as $index => $field) {
-            $_field = $this->mappings[$field['name']];
-
-            if (Str::startsWith($field['name'], 'client_')) {
-                if (empty($_contact->client->{$_field})
-                   || is_null($_contact->client->{$_field})
-                ) {
-                    // $this->show_form = true;
-                    $this->unfilled_fields++;
-                } else {
-                    // $this->fields[$index]['filled'] = true;
-                }
-            }
-
-            if (Str::startsWith($field['name'], 'contact_')) {
-                if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) {
-                    $this->unfilled_fields++;
-                } else {
-                    // $this->fields[$index]['filled'] = true;
-                }
-            }
-        }
+        $this->unfilled_fields = RFFService::passesExistingValues($_contact, $this->fields)
+            ? 0
+            : count($this->fields);
 
         if ($this->unfilled_fields === 0 && (!$this->company_gateway->always_show_required_fields || $this->is_subscription)) {
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $_contact->client->postal_code
-            );
+            $this->dispatchPassedRequiredFieldsCheck($_contact);
         }
+    }
 
+    private function dispatchPassedRequiredFieldsCheck(ClientContact $contact): void
+    {
+        $contact->load('client.country');
+
+        $this->dispatch(
+            'passed-required-fields-check',
+            client_postal_code: (string) $contact->client->postal_code,
+            billingAddress: [
+                'line1' => (string) $contact->client->address1,
+                'line2' => (string) $contact->client->address2,
+                'city' => (string) $contact->client->city,
+                'state' => (string) $contact->client->state,
+                'postal_code' => (string) $contact->client->postal_code,
+                'country' => (string) ($contact->client->country->iso_3166_2 ?? $contact->company->country()->iso_3166_2),
+            ],
+        );
     }
 
     public function showCopyBillingCheckbox(): bool

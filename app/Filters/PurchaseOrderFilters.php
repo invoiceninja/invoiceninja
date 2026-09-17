@@ -51,8 +51,10 @@ class PurchaseOrderFilters extends QueryFilters
             if (in_array('sent', $status_parameters)) {
                 $query->orWhere(function ($q) {
                     $q->where('status_id', PurchaseOrder::STATUS_SENT)
-                    ->whereNull('due_date')
-                    ->orWhere('due_date', '>=', now()->toDateString());
+                        ->where(function ($q) {
+                            $q->whereNull('due_date')
+                                ->orWhere('due_date', '>=', now()->toDateString());
+                        });
                 });
             }
 
@@ -65,7 +67,7 @@ class PurchaseOrderFilters extends QueryFilters
             }
 
             if (count($po_status) >= 1) {
-                $query->whereIn('status_id', $po_status);
+                $query->orWhereIn('status_id', $po_status);
             }
         });
 

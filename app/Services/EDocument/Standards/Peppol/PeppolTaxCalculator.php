@@ -298,6 +298,9 @@ class PeppolTaxCalculator
 
         }
 
+        $brs08TaxableByRate = $this->peppol->brs08TaxableAmountsByRate();
+        $reconcileHeaderTaxFromBrs08 = false;
+
         foreach ($taxes as $key => $grouped_tax) {
             // Required: TaxAmount (BT-110)
             $tax_amount = new TaxAmount();
@@ -313,12 +316,25 @@ class PeppolTaxCalculator
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $invoice->client->currency()->code;
 
+            $rateKey = (string) round((float) ($grouped_tax['tax_rate'] ?? 0), 2);
+            $taxCategoryId = $this->getTaxType($grouped_tax['tax_id']);
+            $useBrs08ForRate = $taxCategoryId === 'S'
+                && floatval($grouped_tax['tax_rate']) > 0
+                && array_key_exists($rateKey, $brs08TaxableByRate);
+
             // When the whole invoice has no VAT, only a *single* BG-23 row may use the
             // document total as taxable base. If several zero-VAT groups exist (different
             // tax keys), each must use its own base_amount or sums double-count and
             // Storecove rejects payload (amountIncludingVat vs tax subtotals).
             if (count($taxes) === 1 && floatval($grouped_tax['total']) === 0.0 && floatval($invoice->total_taxes) == 0) {
                 $taxable_amount->amount = (string) round($this->peppol->normalizeAmount($invoice->amount), 2);
+            } elseif ($useBrs08ForRate) {
+                // BR-S-08: derive BT-116 from emitted lines and document-level AC (same frame as LMT).
+                $taxable_amount->amount = (string) round(
+                    abs($this->peppol->normalizeAmount($brs08TaxableByRate[$rateKey])),
+                    2
+                );
+                $reconcileHeaderTaxFromBrs08 = true;
             } else {
                 $taxable_amount->amount = (string) round($this->peppol->normalizeAmount($grouped_tax['base_amount']), 2);
             }
@@ -328,8 +344,18 @@ class PeppolTaxCalculator
             $subtotal_tax_amount = new TaxAmount();
             $subtotal_tax_amount->currencyID = $invoice->client->currency()->code;
 
-            // $subtotal_tax_amount->amount = (string) round($this->peppol->normalizeAmount($grouped_tax['total']), 2);
-            $subtotal_tax_amount->amount = (string) \App\Utils\BcMath::round((string) $this->peppol->normalizeAmount($grouped_tax['total']), 2);
+            if ($useBrs08ForRate) {
+                $subtotal_tax_amount->amount = (string) \App\Utils\BcMath::round(
+                    bcmul(
+                        (string) $taxable_amount->amount,
+                        bcdiv((string) $grouped_tax['tax_rate'], '100', 6),
+                        6
+                    ),
+                    2
+                );
+            } else {
+                $subtotal_tax_amount->amount = (string) \App\Utils\BcMath::round((string) $this->peppol->normalizeAmount($grouped_tax['total']), 2);
+            }
 
             $tax_subtotal->TaxAmount = $subtotal_tax_amount;
 
@@ -374,36 +400,25 @@ class PeppolTaxCalculator
             
         }
 
+        if ($reconcileHeaderTaxFromBrs08) {
+            $headerTax = '0';
+            foreach ($tax_total->TaxSubtotal as $subtotal) {
+                $headerTax = bcadd($headerTax, (string) ($subtotal->TaxAmount->amount ?? 0), 6);
+            }
+            $tax_total->TaxAmount->amount = (string) \App\Utils\BcMath::round($headerTax, 2);
+
+            $tea = (string) ($p_invoice->LegalMonetaryTotal->TaxExclusiveAmount->amount ?? 0);
+            $inclusive = bcadd($tea, (string) $tax_total->TaxAmount->amount, 6);
+            $inclusive = (string) \App\Utils\BcMath::round($inclusive, 2);
+            $p_invoice->LegalMonetaryTotal->TaxInclusiveAmount->amount = $inclusive;
+            $p_invoice->LegalMonetaryTotal->PayableAmount->amount = $inclusive;
+        }
+
         $p_invoice->TaxTotal[] = $tax_total;
 
         $this->peppol->setPeppolDocument($p_invoice);
 
         return $this->peppol;
-    }
-
-    /**
-     * calculateTaxMap
-     *
-     * Generates a standard tax_map entry for a given $amount
-     *
-     * Iterates through all of the globalTaxCategories found in the document
-     *
-     * @param  float $amount
-     * @return self
-     */
-    public function calculateTaxMap($amount): self
-    {
-        foreach ($this->peppol->getGlobalTaxCategories() as $tc) {
-
-            $this->peppol->addToTaxMap([
-                'taxableAmount' => $amount,
-                'taxAmount' => $amount * ($tc->Percent / 100),
-                'percentage' => $tc->Percent,
-            ]);
-
-        }
-
-        return $this;
     }
 
     public function getJurisdiction(): JurisdictionRegionAddress

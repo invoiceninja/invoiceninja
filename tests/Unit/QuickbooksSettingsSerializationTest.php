@@ -222,6 +222,70 @@ class QuickbooksSettingsSerializationTest extends TestCase
     }
 
     /**
+     * Test that the allow_deposit preference round-trips through serialization.
+     */
+    public function testAllowDepositPreferenceRoundTrips()
+    {
+        $settings = new QuickbooksSettings([
+            'settings' => [
+                'allow_deposit' => true,
+            ],
+        ]);
+
+        $array = $settings->toArray();
+
+        $this->assertArrayHasKey('allow_deposit', $array['settings']);
+        $this->assertTrue($array['settings']['allow_deposit']);
+
+        $reconstructed = QuickbooksSettings::fromArray(json_decode(json_encode($array), true));
+        $this->assertTrue($reconstructed->settings->allow_deposit);
+    }
+
+    /**
+     * Test that allow_deposit defaults to null when never fetched.
+     */
+    public function testAllowDepositDefaultsToNull()
+    {
+        $settings = new QuickbooksSettings();
+
+        $this->assertNull($settings->settings->allow_deposit);
+        $this->assertArrayHasKey('allow_deposit', $settings->toArray()['settings']);
+    }
+
+    /**
+     * Test that the allow_discount preference round-trips through serialization.
+     */
+    public function testAllowDiscountPreferenceRoundTrips()
+    {
+        $settings = new QuickbooksSettings([
+            'settings' => [
+                'allow_discount' => false,
+            ],
+        ]);
+
+        $array = $settings->toArray();
+
+        $this->assertArrayHasKey('allow_discount', $array['settings']);
+        $this->assertFalse($array['settings']['allow_discount']);
+
+        $reconstructed = QuickbooksSettings::fromArray(json_decode(json_encode($array), true));
+        $this->assertFalse($reconstructed->settings->allow_discount);
+    }
+
+    /**
+     * Test that allow_discount defaults to null for legacy serialized settings.
+     */
+    public function testAllowDiscountDefaultsToNull()
+    {
+        $settings = QuickbooksSettings::fromArray([
+            'settings' => [],
+        ]);
+
+        $this->assertNull($settings->settings->allow_discount);
+        $this->assertArrayHasKey('allow_discount', $settings->toArray()['settings']);
+    }
+
+    /**
      * Test that empty/default settings serialize correctly.
      */
     public function testEmptySettingsSerializeCorrectly()

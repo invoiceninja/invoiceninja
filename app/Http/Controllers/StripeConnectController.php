@@ -187,7 +187,7 @@ class StripeConnectController extends BaseController
         }
 
         if (isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
-            $redirect_uri = config('ninja.react_url') . "/#/settings/gateways/{$company_gateway->hashed_id}/edit&show_onboarding=true";
+            $redirect_uri = config('ninja.react_url') . "/#/settings/gateways/{$company_gateway->hashed_id}/edit?show_onboarding=true";
         } else {
             $redirect_uri = config('ninja.app_url');
         }

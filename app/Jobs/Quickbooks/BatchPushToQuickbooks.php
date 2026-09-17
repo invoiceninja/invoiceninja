@@ -15,6 +15,7 @@ namespace App\Jobs\Quickbooks;
 use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Company;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\QuickbooksRateLimiter;
 use Illuminate\Bus\Queueable;
@@ -83,6 +84,10 @@ class BatchPushToQuickbooks implements ShouldQueue
 
         MultiDB::setDb($this->db);
 
+        // Defensive de-duplication: rate-limit re-dispatch can merge IDs that
+        // overlap with a freshly collected batch.
+        $this->entity_ids = array_values(array_unique($this->entity_ids));
+
         $company = Company::find($this->company_id);
 
         if (!$company || !$company->quickbooks) {
@@ -103,10 +108,14 @@ class BatchPushToQuickbooks implements ShouldQueue
         $status = $rateLimiter->getStatus();
         nlog("QB Batch: Rate limit status before processing", $status);
 
-        // Wait for capacity if needed (max 60 seconds)
-        if (!$rateLimiter->waitForCapacity(60)) {
-            nlog("QB Batch: Rate limit capacity not available, releasing job for 60 seconds");
-            $this->release(60);
+        // If we have no capacity (rate limited / in backoff), don't block a
+        // worker sleeping — release the job back to the queue with an
+        // appropriate timeout derived from the rate limiter, and let it retry.
+        // The entity IDs travel in the job payload, so nothing is lost.
+        if (!$rateLimiter->canMakeRequest()) {
+            $delay = max($rateLimiter->getRecommendedDelay(), 30);
+            nlog("QB Batch: No rate-limit capacity, releasing job for {$delay}s", $rateLimiter->getStatus());
+            $this->release($delay);
             return;
         }
 
@@ -290,12 +299,7 @@ class BatchPushToQuickbooks implements ShouldQueue
      */
     private function isRateLimitException(ServiceException $e): bool
     {
-        $statusCode = $e->getCode();
-        $errorMessage = $e->getMessage();
-
-        return $statusCode === 429
-            || str_contains(strtolower($errorMessage), 'throttle')
-            || str_contains(strtolower($errorMessage), 'rate limit');
+        return QuickbooksRateLimiter::isRateLimitException($e);
     }
 
     /**
@@ -324,32 +328,7 @@ class BatchPushToQuickbooks implements ShouldQueue
      */
     private function extractReadableError(string $rawMessage): string
     {
-        // Try to extract the XML body from the SDK message
-        if (preg_match('/with body:\s*\[(.+)\]/s', $rawMessage, $matches)) {
-            $body = trim($matches[1]);
-
-            try {
-                $xml = @simplexml_load_string($body);
-                if ($xml !== false && isset($xml->Fault->Error)) {
-                    $error = $xml->Fault->Error;
-                    $message = (string) ($error->Message ?? '');
-                    $detail = (string) ($error->Detail ?? '');
-
-                    if ($message && $detail) {
-                        return "{$message} - {$detail}";
-                    }
-
-                    return $message ?: $detail;
-                }
-            } catch (\Throwable $e) {
-                // XML parsing failed, fall through to truncation
-            }
-        }
-
-        // Fallback: return a cleaned/truncated version of the raw message
-        $cleaned = str_replace('Request is not made successful. ', '', $rawMessage);
-
-        return mb_substr($cleaned, 0, 500);
+        return (new QuickbooksFaultParser())->humanMessage($rawMessage);
     }
 
     /**

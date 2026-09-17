@@ -40,7 +40,7 @@ class VerifactuLog extends Model
     protected $casts = [
         'date' => 'date',
         'response' => 'object',
-        // 'state' => 'encrypted', //@todo - with migration of existing logs.
+        'state' => 'encrypted', 
     ];
 
     protected $guarded = ['id'];

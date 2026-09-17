@@ -44,7 +44,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int $is_public
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $documentable
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $documentable
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
@@ -165,7 +165,7 @@ class Document extends BaseModel
         return self::class;
     }
 
-    public function documentable()
+    public function documentable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo()->withTrashed();
     }
@@ -218,6 +218,11 @@ class Document extends BaseModel
     public function getFile()
     {
         return Storage::disk($this->disk)->get($this->url);
+    }
+
+    public function fileExists()
+    {
+        return Storage::disk($this->disk)->exists($this->url);
     }
 
     public function translate_entity()

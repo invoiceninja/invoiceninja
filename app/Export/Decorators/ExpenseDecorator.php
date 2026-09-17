@@ -36,6 +36,11 @@ class ExpenseDecorator implements DecoratorInterface
 
     }
 
+    public function tags(Expense $expense): string
+    {
+        return $expense->tags->pluck('name')->implode(', ');
+    }
+
     public function category(Expense $expense)
     {
         return $this->category_id($expense);
@@ -103,7 +108,7 @@ class ExpenseDecorator implements DecoratorInterface
     }
     public function user(Expense $expense)
     {
-        return $expense->user ? $expense->user->present()->name() : '';
+        return $expense->user->present()->name() ?? '';
     }
     public function assigned_user(Expense $expense)
     {

@@ -32,24 +32,24 @@
    <div id="paypal-button-container" class="paypal-button-container"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-    <ul class="list-none">
+    <ul class="payment-method-list">
         @if (count($tokens) > 0)
             @foreach ($tokens as $token)
-                <li class="py-2 cursor-pointer">
-                    <label class="mr-4">
-                        <input type="radio" data-token="{{ $token->token }}" name="payment-type"
+                <li class="payment-method-item">
+                <label class="payment-method-label">
+                <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token" />
-                        <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
+                        <span class="ml-1">**** {{ $token->meta?->last4 }}</span>
                     </label>
                 </li>
             @endforeach
         @endisset
 
-        <li class="py-2 cursor-pointer">
-            <label>
+        <li class="payment-method-item">
+            <label class="payment-method-label">
                 <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
                     checked />
-                <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+                <span class="ml-1">{{ __('texts.new_card') }}</span>
             </label>
         </li>
     </ul>
@@ -170,6 +170,14 @@
 
             window.location.href = "/client/invoices/{{ $invoice_hash }}";
         },
+
+        onError: function(error) {
+            if (error && typeof error === 'object' && error.details) {
+                throw error;
+            }
+
+            throw new Error(typeof error === 'string' ? error : JSON.stringify(error));
+        },
         
         onClick: function (){
            
@@ -220,33 +228,11 @@
         cardField.submit().then(() => {
 
         }).catch((error) => {
-
-            console.log(error);
-            
-            let msg;
-
-            if(!['INVALID_NUMBER','INVALID_CVV','INVALID_EXPIRY'].includes(error.message))
-            {
-                const errorM = parseError(error.message);
-                msg = handle422Error(errorM);
-            }
-
             document.getElementById('pay-now').disabled = false;
             document.querySelector('#pay-now > svg').classList.add('hidden');
             document.querySelector('#pay-now > span').classList.remove('hidden');
-            
-            if(error.message == 'INVALID_NUMBER'){
-              document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_card_number') }}";
-            }
-            else if(error.message == 'INVALID_CVV') {
-              document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_cvv') }}";
-            }
-            else if(error.message == 'INVALID_EXPIRY') {
-              document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_cvv') }}";
-            }
-            else if(msg.description){
-                document.getElementById('errors').textContent = msg?.description;
-            }
+
+            document.getElementById('errors').textContent = resolveCardFieldErrorMessage(error);
             document.getElementById('errors').hidden = false;
 
         });
@@ -259,36 +245,99 @@
   }
 
     function handle422Error(errorData) {
-        const errorDetails = errorData.details || [];
-        const detail = errorDetails[0];        
-        return detail;
+        const errorDetails = errorData?.details || [];
+        return errorDetails[0] ?? null;
     }
 
-
-    function parseError(errorMessage)
+    function parseError(error)
     {
-        try {
-            JSON.parse(errorMessage);
-            return errorMessage;
-        } catch (e) {
+        if (error && typeof error === 'object' && error.details) {
+            return error;
+        }
 
+        const errorMessage = typeof error === 'string'
+            ? error
+            : (typeof error?.message === 'string' ? error.message : String(error ?? ''));
+
+        try {
+            const parsed = JSON.parse(errorMessage);
+            if (parsed && typeof parsed === 'object') {
+                return parsed;
+            }
+        } catch (e) {
         }
 
         const startIndex = errorMessage.indexOf('{');
         const endIndex = errorMessage.lastIndexOf('}');
 
         if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-            const jsonString = errorMessage.substring(startIndex, endIndex + 1);
             try {
-                const json = JSON.parse(jsonString);
-                return json;
-            } catch (error) {
-                return null;
+                return JSON.parse(errorMessage.substring(startIndex, endIndex + 1));
+            } catch (e) {
             }
-        } else {
-            return null;
         }
 
+        return null;
+    }
+
+    function isPayPalTechnicalErrorLabel(value)
+    {
+        return typeof value === 'string'
+            && ['UNPROCESSABLE_ENTITY', 'INTERNAL_SERVER_ERROR', 'INVALID_REQUEST'].includes(value.trim());
+    }
+
+    function isCardNumberPayPalError(detail)
+    {
+        if (!detail) {
+            return false;
+        }
+
+        const field = detail.field ?? '';
+        const issue = detail.issue ?? '';
+        const description = detail.description ?? '';
+
+        return field.includes('/payment_source/card/number')
+            || /invalid card number|card number/i.test(description)
+            || /CARD.*NUMBER|INVALID.*NUMBER|VALIDATION_ERROR/i.test(issue);
+    }
+
+    function resolveCardFieldErrorMessage(error)
+    {
+        if (error?.message === 'INVALID_NUMBER') {
+            return "{{ ctrans('texts.invalid_card_number') }}";
+        }
+
+        if (error?.message === 'INVALID_CVV' || error?.message === 'INVALID_EXPIRY') {
+            return "{{ ctrans('texts.invalid_cvv') }}";
+        }
+
+        const parsed = parseError(error);
+        const detail = handle422Error(parsed);
+
+        if (isCardNumberPayPalError(detail)) {
+            return "{{ ctrans('texts.invalid_card_number') }}";
+        }
+
+        if (detail?.description && !isPayPalTechnicalErrorLabel(detail.description)) {
+            return detail.description;
+        }
+
+        if (
+            isPayPalTechnicalErrorLabel(parsed?.name)
+            || isPayPalTechnicalErrorLabel(error?.message)
+        ) {
+            return "{{ ctrans('texts.invalid_card_number') }}";
+        }
+
+        if (typeof error?.message === 'string' && error.message.length > 0) {
+            const firstLine = error.message.split('\n')[0];
+
+            if (!isPayPalTechnicalErrorLabel(firstLine)) {
+                return firstLine;
+            }
+        }
+
+        return "{{ ctrans('texts.payment_failed') }}";
     }
 
 

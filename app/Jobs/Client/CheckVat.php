@@ -32,7 +32,10 @@ class CheckVat implements ShouldQueue
     use SerializesModels;
     use MakesHash;
 
-    public $tries = 1;
+    public $tries = 4;
+
+    /** Retried when VIES gives no verdict: a member state's system is down, or the caller is rate limited */
+    public array $backoff = [60, 600, 3600];
 
     /**
      * Create a new job instance.

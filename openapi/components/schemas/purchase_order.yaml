@@ -238,6 +238,10 @@
           description: 'The unique identifier of the related invoice'
           type: string
           example: Opnel5aKBz
+        quote_id:
+          description: 'The unique identifier of the related quote'
+          type: string
+          example: Opnel5aKBz
         location_id:
           description: 'The unique identifier of the location'
           type: string

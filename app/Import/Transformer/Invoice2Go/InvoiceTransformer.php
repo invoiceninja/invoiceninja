@@ -51,7 +51,7 @@ class InvoiceTransformer extends BaseTransformer
             'is_amount_discount' => $this->is_amount_discount,
             'discount' => $this->getFloat($invoice_data, 'Discount'),
             'company_id'  => $this->company->id,
-            'number'      => $this->getString($invoice_data, 'DocumentNumber'),
+            'number'      => $this->getString($invoice_data, 'DocumentNumber', null),
             'public_notes'       => $this->getString($invoice_data, 'Comment'),
             'date'        => isset($invoice_data['DocumentDate']) ? $this->parseDate($invoice_data['DocumentDate']) : null,
             // 'currency_id' => $this->getCurrencyByCode( $invoice_data, 'Currency' ),
@@ -310,7 +310,7 @@ class InvoiceTransformer extends BaseTransformer
             if ($key == 0) {
                 continue;
             }
-            /** @var array $row */
+            
             if (isset($row[5]) && is_array($row[5])) {
                 $row[5] = $this->parseNestedTaxField($row[5]);
             }

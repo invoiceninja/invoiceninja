@@ -112,6 +112,10 @@ class Gateway extends StaticModel
             $link = 'https://help.blockonomics.co/a/solutions/articles/33000291849';
         } elseif ($this->id == 67) {
             $link = 'https://payware.eu';
+        } elseif ($this->id == 68) {
+            $link = 'https://notes.chip-in.asia/s/faq/p/Qwsatm6PeN';
+        } elseif ($this->id == 69) {
+            $link = 'https://www.helcim.com/';
         }
 
         return $link;
@@ -166,6 +170,7 @@ class Gateway extends StaticModel
                     GatewayType::IDEAL => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'charge.refunded', 'charge.failed', 'payment_intent.succeeded', 'payment_intent.payment_failed']],
                     GatewayType::ACSS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'charge.refunded', 'charge.failed', 'payment_intent.succeeded', 'payment_intent.payment_failed']],
                     GatewayType::FPX => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'charge.refunded', 'charge.failed',]],
+                    GatewayType::PROMPTPAY => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_intent.succeeded', 'payment_intent.processing', 'payment_intent.payment_failed', 'charge.refunded', 'charge.failed']],
                 ];
             case 39:
                 return [
@@ -270,6 +275,15 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::MOBILE_PAYMENT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['CONFIRMED', 'DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED']],
                 ]; //payware
+            case 68:
+                return [
+                    GatewayType::HOSTED_PAGE => ['refund' => true, 'token_billing' => true, 'webhooks' => []],
+                ]; //CHIP
+            case 69:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                ]; //Helcim
             default:
                 return [];
         }

@@ -33,7 +33,7 @@ class BouncedEmail extends Mailable
     {
         App::setLocale($this->invitation->company->getLocale());
 
-        $entity_type = class_basename(lcfirst($this->invitation->getEntityType()));
+        $entity_type = class_basename(lcfirst($this->invitation->getEntityType() ?? ''));
 
         $subject = ctrans("texts.notification_{$entity_type}_bounced_subject", ['invoice' => $this->invitation->invoice->number]);
 

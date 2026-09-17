@@ -64,6 +64,7 @@ class CleanLineItemsTest extends TestCase
         $this->assertEquals(0.0, $item['cost']);
         $this->assertEquals(0.0, $item['quantity']);
         $this->assertEquals('', $item['product_key']);
+        $this->assertEquals('', $item['tags']);
         $this->assertEquals('', $item['notes']);
         $this->assertEquals(0.0, $item['discount']);
         $this->assertFalse($item['is_amount_discount']);
@@ -205,6 +206,34 @@ class CleanLineItemsTest extends TestCase
         // plain text containing "onerror" is not an XSS vector and should be preserved
         $result = $this->cleanItems([['product_key' => 'test onerror=hack']]);
         $this->assertEquals('test onerror=hack', $result[0]['product_key']);
+    }
+
+    public function test_tags_are_sanitized_and_normalized_as_comma_separated_names(): void
+    {
+        $result = $this->cleanItems([[
+            'tags' => ' Retail, Priority Customer, Retail, ,<script>alert(1)</script>Wholesale ',
+        ]]);
+
+        $this->assertSame('Retail,Priority Customer,Wholesale', $result[0]['tags']);
+    }
+
+    public function test_non_string_tags_are_replaced_with_an_empty_snapshot(): void
+    {
+        $result = $this->cleanItems([['tags' => [['name' => 'Retail']]]]);
+
+        $this->assertSame('', $result[0]['tags']);
+    }
+
+    public function test_structured_product_tags_can_be_serialized_for_a_line_item_snapshot(): void
+    {
+        $tags = [
+            ['name' => 'Retail'],
+            (object) ['name' => 'Priority Customer'],
+            ['name' => 'Retail'],
+            ['name' => ['invalid']],
+        ];
+
+        $this->assertSame('Retail,Priority Customer', InvoiceItem::serializeTags($tags));
     }
 
     

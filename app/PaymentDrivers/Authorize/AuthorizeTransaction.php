@@ -49,7 +49,7 @@ class AuthorizeTransaction
         $op->setDataValue($data['dataValue']);
         $paymentOne = new PaymentType();
         $paymentOne->setOpaqueData($op);
-        $amount = $data['amount_with_fee'];
+        $amount = round($data['amount_with_fee'], 2);
 
         $invoice_numbers = '';
         $po_numbers = '';
@@ -90,8 +90,14 @@ class AuthorizeTransaction
         $duplicateWindowSetting->setSettingName("duplicateWindow");
         $duplicateWindowSetting->setSettingValue("3");
 
+        $emailSetting = new SettingType();
+        $emailSetting->setSettingName('emailCustomer');
+        $emailSetting->setSettingValue('false');
+
         $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
 
+        $billto = null;
+        
         if ($contact) {
             $billto = new \net\authorize\api\contract\v1\CustomerAddressType();
             $billto->setFirstName(substr($contact->present()->first_name(), 0, 50));
@@ -110,7 +116,6 @@ class AuthorizeTransaction
         }
 
         //Assign to the transactionRequest field
-
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
@@ -118,6 +123,7 @@ class AuthorizeTransaction
         $transactionRequestType->setTaxExempt(empty($taxAmount));
         $transactionRequestType->setOrder($order);
         $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+        $transactionRequestType->addToTransactionSettings($emailSetting);
 
         $solution = new \net\authorize\api\contract\v1\SolutionType();
         $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');

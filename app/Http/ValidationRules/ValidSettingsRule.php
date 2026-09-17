@@ -47,6 +47,10 @@ class ValidSettingsRule implements Rule
      */
     public function message()
     {
-        return $this->return_data[0] . ' is not a valid ' . $this->return_data[1] . ' ( ' . $this->return_data[2] . ' )';
+        $value = is_scalar($this->return_data[2]) || is_null($this->return_data[2])
+            ? (string) $this->return_data[2]
+            : json_encode($this->return_data[2]);
+
+        return $this->return_data[0] . ' is not a valid ' . $this->return_data[1] . ' ( ' . $value . ' )';
     }
 }

@@ -57,7 +57,7 @@ class PeppolLineBuilder
      * Credit notes differ from invoices in:
      *  - Line type: CreditNoteLine vs InvoiceLine
      *  - Quantity type: CreditedQuantity vs InvoicedQuantity
-     *  - Amounts wrapped in abs() to ensure positive values
+     *  - Signs from Peppol::normalizeCreditNoteLine() (price unsigned, qty carries leftover sign)
      *
      * @param  bool $isCreditNote
      * @return array
@@ -88,32 +88,46 @@ class PeppolLineBuilder
             $id->value = (string) ($key + 1);
             $line->ID = $id;
 
-            // Quantity
+            $rawLineTotal = $invoice->uses_inclusive_taxes
+                ? round($item->line_total - $this->peppol->calcInclusiveLineTax($item->tax_rate1, $item->line_total), 2)
+                : round($item->line_total, 2);
+
             if ($isCreditNote) {
+                $hasLineAllowance = (float) ($item->discount ?? 0) > 0;
+
+                $signed = $this->peppol->normalizeCreditNoteLine(
+                    (float) $item->quantity,
+                    (float) $item->cost,
+                    (float) $rawLineTotal,
+                    $hasLineAllowance,
+                );
+
                 $qty = new \InvoiceNinja\EInvoice\Models\Peppol\QuantityType\CreditedQuantity();
-                $qty->amount = (string) $this->peppol->normalizeAmount($item->quantity);
+                $qty->amount = (string) $signed['quantity'];
                 $qty->unitCode = $item->unit_code ?? 'C62';
                 $line->CreditedQuantity = $qty;
+
+                $lea = new LineExtensionAmount();
+                $lea->currencyID = $currencyCode;
+                $lea->amount = (string) $signed['line_total'];
+                $line->LineExtensionAmount = $lea;
+                $line->Item = $_item;
+
+                $this->buildPriceAndDiscounts($line, $item, $invoice, $currencyCode, true, $signed['price'], $signed['quantity']);
             } else {
                 $qty = new \InvoiceNinja\EInvoice\Models\Peppol\QuantityType\InvoicedQuantity();
                 $qty->amount = $item->quantity;
                 $qty->unitCode = $item->unit_code ?? 'C62';
                 $line->InvoicedQuantity = $qty;
+
+                $lea = new LineExtensionAmount();
+                $lea->currencyID = $currencyCode;
+                $lea->amount = (string) $rawLineTotal;
+                $line->LineExtensionAmount = $lea;
+                $line->Item = $_item;
+
+                $this->buildPriceAndDiscounts($line, $item, $invoice, $currencyCode, false);
             }
-
-            // Line Extension Amount
-            $lineTotal = $invoice->uses_inclusive_taxes
-                ? round($item->line_total - $this->peppol->calcInclusiveLineTax($item->tax_rate1, $item->line_total), 2)
-                : round($item->line_total, 2);
-
-            $lea = new LineExtensionAmount();
-            $lea->currencyID = $currencyCode;
-            $lea->amount = (string) $this->peppol->normalizeAmount($lineTotal);
-            $line->LineExtensionAmount = $lea;
-            $line->Item = $_item;
-
-            // Price and Discounts
-            $this->buildPriceAndDiscounts($line, $item, $invoice, $currencyCode, $isCreditNote);
 
             $lines[] = $line;
         }
@@ -202,11 +216,20 @@ class PeppolLineBuilder
      * @param  object $invoice
      * @param  string $currencyCode
      * @param  bool $isCreditNote
+     * @param  float|null $creditNoteUnitPrice Unsigned unit price from normalizeCreditNoteLine()
+     * @param  float|null $normalizedCreditQuantity CreditedQuantity after normalizeCreditNoteLine()
      * @return void
      */
-    private function buildPriceAndDiscounts(InvoiceLine|CreditNoteLine $line, object $item, object $invoice, string $currencyCode, bool $isCreditNote): void
-    {
-        $cost = $isCreditNote ? abs($item->cost) : $item->cost;
+    private function buildPriceAndDiscounts(
+        InvoiceLine|CreditNoteLine $line,
+        object $item,
+        object $invoice,
+        string $currencyCode,
+        bool $isCreditNote,
+        ?float $creditNoteUnitPrice = null,
+        ?float $normalizedCreditQuantity = null,
+    ): void {
+        $cost = $isCreditNote ? ($creditNoteUnitPrice ?? abs($item->cost)) : $item->cost;
 
         if ($item->discount > 0) {
 
@@ -216,25 +239,50 @@ class PeppolLineBuilder
             $basePriceAmount->amount = (string) $cost;
             $basePrice->PriceAmount = $basePriceAmount;
 
+            $creditedQty = $isCreditNote
+                ? (float) ($normalizedCreditQuantity ?? $item->quantity)
+                : (float) $item->quantity;
+            $discountAmount = $this->calculateTotalItemDiscountAmount($item);
+
+            // Credit notes: charge iff the discount increases LineExtensionAmount
+            // magnitude relative to qty × price (PEPPOL-EN16931-R120). Flat vs
+            // percentage discounts diverge on signed rows; one delta rule covers both.
+            if ($isCreditNote) {
+                $lea = (float) $line->LineExtensionAmount->amount;
+                $delta = $lea - ($creditedQty * $cost);
+                $useLineCharge = $delta > 0.005;
+                $discountAmount = abs($delta);
+            } else {
+                $useLineCharge = false;
+            }
+
             $allowanceCharge = new \InvoiceNinja\EInvoice\Models\Peppol\AllowanceChargeType\AllowanceCharge();
-            $allowanceCharge->ChargeIndicator = 'false';
+            $allowanceCharge->ChargeIndicator = $useLineCharge ? 'true' : 'false';
             $allowanceCharge->Amount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\Amount();
             $allowanceCharge->Amount->currencyID = $currencyCode;
-            $allowanceCharge->Amount->amount = number_format($this->calculateTotalItemDiscountAmount($item), 2, '.', '');
-            $this->peppol->addToAllowanceTotal($this->calculateTotalItemDiscountAmount($item));
+            $allowanceCharge->Amount->amount = number_format($discountAmount, 2, '.', '');
+
+            if (!$useLineCharge) {
+                $this->peppol->addToAllowanceTotal($discountAmount);
+            }
 
             if ($item->discount > 0 && !$item->is_amount_discount) {
 
                 $allowanceCharge->BaseAmount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\BaseAmount();
                 $allowanceCharge->BaseAmount->currencyID = $currencyCode;
-                $allowanceCharge->BaseAmount->amount = (string) round($isCreditNote ? abs($item->cost * $item->quantity) : ($item->cost * $item->quantity), 2);
+                $allowanceCharge->BaseAmount->amount = (string) round(
+                    $isCreditNote ? abs($creditedQty * $cost) : ($item->cost * $item->quantity),
+                    2
+                );
 
                 $mfn = new \InvoiceNinja\EInvoice\Models\Peppol\NumericType\MultiplierFactorNumeric();
                 $mfn->value = (string) round($item->discount, 2);
                 $allowanceCharge->MultiplierFactorNumeric = $mfn;
             }
 
-            $allowanceCharge->AllowanceChargeReason = ctrans('texts.discount');
+            $allowanceCharge->AllowanceChargeReason = 'Discount';
+
+// $allowanceCharge->AllowanceChargeReason = ctrans('texts.discount');
 
             $line->Price = $basePrice;
             $line->AllowanceCharge[] = $allowanceCharge;
@@ -243,9 +291,8 @@ class PeppolLineBuilder
             $price = new Price();
             $pa = new PriceAmount();
             $pa->currencyID = $currencyCode;
-            // Credit notes use abs(cost); invoices use net_cost for inclusive taxes
             $pa->amount = $isCreditNote
-                ? (string) abs($item->cost)
+                ? (string) $cost
                 : ($invoice->uses_inclusive_taxes ? (string) $item->net_cost : (string) $item->cost);
             $price->PriceAmount = $pa;
             $line->Price = $price;

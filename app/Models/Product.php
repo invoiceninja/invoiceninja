@@ -13,6 +13,8 @@
 namespace App\Models;
 
 use App\DataMapper\ProductSync;
+use App\Models\Traits\HasTags;
+use App\Utils\Helpers;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use League\CommonMark\CommonMarkConverter;
@@ -46,7 +48,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property int|null $deleted_at
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property object|null $sync
+ * @property ProductSync|null $sync
  * @property bool $is_deleted
  * @property float $in_stock_quantity
  * @property bool $stock_notification
@@ -61,6 +63,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property-read \App\Models\Vendor|null $vendor
  * @property int|null $tax_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
  * @mixin \Eloquent
  */
@@ -69,6 +72,7 @@ class Product extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
+    use HasTags;
 
     public const PRODUCT_TYPE_PHYSICAL = 1;
     public const PRODUCT_TYPE_SERVICE = 2;
@@ -178,11 +182,17 @@ class Product extends BaseModel
         return self::class;
     }
 
+     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
@@ -208,20 +218,22 @@ class Product extends BaseModel
         return ctrans('texts.product');
     }
 
-    public function markdownNotes()
+    /**
+     * @param  \App\Models\Client|\App\Models\Company|\App\Models\Vendor|null  $entity
+     */
+    public function markdownNotes(?object $entity = null): string
     {
-        $converter = new CommonMarkConverter([
-            'allow_unsafe_links' => false,
-            'renderer' => [
-                'soft_break' => '<br>',
-            ],
-        ]);
-
-        return $converter->convert($this->notes ?? '');
+        return self::markdownHelp($this->notes, $entity ?? $this->company);
     }
 
-    public static function markdownHelp(?string $notes = '')
+    /**
+     * @param  \App\Models\Client|\App\Models\Company|\App\Models\Vendor|null  $entity
+     */
+    public static function markdownHelp(?string $notes = '', ?object $entity = null): string
     {
+        if ($entity) {
+            $notes = Helpers::processReservedKeywords($notes ?? '', $entity) ?? '';
+        }
 
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,
@@ -233,7 +245,6 @@ class Product extends BaseModel
         $markdown_to_html = $converter->convert($notes ?? '');
 
         return \App\Services\Pdf\Purify::clean($markdown_to_html, true);
-
     }
 
     public function portalUrl($use_react_url): string

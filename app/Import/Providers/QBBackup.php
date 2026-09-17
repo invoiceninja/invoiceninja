@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Import\Providers;
 
 use App\Models\Company;
@@ -105,7 +113,9 @@ class QBBackup extends BaseImport implements ImportInterface
                 $paymentable->paymentable_id = $invoice->id;
                 $paymentable->paymentable_type = 'invoices';
                 $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
-                $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
+                $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+                $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                    ->encodeBusinessDate($ninja_payment->date, $timezone);
                 $paymentable->save();
 
                 $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);

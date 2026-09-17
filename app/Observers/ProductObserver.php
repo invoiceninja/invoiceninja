@@ -30,6 +30,8 @@ class ProductObserver
     public function created(Product $product)
     {
         $subscriptions = Webhook::where('company_id', $product->company_id)
+            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->where('event_id', Webhook::EVENT_CREATE_PRODUCT)
             ->exists();
 
@@ -75,6 +77,8 @@ class ProductObserver
 
 
         $subscriptions = Webhook::where('company_id', $product->company_id)
+            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->where('event_id', $event)
             ->exists();
 
@@ -110,6 +114,8 @@ class ProductObserver
         }
 
         $subscriptions = Webhook::where('company_id', $product->company_id)
+            ->where('is_deleted', false)
+            ->whereNull('deleted_at')
             ->where('event_id', Webhook::EVENT_ARCHIVE_PRODUCT)
             ->exists();
 

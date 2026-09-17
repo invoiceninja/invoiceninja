@@ -327,6 +327,17 @@ class XssSanitizationTest extends TestCase
         $this->assertStringContainsString('Also safe', $result);
     }
 
+    public function test_untrusted_document_sanitization_cannot_be_disabled(): void
+    {
+        config(['ninja.disable_purify_html' => true]);
+
+        $result = Purify::cleanUntrustedDocument('<p>Safe</p><script>alert(1)</script>');
+
+        $this->assertStringContainsString('Safe', $result);
+        $this->assertStringNotContainsString('<script>', $result);
+        $this->assertStringNotContainsString('alert(', $result);
+    }
+
     public function test_purify_strips_onerror_from_img()
     {
         $result = Purify::clean('<img src="https://example.com/img.jpg" onerror="alert(1)" style="width:100px">');
@@ -398,11 +409,50 @@ class XssSanitizationTest extends TestCase
         $this->assertStringContainsString('Link', $result);
     }
 
+    public function test_purify_preserves_view_url_template_href(): void
+    {
+        $result = Purify::clean('<a href="$view_url">View quote</a>', true);
+
+        $this->assertStringContainsString('href="$view_url"', $result);
+    }
+
+    public function test_purify_strips_non_url_template_href(): void
+    {
+        $result = Purify::clean('<a href="$view_link">View quote</a>', true);
+
+        $this->assertStringNotContainsString('href=', $result);
+    }
+
     public function test_purify_strips_javascript_hrefs()
     {
         $result = Purify::clean('<a href="javascript:alert(1)">Click</a>');
 
         $this->assertStringNotContainsString('javascript:', $result);
+    }
+
+    public function test_purify_strips_javascript_uris_that_contain_template_patterns(): void
+    {
+        $payloads = [
+            '<a href="javascript:alert(1)//$.a">x</a>',
+            '<a href="javascript:alert(1)//${foo}">x</a>',
+            '<a href="JaVaScRiPt:alert(1)//$.a">x</a>',
+            '<a href="vbscript:alert(1)//$.a">x</a>',
+            '<img src="javascript:alert(1)//$.a">',
+        ];
+
+        foreach ($payloads as $payload) {
+            $result = Purify::clean($payload, true);
+
+            $this->assertStringNotContainsString('javascript:', $result, $payload);
+            $this->assertStringNotContainsString('vbscript:', $result, $payload);
+        }
+    }
+
+    public function test_purify_preserves_dotted_template_href(): void
+    {
+        $result = Purify::clean('<a href="$client.name">x</a>', true);
+
+        $this->assertStringContainsString('href="$client.name"', $result);
     }
 
     public function test_purify_preserves_safe_img_with_https()
@@ -718,5 +768,28 @@ class XssSanitizationTest extends TestCase
         $css = $this->extractStyleContent(Purify::clean($html));
 
         $this->assertStringNotContainsString('file://', $css);
+    }
+
+    public function test_purify_strips_whitelabel_css_rules_from_style_block()
+    {
+        $html = '<html><head><style>body { color: #333; } #invoiceninja-whitelabel-logo { display: none; } .invoice { margin: 20px; } .invoiceninja_whitelabel { opacity: 0; }</style></head><body><p>Test</p></body></html>';
+        $css = $this->extractStyleContent(Purify::clean($html));
+
+        $this->assertStringContainsString('body', $css);
+        $this->assertStringContainsString('.invoice', $css);
+        $this->assertStringNotContainsString('invoiceninja-whitelabel', $css);
+        $this->assertStringNotContainsString('invoiceninja_whitelabel', $css);
+    }
+
+    public function test_purify_style_block_whitelabel_scan_is_linear()
+    {
+        $payload = '<style>' . str_repeat('invoiceninja_whitelabel ', 25000) . '</style>';
+
+        $start = hrtime(true);
+        $css = $this->extractStyleContent(Purify::clean($payload));
+        $elapsed_ms = (hrtime(true) - $start) / 1e6;
+
+        $this->assertStringNotContainsString('invoiceninja_whitelabel', $css);
+        $this->assertLessThan(1000, $elapsed_ms, "Whitelabel CSS scan took {$elapsed_ms}ms; expected linear time.");
     }
 }

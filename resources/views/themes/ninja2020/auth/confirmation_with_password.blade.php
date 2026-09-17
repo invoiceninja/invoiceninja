@@ -12,6 +12,7 @@
                 <form action="{{ url()->current() }}" method="post" class="mt-6">
                     @csrf
                     <input type="hidden" name="user_id" value="{{ $user_id }}">
+                    <input type="hidden" name="confirmation_code" value="{{ $confirmation_code }}">
                     @if(request()->has('react'))
                     <input type="hidden" name="react" value="true">
                     @endif

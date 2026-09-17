@@ -14,15 +14,27 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Models\Quote;
+use App\Models\Task;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Company;
+use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Project;
 use App\Models\Timezone;
+use App\Models\Vendor;
 use Tests\MockAccountData;
 use App\Models\GroupSetting;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringExpense;
 use App\Factory\ClientFactory;
+use App\Factory\ExpenseFactory;
+use App\Factory\ProjectFactory;
+use App\Factory\PurchaseOrderFactory;
+use App\Factory\RecurringExpenseFactory;
+use App\Factory\TaskFactory;
 use App\Factory\VendorFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\DataMapper\ClientSettings;
@@ -676,6 +688,168 @@ class GeneratesCounterTest extends TestCase
         $vendor_number = $this->getNextVendorNumber($vendor);
 
         $this->assertEquals($vendor_number, date('Y').'-'.str_pad($vendor->user_id, 2, '0', STR_PAD_LEFT).'-0002');
+    }
+
+    private function clientWithCompanySettings(): Client
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->settings = ClientSettings::defaults();
+        $client->save();
+
+        return $client;
+    }
+
+    private function setCompanyClientNumberPattern(string $pattern): void
+    {
+        $settings = $this->company->settings;
+        $settings->client_number_pattern = $pattern;
+        $settings->timezone_id = '31';
+
+        $this->company->settings = $settings;
+        $this->company->save();
+    }
+
+    public function testClientNumberPatternWithEmptyUserVar()
+    {
+        $this->user->custom_value1 = '';
+        $this->user->save();
+
+        $this->setCompanyClientNumberPattern('{$user_custom1}');
+
+        $client = $this->clientWithCompanySettings();
+
+        $this->assertEquals('0001', $this->getNextClientNumber($client));
+        $this->assertEquals('0002', $this->getNextClientNumber($client));
+    }
+
+    public function testClientNumberPatternUserVarCollisionIsDetected()
+    {
+        $this->user->custom_value1 = '';
+        $this->user->save();
+
+        $this->setCompanyClientNumberPattern('{$user_custom1}{$counter}');
+
+        $existing = $this->clientWithCompanySettings();
+        $existing->number = '0001';
+        $existing->save();
+
+        $client = $this->clientWithCompanySettings();
+
+        $this->assertEquals('0002', $this->getNextClientNumber($client));
+    }
+
+    public function testClientNumberPatternWithPopulatedUserVar()
+    {
+        $this->user->custom_value1 = 'ACME';
+        $this->user->save();
+
+        $this->setCompanyClientNumberPattern('{$user_custom1}');
+
+        $client = $this->clientWithCompanySettings();
+
+        $this->assertEquals('ACME0001', $this->getNextClientNumber($client));
+        $this->assertEquals('ACME0002', $this->getNextClientNumber($client));
+    }
+
+    public function testCounterlessPatternAppendsCounter()
+    {
+        $this->setCompanyClientNumberPattern('{$year}');
+
+        $client = $this->clientWithCompanySettings();
+
+        $this->assertEquals(date('Y').'0001', $this->getNextClientNumber($client));
+        $this->assertEquals(date('Y').'0002', $this->getNextClientNumber($client));
+    }
+
+    public function testClientNumberCounterIncrementsOnCompany()
+    {
+        $settings = $this->company->settings;
+        $settings->client_number_pattern = '';
+        $settings->client_number_counter = 5;
+
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $client = $this->clientWithCompanySettings();
+
+        $this->assertEquals('0005', $this->getNextClientNumber($client));
+
+        $this->assertEquals(6, $this->company->fresh()->settings->client_number_counter);
+        $this->assertFalse(property_exists($client->fresh()->settings, 'client_number_counter'));
+    }
+
+    public static function companyScopedEntityProvider(): array
+    {
+        return [
+            'vendor' => [Vendor::class, VendorFactory::class, 'vendor_number_pattern'],
+            'task' => [Task::class, TaskFactory::class, 'task_number_pattern'],
+            'project' => [Project::class, ProjectFactory::class, 'project_number_pattern'],
+            'purchase_order' => [PurchaseOrder::class, PurchaseOrderFactory::class, 'purchase_order_number_pattern'],
+            'recurring_expense' => [RecurringExpense::class, RecurringExpenseFactory::class, 'recurring_expense_number_pattern'],
+            'expense' => [Expense::class, ExpenseFactory::class, 'expense_number_pattern'],
+        ];
+    }
+
+    private function nextCompanyEntityNumber(string $entity, $model): string
+    {
+        return match ($entity) {
+            Vendor::class => $this->getNextVendorNumber($model),
+            Task::class => $this->getNextTaskNumber($model),
+            Project::class => $this->getNextProjectNumber($model),
+            PurchaseOrder::class => $this->getNextPurchaseOrderNumber($model),
+            RecurringExpense::class => $this->getNextRecurringExpenseNumber($model),
+            Expense::class => $this->getNextExpenseNumber($model),
+        };
+    }
+
+    private function setCompanyNumberPattern(string $pattern_key, string $pattern): void
+    {
+        $settings = $this->company->settings;
+        $settings->{$pattern_key} = $pattern;
+        $settings->timezone_id = '31';
+
+        $this->company->settings = $settings;
+        $this->company->save();
+    }
+
+    #[DataProvider('companyScopedEntityProvider')]
+    public function testCompanyScopedNumbersFollowTheCounterPattern(string $entity, string $factory, string $pattern_key)
+    {
+        $this->setCompanyNumberPattern($pattern_key, '{$year}-{$counter}');
+
+        $model = $factory::create($this->company->id, $this->user->id);
+
+        $this->assertEquals(date('Y').'-0001', $this->nextCompanyEntityNumber($entity, $model));
+        $this->assertEquals(date('Y').'-0002', $this->nextCompanyEntityNumber($entity, $model));
+    }
+
+    #[DataProvider('companyScopedEntityProvider')]
+    public function testCompanyScopedCounterlessPatternAppendsCounter(string $entity, string $factory, string $pattern_key)
+    {
+        $this->setCompanyNumberPattern($pattern_key, '{$year}');
+
+        $model = $factory::create($this->company->id, $this->user->id);
+
+        $this->assertEquals(date('Y').'0001', $this->nextCompanyEntityNumber($entity, $model));
+        $this->assertEquals(date('Y').'0002', $this->nextCompanyEntityNumber($entity, $model));
+    }
+
+    #[DataProvider('companyScopedEntityProvider')]
+    public function testCompanyScopedUserVarPatternIsNeverEmpty(string $entity, string $factory, string $pattern_key)
+    {
+        $this->user->custom_value1 = '';
+        $this->user->save();
+
+        $this->setCompanyNumberPattern($pattern_key, '{$user_custom1}');
+
+        $model = $factory::create($this->company->id, $this->user->id);
+
+        $first = $this->nextCompanyEntityNumber($entity, $model);
+        $second = $this->nextCompanyEntityNumber($entity, $model);
+
+        $this->assertMatchesRegularExpression('/^\d{4}$/', $first);
+        $this->assertMatchesRegularExpression('/^\d{4}$/', $second);
+        $this->assertNotEquals($first, $second);
     }
 
     /*

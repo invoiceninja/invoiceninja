@@ -83,7 +83,7 @@ class ContactExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()->each(function ($contact) {
+        $this->streamQuery($query)->each(function ($contact) {
             /** @var \App\Models\ClientContact $contact */
             $this->csv->insertOne($this->buildRow($contact));
         });
@@ -102,7 +102,7 @@ class ContactExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($contact) {
                     /** @var \App\Models\ClientContact $contact */
                     $row = $this->buildRow($contact);
@@ -124,6 +124,11 @@ class ContactExport extends BaseExport
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
+
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $contact);
+                continue;
+            }
 
             if ($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$key] = $transformed_client[$parts[1]];

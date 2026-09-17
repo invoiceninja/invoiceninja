@@ -111,7 +111,7 @@ class EmailController extends BaseController
 
         $entity_obj = $entity_obj->fresh();
         $entity_obj->last_sent_date = now();
-        $entity_obj->save();
+        $entity_obj->saveQuietly();
 
         /*Only notify the admin ONCE, not once per contact/invite*/
         if ($entity_obj instanceof Invoice) {

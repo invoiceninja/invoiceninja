@@ -15,9 +15,12 @@ namespace Tests\Feature\Template;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Quote;
+use App\Models\Task;
 use App\Services\Template\TemplateMock;
 use App\Services\Template\TemplateService;
 use App\Utils\HtmlEngine;
@@ -315,6 +318,73 @@ class TemplateTest extends TestCase
 
     }
 
+    public function testExpenseWithoutClientDateParse()
+    {
+        $e = \App\Models\Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => null,
+            'date' => '2024-01-15',
+            'payment_date' => '2024-01-20',
+        ]);
+
+        $this->assertNull($e->client);
+
+        $ts = new TemplateService();
+        $result = $ts->processExpenses([$e]);
+
+        $this->assertNotEmpty($result[0]['date']);
+        $this->assertNotEmpty($result[0]['payment_date']);
+        $this->assertSame($this->translateDate($e->date, $this->company->date_format(), $this->company->locale()), $result[0]['date']);
+        $this->assertSame($this->translateDate($e->payment_date, $this->company->date_format(), $this->company->locale()), $result[0]['payment_date']);
+    }
+
+    public function testExpenseWithClientDateParse()
+    {
+        $e = \App\Models\Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'date' => '2024-01-15',
+            'payment_date' => '2024-01-20',
+        ]);
+
+        $ts = new TemplateService();
+        $result = $ts->processExpenses([$e]);
+
+        $this->assertSame($this->translateDate($e->date, $this->client->date_format(), $this->client->locale()), $result[0]['date']);
+        $this->assertSame($this->translateDate($e->payment_date, $this->client->date_format(), $this->client->locale()), $result[0]['payment_date']);
+    }
+
+    public function testInvoiceTagsAreExposed()
+    {
+        $tag = \App\Models\Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Invoice::class,
+            'name' => 'priority',
+        ]);
+
+        $this->invoice->tags()->attach($tag->id);
+
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+        $result = $ts->processInvoices([$this->invoice->fresh()]);
+
+        $this->assertIsArray($result[0]['tags']);
+        $this->assertSame(['priority'], $result[0]['tags']);
+    }
+
+    public function testInvoiceWithoutTagsReturnsEmptyArray()
+    {
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+        $result = $ts->processInvoices([$this->invoice->fresh()]);
+
+        $this->assertIsArray($result[0]['tags']);
+        $this->assertSame([], $result[0]['tags']);
+    }
+
 
 
     public function testQuoteDataParse()
@@ -355,6 +425,117 @@ class TemplateTest extends TestCase
         $this->assertNotNull($ts);
         $this->assertIsArray($ts->getData());
 
+    }
+
+    public function testProjectTemplateExposesQuotes()
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $quote = Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+            'number' => 'Q-PROJECT-1',
+            'po_number' => 'PO-99',
+            'public_notes' => 'Quote public notes',
+            'amount' => 150.50,
+            'balance' => 150.50,
+        ]);
+
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+        $result = $ts->processProjects([$project->fresh()]);
+
+        $this->assertArrayHasKey('quotes', $result[0]);
+        $this->assertCount(1, $result[0]['quotes']);
+        $this->assertSame('Q-PROJECT-1', $result[0]['quotes'][0]['number']);
+        $this->assertSame('PO-99', $result[0]['quotes'][0]['po_number']);
+        $this->assertSame('Quote public notes', $result[0]['quotes'][0]['public_notes']);
+        $this->assertSame(Quote::stringStatus($quote->status_id), $result[0]['quotes'][0]['status']);
+        $this->assertSame($quote->status_id, $result[0]['quotes'][0]['status_id']);
+        $this->assertEquals(150.50, $result[0]['quotes'][0]['amount_raw']);
+        $this->assertSame(Number::formatMoney(150.50, $this->client), $result[0]['quotes'][0]['amount']);
+        $this->assertSame($project->hashed_id, $result[0]['quotes'][0]['project']['id']);
+        $this->assertSame($project->name, $result[0]['quotes'][0]['project']['name']);
+    }
+
+    public function testProjectQuoteNestingDoesNotCreateLoops()
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $quote = Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+            'number' => 'Q-LOOP-1',
+        ]);
+
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+        ]);
+
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+        ]);
+
+        $expense = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+        ]);
+
+        $ts = new TemplateService();
+        $ts->setCompany($this->company);
+
+        $project_payload = $ts->processProjects([$project->fresh()])[0];
+
+        $this->assertCount(1, $project_payload['quotes']);
+        $this->assertSame('Q-LOOP-1', $project_payload['quotes'][0]['number']);
+        $this->assertShallowNestedProject($project_payload['quotes'][0]['project']);
+
+        $invoice_payload = $ts->processInvoices([$invoice->fresh()])[0];
+        $this->assertSame($project->hashed_id, $invoice_payload['project']['id']);
+        $this->assertShallowNestedProject($invoice_payload['project']);
+
+        $task_payload = $ts->processTasks([$task->fresh()])[0];
+        $this->assertSame($project->hashed_id, $task_payload['project']['id']);
+        $this->assertShallowNestedProject($task_payload['project']);
+
+        $expense_payload = $ts->processExpenses([$expense->fresh()])[0];
+        $this->assertSame($project->hashed_id, $expense_payload['project']['id']);
+        $this->assertShallowNestedProject($expense_payload['project']);
+
+        $quote_payload = $ts->processQuotes([$quote->fresh()])[0];
+        $this->assertSame($project->hashed_id, $quote_payload['project']['id']);
+        $this->assertShallowNestedProject($quote_payload['project']);
+    }
+
+    /**
+     * @param  array<string, mixed>  $project
+     */
+    private function assertShallowNestedProject(array $project): void
+    {
+        $this->assertSame([], $project['quotes']);
+        $this->assertSame([], $project['invoices']);
+        $this->assertSame([], $project['tasks']);
+        $this->assertSame([], $project['expenses']);
     }
 
     public function testNegativeDivAttribute()

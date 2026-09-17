@@ -80,7 +80,7 @@ class PdfServiceTest extends TestCase
             $this->markTestSkipped();
         }
 
-        $this->fake_email = $this->faker->email();
+        $this->fake_email = uniqid('testuser') . '@gmail.com';
 
     }
 

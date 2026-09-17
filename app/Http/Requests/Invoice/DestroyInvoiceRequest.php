@@ -26,15 +26,13 @@ class DestroyInvoiceRequest extends Request
         return auth()->user()->can('edit', $this->invoice);
     }
 
-
-    public function rules()
+    public function rules(): array
     {
         return [];
     }
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
-
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -43,6 +41,5 @@ class DestroyInvoiceRequest extends Request
         }
 
         \Illuminate\Support\Facades\Cache::put(($this->ip() . "|" . $this->invoice->id . "|" . $user->company()->company_key), true, 1);
-
     }
 }

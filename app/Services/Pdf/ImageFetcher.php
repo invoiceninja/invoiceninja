@@ -23,9 +23,9 @@ use Illuminate\Support\Facades\Http;
  * content.
  *
  * Containment model:
- *   1. Re-validate URL shape + DNS via {@see SafeExternalUrl::check()}.
- *   2. GET with redirects disabled — any 3xx is a hard reject.
- *      rebind window between validate and fetch).
+ *   1. Re-validate URL shape on every hop via {@see SafeExternalUrl::check()}.
+ *   2. GET with redirects disabled; follow up to {@see MAX_REDIRECT_HOPS}
+ *      validated Location targets manually.
  *   3. Verify Content-Type + magic bytes; oversized or wrong-type payloads
  *      are rejected.
  *   4. Base64-encode and return data:image/...;base64,...
@@ -36,6 +36,8 @@ class ImageFetcher
     public const MAX_BYTES = 5 * 1024 * 1024;
 
     public const CACHE_TTL_SECONDS = 3600;
+
+    public const MAX_REDIRECT_HOPS = 3;
 
     private const CONNECT_TIMEOUT = 3;
 
@@ -92,30 +94,62 @@ class ImageFetcher
      */
     private function fetch(array $validated): ?array
     {
-        $url = $validated['url'] ?? '';
-        if ($url === '') {
+        $current = $validated['url'] ?? '';
+        if ($current === '') {
             return null;
         }
 
         try {
-            $response = Http::connectTimeout(self::CONNECT_TIMEOUT)
-                ->timeout(self::TIMEOUT)
-                ->withOptions([
-                    'allow_redirects' => false,
-                    'verify' => true,
-                ])
-                ->get($url);
+            for ($hop = 0; $hop < self::MAX_REDIRECT_HOPS; $hop++) {
+                $check = SafeExternalUrl::check($current);
+                if (!$check['ok']) {
+                    return null;
+                }
+
+                $current = $check['url'] ?? $current;
+
+                $response = Http::connectTimeout(self::CONNECT_TIMEOUT)
+                    ->timeout(self::TIMEOUT)
+                    ->withOptions([
+                        'allow_redirects' => false,
+                        'verify' => true,
+                    ])
+                    ->get($current);
+
+                if ($response->successful()) {
+                    return $this->extractImagePayload($response);
+                }
+
+                if (!$response->redirect()) {
+                    return null;
+                }
+
+                $location = trim((string) $response->header('Location'));
+                if ($location === '') {
+                    return null;
+                }
+
+                $resolved = $this->resolveRedirectLocation($current, $location);
+                if ($resolved === null) {
+                    return null;
+                }
+
+                $current = $resolved;
+            }
+
+            return null;
         } catch (ConnectionException $e) {
             return null;
         } catch (\Throwable $e) {
             return null;
         }
+    }
 
-        $status = $response->status();
-        if ($status < 200 || $status >= 300) {
-            return null;
-        }
-
+    /**
+     * @return array{0:string, 1:string}|null
+     */
+    private function extractImagePayload(\Illuminate\Http\Client\Response $response): ?array
+    {
         $body = (string) $response->body();
         $length = strlen($body);
         if ($length === 0 || $length > self::MAX_BYTES) {
@@ -133,6 +167,47 @@ class ImageFetcher
         }
 
         return [$mime, $body];
+    }
+
+    /**
+     * Resolve a redirect Location header against the current request URL.
+     */
+    private function resolveRedirectLocation(string $current, string $location): ?string
+    {
+        $location = trim($location);
+
+        if ($location === '') {
+            return null;
+        }
+
+        if (preg_match('#^https://#i', $location) === 1) {
+            return $location;
+        }
+
+        if (preg_match('#^https?://#i', $location) === 1) {
+            return null;
+        }
+
+        if (str_starts_with($location, '//')) {
+            return 'https:' . $location;
+        }
+
+        $parts = parse_url($current);
+        if ($parts === false || empty($parts['host'])) {
+            return null;
+        }
+
+        $host = $parts['host'];
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+
+        if (str_starts_with($location, '/')) {
+            return 'https://' . $host . $port . $location;
+        }
+
+        $path = $parts['path'] ?? '/';
+        $directory = preg_replace('#/[^/]*$#', '/', $path) ?: '/';
+
+        return 'https://' . $host . $port . $directory . $location;
     }
 
     /**

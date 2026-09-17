@@ -22,8 +22,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int $company_id
  * @property int $user_id
- * @property int $client_contact_id
- * @property int $recurring_invoice_id
+ * @property int|null $client_contact_id
+ * @property int|null $recurring_invoice_id
  * @property string $key
  * @property int|null $created_at
  * @property int|null $updated_at

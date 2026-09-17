@@ -17,6 +17,7 @@ use App\Http\ValidationRules\Payment\ValidRefundableRequest;
 use App\Http\ValidationRules\ValidRefundableInvoices;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class RefundPaymentRequest extends Request
 {
@@ -70,11 +71,12 @@ class RefundPaymentRequest extends Request
 
         $rules = [
             'id' => ['bail','required', new ValidRefundableRequest($input)],
-            'amount' => ['numeric', 'max:99999999999999'],
+            'amount' => ['numeric', 'max:99999999999999', 'gt:0'],
             'date' => 'required',
-            'invoices.*.invoice_id' => 'required|bail|distinct',
-            'invoices.*.amount' => 'required|bail|gt:0',
-            'invoices' => new ValidRefundableInvoices($input),
+            'invoices.*.invoice_id' => ['required','bail','distinct', Rule::exists('invoices', 'id')->where('company_id', auth()->user()->company()->id)],
+            'invoices.*.amount' => 'required|bail|numeric|gt:0',
+            'invoices' => ['sometimes','array', new ValidRefundableInvoices($input)],
+            
         ];
 
         return $rules;
@@ -84,6 +86,6 @@ class RefundPaymentRequest extends Request
     {
         $input = $this->all();
         /** @var \App\Models\Payment */
-        return Payment::find($input['id']);
+        return Payment::withTrashed()->where('id', $input['id'])->where('company_id', auth()->user()->company()->id)->first();
     }
 }

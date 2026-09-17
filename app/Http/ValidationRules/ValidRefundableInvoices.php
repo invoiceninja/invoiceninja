@@ -47,7 +47,7 @@ class ValidRefundableInvoices implements Rule
         }
 
         /**@var \App\Models\Payment $payment **/
-        $payment = Payment::whereId($this->input['id'])->first();
+        $payment = Payment::where('id', $this->input['id'])->company()->first();
 
         if (! $payment) {
             $this->error_msg = ctrans('texts.unable_to_retrieve_payment');

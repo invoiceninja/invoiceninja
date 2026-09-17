@@ -45,7 +45,7 @@ class PurchaseOrderReportController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-        PreviewReport::dispatch($user->company(), $request->all(), PurchaseOrderExport::class, $hash);
+        PreviewReport::dispatch($user->company(), $request->all(), PurchaseOrderExport::class, $hash, $this->filename, $user);
 
         return response()->json(['message' => $hash], 200);
 

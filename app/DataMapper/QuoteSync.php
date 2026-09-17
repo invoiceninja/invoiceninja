@@ -25,6 +25,9 @@ class QuoteSync implements Castable
         public array $invitations = [],
         public bool $dn_completed = false,
         public string $dn_document_hashed_id = '',
+        public string $qb_status = '',
+        public string $qb_sync_token = '',
+        public string $qb_status_message = '',
     ) {}
     /**
     * Get the name of the caster class to use when casting from / to this cast target.
@@ -43,6 +46,9 @@ class QuoteSync implements Castable
             invitations: $data['invitations'] ?? [],
             dn_completed: $data['dn_completed'] ?? false,
             dn_document_hashed_id: $data['dn_document_hashed_id'] ?? '',
+            qb_status: $data['qb_status'] ?? '',
+            qb_sync_token: $data['qb_sync_token'] ?? '',
+            qb_status_message: $data['qb_status_message'] ?? '',
         );
     }
 

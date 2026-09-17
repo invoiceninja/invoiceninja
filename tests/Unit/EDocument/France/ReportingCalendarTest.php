@@ -12,6 +12,7 @@
 namespace Tests\Unit\EDocument\France;
 
 use App\Services\EDocument\Standards\France\ReportingCalendar;
+use App\Services\EDocument\Standards\France\ReportingPeriod;
 use App\Services\EDocument\Standards\France\ReportingProfile;
 use Carbon\CarbonImmutable;
 use Tests\TestCase;
@@ -52,6 +53,180 @@ class ReportingCalendarTest extends TestCase
         if ($expectedLabel !== null) {
             $this->assertSame($expectedLabel, $period->label);
         }
+    }
+
+    public function testEveryCalendarDayInNextTenYearsResolvesExpectedReportingPeriod(): void
+    {
+        $startDate = CarbonImmutable::today('Europe/Paris');
+        $endDate = $startDate->addYears(10)->subDay();
+        $artifactRows = $this->calendarArtifactRows($startDate, $endDate);
+
+        foreach ($artifactRows as $row) {
+            $message = "{$row['profile']} on {$row['date']}";
+
+            $this->assertSame($row['expected_start'], $row['actual_start'], "Start mismatch for {$message}");
+            $this->assertSame($row['expected_end'], $row['actual_end'], "End mismatch for {$message}");
+            $this->assertSame($row['expected_due'], $row['actual_due'], "Due date mismatch for {$message}");
+            $this->assertSame($row['expected_label'], $row['actual_label'], "Label mismatch for {$message}");
+            $this->assertSame('yes', $row['date_contained_by_actual_period'], "Date not contained by period for {$message}");
+        }
+    }
+
+    /**
+     * @return array<int, array<string, string>>
+     */
+    private function calendarArtifactRows(CarbonImmutable $startDate, CarbonImmutable $endDate): array
+    {
+        $rows = [];
+
+        for ($date = $startDate; $date->lessThanOrEqualTo($endDate); $date = $date->addDay()) {
+            foreach (ReportingProfile::cases() as $profile) {
+                $period = ReportingCalendar::currentPeriod($profile, $date);
+                $expected = $this->expectedPeriod($profile, $date);
+                $actual = $this->actualPeriod($period);
+
+                $rows[] = [
+                    'date' => $date->toDateString(),
+                    'profile' => $profile->value,
+                    'expected_start' => $expected['start'],
+                    'actual_start' => $actual['start'],
+                    'expected_end' => $expected['end'],
+                    'actual_end' => $actual['end'],
+                    'expected_due' => $expected['due'],
+                    'actual_due' => $actual['due'],
+                    'expected_label' => $expected['label'],
+                    'actual_label' => $actual['label'],
+                    'date_contained_by_actual_period' => $this->dateIsContainedByPeriod($date, $period) ? 'yes' : 'no',
+                ];
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @return array{start: string, end: string, due: string, label: string}
+     */
+    private function actualPeriod(ReportingPeriod $period): array
+    {
+        return [
+            'start' => $period->start->format('Y-m-d H:i:s'),
+            'end' => $period->end->format('Y-m-d H:i:s'),
+            'due' => $period->dueDate->format('Y-m-d H:i:s'),
+            'label' => $period->label,
+        ];
+    }
+
+    private function dateIsContainedByPeriod(CarbonImmutable $date, ReportingPeriod $period): bool
+    {
+        return $date->toDateString() >= $period->start->toDateString()
+            && $date->toDateString() <= $period->end->toDateString();
+    }
+
+    /**
+     * @return array{start: string, end: string, due: string, label: string}
+     */
+    private function expectedPeriod(ReportingProfile $profile, CarbonImmutable $date): array
+    {
+        return match ($profile) {
+            ReportingProfile::TenDay => $this->expectedTenDayPeriod($date),
+            ReportingProfile::Monthly => $this->expectedMonthlyPeriod($date),
+            ReportingProfile::BiMonthly => $this->expectedBiMonthlyPeriod($date),
+        };
+    }
+
+    /**
+     * @return array{start: string, end: string, due: string, label: string}
+     */
+    private function expectedTenDayPeriod(CarbonImmutable $date): array
+    {
+        $year = $date->year;
+        $month = $date->month;
+
+        if ($date->day <= 10) {
+            $start = $this->calendarDate($year, $month, 1);
+            $end = $this->calendarDate($year, $month, 10)->endOfDay();
+            $due = $this->calendarDate($year, $month, 20)->endOfDay();
+        } elseif ($date->day <= 20) {
+            $start = $this->calendarDate($year, $month, 11);
+            $end = $this->calendarDate($year, $month, 20)->endOfDay();
+            $due = $this->calendarDate($year, $month, min(30, $this->daysInMonth($year, $month)))->endOfDay();
+        } else {
+            $start = $this->calendarDate($year, $month, 21);
+            $end = $this->calendarDate($year, $month, $this->daysInMonth($year, $month))->endOfDay();
+            [$dueYear, $dueMonth] = $this->nextMonth($year, $month);
+            $due = $this->calendarDate($dueYear, $dueMonth, 10)->endOfDay();
+        }
+
+        return [
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'due' => $due->format('Y-m-d H:i:s'),
+            'label' => $start->toDateString().' → '.$end->toDateString(),
+        ];
+    }
+
+    /**
+     * @return array{start: string, end: string, due: string, label: string}
+     */
+    private function expectedMonthlyPeriod(CarbonImmutable $date): array
+    {
+        $year = $date->year;
+        $month = $date->month;
+        $start = $this->calendarDate($year, $month, 1);
+        $end = $this->calendarDate($year, $month, $this->daysInMonth($year, $month))->endOfDay();
+        [$dueYear, $dueMonth] = $this->nextMonth($year, $month);
+        $due = $this->calendarDate($dueYear, $dueMonth, 10)->endOfDay();
+
+        return [
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'due' => $due->format('Y-m-d H:i:s'),
+            'label' => $start->format('F Y'),
+        ];
+    }
+
+    /**
+     * @return array{start: string, end: string, due: string, label: string}
+     */
+    private function expectedBiMonthlyPeriod(CarbonImmutable $date): array
+    {
+        $year = $date->year;
+        $startMonth = $date->month % 2 === 0 ? $date->month - 1 : $date->month;
+        $endMonth = $startMonth + 1;
+        $start = $this->calendarDate($year, $startMonth, 1);
+        $end = $this->calendarDate($year, $endMonth, $this->daysInMonth($year, $endMonth))->endOfDay();
+        [$dueYear, $dueMonth] = $this->nextMonth($year, $endMonth);
+        $due = $this->calendarDate($dueYear, $dueMonth, 10)->endOfDay();
+
+        return [
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'due' => $due->format('Y-m-d H:i:s'),
+            'label' => $start->format('M Y').' → '.$end->format('M Y'),
+        ];
+    }
+
+    private function calendarDate(int $year, int $month, int $day): CarbonImmutable
+    {
+        return CarbonImmutable::create($year, $month, $day, 0, 0, 0, 'Europe/Paris');
+    }
+
+    private function daysInMonth(int $year, int $month): int
+    {
+        return $this->calendarDate($year, $month, 1)->daysInMonth;
+    }
+
+    /**
+     * @return array{0: int, 1: int}
+     */
+    private function nextMonth(int $year, int $month): array
+    {
+        if ($month === 12) {
+            return [$year + 1, 1];
+        }
+
+        return [$year, $month + 1];
     }
 
     // -------- Ten-day profile: period 1 (1st-10th) --------
@@ -259,9 +434,22 @@ class ReportingCalendarTest extends TestCase
     public function testDefaultsToNowWhenDateOmitted(): void
     {
         $period = ReportingCalendar::currentPeriod(ReportingProfile::Monthly);
-        $now = CarbonImmutable::now();
+        $now = CarbonImmutable::now('Europe/Paris');
 
         $this->assertSame($now->startOfMonth()->toDateString(), $period->start->toDateString());
         $this->assertSame($now->endOfMonth()->toDateString(), $period->end->toDateString());
+    }
+
+    public function testEveryPeriodBoundaryPreservesTheInputTimezone(): void
+    {
+        $reference = CarbonImmutable::parse('2026-09-10 22:00:00', 'Europe/Paris');
+
+        foreach (ReportingProfile::cases() as $profile) {
+            $period = ReportingCalendar::currentPeriod($profile, $reference);
+
+            $this->assertSame('Europe/Paris', $period->start->getTimezone()->getName());
+            $this->assertSame('Europe/Paris', $period->end->getTimezone()->getName());
+            $this->assertSame('Europe/Paris', $period->dueDate->getTimezone()->getName());
+        }
     }
 }

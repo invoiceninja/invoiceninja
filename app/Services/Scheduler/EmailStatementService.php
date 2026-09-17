@@ -14,10 +14,12 @@ namespace App\Services\Scheduler;
 
 use App\DataMapper\Schedule\EmailStatement;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
 
 class EmailStatementService
 {
@@ -95,14 +97,42 @@ class EmailStatementService
             EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->startOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->endOfQuarter()->format('Y-m-d')],
             EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
             EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
-            EmailStatement::ALL_TIME => [
-                $client->invoices()->selectRaw('MIN(invoices.date) as start_date')->pluck('start_date')->first()
-                    ?: Carbon::now()->format('Y-m-d'),
-                Carbon::now()->format('Y-m-d'),
-            ],
+            EmailStatement::ALL_TIME => [$this->firstRecordDate($client), now()->format('Y-m-d')],
             EmailStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
+    }
+
+    private function firstRecordDate(Client $client): string
+    {
+        $dates = array_values(array_filter([
+            Invoice::query()
+                ->withTrashed()
+                ->where('company_id', $client->company_id)
+                ->where('client_id', $client->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                ->where('date', '!=', '0000-00-00')
+                ->min('date'),
+            Payment::query()
+                ->withTrashed()
+                ->where('company_id', $client->company_id)
+                ->where('client_id', $client->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+                ->where('date', '!=', '0000-00-00')
+                ->min('date'),
+            Credit::query()
+                ->withTrashed()
+                ->where('company_id', $client->company_id)
+                ->where('client_id', $client->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL, Credit::STATUS_APPLIED])
+                ->where('date', '!=', '0000-00-00')
+                ->min('date'),
+        ]));
+
+        return $dates === [] ? '2000-01-01' : min($dates);
     }
 
 }

@@ -41,13 +41,9 @@ trait CustomValuer
 
         if (isset($custom_value) && is_numeric($custom_value) && $has_custom_invoice_taxes !== false) {
 
-            $tax = 0;
+            $rates = [(float) $this->invoice->tax_rate1, (float) $this->invoice->tax_rate2, (float) $this->invoice->tax_rate3];
 
-            $tax += $this->formatValue($custom_value - ($custom_value / (1 + ($this->invoice->tax_rate1 / 100))), 2);
-            $tax += $this->formatValue($custom_value - ($custom_value / (1 + ($this->invoice->tax_rate2 / 100))), 2);
-            $tax += $this->formatValue($custom_value - ($custom_value / (1 + ($this->invoice->tax_rate3 / 100))), 2);
-
-            return round($tax, 2);
+            return InclusiveTax::backout((float) $custom_value, $rates, 2)['tax'];
         }
 
         return 0;

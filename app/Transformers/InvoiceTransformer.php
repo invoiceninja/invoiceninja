@@ -12,16 +12,17 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Project;
-use App\Models\Activity;
 use App\Models\Document;
-use App\Utils\Traits\MakesHash;
+use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Models\Project;
+use App\Utils\Traits\MakesHash;
 
 class InvoiceTransformer extends EntityTransformer
 {
@@ -39,6 +40,7 @@ class InvoiceTransformer extends EntityTransformer
         'location',
         'project',
         'credits',
+        'paymentables'
     ];
 
     public function includeLocation(Invoice $invoice)
@@ -77,7 +79,7 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new ProjectTransformer($this->serializer);
 
-        if (!$invoice->project) {
+        if (!$invoice->project || $invoice->project->company_id !== $invoice->company_id) {
             return null;
         }
 
@@ -89,6 +91,13 @@ class InvoiceTransformer extends EntityTransformer
         $transformer = new PaymentTransformer($this->serializer);
 
         return $this->includeCollection($invoice->payments, $transformer, Payment::class);
+    }
+
+    public function includePaymentables(Invoice $invoice)
+    {
+        $transformer = new PaymentableTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->paymentables, $transformer, Paymentable::class);
     }
 
     public function includeCredits(Invoice $invoice)
@@ -188,6 +197,7 @@ class InvoiceTransformer extends EntityTransformer
             'e_invoice' => $invoice->e_invoice ?: new \stdClass(),
             'backup' => $invoice->backup,
             'location_id' => $this->encodePrimaryKey($invoice->location_id),
+            'tags' => $this->transformTags($invoice),
             'sync' => $invoice->sync,
         ];
 

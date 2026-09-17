@@ -7,6 +7,7 @@ use App\Http\Controllers\Bank\EnableBankingController;
 use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
+use App\Http\Controllers\CalendarConnectionController;
 use App\Http\Controllers\ClientPortal\ApplePayDomainController;
 use App\Http\Controllers\EInvoice\SelfhostController;
 use App\Http\Controllers\Gateways\Checkout3dsController;
@@ -31,11 +32,12 @@ Route::post('setup/check_mail', [SetupController::class, 'checkMail'])->middlewa
 Route::post('setup/check_pdf', [SetupController::class, 'checkPdf'])->middleware('throttle:10,1')->middleware('guest');
 
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->middleware('domain_db')->name('password.request');
-Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:10,1')->name('password.email');
+Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:password-reset')->name('password.email');
 Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->middleware(['domain_db', 'email_db'])->name('password.reset');
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])->middleware('throttle:10,1')->middleware('email_db')->name('password.update');
 
 Route::get('auth/{provider}', [LoginController::class, 'redirectToProvider']);
+Route::get('calendar_connection/{provider}/callback', [CalendarConnectionController::class, 'callback'])->name('calendar_connection.callback');
 
 Route::middleware(['url_db'])->group(function () {
     Route::get('/user/confirm/{confirmation_code}', [UserController::class, 'confirm'])->middleware('throttle:10,1');
@@ -55,7 +57,12 @@ Route::any('enablebanking/confirm', [EnableBankingController::class, 'confirm'])
 
 Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Checkout3dsController::class, 'index'])->middleware('domain_db')->name('checkout.3ds_redirect');
 Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Mollie3dsController::class, 'index'])->middleware('domain_db')->name('mollie.3ds_redirect');
-Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', [GoCardlessController::class, 'ibpRedirect'])->middleware('domain_db')->name('gocardless.ibp_redirect');
+Route::get('gocardless/hosted_payment_page/return/{company_key}/{company_gateway_id}/{hash}', [GoCardlessController::class, 'hostedPaymentPageReturn'])
+    ->middleware(['domain_db', 'throttle:20,1'])
+    ->name('gocardless.hosted_payment_page.return');
+Route::get('gocardless/hosted_payment_page/setup_return/{company_key}/{company_gateway_id}/{context}', [GoCardlessController::class, 'hostedPaymentPageSetupReturn'])
+    ->middleware(['domain_db', 'throttle:20,1'])
+    ->name('gocardless.hosted_payment_page.setup_return');
 Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePayDomainController::class, 'showAppleMerchantId']);
 
 Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');

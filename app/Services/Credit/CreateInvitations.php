@@ -120,5 +120,6 @@ class CreateInvitations extends AbstractService
         $new_contact->is_primary = true;
         $new_contact->can_sign = false;
         $new_contact->save();
+
     }
 }

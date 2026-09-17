@@ -38,7 +38,7 @@ class BulkProjectRequest extends Request
     {
 
         return [
-            'action' => 'required|string',
+            'action' => 'required|string|in:invoice,template,archive,restore,delete',
             // 'ids' => 'required|array',
             'ids' => ['required', 'array', function ($attribute, $value, $fail) {
                 $projects = \App\Models\Project::withTrashed()->whereIn('id', $this->transformKeys($value))->company()->get();

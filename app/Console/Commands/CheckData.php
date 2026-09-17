@@ -13,40 +13,41 @@
 namespace App\Console\Commands;
 
 use App;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Contact;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Libraries\MultiDB;
-use App\Models\CompanyUser;
-use Illuminate\Support\Str;
-use App\Models\CompanyToken;
-use App\Models\ClientContact;
-use App\Models\CompanyLedger;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use App\Models\BankTransaction;
-use App\Models\QuoteInvitation;
-use Illuminate\Console\Command;
-use App\Models\CreditInvitation;
-use App\Models\RecurringInvoice;
-use App\Models\InvoiceInvitation;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Libraries\MultiDB;
+use App\Models\Account;
+use App\Models\BankTransaction;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
+use App\Models\Company;
+use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
+use App\Models\Contact;
+use App\Models\Credit;
+use App\Models\CreditInvitation;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\Payment;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Utils\BcMath;
+use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 /*
@@ -88,7 +89,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=} {--bank_transaction=} {--line_items=} {--payment_balance=} {--tasks=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=} {--bank_transaction=} {--line_items=} {--payment_balance=} {--tasks=} {--balance_taxes=} {--stripe_ach=}';
 
     /**
      * @var string
@@ -117,6 +118,11 @@ class CheckData extends Command
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
+        }
+
+        if ($this->option('stripe_ach') == 'true') {
+            $this->setInactiveOnStripeBaTokensWithoutNewMandate();
+            return;
         }
 
         $this->checkTaskTimeLogs();
@@ -1266,5 +1272,94 @@ class CheckData extends Command
 
     }
 
+
+    public function setInactiveOnStripeBaTokensWithoutNewMandate()
+    {
+
+        ClientGatewayToken::query()
+                            ->whereHas('gateway', function ($q){
+                            $q->whereNull('deleted_at');
+                            })
+                            ->where('gateway_type_id', 2)
+                            ->where('token', 'like', 'ba_%')
+                            ->cursor()
+                            ->each(function ($cgt){
+
+                                // If there is no state, set it to inactive
+                                if(!isset($cgt->meta->state)){
+
+                                    $meta = $cgt->meta;
+                                    $meta->state = 'inactive';
+                                    $cgt->meta = $meta;
+                                    $cgt->save();
+                                    return;
+
+                                }
+
+                                // If the state is inactive, return
+                                if($cgt->meta->state == 'inactive'){
+                                    return;
+                                }
+
+                                try{
+                                    $stripe = $cgt->gateway->driver()->init();
+
+                                }catch(\Throwable $e){
+
+                                    $this->logMessage($e->getMessage());
+                                    return;
+                                }
+
+                                $query = http_build_query([
+                                    'payment_method' => $cgt->token,
+                                    'status' => 'active',
+                                    'limit' => 100,
+                                ]);
+
+
+                                try{
+                                    $response = $stripe->stripe->rawRequest(
+                                        'get',
+                                        "/v1/mandates?{$query}",
+                                        null,
+                                        [
+                                            'stripe_version' => '2025-12-15.preview',
+                                        ]
+                                );
+
+                                }catch(\Throwable $e){
+
+                                    $this->logMessage("Error getting Mandates - " . $e->getMessage());
+                                    return;
+                                }
+
+                                $mandates = $response->json['data'] ?? [];
+
+                                $this->logMessage("Mandates count - " . count($mandates));
+
+                                $hasReusableMandate = collect($mandates)
+                                    ->contains(fn ($m) =>
+                                        $m['status'] === 'active'
+                                        && $m['type'] === 'multi_use'
+                                    );
+
+
+                                if(!$hasReusableMandate){
+
+                                    $this->logMessage("Setting inactive - " . $cgt->id);
+
+                                    $meta = $cgt->meta;
+                                    $meta->state = 'inactive';
+                                    $cgt->meta = $meta;
+                                    $cgt->save();
+
+                                }
+
+        });
+
+
+
+
+    }
 
 }

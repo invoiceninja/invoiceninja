@@ -12,9 +12,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Models\Company;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MigrationController extends BaseController
@@ -66,11 +68,12 @@ class MigrationController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param DefaultCompanyRequest $request
      * @param Company $company
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      * @throws \Exception
      */
-    public function purgeCompany(Company $company)
+    public function purgeCompany(DefaultCompanyRequest $request, Company $company)
     {
         if (Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id) {
             return response()->json(['message' => 'Cannot purge this company'], 400);
@@ -134,12 +137,15 @@ class MigrationController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param Request $request
+     * @param DefaultCompanyRequest $request
      * @param Company $company
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function purgeCompanySaveSettings(Request $request, Company $company)
-    {
+    public function purgeCompanySaveSettings(
+        DefaultCompanyRequest $request,
+        Company $company,
+    ): JsonResponse {
+        
         $company->clients()->forceDelete();
         $company->products()->forceDelete();
         $company->projects()->forceDelete();
@@ -149,13 +155,9 @@ class MigrationController extends BaseController
         $company->purchase_orders()->forceDelete();
         $company->bank_transaction_rules()->forceDelete();
         $company->bank_transactions()->forceDelete();
-        // $company->bank_integrations()->forceDelete();
-
         $company->all_activities()->forceDelete();
 
         $settings = $company->settings;
-
-        /* Reset all counters to 1 after a purge */
         $settings->recurring_invoice_number_counter = 1;
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
@@ -170,9 +172,7 @@ class MigrationController extends BaseController
         $settings->payment_number_counter = 1;
         $settings->project_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
-
         $company->settings = $settings;
-
         $company->save();
 
         return response()->json(['message' => 'Settings preserved'], 200);

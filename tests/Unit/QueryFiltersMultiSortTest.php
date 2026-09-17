@@ -147,6 +147,86 @@ class QueryFiltersMultiSortTest extends TestCase
             ],
         ], $this->ordersFrom($builder));
     }
+
+    public function testItCleansDecorativeFilterTerms(): void
+    {
+        $filters = new CleanFilterStringQueryFilters(Request::create('/', 'GET'));
+
+        $this->assertSame(
+            '微信：homei_living Richmond Showroom XXX-XXX-XXXX',
+            $filters->clean('📱 微信：homei_living 📍 Richmond Showroom 📞 XXX-XXX-XXXX')
+        );
+
+        $this->assertSame('', $filters->clean('📱📍📞'));
+    }
+
+    public function testItPreservesSupportedSearchPunctuation(): void
+    {
+        $filters = new CleanFilterStringQueryFilters(Request::create('/', 'GET'));
+
+        $this->assertSame(
+            "ACME: unit_42/West + sales@example.test #PO-123 O'Reilly 50%",
+            $filters->clean("ACME: unit_42/West + sales@example.test #PO-123 O'Reilly 50%")
+        );
+    }
+
+    public function testItRemovesCharactersThatCanBreakStringComparisons(): void
+    {
+        $filters = new CleanFilterStringQueryFilters(Request::create('/', 'GET'));
+
+        $this->assertSame('Alpha Beta Gamma Delta Omega', $filters->clean("Alpha\0Beta\u{0085}Gamma📱Delta\nOmega"));
+    }
+
+    public function testItScrubsMalformedUtf8BeforeFiltering(): void
+    {
+        $filters = new CleanFilterStringQueryFilters(Request::create('/', 'GET'));
+
+        $normalized_filter = $filters->clean("Valid \xF0\x28\x8C\x28 End");
+
+        $this->assertTrue(mb_check_encoding($normalized_filter, 'UTF-8'));
+        $this->assertStringContainsString('Valid', $normalized_filter);
+        $this->assertStringContainsString('End', $normalized_filter);
+    }
+
+    public function testItCleansFilterRequestValueBeforeDispatch(): void
+    {
+        $filters = new FilterDispatchQueryFilters(Request::create('/', 'GET', [
+            'filter' => '📱 微信：homei_living 📍 Richmond Showroom 📞 XXX-XXX-XXXX',
+        ]));
+
+        $builder = $filters->apply(PaymentTerm::query());
+
+        $this->assertSame(['微信：homei_living Richmond Showroom XXX-XXX-XXXX'], $filters->appliedFilters);
+        $this->assertContains('%微信：homei_living Richmond Showroom XXX-XXX-XXXX%', $builder->getBindings());
+    }
+
+    public function testItReturnsNoRowsWhenFilterCleansToEmptyBeforeDispatch(): void
+    {
+        $filters = new FilterDispatchQueryFilters(Request::create('/', 'GET', [
+            'filter' => '📱📍📞',
+        ]));
+
+        $builder = $filters->apply(PaymentTerm::query());
+
+        $this->assertSame([], $filters->appliedFilters);
+        $this->assertStringContainsString('0 = 1', $builder->toSql());
+    }
+
+    public function testItDoesNotDispatchNonPublicHelperMethodsFromRequestKeys(): void
+    {
+        $filters = new MultiSortQueryFilters(Request::create('/', 'GET', [
+            'cleanFilterString' => ['x'],
+        ]));
+
+        $builder = $filters->apply(PaymentTerm::query());
+
+        $this->assertSame([
+            [
+                'column' => 'payment_terms.id',
+                'direction' => 'desc',
+            ],
+        ], $this->ordersFrom($builder));
+    }
 }
 
 class MultiSortQueryFilters extends QueryFilters
@@ -181,5 +261,33 @@ class MultiSortQueryFilters extends QueryFilters
         $direction = ($sortColumn[1] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
         return $this->builder->orderBy($sortColumn[0], $direction);
+    }
+}
+
+class CleanFilterStringQueryFilters extends QueryFilters
+{
+    public function clean(string $filter): string
+    {
+        return $this->cleanFilterString($filter);
+    }
+}
+
+class FilterDispatchQueryFilters extends QueryFilters
+{
+    /**
+     * @var list<string>
+     */
+    public array $appliedFilters = [];
+
+    public function entityFilter(): Builder
+    {
+        return $this->builder;
+    }
+
+    public function filter(string $filter = ''): Builder
+    {
+        $this->appliedFilters[] = $filter;
+
+        return $this->builder->where('name', 'like', '%' . $filter . '%');
     }
 }

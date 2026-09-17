@@ -14,6 +14,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -320,6 +321,87 @@ class ActivityApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/activities?react=true');
+
+        $response->assertStatus(200);
+    }
+
+    public function testActivityGetWithReactV2()
+    {
+        $this->createCompanyActivityNote();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/activities?reactv2');
+
+        $response->assertStatus(200);
+
+        $activity = $response->json('data.0');
+
+        $this->assertIsArray($activity);
+        $this->assertArrayHasKey('activity_type_id', $activity);
+        $this->assertArrayHasKey('hashed_id', $activity);
+        $this->assertArrayHasKey('created_at', $activity);
+    }
+
+    public function testActivityFeedDoesNotNPlusOneQueries()
+    {
+        $this->createCompanyActivityNote();
+
+        DB::enableQueryLog();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/activities?reactv2');
+
+        $response->assertStatus(200);
+
+        $this->assertLessThan(
+            50,
+            count(DB::getQueryLog()),
+            'Activity feed should batch eager loads instead of per-row lazy loading.',
+        );
+    }
+
+    public function testActivityEntityFeedReturnsStructuredPayload()
+    {
+        $invoice = $this->company->invoices()->first();
+
+        $this->createCompanyActivityNote();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/activities/entity', [
+            'entity' => 'invoice',
+            'entity_id' => $invoice->hashed_id,
+        ]);
+
+        $response->assertStatus(200);
+
+        $activities = $response->json('data');
+
+        $this->assertIsArray($activities);
+        $this->assertNotEmpty($activities);
+
+        foreach ($activities as $activity) {
+            $this->assertArrayHasKey('activity_type_id', $activity);
+            $this->assertArrayHasKey('hashed_id', $activity);
+            $this->assertArrayHasKey('created_at', $activity);
+        }
+    }
+
+    private function createCompanyActivityNote(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/activities/notes', [
+            'entity' => 'invoices',
+            'entity_id' => $this->invoice->hashed_id,
+            'notes' => 'Seeded activity for feed tests',
+        ]);
 
         $response->assertStatus(200);
     }

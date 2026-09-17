@@ -123,7 +123,7 @@ class BaseApiTest extends TestCase
         $settings->state = 'State';
         $settings->postal_code = 'Postal Code';
         $settings->phone = '555-343-2323';
-        $settings->email = 'test@example.com';
+        $settings->email = 'test@gmail.com';
         $settings->country_id = '840';
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
@@ -140,7 +140,7 @@ class BaseApiTest extends TestCase
         $owner_user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
-            'email' =>  $this->faker->safeEmail(),
+            'email' =>  uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->owner_cu = CompanyUserFactory::create($owner_user->id, $company->id, $this->account->id);
@@ -167,7 +167,7 @@ class BaseApiTest extends TestCase
         $lower_permission_user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
-            'email' =>  $this->faker->safeEmail(),
+            'email' =>  uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->low_cu = CompanyUserFactory::create($lower_permission_user->id, $company->id, $this->account->id);

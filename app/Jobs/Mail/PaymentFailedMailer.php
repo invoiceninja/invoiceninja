@@ -117,7 +117,6 @@ class PaymentFailedMailer implements ShouldQueue
 
         if ($this->payment_hash && 
         $invitation && 
-        $invitation->contact && 
         $invitation->contact->send_email &&
         filter_var($invitation->contact->email, FILTER_VALIDATE_EMAIL) !== false) 
         {

@@ -59,6 +59,10 @@ class AdjustProductInventory implements ShouldQueue
 
     public function handleDeletedInvoice()
     {
+        if(!is_iterable($this->invoice->line_items)) {
+            return;
+        }
+
         MultiDB::setDb($this->company->db);
 
         collect($this->invoice->line_items)->filter(function ($item) {
@@ -78,6 +82,10 @@ class AdjustProductInventory implements ShouldQueue
 
     public function handleRestoredInvoice()
     {
+        if(!is_iterable($this->invoice->line_items)) {
+            return;
+        }
+        
         MultiDB::setDb($this->company->db);
 
         collect($this->invoice->line_items)->filter(function ($item) {
@@ -103,7 +111,10 @@ class AdjustProductInventory implements ShouldQueue
 
     private function newInventoryAdjustment()
     {
-
+        if(!is_iterable($this->invoice->line_items)) {
+            return;
+        }
+        
         collect($this->invoice->line_items)->filter(function ($item) {
             return $item->type_id == '1';
         })->each(function ($i) {

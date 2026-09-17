@@ -20,6 +20,7 @@ use App\Models\ClientContact;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Forte\ACH;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use App\PaymentDrivers\Forte\CreditCard;
 use App\PaymentDrivers\Factory\ForteCustomerFactory;
@@ -87,47 +88,19 @@ class FortePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        $forte_base_uri = "https://sandbox.forte.net/api/v3/";
-        if ($this->company_gateway->getConfigField('testMode') == false) {
-            $forte_base_uri = "https://api.forte.net/v3/";
-        }
-        $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
-        $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
-        $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
-        $forte_organization_id = $this->company_gateway->getConfigField('organizationId');
-        $forte_location_id = $this->company_gateway->getConfigField('locationId');
-
         try {
-            $curl = curl_init();
+            $response = $this->transactionRequest()->post(
+                "{$this->baseUri()}organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}/transactions",
+                [
+                    'action' => 'reverse',
+                    'authorization_amount' => (float) $amount,
+                    'original_transaction_id' => $payment->transaction_reference,
+                    'authorization_code' => '9ZQ754',
+                ]
+            );
 
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $forte_base_uri . 'organizations/' . $forte_organization_id . '/locations/' . $forte_location_id . '/transactions',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => '{
-                     "action":"reverse",
-                     "authorization_amount":' . $amount . ',
-                     "original_transaction_id":"' . $payment->transaction_reference . '",
-                     "authorization_code": "9ZQ754"
-              }',
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'X-Forte-Auth-Organization-Id: ' . $forte_organization_id,
-                    'Authorization: Basic ' . base64_encode($forte_api_access_id . ':' . $forte_secure_key),
-                ],
-            ]);
-
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-            curl_close($curl);
-
-            $response = json_decode($response);
+            $httpcode = $response->status();
+            $response = $response->object();
         } catch (\Throwable $th) {
             $message = [
                 'action' => 'error',
@@ -193,24 +166,22 @@ class FortePaymentDriver extends BaseDriver
     ///////////////////////////////////////////
     public function auth(): string
     {
-
-        $forte_base_uri = "https://sandbox.forte.net/api/v3/";
-        if ($this->company_gateway->getConfigField('testMode') == false) {
-            $forte_base_uri = "https://api.forte.net/v3/";
+        foreach (['apiAccessId', 'secureKey', 'authOrganizationId', 'organizationId', 'locationId'] as $field) {
+            if (trim((string) $this->company_gateway->getConfigField($field)) === '') {
+                return 'error';
+            }
         }
-        $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
-        $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
-        $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
-        $forte_organization_id = $this->company_gateway->getConfigField('organizationId');
-        $forte_location_id = $this->company_gateway->getConfigField('locationId');
 
-        $response = Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
-                    ->withHeaders(['X-Forte-Auth-Organization-Id' => $forte_organization_id])
-                    ->get("{$forte_base_uri}/organizations/{$forte_organization_id}/locations/{$forte_location_id}/customers/");
+        try {
+            $response = $this->stubRequest()
+                ->get("{$this->baseUri()}organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}");
 
-        $error = $response->json()['response']['response_desc'] ?? 'error';
+            $error = $response->json()['response']['response_desc'] ?? 'error';
 
-        return $response->successful() ? 'ok' : $error;
+            return $response->successful() ? 'ok' : $error;
+        } catch (\Throwable) {
+            return 'error';
+        }
 
     }
 
@@ -230,20 +201,34 @@ class FortePaymentDriver extends BaseDriver
         return $this->company_gateway->getConfigField('organizationId');
     }
 
+    public function getAuthOrganisationId(): string
+    {
+        return $this->company_gateway->getConfigField('authOrganizationId');
+    }
+
     public function getLocationId(): string
     {
         return $this->company_gateway->getConfigField('locationId');
     }
 
-    public function stubRequest()
+    public function stubRequest(): PendingRequest
     {
-
         $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
         $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
-        $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
 
         return Http::withBasicAuth($forte_api_access_id, $forte_secure_key)
                     ->withHeaders(['X-Forte-Auth-Organization-Id' => $this->getOrganisationId()]);
+    }
+
+    public function transactionRequest(): PendingRequest
+    {
+        return $this->stubRequest()->withOptions([
+            'allow_redirects' => ['max' => 10],
+            'connect_timeout' => 300,
+            'decode_content' => true,
+            'timeout' => 0,
+            'version' => 1.1,
+        ]);
     }
 
     private function getClient(?string $email)

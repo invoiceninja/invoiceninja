@@ -12,12 +12,14 @@
 
 namespace App\Services\Invoice;
 
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Jobs\Inventory\AdjustProductInventory;
 use App\Models\Invoice;
 use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Str;
 
 class HandleRestore extends AbstractService
 {
@@ -65,12 +67,57 @@ class HandleRestore extends AbstractService
              ->setAdjustmentAmount()
              ->adjustPayments();
 
+        $this->writeTaxEventCorrections();
+
         if ($this->invoice->company->track_inventory) {
             (new AdjustProductInventory($this->invoice->company, $this->invoice, []))->handleRestoredInvoice();
         }
 
 
         return $this->invoice;
+    }
+
+    private function writeTaxEventCorrections(): void
+    {
+        $effective_date = now($this->invoice->company->timezone()?->name ?: config('app.timezone'))->toDateString();
+        $mutation_key = 'invoice_restored:'.Str::uuid();
+
+        Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $this->invoice->id)
+            ->whereNull('deleted_at')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->each(function (Paymentable $paymentable) use ($effective_date, $mutation_key): void {
+                $amount = (float) $paymentable->amount - (float) $paymentable->refunded;
+
+                if (abs($amount) < 0.0001) {
+                    return;
+                }
+
+                $source = app(InvoiceTransactionEventEntryCash::class)
+                    ->findSourceEvent($this->invoice->id, $paymentable->id);
+
+                if (! $source) {
+                    return;
+                }
+
+                app(InvoiceTransactionEventEntryCash::class)->writeCorrection(
+                    source: $source,
+                    effective_date: $effective_date,
+                    sign: 1,
+                    kind: 'invoice_restored',
+                    correction_key: sha1("{$mutation_key}|{$paymentable->id}"),
+                    context: [
+                        'mutation_key' => $mutation_key,
+                        'mutation_type' => 'invoice_restored',
+                        'invoice_id' => $this->invoice->id,
+                    ],
+                    amount: abs($amount),
+                );
+            });
     }
 
     /* Touches all paymentables as deleted */
@@ -163,7 +210,7 @@ class HandleRestore extends AbstractService
             $exists = Invoice::query()->where(['company_id' => $this->invoice->company_id, 'number' => $new_invoice_number])->exists();
 
             if ($exists) {
-                $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice, $this->invoice->recurring_id);
+                $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice, isset($this->invoice->recurring_id));
             } else {
                 $this->invoice->number = $new_invoice_number;
             }

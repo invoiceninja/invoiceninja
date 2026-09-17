@@ -35,7 +35,6 @@
         <input type="hidden" name="gateway_response">
         <input type="hidden" name="is_default" value="0">
         <input type="hidden" name="sourceId" id="sourceId">
-        <input type="hidden" name="verificationToken" id="verificationToken">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>

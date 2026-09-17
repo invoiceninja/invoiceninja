@@ -37,7 +37,7 @@ class ProductTransformer extends BaseTransformer
             'Description' => mb_substr($line_item->notes ?? '', 0, 4000),
             'PurchaseCost' => $line_item->product_cost ?? 0,
             'UnitPrice' => $line_item->cost,
-            'Type' => $line_item->type_id == '2' || in_array($line_item->tax_id, ['5','8']) ? 'Service' : 'NonInventory',
+            'Type' => $line_item->type_id == '2' || in_array($line_item->tax_id, ['2','5','8']) ? 'Service' : 'NonInventory',
             'IncomeAccountRef' => [
                 'value' => strlen($line_item->income_account_id ?? '') > 0 ? $line_item->income_account_id : $income_account_id,
             ],

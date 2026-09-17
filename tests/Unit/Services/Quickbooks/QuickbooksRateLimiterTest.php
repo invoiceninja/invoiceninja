@@ -239,4 +239,14 @@ class QuickbooksRateLimiterTest extends TestCase
 
         $this->assertTrue($result);
     }
+
+
+    public function test_it_detects_rate_limit_exceptions()
+    {
+        $this->assertTrue(QuickbooksRateLimiter::isRateLimitException(new \Exception('Throttled', 429)));
+        $this->assertTrue(QuickbooksRateLimiter::isRateLimitException(new \Exception('Request throttle exceeded')));
+        $this->assertTrue(QuickbooksRateLimiter::isRateLimitException(new \Exception('API rate limit reached')));
+        $this->assertFalse(QuickbooksRateLimiter::isRateLimitException(new \Exception('Validation error', 400)));
+        $this->assertFalse(QuickbooksRateLimiter::isRateLimitException(new \Exception('Unauthorized', 401)));
+    }
 }

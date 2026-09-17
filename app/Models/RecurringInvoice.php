@@ -24,6 +24,7 @@ use App\Services\Recurring\RecurringService;
 use App\Utils\Traits\Recurring\HasRecurrence;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Presenters\RecurringInvoicePresenter;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * Class for Recurring Invoices.
@@ -45,7 +46,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $due_date
  * @property bool $is_deleted
  * @property bool $can_sign
- * @property array $line_items
+ * @property array|string|null $line_items
  * @property object|string|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -62,6 +63,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
+ * @property object|null $e_invoice
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
@@ -128,6 +130,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @property bool $is_proforma
  * @mixin \Eloquent
  */
@@ -139,6 +142,7 @@ class RecurringInvoice extends BaseModel
     use HasRecurrence;
     use PresentableTrait;
     use Searchable;
+    use HasTags;
     use IndexableItems;
 
     protected $presenter = RecurringInvoicePresenter::class;
@@ -271,6 +275,8 @@ class RecurringInvoice extends BaseModel
         'terms',
         'footer',
         'remaining_cycles',
+        'auto_bill',
+        'auto_bill_enabled',
     ];
 
 
@@ -294,6 +300,8 @@ class RecurringInvoice extends BaseModel
             'id' => $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.recurring_invoice') . " " . $this->number . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
             'number' => (string) $this->number,
             'is_deleted' => (bool)$this->is_deleted,
             'amount' => (float) $this->amount,
@@ -306,6 +314,7 @@ class RecurringInvoice extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
     }
@@ -448,8 +457,6 @@ class RecurringInvoice extends BaseModel
             return null;
         }
 
-        $offset = $this->client->timezone_offset();
-
         /* If this setting is enabled, the recurring invoice may be set in the past */
 
         if ($this->company->stop_on_unpaid_recurring) {
@@ -459,34 +466,25 @@ class RecurringInvoice extends BaseModel
             }
         }
 
-        switch ($this->frequency_id) {
-            case self::FREQUENCY_DAILY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addDay()->addSeconds($offset);
-            case self::FREQUENCY_WEEKLY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeek()->addSeconds($offset);
-            case self::FREQUENCY_TWO_WEEKS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(2)->addSeconds($offset);
-            case self::FREQUENCY_FOUR_WEEKS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(4)->addSeconds($offset);
-            case self::FREQUENCY_MONTHLY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
-            case self::FREQUENCY_TWO_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(2)->addSeconds($offset);
-            case self::FREQUENCY_THREE_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
-            case self::FREQUENCY_FOUR_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(4)->addSeconds($offset);
-            case self::FREQUENCY_SIX_MONTHS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(6)->addSeconds($offset);
-            case self::FREQUENCY_ANNUALLY:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYear()->addSeconds($offset);
-            case self::FREQUENCY_TWO_YEARS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(2)->addSeconds($offset);
-            case self::FREQUENCY_THREE_YEARS:
-                return Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(3)->addSeconds($offset);
-            default:
-                return null;
-        }
+        $_next_send_date = match ((int) $this->frequency_id) {
+            self::FREQUENCY_DAILY => Carbon::parse($this->next_send_date_client)->startOfDay()->addDay(),
+            self::FREQUENCY_WEEKLY => Carbon::parse($this->next_send_date_client)->startOfDay()->addWeek(),
+            self::FREQUENCY_TWO_WEEKS => Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(2),
+            self::FREQUENCY_FOUR_WEEKS => Carbon::parse($this->next_send_date_client)->startOfDay()->addWeeks(4),
+            self::FREQUENCY_MONTHLY => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthNoOverflow(),
+            self::FREQUENCY_TWO_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(2),
+            self::FREQUENCY_THREE_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(3),
+            self::FREQUENCY_FOUR_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(4),
+            self::FREQUENCY_SIX_MONTHS => Carbon::parse($this->next_send_date_client)->startOfDay()->addMonthsNoOverflow(6),
+            self::FREQUENCY_ANNUALLY => Carbon::parse($this->next_send_date_client)->startOfDay()->addYear(),
+            self::FREQUENCY_TWO_YEARS => Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(2),
+            self::FREQUENCY_THREE_YEARS => Carbon::parse($this->next_send_date_client)->startOfDay()->addYears(3),
+            default => null,
+        };
+
+        return $_next_send_date
+            ? $this->client->scheduledDateTimeUtc($_next_send_date->toDateString())
+            : null;
     }
 
     public function nextSendDateClient(): ?Carbon

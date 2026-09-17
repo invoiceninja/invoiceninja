@@ -24,12 +24,13 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use App\Utils\BcMath;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Locked;
+use Livewire\Component;
 
 class BillingPortalPurchase extends Component
 {
@@ -107,6 +108,7 @@ class BillingPortalPurchase extends Component
      *
      * @var array
      */
+    #[Locked]
     public $steps = [
         'passed_email' => false,
         'existing_user' => false,
@@ -149,6 +151,7 @@ class BillingPortalPurchase extends Component
      *
      * @var int
      */
+    #[Locked]
     public $quantity;
 
     /**
@@ -161,6 +164,7 @@ class BillingPortalPurchase extends Component
     /**
      * @var float
      */
+    #[Locked]
     public $price;
 
     /**
@@ -226,7 +230,7 @@ class BillingPortalPurchase extends Component
     /**
      * Handle user authentication
      *
-     * @return $this|bool|void
+     * @return self|bool|void
      */
     public function authenticate()
     {
@@ -345,7 +349,7 @@ class BillingPortalPurchase extends Component
      * Fetching payment methods from the client.
      *
      * @param ClientContact $contact
-     * @return $this
+     * @return self
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
@@ -524,6 +528,14 @@ class BillingPortalPurchase extends Component
 
     public function handlePaymentNotRequired()
     {
+        $this->resetValidation('payment');
+
+        if (! BcMath::isZero($this->price)) {
+            $this->addError('payment', ctrans('texts.subscription_payment_required'));
+
+            return;
+        }
+
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
         if ($is_eligible['status_code'] != 200) {

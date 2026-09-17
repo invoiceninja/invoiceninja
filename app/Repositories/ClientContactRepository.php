@@ -25,10 +25,9 @@ class ClientContactRepository extends BaseRepository
 {
     private bool $is_primary = true;
 
-    private bool $set_send_email_on_contact = false;
-
     public function save(array $data, Client $client): void
     {
+        $this->is_primary = true;
 
         if (isset($data['contacts']) && (count($data['contacts']) !== count($data['contacts'], COUNT_RECURSIVE))) {
             $contacts = collect($data['contacts']);
@@ -43,11 +42,6 @@ class ClientContactRepository extends BaseRepository
             ClientContact::destroy($contact);
         });
 
-        /* Ensure send_email always exists in at least one contact */
-        if (! $contacts->contains('send_email', true)) {
-            $this->set_send_email_on_contact = true;
-        }
-
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->filter(function ($contact) {
             return is_array($contact);
@@ -55,19 +49,28 @@ class ClientContactRepository extends BaseRepository
             $contact['is_primary'] = $this->is_primary;
 
             if ($this->is_primary) {
+                /* The primary contact must always receive email and can never be CC-only. */
+                // $contact['send_email'] = true;
                 $contact['cc_only'] = false;
+            } elseif (filter_var($contact['cc_only'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                /* A non-primary CC-only contact never receives its own email. */
+                $contact['send_email'] = false;
             }
 
             $this->is_primary = false;
 
-            if ($this->set_send_email_on_contact) {
-                $contact['send_email'] = true;
-                $this->set_send_email_on_contact = false;
-            }
-
             return $contact;
         });
 
+        if (! $contacts->contains(fn ($c) => filter_var($c['send_email'] ?? false, FILTER_VALIDATE_BOOLEAN))) {
+            $contacts = $contacts->map(function ($contact) {
+                if ($contact['is_primary']) {
+                    $contact['send_email'] = true;
+                }
+                return $contact;
+            });
+        }
+        
         //loop and update/create contacts
         $contacts->each(function ($contact) use ($client) {
             $update_contact = null;

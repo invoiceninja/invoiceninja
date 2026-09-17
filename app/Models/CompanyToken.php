@@ -60,6 +60,13 @@ class CompanyToken extends BaseModel
         'user',
     ];
 
+    protected $casts = [
+        'is_system' => 'boolean',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+
     protected $touches = [];
 
     public function getEntityType()

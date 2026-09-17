@@ -152,6 +152,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
     public function tokenBilling($cgt, $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $amount = round($amount, 2);
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 

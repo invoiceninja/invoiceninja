@@ -53,6 +53,9 @@ class CloneCreditToQuoteFactory
         // $quote->balance = $credit->amount;
         $quote->line_items = $credit->line_items;
 
+        $quote->sync = null;
+        $quote->backup = null; // @phpstan-ignore-line
+        
         return $quote;
     }
 }

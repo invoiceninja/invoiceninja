@@ -158,7 +158,7 @@ class ProductSalesExport extends BaseExport
 
         }
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($invoice) use ($product_keys) {
                   foreach ($invoice->line_items as $item) {
 

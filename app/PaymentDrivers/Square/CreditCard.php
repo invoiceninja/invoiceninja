@@ -29,6 +29,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Square\Http\ApiResponse;
+use Square\Models\CustomerDetails;
+use Throwable;
 
 class CreditCard implements MethodInterface, LivewireMethodInterface
 {
@@ -61,11 +63,11 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function authorizeResponse($request)
+    public function authorizeResponse(Request $request): RedirectResponse
     {
         $source_id = $request->input('sourceId');
 
-        if (! $source_id) {
+        if (! is_string($source_id) || $source_id === '') {
             return redirect()->route('client.payment_methods.index')
                 ->withErrors(ctrans('texts.invalid_card_number'));
         }
@@ -75,14 +77,14 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         return redirect()->route('client.payment_methods.index');
     }
 
-    public function paymentView($data)
+    public function paymentView($data): View
     {
         $data = $this->paymentData($data);
 
         return render('gateways.square.credit_card.pay', $data);
     }
 
-    private function buildClientObject()
+    private function buildClientObject(): array
     {
         $client = new \stdClass();
 
@@ -94,26 +96,52 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $client->email = $this->square_driver->client->present()->email();
         $client->phone = $this->square_driver->client->phone;
         $client->city = $this->square_driver->client->city;
-        $client->region = $this->square_driver->client->state;
-        $client->country = $country;
+        $client->state = $this->square_driver->client->state;
+        $client->countryCode = $country;
+        $client->postalCode = $this->square_driver->client->postal_code;
 
         return (array) $client;
     }
 
-    public function paymentResponse(PaymentResponseRequest $request)
+    public function paymentResponse(PaymentResponseRequest $request): RedirectResponse
     {
         $token = $request->sourceId;
+        $idempotency_key = $request->input('idempotencyKey');
+
+        if (! is_string($token) || $token === '') {
+            throw new PaymentFailed(ctrans('texts.invalid_card_number'), 422);
+        }
+
+        if (! is_string($idempotency_key) || $idempotency_key === '' || strlen($idempotency_key) > 45) {
+            throw new PaymentFailed(ctrans('texts.payment_error'), 422);
+        }
 
         $amount = $this->square_driver->convertAmount(
             $this->square_driver->payment_hash->data->amount_with_fee
         );
 
         if ($request->shouldUseToken()) {
+            $stored_card_id = $request->input('token');
+
+            if (! is_string($stored_card_id) || $stored_card_id === '') {
+                throw new PaymentFailed(ctrans('texts.invalid_card_number'), 422);
+            }
+
             $cgt = ClientGatewayToken::query()
-                ->where('token', $request->token)
+                ->where('token', $stored_card_id)
                 ->where('client_id', $this->square_driver->client->id)
-                ->firstOrFail();
-            $token = $cgt->token;
+                ->where('company_gateway_id', $this->square_driver->company_gateway->id)
+                ->where('gateway_type_id', GatewayType::CREDIT_CARD)
+                ->where('is_deleted', false)
+                ->first();
+
+            if (! $cgt) {
+                throw new PaymentFailed(ctrans('texts.invalid_card_number'), 422);
+            }
+
+            if (! is_string($cgt->gateway_customer_reference) || $cgt->gateway_customer_reference === '') {
+                throw new PaymentFailed(ctrans('texts.payment_error'), 422);
+            }
         }
 
         $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->square_driver->payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
@@ -128,16 +156,19 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $amount_money->setAmount($amount);
         $amount_money->setCurrency($this->square_driver->client->currency()->code);
 
-        $body = new \Square\Models\CreatePaymentRequest($token, $request->idempotencyKey);
+        $body = new \Square\Models\CreatePaymentRequest($token, $idempotency_key);
         $body->setAmountMoney($amount_money);
         $body->setAutocomplete(true);
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId($this->square_driver->payment_hash->hash);
         $body->setNote($description);
+        $body->setCustomerDetails($this->customerDetails());
 
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
-        } elseif ($request->has('verificationToken') && $request->input('verificationToken')) {
+        }
+
+        if ($request->has('verificationToken') && $request->input('verificationToken')) {
             $body->setVerificationToken($request->input('verificationToken'));
         }
 
@@ -147,11 +178,24 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
             $body = json_decode($response->getBody());
 
-            if ($request->store_card) {
-                $this->createCard($body->payment->id);
+            $payment = $this->processSuccessfulPayment($response);
+
+            $card_storage_failed = false;
+
+            if ($request->shouldStoreToken() && ! $request->shouldUseToken()) {
+                try {
+                    $this->createCard($body->payment->id);
+                } catch (Throwable $e) {
+                    $card_storage_failed = true;
+                    $this->logCardStorageFailure($e);
+                }
             }
 
-            return $this->processSuccessfulPayment($response);
+            $redirect = redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
+
+            return $card_storage_failed
+                ? $redirect->withErrors(ctrans('texts.payment_method_saving_failed'))
+                : $redirect;
         }
 
         if (is_array($response)) {
@@ -162,7 +206,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         return $this->processUnsuccessfulPayment($response);
     }
 
-    private function processSuccessfulPayment(ApiResponse $response)
+    private function processSuccessfulPayment(ApiResponse $response): Payment
     {
         $body = json_decode($response->getBody());
 
@@ -190,29 +234,27 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             $this->square_driver->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+        return $payment;
     }
 
-    private function processUnsuccessfulPayment(ApiResponse $response)
+    private function processUnsuccessfulPayment(ApiResponse $response): mixed
     {
         $body = \json_decode($response->getBody());
 
-        $error = isset($body->errors[0]->detail)
-            ? $body->errors[0]->detail
-            : ($response->getBody() ?: 'Unknown error from Square.');
+        $error = $body->errors[0]->detail
+            ?? ($response->getBody() ?: 'Unknown error from Square.');
 
         $data = [
             'response' => $response,
             'error' => $error,
-            'error_code' => '',
+            'error_code' => $body->errors[0]->code ?? '',
         ];
 
         return $this->square_driver->processUnsuccessfulTransaction($data);
     }
 
-    private function createCard($source_id)
+    private function createCard(string $source_id): void
     {
-
         $square_card = new \Square\Models\Card();
         $square_card->setCustomerId($this->square_driver->findOrCreateClient());
 
@@ -244,19 +286,40 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
                 $this->square_driver->storeGatewayToken($data, ['gateway_customer_reference' => $body->card->customer_id]);
 
-            } catch (\Exception $e) {
-                return $this->square_driver->processInternallyFailedPayment($this->square_driver, $e);
+            } catch (Throwable $e) {
+                throw new PaymentFailed(ctrans('texts.payment_method_saving_failed'), 500, $e);
             }
 
         } else {
-            $message = isset($body->errors[0]->detail)
-                ? $body->errors[0]->detail
-                : ($api_response->getBody() ?: 'Unknown error from Square card creation.');
+            $message = $body->errors[0]->detail
+                ?? ($api_response->getBody() ?: 'Unknown error from Square card creation.');
 
             throw new PaymentFailed($message, 500);
         }
+    }
 
-        return false;
+    private function customerDetails(): CustomerDetails
+    {
+        $customer_details = new CustomerDetails();
+        $customer_details->setCustomerInitiated(true);
+        $customer_details->setSellerKeyedIn(false);
+
+        return $customer_details;
+    }
+
+    private function logCardStorageFailure(Throwable $e): void
+    {
+        SystemLogger::dispatch(
+            [
+                'error' => $e->getMessage(),
+                'data' => $this->square_driver->payment_hash->data,
+            ],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_SQUARE,
+            $this->square_driver->client,
+            $this->square_driver->client->company,
+        );
     }
 
     /**

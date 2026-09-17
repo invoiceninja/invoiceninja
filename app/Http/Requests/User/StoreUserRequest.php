@@ -58,6 +58,8 @@ class StoreUserRequest extends Request
             }
         }
 
+        $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
+
         return $rules;
     }
 

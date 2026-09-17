@@ -127,7 +127,7 @@ class VerifactuApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/group_settings/'.$gs->hashed_id, $data);
 
-        nlog($response->json());
+        // nlog($response->json());
         $response->assertStatus(422);
 
     }
@@ -387,7 +387,7 @@ class VerifactuApiTest extends TestCase
 
         $invoice = $invoice->service()->markSent()->save();
 
-        nlog($invoice->toArray());
+        // nlog($invoice->toArray());
 
         //check the state for an original invoice
         $this->assertEquals('F1', $invoice->backup->document_type);
@@ -787,7 +787,7 @@ class VerifactuApiTest extends TestCase
         $arr = $response->json();
 
         $_i = Invoice::find($this->decodePrimaryKey($arr['data']['id']));
-        nlog($_i->toArray());
+        // nlog($_i->toArray());
 
         $this->assertEquals('R1', $arr['data']['backup']['document_type']);
         $this->assertEquals($invoice->hashed_id, $arr['data']['backup']['parent_invoice_id']);

@@ -254,9 +254,12 @@ class InvitationController extends Controller
             abort(404);
         }
 
+        \App::setLocale($invitation->contact->preferredLocale());
+
         return $this->render('view_entity.set_password', [
             'root' => 'themes',
             'entity_type' => $request->entity_type,
+            'entity_translation' => ctrans('texts.' . $request->entity_type),
             'invitation_key' => $request->invitation_key,
         ]);
     }
@@ -275,6 +278,10 @@ class InvitationController extends Controller
                                     })
                                     ->with('contact.client')
                                     ->firstOrFail();
+
+        if (!empty($invitation->contact->password)) {
+            abort(404);
+        }
 
         $contact = $invitation->contact;
         $contact->password = Hash::make($request->password);
@@ -348,7 +355,7 @@ class InvitationController extends Controller
         request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
-        $invoice = $invitation->invoice->service()->removeUnpaidGatewayFees()->save();
+        $invoice = $invitation->invoice;
 
         if (! $invitation->viewed_date) {
             $invitation->markViewed();
@@ -400,7 +407,7 @@ class InvitationController extends Controller
 
         $entity = 'invoice';
 
-        if ($invoice && is_array($gateways) && count($gateways) == 0) {
+        if (is_array($gateways) && count($gateways) == 0) {
             return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
         }
 

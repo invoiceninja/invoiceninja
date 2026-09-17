@@ -378,6 +378,7 @@ class VendorHtmlEngine
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
+        $data['$product.tags'] = ['value' => '', 'label' => ctrans('texts.tags')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
@@ -455,6 +456,7 @@ class VendorHtmlEngine
 
         $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
         $data['$ship_to'] = &$data['$shipping'];
+        $data['$bill_to'] = ['value' => '', 'label' => ctrans('texts.bill_to')];
 
         $data['$verifactu_qr_code'] = ['value' => '', 'label' => ''];
 
@@ -821,7 +823,7 @@ html {
     protected function generateEntityImagesMarkup()
     {
 
-        if (!$this->vendor->getSetting('embed_documents') || !$this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+        if (!$this->settings->embed_documents || !$this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return '';
         }
 

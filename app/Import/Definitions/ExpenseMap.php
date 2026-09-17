@@ -41,6 +41,12 @@ class ExpenseMap
             21 => 'expense.custom_value2',
             22 => 'expense.custom_value3',
             23 => 'expense.custom_value4',
+            24 => 'expense.tax_amount1',
+            25 => 'expense.tax_amount2',
+            26 => 'expense.tax_amount3',
+            27 => 'expense.exchange_rate',
+            28 => 'expense.foreign_amount',
+            29 => 'expense.should_be_invoiced',
 
         ];
     }
@@ -72,6 +78,12 @@ class ExpenseMap
             21 => 'texts.custom_value2',
             22 => 'texts.custom_value3',
             23 => 'texts.custom_value4',
+            24 => 'texts.tax_amount1',
+            25 => 'texts.tax_amount2',
+            26 => 'texts.tax_amount3',
+            27 => 'texts.exchange_rate',
+            28 => 'texts.converted_amount',
+            29 => 'texts.should_be_invoiced',
 
         ];
     }

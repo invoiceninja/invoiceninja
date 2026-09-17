@@ -41,7 +41,7 @@ class PasskeyService
             $name ?: $user->email,
             240,
             true,
-            'preferred',
+            'required',
             null
         );
 
@@ -177,7 +177,13 @@ class PasskeyService
     {
         $rpId = parse_url(config('ninja.react_url'), PHP_URL_HOST) ?: request()->getHost();
 
-        return new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm']);
+        // The 4th argument enables base64url encoding for binary fields (challenge,
+        // user.id, credential ids) in the JSON options. Without it the library emits
+        // its default "=?BINARY?B?...?=" RFC-1342 wrapper, which the browser/WebAuthn
+        // JSON the client decodes cannot parse. NOTE: the WebAuthn constructor assigns
+        // ByteBuffer::$useBase64UrlEncoding from this flag, so it must be passed here —
+        // setting the static separately is overwritten by every new WebAuthn().
+        return new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm'], true);
     }
 
     private function storeChallenge(ByteBuffer|string $challenge, array $meta): string

@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $user_id
  * @property string $integration_type
  * @property string $provider_name
+ * @property string|null $requisition_id
  * @property int $provider_id
  * @property int $bank_account_id
  * @property string|null $bank_account_name

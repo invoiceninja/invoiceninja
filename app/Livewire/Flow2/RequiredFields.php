@@ -121,7 +121,13 @@ class RequiredFields extends Component
         $contact = auth()->guard('contact')->user();
 
         /** @var \App\Models\ClientContact $contact */
-        $errors = $rff->handleSubmit($data, $contact, return_errors: true, callback: function () {
+        $errors = $rff->handleSubmit($data, $contact, return_errors: true, callback: function () use ($contact) {
+            $fresh_contact = $contact->fresh(['client.country']);
+
+            $this->bulkSetContext($this->_key, [
+                'contact' => $fresh_contact,
+            ]);
+
             $this->dispatch('required-fields');
         });
 

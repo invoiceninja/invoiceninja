@@ -46,6 +46,8 @@ class ExpenseRepository extends BaseRepository
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        $tag_ids = $this->resolveTagIdsForSync($data, $expense);
+
         $payment_date = $data['payment_date'] ?? false;
 
         if ($payment_date && $payment_date == $expense->payment_date) {
@@ -80,6 +82,8 @@ class ExpenseRepository extends BaseRepository
             $purchase_order->paid_to_date = $expense->amount;
             $purchase_order->save();
         }
+
+        $this->syncResolvedTags($expense, $tag_ids);
 
         return $expense;
     }

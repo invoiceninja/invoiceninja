@@ -15,13 +15,17 @@ namespace Tests\Unit\Services\Quickbooks;
 use Mockery;
 use ReflectionClass;
 use Tests\TestCase;
+use App\Models\Account;
 use App\Models\Company;
 use App\DataMapper\QuickbooksSettings;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\SdkWrapper;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use QuickBooksOnline\API\DataService\DataService;
 
 class QuickbooksServiceTest extends TestCase
 {
+    use DatabaseTransactions;
     protected function tearDown(): void
     {
         Mockery::close();
@@ -45,6 +49,28 @@ class QuickbooksServiceTest extends TestCase
             'companyName' => 'Test Company',
             'settings' => [],
         ]);
+
+        return $company;
+    }
+
+    private function persistedCompanyWithQuickbooks(array $settings = []): Company
+    {
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $company->quickbooks = new QuickbooksSettings([
+            'accessTokenKey' => 'test-access-token',
+            'refresh_token' => 'test-refresh-token',
+            'realmID' => 'test-realm',
+            'accessTokenExpiresAt' => time() + 3600,
+            'refreshTokenExpiresAt' => time() + 86400,
+            'baseURL' => 'https://sandbox-quickbooks.api.intuit.com',
+            'companyName' => 'Test Company',
+            'settings' => $settings,
+        ]);
+        $company->save();
 
         return $company;
     }
@@ -106,12 +132,78 @@ class QuickbooksServiceTest extends TestCase
         $mockSdk->shouldReceive('Query')
             ->once()
             ->with('SELECT Id FROM CompanyInfo MAXRESULTS 1')
-            ->andThrow(new \Exception('Unauthorized'));
+            ->andThrow(new \Exception('Network unavailable'));
 
         $ref = new ReflectionClass($service);
         $prop = $ref->getProperty('sdk');
         $prop->setValue($service, $mockSdk);
 
         $this->assertFalse($service->isTokenValid());
+    }
+
+    public function test_company_sync_reloads_after_qb_reads_before_saving_settings(): void
+    {
+        $this->app['config']->set('services.quickbooks.client_id', null);
+
+        $company = $this->persistedCompanyWithQuickbooks([
+            'qb_income_account_id' => 'existing-income-account',
+        ]);
+
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('company')
+            ->once()
+            ->andReturnUsing(function () use ($company): object {
+                $fresh_company = $company->fresh();
+                $quickbooks = $fresh_company->quickbooks;
+                $quickbooks->accessTokenKey = 'rotated-access-token';
+                $quickbooks->refresh_token = 'rotated-refresh-token';
+                $quickbooks->accessTokenExpiresAt = time() + 7200;
+                $quickbooks->refreshTokenExpiresAt = time() + 172800;
+                $fresh_company->quickbooks = $quickbooks;
+                $fresh_company->save();
+
+                return (object) [
+                    'CompanyName' => 'Rotated Token Company',
+                    'CompanyAddr' => (object) [
+                        'Country' => 'CA',
+                    ],
+                ];
+            });
+        $sdk->shouldReceive('getPreferences')
+            ->once()
+            ->andReturn((object) [
+                'TaxPrefs' => (object) [
+                    'PartnerTaxEnabled' => true,
+                ],
+                'SalesFormsPrefs' => (object) [
+                    'AllowDeposit' => true,
+                ],
+            ]);
+
+        $service = Mockery::mock(QuickbooksService::class, [$company])->makePartial();
+        $service->shouldReceive('sdk')->andReturn($sdk);
+        $service->shouldReceive('fetchIncomeAccounts')->once()->andReturn([
+            ['id' => 'income-account', 'label' => 'Sales', 'account_type' => 'Income'],
+        ]);
+        $service->shouldReceive('fetchTaxRates')->once()->andReturn([]);
+        $service->shouldReceive('fetchTaxCodes')->once()->andReturn([]);
+        $service->shouldReceive('fetchPaymentMethods')->once()->andReturn([
+            ['id' => 'pm-1', 'name' => 'Credit Card', 'type' => 'CREDIT_CARD'],
+        ]);
+
+        $service->companySync();
+
+        $quickbooks = $company->fresh()->quickbooks;
+
+        $this->assertSame('rotated-access-token', $quickbooks->accessTokenKey);
+        $this->assertSame('rotated-refresh-token', $quickbooks->refresh_token);
+        $this->assertSame('Rotated Token Company', $quickbooks->companyName);
+        $this->assertSame('existing-income-account', $quickbooks->settings->qb_income_account_id);
+        $this->assertTrue($quickbooks->settings->automatic_taxes);
+        $this->assertTrue($quickbooks->settings->allow_deposit);
+        $this->assertSame('CA', $quickbooks->settings->country);
+        $this->assertSame([
+            ['id' => 'pm-1', 'name' => 'Credit Card', 'type' => 'CREDIT_CARD'],
+        ], $quickbooks->settings->payment_method_map);
     }
 }

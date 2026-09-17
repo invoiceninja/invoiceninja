@@ -58,7 +58,7 @@ class AccountEmailQuotaTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => $hash,
-            'email' =>  "{$hash}@example.com",
+            'email' =>  "{$hash}@gmail.com",
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);

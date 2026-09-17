@@ -84,7 +84,7 @@ trait MakesDates
 
     /**
      * Formats a date.
-     * @param  Carbon/String $date   Carbon object or date string
+     * @param  Carbon/String $timestamp   Carbon object or date string
      * @param  string $format The date display format
      * @return string         The formatted date
      */
@@ -135,6 +135,8 @@ trait MakesDates
         $first_month_of_year = ($company?->first_month_of_year) ?: 1;
         $today = now()->format('Y-m-d');
 
+        $fin_year_start = now();
+        
         if (in_array($data['date_range'], ['this_year', 'last_year'])) {
             $fin_year_start = \Carbon\Carbon::createFromDate(now()->year, $first_month_of_year, 1);
 
@@ -166,7 +168,8 @@ trait MakesDates
     public function calculatePreviousPeriodStartAndEndDates(array $data, ?Company $company = null): array
     {
         $first_month_of_year = ($company?->first_month_of_year) ?: 1;
-
+        $fin_year_start = now();
+        
         if (in_array($data['date_range'], ['this_year', 'last_year'])) {
             $fin_year_start = \Carbon\Carbon::createFromDate(now()->year, $first_month_of_year, 1);
 

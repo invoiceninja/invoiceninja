@@ -44,7 +44,8 @@ jobs:
       TRAVIS: true
       MAIL_MAILER: log
       PDF_GENERATOR: hosted_ninja
-
+      SENTRY_SAMPLE_RATE: 0
+      
     services:
       mariadb:
         image: mariadb:10.6

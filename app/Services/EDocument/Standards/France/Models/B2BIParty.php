@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\France\Models;
 
 use Symfony\Component\Serializer\Attribute\SerializedPath;
@@ -85,7 +93,7 @@ class B2BIParty
                 ], static fn (mixed $value): bool => ! is_null($value) && $value !== ''),
             ], static fn (mixed $value): bool => ! is_null($value) && $value !== []),
             'publicIdentifiers' => $this->publicIdentifiers(),
-        ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        ], static fn (mixed $value): bool => $value !== []);
     }
 
     /**
@@ -96,9 +104,16 @@ class B2BIParty
         $identifiers = [];
 
         if (! is_null($this->legal_identifier)) {
+            $identifier = $this->legal_identifier;
+
+            if ($this->country === 'FR') {
+                $digits = preg_replace('/\D+/', '', $identifier) ?: '';
+                $identifier = strlen($digits) === 14 ? substr($digits, 0, 9) : $digits;
+            }
+
             $identifiers[] = [
                 'scheme' => $this->legalIdentifierScheme(),
-                'id' => $this->legal_identifier,
+                'id' => $identifier,
             ];
         }
 

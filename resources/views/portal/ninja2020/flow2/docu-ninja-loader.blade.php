@@ -6,6 +6,12 @@
             <ul>
                 <li class="text-sm">{{ $error }}</li>
             </ul>
+            <button type="button"
+                    wire:click="retryLoading"
+                    wire:loading.attr="disabled"
+                    class="mt-3 inline-flex items-center px-4 py-2 rounded text-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+                {{ ctrans('texts.an_error_occurred_try_again') }}
+            </button>
         </div>
     @endif
 

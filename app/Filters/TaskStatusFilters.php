@@ -48,11 +48,11 @@ class TaskStatusFilters extends QueryFilters
         $sort_col = explode('|', $sort);
 
         if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('task_statuses'))) {
-            return $this->builder;
+            return $this->builder->orderBy('status_order', 'asc');
         }
 
 
-        $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
+        $dir = ($sort_col[1] == 'desc') ? 'desc' : 'asc';
 
         return $this->builder->orderBy($sort_col[0], $dir);
     }

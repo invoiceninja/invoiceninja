@@ -22,6 +22,9 @@ class StoreProjectRequest extends Request
 {
     use MakesHash;
 
+    /** @var class-string */
+    protected ?string $tag_entity_type = Project::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -46,6 +49,7 @@ class StoreProjectRequest extends Request
         $rules['name'] = 'required';
         $rules['client_id'] = 'required|integer|exists:clients,id,company_id,' . $user->company()->id;
         $rules['budgeted_hours'] = 'sometimes|numeric';
+        $rules['budgeted_amount'] = 'sometimes|numeric';
         $rules['task_rate'] = 'required|bail|numeric';
 
         if (isset($this->number)) {
@@ -57,6 +61,8 @@ class StoreProjectRequest extends Request
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
+        $rules['hash'] = 'bail|sometimes|string|nullable';
+        $rules['color'] = 'sometimes|bail|string|max:7';
 
         return $this->globalRules($rules);
     }
@@ -80,6 +86,10 @@ class StoreProjectRequest extends Request
 
         if (array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours'])) {
             $input['budgeted_hours'] = 0;
+        }
+
+        if (array_key_exists('budgeted_amount', $input) && empty($input['budgeted_amount'])) {
+            $input['budgeted_amount'] = 0;
         }
 
         $input['task_rate'] = (isset($input['task_rate']) && floatval($input['task_rate']) >= 0) ? $input['task_rate'] : 0;

@@ -49,7 +49,10 @@ class GenericReportRequest extends Request
 
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
-
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             if (!empty($this->template_id) && Design::where('id', $this->decodePrimaryKey($this->template_id))->where('is_template', true)->company()->doesntExist()) {

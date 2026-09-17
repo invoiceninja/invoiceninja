@@ -18,6 +18,8 @@
  *       @OA\Property(property="task_status_id", type="string", example="Opnel5aKBz", description="The hashed id of the task status"),
  *       @OA\Property(property="description", type="string", example="A wonder task to work on", description="The task description"),
  *       @OA\Property(property="duration", type="integer", example="", description="The task duration"),
+ *       @OA\Property(property="due_date", type="string", format="date", example="2024-01-31", description="The due date of the task"),
+ *       @OA\Property(property="estimated_duration", type="integer", example=7200, description="The estimated duration of the task in seconds"),
  *       @OA\Property(property="task_status_order", type="integer", example="4", description="The order of the task"),
  *       @OA\Property(property="custom_value1", type="string", example="2022-10-10", description="A custom value"),
  *       @OA\Property(property="custom_value2", type="string", example="$1100", description="A custom value"),

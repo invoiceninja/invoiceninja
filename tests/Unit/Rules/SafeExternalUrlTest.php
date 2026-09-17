@@ -77,7 +77,7 @@ class SafeExternalUrlTest extends TestCase
 
     public function test_rejects_userinfo(): void
     {
-        $this->assertRejected('https://user:pass@example.com/logo.png', 'Userinfo');
+        $this->assertRejected('https://user:pass@gmail.com/logo.png', 'Userinfo');
     }
 
     public function test_rejects_userinfo_smuggling(): void

@@ -198,7 +198,7 @@ class CreatePeppolTestData extends Command
             ],
             // FR — Storecove test: FR:SIRENE 123456987 (scheme is SIRENE, not VAT)
             'FR' => [
-                'vat' => 'FR82345678911', 'id_number' => '123456987', 'tax_rate' => 20, 'tax_name' => 'TVA',
+                'vat' => 'FR11123456782', 'id_number' => '12345678200010', 'tax_rate' => 20, 'tax_name' => 'TVA',
                 'city' => 'Paris', 'state' => 'Ile-de-France', 'postal_code' => '75001', 'currency' => '3',
                 'address1' => 'Rue de Rivoli 1',
                 'gov_id' => '12345678901234', 'individual_id' => '', 'individual_vat' => '',

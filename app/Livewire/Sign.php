@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Livewire;
 
 use Livewire\Component;
@@ -109,7 +117,7 @@ class Sign extends Component
         if ($this->entity_type == 'invoice') {
             $this->redirectRoute('client.payments.process', ['request_hash' => $this->request_hash]);
         } elseif ($this->entity_type == 'quote' && $this->request_hash) {
-            $this->redirectRoute('client.quotes.bulk', ['request_hash' => $this->request_hash]);
+            $this->redirectRoute('client.quotes.approval.continue', ['request_hash' => $this->request_hash]);
         } elseif ($this->entity_type == 'quote') {
             $this->dispatch('quote-signed');
         }

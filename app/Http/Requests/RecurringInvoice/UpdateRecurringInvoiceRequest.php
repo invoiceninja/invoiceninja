@@ -13,6 +13,7 @@
 namespace App\Http\Requests\RecurringInvoice;
 
 use App\Http\Requests\Request;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
@@ -25,6 +26,9 @@ class UpdateRecurringInvoiceRequest extends Request
     use ChecksEntityStatus;
     use CleanLineItems;
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = RecurringInvoice::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -72,15 +76,14 @@ class UpdateRecurringInvoiceRequest extends Request
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidInvoiceScheme()];
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->recurring_invoice->client_id)];
-        $rules['vendor_id'] = ['nullable', 'sometimes','bail', Rule::exists('vendors', 'id')->where('company_id', $user->company()->id)];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
-
+        $input = $this->decodePrimaryKeys($input);
 
         if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
             $this->files->set('file', [$this->file('file')]);
@@ -96,48 +99,6 @@ class UpdateRecurringInvoiceRequest extends Request
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
-        }
-
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if (isset($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-
-        if (array_key_exists('location_id', $input) && is_string($input['location_id'])) {
-            $input['location_id'] = $this->decodePrimaryKey($input['location_id']);
-        }
-
-
-        if (isset($input['vendor_id'])) {
-            $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
-            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
-        }
-
-        if (isset($input['invitations'])) {
-            foreach ($input['invitations'] as $key => $value) {
-                if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
-                    unset($input['invitations'][$key]['id']);
-                }
-
-                if (array_key_exists('id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['id'])) {
-                    $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
-                }
-
-                if (is_string($input['invitations'][$key]['client_contact_id'])) {
-                    $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
-                }
-            }
         }
 
         if (isset($input['line_items'])) {

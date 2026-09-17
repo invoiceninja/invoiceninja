@@ -17,6 +17,7 @@ use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,7 +45,7 @@ class LawPayWebhook implements ShouldQueue
 
     public function middleware(): array
     {
-        return [(new WithoutOverlapping($this->company_gateway_id))
+        return [(new WithoutOverlapping((string) $this->company_gateway_id))
             ->expireAfter(600)];
     }
 
@@ -123,6 +124,16 @@ class LawPayWebhook implements ShouldQueue
                 return;
             }
 
+            /**
+             * A debit reported as returned, declined or voided has to come off the invoice
+             * - it was applied when LawPay reported it pending or settled, and an ACH
+             * return routinely arrives days after settlement. The unwind is what releases
+             * the gateway fee.
+             *
+             * @see \App\Services\Invoice\ReverseGatewayFee
+             */
+            $payment->service()->deletePayment();
+
             $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();
 
@@ -149,10 +160,57 @@ class LawPayWebhook implements ShouldQueue
             $refund_amount = isset($this->payload['amount'])
                 ? round($this->payload['amount'] / 100, 2)
                 : $payment->amount;
+            $refundReference = (string) ($this->payload['refund_id']
+                ?? $this->payload['event_id']
+                ?? hash('sha256', json_encode($this->payload, JSON_THROW_ON_ERROR)));
 
-            if ($payment->status_id === Payment::STATUS_COMPLETED) {
-                $payment->recordRefund($refund_amount);
-                $payment->save();
+            if (collect($payment->refund_meta ?? [])->contains(
+                fn(array $refund): bool => ($refund['gateway_refund_reference'] ?? null) === $refundReference,
+            )) {
+                return;
+            }
+
+            if (in_array($payment->status_id, [
+                Payment::STATUS_COMPLETED,
+                Payment::STATUS_PARTIALLY_REFUNDED,
+            ], true)) {
+                $refund_amount = min($refund_amount, max(0, $payment->amount - $payment->refunded));
+
+                if ($refund_amount <= 0) {
+                    return;
+                }
+
+                $invoices = $this->refundInvoices($payment, $refund_amount);
+                $allocatedAmount = array_sum(array_column($invoices, 'amount'));
+                $refundDate = now($payment->company->timezone()?->name ?: config('app.timezone'))->toDateString();
+
+                if ($invoices !== []) {
+                    $payment = $payment->refund([
+                        'invoices' => $invoices,
+                        'amount' => $allocatedAmount,
+                        'date' => $refundDate,
+                        'gateway_refund' => false,
+                        'email_receipt' => false,
+                        'via_webhook' => true,
+                        'gateway_refund_reference' => $refundReference,
+                    ]);
+                }
+
+                if ($refund_amount > $allocatedAmount) {
+                    $payment->recordRefund($refund_amount - $allocatedAmount);
+                }
+
+                if ($invoices === []) {
+                    $payment->refresh();
+                    $payment->setRefundMeta([
+                        'amount' => $refund_amount,
+                        'date' => $refundDate,
+                        'gateway_refund' => false,
+                        'via_webhook' => true,
+                        'gateway_refund_reference' => $refundReference,
+                    ]);
+                    $payment->saveQuietly();
+                }
 
                 SystemLogger::dispatch(
                     ['action' => 'webhook_refund', 'amount' => $refund_amount, 'transaction' => $payment->transaction_reference],
@@ -168,5 +226,40 @@ class LawPayWebhook implements ShouldQueue
         }
 
         nlog("LawPay Webhook: Unhandled event type={$event_type} status={$status}");
+    }
+
+    /** @return array<int, array{invoice_id: int, amount: float}> */
+    private function refundInvoices(Payment $payment, float $refundAmount): array
+    {
+        $remaining = $refundAmount;
+        $invoices = [];
+
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->whereNull('deleted_at')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->each(function (Paymentable $paymentable) use (&$remaining, &$invoices): void {
+                if ($remaining <= 0) {
+                    return;
+                }
+
+                $available = max(0, (float) $paymentable->amount - (float) $paymentable->refunded);
+                $amount = min($remaining, $available);
+
+                if ($amount <= 0) {
+                    return;
+                }
+
+                $invoices[] = [
+                    'invoice_id' => (int) $paymentable->paymentable_id,
+                    'amount' => $amount,
+                ];
+                $remaining -= $amount;
+            });
+
+        return $invoices;
     }
 }

@@ -89,6 +89,16 @@ class CellStyleResolverTest extends TestCase
         $this->assertSame('16px', $r['font-size']);
     }
 
+    public function testTotalRowFontSizeIsNullWhenNothingSet(): void
+    {
+        $r = $this->resolver->resolveValue(
+            [],
+            ['isTotal' => true],
+            $this->totalContext(isTotal: true),
+        );
+        $this->assertNull($r['font-size']);
+    }
+
     public function testTotalRowFontSizeRowOverrideBeatsTotalFontSize(): void
     {
         $r = $this->resolver->resolveValue(

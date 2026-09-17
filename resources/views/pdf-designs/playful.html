@@ -23,6 +23,7 @@
 
     html {
         height: 200mm;
+        padding-right:1.5rem;
     }
 
     @page {
@@ -36,6 +37,10 @@
         padding: 0;
     }
 
+    [data-state="encoded-html"] > p + p {
+        margin-top: 1em;
+    }
+    
     .header-wrapper {
         display: grid;
         grid-template-columns: 1.5fr 1fr;

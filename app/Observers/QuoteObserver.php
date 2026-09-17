@@ -29,6 +29,8 @@ class QuoteObserver
     public function created(Quote $quote)
     {
         $subscriptions = Webhook::where('company_id', $quote->company_id)
+                        ->where('is_deleted', false)
+                        ->whereNull('deleted_at')
                         ->where('event_id', Webhook::EVENT_CREATE_QUOTE)
                         ->exists();
 
@@ -57,6 +59,8 @@ class QuoteObserver
 
 
         $subscriptions = Webhook::where('company_id', $quote->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -78,6 +82,8 @@ class QuoteObserver
         }
 
         $subscriptions = Webhook::where('company_id', $quote->company_id)
+                        ->where('is_deleted', false)
+                        ->whereNull('deleted_at')
                         ->where('event_id', Webhook::EVENT_ARCHIVE_QUOTE)
                         ->exists();
 

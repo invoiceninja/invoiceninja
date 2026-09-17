@@ -108,7 +108,7 @@ class RecurringInvoiceController extends BaseController
      */
     public function index(RecurringInvoiceFilters $filters)
     {
-        $recurring_invoices = RecurringInvoice::filter($filters);
+        $recurring_invoices = RecurringInvoice::filter($filters)->with('tags');
 
         return $this->listResponse($recurring_invoices);
     }
@@ -619,7 +619,7 @@ class RecurringInvoiceController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $recurring_invoice, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $recurring_invoice, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($recurring_invoice->fresh());

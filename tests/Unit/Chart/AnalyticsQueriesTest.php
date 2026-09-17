@@ -1507,6 +1507,38 @@ class AnalyticsQueriesTest extends TestCase
         $this->assertEqualsWithDelta(0.5, (float) $oct->total, 0.01);
     }
 
+    public function testLatePaymentRateChartReturnsZeroForOnTimePayments(): void
+    {
+        $this->createPaidInvoice($this->test_client, 100.00, '2026-11-01', '2026-11-10', '2026-11-15');
+
+        $results = $this->getService()->getAggregateLatePaymentRateChartQuery('2026-11-01', '2026-11-30');
+
+        $this->assertCount(1, $results);
+        $this->assertEqualsWithDelta(0.0, (float) $results[0]->total, 0.0001);
+    }
+
+    public function testLatePaymentRateChartIncludesOverdueInvoices(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 100.00,
+            'balance' => 100.00,
+            'paid_to_date' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '2020-10-01',
+            'due_date' => '2020-10-15',
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $results = $this->getService()->getAggregateLatePaymentRateChartQuery('2020-10-01', '2020-10-31');
+
+        $this->assertCount(1, $results);
+        $this->assertEqualsWithDelta(1.0, (float) $results[0]->total, 0.0001);
+    }
+
     // ─── Chart Queries: AR Aging Buckets ────────────────────────────
 
     public function testAgingBucketTotalsDistributeCorrectly(): void
@@ -1655,7 +1687,64 @@ class AnalyticsQueriesTest extends TestCase
         $this->assertArrayHasKey('payment_analytics', $results[999]);
     }
 
+    public function testAllTimeAnalyticsStartsAtTheFirstRelevantRecord(): void
+    {
+        RecurringInvoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'status_id' => RecurringInvoice::STATUS_ACTIVE,
+            'date' => '0000-00-00',
+            'next_send_date' => now()->format('Y-m-d'),
+            'is_deleted' => false,
+        ]);
+
+        Quote::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 250,
+            'status_id' => Quote::STATUS_SENT,
+            'date' => '1900-01-01',
+            'due_date' => null,
+            'invoice_id' => null,
+            'is_deleted' => false,
+        ]);
+
+        $results = $this->getService()->analytics_summary('2000-01-01', now()->format('Y-m-d'), true);
+
+        $this->assertSame('1900-01-01', $results['start_date']);
+        $this->assertContains('1900-01-01', array_column($results[999]['quote_pipeline'], 'date'));
+    }
+
     // ─── API Endpoints ──────────────────────────────────────────────
+
+    public function testAllTimeAnalyticsEndpointResolvesTheFirstRelevantDate(): void
+    {
+        Quote::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 250,
+            'status_id' => Quote::STATUS_SENT,
+            'date' => '1900-01-01',
+            'due_date' => null,
+            'invoice_id' => null,
+            'is_deleted' => false,
+        ]);
+
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        foreach (['analytics_summary', 'analytics_totals'] as $endpoint) {
+            $this->withHeaders($headers)
+                ->postJson("/api/v1/charts/{$endpoint}", ['date_range' => 'all_time'])
+                ->assertStatus(200)
+                ->assertJsonPath('start_date', '1900-01-01');
+        }
+    }
 
     public function testAnalyticsSummaryEndpoint(): void
     {

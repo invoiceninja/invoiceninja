@@ -34,7 +34,9 @@ class UpdateCompanyUserRequest extends Request
 
     public function rules()
     {
-        return [];
+        return [
+            'company_user' => 'required|array'
+        ];
     }
 
     public function prepareForValidation()

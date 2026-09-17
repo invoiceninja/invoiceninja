@@ -63,6 +63,7 @@ class JsonDesignPreviewTest extends TestCase
         $this->assertStringContainsString('Invoice', $result->template);
         $this->assertStringContainsString('Body content', $result->template);
         $this->assertStringContainsString('Footer content', $result->template);
+        $this->assertStringNotContainsString('invoice-pagination', $result->template);
     }
 
     // -----------------------------------------------------------------------
@@ -163,6 +164,59 @@ class JsonDesignPreviewTest extends TestCase
         $this->assertNotEmpty($html, 'JsonDesignService::build() should produce non-empty HTML');
         $this->assertStringContainsString('<html', $html, 'HTML should contain <html tag');
         $this->assertStringContainsString('invoice-container', $html, 'HTML should contain invoice-container div');
+    }
+
+    public function testJsonDesignServiceBuildInjectsCustomCssStyleIntoHead(): void
+    {
+        $design = $this->jsonDesign;
+        $css = '.invoice-widget--table { color: rebeccapurple; }';
+        $design['customCss'] = "<style>\n{$css}\n</style>";
+
+        $invitation = $this->invoice->invitations()->first();
+        $pdfService = new PdfService($invitation, 'product');
+        $pdfService->config = (new PdfConfiguration($pdfService))->init();
+        $pdfService->html_variables = (new \App\Utils\HtmlEngine($invitation))->generateLabelsAndValues();
+
+        $html = (new JsonDesignService($pdfService, $design))->build();
+        $customStyle = "<style data-invoice-custom-css>\n{$css}\n</style>";
+        $customStylePosition = strpos($html, $customStyle);
+        $headEnd = stripos($html, '</head>');
+
+        $this->assertIsInt($customStylePosition);
+        $this->assertIsInt($headEnd);
+        $this->assertLessThan($headEnd, $customStylePosition);
+    }
+
+    public function testJsonDesignServiceBuildPreservesHalfPixelTableBorders(): void
+    {
+        $design = $this->jsonDesign;
+        $tableFound = false;
+
+        foreach ($design['blocks'] as &$block) {
+            if (($block['type'] ?? null) !== 'table') {
+                continue;
+            }
+
+            $block['properties']['headerBorders'] = ['color' => '#111827', 'width' => 0.5];
+            $block['properties']['rowBorders'] = ['color' => '#9CA3AF', 'width' => '0.5px'];
+            $tableFound = true;
+            break;
+        }
+        unset($block);
+
+        $this->assertTrue($tableFound, 'Test design should contain a table block');
+
+        $invitation = $this->invoice->invitations()->first();
+        $ps = new PdfService($invitation, 'product');
+        $ps->config = (new PdfConfiguration($ps))->init();
+        $ps->html_variables = (new \App\Utils\HtmlEngine($invitation))->generateLabelsAndValues();
+
+        $html = (new JsonDesignService($ps, $design))->build();
+        $cleanedHtml = Purify::clean($html);
+
+        $this->assertStringContainsString('box-shadow: inset 0 0.5px 0 0 #111827', $cleanedHtml);
+        $this->assertStringContainsString('inset -0.5px 0 0 0 #9CA3AF', $cleanedHtml);
+        $this->assertStringNotContainsString('border-top: 0.5px', $cleanedHtml);
     }
 
     // -----------------------------------------------------------------------
@@ -354,6 +408,33 @@ class JsonDesignPreviewTest extends TestCase
         $this->assertStringContainsString('<html', strtolower($html), 'Should be valid HTML');
         $this->assertStringContainsString('invoice-container', $html,
             'JSON design HTML should contain invoice-container class from JsonDesignService template');
+    }
+
+    public function testPdfMockUsesJsonDesignFromSettingsWhenRequestOmitsDesign(): void
+    {
+        $design = new Design();
+        $design->company_id = $this->company->id;
+        $design->user_id = $this->user->id;
+        $design->is_custom = true;
+        $design->is_active = true;
+        $design->name = 'JSON Live Design Preview';
+        $design->design = $this->jsonDesign;
+        $design->save();
+
+        $settings = (array) $this->company->settings;
+        $settings['invoice_design_id'] = $this->encodePrimaryKey($design->id);
+
+        $request = [
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => $settings,
+        ];
+
+        $html = (new PdfMock($request, $this->company))->build()->getHtml();
+
+        $this->assertStringContainsString('invoice-container', $html);
+        $this->assertStringContainsString($this->jsonDesign['blocks'][0]['id'], $html);
+        $this->assertStringNotContainsString('<p></p></body>', $html);
     }
 
     // -----------------------------------------------------------------------
@@ -584,5 +665,36 @@ class JsonDesignPreviewTest extends TestCase
         // No `padding:` shorthand on the table when the prop is unset.
         $this->assertDoesNotMatchRegularExpression('/(^|\W)padding: /', $table_style,
             'Outer table must not emit padding shorthand when prop unset');
+    }
+
+    public function testPdfMockJsonDesignInjectsEntityImagesWhenEmbedEnabled(): void
+    {
+        $settings = (array) $this->company->settings;
+        $settings['embed_documents'] = true;
+
+        $html = (new PdfMock([
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => $settings,
+            'design' => $this->jsonDesign,
+        ], $this->company))->build()->getHtml();
+
+        $this->assertStringContainsString('id="entity-images"', $html);
+        $this->assertStringContainsString('data:image/svg+xml;base64,', $html);
+    }
+
+    public function testPdfMockJsonDesignOmitsEntityImagesWhenEmbedDisabled(): void
+    {
+        $settings = (array) $this->company->settings;
+        $settings['embed_documents'] = false;
+
+        $html = (new PdfMock([
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => $settings,
+            'design' => $this->jsonDesign,
+        ], $this->company))->build()->getHtml();
+
+        $this->assertStringNotContainsString('id="entity-images"', $html);
     }
 }

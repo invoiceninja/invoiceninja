@@ -38,7 +38,7 @@ class UpdateExchangeRates implements ShouldQueue
      */
     public function handle(): void
     {
-        info('updating currencies');
+        nlog('updating currencies');
 
         if (empty(config('ninja.currency_converter_api_key'))) {
             return;

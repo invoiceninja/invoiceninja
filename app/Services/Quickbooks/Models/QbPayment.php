@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\Models\Payment;
 use App\DataMapper\PaymentSync;
 use App\Interfaces\SyncInterface;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 
@@ -25,7 +26,7 @@ class QbPayment implements SyncInterface
 
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Payment', $id);
+        return $this->service->sdk()->findById('Payment', $id);
     }
 
     public function importToNinja(array $records): void
@@ -91,7 +92,13 @@ class QbPayment implements SyncInterface
                 continue;
             }
 
-            $this->ensureLinkedInvoicesSynced($payment);
+            try {
+                $this->ensureLinkedInvoicesSynced($payment);
+            } catch (\Throwable $e) {
+                $this->markPushFailure($payment, $e, 'preparing linked invoices for the payment');
+
+                throw $e;
+            }
 
             try {
                 // Refresh from DB to get latest qb_id — prevents duplicate
@@ -111,11 +118,12 @@ class QbPayment implements SyncInterface
                     }
 
                     $qb_payment = \QuickBooksOnline\API\Facades\Payment::create($qb_payment_data);
-                    $result = $this->service->sdk->Update($qb_payment);
+                    $result = $this->service->sdk()->update($qb_payment);
 
                     // Update sync metadata
                     $sync = $payment->sync ?? new PaymentSync();
                     $sync->qb_sync_token = data_get($result, 'SyncToken') ?? '';
+                    $sync->qb_status_message = '';
                     $sync->last_synced_at = now()->toIso8601String();
                     $payment->sync = $sync;
                     $payment->saveQuietly();
@@ -124,11 +132,12 @@ class QbPayment implements SyncInterface
                 } else {
                     // CREATE path
                     $qb_payment = \QuickBooksOnline\API\Facades\Payment::create($qb_payment_data);
-                    $result = $this->service->sdk->Add($qb_payment);
+                    $result = $this->service->sdk()->add($qb_payment);
 
                     $sync = $payment->sync ?? new PaymentSync();
                     $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value') ?? '';
                     $sync->qb_sync_token = data_get($result, 'SyncToken') ?? '';
+                    $sync->qb_status_message = '';
                     $sync->last_synced_at = now()->toIso8601String();
                     $payment->sync = $sync;
                     $payment->saveQuietly();
@@ -136,6 +145,7 @@ class QbPayment implements SyncInterface
                     nlog("QuickBooks: Created payment {$payment->id} (QB ID: {$sync->qb_id})");
                 }
             } catch (\Exception $e) {
+                $this->markPushFailure($payment, $e, 'creating or updating the payment');
                 nlog("QuickBooks: Error pushing payment {$payment->id}: {$e->getMessage()}");
                 throw $e;
             }
@@ -194,18 +204,20 @@ class QbPayment implements SyncInterface
                 $sync = $payment->sync;
                 $sync->qb_id = '';
                 $sync->qb_sync_token = '';
+                $sync->qb_status_message = '';
                 $payment->sync = $sync;
                 $payment->saveQuietly();
                 return;
             }
 
             // Attempt void
-            $this->service->sdk->Void($qb_payment);
+            $this->service->sdk()->voidEntity($qb_payment);
 
             // Success: clear QB tracking
             $sync = $payment->sync;
             $sync->qb_id = '';
             $sync->qb_sync_token = '';
+            $sync->qb_status_message = '';
             $sync->last_synced_at = now()->toIso8601String();
             $payment->sync = $sync;
             $payment->saveQuietly();
@@ -217,9 +229,10 @@ class QbPayment implements SyncInterface
 
             if ($this->isClosedPeriodError($errorMessage)) {
                 $sync = $payment->sync;
+                $sync->qb_status_message = (new QuickbooksFaultParser())->statusMessage($e, 'voiding the payment');
                 $sync->qb_immutable = true;
                 $sync->qb_void_failed = true;
-                $sync->qb_void_error = $this->extractReadableError($errorMessage);
+                $sync->qb_void_error = $sync->qb_status_message;
                 $payment->sync = $sync;
                 $payment->saveQuietly();
 
@@ -232,6 +245,7 @@ class QbPayment implements SyncInterface
 
                 // Do NOT re-throw — prevents retry loops for permanent failures
             } else {
+                $this->markPushFailure($payment, $e, 'voiding the payment');
                 nlog("QuickBooks: Error voiding payment {$payment->id}: {$errorMessage}");
                 throw $e;
             }
@@ -350,38 +364,12 @@ class QbPayment implements SyncInterface
         return false;
     }
 
-    /**
-     * Extract a human-readable error from the SDK's raw exception message.
-     *
-     * @param string $rawMessage
-     * @return string
-     */
-    private function extractReadableError(string $rawMessage): string
+    private function markPushFailure(Payment $payment, \Throwable $e, string $operation): void
     {
-        if (preg_match('/with body:\s*\[(.+)\]/s', $rawMessage, $matches)) {
-            $body = trim($matches[1]);
-
-            try {
-                $xml = @simplexml_load_string($body);
-                if ($xml !== false && isset($xml->Fault->Error)) {
-                    $error = $xml->Fault->Error;
-                    $message = (string) ($error->Message ?? '');
-                    $detail = (string) ($error->Detail ?? '');
-
-                    if ($message && $detail) {
-                        return "{$message} - {$detail}";
-                    }
-
-                    return $message ?: $detail;
-                }
-            } catch (\Throwable $e) {
-                // XML parsing failed, fall through
-            }
-        }
-
-        $cleaned = str_replace('Request is not made successful. ', '', $rawMessage);
-
-        return mb_substr($cleaned, 0, 500);
+        $sync = $payment->sync ?? new PaymentSync();
+        $sync->qb_status_message = (new QuickbooksFaultParser())->statusMessage($e, $operation);
+        $payment->sync = $sync;
+        $payment->saveQuietly();
     }
 
 }

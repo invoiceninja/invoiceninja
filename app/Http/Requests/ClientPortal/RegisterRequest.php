@@ -12,6 +12,7 @@
 
 namespace App\Http\Requests\ClientPortal;
 
+use App\Services\ClientPortal\CustomFieldService;
 use App\Utils\Ninja;
 use App\Models\Account;
 use App\Models\Company;
@@ -40,16 +41,27 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         $rules = [];
+        $company = $this->company();
 
-        foreach ($this->company()->client_registration_fields as $field) {
+        $service = app(CustomFieldService::class);
+        $customRules = $service->buildRules($service->buildFields($company));
+
+        $customKeys = ['custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'];
+
+        foreach ($company->client_registration_fields as $field) {
             if ($field['visible'] ?? true) {
-                $rules[$field['key']] = $field['required'] ? ['bail','required'] : ['sometimes'];
+                if (in_array($field['key'], $customKeys)) {
+                    $rules[$field['key']] = $customRules[$field['key']]
+                        ?? ($field['required'] ? ['bail', 'required'] : ['sometimes']);
+                } else {
+                    $rules[$field['key']] = $field['required'] ? ['bail', 'required'] : ['sometimes'];
+                }
             }
         }
 
-        foreach ($rules as $field => $properties) {
+        foreach (array_keys($rules) as $field) {
             if ($field === 'email') {
-                $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:191', Rule::unique('client_contacts')->where('company_id', $this->company()->id)]);
+                $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:191', Rule::unique('client_contacts')->where('company_id', $company->id)]);
             }
 
             if ($field === 'current_password') {
@@ -57,7 +69,7 @@ class RegisterRequest extends FormRequest
             }
         }
 
-        if ($this->company()->settings->client_portal_terms || $this->company()->settings->client_portal_privacy_policy) {
+        if ($company->settings->client_portal_terms || $company->settings->client_portal_privacy_policy) {
             $rules['terms'] = ['required'];
         }
 

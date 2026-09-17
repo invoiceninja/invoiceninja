@@ -31,7 +31,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
         if ($task && method_exists($this, $key)) {
             return $this->{$key}($task);
-        } elseif ($task && $task->{$key} ?? false) {
+        } elseif ($task && ($task->{$key} ?? false)) {
             return $task->{$key};
         }
 
@@ -121,6 +121,28 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return $task->calcDuration();
     }
 
+    public function due_date(Task $task)
+    {
+        if (!$task->due_date) {
+            return '';
+        }
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($task->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        return Carbon::parse($task->due_date)->format($date_format_default);
+    }
+
+    public function estimated_duration(Task $task)
+    {
+        return is_null($task->estimated_duration) ? '' : (int) $task->estimated_duration;
+    }
+
     public function status_id(Task $task)
     {
         return $task->status()->exists() ? $task->status->name : '';
@@ -138,6 +160,11 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
     public function user_id(Task $task)
     {
-        return $task->user ? $task->user->present()->name() : '';
+        return $task->user->present()->name() ?? '';
+    }
+
+    public function tags(mixed $task): string
+    {
+        return $task->tags->pluck('name')->implode(', ');
     }
 }

@@ -12,17 +12,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
+use App\Events\Socket\QuickbooksEntityStatusChanged;
+use App\Http\Requests\Quickbooks\ActionQuickbooksRequest;
+use App\Http\Requests\Quickbooks\DisconnectQuickbooksRequest;
+use App\Http\Requests\Quickbooks\SyncQuickbooksRequest;
+use App\Http\Requests\Quickbooks\SyncTaxRatesRequest;
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Services\Quickbooks\Jobs\QuickbooksImport;
+use App\Services\Quickbooks\QuickbooksService;
+use App\Transformers\InvoiceTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Services\Quickbooks\QuickbooksService;
-use App\Services\Quickbooks\Jobs\QuickbooksImport;
-use App\Http\Requests\Quickbooks\SyncTaxRatesRequest;
-use App\Http\Requests\Quickbooks\SyncQuickbooksRequest;
-use App\Http\Requests\Quickbooks\DisconnectQuickbooksRequest;
+use Illuminate\Support\Str;
 
 class QuickbooksController extends BaseController
 {
+    protected $entity_type = Invoice::class;
+
+    protected $entity_transformer = InvoiceTransformer::class;
+
     /**
      * sync
      *
@@ -50,6 +60,64 @@ class QuickbooksController extends BaseController
         }
 
         QuickbooksImport::dispatch($company->id, $company->db, $syncable);
+
+        return response()->noContent();
+    }
+
+    public function action(ActionQuickbooksRequest $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        $company = $user->company();
+        $invoice = $request->getInvoice();
+        $action = $request->validated('action');
+
+        if ($action === 'check_record') {
+            MultiDB::setDb($company->db);
+
+            $quickbooks = new QuickbooksService($company);
+            $invoice = $quickbooks->invoice->check($invoice);
+            $transformer = new InvoiceTransformer($request->input('serializer'));
+
+            return $this->response([
+                ...$transformer->transform($invoice),
+                'meta' => [
+                    'quickbooks_check' => $quickbooks->invoice->checkContext(),
+                ],
+            ]);
+        }
+
+        dispatch(function () use ($company, $invoice, $action, $user) {
+            MultiDB::setDb($company->db);
+
+            $quickbooks = new QuickbooksService($company);
+            $current_status = $invoice->sync->qb_status ?? '';
+            $current_status_message = $invoice->sync->qb_status_message ?? '';
+
+            try {
+                match ($action) {
+                    'force_link' => $quickbooks->invoice->forceLink($invoice),
+                    'force_pull' => $quickbooks->invoice->forcePull($invoice),
+                    'force_push' => $quickbooks->invoice->forcePush($invoice),
+                    default => '',
+                };
+            } catch (\Throwable $e) {
+                nlog("QuickBooks action {$action} failed for invoice {$invoice->id}: {$e->getMessage()}", [
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                return;
+            }
+
+            $invoice = $invoice->fresh();
+            $new_status = $invoice->sync->qb_status ?? '';
+            $new_status_message = $invoice->sync->qb_status_message ?? '';
+
+            if (($current_status != $new_status) || ($current_status_message != $new_status_message)) {
+                event(new QuickbooksEntityStatusChanged('invoice', $invoice->hashed_id, $user));
+            }
+            
+        })->afterResponse();
 
         return response()->noContent();
     }

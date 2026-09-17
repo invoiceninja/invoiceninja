@@ -56,4 +56,9 @@ class LoginRequest extends Request
         ];
     }
 
+    public function isPasskeyLogin(): bool
+    {
+        return !$this->filled('password') && $this->filled('passkey_challenge_token');
+    }
+
 }

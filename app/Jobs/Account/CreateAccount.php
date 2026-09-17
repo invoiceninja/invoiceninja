@@ -12,25 +12,27 @@
 
 namespace App\Jobs\Account;
 
-use App\Utils\Ninja;
-use App\Models\Account;
-use Illuminate\Support\Str;
-use App\Jobs\User\CreateUser;
-use App\DataProviders\Domains;
-use App\Jobs\Util\VersionCheck;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Company\CreateCompany;
-use Illuminate\Support\Facades\App;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Utils\Traits\User\LoginCache;
-use App\Events\Account\AccountCreated;
-use Turbo124\Beacon\Facades\LightLogs;
-use App\Jobs\Company\CreateCompanyToken;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
 use App\DataMapper\Analytics\AccountPlatform;
+use App\DataProviders\Domains;
+use App\Events\Account\AccountCreated;
+use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\User\CreateUser;
+use App\Jobs\Util\VersionCheck;
+use App\Models\Account;
+use App\Utils\Ninja;
+use App\Utils\Traits\User\LoginCache;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use Modules\Admin\Services\Evaluator;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class CreateAccount
 {
@@ -56,6 +58,7 @@ class CreateAccount
 
     private function create()
     {
+
         Account::reguard();
         $sp794f3f = new Account();
         $sp794f3f->fill($this->request);
@@ -115,7 +118,9 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
+            (new \Modules\Admin\Jobs\Account\NinjaUser($sp035a66))->handle();
+
+            app(Evaluator::class)->create($sp794f3f, $this->client_ip);
 
         }
 

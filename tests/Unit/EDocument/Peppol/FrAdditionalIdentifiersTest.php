@@ -13,6 +13,7 @@
 namespace Tests\Unit\EDocument\Peppol;
 
 use App\Services\EDocument\Standards\Peppol\FR;
+use Carbon\CarbonImmutable;
 use Tests\TestCase;
 
 class FrAdditionalIdentifiersTest extends TestCase
@@ -34,7 +35,10 @@ class FrAdditionalIdentifiersTest extends TestCase
         ]);
 
         $this->assertSame(
-            [['identifier' => '732829320', 'scheme' => 'FR:SIRENE']],
+            [
+                ['identifier' => '732829320', 'scheme' => 'FR:SIRENE', 'required' => true],
+                ['identifier' => '732829320', 'scheme' => 'FR:CTC', 'required' => true],
+            ],
             $result,
         );
     }
@@ -49,8 +53,9 @@ class FrAdditionalIdentifiersTest extends TestCase
 
         $this->assertSame(
             [
-                ['identifier' => '732829320', 'scheme' => 'FR:SIRENE'],
-                ['identifier' => '73282932000074', 'scheme' => 'FR:SIRET'],
+                ['identifier' => '732829320', 'scheme' => 'FR:SIRENE', 'required' => true],
+                ['identifier' => '732829320', 'scheme' => 'FR:CTC', 'required' => true],
+                ['identifier' => '73282932000074', 'scheme' => 'FR:SIRET', 'required' => false],
             ],
             $result,
         );
@@ -66,7 +71,10 @@ class FrAdditionalIdentifiersTest extends TestCase
         ]);
 
         $this->assertSame(
-            [['identifier' => '732829320', 'scheme' => 'FR:SIRENE']],
+            [
+                ['identifier' => '732829320', 'scheme' => 'FR:SIRENE', 'required' => true],
+                ['identifier' => '732829320', 'scheme' => 'FR:CTC', 'required' => true],
+            ],
             $result,
         );
     }
@@ -96,5 +104,40 @@ class FrAdditionalIdentifiersTest extends TestCase
     public function testMissingVatAndIdNumberReturnsEmpty(): void
     {
         $this->assertSame([], $this->fr->getAdditionalIdentifiers(['classification' => 'business']));
+    }
+
+    public function testFrenchIdentifiersUseTheRequiredStorecoveNetworks(): void
+    {
+        CarbonImmutable::setTestNow('2026-08-03 23:30:00 Europe/Paris');
+
+        $this->assertSame([
+            [
+                'name' => 'peppol',
+                'sub_networks' => ['main', 'france'],
+            ],
+        ], $this->fr->getIdentifierNetworkSpecifications('FR:SIRENE'));
+
+        $this->assertSame([
+            [
+                'name' => 'peppol',
+                'sub_networks' => ['main', 'france'],
+            ],
+            [
+                'name' => 'dgfip',
+                'sub_networks' => ['main'],
+                'annuaire' => [
+                    'start_date' => '2026-09-01',
+                ],
+            ],
+        ], $this->fr->getIdentifierNetworkSpecifications('FR:CTC'));
+
+        CarbonImmutable::setTestNow('2026-09-02 23:30:00 Europe/Paris');
+
+        $this->assertSame(
+            '2026-09-04',
+            $this->fr->getIdentifierNetworkSpecifications('FR:CTC')[1]['annuaire']['start_date'],
+        );
+
+        CarbonImmutable::setTestNow();
     }
 }

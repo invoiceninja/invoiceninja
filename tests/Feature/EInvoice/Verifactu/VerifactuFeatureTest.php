@@ -83,7 +83,7 @@ class VerifactuFeatureTest extends TestCase
         $u = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->user = $u;
@@ -282,7 +282,7 @@ class VerifactuFeatureTest extends TestCase
 
         // Test the send method (in test mode it should return a response structure)
         $response = $verifactu->send($envelope);
-        nlog($response);
+        // nlog($response);
 
         $this->assertNotNull($response);
         $this->assertArrayHasKey('success', $response);
@@ -348,12 +348,12 @@ class VerifactuFeatureTest extends TestCase
                 ->withBody($soapXml, 'text/xml')
                 ->post('https://prewww1.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP');
 
-        nlog('Request with AEAT official test data:');
-        nlog($soapXml);
-        nlog('Response with AEAT official test data:');
-        nlog('Response Status: ' . $response->status());
-        nlog('Response Headers: ' . json_encode($response->headers()));
-        nlog('Response Body: ' . $response->body());
+        // nlog('Request with AEAT official test data:');
+        // nlog($soapXml);
+        // nlog('Response with AEAT official test data:');
+        // nlog('Response Status: ' . $response->status());
+        // nlog('Response Headers: ' . json_encode($response->headers()));
+        // nlog('Response Body: ' . $response->body());
 
         $r = new ResponseProcessor();
         $rx = $r->processResponse($response->body());
@@ -415,9 +415,9 @@ class VerifactuFeatureTest extends TestCase
 
         $this->assertNotNull($document2->getHuella());
 
-        nlog("huella: " . $document2->getHuella());
+        // nlog("huella: " . $document2->getHuella());
 
-        nlog($soapXml);
+        // nlog($soapXml);
 
         $xslt = new VerifactuDocumentValidator($soapXml);
         $xslt->validate();
@@ -464,7 +464,7 @@ class VerifactuFeatureTest extends TestCase
                 ->run()
                 ->getInvoice();
 
-        nlog($document->toSoapEnvelope());
+        // nlog($document->toSoapEnvelope());
 
         $response = $verifactu->send($document->toSoapEnvelope());
 
@@ -504,7 +504,7 @@ class VerifactuFeatureTest extends TestCase
                 ->run()
                 ->getInvoice();
 
-        nlog($document2->toSoapEnvelope());
+        // nlog($document2->toSoapEnvelope());
 
         $response = $verifactu2->send($document2->toSoapEnvelope());
 
@@ -522,7 +522,7 @@ class VerifactuFeatureTest extends TestCase
 
         $soapXml = $cancellation->toSoapEnvelope();
 
-        nlog($soapXml);
+        // nlog($soapXml);
 
         $response = $verifactu->setTestMode()
                         ->setInvoice($document)
@@ -530,8 +530,8 @@ class VerifactuFeatureTest extends TestCase
                         ->setPreviousHash($document2->getHuella())
                         ->send($soapXml);
 
-        nlog("CANCELLATION RESPONSE");
-        nlog($response);
+        // nlog("CANCELLATION RESPONSE");
+        // nlog($response);
 
         $this->assertNotNull($response);
         $this->assertArrayHasKey('success', $response);
