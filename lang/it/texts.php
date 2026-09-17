@@ -4042,7 +4042,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 utilizza Stripe Connect per collegare il tuo account Stripe a Invoice Ninja. Ciò fornisce un ulteriore livello di sicurezza per il tuo account. Ora che i tuoi dati sono stati migrati, dovrai autorizzare Stripe ad accettare pagamenti nella v5.<br><br> Per farlo, vai su Impostazioni &gt; Pagamenti online &gt; Configura gateway. Fare clic su Stripe Connect e quindi in Impostazioni fare clic su Setup Gateway. Questo ti porterà a Stripe per autorizzare Invoice Ninja e al tuo ritorno il tuo account sarà collegato con successo!',
     'email_quota_exceeded_subject' => 'Quota email dell&#39;account superata.',
     'email_quota_exceeded_body' => 'In un periodo di 24 ore hai inviato email :quota.<br> Abbiamo sospeso le tue email in uscita.<br><br> La tua quota email verrà reimpostata alle 23:00 UTC.',
-    'auto_bill_option' => 'Attiva o disattiva l&#39;addebito automatico di questa fattura.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Arabo',
     'lang_Persian' => 'Persiano',
     'lang_Latvian' => 'lettone',
@@ -6368,6 +6368,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'Attività sovrastimate',
     'total_overdue_tasks' => 'Compiti in sospeso',
     'total_tasks_due' => 'Compiti da consegnare',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

@@ -4051,7 +4051,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 使用 Stripe Connect 將您的 Stripe 帳戶連結到 Invoice Ninja。這為您的帳戶提供了額外的安全保障。現在您的資料已遷移，您需要授權 Stripe 在 v5 中接受付款。<br><br>為此，請導覽至設定 &gt; 線上付款 &gt; 設定網關。按一下 Stripe Connect，然後在「設定」下按一下「設定網關」。這將帶您到 Stripe 授權 Invoice Ninja，返回後您的帳戶將成功連結！',
     'email_quota_exceeded_subject' => '帳戶電子郵件配額超出。',
     'email_quota_exceeded_body' => '在 24 小時內，您已發送了:quota封電子郵件。<br>我們已暫停您的出站電子郵件。<br><br>您的電子郵件配額將於 23:00 UTC 重設。',
-    'auto_bill_option' => '選擇啟用或不啟用此發票自動收費。',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => '阿拉伯',
     'lang_Persian' => '波斯語',
     'lang_Latvian' => '拉脫維亞語',
@@ -6377,6 +6377,7 @@ $lang = array(
     'total_tasks_over_estimate' => '任務高估',
     'total_overdue_tasks' => '逾期任務',
     'total_tasks_due' => '任務截止日期',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

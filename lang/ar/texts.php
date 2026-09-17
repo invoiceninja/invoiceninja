@@ -4032,7 +4032,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'يستخدم Invoice Ninja v5 Stripe Connect لربط حساب Stripe الخاص بك بـ Invoice Ninja. يوفر هذا طبقة إضافية من الأمان لحسابك. الآن بعد أن تم ترحيل بياناتك ، ستحتاج إلى تخويل Stripe لقبول المدفوعات في الإصدار الخامس.<br><br> للقيام بذلك ، انتقل إلى الإعدادات&gt; المدفوعات عبر الإنترنت&gt; تكوين العبارات. انقر فوق Stripe Connect ثم ضمن الإعدادات ، انقر فوق Setup Gateway. سينقلك هذا إلى Stripe لتفويض Invoice Ninja وعند عودتك سيتم ربط حسابك بنجاح!',
     'email_quota_exceeded_subject' => 'تم تجاوز حصة البريد الإلكتروني للحساب.',
     'email_quota_exceeded_body' => 'في غضون 24 ساعة ، قمت بإرسال رسائل بريد إلكتروني :quota.<br> لقد قمنا بإيقاف رسائل البريد الإلكتروني الصادرة الخاصة بك مؤقتًا.<br><br> ستتم إعادة تعيين حصة بريدك الإلكتروني في الساعة 23:00 بالتوقيت العالمي المنسق.',
-    'auto_bill_option' => 'الاشتراك أو إلغاء الاشتراك في خصم هذه الفاتورة تلقائيًا.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'العربيه',
     'lang_Persian' => 'الفارسيه',
     'lang_Latvian' => 'اللاتيفيه',
@@ -6358,6 +6358,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'تقدير المهام بشكل مبالغ فيه',
     'total_overdue_tasks' => 'المهام المتأخرة',
     'total_tasks_due' => 'المهام المستحقة',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

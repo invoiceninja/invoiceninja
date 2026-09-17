@@ -4048,7 +4048,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 utilise Stripe Connect pour lier votre compte Stripe à Invoice Ninja. Cela fournit une couche de sécurité supplémentaire pour votre compte. Maintenant que vos données ont migré, vous devez autoriser Stripe à accepter les paiements dans la v5.<br><br>Pour ce faire, accédez à Paramètres > Paiements en ligne > Configurer les passerelles. Cliquez sur Stripe Connect, puis sous Paramètres, cliquez sur Configurer la passerelle. Cela vous amènera à Stripe pour autoriser Invoice Ninja et à votre retour, votre compte sera lié avec succès !',
     'email_quota_exceeded_subject' => 'Quota de courriel du compte dépassé.',
     'email_quota_exceeded_body' => 'Dans une période de 24 heures, vous avez envoyer :quota courriels. <br>Nous avons suspendu vos courriels sortants.<br> <br>Votre quota de courriel sera réinitialisé à 23h00 UTC',
-    'auto_bill_option' => 'Activez ou désactivez la facturation automatique de cette facture.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Arabe',
     'lang_Persian' => 'Persan',
     'lang_Latvian' => 'Letton',
@@ -6374,6 +6374,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'total_tasks_over_estimate' => 'Tâches surestimées',
     'total_overdue_tasks' => 'Tâches en retard',
     'total_tasks_due' => 'Tâches à rendre',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

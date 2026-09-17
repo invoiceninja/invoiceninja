@@ -4051,7 +4051,7 @@ debitar da sua conta de acordo com essas instruções. Está elegível a um reem
     'email_quota_exceeded_subject' => 'Quota de conta de E-mail ultrapassada',
     'email_quota_exceeded_body' => 'Nas últimas 24 horas enviou :quota E-mails.
 O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
-    'auto_bill_option' => 'Opte por receber ou não a cobrança automática desta fatura.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Árabe',
     'lang_Persian' => 'Persa',
     'lang_Latvian' => 'Letão',
@@ -6377,6 +6377,7 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'total_tasks_over_estimate' => 'Tarefas superestimadas',
     'total_overdue_tasks' => 'Tarefas atrasadas',
     'total_tasks_due' => 'Tarefas a cumprir',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

@@ -4051,7 +4051,7 @@ E-mail: :email<b><br><b>',
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 maakt gebruik van Stripe Connect om uw Stripe-account te koppelen aan Invoice Ninja. Dit zorgt voor een extra beveiligingslaag voor uw account. Nu uw gegevens zijn gemigreerd, dient u Stripe te autoriseren om betalingen te accepteren in v5.<br><br>Om dit te doen gaat u naar Instellingen > Online Betalingen > Betaalproviders configureren. Klik op Stripe Connect en vervolgens onder Settings op Setup Gateway. Dit brengt u naar Stripe om Invoice Ninja te autoriseren en bij terugkomst zal uw account succesvol gekoppeld zijn!',
     'email_quota_exceeded_subject' => 'Account e-mail quota overschreden.',
     'email_quota_exceeded_body' => 'U heeft in een periode van 24 uur :quota e-mails verstuurd.<br>Uw uitgaande e-mails zijn hierbij gepauzeerd.<br><br>Uw email quotum zal resetten om 23:00 UTC.',
-    'auto_bill_option' => 'Kies ervoor om deze factuur al dan niet automatisch te laten verrekenen.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Arabisch',
     'lang_Persian' => 'Perzisch',
     'lang_Latvian' => 'Lets',
@@ -6377,6 +6377,7 @@ E-mail: :email<b><br><b>',
     'total_tasks_over_estimate' => 'Taken boven de schatting',
     'total_overdue_tasks' => 'Achterstallige taken',
     'total_tasks_due' => 'Taken die moeten worden ingeleverd',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;
