@@ -210,7 +210,7 @@ class TransactionTransformer implements BankRevenueInterface
 
         $data = [
             'transaction_id' => 0,
-            'enablebanking_transaction_id' => $transactionId,
+            'nordigen_transaction_id' => $transactionId,
             'amount' => abs($amount),
             'currency_id' => $this->convertCurrency($transaction['transaction_amount']['currency']),
             'category_id' => null,

@@ -66,7 +66,7 @@ class EnableBankingTransformerTest extends TestCase
         ]);
 
         $this->assertCount(1, $result);
-        $this->assertEquals('booked-1', $result[0]['enablebanking_transaction_id']);
+        $this->assertEquals('booked-1', $result[0]['nordigen_transaction_id']);
     }
 
     public function testTransformThrowsOnMissingTransactionsKey()
@@ -82,7 +82,7 @@ class EnableBankingTransformerTest extends TestCase
 
         $data = $transformer->transformTransaction($this->sampleTransaction());
 
-        $this->assertEquals('5561990681', $data['enablebanking_transaction_id']);
+        $this->assertEquals('5561990681', $data['nordigen_transaction_id']);
         $this->assertEquals(1.23, $data['amount']);
         $this->assertEquals('CREDIT', $data['base_type']);
         $this->assertEquals('2020-01-03', $data['date']);

@@ -177,7 +177,7 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
             
             // Check if transaction already exists
             if (BankTransaction::where('company_id', $this->company->id)
-                ->where('enablebanking_transaction_id', $transaction['enablebanking_transaction_id'])
+                ->where('nordigen_transaction_id', $transaction['nordigen_transaction_id'])
                 ->where('bank_integration_id', $this->bank_integration->id)
                 ->where('is_deleted', 0)
                 ->withTrashed()
