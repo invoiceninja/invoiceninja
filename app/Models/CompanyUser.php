@@ -189,14 +189,4 @@ class CompanyUser extends Pivot
         return $query;
     }
 
-    /**
-     * Determines if the notifications should be React or Flutter links
-     *
-     * @return bool
-     */
-    public function portalType(): bool
-    {
-        return isset($this->react_settings->react_notification_link) && $this->react_settings->react_notification_link;
-    }
-
 }

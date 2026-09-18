@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\Utils\AppLink;
 use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
@@ -266,14 +267,8 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return $domain . '/vendor/key_login/' . $this->contact_key;
     }
 
-    public function getAdminLink($use_react_link = false): string
+    public function getAdminLink(): string
     {
-        return $use_react_link ? $this->getReactLink() : config('ninja.app_url');
+        return AppLink::forRecord('vendors', $this->vendor);
     }
-
-    private function getReactLink(): string
-    {
-        return config('ninja.react_url') . "/#/vendors/{$this->vendor->hashed_id}";
-    }
-
 }

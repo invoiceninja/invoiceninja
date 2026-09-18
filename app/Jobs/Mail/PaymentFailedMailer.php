@@ -103,7 +103,7 @@ class PaymentFailedMailer implements ShouldQueue
 
                 $invitation = $invoice->invitations->first();
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash, $company_user->portalType()))->build();
+                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash))->build();
 
                 $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer($mail_obj);
