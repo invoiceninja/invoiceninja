@@ -13,17 +13,27 @@
 namespace App\Utils;
 
 /**
- * Translates the route inside a shared record link into the web client's —
- * invoiceninja/flutter#144.
+ * Translates the route inside a shared record link into the React web client's
+ * — invoiceninja/flutter#144.
  *
  * A link carries the *app's* route, because that is the shape the OS verifies
- * and the apps parse; the web client names a few screens differently and mounts
- * most records only under `:id/edit`. Translating here rather than in the apps
- * keeps the link itself one shape on every platform. Dependency-free so the two
- * rules that fail silently can be unit tested.
+ * and the apps parse; React names a few screens differently and mounts most
+ * records only under `:id/edit`. Translating here rather than in the apps keeps
+ * the link itself one shape on every platform. Dependency-free so the two rules
+ * that fail silently can be unit tested.
+ *
+ * React only — the Flutter web client shares the apps' route table, so its links
+ * pass through untouched.
  */
 class AppLinkPath
 {
+    /**
+     * Web roots whose bare `:id` is a real read-only page in React. Suffixing
+     * these would open the editor instead — and its guard needs `edit_*`, so a
+     * view-only user would land on React's 401 page.
+     */
+    private const WEB_VIEW_ROOTS = ['clients', 'vendors'];
+
     /**
      * The web client's path for an app route, without a leading slash.
      *
@@ -58,9 +68,11 @@ class AppLinkPath
                 return $webRoot.'/'.$rest;
             }
 
-            // A bare `:id` matches the web client's shell and renders an empty
-            // page for most entities, which is why Inviteable::getReactLink
-            // links to /edit as well.
+            if (in_array($webRoot, self::WEB_VIEW_ROOTS, true)) {
+                return $webRoot.'/'.$rest;
+            }
+
+            // Everywhere else a bare `:id` is React's shell with an empty body.
             return $webRoot.'/'.$rest.'/edit';
         }
 

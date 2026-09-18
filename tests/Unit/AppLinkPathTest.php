@@ -82,6 +82,17 @@ class AppLinkPathTest extends TestCase
         );
     }
 
+    public function testAViewOnlyRootKeepsItsBareId()
+    {
+        // React renders a real show page at `clients/:id` and `vendors/:id`, and
+        // its editor needs `edit_*` — suffixing sends a view-only user to a 401.
+        $this->assertSame('clients/Wp1', AppLinkPath::forWebClient('clients/Wp1'));
+        $this->assertSame('vendors/Wp1', AppLinkPath::forWebClient('vendors/Wp1'));
+
+        // Still honoured when the app asked for the editor by name.
+        $this->assertSame('clients/Wp1/edit', AppLinkPath::forWebClient('clients/Wp1/edit'));
+    }
+
     public function testAnUnknownRootIsPassedThroughRatherThanGuessed()
     {
         // A wrong guess is a 404; an untouched path lands on a section.

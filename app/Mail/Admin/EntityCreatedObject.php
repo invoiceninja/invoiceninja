@@ -34,13 +34,10 @@ class EntityCreatedObject
 
     private $template_body;
 
-    protected bool $use_react_link;
-
-    public function __construct($entity, $entity_type, $use_react_link = false)
+    public function __construct($entity, $entity_type)
     {
         $this->entity_type = $entity_type;
         $this->entity = $entity;
-        $this->use_react_link = $use_react_link;
     }
 
     /**
@@ -88,7 +85,7 @@ class EntityCreatedObject
             $mail_obj->data = [
                 'title' => $mail_obj->subject,
                 'content' => $content,
-                'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
+                'url' => $this->entity->invitations()->first()->getAdminLink(),
                 'button' => ctrans("texts.view_{$this->entity_type}"),
                 'signature' => $this->company->settings->email_signature,
                 'logo' => $this->company->present()->logo(),
@@ -176,7 +173,7 @@ class EntityCreatedObject
         return [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->entity->invitations()->first()->getAdminLink($this->use_react_link),
+            'url' => $this->entity->invitations()->first()->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

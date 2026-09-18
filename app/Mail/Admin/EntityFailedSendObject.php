@@ -40,9 +40,7 @@ class EntityFailedSendObject
 
     private $message_content;
 
-    protected $use_react_url;
-
-    public function __construct($invitation, $entity_type, $template, $message_content, $use_react_url)
+    public function __construct($invitation, $entity_type, $template, $message_content)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
@@ -76,7 +74,6 @@ class EntityFailedSendObject
         $this->company = $invitation->company;
         $this->template = $template;
         $this->message_content = $message_content;
-        $this->use_react_url = $use_react_url;
     }
 
     public function build()
@@ -171,7 +168,7 @@ class EntityFailedSendObject
         $data = [
             "title" => $this->getSubject(),
             "content" => $content,
-            "url" => $this->invitation->getAdminLink($this->use_react_url),
+            "url" => $this->invitation->getAdminLink(),
             "button" => ctrans("texts.view_{$this->entity_type}"),
             "signature" => $signature,
             "logo" => $this->company->present()->logo(),

@@ -73,7 +73,7 @@ class InvoiceOverdueSummaryObjectTest extends TestCase
         $table_headers = $this->buildTableHeaders();
         $expected_keys = array_keys($table_headers);
 
-        $obj = new InvoiceOverdueSummaryObject($overdue_invoices, $table_headers, $this->company, true);
+        $obj = new InvoiceOverdueSummaryObject($overdue_invoices, $table_headers, $this->company);
         $mail = $obj->build();
 
         $table = $mail->data['table'];
@@ -94,7 +94,7 @@ class InvoiceOverdueSummaryObjectTest extends TestCase
         $overdue_invoices = [$payload];
         $table_headers = $this->buildTableHeaders();
 
-        $obj = new InvoiceOverdueSummaryObject($overdue_invoices, $table_headers, $this->company, true);
+        $obj = new InvoiceOverdueSummaryObject($overdue_invoices, $table_headers, $this->company);
         $mail = $obj->build();
 
         $row = $mail->data['table'][0];

@@ -128,4 +128,18 @@ class AppLinksTest extends TestCase
     {
         $this->get('app/../../etc/passwd')->assertStatus(404);
     }
+
+    public function testDesktopIsSentStraightOnRatherThanOfferedTheApp()
+    {
+        // In <head>, before the body paints. Crawlers run no JS, so the card
+        // below it survives — which is why this is not a 302.
+        $response = $this->get('app/invoices/Opnel5aKBz?company=VolejRejNm');
+
+        $response->assertSee('location.replace(', false);
+        $response->assertSee('navigator.maxTouchPoints', false);
+        $response->assertSee('og:title', false);
+        // …and the two platforms that still need the page keep it.
+        $response->assertSee('intent://app/invoices/Opnel5aKBz', false);
+        $response->assertSee('invoiceninja://app/invoices/Opnel5aKBz', false);
+    }
 }

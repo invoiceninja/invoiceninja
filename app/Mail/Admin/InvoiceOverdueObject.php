@@ -22,7 +22,7 @@ use stdClass;
 
 class InvoiceOverdueObject
 {
-    public function __construct(public Invoice $invoice, public Company $company, public bool $use_react_url) {}
+    public function __construct(public Invoice $invoice, public Company $company) {}
 
     public function build()
     {
@@ -83,8 +83,8 @@ class InvoiceOverdueObject
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->invoice->invitations->first()->getAdminLink($this->use_react_url),
-            'button' => $this->use_react_url ? ctrans('texts.view_invoice') : ctrans('texts.login'),
+            'url' => $this->invoice->invitations->first()->getAdminLink(),
+            'button' => ctrans('texts.view_invoice'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,

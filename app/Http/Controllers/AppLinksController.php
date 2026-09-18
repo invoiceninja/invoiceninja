@@ -12,7 +12,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Utils\AppLinkPath;
+use App\Utils\Ninja;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,6 +25,9 @@ use Illuminate\Http\Request;
  * app's manifest claims the host — only the hosted one, since Android and Apple
  * need build-time literals — the OS opens the app; everywhere else the browser
  * loads {@see self::bridge()}.
+ *
+ * The browser fallback goes to whichever web client the instance serves — see
+ * {@see self::usesFlutterWebClient()}.
  */
 class AppLinksController extends Controller
 {
@@ -115,10 +120,39 @@ class AppLinksController extends Controller
 
     private function webUrl(string $path, array $query): string
     {
-        $base = rtrim((string) config('ninja.react_url') ?: url('/'), '/');
         $suffix = empty($query) ? '' : '?'.http_build_query($query);
 
+        // Untranslated: the Flutter web client shares the apps' route table.
+        if ($this->usesFlutterWebClient()) {
+            $base = rtrim((string) config('ninja.app_url') ?: url('/'), '/');
+
+            return $base.'/#/'.$path.$suffix;
+        }
+
+        $base = rtrim((string) config('ninja.react_url') ?: url('/'), '/');
+
         return $base.'/#/'.AppLinkPath::forWebClient($path).$suffix;
+    }
+
+    /**
+     * Whether `/` serves the Flutter web client rather than React — the same
+     * read {@see BaseController::flutterRoute()} makes.
+     *
+     * Self-host only: hosted serves the two from different hosts and never
+     * checks the flag. Wrapped because the bridge has to render before setup
+     * has run.
+     */
+    private function usesFlutterWebClient(): bool
+    {
+        if (! Ninja::isSelfHost()) {
+            return false;
+        }
+
+        try {
+            return Account::first()?->set_react_as_default_ap === false;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     private function configList(string $key): array
