@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for taking the time to report a bug.
+        Thank you for taking the time to report a bug that you have discovered. If you are wanting to request a feature request, please use the Discussion tab and use the Category Feature Request. (**important** feature requests will be automatically deleted if you enter them into the issues tab).
 
         Before submitting, review our [self-hosting troubleshooting guide](https://invoiceninja.github.io/en/self-host-troubleshooting/).
 
