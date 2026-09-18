@@ -1296,20 +1296,12 @@ $lang = array(
     'ofx_parse_failed' => 'Failed to parse OFX file',
 
     // WePay
-    'wepay' => 'WePay',
-    'sign_up_with_wepay' => 'Sign up with WePay',
     'use_another_provider' => 'Use another provider',
     'company_name' => 'Company Name',
-    'wepay_company_name_help' => 'This will appear on client\'s credit card statements.',
-    'wepay_description_help' => 'The purpose of this account.',
-    'wepay_tos_agree' => 'I agree to the :link.',
-    'wepay_tos_link_text' => 'WePay Terms of Service',
     'resend_confirmation_email' => 'Resend Confirmation Email',
     'manage_account' => 'Manage Account',
     'action_required' => 'Action Required',
     'finish_setup' => 'Finish Setup',
-    'created_wepay_confirmation_required' => 'Please check your email and confirm your email address with WePay.',
-    'switch_to_wepay' => 'Switch to WePay',
     'switch' => 'Switch',
     'restore_account_gateway' => 'Restore Gateway',
     'restored_account_gateway' => 'Successfully restored gateway',
@@ -1355,7 +1347,6 @@ $lang = array(
     'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
 
     'bank_account' => 'Bank Account',
-    'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
     'privacy_policy' => 'Privacy Policy',
     'ach_email_prompt' => 'Please enter your email address:',
     'verification_pending' => 'Verification Pending',
@@ -1775,7 +1766,6 @@ $lang = array(
     'buy_now_buttons_disabled' => 'This feature requires that a product is created and a payment gateway is configured.',
     'enable_buy_now_buttons_help' => 'Enable support for buy now buttons',
     'changes_take_effect_immediately' => 'Note: changes take effect immediately',
-    'wepay_account_description' => 'Payment gateway for Invoice Ninja',
     'payment_error_code' => 'There was an error processing your payment [:code]. Please try again later.',
     'standard_fees_apply' => 'Fee: 2.9%/1.2% [Credit Card/Bank Transfer] + $0.30 per successful charge.',
     'limit_import_rows' => 'Data needs to be imported in batches of :count rows or less',
@@ -4988,7 +4978,7 @@ $lang = array(
     'camera' => 'Camera',
     'gallery' => 'Gallery',
     'project_location' => 'Project Location',
-    'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe, WePay or PayPal) to accept online payments',
+    'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe or PayPal) to accept online payments',
     'lang_Hungarian' => 'Hungarian',
     'use_mobile_to_manage_plan' => 'Use your phone subscription settings to manage your plan',
     'item_tax3' => 'Item Tax3',
@@ -6378,6 +6368,11 @@ $lang = array(
     'total_overdue_tasks' => 'Overdue Tasks',
     'total_tasks_due' => 'Tasks Due',
     'commas_not_allowed' => 'Commas are not allowed',
+    'logged_hours' => 'Logged Hours',
+    'remaining_estimated_hours' => 'Remaining Estimated Hours',
+    'estimated_hours' => 'Estimated Hours',
+    'unestimated_tasks' => 'Unestimated Tasks',
+    'tasks_over_estimate' => 'Tasks Over Estimate',
 );
 
 return $lang;

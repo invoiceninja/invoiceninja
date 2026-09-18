@@ -4051,7 +4051,7 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 koristi Stripe Connect da poveže vaš Stripe nalog sa Invoice Ninja-om. Ovo obezbeđuje dodatni nivo bezbednosti za vaš nalog. Sada kada su vaši podaci preneti, moraćete da ovlastite Stripe za prihvatanje plaćanja u v5. <br><br>Da biste to uradili, idite na Podešavanja > Plaćanja na mreži > Konfiguriši platne kanale. Kliknite na Stripe Connect, a zatim u okviru Podešavanja kliknite na Podesi Platni kanal. Ovo će vas odvesti u Stripe da ovlastite Invoice Ninja-u i po povratku vaš nalog će biti uspešno povezan!',
     'email_quota_exceeded_subject' => 'Prekoračena je kvota e-pošte za nalog.',
     'email_quota_exceeded_body' => 'U periodu od 24 sata poslali ste :quota e-poruka. Pauzirali smo vaše odlazne e-poruke. Vaša kvota e-pošte će se resetovati u 23:00 UTC.',
-    'auto_bill_option' => 'Omogućite ili isključite automatsku naplatu ovog računa.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Arapski',
     'lang_Persian' => 'Persijski',
     'lang_Latvian' => 'Letonski',
@@ -6377,6 +6377,7 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'total_tasks_over_estimate' => 'Задаци прецењени',
     'total_overdue_tasks' => 'Закаснели задаци',
     'total_tasks_due' => 'Рок за завршетак задатака',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

@@ -4049,7 +4049,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Invoice Ninja v5は、Stripe Connectを使用してStripeアカウントをInvoice Ninjaに連携します。これにより、アカウントのセキュリティがさらに強化されます。データの移行が完了したら、v5で支払いを受け付けるためにStripeを承認する必要があります。<br><br>設定するには、「設定」&gt;「オンライン決済」&gt;「ゲートウェイの設定」に進みます。「Stripe Connect」をクリックし、「設定」の「ゲートウェイの設定」をクリックします。Stripe の画面に進み、Invoice Ninja を承認します。Stripe に戻ると、アカウントが正常にリンクされています。',
     'email_quota_exceeded_subject' => 'アカウントの電子メールの割り当てを超えました。',
     'email_quota_exceeded_body' => '24 時間以内に :quota メールを送信しました。<br>送信メールを一時停止しました。<br><br>メールのクォータは 23:00 UTC にリセットされます。',
-    'auto_bill_option' => 'この請求書の自動請求を有効にするか無効にするかを選択します。',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'アラビア語',
     'lang_Persian' => 'ペルシャ語',
     'lang_Latvian' => 'ラトビア語',
@@ -6375,6 +6375,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'タスクの見積もり超過',
     'total_overdue_tasks' => '期限切れのタスク',
     'total_tasks_due' => '提出期限のある課題',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

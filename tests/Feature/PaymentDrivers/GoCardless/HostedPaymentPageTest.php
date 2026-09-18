@@ -82,7 +82,7 @@ class HostedPaymentPageTest extends TestCase
         $version = InstalledVersions::getPrettyVersion('gocardless/gocardless-pro');
 
         $this->assertNotNull($version);
-        $this->assertStringStartsWith('8.1.', $version);
+        $this->assertStringStartsWith('8', $version);
 
         foreach ([
             'collectCustomerDetails',

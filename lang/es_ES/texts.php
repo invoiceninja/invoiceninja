@@ -4047,7 +4047,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 utiliza Stripe Connect para vincular tu cuenta de Stripe con Invoice Ninja. Esto ofrece una capa adicional de seguridad para tu cuenta. Ahora que tus datos se han migrado, necesitarás autorizar Stripe para aceptar pagos en v5.<br><br>Para ello accede a Ajustes > Pagos online > Configurar pasarela. Esto te llevará a la autorización de Invoice Ninja en Stripe y al finalizar, tu cuenta estará correctamente vinculada.',
     'email_quota_exceeded_subject' => 'Cuota de correo del usuario excedida.',
     'email_quota_exceeded_body' => 'En un periodo de 24 horas has enviado :quota emails.<br>Hemos pausado el envío de tus correos.<br><br>Tu límite de envíos se reiniciará a las 23:00 UTC.',
-    'auto_bill_option' => 'Opte por aceptar o no que esta factura se cargue automáticamente.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Árabe',
     'lang_Persian' => 'Persa',
     'lang_Latvian' => 'Letón',
@@ -6374,6 +6374,7 @@ De lo contrario, este campo deberá dejarse en blanco.',
     'total_tasks_over_estimate' => 'Sobreestimación de tareas',
     'total_overdue_tasks' => 'Tareas pendientes',
     'total_tasks_due' => 'Tareas pendientes',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

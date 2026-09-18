@@ -800,7 +800,9 @@ class CompanyExport implements ShouldQueue
         $zip = $this->zipBackups($zip);
         $zip->close();
 
-        Storage::disk(config('filesystems.default'))->put('backups/' . str_replace(".json", ".zip", $this->file_name), file_get_contents($zip_path));
+        $disk = Ninja::isHosted() ? config('filesystems.default') : config('filesystems.protected_download_disk');
+        $storage_path = 'backups/' . str_replace(".json", ".zip", $this->file_name);
+        Storage::disk($disk)->put($storage_path, file_get_contents($zip_path));
 
         if (file_exists($zip_path)) {
             unlink($zip_path);
@@ -810,16 +812,16 @@ class CompanyExport implements ShouldQueue
             unlink(sys_get_temp_dir() . '/' . $this->file_name);
         }
 
-        if (Ninja::isSelfHost()) {
-            $storage_path = 'backups/' . str_replace(".json", ".zip", $this->file_name);
-        } else {
-            $storage_path = Storage::disk(config('filesystems.default'))->path('backups/' . str_replace(".json", ".zip", $this->file_name));
-        }
-
         $url = Cache::get($this->hash);
 
-        $ttl = $this->total_activities > 10000 ? 18000 : 3600;
-        Cache::put($this->hash, $storage_path, $ttl);
+        $ttl = 43200; // 12 hours
+
+        Cache::put($this->hash, [
+            'disk' => $disk, 
+            'path' => $storage_path, 
+            'download_name' => str_replace(".json", ".zip", $this->file_name), 
+            'expires_at' => time() + $ttl
+            ], $ttl);
 
         App::forgetInstance('translator');
         $t = app('translator');
@@ -839,7 +841,7 @@ class CompanyExport implements ShouldQueue
             ctrans('texts.download_backup_subject', ['company' => $this->company->present()->name()]),
         );
 
-        UnlinkFile::dispatch(config('filesystems.default'), $storage_path)->delay(now()->addHours($this->total_activities > 10000 ? 5 : 1));
+        UnlinkFile::dispatch($disk, $storage_path)->delay(now()->addHours($this->total_activities > 10000 ? 5 : 1));
 
         if (Ninja::isHosted()) {
             sleep(3);

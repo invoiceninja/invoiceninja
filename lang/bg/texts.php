@@ -4052,7 +4052,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Фактура Ninja v5 използва Stripe Connect до да свържете вашата Stripe сметка до Фактура Ninja. Това осигурява допълнителен слой на сигурност за вашата сметка . Сега, след като вашите данни са мигрирани, ще трябва до Authorize Stripe до приемете Плащания във v5.<br><br> до направите това, навигирайте до Настройки &gt; Онлайн Плащания &gt; Конфигуриране на шлюзове. Кликнете върху Stripe Connect и след това под Настройки щракнете върху Настройка вход . Това ще ви отведе до Stripe до оторизиране на Фактура Ninja и при връщане вашата сметка ще бъде Успешно свързана!',
     'email_quota_exceeded_subject' => 'имейл сметка квотата е надвишена.',
     'email_quota_exceeded_body' => 'За период от 24 часа сте изпратили :quota имейла.<br> Поставихме на пауза вашите изходящи имейли.<br><br> Вашата имейл квота ще бъде нулирана в 23:00 UTC.',
-    'auto_bill_option' => 'Включете или откажете тази Фактура да се таксува автоматично.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'арабски',
     'lang_Persian' => 'персийски',
     'lang_Latvian' => 'латвийски',
@@ -6378,6 +6378,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'Задачи Надценка',
     'total_overdue_tasks' => 'Закъснели Задачи',
     'total_tasks_due' => 'Задачи дължимото',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

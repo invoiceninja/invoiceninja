@@ -4051,7 +4051,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 kasutab Stripe Connecti teie Stripe\'i konto linkimiseks Invoice Ninjaga. See annab teie kontole täiendava turvakihi. Nüüd, kui teie andmed on üle viidud, peate v5-s maksete vastuvõtmiseks lubama Stripe\'i.<br><br>Selleks liikuge jaotisse Seaded > Veebimaksed > Lüüside seadistamine. Klõpsake Stripe Connect ja seejärel jaotises Seaded nuppu Setup Gateway. See viib teid Stripe\'i, et autoriseerida Invoice Ninja ja tagastamisel lingitakse teie konto edukalt!',
     'email_quota_exceeded_subject' => 'Konto e-posti kvoot on ületatud.',
     'email_quota_exceeded_body' => '24 tunni jooksul olete saatnud :quota e-kirju. <br> Peatasime teie väljaminevad meilid.<br><br> Teie meilikvoot lähtestatakse kell 23:00 UTC.',
-    'auto_bill_option' => 'Lubage või keelduge selle arve automaatsest tasumisest .',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'Araablane',
     'lang_Persian' => 'Pärslane',
     'lang_Latvian' => 'Lätlane',
@@ -6377,6 +6377,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'Ülesanded ülehinnatud',
     'total_overdue_tasks' => 'Tähtaja ületanud ülesanded',
     'total_tasks_due' => 'Täitmisele kuuluvad ülesanded',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

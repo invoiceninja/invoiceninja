@@ -4051,7 +4051,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'stripe_connect_migration_desc' => 'Lasku Ninja v5 yhdistää Stripe käyttäjätili Stripe Connectin avulla Lasku Ninjaan. Tämä tarjoaa lisäsuojauskerroksen käyttäjätili . Nyt kun tietosi on siirretty, sinun on valtuutettava Stripe hyväksymään Maksut v5:ssä.<br><br> Voit tehdä tämän siirtymällä kohtaan Asetukset &gt; Online Maksut &gt; Määritä yhdyskäytävät. Klikkaa Stripe Connect ja sen jälkeen Asetukset-kohdasta Setup Maksunvälittäjä . Tämä vie sinut Stripeen valtuuttamaan Lasku Ninjan ja palatessasi käyttäjätili linkitetään onnistuneesti!',
     'email_quota_exceeded_subject' => 'käyttäjätili sähköposti ylitetty.',
     'email_quota_exceeded_body' => '24 tunnin aikana olet lähettänyt :quota sähköposteja.<br> Olemme keskeyttäneet lähtevät sähköpostisi.<br><br> sähköposti nollataan klo 23:00 UTC.',
-    'auto_bill_option' => 'Ota tämä Lasku automaattinen lataus käyttöön tai poista se käytöstä.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'arabia',
     'lang_Persian' => 'persialainen',
     'lang_Latvian' => 'latvialainen',
@@ -6377,6 +6377,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'total_tasks_over_estimate' => 'Tehtävät yliarvioitu',
     'total_overdue_tasks' => 'Myöhässä olevat tehtävät',
     'total_tasks_due' => 'Tehtävät eräpäivän',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;

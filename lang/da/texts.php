@@ -4050,7 +4050,7 @@ $lang = array(
     'stripe_connect_migration_desc' => 'Invoice Ninja v5 bruger Stripe Connect til at linke din Stripe-konto til Invoice Ninja. Dette giver et ekstra lag af sikkerhed for din konto. Nu hvor dine data er migreret, skal du godkende Stripe for at acceptere betalinger i v5.<br><br> For at gøre dette skal du gå til Indstillinger &gt; Online Betalinger &gt; Konfigurer Gateway s. Klik på Stripe Connect og derefter under Indstillinger klik på Setup Gateway. Dette vil tage dig til Stripe for at autorisere Invoice Ninja, og ved din tilbagevenden vil din konto blive linket!',
     'email_quota_exceeded_subject' => 'Kontoens e-mail -kvote er overskredet.',
     'email_quota_exceeded_body' => 'I løbet af en 24 timers periode har du sendt :quota e-mails.<br> Vi har sat dine udgående e-mails på pause.<br><br> Din e-mail kvote nulstilles kl. 23:00 UTC.',
-    'auto_bill_option' => 'Til- eller fravælg at få denne Faktura automatisk opkrævet.',
+    'auto_bill_option' => 'Automatically pay future invoices in this recurring series?',
     'lang_Arabic' => 'arabisk',
     'lang_Persian' => 'persisk',
     'lang_Latvian' => 'lettisk',
@@ -6376,6 +6376,7 @@ $lang = array(
     'total_tasks_over_estimate' => 'Opgaver Overvurdering',
     'total_overdue_tasks' => 'Forfaldne Opgaver',
     'total_tasks_due' => 'Opgaver Forfalden',
+    'commas_not_allowed' => 'Commas are not allowed',
 );
 
 return $lang;
