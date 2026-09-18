@@ -82,6 +82,8 @@ class BankIntegration extends BaseModel
 
     public const INTEGRATION_TYPE_NORDIGEN = 'NORDIGEN';
 
+    public const INTEGRATION_TYPE_OBI = 'OBI';
+
     public function getEntityType()
     {
         return self::class;
