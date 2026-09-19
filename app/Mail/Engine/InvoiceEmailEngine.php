@@ -85,15 +85,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
             $body_template .= '<div class="center">$view_button</div>';
         }
 
-        $text_body = trans(
-            'texts.invoice_message',
-            [
-                'invoice' => $this->invoice->number,
-                'company' => $this->invoice->company->present()->name(),
-                'amount' => Number::formatMoney($this->invoice->balance, $this->client),
-            ],
-            $this->client->locale()
-        ) . "\n\n" . $this->invitation->getLink();
+        $text_body = $this->htmlToPlainText($body_template);
 
         if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];

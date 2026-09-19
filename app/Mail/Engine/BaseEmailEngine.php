@@ -122,6 +122,20 @@ class BaseEmailEngine implements EngineInterface
         return $this;
     }
 
+    /**
+     * Converts an HTML email body into a plain-text equivalent by turning
+     * block-level tags into line breaks before stripping the remaining markup,
+     * so paragraphs typed via a rich-text editor (which uses <p>/<div>, not
+     * always <br>) don't run together with no separation.
+     */
+    protected function htmlToPlainText(string $html): string
+    {
+        $text = preg_replace('/<\/(p|div|li|h[1-6]|tr)>/i', "\r\n", $html);
+        $text = str_ireplace(['<br />', '<br>', '<br/>'], "\r\n", $text);
+
+        return strip_tags($text);
+    }
+
     public function setTextBody($text)
     {
 

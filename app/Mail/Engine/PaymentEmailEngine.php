@@ -90,12 +90,14 @@ class PaymentEmailEngine extends BaseEmailEngine
             $subject_template = EmailTemplateDefaults::getDefaultTemplate($this->payment_template_subject, $this->client->locale());
         }
 
+        $text_body = $this->htmlToPlainText($body_template);
+
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
             ->setVariables($this->makeValues())
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setTextBody($body_template)
+            ->setTextBody($text_body)
             ->setFooter('')
             ->setViewLink('')
             ->setViewText('');
