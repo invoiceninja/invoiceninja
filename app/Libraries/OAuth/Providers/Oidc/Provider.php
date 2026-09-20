@@ -30,11 +30,11 @@ use SocialiteProviders\Manager\OAuth2\AbstractProvider;
  * cached for one hour to avoid a network round-trip on every login.
  *
  * Configuration lives under `config/services.php` -> `oidc`:
- *   - well_known   (required) full URL to the discovery document
- *   - client_id    (required)
+ *   - issuer        (required) URL to the identity provider without `/.well-known/openid-configuration` suffix
+ *   - client_id     (required)
  *   - client_secret (required)
- *   - redirect     (required) callback URL, e.g. https://app.example.com/auth/oidc
- *   - scopes       (optional) space-separated list, default "openid profile email"
+ *   - redirect      (required) callback URL, e.g. https://app.example.com/auth/oidc
+ *   - scopes        (optional) space-separated list, default "openid profile email"
  */
 class Provider extends AbstractProvider implements ProviderInterface
 {
@@ -84,7 +84,7 @@ class Provider extends AbstractProvider implements ProviderInterface
      */
     public static function additionalConfigKeys(): array
     {
-        return ['well_known', 'scopes'];
+        return ['issuer', 'scopes'];
     }
 
     /**
@@ -130,11 +130,13 @@ class Provider extends AbstractProvider implements ProviderInterface
             return $this->discovery;
         }
 
-        $wellKnown = (string) config('services.oidc.well_known');
+        $issuer = (string) config('services.oidc.issuer');
 
-        if ($wellKnown === '') {
-            throw new \RuntimeException('OIDC discovery URL (OIDC_WELL_KNOWN) is not configured.');
+        if ($issuer === '') {
+            throw new \RuntimeException('OIDC discovery URL (OIDC_ISSUER) is not configured.');
         }
+
+        $wellKnown = rtrim($issuer, '/') . '/.well-known/openid-configuration';
 
         $this->discovery = Cache::remember(
             'oidc.discovery.' . sha1($wellKnown),
