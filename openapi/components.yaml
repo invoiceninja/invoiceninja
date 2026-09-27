@@ -3,7 +3,7 @@ components:
     X-MINIMUM-CLIENT-VERSION:
       description: 'The API version'
       schema:
-        type: number
+        type: string
     X-RateLimit-Remaining:
       description: 'The number of requests left for the time window.'
       schema:
