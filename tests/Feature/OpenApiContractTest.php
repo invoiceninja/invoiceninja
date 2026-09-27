@@ -20,6 +20,7 @@ use League\OpenAPIValidation\PSR7\OperationAddress;
 use League\OpenAPIValidation\PSR7\ValidatorBuilder;
 use League\OpenAPIValidation\Schema\Exception\SchemaMismatch;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -42,17 +43,28 @@ class OpenApiContractTest extends TestCase
         Model::reguard();
     }
 
-    public function testStoreClient(): void
+    /**
+     * [method, spec path, MockAccountData property whose hashed_id fills {id}, request body].
+     * Plain data only: phpunit.xml runs tests in separate processes, so rows get serialized.
+     */
+    public static function operations(): array
     {
-        $this->assertMatchesSpec('post', '/api/v1/clients', $this->api()->postJson('/api/v1/clients', ['name' => 'Contract Test Client']));
+        return [
+            'store client' => ['post', '/api/v1/clients', null, ['name' => 'Contract Test Client']],
+        ];
     }
 
-    private function api(): static
+    #[DataProvider('operations')]
+    public function testResponseMatchesSpec(string $method, string $path, ?string $entity, array $body = []): void
     {
-        return $this->withHeaders([
+        $url = $entity ? str_replace('{id}', $this->{$entity}->hashed_id, $path) : $path;
+
+        $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ]);
+        ])->json(strtoupper($method), $url, $body);
+
+        $this->assertMatchesSpec($method, $path, $response);
     }
 
     private function assertMatchesSpec(string $method, string $path, TestResponse $response): void
