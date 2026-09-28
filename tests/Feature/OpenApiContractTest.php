@@ -82,6 +82,8 @@ class OpenApiContractTest extends TestCase
     private function assertMatchesSpec(string $method, string $path, TestResponse $response): void
     {
         $response->assertSuccessful();
+        // An empty data array validates against any schema, so it would pass without checking anything.
+        $this->assertNotEmpty($response->json('data'), strtoupper($method)." {$path} returned no data to validate");
 
         $factory = new Psr17Factory();
         $psr = (new PsrHttpFactory($factory, $factory, $factory, $factory))->createResponse($response->baseResponse);
