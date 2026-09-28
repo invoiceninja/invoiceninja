@@ -60,6 +60,11 @@ class DocumentController extends Controller
         /** @var \App\Models\Document $document **/
         $document = Document::where('hash', $document_hash)->firstOrFail();
 
+        /** @var \App\Models\User $user **/
+        $user = auth()->user();
+        
+        abort_unless($user->can('view', $document), 403);
+
         $headers = ['Cache-Control:' => 'no-cache'];
 
         if (request()->input('inline') == 'true') {
