@@ -53,7 +53,7 @@ class ZipEntity implements ShouldQueue
 
     public $tries = 3;
 
-    public $timeout = 10800;
+    public $timeout = 21600;
 
     private string $entity_string = '';
 
