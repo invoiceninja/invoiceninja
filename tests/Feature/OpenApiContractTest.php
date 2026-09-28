@@ -41,15 +41,20 @@ class OpenApiContractTest extends TestCase
         $this->makeTestData();
 
         Model::reguard();
+
+        // MockAccountData skips the API's defaults (e.g. settings.currency_id), so
+        // list rows filter down to a client created through the API instead.
+        $this->apiRequest('post', '/api/v1/clients', ['name' => 'Contract Test Client'])->assertSuccessful();
     }
 
     /**
-     * [method, spec path, MockAccountData property whose hashed_id fills {id}, request body].
+     * [method, spec path, MockAccountData property whose hashed_id fills {id}, request body (query string for GET)].
      * Plain data only: phpunit.xml runs tests in separate processes, so rows get serialized.
      */
     public static function operations(): array
     {
         return [
+            'list clients' => ['get', '/api/v1/clients', null, ['name' => 'Contract Test Client']],
             'store client' => ['post', '/api/v1/clients', null, ['name' => 'Contract Test Client']],
         ];
     }
@@ -59,12 +64,19 @@ class OpenApiContractTest extends TestCase
     {
         $url = $entity ? str_replace('{id}', $this->{$entity}->hashed_id, $path) : $path;
 
-        $response = $this->withHeaders([
+        $this->assertMatchesSpec($method, $path, $this->apiRequest($method, $url, $body));
+    }
+
+    private function apiRequest(string $method, string $url, array $body = []): TestResponse
+    {
+        if ($method === 'get' && $body) {
+            [$url, $body] = [$url.'?'.http_build_query($body), []];
+        }
+
+        return $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->json(strtoupper($method), $url, $body);
-
-        $this->assertMatchesSpec($method, $path, $response);
     }
 
     private function assertMatchesSpec(string $method, string $path, TestResponse $response): void
