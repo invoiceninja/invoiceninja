@@ -29,6 +29,11 @@ class AppLinksTest extends TestCase
         parent::setUp();
 
         $this->withoutMiddleware(ThrottleRequests::class);
+
+        // Self-host reads the web client from the accounts table and serves React
+        // from the catch-all fallback, so pin hosted: React links, no database,
+        // and a route the constraint forbids really is a 404.
+        config(['ninja.environment' => 'hosted']);
     }
 
     public function testAssetLinksIsJsonAndNamesTheApp()

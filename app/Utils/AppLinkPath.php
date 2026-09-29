@@ -22,8 +22,9 @@ namespace App\Utils;
  * the link itself one shape on every platform. Dependency-free so the two rules
  * that fail silently can be unit tested.
  *
- * React only — the Flutter web client shares the apps' route table, so its links
- * pass through untouched.
+ * React only — a Flutter web client built from the apps shares their route table,
+ * so its links pass through untouched. (The admin-portal v1 build self-host still
+ * bundles does not know these routes and opens at its main screen.)
  */
 class AppLinkPath
 {
@@ -32,7 +33,7 @@ class AppLinkPath
      * these would open the editor instead — and its guard needs `edit_*`, so a
      * view-only user would land on React's 401 page.
      */
-    private const WEB_VIEW_ROOTS = ['clients', 'vendors'];
+    private const WEB_VIEW_ROOTS = ['clients', 'projects', 'vendors'];
 
     /**
      * The web client's path for an app route, without a leading slash.

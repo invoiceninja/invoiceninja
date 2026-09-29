@@ -6,8 +6,8 @@
     Android and iOS see the page; desktop is redirected on by the script below,
     since these links also go out in notification emails and the offer would be
     an interstitial in front of every one. A crawler still gets the og: card,
-    which is why that redirect is a script and not a 302. No session, no external
-    assets, and at most one accounts row to pick the web client.
+    which is why that redirect is a script and not a 302. No auth, no scripts or
+    styles from elsewhere, and at most one accounts row to pick the web client.
 --}}
 <!DOCTYPE html>
 <html lang="en">

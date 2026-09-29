@@ -38,9 +38,14 @@ class AppLinksWebClientTest extends TestCase
     /**
      * `Account::first()` is whatever the database hands back, so set them all
      * rather than create one and hope. Rolled back with the transaction.
+     *
+     * Self-host too: only a self-hosted install reads the flag, and CI runs as
+     * hosted.
      */
     private function webClientIsFlutter(bool $flutter): void
     {
+        config(['ninja.environment' => 'selfhost']);
+
         if (Account::count() === 0) {
             Account::factory()->create();
         }

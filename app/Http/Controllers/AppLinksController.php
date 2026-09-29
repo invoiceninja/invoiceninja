@@ -122,7 +122,8 @@ class AppLinksController extends Controller
     {
         $suffix = empty($query) ? '' : '?'.http_build_query($query);
 
-        // Untranslated: the Flutter web client shares the apps' route table.
+        // Untranslated: a Flutter web client built from the apps shares their
+        // route table. The bundled admin-portal v1 opens at its main screen.
         if ($this->usesFlutterWebClient()) {
             $base = rtrim((string) config('ninja.app_url') ?: url('/'), '/');
 
