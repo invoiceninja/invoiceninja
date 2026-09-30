@@ -12,6 +12,7 @@
 
 namespace App\Utils\Traits;
 
+use App\Utils\AppLink;
 use App\Utils\Ninja;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
@@ -169,15 +170,14 @@ trait Inviteable
         }
     }
 
-    public function getAdminLink($use_react_link = false): string
-    {
-        return $use_react_link ? $this->getReactLink() : $this->getLink() . '?silent=true';
-    }
-
-    private function getReactLink(): string
+    /**
+     * An app link, so the client that opens it is chosen per recipient rather
+     * than here — invoiceninja/flutter#144.
+     */
+    public function getAdminLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        return config('ninja.react_url') . "/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
+        return AppLink::forRecord($entity_type . 's', $this->{$entity_type});
     }
 }

@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\Utils\AppLink;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use Carbon\Carbon;
@@ -189,16 +190,10 @@ class PurchaseOrderInvitation extends BaseModel
         }
     }
 
-    public function getAdminLink($use_react_link = false): string
-    {
-        return $use_react_link ? $this->getReactLink() : $this->getLink() . '?silent=true';
-    }
-
-    private function getReactLink(): string
+    public function getAdminLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        return config('ninja.react_url') . "/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
+        return AppLink::forRecord($entity_type . 's', $this->{$entity_type});
     }
-
 }

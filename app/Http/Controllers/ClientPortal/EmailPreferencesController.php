@@ -52,7 +52,7 @@ class EmailPreferencesController extends Controller
 
         if ($invitation->contact->is_locked && !Cache::has("unsubscribe_notification_suppression:{$invitation_key}")) {
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company, true))->build());
+            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company))->build());
             $nmo->company = $invitation->contact->company;
             $nmo->to_user = $invitation->contact->company->owner();
             $nmo->settings = $invitation->contact->company->settings;

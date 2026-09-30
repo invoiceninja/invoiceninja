@@ -14,6 +14,7 @@ namespace App\Models;
 
 use App\DataMapper\ProductSync;
 use App\Models\Traits\HasTags;
+use App\Utils\AppLink;
 use App\Utils\Helpers;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -247,9 +248,9 @@ class Product extends BaseModel
         return \App\Services\Pdf\Purify::clean($markdown_to_html, true);
     }
 
-    public function portalUrl($use_react_url): string
+    public function portalUrl(): string
     {
-        return $use_react_url ? config('ninja.react_url') . "/#/products/{$this->hashed_id}/edit" : config('ninja.app_url');
+        return AppLink::forRecord('products', $this);
     }
 
     public function getTaxCategoryName($tax_id)

@@ -217,7 +217,7 @@ class InvoiceCheckOverdue implements ShouldQueue
 
             }
 
-            $nmo->mailable = new NinjaMailer((new InvoiceOverdueSummaryObject($overdue_invoices_collection, $table_headers, $company, $company_user->portalType()))->build());
+            $nmo->mailable = new NinjaMailer((new InvoiceOverdueSummaryObject($overdue_invoices_collection, $table_headers, $company))->build());
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes(
@@ -260,7 +260,7 @@ class InvoiceCheckOverdue implements ShouldQueue
                 continue;
             }
 
-            $nmo->mailable = new NinjaMailer((new InvoiceOverdueObject($invoice, $invoice->company, $company_user->portalType()))->build());
+            $nmo->mailable = new NinjaMailer((new InvoiceOverdueObject($invoice, $invoice->company))->build());
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes(

@@ -60,7 +60,7 @@ class CreditCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject();
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit', $company_user->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit'))->build());
                 $nmo->company = $credit->company;
                 $nmo->settings = $credit->company->settings;
                 $nmo->to_user = $user;
