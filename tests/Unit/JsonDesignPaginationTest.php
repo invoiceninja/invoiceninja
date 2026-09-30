@@ -302,4 +302,107 @@ class JsonDesignPaginationTest extends TestCase
         $this->assertStringNotContainsString('id="terms"', $this->cell($html, 'invoice-page-footer-space'));
         $this->assertStringContainsString('id="terms"', $this->cell($html, 'invoice-page-footer'));
     }
+
+    public function testHeaderBackgroundIsAppliedToHeaderCell(): void
+    {
+        $html = $this->generate([
+            'documentSettings' => [
+                'pagination' => 'header',
+                'headerBackground' => '#111827',
+            ],
+            'blocks' => [$this->block('logo', 'logo', 0, 0, 'header', ['source' => ''])],
+        ]);
+
+        $header = $this->cell($html, 'invoice-page-header');
+
+        $this->assertStringContainsString('background-color: #111827', $header);
+    }
+
+    public function testFooterBackgroundIsAppliedToFooterChrome(): void
+    {
+        $html = $this->generate([
+            'documentSettings' => [
+                'pagination' => 'footer',
+                'footerBackground' => '#F3F4F6',
+            ],
+            'blocks' => [$this->block('terms', 'terms', 0, 0, 'footer')],
+        ]);
+
+        $this->assertStringContainsString(
+            'background-color: #F3F4F6',
+            $this->cell($html, 'invoice-page-footer-space')
+        );
+        $this->assertStringContainsString(
+            'background-color: #F3F4F6',
+            $this->cell($html, 'invoice-page-footer')
+        );
+    }
+
+    public function testInvalidChromeBackgroundIsIgnored(): void
+    {
+        $html = $this->generate([
+            'documentSettings' => [
+                'pagination' => 'both',
+                'headerBackground' => 'red',
+                'footer_background' => 'url(#evil)',
+            ],
+            'blocks' => [
+                $this->block('logo', 'logo', 0, 0, 'header', ['source' => '']),
+                $this->block('terms', 'terms', 0, 0, 'footer'),
+            ],
+        ]);
+
+        $this->assertStringNotContainsString('background-color:', $this->cell($html, 'invoice-page-header'));
+        $this->assertStringNotContainsString('background-color:', $this->cell($html, 'invoice-page-footer'));
+    }
+
+    public function testSnakeCaseHeaderBackgroundIsAccepted(): void
+    {
+        $html = $this->generate([
+            'documentSettings' => [
+                'pagination' => 'header',
+                'header_background' => '#abc',
+            ],
+            'blocks' => [$this->block('logo', 'logo', 0, 0, 'header', ['source' => ''])],
+        ]);
+
+        $this->assertStringContainsString('background-color: #abc', $this->cell($html, 'invoice-page-header'));
+    }
+
+    public function testPaginatedDocumentSkipsInvoiceContainerWrapper(): void
+    {
+        $html = $this->generate([
+            'documentSettings' => ['pagination' => 'header'],
+            'blocks' => [$this->block('logo', 'logo', 0, 0, 'header', ['source' => ''])],
+        ]);
+
+        $this->assertStringContainsString('class="invoice-paginated-document"', $html);
+        $this->assertStringNotContainsString('<div class="invoice-container">', $html);
+        $this->assertStringContainsString('zoom: 100%', $html);
+    }
+
+    public function testPaginatedChromeUsesHorizontalPageMarginOnly(): void
+    {
+        $html = $this->generate([
+            'documentSettings' => [
+                'pagination' => 'header',
+                'pageMarginTop' => 0,
+                'pageMarginRight' => 0,
+                'pageMarginBottom' => 0,
+                'pageMarginLeft' => 0,
+                'pagePaddingTop' => 30,
+                'pagePaddingRight' => 30,
+                'pagePaddingBottom' => 30,
+                'pagePaddingLeft' => 30,
+            ],
+            'blocks' => [$this->block('logo', 'logo', 0, 0, 'header', ['source' => ''])],
+        ]);
+
+        $this->assertStringContainsString('margin: 0px 0px 0px 0px;', $html);
+        $this->assertStringContainsString('padding-top: 30px;', $html);
+        $this->assertStringContainsString('padding-bottom: 30px;', $html);
+        $this->assertStringContainsString('.invoice-page-body {', $html);
+        $this->assertStringContainsString('padding-left: 30px;', $html);
+        $this->assertStringContainsString('width: 100%;', $this->cell($html, 'invoice-page-header'));
+    }
 }
