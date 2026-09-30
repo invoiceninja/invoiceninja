@@ -70,6 +70,8 @@ class InvoiceLookup
      */
     public function updateFromQuickbooks(array $ninja_invoice_data, Invoice $invoice): void
     {
+        unset($ninja_invoice_data['client_id']);
+
         $current_ninja_invoice_balance = $invoice->balance;
         $qb_invoice_balance = $ninja_invoice_data['balance'];
 

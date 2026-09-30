@@ -11,7 +11,7 @@
 
 @section('body')
 
-    @if(!$quote->isApproved() && !$quote->isRejected() && $client->getSetting('custom_message_unapproved_quote'))
+    @if(!$quote->isApproved() && !$quote->isRejected() && !$quote->isCancelled() && $client->getSetting('custom_message_unapproved_quote'))
         @component('portal.ninja2020.components.message')
             <pre>{{ $client->getSetting('custom_message_unapproved_quote') }}</pre>
         @endcomponent
@@ -64,6 +64,19 @@
                     <div>
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.rejected') }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif($quote->status_id == \App\Models\Quote::STATUS_CANCELLED)
+
+        <div class="bg-white shadow sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.cancelled') }}
                         </h3>
                     </div>
                 </div>

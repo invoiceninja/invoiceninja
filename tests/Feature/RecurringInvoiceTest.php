@@ -32,6 +32,7 @@ use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  *
@@ -366,7 +367,21 @@ class RecurringInvoiceTest extends TestCase
 
     }
 
-    public function testBulkIncreasePriceWithJob()
+    public static function priceIncreaseProvider(): array
+    {
+        return [
+            'existing whole percentage' => [10, 10, 1, 11, 11],
+            'fraction previously rounded up' => [2.5, 100, 1, 102.5, 102.5],
+            'fraction previously rounded down' => [2.4, 100, 1, 102.4, 102.4],
+            'sub-percent increase' => [0.25, 100, 1, 100.25, 100.25],
+            'zero increase' => [0, 100, 1, 100, 100],
+            'maximum increase' => [100, 100, 1, 200, 200],
+            'unit price precision before quantity' => [2.5, 0.1, 100, 0.1025, 10.25],
+        ];
+    }
+
+    #[DataProvider('priceIncreaseProvider')]
+    public function testBulkIncreasePriceWithJob(float $percentage, float $cost, float $quantity, float $expected_cost, float $expected_amount)
     {
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
@@ -374,8 +389,8 @@ class RecurringInvoiceTest extends TestCase
         $line_items[] = [
             'product_key' => 'pink',
             'notes' => 'test',
-            'cost' => 10,
-            'quantity' => 1,
+            'cost' => $cost,
+            'quantity' => $quantity,
             'tax_name1' => '',
             'tax_rate1' => 0,
             'tax_name2' => '',
@@ -387,11 +402,54 @@ class RecurringInvoiceTest extends TestCase
 
         $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
 
-        (new UpdateRecurring([$recurring_invoice->id], $this->company, $this->user, 'increase_prices', 10))->handle();
+        (new UpdateRecurring([$recurring_invoice->id], $this->company, $this->user, 'increase_prices', $percentage))->handle();
 
         $recurring_invoice->refresh();
 
-        $this->assertEquals(11, $recurring_invoice->amount);
+        $this->assertEqualsWithDelta($expected_cost, $recurring_invoice->line_items[0]->cost, 0.00000001);
+        $this->assertEqualsWithDelta($expected_amount, $recurring_invoice->amount, 0.00000001);
+
+    }
+
+    public static function fractionalPriceIncreaseRequestProvider(): array
+    {
+        return [
+            'JSON number' => [2.5],
+            'numeric string' => ['2.5'],
+        ];
+    }
+
+    #[DataProvider('fractionalPriceIncreaseRequestProvider')]
+    public function testBulkIncreaseFractionalPricesThroughApi(float|string $percentage)
+    {
+        config(['queue.default' => 'sync']);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+
+        $first_item = InvoiceItemFactory::create();
+        $first_item->cost = 100;
+        $first_item->quantity = 2;
+        $second_item = InvoiceItemFactory::create();
+        $second_item->cost = 20;
+        $second_item->quantity = 3;
+        $recurring_invoice->line_items = [$first_item, $second_item];
+        $recurring_invoice->calc()->getInvoice()->save();
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', [
+            'action' => 'increase_prices',
+            'ids' => [$recurring_invoice->hashed_id],
+            'percentage_increase' => $percentage,
+        ])->assertStatus(200);
+
+        $recurring_invoice->refresh();
+
+        $this->assertEqualsWithDelta(102.5, $recurring_invoice->line_items[0]->cost, 0.00000001);
+        $this->assertEqualsWithDelta(20.5, $recurring_invoice->line_items[1]->cost, 0.00000001);
+        $this->assertEqualsWithDelta(266.5, $recurring_invoice->amount, 0.00000001);
 
     }
 

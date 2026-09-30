@@ -213,6 +213,7 @@ class QbInvoice implements SyncInterface
                     $this->syncNinjaInvoice($qb_record);
                 } elseif (Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)) || $qb_record->SyncToken == '0') {
                     $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record, $this->service);
+                    unset($ninja_invoice_data['client_id']);
                     $invoice = $this->invoice_repository->save($ninja_invoice_data, $invoice);
 
                     if ($invoice) {
@@ -302,7 +303,7 @@ class QbInvoice implements SyncInterface
         }
 
         $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
-        unset($ninja_invoice_data['payment_ids'], $ninja_invoice_data['id']);
+        unset($ninja_invoice_data['payment_ids'], $ninja_invoice_data['id'], $ninja_invoice_data['client_id']);
 
         QuickbooksService::$importing[$this->service->company->id] = true;
 
@@ -350,7 +351,7 @@ class QbInvoice implements SyncInterface
         }
 
         $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
-        unset($ninja_invoice_data['payment_ids'], $ninja_invoice_data['id']);
+        unset($ninja_invoice_data['payment_ids'], $ninja_invoice_data['id'], $ninja_invoice_data['client_id']);
 
         QuickbooksService::$importing[$this->service->company->id] = true;
 

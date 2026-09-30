@@ -2108,6 +2108,37 @@ class SchedulerTest extends TestCase
     }
 
 
+    public function testQuoteReportSchedulerKeepsCancelledAndRejectedStatuses(): void
+    {
+        $data = [
+            'name' => 'Cancelled quote report',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [],
+                'report_keys' => [],
+                'report_name' => 'quote',
+                'status' => 'sent,cancelled,rejected',
+                'user_id' => $this->user->id,
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+
+        $id = $this->decodePrimaryKey($response->json('data.id'));
+        $scheduler = Scheduler::query()->find($id);
+
+        $this->assertNotNull($scheduler);
+        $this->assertSame('sent,cancelled,rejected', $scheduler->parameters['status']);
+    }
+
     public function testProductSalesReportGenerationOneClientSeparateParam()
     {
         $data = [

@@ -27,7 +27,9 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Quickbooks\Mapping\InvoiceTaxCodeResolver;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\TaxCodeComponentKey;
 use App\Services\Quickbooks\Transformers\ClientTransformer;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\ProductTransformer;
@@ -644,6 +646,48 @@ class QuickbooksCanadaTest extends TestCase
             $this->assertSame('', $line_item->tax_name1 ?? '');
             $this->assertEquals(0, (float) ($line_item->tax_rate1 ?? 0));
         }
+    }
+
+    public function test_invoice_ninjaToQb_header_gst_plus_line_pst_uses_composite_tax_code()
+    {
+        $expected_gst = $this->findTaxCodeIdByRate(5.0, 'GST');
+        $expected_pst = $this->findTaxCodeIdByRate(7.0, 'PST');
+        $expected_composite = $this->findCompositeTaxCodeId([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+
+        if ($expected_gst === null || $expected_pst === null || $expected_composite === null) {
+            $this->markTestSkipped('QBCA tax maps do not include GST 5%, PST 7%, and a GST/PST composite TaxCode');
+        }
+
+        [$invoice, $qb_service] = $this->createCanadianInvoice([
+            $this->makeLineItem('PST Item', 100.00, 'PST', 7.0),
+            $this->makeLineItem('GST Only Item', 50.00),
+        ]);
+
+        $invoice->tax_name1 = 'GST';
+        $invoice->tax_rate1 = 5.0;
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->saveQuietly();
+
+        $this->assertEquals(14.5, (float) $invoice->total_taxes);
+        $this->assertEquals(164.5, (float) $invoice->amount);
+
+        $qb_data = $this->invoice_transformer->ninjaToQb($invoice, $qb_service);
+
+        $this->assertEquals($expected_composite, $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertEquals($expected_gst, $qb_data['Line'][1]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertNotEquals($expected_gst, $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertNotEquals($expected_pst, $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertArrayNotHasKey('TxnTaxDetail', $qb_data);
+
+        $this->assertSame('GST', $invoice->tax_name1);
+        $this->assertEquals(5.0, (float) $invoice->tax_rate1);
+        $this->assertSame('PST', $invoice->line_items[0]->tax_name1);
+        $this->assertEquals(7.0, (float) $invoice->line_items[0]->tax_rate1);
+        $this->assertSame('', $invoice->line_items[0]->tax_name2 ?? '');
+        $this->assertSame('', $invoice->line_items[1]->tax_name1 ?? '');
     }
 
     public function test_invoice_ninjaToQb_exempt_line_item_uses_exempt_code()
@@ -2038,6 +2082,17 @@ class QuickbooksCanadaTest extends TestCase
         }
 
         return null;
+    }
+
+    /**
+     * @param  array<int, array{name: string, rate: float|int}>  $components
+     */
+    private function findCompositeTaxCodeId(array $components): ?string
+    {
+        return (new InvoiceTaxCodeResolver())->findCompositeTaxCodeId(
+            $components,
+            $this->company->quickbooks->settings->composite_tax_code_map ?? []
+        );
     }
 
     /**

@@ -278,4 +278,49 @@
           type: number
           format: integer
           example: 1234567890
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        subscription_id:
+          description: 'The subscription associated with this purchase order'
+          type: string
+          example: Opnel5aKBz
+        expense_id:
+          description: 'The expense created from this purchase order'
+          type: string
+          example: Opnel5aKBz
       type: object

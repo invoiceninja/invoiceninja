@@ -471,6 +471,11 @@ class Quote extends BaseModel
         return false;
     }
 
+    public function isCancelled(): bool
+    {
+        return $this->status_id === $this::STATUS_CANCELLED;
+    }
+
     public function getValidUntilAttribute()
     {
         return $this->due_date;

@@ -154,4 +154,15 @@
           description: 'The routing identifier for e-invoicing'
           type: string
           example: '0088:12345678901'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object

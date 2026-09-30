@@ -74,6 +74,7 @@ class LivewireCheckboxBindingTest extends TestCase
                 'wire:key="quote-status-approved-',
                 'wire:key="quote-status-expired-',
                 'wire:key="quote-status-rejected-',
+                'wire:key="quote-status-cancelled-',
                 'wire:key="quote-select-all-',
                 'wire:key="quote-checkbox-{{ $quote->hashed_id }}-',
             ],
