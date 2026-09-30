@@ -67,12 +67,49 @@ final class InvoiceTaxCodeResolver
         }
 
         $merged = clone $line_item;
+        $invoice_as_line = (object) [
+            'tax_name1' => $invoice_level_taxes['tax_name1'] ?? '',
+            'tax_rate1' => $invoice_level_taxes['tax_rate1'] ?? 0,
+            'tax_name2' => $invoice_level_taxes['tax_name2'] ?? '',
+            'tax_rate2' => $invoice_level_taxes['tax_rate2'] ?? 0,
+            'tax_name3' => $invoice_level_taxes['tax_name3'] ?? '',
+            'tax_rate3' => $invoice_level_taxes['tax_rate3'] ?? 0,
+        ];
 
-        foreach ($invoice_level_taxes as $key => $value) {
-            $merged->{$key} = $value;
+        $combined = $this->uniqueTaxComponents([
+            ...$this->taxComponentsFromLineItem($merged),
+            ...$this->taxComponentsFromLineItem($invoice_as_line),
+        ]);
+
+        foreach ([1, 2, 3] as $i) {
+            $merged->{"tax_name{$i}"} = $combined[$i - 1]['name'] ?? '';
+            $merged->{"tax_rate{$i}"} = $combined[$i - 1]['rate'] ?? 0;
         }
 
         return $merged;
+    }
+
+    /**
+     * @param  array<int, array{name: string, rate: float}>  $components
+     * @return array<int, array{name: string, rate: float}>
+     */
+    private function uniqueTaxComponents(array $components): array
+    {
+        $unique = [];
+        $seen = [];
+
+        foreach ($components as $component) {
+            $key = TaxCodeComponentKey::fromComponents([$component]);
+
+            if ($key === '' || isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+            $unique[] = $component;
+        }
+
+        return $unique;
     }
 
     /**

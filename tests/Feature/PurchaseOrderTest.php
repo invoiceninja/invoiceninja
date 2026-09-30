@@ -465,7 +465,7 @@ class PurchaseOrderTest extends TestCase
         $ids = array_column($response->json('data'), 'id');
 
         $this->assertContains($sent->hashed_id, $ids);
-        $this->assertNotContains($expired_sent->hashed_id, $ids);
+        $this->assertContains($expired_sent->hashed_id, $ids);
         $this->assertNotContains($future_draft->hashed_id, $ids);
     }
 

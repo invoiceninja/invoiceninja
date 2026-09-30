@@ -45,6 +45,10 @@ class QuoteTransformer extends BaseTransformer
         $quoteStatusMap = [
             'sent' => Quote::STATUS_SENT,
             'draft' => Quote::STATUS_DRAFT,
+            'approved' => Quote::STATUS_APPROVED,
+            'converted' => Quote::STATUS_CONVERTED,
+            'rejected' => Quote::STATUS_REJECTED,
+            'cancelled' => Quote::STATUS_CANCELLED,
         ];
 
         $status = strtolower($this->getString($quote_data, 'quote.status'));

@@ -49,5 +49,11 @@
           description: 'The payment number - is a unique alpha numeric number per payment per company'
           type: string
           example: PAY_101
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     

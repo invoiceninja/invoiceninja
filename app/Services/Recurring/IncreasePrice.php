@@ -23,7 +23,7 @@ class IncreasePrice extends AbstractService
     {
         $line_items = $this->recurring_invoice->line_items;
         foreach ($line_items as $key => $line_item) {
-            $line_items[$key]->cost = $line_item->cost * (1 + round(($this->percentage / 100), 2));
+            $line_items[$key]->cost = $line_item->cost * (1 + ($this->percentage / 100));
         }
 
         $this->recurring_invoice->line_items = $line_items;

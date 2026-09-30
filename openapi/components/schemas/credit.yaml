@@ -247,4 +247,62 @@
           description: 'The unique identifier of the vendor associated with this credit'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        backup:
+          description: 'Invoice backup metadata'
+          type: object
+          nullable: true
+          additionalProperties: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object

@@ -6382,6 +6382,13 @@ $lang = array(
     'quote_due_date_expired' => 'Quote valid until date is in the past.',
     'activity_170' => ':user cancelled quote :quote for :client',
     'default_tab' => 'Default Tab',
-);
+    'repeating_header_footer' => 'Repeating Header/Footer',
+    'header_and_footer' => 'Header and Footer',
+    'header_height' => 'Header Height',
+    'footer_height' => 'Footer Height',
+    'header_background' => 'Header Background Color',
+    'footer_background' => 'Footer Background Color',
+    'section' => 'Section',
+    );
 
 return $lang;

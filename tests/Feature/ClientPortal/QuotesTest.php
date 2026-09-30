@@ -89,22 +89,40 @@ class QuotesTest extends TestCase
             'status_id' => Quote::STATUS_REJECTED,
         ]);
 
+        $cancelled = Quote::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'number' => 'quote-testing-number-04',
+            'status_id' => Quote::STATUS_CANCELLED,
+        ]);
+
         $sent->load('client');
         $approved->load('client');
         $rejected->load('client');
+        $cancelled->load('client');
 
         $this->actingAs($client->contacts()->first(), 'contact');
 
         Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->assertSee($sent->number)
             ->assertSee($approved->number)
-            ->assertSee($rejected->number);
+            ->assertSee($rejected->number)
+            ->assertSee($cancelled->number);
 
         Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->call('toggleStatus', (string) Quote::STATUS_REJECTED)
             ->assertSee($rejected->number)
             ->assertDontSee($sent->number)
-            ->assertDontSee($approved->number);
+            ->assertDontSee($approved->number)
+            ->assertDontSee($cancelled->number);
+
+        Livewire::test(QuotesTable::class, ['company_id' => $company->id, 'db' => $company->db])
+            ->call('toggleStatus', (string) Quote::STATUS_CANCELLED)
+            ->assertSee($cancelled->number)
+            ->assertDontSee($sent->number)
+            ->assertDontSee($approved->number)
+            ->assertDontSee($rejected->number);
 
         $account->delete();
     }
@@ -462,6 +480,47 @@ class QuotesTest extends TestCase
             ->assertNotFound();
 
         $this->assertTrue(Cache::has($request_hash));
+
+        $account->delete();
+    }
+
+    public function testCancelledQuoteShowPageDoesNotRenderExpiredHeading(): void
+    {
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => uniqid('testuser') . '@gmail.com',
+        ]);
+        $company = Company::factory()->create(['account_id' => $account->id]);
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+        ]);
+        $settings = $client->settings;
+        $settings->language_id = '1';
+        $settings->custom_message_unapproved_quote = 'Please review this quote.';
+        $client->settings = $settings;
+        $client->save();
+        $contact = ClientContact::factory()->create([
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
+        $quote = Quote::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'due_date' => now()->subDays(7)->format('Y-m-d'),
+            'status_id' => Quote::STATUS_CANCELLED,
+            'number' => 'quote-cancelled-show-' . uniqid(),
+        ]);
+
+        $this->actingAs($contact, 'contact')
+            ->get('/client/quotes/' . $quote->hashed_id)
+            ->assertOk()
+            ->assertSee('Cancelled', false)
+            ->assertDontSee('Expired', false)
+            ->assertDontSee('Please review this quote.', false);
 
         $account->delete();
     }

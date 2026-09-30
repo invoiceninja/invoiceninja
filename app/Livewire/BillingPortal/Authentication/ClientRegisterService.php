@@ -68,14 +68,12 @@ class ClientRegisterService
         $client = ClientFactory::create($this->company->id, $this->company->owner()->id);
 
         $client->fill($data);
+       
+        $settings = $client->settings;
+        $settings->currency_id = $data['currency_id'] ?? $this->company->settings->currency_id; //@phpstan-ignore-line
+        $client->settings = $settings;
 
         $client->save();
-
-        if (isset($data['currency_id'])) {
-            $settings = $client->settings;
-            $settings->currency_id = $data['currency_id'] ?? $this->company->settings->currency_id; //@phpstan-ignore-line
-            $client->settings = $settings;
-        }
 
         $client->number = $this->getNextClientNumber($client);
         $client->save();

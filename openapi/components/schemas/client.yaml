@@ -198,4 +198,28 @@
           description: 'Notes that are visible to the client'
           type: string
           example: 'These are public notes visible to clients'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        display_name:
+          description: 'The calculated display name of the client'
+          type: string
+          example: 'Acme Inc'
+          readOnly: true
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
       type: object

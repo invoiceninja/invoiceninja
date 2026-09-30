@@ -63,14 +63,13 @@ class BulkTaskRequest extends Request
                 
                 $user = auth()->user();
 
-                $permissions = Task::withTrashed()
-                                ->whereIn('id', $this->transformKeys($this->ids))
-                                ->get()
-                                ->first(function ($task) use ($user) {
-                                    return $user->cannot('edit', $task);
-                                });       
+                $unauthorized = Task::withTrashed()
+                    ->whereIn('id', $this->transformKeys($this->ids))
+                    ->company()
+                    ->get()
+                    ->contains(fn (Task $task) => $user->cannot('edit', $task));
 
-                if ($permissions->isEmpty()) {
+                if ($unauthorized) {
                     $validator->errors()->add('ids', 'You are not authorized to update these tasks.');
                 }
             

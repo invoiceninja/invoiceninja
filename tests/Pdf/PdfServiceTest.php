@@ -28,6 +28,7 @@ use App\Services\Pdf\PdfConfiguration;
 use App\Services\Template\TemplateAction;
 use App\Services\Template\TemplateService;
 use Str;
+use Tests\Concerns\UsesRealPdfGeneration;
 
 /**
  *
@@ -36,6 +37,7 @@ use Str;
 class PdfServiceTest extends TestCase
 {
     use MockAccountData;
+    use UsesRealPdfGeneration;
 
     private string $max_pdf_variables = '{"client_details":["$client.name","$contact.full_name","$client.address1","$client.city_state_postal","$client.number","$client.vat_number","$client.postal_city_state","$client.website","$client.country","$client.custom3","$client.id_number","$client.phone","$client.address2","$client.custom1","$contact.custom1"],"vendor_details":["$vendor.name","$vendor.number","$vendor.vat_number","$vendor.address1","$vendor.address2","$vendor.city_state_postal","$vendor.country","$vendor.phone","$contact.email","$vendor.id_number","$vendor.website","$vendor.custom2","$vendor.custom1","$vendor.custom4","$vendor.custom3","$contact.phone","$contact.full_name","$contact.custom2","$contact.custom1"],"purchase_order_details":["$purchase_order.number","$purchase_order.date","$purchase_order.total","$purchase_order.balance_due","$purchase_order.due_date","$purchase_order.po_number","$purchase_order.custom1","$purchase_order.custom2","$purchase_order.custom3"],"company_details":["$company.name","$company.email","$company.phone","$company.id_number","$company.vat_number","$company.website","$company.address2","$company.address1","$company.city_state_postal","$company.postal_city_state","$company.custom1","$company.custom3"],"company_address":["$company.address1","$company.city_state_postal","$company.country","$company.id_number","$company.vat_number","$company.website","$company.email","$company.name","$company.custom1"],"invoice_details":["$invoice.number","$invoice.date","$invoice.balance","$invoice.custom1","$invoice.due_date","$invoice.project","$invoice.balance_due","$invoice.custom3","$invoice.po_number","$invoice.custom2","$invoice.amount","$invoice.custom4"],"quote_details":["$quote.number","$quote.custom1","$quote.po_number","$quote.date","$quote.valid_until","$quote.total","$quote.custom2","$quote.custom3","$quote.custom4"],"credit_details":["$credit.number","$credit.balance","$credit.po_number","$credit.date","$credit.valid_until","$credit.total","$credit.custom1","$credit.custom2","$credit.custom3"],"product_columns":["$product.item","$product.product1","$product.description","$product.product2","$product.tax","$product.line_total","$product.quantity","$product.unit_cost","$product.discount","$product.product3","$product.product4","$product.gross_line_total"],"product_quote_columns":["$product.item","$product.description","$product.unit_cost","$product.quantity","$product.discount","$product.tax","$product.line_total"],"task_columns":["$task.service","$task.description","$task.rate","$task.hours","$task.discount","$task.line_total","$task.tax","$task.tax_amount","$task.task2","$task.task1","$task.task3"],"total_columns":["$total","$line_taxes","$total_taxes","$discount","$custom_surcharge1","$outstanding","$net_subtotal","$custom_surcharge2","$custom_surcharge3","$subtotal","$paid_to_date"],"statement_invoice_columns":["$invoice.number","$invoice.date","$due_date","$total","$balance"],"statement_payment_columns":["$invoice.number","$payment.date","$method","$statement_amount"],"statement_credit_columns":["$credit.number","$credit.date","$total","$credit.balance"],"statement_details":["$statement_date","$balance"],"delivery_note_columns":["$product.item","$product.description","$product.quantity"],"statement_unapplied_columns":["$payment.number","$payment.date","$payment.amount","$payment.payment_balance"]}';
 
@@ -76,9 +78,7 @@ class PdfServiceTest extends TestCase
 
         $this->makeTestData();
 
-        if (config('ninja.testvars.travis')) {
-            $this->markTestSkipped();
-        }
+        $this->useRealPdfGeneration();
 
         $this->fake_email = uniqid('testuser') . '@gmail.com';
 
@@ -567,11 +567,6 @@ class PdfServiceTest extends TestCase
 
     public function testMultiDesignGeneration()
     {
-
-        if (config('ninja.testvars.travis')) {
-            $this->markTestSkipped();
-        }
-
         \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) {
 
             $this->invoice->design_id = $design->id;
@@ -611,11 +606,6 @@ class PdfServiceTest extends TestCase
 
     public function testPdfGeneration()
     {
-
-        if (config('ninja.testvars.travis')) {
-            $this->markTestSkipped();
-        }
-
         $invitation = $this->invoice->invitations->first();
 
         $service = (new PdfService($invitation))->boot();

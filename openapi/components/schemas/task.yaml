@@ -142,4 +142,9 @@
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        date:
+          description: 'The calculated start date of the task'
+          type: string
+          format: date
+          example: '2024-01-15'
       type: object

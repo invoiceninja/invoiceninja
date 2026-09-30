@@ -217,4 +217,9 @@
           description: 'The unique identifier of the vendor associated with this recurring expense'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       type: object

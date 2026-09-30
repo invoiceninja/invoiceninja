@@ -207,6 +207,10 @@ class ConfirmGatewayFee extends AbstractService
 
         $invoice->service()->deleteEInvoice();
 
+        if ($invoice->company->quickbooks && $invoice->company->shouldPushToQuickbooks('invoice')) {
+            \App\Services\Quickbooks\QuickbooksBatchCollector::collect('invoice', $invoice->id, $invoice->company->db, $invoice->company_id);
+        }
+
         return $invoice->fresh();
     }
 

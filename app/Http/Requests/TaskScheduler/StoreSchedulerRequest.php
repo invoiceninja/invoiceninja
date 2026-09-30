@@ -43,6 +43,9 @@ class StoreSchedulerRequest extends Request
         'upcoming',
         'converted',
         'uninvoiced',
+        'sent',
+        'cancelled',
+        'rejected',
     ];
 
     public array $templates = [
