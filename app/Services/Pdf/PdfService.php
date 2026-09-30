@@ -23,6 +23,7 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\EDocument\ZugferdPdfMerger;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PageNumbering;
@@ -355,6 +356,8 @@ class PdfService
         } elseif (config('ninja.pdf_generator') == 'gotenberg') {
             $pdfa = $this->shouldCreatePdfA3VisualPdf() ? GotenbergPdf::PDF_A_3B : null;
             $pdf = (new GotenbergPdf())->convertHtmlToPdf($html, $pdfa);
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($html);
         } else {
             $pdf = $this->makePdf(null, null, $html);
         }

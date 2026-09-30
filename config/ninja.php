@@ -47,6 +47,7 @@ return [
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', false),
     'pdf_generator' => env('PDF_GENERATOR', false),
+    'pdf_generator_real' => env('PDF_GENERATOR_REAL', 'snappdf'),
     'gotenberg_url' => env('GOTENBERG_API_URL', 'http://localhost:3000'),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     'is_docker' => env('IS_DOCKER', false),

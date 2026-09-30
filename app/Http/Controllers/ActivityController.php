@@ -31,6 +31,7 @@ use App\Models\Vendor;
 use App\Services\Pdf\Purify;
 use App\Transformers\ActivityTransformer;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
@@ -191,6 +192,14 @@ class ActivityController extends BaseController
             }
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($html_backup);
+
+            $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+            if ($numbered_pdf) {
+                $pdf = $numbered_pdf;
+            }
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($html_backup);
 
             $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
 

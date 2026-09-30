@@ -28,6 +28,7 @@ use App\Models\Vendor;
 use App\Services\Template\TemplateMock;
 use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\PaymentHtmlEngine;
@@ -302,6 +303,8 @@ class TemplateService
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($this->compiled_html);
         } else {
             $pdf = $this->makePdf(null, null, $this->compiled_html);
         }
