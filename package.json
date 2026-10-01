@@ -31,7 +31,7 @@
     "vue-template-compiler": "^2.7.16"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.1",
+    "@apidevtools/swagger-parser": "^13.1.0",
     "@checkout.com/checkout-web-components": "^1.11.0",
     "@docuninja/builder2.0": "^0.0.109",
     "axios": "^0.32",
