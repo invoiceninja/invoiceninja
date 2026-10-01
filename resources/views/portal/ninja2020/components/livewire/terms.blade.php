@@ -15,7 +15,7 @@
         </div>
         <div class="flex flex-col items-end px-4 py-4">
             <div class="w-full flex justify-end mb-2">
-                <button id="accept-terms-button" class="button button-primary bg-primary hover:bg-primary-darken">{{ ctrans('texts.next') }}</button>
+                <button id="accept-terms-button" class="button button-primary bg-primary">{{ ctrans('texts.next') }}</button>
             </div>
             <span class="text-xs text-gray-600 text-right">{{ ctrans('texts.by_clicking_next_you_accept_terms')}}</span>
         </div>

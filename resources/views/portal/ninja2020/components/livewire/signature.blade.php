@@ -3,8 +3,8 @@
         <h2 class="text-xl text-center py-0 px-4">{{ ctrans('texts.sign_here_ux_tip') }}</h2>
         <canvas id="signature-pad" class="border border-gray-300 w-full h-64"></canvas>
         <div class="flex justify-between items-center px-4 py-4">
-            <button id="clear-signature" class="px-4 py-2 mr-6 bg-red-500 text-white rounded">{{ ctrans('texts.clear') }}</button>
-            <button id="save-button" class="button button-primary bg-primary hover:bg-primary-darken">{{ ctrans('texts.next') }}</button>
+            <button id="clear-signature" class="button button-danger text-base leading-normal py-2 mr-6">{{ ctrans('texts.clear') }}</button>
+            <button id="save-button" class="button button-primary bg-primary">{{ ctrans('texts.next') }}</button>
         </div>
     </div>
     

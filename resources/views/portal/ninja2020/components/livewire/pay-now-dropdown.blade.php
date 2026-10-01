@@ -5,7 +5,7 @@
             <div>
                 <div class="rounded-md shadow-sm">
                     <button dusk="pay-now-dropdown" @click="open = !open" type="button"
-                            class="button button-primary bg-primary hover:bg-primary-darken inline-flex items-center">
+                            class="button button-primary bg-primary inline-flex items-center">
                         {{ ctrans('texts.pay_now') }}
                         <svg class="w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
