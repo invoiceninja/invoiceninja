@@ -90,6 +90,7 @@
         </style>
 
         <!-- Styles -->
+        @include('portal.ninja2020.components.primary-color')
         @vite('resources/sass/app.scss')
         @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
         {{-- <link href="{{ mix('favicon.png') }}" rel="shortcut icon" type="image/png"> --}}
@@ -110,9 +111,7 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" defer>
     </head>
 
-    @include('portal.ninja2020.components.primary-color')
-
-    <body class="antialiased {{ $custom_body_class ?? '' }}">
+    <body data-portal="client" class="antialiased {{ $custom_body_class ?? '' }}">
         @if(session()->has('message'))
             <div class="py-1 text-sm text-center text-white bg-primary disposable-alert">
                 {{ session('message') }}

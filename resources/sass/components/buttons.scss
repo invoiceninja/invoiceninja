@@ -1,5 +1,6 @@
 .button {
     @apply rounded py-3 px-4 text-sm leading-4 transition-colors duration-150 ease-in-out;
+    border-radius: var(--portal-button-radius, 0.25rem);
 }
 
 button:focus-visible,

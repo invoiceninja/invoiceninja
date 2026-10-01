@@ -1,0 +1,45 @@
+// Public styling hooks. Keep selectors stable when changing portal markup.
+// :where scopes these rules without making customer overrides more specific.
+:where([data-portal="client"]) {
+    [data-portal-target="shell"] {
+        background-color: var(--portal-page-background, #f3f4f6);
+    }
+
+    [data-portal-target="header"],
+    [data-portal-target="footer"] {
+        background-color: var(--portal-surface, #fff);
+    }
+
+    [data-portal-target="navigation"] {
+        background-color: var(--portal-navigation-background, #fff);
+    }
+
+    [data-portal-target="navigation-link"]:not([aria-current="page"]) {
+        color: var(--portal-navigation-text, #111827);
+
+        &:hover {
+            background-color: var(--portal-navigation-hover, #f3f4f6);
+        }
+    }
+
+    [data-portal-target="navigation-link"]:where([aria-current="page"]) {
+        background-color: var(--portal-navigation-active-background, var(--portal-primary, var(--primary-color)));
+        color: var(--portal-navigation-active-text, #fff);
+    }
+
+    :where([data-portal-target="table"] > thead > tr) > .bg-primary {
+        background-color: var(--portal-table-header-background, var(--portal-primary, var(--primary-color)));
+    }
+
+    :where([data-portal-target="table"] > thead > tr) > .text-white {
+        color: var(--portal-table-header-text, #fff);
+    }
+
+    .button-primary {
+        color: var(--portal-button-text, #fff);
+    }
+
+    .input {
+        border-color: var(--portal-input-border, #d1d5db);
+    }
+}

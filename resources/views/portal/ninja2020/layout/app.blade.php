@@ -78,6 +78,7 @@
             }
         </style>
         <!-- Styles -->
+        @include('portal.ninja2020.components.primary-color')
         @vite('resources/sass/app.scss')
 
         @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
@@ -106,9 +107,7 @@
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />
     </head>
 
-    @include('portal.ninja2020.components.primary-color')
-
-    <body class="antialiased">
+    <body data-portal="client" class="antialiased">
         @if(session()->has('message'))
             <div class="py-1 text-sm text-center text-white bg-primary disposable-alert">
                 {{ session('message') }}
