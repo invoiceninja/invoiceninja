@@ -59,7 +59,9 @@ class Cart extends Component
 
     public function payableAmount()
     {
-        return isset($this->context['products']) && collect($this->context['products'])->sum('total_raw') > 0;
+        return collect($this->context['bundle'] ?? [])->flatten(1)->sum(
+            fn($item) => $item['product']['price'] * $item['quantity']
+        ) > 0;
     }
 
     public function render()

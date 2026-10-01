@@ -29,11 +29,17 @@ class Methods extends Component
 
     public function mount(): void
     {
-        $total = collect($this->context['products'])->sum('total_raw');
+        $client = auth()->guard('contact')->user()->client;
+        $subscription = Subscription::find($this->decodePrimaryKey($this->subscription_id));
+        $calculator = $subscription->calc();
+        $this->context['bundle'] = $calculator->resolveBundle($this->context['bundle']);
+        $total = $calculator->preview(
+            $calculator->buildItems($this->context),
+            $client,
+            $calculator->hasValidCoupon($this->context),
+        )->getTotal();
 
-        $methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods($total); //@todo this breaks down when the cart is in front of the login - we have no context on the user - nor their country/currency()
-
-        $this->methods = $methods;
+        $this->methods = $client->service()->getPaymentMethods($total);
 
     }
 
@@ -47,6 +53,7 @@ class Methods extends Component
         $this->dispatch('purchase.context', property: 'client_id', value: $contact->client->hashed_id);
 
         $this->context['client_id'] = $contact->client->hashed_id;
+        $this->context['bundle'] = $sub->calc()->resolveBundle($this->context['bundle']);
 
         $invoice = $sub
             ->calc()

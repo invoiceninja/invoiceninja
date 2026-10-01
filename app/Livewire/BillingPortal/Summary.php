@@ -13,6 +13,8 @@
 namespace App\Livewire\BillingPortal;
 
 use App\Utils\Ninja;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Number;
 use App\Utils\Helpers;
 use Livewire\Component;
@@ -45,6 +47,11 @@ class Summary extends Component
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($subscription->company->settings));
         App::setLocale($subscription->company->locale());
+
+        // Remounting must not publish an older bundle over the buyer's cart edits.
+        if (isset($this->context['bundle'])) {
+            return;
+        }
 
         $notes_entity = auth()->guard('contact')->user()->client ?? $subscription->company;
 
@@ -183,17 +190,7 @@ class Summary extends Component
     #[Computed]
     public function discount(): float
     {
-        if (!isset($this->context['valid_coupon'])
-            || $this->context['valid_coupon'] != $this->subscription()->promo_code) {
-            return 0.0;
-        }
-
-        $subscription = $this->subscription();
-        $discount = $subscription->promo_discount;
-
-        return $subscription->is_amount_discount
-            ? $discount
-            : ($this->calculateSubtotal() * $discount / 100);
+        return $this->quote()->getTotalDiscount();
     }
 
     /**
@@ -203,8 +200,8 @@ class Summary extends Component
     public function subtotal(): string
     {
         return Number::formatMoney(
-            $this->calculateSubtotal(),
-            $this->subscription()->company
+            $this->quote()->getSubTotal(),
+            auth()->guard('contact')->user()->client ?? $this->subscription()->company
         );
     }
 
@@ -215,8 +212,20 @@ class Summary extends Component
     public function total(): string
     {
         return Number::formatMoney(
-            $this->calculateSubtotal() - $this->discount(),
-            $this->subscription()->company
+            $this->quote()->getTotal(),
+            auth()->guard('contact')->user()->client ?? $this->subscription()->company
+        );
+    }
+
+    #[Computed]
+    public function quote(): InvoiceSum|InvoiceSumInclusive
+    {
+        $calculator = $this->subscription()->calc();
+
+        return $calculator->preview(
+            $calculator->buildItems(['bundle' => $this->context['bundle'] ?? []]),
+            auth()->guard('contact')->user()?->client,
+            $calculator->hasValidCoupon($this->context),
         );
     }
 
@@ -269,8 +278,6 @@ class Summary extends Component
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company),
             ];
         }
-
-        $this->dispatch('purchase.context', property: 'products', value: $products);
 
         return $products;
     }
