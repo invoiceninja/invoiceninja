@@ -100,7 +100,7 @@
 
         @if((isset($company) && $company->account->isPaid() && !empty($settings->portal_custom_head)) || ((bool) \App\Utils\Ninja::isSelfHost() && !empty($settings->portal_custom_head)))
             <div class="py-1 text-sm text-center text-white bg-primary">
-                {!! $settings->portal_custom_head !!}
+                {!! app(\App\Services\ClientPortal\PortalHtmlSanitizer::class)->clean($settings->portal_custom_head) !!}
             </div>
         @endif
 
@@ -179,7 +179,7 @@
 
         @if($company && $company->account->isPaid() && !empty($settings->portal_custom_footer))
             <div class="py-1 text-sm text-center text-white bg-primary">
-                {!! $settings->portal_custom_footer !!}
+                {!! app(\App\Services\ClientPortal\PortalHtmlSanitizer::class)->clean($settings->portal_custom_footer) !!}
             </div>
         @endif
     </footer>
