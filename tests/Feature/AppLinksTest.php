@@ -147,4 +147,15 @@ class AppLinksTest extends TestCase
         $response->assertSee('intent://app/invoices/Opnel5aKBz', false);
         $response->assertSee('invoiceninja://app/invoices/Opnel5aKBz', false);
     }
+
+    public function testBridgeLoadsNothingFromAnotherHost()
+    {
+        // `ninja.app_logo` defaults to a hosted URL; rendering it here had every
+        // self-hosted visitor and every messenger unfurl report the open to hosted.
+        config(['ninja.react_url' => 'https://billing.example.com']);
+
+        $this->get('app/invoices/Opnel5aKBz')
+            ->assertDontSee('invoicing.co', false)
+            ->assertSee('/images/new_logo.png', false);
+    }
 }
