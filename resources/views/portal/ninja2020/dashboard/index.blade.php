@@ -3,7 +3,7 @@
 
 @section('body')
 
-    @if($settings->custom_message_dashboard && strlen($settings->custom_message_dashboard) > 0)
+    @if($settings->custom_message_dashboard)
         @component('portal.ninja2020.components.message')
             <pre>{{ $settings->custom_message_dashboard }}</pre>
         @endcomponent
