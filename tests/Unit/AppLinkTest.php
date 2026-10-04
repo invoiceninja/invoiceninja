@@ -41,11 +41,13 @@ class AppLinkTest extends TestCase
         $client = new Client();
         $client->id = 1;
 
+        $company = new Company();
+
         if ($with_company) {
-            $company = new Company();
             $company->id = 2;
-            $client->setRelation('company', $company);
         }
+
+        $client->setRelation('company', $company);
 
         return $client;
     }
@@ -65,6 +67,10 @@ class AppLinkTest extends TestCase
         // React gets its suffix at the bridge; adding one here means `/edit/edit`.
         $invoice = new Invoice();
         $invoice->id = 1;
+
+        $company = new Company();
+        $company->id = 2;
+        $invoice->setRelation('company', $company);
 
         $this->assertStringNotContainsString('/edit', (string) AppLink::forRecord('invoices', $invoice));
     }
