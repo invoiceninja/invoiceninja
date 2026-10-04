@@ -23,7 +23,7 @@ use App\Utils\Traits\MakesHash;
  * @property-read mixed $hashed_id
  * @property-read mixed $proposal_id
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|Proposal newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Proposal newQuery()

@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $color
  * @property int|null $status_order
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\TaskStatusFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|TaskStatus filter(\App\Filters\QueryFilters $filters)

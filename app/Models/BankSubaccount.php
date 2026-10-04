@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property-read \App\Models\BankAccount|null $bank_account
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|BankSubaccount newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BankSubaccount newQuery()

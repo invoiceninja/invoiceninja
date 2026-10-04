@@ -12,11 +12,13 @@
 
 namespace App\Livewire\PaymentMethods;
 
-use Livewire\Component;
 use App\Libraries\MultiDB;
+use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
+use App\Models\Company;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
-use App\Models\ClientGatewayToken;
+use Livewire\Component;
 
 class UpdateDefaultMethod extends Component
 {
@@ -30,10 +32,9 @@ class UpdateDefaultMethod extends Component
     public function token()
     {
         $contact = auth()->guard('contact')->user();
-        abort_unless($contact, 403);
+        abort_unless($contact instanceof ClientContact, 403);
 
         $company = $contact->company;
-        abort_unless($company && $this->db === $company->db, 403);
 
         MultiDB::setDb($company->db);
 

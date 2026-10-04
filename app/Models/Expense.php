@@ -84,7 +84,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Vendor|null $vendor
  * @property-read \App\Models\Currency|null $invoice_currency
  * @property \App\DataMapper\ExpenseSync|null $sync
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\ExpenseFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Expense filter(\App\Filters\QueryFilters $filters)

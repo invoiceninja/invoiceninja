@@ -269,7 +269,7 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found php cli, but no version information' : $foo[0];
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }

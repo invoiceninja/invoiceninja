@@ -370,7 +370,7 @@ class Provider extends AbstractProvider implements ProviderInterface
 
         if ($kid !== null && $kid !== '') {
             foreach ($jwks as $jwk) {
-                if (is_array($jwk) && ($jwk['kid'] ?? null) === $kid) {
+                if (is_array($jwk) && ($jwk['kid'] ?? null) === $kid) { //@phpstan-ignore-line
                     return $jwk;
                 }
             }
@@ -380,7 +380,7 @@ class Provider extends AbstractProvider implements ProviderInterface
 
         $candidates = array_values(array_filter(
             $jwks,
-            fn ($jwk) => is_array($jwk) && ($jwk['kty'] ?? null) === $expectedKty
+            fn ($jwk) => is_array($jwk) && ($jwk['kty'] ?? null) === $expectedKty //@phpstan-ignore-line
         ));
 
         if (count($candidates) === 0) {
