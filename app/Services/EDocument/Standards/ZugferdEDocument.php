@@ -46,6 +46,12 @@ class ZugferdEDocument extends AbstractService
     private ?string $temp_file_path = null;
 
     /**
+     * Upper size limit (bytes) per embedded document.
+     * Mirrors Peppol::$max_attachment_size so both standards behave alike.
+     */
+    public int $max_attachment_size = 2000000;
+
+    /**
      * __construct
      *
      * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document
@@ -92,8 +98,8 @@ class ZugferdEDocument extends AbstractService
             ->setPaymentTerms()         // 3. Then payment terms
             ->setLineItems()            // 4. Then line items
             ->setCustomSurcharges()     // 4a. Surcharges
-            ->setDocumentSummation();   // 5. Finally document summation
-        // ->setAdditionalReferencedDocument();   // 6. Additional referenced document
+            ->setDocumentSummation()    // 5. Finally document summation
+            ->setSupportingDocuments(); // 6. Supporting documents (BG-24)
 
         return $this;
 
@@ -135,35 +141,76 @@ class ZugferdEDocument extends AbstractService
     }
 
     /**
-     * setAdditionalReferencedDocument
+     * setSupportingDocuments
      *
-     * circular reference causing the file to never be created.
-     * PDF => xml => PDF => xml
+     * Embeds the documents attached to the invoice into the XML as
+     * BG-24 / BT-125 (ram:AdditionalReferencedDocument with an
+     * AttachmentBinaryObject).
      *
-     * Need to abstract the insertion of the base64 document into the XML.
+     * Deliberately limited to documents already stored against the entity.
+     * Embedding the rendered invoice PDF itself would reintroduce the
+     * PDF => xml => PDF recursion that made the earlier implementation
+     * unusable.
+     *
+     * The conditions mirror PeppolAttachmentBuilder so that CII and UBL
+     * behave the same way.
      *
      * @return self
      */
-    // private function setAdditionalReferencedDocument(): self
-    // {
-    //     if($this->document->client->getSetting('merge_e_invoice_to_pdf')) {
-    //         return $this;
-    //     }
+    private function setSupportingDocuments(): self
+    {
+        if (!$this->document instanceof Invoice && !$this->document instanceof Credit) {
+            return $this;
+        }
 
-    //     $invitation = $this->document->invitations()->first();
-    //     $pdf = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
-    //     $file_name = $this->document->numberFormatter().'.pdf';
+        if (!$this->company->account->hasFeature(\App\Models\Account::FEATURE_DOCUMENTS)) {
+            return $this;
+        }
 
-    //     $this->temp_file_path = \App\Utils\TempFile::filePath($pdf, $file_name);
+        // Deliberately NOT gated on document_email_attachment: whether a
+        // supporting document belongs in the data set is independent of
+        // whether it should also go out as a second mail attachment. Some
+        // recipients require exactly the opposite - embedded, but only one
+        // file in the email.
+        $this->document
+            ->documents()
+            ->where('is_public', true)
+            ->cursor()
+            ->each(function ($document) {
 
-    //     $this->xdocument->addDocumentInvoiceSupportingDocumentWithFile(
-    //         $this->document->number,
-    //         $this->temp_file_path,
-    //         $file_name,
-    //     );
+                if ($document->size > $this->max_attachment_size) {
+                    return;
+                }
 
-    //     return $this;
-    // }
+                if (!in_array($document->getMimeType(), ['application/pdf', 'application/xml'])) {
+                    return;
+                }
+
+                $file = $document->getFile();
+
+                if (!$file) {
+                    return;
+                }
+
+                // Sanitised like PeppolAttachmentBuilder does: some intake
+                // systems fail on spaces and punctuation in file names.
+                $file_name = preg_replace('/[^A-Za-z0-9._-]/', '_', $document->name);
+
+                if (!\Illuminate\Support\Str::endsWith(strtolower($file_name), ['.pdf', '.xml'])) {
+                    $file_name .= $document->getMimeType() === 'application/xml' ? '.xml' : '.pdf';
+                }
+
+                $path = \App\Utils\TempFile::filePath($file, $file_name);
+
+                $this->xdocument->addDocumentInvoiceSupportingDocumentWithFile(
+                    $document->name,
+                    $path,
+                    $file_name,
+                );
+            });
+
+        return $this;
+    }
 
     /**
      * setDocumentTaxes
