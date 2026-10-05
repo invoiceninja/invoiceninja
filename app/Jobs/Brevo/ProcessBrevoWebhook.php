@@ -400,6 +400,8 @@ class ProcessBrevoWebhook implements ShouldQueue
 
     private function discoverInvitation(string $message_id)
     {
+        $message_id = str_replace(['<', '>'], '', $message_id);
+
         $invitation = false;
 
         if ($invitation = InvoiceInvitation::where('message_id', $message_id)->first()) {
@@ -428,7 +430,18 @@ class ProcessBrevoWebhook implements ShouldQueue
         $brevo_secret = !empty($this->company->settings->brevo_secret) ? $this->company->settings->brevo_secret : config('services.brevo.secret');
 
         $brevo = new TransactionalEmailsApi(null, Configuration::getDefaultConfiguration()->setApiKey('api-key', $brevo_secret));
-        $messageDetail = $brevo->getTransacEmailContent($message_id);
+
+        $brevo_message_id = str_starts_with($message_id, '<') ? $message_id : '<' . $message_id . '>';
+
+        $list = $brevo->getTransacEmailsList(null, null, $brevo_message_id);
+
+        if (empty($list->getTransactionalEmails())) {
+            throw new \Exception('No Brevo message found for ' . $message_id);
+        }
+
+        $uuid = $list->getTransactionalEmails()[0]->getUuid();
+
+        $messageDetail = $brevo->getTransacEmailContent($uuid);
         return $messageDetail;
 
     }
@@ -470,7 +483,7 @@ class ProcessBrevoWebhook implements ShouldQueue
                 return [
                     'bounce_id' => '',
                     'recipient' => $recipient,
-                    'status' => $event->name ?? '',
+                    'status' => $event->getName() ?? '',
                     'delivery_message' => $delivery_message, // TODO: @turbo124 this results in all cases for the history in the string, which may be incorrect
                     'server' => '',
                     'server_ip' => $server_ip,
