@@ -59,7 +59,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $date_format_default = $date_format->format;
         }
 
-        if (is_array($logs)) {
+        if (is_array($logs) && count($logs) > 0) {
             $item = $logs[0];
             return Carbon::createFromTimeStamp((int) $item[0])->setTimezone($timezone_name)->format($date_format_default);
         }
@@ -88,8 +88,13 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $date_format_default = $date_format->format;
         }
 
-        if (is_array($logs)) {
-            $item = $logs[1];
+        if (is_array($logs) && count($logs) > 0) {
+            $item = $logs[array_key_last($logs)];
+
+            if (! isset($item[1]) || $item[1] == 0) {
+                return ctrans('texts.is_running');
+            }
+
             return Carbon::createFromTimeStamp((int) $item[1])->setTimezone($timezone_name)->format($date_format_default);
         }
 
