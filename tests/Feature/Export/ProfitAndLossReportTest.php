@@ -1017,4 +1017,115 @@ class ProfitAndLossReportTest extends TestCase
 
         $this->account->delete();
     }
+
+    public function testAccrualProfitLossSingleDayCustomRangeIncludesSentInvoiceOnThatDate(): void
+    {
+        $this->buildData();
+
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-10-07 12:00:00', 'UTC'));
+
+        $this->payload['date_range'] = 'custom';
+        $this->payload['start_date'] = '2026-10-31';
+        $this->payload['end_date'] = '2026-10-31';
+        $this->payload['is_income_billed'] = true;
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => false,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 110,
+            'balance' => 110,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 10,
+            'date' => '2026-10-31',
+            'discount' => 0,
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 500,
+            'balance' => 500,
+            'status_id' => Invoice::STATUS_SENT,
+            'total_taxes' => 0,
+            'date' => '2026-10-30',
+            'discount' => 0,
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $report = new ProfitLoss($this->company, $this->payload);
+        $report->build();
+
+        $this->assertEquals(100.0, $report->getIncome());
+        $this->assertEquals(10.0, $report->getIncomeTaxes());
+
+        $this->travelBack();
+        $this->account->delete();
+    }
+
+    public function testAccrualProfitLossSingleDayCustomRangeExcludesDraftInvoiceOnThatDate(): void
+    {
+        $this->buildData();
+
+        $this->payload['date_range'] = 'custom';
+        $this->payload['start_date'] = '2026-10-31';
+        $this->payload['end_date'] = '2026-10-31';
+        $this->payload['is_income_billed'] = true;
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => false,
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 110,
+            'balance' => 110,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'total_taxes' => 10,
+            'date' => '2026-10-31',
+            'discount' => 0,
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        $report = new ProfitLoss($this->company, $this->payload);
+        $report->build();
+
+        $this->assertEquals(0.0, $report->getIncome());
+        $this->assertEquals(0.0, $report->getIncomeTaxes());
+
+        $this->account->delete();
+    }
 }
