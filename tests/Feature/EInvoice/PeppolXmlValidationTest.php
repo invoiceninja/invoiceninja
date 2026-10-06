@@ -356,7 +356,7 @@ public function setUp(): void
 
 }
 
-public function testPeppolXmlValidation()
+public function testPeppolXmlValidation(): void
 {
         
         try {
@@ -374,5 +374,92 @@ public function testPeppolXmlValidation()
         }
 
         $this->assertCount(0, $validator->getErrors());
+    }
+
+    /**
+     * FR CTC EA (EAS 0225) — TDD against bundled schematron XSLT in app/.
+     *
+     * 0225:880215755 is a valid Peppol routing id. UBL must use schemeID="0225"
+     * and value "880215755". Stale CEN/PEPPOL XSLT codelists wrongly reject 0225
+     * (BR-CL-25 / PEPPOL-EN16931-CL008) until synced from OpenPEPPOL .sch sources.
+     */
+    public function testFrCtcElectronicAddress0225880215755EndpointEasCodelist(): void
+    {
+        $eas = '0225';
+        $id = '880215755';
+        $routing = "{$eas}:{$id}";
+
+        $validStylesheet = implode("\n", $this->stylesheetMessages(
+            $this->minimalInvoiceWithCustomerEndpoint($eas, $id)
+        ));
+
+        $this->assertStringNotContainsString(
+            'BR-CL-25',
+            $validStylesheet,
+            'Valid EAS 0225 must not trigger BR-CL-25. Stylesheet output: '.$validStylesheet
+        );
+        $this->assertStringNotContainsString(
+            'PEPPOL-EN16931-CL008',
+            $validStylesheet,
+            'Valid EAS 0225 must not trigger PEPPOL-EN16931-CL008. Stylesheet output: '.$validStylesheet
+        );
+        $this->assertStringNotContainsString(
+            'Electronic address identifier scheme must be from the codelist',
+            $validStylesheet,
+            'Valid EAS 0225 must be on the PEPPOL EAS codelist. Stylesheet output: '.$validStylesheet
+        );
+
+        $invalidStylesheet = implode("\n", $this->stylesheetMessages(
+            $this->minimalInvoiceWithCustomerEndpoint($routing, $id)
+        ));
+
+        $this->assertStringContainsString(
+            'BR-CL-25',
+            $invalidStylesheet,
+            'Composite peppol id must not be used as @schemeID. Errors: '.$invalidStylesheet
+        );
+    }
+
+    private function minimalInvoiceWithCustomerEndpoint(string $endpointSchemeId, string $endpointValue): string
+    {
+        $scheme = htmlspecialchars($endpointSchemeId, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        $value = htmlspecialchars($endpointValue, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+
+        return '<?xml version="1.0" encoding="UTF-8"?>
+  <Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+      xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+      xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+    <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>
+    <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
+    <cbc:ID>INV-BR-CL-25-REG</cbc:ID>
+    <cbc:IssueDate>2026-01-01</cbc:IssueDate>
+    <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
+    <cac:AccountingCustomerParty>
+      <cac:Party>
+        <cbc:EndpointID schemeID="'.$scheme.'">'.$value.'</cbc:EndpointID>
+      </cac:Party>
+    </cac:AccountingCustomerParty>
+    <cac:TaxTotal><cbc:TaxAmount currencyID="EUR">0</cbc:TaxAmount></cac:TaxTotal>
+    <cac:LegalMonetaryTotal><cbc:PayableAmount currencyID="EUR">100</cbc:PayableAmount></cac:LegalMonetaryTotal>
+    <cac:InvoiceLine>
+      <cbc:ID>1</cbc:ID>
+      <cbc:InvoicedQuantity unitCode="C62">1</cbc:InvoicedQuantity>
+      <cbc:LineExtensionAmount currencyID="EUR">100</cbc:LineExtensionAmount>
+      <cac:Item><cbc:Name>Item</cbc:Name></cac:Item>
+      <cac:Price><cbc:PriceAmount currencyID="EUR">100</cbc:PriceAmount></cac:Price>
+    </cac:InvoiceLine>
+  </Invoice>';
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function stylesheetMessages(string $xml): array
+    {
+        $validator = new XsltDocumentValidator($xml);
+        $validator->validate();
+
+        return $validator->getErrors()['stylesheet'] ?? [];
     }
 }
