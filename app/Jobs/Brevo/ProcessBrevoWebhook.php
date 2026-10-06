@@ -436,7 +436,7 @@ class ProcessBrevoWebhook implements ShouldQueue
         $list = $brevo->getTransacEmailsList(null, null, $brevo_message_id);
 
         if (empty($list->getTransactionalEmails())) {
-            throw new \Exception('No Brevo message found for ' . $message_id);
+            return null;
         }
 
         $uuid = $list->getTransactionalEmails()[0]->getUuid();
@@ -451,6 +451,10 @@ class ProcessBrevoWebhook implements ShouldQueue
     {
 
         $messageDetail = $this->getRawMessage($message_id);
+
+        if (!$messageDetail) {
+            return null;
+        }
 
         $event = collect($messageDetail->getEvents())->first(function ($event) {
 
@@ -472,6 +476,10 @@ class ProcessBrevoWebhook implements ShouldQueue
         try {
 
             $messageDetail = $this->getRawMessage($this->request['message-id']);
+
+            if (!$messageDetail) {
+                return $this->default_response;
+            }
 
             $recipient = array_key_exists("email", $this->request) ? $this->request["email"] : '';
             $server_ip = array_key_exists("sending_ip", $this->request) ? $this->request["sending_ip"] : '';
