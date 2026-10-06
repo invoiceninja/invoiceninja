@@ -6397,6 +6397,9 @@ $lang = array(
     'starter_run_pnl_quarterly_hint' => 'Email the profit and loss report for last quarter every three months.',
     'starter_invoice_reminders_weekly' => 'Invoice tasks weekly',
     'starter_invoice_reminders_weekly_hint' => 'Run invoice outstanding tasks weekly.',
-);
+    'default_terms_help' => 'Add your terms and conditions, bank details, and other payment instructions clients need to pay you.',
+    'review_and_send' => 'Review and Send',
+    'attach_pdf_help' => 'Allows the document PDF to be attached to the email.'
+    );
 
 return $lang;
