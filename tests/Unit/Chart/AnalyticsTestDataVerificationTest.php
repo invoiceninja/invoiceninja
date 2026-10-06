@@ -473,6 +473,9 @@ class AnalyticsTestDataVerificationTest extends TestCase
 
     public function testQuoteCounts(): void
     {
+        // The September sent quote expires in October; inspect the fixture before then.
+        $this->travelTo(Carbon::create(now()->year, 9, 15, 12, 0, 0, 'UTC'));
+
         $quotes = Quote::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
             ->get();
