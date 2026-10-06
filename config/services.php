@@ -75,7 +75,7 @@ return [
     'oidc' => [
         // URL to the identity provider without `/.well-known/openid-configuration` suffix
         // https://sso.example.com/application/o/invoiceninja
-        'issuer'     => env('OIDC_ISSUER', ''),
+        'issuer'     => env('OIDC_ISSUER', substr(env('OIDC_WELL_KNOWN', ''), 0, -1 * strlen('/.well-known/openid-configuration'))),
         'client_id'      => env('OIDC_CLIENT_ID', ''),
         'client_secret'  => env('OIDC_CLIENT_SECRET', ''),
         // Fixed callback URL. Must be registered at the IdP.
