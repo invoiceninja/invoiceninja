@@ -27,6 +27,7 @@ class CountryFactory
         'DE' => DE::class,
         'DK' => DK::class,
         'ES' => ES::class,
+        'FI' => FI::class,
         'FR' => FR::class,
         'IN' => IN::class,
         'IT' => IT::class,

@@ -458,19 +458,6 @@ class JsonDesignService
         );
     }
 
-    private function pagePaddingPxForInset(string $edge): float
-    {
-        $docSettings = $this->documentSettings();
-        $paddingKey = 'pagePadding' . $edge;
-
-        return max(
-            0,
-            array_key_exists($paddingKey, $docSettings)
-                ? (float) $docSettings[$paddingKey]
-                : 30.0
-        );
-    }
-
     /**
      * Built-in classes are derived from the block type, keeping the selector
      * contract deterministic; safe user classes are appended when configured.

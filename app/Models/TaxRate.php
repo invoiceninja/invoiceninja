@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_deleted
  * @property-read mixed $hashed_id
  * @property-read mixed $tax_rate_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\TaxRateFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|TaxRate filter(\App\Filters\QueryFilters $filters)

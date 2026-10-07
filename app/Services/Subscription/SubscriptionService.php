@@ -1009,18 +1009,7 @@ class SubscriptionService
         $invoice->client_id = $client_id;
         $invoice->is_proforma = true;
         $invoice->number = "####" . ctrans('texts.subscription') . "_" . now()->format('Y-m-d') . "_" . rand(0, 100000);
-        $line_items = $bundle->map(function ($item) {
-            $line_item = new InvoiceItem();
-            $line_item->product_key = $item['product_key'];
-            $line_item->quantity = (float) $item['qty'];
-            $line_item->cost = (float) $item['unit_cost'];
-            $line_item->notes = $item['description'];
-            $line_item->tags = InvoiceItem::serializeTags($item['tags'] ?? '');
-
-            return $line_item;
-        })->toArray();
-
-        $invoice->line_items = $line_items;
+        $invoice->line_items = $this->subscription->calc()->buildV2Items($bundle);
 
         if ($valid_coupon) {
             $invoice->discount = $this->subscription->promo_discount;
@@ -1108,6 +1097,7 @@ class SubscriptionService
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $recurring_invoice->client_id = $client_id;
+        $recurring_invoice->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
         $recurring_invoice->line_items = $subscription_repo->generateBundleLineItems($bundle, true, false);
         $recurring_invoice->subscription_id = $this->subscription->id;
         $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;

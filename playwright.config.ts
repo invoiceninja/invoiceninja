@@ -15,6 +15,7 @@ const accountCount = positiveInt(
 // seeded account lanes; 8 headed Chromiums is what wedges `context` setup.
 const workerCount = positiveInt(process.env.PLAYWRIGHT_WORKERS, 1);
 const includeFirefox = Boolean(process.env.PLAYWRIGHT_FIREFOX);
+const includeWebKit = Boolean(process.env.PLAYWRIGHT_WEBKIT);
 
 function positiveInt(value: string | undefined, fallback: number): number {
     const parsed = Number.parseInt(value ?? '', 10);
@@ -72,6 +73,14 @@ export default defineConfig({
                   {
                       name: 'firefox',
                       use: { ...devices['Desktop Firefox'] },
+                  },
+              ]
+            : []),
+        ...(includeWebKit
+            ? [
+                  {
+                      name: 'webkit',
+                      use: { ...devices['Desktop Safari'], bypassCSP: true },
                   },
               ]
             : []),

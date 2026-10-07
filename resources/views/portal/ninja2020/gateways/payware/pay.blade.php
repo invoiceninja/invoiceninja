@@ -129,7 +129,7 @@
         <div class="payware-qr-container" id="payware-qr-container" style="flex-direction: column; align-items: center; padding: 1rem;"></div>
 
         <div class="payware-deeplink-container" id="payware-deeplink-container" style="flex-direction: column; align-items: center; padding: 1rem;">
-            <a href="payware://{{ $transaction_id }}" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: #059669; color: #ffffff; font-weight: 600; font-size: 1rem; border-radius: 0.5rem; text-decoration: none;">
+            <a href="payware://{{ $transaction_id }}" class="button button-primary leading-normal" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: #059669; color: #ffffff; font-weight: 600; font-size: 1rem; border-radius: 0.5rem; text-decoration: none;">
                 {{ ctrans('texts.pay_now') }}
             </a>
         </div>

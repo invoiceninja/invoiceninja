@@ -573,7 +573,7 @@ class TemplateService
     private function resolveClientInvitation(Client $client): InvoiceInvitation|QuoteInvitation|CreditInvitation|null
     {
         foreach ([$client->invoices(), $client->quotes(), $client->credits()] as $documents) {
-            $invitation = $documents
+            $invitation = $documents //@phpstan-ignore-line
                 ->whereHas('invitations')
                 ->with('invitations')
                 ->first()

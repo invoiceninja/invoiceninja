@@ -156,6 +156,8 @@ class TaskExport extends BaseExport
     {
         $entity = [];
         $transformed_entity = $this->entity_transformer->transform($task);
+        $time_logs = $this->taskTimeLogs($task);
+        $expand_time_log = $this->shouldExpandTimeLog() && count($time_logs) > 0;
 
         foreach (array_values($this->input['report_keys']) as $key) {
 
@@ -166,12 +168,15 @@ class TaskExport extends BaseExport
                 continue;
             }
 
+            if ($this->isDeferredLogField($key)) {
+                $entity[$key] = '';
+                continue;
+            }
+
             if ($parts[0] === 'task' && isset($parts[1], $transformed_entity[$parts[1]])) {
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
-            } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration', 'task.billable', 'task.item_notes', 'task.time_log'])) {
-                $entity[$key] = '';
             } else {
                 $entity[$key] = $this->decorator->transform($key, $task);
             }
@@ -182,12 +187,75 @@ class TaskExport extends BaseExport
 
         $entity = $this->convertFloats($entity);
 
-        if (is_null($task->time_log) || (is_array(json_decode($task->time_log, true)) && count(json_decode($task->time_log, true)) == 0)) {
-            $this->storage_array[] = $entity;
-        } else {
-            $this->iterateLogs($task, $entity);
+        if (! $expand_time_log) {
+            $entity = $this->applyCollapsedLogFields($task, $entity);
         }
 
+        if (count($time_logs) === 0) {
+            $this->storage_array[] = $entity;
+        } elseif ($expand_time_log) {
+            $this->iterateLogs($task, $entity);
+        } else {
+            $this->storage_array[] = $entity;
+        }
+
+    }
+
+    private function applyCollapsedLogFields(Task $task, array $entity): array
+    {
+        foreach (array_values($this->input['report_keys']) as $key) {
+            if ($this->isDeferredLogField($key)) {
+                $entity[$key] = $this->decorator->transform($key, $task) ?? '';
+            }
+        }
+
+        return $entity;
+    }
+
+    private function shouldExpandTimeLog(): bool
+    {
+        return in_array('task.time_log', $this->input['report_keys'], true)
+            || in_array('time_log', $this->input['report_keys'], true);
+    }
+
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    private function taskTimeLogs(Task $task): array
+    {
+        if (is_null($task->time_log)) {
+            return [];
+        }
+
+        $logs = json_decode($task->time_log, true);
+
+        return is_array($logs) ? $logs : [];
+    }
+
+    private function isDeferredLogField(string $key): bool
+    {
+        return in_array($key, [
+            'task.start_date',
+            'start_date',
+            'task.start_time',
+            'start_time',
+            'task.end_date',
+            'end_date',
+            'task.end_time',
+            'end_time',
+            'task.duration',
+            'duration',
+            'task.duration_words',
+            'duration_words',
+            'task.billable',
+            'billable',
+            'task.item_notes',
+            'item_notes',
+            'task.time_log',
+            'time_log',
+            'task.time_log_duration_words',
+            'time_log_duration_words',
+        ], true);
     }
 
     private function iterateLogs(Task $task, array $entity)
@@ -199,7 +267,7 @@ class TaskExport extends BaseExport
             $timezone_name = $timezone->name;
         }
 
-        $logs = json_decode($task->time_log, true);
+        $logs = $this->taskTimeLogs($task);
 
         $date_format_default = $this->date_format;
 

@@ -500,6 +500,53 @@ class InvoiceTaxSummaryCashTest extends TestCase
         $this->assertSame($paymentable->id, data_get($apply_event->payment_request, 'source_paymentable_id'));
     }
 
+    public function testCashEventReconciliationRepeatsSameTransitionAfterReversal(): void
+    {
+        $this->buildData('15');
+        [$invoice, $payment, $paymentable] = $this->makePaidInvoiceForCash('2026-01-10');
+        $writer = new InvoiceTransactionEventEntryCash();
+
+        $writer->run($invoice, '2026-01-01', '2026-01-31');
+
+        $writer->reconcileApplicationDateChange(
+            $invoice->id,
+            $payment->id,
+            '2026-01-10',
+            '2026-01-20',
+            [$paymentable->id],
+        );
+        $writer->reconcileApplicationDateChange(
+            $invoice->id,
+            $payment->id,
+            '2026-01-20',
+            '2026-01-10',
+            [$paymentable->id],
+        );
+        $writer->reconcileApplicationDateChange(
+            $invoice->id,
+            $payment->id,
+            '2026-01-10',
+            '2026-01-20',
+            [$paymentable->id],
+        );
+
+        $source = $writer->findSourceEvent($invoice->id, $paymentable->id);
+        $this->assertNotNull($source);
+
+        $latest_apply = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->get()
+            ->filter(fn (TransactionEvent $event): bool => (int) data_get($event->payment_request, 'source_event_id') === (int) $source->id
+                && data_get($event->payment_request, 'tax_correction_kind') === 'payment_application_date'
+                && data_get($event->payment_request, 'direction') === 'apply')
+            ->sortByDesc('id')
+            ->first();
+
+        $this->assertNotNull($latest_apply);
+        $this->assertSame('2026-01-20', data_get($latest_apply->payment_request, 'effective_date'));
+    }
+
     public function testCashEventSnapshotIncludesArchivedPaymentsThatAreNotDeleted(): void
     {
         $this->buildData('15');

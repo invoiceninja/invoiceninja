@@ -329,7 +329,7 @@ class Email implements ShouldQueue
 
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
@@ -342,6 +342,7 @@ class Email implements ShouldQueue
                     SmtpFailure::RETRY => $this->release($this->backoff()[$this->attempts() - 1]),
                     SmtpFailure::FALLBACK => $this->fallbackSmtp($e->getMessage()),
                     SmtpFailure::FAIL => $this->failSmtp($e->getMessage()),
+                    default => $this->logMailError($e->getMessage()),
                 };
 
                 $this->cleanUpMailers();
@@ -349,19 +350,19 @@ class Email implements ShouldQueue
             }
 
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             return;
             
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             
             return;
         } catch (\Google\Service\Exception $e) {
@@ -369,7 +370,7 @@ class Email implements ShouldQueue
             if ($e->getCode() == '429') {
 
                 $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 sleep(rand(1, 2));
                 $this->release(900);
                 $message = null;
@@ -378,7 +379,7 @@ class Email implements ShouldQueue
         } catch (\ErrorException $e) { //@todo - remove after symfony/mailer is updated with bug fix
 
             $message = "Attachment size is too large.";
-            $this->logMailError($message, $this->company->clients()->first());
+            $this->logMailError($message);
             $this->cleanUpMailers();
 
             $this->entityEmailFailed($message);
@@ -392,7 +393,7 @@ class Email implements ShouldQueue
             if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->logMailError($e->getMessage());
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
@@ -468,13 +469,13 @@ class Email implements ShouldQueue
 
     private function fallbackSmtp(string $message): void
     {
-        $this->logMailError($message, $this->company->clients()->first());
+        $this->logMailError($message);
         $this->retryWithDefaultMailer();
     }
 
     private function failSmtp(string $message): void
     {
-        $this->logMailError($message, $this->company->clients()->first());
+        $this->logMailError($message);
         $this->entityEmailFailed($message);
     }
 
@@ -902,7 +903,7 @@ class Email implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
         } catch (\Exception $e) {
-            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->logMailError('Gmail Token Invalid');
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -945,7 +946,7 @@ class Email implements ShouldQueue
      * @param  null | \App\Models\Client $recipient_object
      * @return void
      */
-    private function logMailError($errors, $recipient_object): void
+    private function logMailError($errors, $recipient_object = null): void
     {
         (
             new SystemLogger(

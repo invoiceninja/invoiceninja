@@ -26,12 +26,12 @@ use App\Models\BaseModel;
 class AppLink
 {
     /**
-     * @param  string  $appRoot  The app's route root, e.g. `invoices`.
+     * @param  string  $app_root  The app's route root, e.g. `invoices`.
      */
-    public static function forRecord(string $appRoot, BaseModel $record): string
+    public static function forRecord(string $app_root, BaseModel $record): string
     {
-        $link = rtrim((string) config('ninja.app_url'), '/').'/app/'.$appRoot.'/'.$record->hashed_id;
-        $company = $record->company?->hashed_id;
+        $link = rtrim((string) config('ninja.app_url'), '/').'/app/'.$app_root.'/'.$record->hashed_id;
+        $company = $record->company->hashed_id;
 
         // Without it the record opens against whatever workspace is active.
         return $company ? $link.'?company='.$company : $link;

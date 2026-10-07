@@ -194,6 +194,7 @@ class CreatePeppolTestData extends Command
                 'vat' => 'FI01010101', 'id_number' => '003708888888CCC', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
+                'routing_id' => '003721291126',
                 'gov_id' => '003798765432', 'individual_id' => '', 'individual_vat' => '',
             ],
             // FR — Storecove test: FR:SIRENE 123456987 (scheme is SIRENE, not VAT)

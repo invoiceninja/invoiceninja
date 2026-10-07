@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $disk
  * @property-read \App\Models\Activity $activity
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|Backup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Backup newQuery()

@@ -39,7 +39,7 @@
 
             @component('portal.ninja2020.components.general.card-element-single')
                 <div class="flex justify-end">
-                    <button type="button" id="copy-billing-button" class="bg-gray-100 px-2 py-1 text-sm rounded">
+                    <button type="button" id="copy-billing-button" class="button button-secondary leading-normal px-2 py-1">
                         {{ ctrans('texts.copy_billing') }}
                     </button>
                 </div>

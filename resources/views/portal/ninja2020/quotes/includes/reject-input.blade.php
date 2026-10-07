@@ -34,7 +34,7 @@
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                <button type="button" id="reject-confirm-button" class="button button-danger bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto">
+                <button type="button" id="reject-confirm-button" class="button button-danger w-full sm:w-auto">
                     {{ ctrans('texts.reject') }}
                 </button>
             </div>

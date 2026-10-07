@@ -35,7 +35,7 @@
 
                 <div class="inline-flex rounded-md shadow-sm">
                     <button type="button"
-                        class="button button-secondary bg-red-500 text-white hover:bg-red-600"
+                        class="button button-danger"
                         id="reject-button">{{ ctrans('texts.reject') }}</button>
                 </div>
             </div>

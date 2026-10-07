@@ -12,7 +12,7 @@
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-            <table class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table bg-white">
+            <table data-portal-target="table" data-portal-table="tasks" class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table bg-white">
                 <thead>
                 <tr>
                     <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary task_description">
@@ -69,7 +69,7 @@
                             @endphp
                             @if($logs->isNotEmpty())
                             <tr><td width="100%" colspan="4">
-                            <table class="min-w-full ml-5">
+                            <table data-portal-target="table" data-portal-table="tasks" class="min-w-full ml-5">
                                 <thead>
                                     <tr>
                                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500 task_date">

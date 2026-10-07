@@ -6389,6 +6389,17 @@ $lang = array(
     'header_background' => 'Header Background Color',
     'footer_background' => 'Footer Background Color',
     'section' => 'Section',
+    'no_schedules' => 'No schedules',
+    'no_schedules_hint' => 'Automate reports, statements, and reminders by creating your first schedule.',
+    'starter_email_monthly_statements' => 'Email monthly statements',
+    'starter_email_monthly_statements_hint' => 'Send client statements for last month on the first of each month.',
+    'starter_run_pnl_quarterly' => 'Run P&L quarterly',
+    'starter_run_pnl_quarterly_hint' => 'Email the profit and loss report for last quarter every three months.',
+    'starter_invoice_reminders_weekly' => 'Invoice tasks weekly',
+    'starter_invoice_reminders_weekly_hint' => 'Run invoice outstanding tasks weekly.',
+    'default_terms_help' => 'Add your terms and conditions, bank details, and other payment instructions clients need to pay you.',
+    'review_and_send' => 'Review and Send',
+    'attach_pdf_help' => 'Allows the document PDF to be attached to the email.'
     );
 
 return $lang;

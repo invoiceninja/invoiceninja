@@ -78,6 +78,7 @@
             }
         </style>
         <!-- Styles -->
+        @include('portal.ninja2020.components.primary-color')
         @vite('resources/sass/app.scss')
 
         @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
@@ -99,16 +100,14 @@
 
         @if((isset($company) && $company->account->isPaid() && !empty($client->getSetting('portal_custom_head'))) || ((bool) \App\Utils\Ninja::isSelfHost() && !empty($client->getSetting('portal_custom_head'))))
             <div class="py-1 text-sm text-center text-white bg-primary">
-                {!! $client->getSetting('portal_custom_head') !!}
+                {!! app(\App\Services\ClientPortal\PortalHtmlSanitizer::class)->clean($client->getSetting('portal_custom_head')) !!}
             </div>
         @endif
 
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />
     </head>
 
-    @include('portal.ninja2020.components.primary-color')
-
-    <body class="antialiased">
+    <body data-portal="client" class="antialiased">
         @if(session()->has('message'))
             <div class="py-1 text-sm text-center text-white bg-primary disposable-alert">
                 {{ session('message') }}
@@ -178,7 +177,7 @@
 
         @if($company && $company->account->isPaid() && !empty($client->getSetting('portal_custom_footer')))
             <div class="py-1 text-sm text-center text-white bg-primary">
-                {!! $client->getSetting('portal_custom_footer') !!}
+                {!! app(\App\Services\ClientPortal\PortalHtmlSanitizer::class)->clean($client->getSetting('portal_custom_footer')) !!}
             </div>
         @endif
     </footer>

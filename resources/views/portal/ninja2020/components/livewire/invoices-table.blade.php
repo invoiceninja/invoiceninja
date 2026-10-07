@@ -38,7 +38,7 @@
     </div>
     <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle rounded">
-            <table class="min-w-full mt-4 border border-gray-200 rounded shadow invoices-table">
+            <table data-portal-target="table" data-portal-table="invoices" class="min-w-full mt-4 border border-gray-200 rounded shadow invoices-table">
                 <thead>
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">

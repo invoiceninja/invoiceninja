@@ -666,6 +666,24 @@ class PeppolDiscoveryTest extends TestCase
     // IT B2B/B2G: Codice Destinatario (CUUO) + Partita IVA for SDI
     // ──────────────────────────────────────────────────────
 
+    public function testFiBusinessUsesOpidAndOvtForFinvoiceRouting(): void
+    {
+        $client = $this->makeClient($this->countryId('FI'), 'business', [
+            'vat_number' => 'FI09824102',
+            'id_number' => '003709824102',
+            'routing_id' => '003708599126',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $identifiers = $meta['routing']['eIdentifiers'] ?? [];
+        $this->assertCount(2, $identifiers);
+        $this->assertEquals('FI:OPID', $identifiers[0]['scheme']);
+        $this->assertEquals('003708599126', $identifiers[0]['id']);
+        $this->assertEquals('FI:OVT', $identifiers[1]['scheme']);
+        $this->assertEquals('003709824102', $identifiers[1]['id']);
+    }
+
     public function testItBusinessUsesRoutingIdForCuuo(): void
     {
         $client = $this->makeClient(380, 'business', [

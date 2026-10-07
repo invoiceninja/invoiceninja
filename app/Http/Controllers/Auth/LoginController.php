@@ -484,7 +484,7 @@ class LoginController extends BaseController
         ];
 
         if ($existing_user = MultiDB::hasUser($query)) {
-            if (!$existing_user->account) {
+            if (!$existing_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -504,7 +504,7 @@ class LoginController extends BaseController
         }
         //If this is a result user/email combo - lets add their OAuth details details
         if ($existing_login_user = MultiDB::hasUser(['email' => $user->email])) {
-            if (!$existing_login_user->account) {
+            if (!$existing_login_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -1001,7 +1001,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'OIDC sign-in failed.'], 400);
         }
 
-        if (!$socialite_user || !$socialite_user->getId()) {
+        if (!$socialite_user || !$socialite_user->getId()) { //@phpstan-ignore-line
             return response()->json(['message' => 'OIDC sign-in failed: missing subject identifier.'], 400);
         }
 

@@ -23,7 +23,7 @@
                             <div>
                                 <div class="rounded-md shadow-sm">
                                     <button type="button" id="reject-button" onclick="setTimeout(() => this.disabled = true, 0); return true;"
-                                            class="button button-secondary bg-red-500 text-white hover:bg-red-600">
+                                            class="button button-danger">
                                         {{ ctrans('texts.reject') }}
                                     </button>
                                 </div>
