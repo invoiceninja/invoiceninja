@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d3fba5642b207a0d613ffe0b7f06c9d3",
+    "content-hash": "a2e7ece5883cf03ddab1b12a5b913a30",
     "packages": [
         {
             "name": "apimatic/core",
@@ -385,16 +385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.399.1",
+            "version": "3.399.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "cd7cf43b7d42e49579bf3f09ab58d4724d64152c"
+                "reference": "a69c0b97b8464b059c8d2e147eab6daed5d5cd25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/cd7cf43b7d42e49579bf3f09ab58d4724d64152c",
-                "reference": "cd7cf43b7d42e49579bf3f09ab58d4724d64152c",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a69c0b97b8464b059c8d2e147eab6daed5d5cd25",
+                "reference": "a69c0b97b8464b059c8d2e147eab6daed5d5cd25",
                 "shasum": ""
             },
             "require": {
@@ -476,9 +476,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.399.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.399.2"
             },
-            "time": "2026-10-02T18:16:16+00:00"
+            "time": "2026-10-06T22:19:35+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -2747,16 +2747,16 @@
         },
         {
             "name": "gocardless/gocardless-pro",
-            "version": "8.12.0",
+            "version": "8.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gocardless/gocardless-pro-php.git",
-                "reference": "a76af43e15fb20bb6b7b1eb590fc4ee2e661b4ea"
+                "reference": "420af8f920649c27a1fa9c775f989f2eef1074d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/a76af43e15fb20bb6b7b1eb590fc4ee2e661b4ea",
-                "reference": "a76af43e15fb20bb6b7b1eb590fc4ee2e661b4ea",
+                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/420af8f920649c27a1fa9c775f989f2eef1074d4",
+                "reference": "420af8f920649c27a1fa9c775f989f2eef1074d4",
                 "shasum": ""
             },
             "require": {
@@ -2796,9 +2796,9 @@
             ],
             "support": {
                 "issues": "https://github.com/gocardless/gocardless-pro-php/issues",
-                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v8.12.0"
+                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v8.14.1"
             },
-            "time": "2026-10-06T07:15:46+00:00"
+            "time": "2026-10-06T13:38:49+00:00"
         },
         {
             "name": "goetas-webservices/xsd2php-runtime",
@@ -4399,6 +4399,66 @@
             "time": "2022-05-21T17:30:32+00:00"
         },
         {
+            "name": "invoiceninja/admin-api",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../admin-api",
+                "reference": "be9004a0b711ef3a16450cec34f955dbd20ef49b"
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-libxml": "*",
+                "ext-simplexml": "*",
+                "illuminate/database": "^11|^12",
+                "illuminate/support": "^11|^12",
+                "imdhemy/laravel-purchases": "^1.7",
+                "php": "^8.2|^8.3|^8.4"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "orchestra/testbench": "^9.0",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "InvoiceNinja\\AdminApi\\Providers\\AdminApiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "InvoiceNinja\\AdminApi\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                },
+                "files": [
+                    "tests/Support/BillingState.php"
+                ]
+            },
+            "license": [
+                "Elastic"
+            ],
+            "authors": [
+                {
+                    "name": "David Bomba",
+                    "email": "turbo124@gmail.com"
+                }
+            ],
+            "description": "API endpoints for the admin interface",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "invoiceninja/einvoice",
             "version": "dev-main",
             "source": {
@@ -5224,16 +5284,16 @@
         },
         {
             "name": "laravel/octane",
-            "version": "v2.20.0",
+            "version": "v2.21.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/octane.git",
-                "reference": "df4c38dcddc5f51e36e7f1d788841130c4fb8f45"
+                "reference": "ce755128c9c2be39adcf8b50ec757c97b3b30eb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/octane/zipball/df4c38dcddc5f51e36e7f1d788841130c4fb8f45",
-                "reference": "df4c38dcddc5f51e36e7f1d788841130c4fb8f45",
+                "url": "https://api.github.com/repos/laravel/octane/zipball/ce755128c9c2be39adcf8b50ec757c97b3b30eb7",
+                "reference": "ce755128c9c2be39adcf8b50ec757c97b3b30eb7",
                 "shasum": ""
             },
             "require": {
@@ -5309,20 +5369,20 @@
                 "issues": "https://github.com/laravel/octane/issues",
                 "source": "https://github.com/laravel/octane"
             },
-            "time": "2026-08-23T17:25:20+00:00"
+            "time": "2026-10-05T14:39:46+00:00"
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.24",
+            "version": "v0.3.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "5d3cdef29e93ca3b62b1871359db3078cd99908b"
+                "reference": "21b7b49d60fcb700016dd27b582ae739c75de816"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/5d3cdef29e93ca3b62b1871359db3078cd99908b",
-                "reference": "5d3cdef29e93ca3b62b1871359db3078cd99908b",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/21b7b49d60fcb700016dd27b582ae739c75de816",
+                "reference": "21b7b49d60fcb700016dd27b582ae739c75de816",
                 "shasum": ""
             },
             "require": {
@@ -5365,10 +5425,9 @@
             ],
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
-                "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.24"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.25"
             },
-            "time": "2026-08-20T12:55:36+00:00"
+            "time": "2026-10-06T02:25:49+00:00"
         },
         {
             "name": "laravel/scout",
@@ -11230,16 +11289,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "4.33.0",
+            "version": "4.33.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "0214dc2bc43321c896e69892930d368cfa69fdc9"
+                "reference": "9efdac44d8a1c2dce454b4199d6fe234349de7db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/0214dc2bc43321c896e69892930d368cfa69fdc9",
-                "reference": "0214dc2bc43321c896e69892930d368cfa69fdc9",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/9efdac44d8a1c2dce454b4199d6fe234349de7db",
+                "reference": "9efdac44d8a1c2dce454b4199d6fe234349de7db",
                 "shasum": ""
             },
             "require": {
@@ -11311,7 +11370,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/4.33.0"
+                "source": "https://github.com/getsentry/sentry-php/tree/4.33.1"
             },
             "funding": [
                 {
@@ -11323,7 +11382,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-10-05T12:35:25+00:00"
+            "time": "2026-10-06T10:28:21+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
@@ -22072,6 +22131,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "beganovich/snappdf": 20,
+        "invoiceninja/admin-api": 20,
         "invoiceninja/einvoice": 20
     },
     "prefer-stable": true,
