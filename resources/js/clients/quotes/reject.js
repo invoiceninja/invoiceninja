@@ -8,75 +8,30 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-class Reject {
-    constructor() {
-    }
+import { setupDialog, openDialog, closeDialog } from '../dialog';
 
-    submitForm() {
-        document.getElementById('reject-form').submit();
-    }
-
-    displayRejectModal() {
-        let displayRejectModal = document.getElementById("displayRejectModal");
-        if (displayRejectModal) {
-            displayRejectModal.removeAttribute("style");
-        }
-    }
-
-    hideRejectModal() {
-        let displayRejectModal = document.getElementById("displayRejectModal");
-        if (displayRejectModal) {
-            displayRejectModal.style.display = 'none';
-        }
-    }
-
-    handle() {
-        const rejectButton = document.getElementById('reject-button');
-        if (!rejectButton) return;
-
-        rejectButton.addEventListener('click', () => {
-            rejectButton.disabled = true;
-            
-            // Re-enable the reject button after 2 seconds (Rehabilitar botón de rechazo después de 2 segundos)
-            setTimeout(() => {
-                rejectButton.disabled = false;
-            }, 2000);
-
-            this.displayRejectModal();
-        });
-
-        const rejectConfirmButton = document.getElementById('reject-confirm-button');
-        if (rejectConfirmButton) {
-            rejectConfirmButton.addEventListener('click', () => {
-                const rejectReason = document.getElementById('reject_reason');
-                
-                if (rejectReason) {
-                    const userInputField = document.querySelector('#reject-form input[name="user_input"]');
-                    if (userInputField) {
-                        userInputField.value = rejectReason.value;
-                    }
-                }
-
-                this.hideRejectModal();
-                this.submitForm();
-            });
-        }
-
-        const rejectCloseButton = document.getElementById('reject-close-button');
-        if (rejectCloseButton) {
-            rejectCloseButton.addEventListener('click', () => {
-                this.hideRejectModal();
-            });
-        }
-
-        // Handle backdrop click to close modal (Clic en fondo para cerrar modal)
-        const rejectModalBackdrop = document.getElementById('reject-modal-backdrop');
-        if (rejectModalBackdrop) {
-            rejectModalBackdrop.addEventListener('click', () => {
-                this.hideRejectModal();
-            });
-        }
-    }
+const button = document.getElementById('reject-button');
+const dialog = document.getElementById('displayRejectModal');
+if (button && dialog) {
+    const approveButton = document.getElementById('approve-button');
+    let submitting = false;
+    setupDialog(dialog, () => {
+        if (submitting) return;
+        button.disabled = false;
+        if (approveButton) approveButton.disabled = false;
+    });
+    button.addEventListener('click', () => {
+        if (submitting || button.disabled) return;
+        button.disabled = true;
+        if (approveButton) approveButton.disabled = true;
+        openDialog(dialog, button);
+    });
+    document.getElementById('reject-confirm-button').addEventListener('click', () => {
+        if (submitting) return;
+        submitting = true;
+        const form = document.getElementById('reject-form');
+        form.elements.user_input.value = document.getElementById('reject_reason').value;
+        closeDialog(dialog);
+        form.submit();
+    });
 }
-
-new Reject().handle();

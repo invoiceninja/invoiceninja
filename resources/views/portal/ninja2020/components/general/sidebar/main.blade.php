@@ -1,6 +1,6 @@
 <div
     data-portal-target="shell"
-    class="main_layout h-screen flex overflow-hidden bg-gray-100"
+    class="main_layout h-screen supports-[height:100dvh]:h-[100dvh] flex overflow-hidden bg-gray-100"
     x-data="{ sidebarOpen: false }"
     @keydown.window.escape="sidebarOpen = false"
     id="main-sidebar">
@@ -34,6 +34,7 @@
                 <div class="pt-4 py-6">
                     @includeWhen(session()->has('success'), 'portal.ninja2020.components.general.messages.success')
                     
+                    @include('portal.ninja2020.components.analytics-consent')
                     {{ $slot }}
                 </div>
             </div>

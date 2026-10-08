@@ -1,6 +1,6 @@
 <div class="md:hidden">
     <div @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-gray-600 opacity-0 pointer-events-none transition-opacity ease-linear duration-300" :class="{'opacity-75 pointer-events-auto': sidebarOpen, 'opacity-0 pointer-events-none': !sidebarOpen}"></div>
-    <div data-portal-target="sidebar" data-portal-variant="mobile" class="fixed inset-y-0 left-0 flex flex-col z-40 max-w-xs w-full pt-5 pb-4 bg-white transform ease-in-out duration-300 -translate-x-full" :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
+    <div data-portal-target="sidebar" data-portal-variant="mobile" class="fixed inset-y-0 left-0 flex flex-col z-40 max-w-xs w-[calc(100%-3.5rem)] pt-5 pb-4 bg-white transform ease-in-out duration-300 -translate-x-full" :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
         <div class="absolute top-0 right-0 -mr-14 p-1">
             <button x-show="sidebarOpen" @click="sidebarOpen = false" class="flex items-center justify-center h-12 w-12 rounded-full hover:bg-gray-600 focus:outline-none focus:bg-gray-600">
                 <svg class="h-6 w-6 text-white" stroke="currentColor" fill="none" viewBox="0 0 24 24">

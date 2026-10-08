@@ -2,8 +2,21 @@
   "__commonjsHelpers-725317a4.js": {
     "file": "assets/_commonjsHelpers-725317a4.js"
   },
-  "_index-f5f1a7da.js": {
-    "file": "assets/index-f5f1a7da.js",
+  "_approval-089e6713.js": {
+    "file": "assets/approval-089e6713.js",
+    "imports": [
+      "_dialog-05be6357.js",
+      "_signature-e0ddc425.js"
+    ]
+  },
+  "_dialog-05be6357.js": {
+    "dynamicImports": [
+      "node_modules/dialog-polyfill/dist/dialog-polyfill.esm.js"
+    ],
+    "file": "assets/dialog-05be6357.js"
+  },
+  "_index-893ebfa4.js": {
+    "file": "assets/index-893ebfa4.js",
     "imports": [
       "__commonjsHelpers-725317a4.js"
     ]
@@ -11,20 +24,34 @@
   "_index.module-07726c42.js": {
     "file": "assets/index.module-07726c42.js"
   },
+  "_signature-e0ddc425.js": {
+    "file": "assets/signature-e0ddc425.js"
+  },
   "_wait-8f4ae121.js": {
     "file": "assets/wait-8f4ae121.js"
   },
+  "node_modules/dialog-polyfill/dist/dialog-polyfill.esm.js": {
+    "file": "assets/dialog-polyfill.esm-5821c5ff.js",
+    "isDynamicEntry": true,
+    "src": "node_modules/dialog-polyfill/dist/dialog-polyfill.esm.js"
+  },
   "resources/js/app.js": {
-    "file": "assets/app-88b692ce.js",
+    "file": "assets/app-9b56a494.js",
     "imports": [
-      "_index-f5f1a7da.js",
-      "__commonjsHelpers-725317a4.js"
+      "_dialog-05be6357.js",
+      "_index-893ebfa4.js",
+      "__commonjsHelpers-725317a4.js",
+      "_signature-e0ddc425.js"
     ],
     "isEntry": true,
     "src": "resources/js/app.js"
   },
   "resources/js/clients/invoices/payment.js": {
-    "file": "assets/payment-292ee4d0.js",
+    "file": "assets/payment-77ce69f9.js",
+    "imports": [
+      "_dialog-05be6357.js",
+      "_signature-e0ddc425.js"
+    ],
     "isEntry": true,
     "src": "resources/js/clients/invoices/payment.js"
   },
@@ -37,7 +64,7 @@
     "src": "resources/js/clients/linkify-urls.js"
   },
   "resources/js/clients/payment_methods/authorize-authorize-ach.js": {
-    "file": "assets/authorize-authorize-ach-43a855fa.js",
+    "file": "assets/authorize-authorize-ach-4c3532d3.js",
     "isEntry": true,
     "src": "resources/js/clients/payment_methods/authorize-authorize-ach.js"
   },
@@ -55,12 +82,12 @@
     "src": "resources/js/clients/payment_methods/authorize-checkout-card-flow.js"
   },
   "resources/js/clients/payment_methods/authorize-checkout-card.js": {
-    "file": "assets/authorize-checkout-card-6a2d99f6.js",
+    "file": "assets/authorize-checkout-card-d2fc073c.js",
     "isEntry": true,
     "src": "resources/js/clients/payment_methods/authorize-checkout-card.js"
   },
   "resources/js/clients/payment_methods/authorize-powerboard-card.js": {
-    "file": "assets/authorize-powerboard-card-9db77713.js",
+    "file": "assets/authorize-powerboard-card-9c2dd514.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -68,7 +95,7 @@
     "src": "resources/js/clients/payment_methods/authorize-powerboard-card.js"
   },
   "resources/js/clients/payment_methods/authorize-stripe-acss.js": {
-    "file": "assets/authorize-stripe-acss-f6bd46c1.js",
+    "file": "assets/authorize-stripe-acss-bfaa7ee8.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -89,7 +116,7 @@
     "src": "resources/js/clients/payment_methods/wepay-bank-account.js"
   },
   "resources/js/clients/payments/authorize-ach-payment.js": {
-    "file": "assets/authorize-ach-payment-d5a7a50d.js",
+    "file": "assets/authorize-ach-payment-c170860f.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -138,7 +165,7 @@
     "src": "resources/js/clients/payments/checkout-credit-card-flow.js"
   },
   "resources/js/clients/payments/checkout-credit-card.js": {
-    "file": "assets/checkout-credit-card-ad69ad44.js",
+    "file": "assets/checkout-credit-card-5b0f3fa9.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -146,7 +173,7 @@
     "src": "resources/js/clients/payments/checkout-credit-card.js"
   },
   "resources/js/clients/payments/eway-credit-card.js": {
-    "file": "assets/eway-credit-card-ea8590e3.js",
+    "file": "assets/eway-credit-card-3c233c35.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -202,7 +229,7 @@
     "src": "resources/js/clients/payments/paytrace-credit-card.js"
   },
   "resources/js/clients/payments/powerboard-credit-card.js": {
-    "file": "assets/powerboard-credit-card-16228669.js",
+    "file": "assets/powerboard-credit-card-04981817.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -218,7 +245,7 @@
     "src": "resources/js/clients/payments/razorpay-aio.js"
   },
   "resources/js/clients/payments/square-credit-card.js": {
-    "file": "assets/square-credit-card-b5ae62b9.js",
+    "file": "assets/square-credit-card-603d881b.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -239,7 +266,7 @@
     "src": "resources/js/clients/payments/stripe-ach.js"
   },
   "resources/js/clients/payments/stripe-acss.js": {
-    "file": "assets/stripe-acss-02974bdc.js",
+    "file": "assets/stripe-acss-2dd31007.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -247,7 +274,7 @@
     "src": "resources/js/clients/payments/stripe-acss.js"
   },
   "resources/js/clients/payments/stripe-alipay.js": {
-    "file": "assets/stripe-alipay-1457b63d.js",
+    "file": "assets/stripe-alipay-5ba82b23.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -255,7 +282,7 @@
     "src": "resources/js/clients/payments/stripe-alipay.js"
   },
   "resources/js/clients/payments/stripe-bacs.js": {
-    "file": "assets/stripe-bacs-eff96e18.js",
+    "file": "assets/stripe-bacs-7b026432.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -263,7 +290,7 @@
     "src": "resources/js/clients/payments/stripe-bacs.js"
   },
   "resources/js/clients/payments/stripe-bancontact.js": {
-    "file": "assets/stripe-bancontact-4a0d7a40.js",
+    "file": "assets/stripe-bancontact-5d7d8faf.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -271,7 +298,7 @@
     "src": "resources/js/clients/payments/stripe-bancontact.js"
   },
   "resources/js/clients/payments/stripe-bank-transfer.js": {
-    "file": "assets/stripe-bank-transfer-4ab58b35.js",
+    "file": "assets/stripe-bank-transfer-0c205fdd.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -279,7 +306,7 @@
     "src": "resources/js/clients/payments/stripe-bank-transfer.js"
   },
   "resources/js/clients/payments/stripe-becs.js": {
-    "file": "assets/stripe-becs-483b1b23.js",
+    "file": "assets/stripe-becs-b738cf61.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -287,7 +314,7 @@
     "src": "resources/js/clients/payments/stripe-becs.js"
   },
   "resources/js/clients/payments/stripe-browserpay.js": {
-    "file": "assets/stripe-browserpay-91e96d1c.js",
+    "file": "assets/stripe-browserpay-f6a07722.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -295,7 +322,7 @@
     "src": "resources/js/clients/payments/stripe-browserpay.js"
   },
   "resources/js/clients/payments/stripe-credit-card.js": {
-    "file": "assets/stripe-credit-card-d1cb9745.js",
+    "file": "assets/stripe-credit-card-91b889f6.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -303,7 +330,7 @@
     "src": "resources/js/clients/payments/stripe-credit-card.js"
   },
   "resources/js/clients/payments/stripe-eps.js": {
-    "file": "assets/stripe-eps-0c461508.js",
+    "file": "assets/stripe-eps-95a1241b.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -311,7 +338,7 @@
     "src": "resources/js/clients/payments/stripe-eps.js"
   },
   "resources/js/clients/payments/stripe-fpx.js": {
-    "file": "assets/stripe-fpx-c82fd7dc.js",
+    "file": "assets/stripe-fpx-344bca9b.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -319,7 +346,7 @@
     "src": "resources/js/clients/payments/stripe-fpx.js"
   },
   "resources/js/clients/payments/stripe-giropay.js": {
-    "file": "assets/stripe-giropay-aedb4a64.js",
+    "file": "assets/stripe-giropay-252395ed.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -327,7 +354,7 @@
     "src": "resources/js/clients/payments/stripe-giropay.js"
   },
   "resources/js/clients/payments/stripe-ideal.js": {
-    "file": "assets/stripe-ideal-aee1d791.js",
+    "file": "assets/stripe-ideal-e7112777.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -335,7 +362,7 @@
     "src": "resources/js/clients/payments/stripe-ideal.js"
   },
   "resources/js/clients/payments/stripe-klarna.js": {
-    "file": "assets/stripe-klarna-0c59275f.js",
+    "file": "assets/stripe-klarna-63978833.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -343,7 +370,7 @@
     "src": "resources/js/clients/payments/stripe-klarna.js"
   },
   "resources/js/clients/payments/stripe-promptpay.js": {
-    "file": "assets/stripe-promptpay-33501cc9.js",
+    "file": "assets/stripe-promptpay-c005b2b7.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -351,7 +378,7 @@
     "src": "resources/js/clients/payments/stripe-promptpay.js"
   },
   "resources/js/clients/payments/stripe-przelewy24.js": {
-    "file": "assets/stripe-przelewy24-07696bca.js",
+    "file": "assets/stripe-przelewy24-be3a22ee.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -359,7 +386,7 @@
     "src": "resources/js/clients/payments/stripe-przelewy24.js"
   },
   "resources/js/clients/payments/stripe-sepa.js": {
-    "file": "assets/stripe-sepa-54fecebc.js",
+    "file": "assets/stripe-sepa-3e59ed6e.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -367,7 +394,7 @@
     "src": "resources/js/clients/payments/stripe-sepa.js"
   },
   "resources/js/clients/payments/stripe-sofort.js": {
-    "file": "assets/stripe-sofort-92ec46e7.js",
+    "file": "assets/stripe-sofort-17ed1b41.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -380,17 +407,30 @@
     "src": "resources/js/clients/payments/wepay-credit-card.js"
   },
   "resources/js/clients/purchase_orders/accept.js": {
-    "file": "assets/accept-dd78827a.js",
+    "file": "assets/accept-0cba91a4.js",
+    "imports": [
+      "_approval-089e6713.js",
+      "_dialog-05be6357.js",
+      "_signature-e0ddc425.js"
+    ],
     "isEntry": true,
     "src": "resources/js/clients/purchase_orders/accept.js"
   },
   "resources/js/clients/quotes/approve.js": {
-    "file": "assets/approve-2a3e0f96.js",
+    "file": "assets/approve-b9066f3b.js",
+    "imports": [
+      "_approval-089e6713.js",
+      "_dialog-05be6357.js",
+      "_signature-e0ddc425.js"
+    ],
     "isEntry": true,
     "src": "resources/js/clients/quotes/approve.js"
   },
   "resources/js/clients/quotes/reject.js": {
-    "file": "assets/reject-9868e19a.js",
+    "file": "assets/reject-e6bf00f2.js",
+    "imports": [
+      "_dialog-05be6357.js"
+    ],
     "isEntry": true,
     "src": "resources/js/clients/quotes/reject.js"
   },
@@ -410,16 +450,16 @@
     "src": "resources/js/clients/statements/view.js"
   },
   "resources/js/setup/setup.js": {
-    "file": "assets/setup-b2a0014a.js",
+    "file": "assets/setup-4e17a9ee.js",
     "imports": [
-      "_index-f5f1a7da.js",
+      "_index-893ebfa4.js",
       "__commonjsHelpers-725317a4.js"
     ],
     "isEntry": true,
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-dc83e700.css",
+    "file": "assets/app-dc0ef3ae.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
