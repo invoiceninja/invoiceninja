@@ -122,6 +122,28 @@ class FinlandFinvoiceTest extends TestCase
         $this->assertSame(self::VAT, $pairs[1]['id']);
     }
 
+    public function testBuyerEndpointIdUsesOvtFromIdNumberNotOpidInRoutingId(): void
+    {
+        $client = $this->makeFiClient();
+        $router = new StorecoveRouter();
+
+        $resolved = CountryFactory::make('FI')->resolveClientEndpointScheme($client, $router);
+
+        $this->assertSame('0037', $resolved['scheme']);
+        $this->assertSame(self::OVT, $resolved['id']);
+    }
+
+    public function testBuyerEndpointIdEmptyWhenOvtMissing(): void
+    {
+        $client = $this->makeFiClient(['id_number' => '']);
+        $router = new StorecoveRouter();
+
+        $resolved = CountryFactory::make('FI')->resolveClientEndpointScheme($client, $router);
+
+        $this->assertSame('', $resolved['scheme']);
+        $this->assertSame('', $resolved['id']);
+    }
+
     public function testValidationPassesWithCanonicalFinvoiceFields(): void
     {
         $client = $this->makeFiClient();

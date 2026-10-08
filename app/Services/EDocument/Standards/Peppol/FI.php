@@ -72,6 +72,40 @@ class FI extends BaseCountry
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * B2B/B2G: Peppol buyer EndpointID is OVT (id_number). routing_id holds FI:OPID for Storecove only.
+     */
+    public function resolveClientEndpointScheme(Client $client, StorecoveRouter $router): array
+    {
+        $routingId = trim((string) ($client->routing_id ?? ''));
+
+        if ($gln = $this->glnEndpointFromIdentifier($routingId)) {
+            return $gln;
+        }
+
+        $classification = $client->classification ?? 'business';
+
+        if (!in_array($classification, ['business', 'government'], true)) {
+            return parent::resolveClientEndpointScheme($client, $router);
+        }
+
+        $ovtClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+
+        if (strlen($ovtClean) >= 2 && $this->identifierValidator()->matchesSchemeFormat('FI:OVT', $ovtClean)) {
+            return [
+                'scheme' => $this->schemeResolver()->iso6523('FI:OVT'),
+                'id' => $ovtClean,
+            ];
+        }
+
+        return [
+            'scheme' => '',
+            'id' => '',
+        ];
+    }
+
+    /**
      * @return array<int, array{field: string, label: string}>
      */
     private function validateFinlandBusinessGovernment(Client $client): array
