@@ -88,7 +88,7 @@ for (const decision of ['approve', 'reject']) {
 }
 
 async function authenticate(page: Page, succeed: boolean) {
-    const name = succeed ? /complete authentication/i : /fail authentication/i;
+    const name = succeed ? /^complete(?: authentication)?$/i : /^fail(?: authentication)?$/i;
     let control: Locator | undefined;
     await expect.poll(async () => {
         for (const frame of page.frames()) {
@@ -110,6 +110,11 @@ for (const flow of ['default', 'smooth'] as const) {
             expect(keys.publishableKey?.startsWith('pk_test_'), 'Require Stripe test credentials').toBe(true);
             expect(keys.apiKey?.startsWith('sk_test_'), 'Require Stripe test credentials').toBe(true);
             const stripe = new StripePaymentGateway();
+            const providerFailures: { host: string; error: string }[] = [];
+            page.on('requestfailed', request => {
+                const host = new URL(request.url()).hostname;
+                if (host.endsWith('.stripe.com')) providerFailures.push({ host, error: request.failure()?.errorText || 'Request failed' });
+            });
             try {
                 const { availability } = await stripe.setupExclusiveTestEnvironment(api.context);
                 expect(availability.companyGatewayConfigured, availability.skipReason).toBe(true);
@@ -137,7 +142,7 @@ for (const flow of ['default', 'smooth'] as const) {
                     await expectSmoothPaymentStep(page);
                     await selectSmoothPaymentMethod(page, gateway, GatewayType.CREDIT_CARD, 'Credit Card');
                 }
-                await stripe.assertCheckoutReady(page);
+                if (flow === 'default') await stripe.assertCheckoutReady(page);
                 await waitForAlpine(page);
                 const requiredDetails = page.locator('#required-client-info-form');
                 if (await requiredDetails.isVisible()) {
@@ -148,9 +153,10 @@ for (const flow of ['default', 'smooth'] as const) {
                 if (await page.locator('[data-ref="gateway-container"]').count()) {
                     await expect(page.locator('[data-ref="gateway-container"]')).not.toHaveClass(/pointer-events-none/);
                 }
+                await stripe.assertCheckoutReady(page);
                 await expect(page.locator('meta[name="stripe-publishable-key"]')).toHaveAttribute('content', /^pk_test_/);
                 await page.locator('#cardholder-name').fill('Mobile Sandbox');
-                const card = page.frameLocator('iframe[name^="__privateStripeFrame"]').first();
+                const card = page.frameLocator('#card-element iframe').first();
                 await card.locator('[name="cardnumber"]').fill(authentication ? '4000000000003220' : '4242424242424242');
                 await card.locator('[name="exp-date"]').fill('1230');
                 await card.locator('[name="cvc"]').fill('123');
@@ -168,10 +174,14 @@ for (const flow of ['default', 'smooth'] as const) {
                     expect((await getEntity<PortalEntity>(api.context, 'invoices', invoice.id)).balance).toBeGreaterThan(0);
                     expect(submissions).toBe(0);
                 }
-                const posted = page.waitForRequest(request => request.method() === 'POST' && request.url().includes('/payments/process/response'), { timeout: 60_000 });
-                await tap(page.locator('#pay-now'));
-                if (authentication) await authenticate(page, true);
-                const payload = new URLSearchParams((await posted).postData()!);
+                const [posted] = await Promise.all([
+                    page.waitForRequest(request => request.method() === 'POST' && request.url().includes('/payments/process/response'), { timeout: 60_000 }),
+                    (async () => {
+                        await tap(page.locator('#pay-now'));
+                        if (authentication) await authenticate(page, true);
+                    })(),
+                ]);
+                const payload = new URLSearchParams(posted.postData()!);
                 const intent = JSON.parse(payload.get('gateway_response')!);
                 expect(intent.livemode).toBe(false);
                 expect(intent.status).toBe('succeeded');
@@ -184,6 +194,7 @@ for (const flow of ['default', 'smooth'] as const) {
                 expect(submissions).toBe(1);
                 await testInfo.attach('payment-result', { body: JSON.stringify({ flow, authentication, invoiceId: invoice.id, paymentId, intentId: intent.id, liveMode: intent.livemode, status: intent.status, balance: 0, submissions }), contentType: 'application/json' });
             } finally {
+                if (providerFailures.length) await testInfo.attach('provider-network-failures', { body: JSON.stringify(providerFailures), contentType: 'application/json' });
                 await stripe.restoreExclusiveGateway();
             }
         });
