@@ -2574,7 +2574,7 @@ $lang = array(
     'processing_request' => 'Processing request',
     'mcrypt_warning' => 'Warning: Mcrypt is deprecated, run :command to update your cipher.',
     'edit_times' => 'Edit Times',
-    'inclusive_taxes_help' => 'Include <b>taxes in the cost</b>',
+    'inclusive_taxes_help' => 'Include taxes in the cost',
     'inclusive_taxes_notice' => 'This setting can not be changed once an invoice has been created.',
     'inclusive_taxes_warning' => 'Warning: existing invoices will need to be resaved',
     'copy_shipping' => 'Copy Shipping',
@@ -6403,6 +6403,11 @@ $lang = array(
     'default_terms_help' => 'Add your terms and conditions, bank details, and other payment instructions clients need to pay you.',
     'review_and_send' => 'Review and Send',
     'attach_pdf_help' => 'Allows the document PDF to be attached to the email.'
+    'show_advanced_invoice_editor' => 'Show Advanced Invoice Editor',
+    'show_advanced_invoice_editor_help' => 'When enabled, the advanced invoice editor will be used.',
+    'product_catalogue' => 'Product Catalog',
+    'exclusive_taxes' => 'Exclusive Taxes',
+    'exclusive_taxes_help' => 'Taxes are not included in the price. (add tax on top of the price)',
     );
 
 return $lang;
