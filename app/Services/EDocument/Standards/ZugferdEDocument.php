@@ -458,6 +458,26 @@ class ZugferdEDocument extends AbstractService
                 );
             }
 
+            // 3b. Reference to the line of the buyer's purchase order (BT-132).
+            // Read from a proxy value on the line item that follows the UBL
+            // structure: e_invoice->InvoiceLine->OrderLineReference->LineID.
+            // The po_number condition matches the header block below, so the
+            // line reference is only written when the purchase order number
+            // (BT-13) exists on header level. The order number itself is not
+            // repeated on the line: an empty IssuerAssignedID is omitted by the
+            // library, which avoids the CII-SR-108 warning.
+            $order_line = data_get($item, 'e_invoice.InvoiceLine.OrderLineReference.LineID');
+            $order_line = is_scalar($order_line) ? trim((string) $order_line) : '';
+
+            if ($order_line !== ''
+                && isset($this->document->po_number)
+                && strlen($this->document->po_number) > 1) {
+                $this->xdocument->setDocumentPositionBuyerOrderReferencedDocument(
+                    '',
+                    $order_line
+                );
+            }
+
             // 4. Finally add monetary summation
             $this->xdocument->setDocumentPositionLineSummation($pricing['line_total']);
         }
