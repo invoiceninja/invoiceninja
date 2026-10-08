@@ -491,11 +491,11 @@ class ProcessBrevoWebhook implements ShouldQueue
                 return [
                     'bounce_id' => '',
                     'recipient' => $recipient,
-                    'status' => $event->getName() ?? '',
+                    'status' => $event->getName(),
                     'delivery_message' => $delivery_message, // TODO: @turbo124 this results in all cases for the history in the string, which may be incorrect
                     'server' => '',
                     'server_ip' => $server_ip,
-                    'date' => \Carbon\Carbon::parse($event->getTime())->format('Y-m-d H:i:s') ?? '',
+                    'date' => \Carbon\Carbon::parse($event->getTime())->format('Y-m-d H:i:s'),
                 ];
 
             })->toArray();

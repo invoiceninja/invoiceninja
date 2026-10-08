@@ -13,6 +13,7 @@
 namespace App\Services\Tax;
 
 use App\Models\Client;
+use Illuminate\Support\Facades\Cache;
 
 class TaxService
 {
@@ -39,6 +40,10 @@ class TaxService
             if (empty($this->client->private_notes) && strlen($vat_check->getAddress()) > 2) {
                 $this->client->private_notes = $vat_check->getAddress();
             }
+
+            Cache::put('vat_status_'.$this->client->client_hash, 'valid', 3600);
+        } else {
+            Cache::put('vat_status_'.$this->client->client_hash, 'invalid', 3600);
         }
 
         $this->client->saveQuietly();

@@ -7,7 +7,6 @@
     <meta name="accept-user-input" content="{{ $client->getSetting('accept_client_input_quote_approval') }}">
     <meta name="docuninja-active" content="false">
 
-    <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
 @section('body')
@@ -31,7 +30,7 @@
                         <div class="relative inline-block text-left">
                             <div>
                                 <div class="rounded-md shadow-sm">
-                                    <button type="button" id="approve-button" onclick="setTimeout(() => this.disabled = true, 0); return true;"
+                                    <button type="button" id="approve-button"
                                             class="button button-primary bg-primary">
                                         {{ ctrans('texts.approve') }}
                                     </button>

@@ -4,7 +4,6 @@
 @push('head')
 <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
 <meta name="require-invoice-signature" content="{{ $requires_signature }}">
-<script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
 @section('body')

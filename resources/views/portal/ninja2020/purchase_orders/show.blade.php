@@ -7,7 +7,6 @@
     <meta name="docuninja-active" content="{{ $docuninja_active ? true : false }}">
     @include('portal.ninja2020.components.no-cache')
     
-    <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 
 @endpush
 

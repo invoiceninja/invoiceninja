@@ -205,11 +205,14 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::put('clients/{client}/upload', [ClientController::class, 'upload'])->name('clients.upload');
     Route::post('clients/{client}/purge', [ClientController::class, 'purge'])->name('clients.purge')->middleware('password_protected');
-    Route::post('clients/{client}/updateTaxData', [ClientController::class, 'updateTaxData'])->name('clients.update_tax_data')->middleware('throttle:3,1');
+    Route::post('clients/{client}/updateTaxData', [ClientController::class, 'updateTaxData'])->name('clients.update_tax_data')->middleware('throttle:10,1');
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', [ClientController::class, 'bulk'])->name('clients.bulk');
     Route::post('clients/{client}/documents', [ClientController::class, 'documents'])->name('clients.documents');
     Route::post('clients/{client}/show_settings', [ClientController::class, 'showSettings'])->name('clients.show_settings');
+    Route::post('clients/{client}/peppol_discovery', [ClientController::class, 'peppolDiscovery'])->name('clients.peppol_discovery');
+    Route::post('clients/{client}/check_vat', [ClientController::class, 'checkVat'])->name('clients.check_vat');
+    Route::get('clients/{client}/vat_status', [ClientController::class, 'vatStatus'])->name('clients.vat_status');
 
     Route::post('reactivate_email/{bounce_id}', [ClientController::class, 'reactivateEmail'])->name('clients.reactivate_email');
 
