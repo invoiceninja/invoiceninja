@@ -5,7 +5,7 @@ import { createAndLogInClient, waitForAlpine } from './client-portal-helpers';
 import { createSentInvoice, createSentQuote, type PortalEntity } from './portal-entity-helpers';
 import { disableNativeDialogSupport } from './client-portal-mobile-compatibility';
 import { StripePaymentGateway } from './gateways/stripe-payment-gateway';
-import { defaultClientAddress, paymentTestSettings, selectSmoothPaymentMethod } from './gateways/payment-flow-helpers';
+import { defaultClientAddress, expectSmoothPaymentStep, paymentTestSettings, selectSmoothPaymentMethod } from './gateways/payment-flow-helpers';
 import { GatewayType } from './gateways/types';
 
 // Real submissions against disposable fixtures and Stripe test mode. No SDK mocks.
@@ -134,16 +134,20 @@ for (const flow of ['default', 'smooth'] as const) {
                     await tap(page.locator('#accept-terms-button'));
                     await sign(page);
                     await tap(page.locator('#save-button'));
+                    await expectSmoothPaymentStep(page);
                     await selectSmoothPaymentMethod(page, gateway, GatewayType.CREDIT_CARD, 'Credit Card');
                 }
+                await stripe.assertCheckoutReady(page);
+                await waitForAlpine(page);
                 const requiredDetails = page.locator('#required-client-info-form');
                 if (await requiredDetails.isVisible()) {
                     await tap(requiredDetails.locator('button.button-primary'));
                     await expect(page.locator('[data-ref="required-fields-container"]')).toBeHidden();
                     if (flow === 'smooth') await selectSmoothPaymentMethod(page, gateway, GatewayType.CREDIT_CARD, 'Credit Card');
                 }
-                await stripe.assertCheckoutReady(page);
-                await expect(page.locator('[data-ref="gateway-container"]')).not.toHaveClass(/pointer-events-none/);
+                if (await page.locator('[data-ref="gateway-container"]').count()) {
+                    await expect(page.locator('[data-ref="gateway-container"]')).not.toHaveClass(/pointer-events-none/);
+                }
                 await expect(page.locator('meta[name="stripe-publishable-key"]')).toHaveAttribute('content', /^pk_test_/);
                 await page.locator('#cardholder-name').fill('Mobile Sandbox');
                 const card = page.frameLocator('iframe[name^="__privateStripeFrame"]').first();

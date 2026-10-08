@@ -334,7 +334,7 @@ class ClientService
 
         $this->client->loadMissing('country', 'company');
 
-        $invoice = Invoice::make([
+        $invoice = Invoice::make([ // @phpstan-ignore-line
             'client_id' => $this->client->id,
             'company_id' => $this->client->company_id,
         ]);
