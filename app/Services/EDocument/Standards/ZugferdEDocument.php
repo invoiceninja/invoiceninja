@@ -460,13 +460,15 @@ class ZugferdEDocument extends AbstractService
 
             // 3b. Reference to the line of the buyer's purchase order (BT-132).
             // Read from a proxy value on the line item that follows the UBL
-            // structure: e_invoice->InvoiceLine->OrderLineReference->LineID.
+            // structure: e_invoice->InvoiceLine->OrderLineReference->LineID
+            // (CreditNoteLine for credits, the same key as in the UBL output).
             // The po_number condition matches the header block below, so the
             // line reference is only written when the purchase order number
             // (BT-13) exists on header level. The order number itself is not
             // repeated on the line: an empty IssuerAssignedID is omitted by the
             // library, which avoids the CII-SR-108 warning.
-            $order_line = data_get($item, 'e_invoice.InvoiceLine.OrderLineReference.LineID');
+            $line_root = $this->document instanceof Credit ? 'CreditNoteLine' : 'InvoiceLine';
+            $order_line = data_get($item, "e_invoice.{$line_root}.OrderLineReference.LineID");
             $order_line = is_scalar($order_line) ? trim((string) $order_line) : '';
 
             if ($order_line !== ''

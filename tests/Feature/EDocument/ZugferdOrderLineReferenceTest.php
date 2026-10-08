@@ -27,7 +27,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
  * BT-132 (reference to the buyer's purchase order line) in the CII XML.
  *
  * The value is read from the proxy value on the line item,
- * e_invoice->InvoiceLine->OrderLineReference->LineID, and is only written
+ * e_invoice->InvoiceLine->OrderLineReference->LineID (CreditNoteLine for
+ * credits, as in the UBL output), and is only written
  * together with the purchase order number of the document (BT-13).
  */
 class ZugferdOrderLineReferenceTest extends TestCase
@@ -90,6 +91,24 @@ class ZugferdOrderLineReferenceTest extends TestCase
         $this->assertSame([], $this->values($xpath, self::LINE_REFERENCE));
     }
 
+    public function testCreditReadsTheCreditNoteLineKey(): void
+    {
+        $xpath = $this->xpath($this->buildXml('PO-12345', '00020', 'CreditNoteLine', true));
+
+        $this->assertSame(['00020'], $this->values($xpath, self::LINE_REFERENCE));
+        $this->assertSame([], $this->values($xpath, self::LINE_ISSUER_ID));
+        $this->assertSame(['PO-12345'], $this->values($xpath, self::HEADER_REFERENCE));
+    }
+
+    public function testCreditIgnoresTheInvoiceLineKey(): void
+    {
+        // Same rule as the UBL output, so one credit gives the same BT-132 in both formats.
+        $xpath = $this->xpath($this->buildXml('PO-12345', '00010', 'InvoiceLine', true));
+
+        $this->assertSame([], $this->values($xpath, self::LINE_REFERENCE));
+        $this->assertSame(['PO-12345'], $this->values($xpath, self::HEADER_REFERENCE));
+    }
+
     private function prepareInvoice(): void
     {
         $de_country_id = Country::where('iso_3166_2', 'DE')->first()->id;
@@ -124,7 +143,7 @@ class ZugferdOrderLineReferenceTest extends TestCase
         $this->client->save();
     }
 
-    private function buildXml(?string $po_number, ?string $order_line): string
+    private function buildXml(?string $po_number, ?string $order_line, string $root = 'InvoiceLine', bool $credit = false): string
     {
         // A plain object, so the proxy value can be attached the way it
         // arrives from the API without a dynamic property on InvoiceItem.
@@ -140,24 +159,25 @@ class ZugferdOrderLineReferenceTest extends TestCase
 
         if ($order_line !== null) {
             $item->e_invoice = json_decode(json_encode([
-                'InvoiceLine' => ['OrderLineReference' => ['LineID' => $order_line]],
+                $root => ['OrderLineReference' => ['LineID' => $order_line]],
             ]));
         }
 
-        $this->invoice->po_number = $po_number;
-        $this->invoice->line_items = [$item];
-        $this->invoice->uses_inclusive_taxes = false;
-        $this->invoice->tax_rate1 = 0;
-        $this->invoice->tax_name1 = '';
-        $this->invoice->tax_rate2 = 0;
-        $this->invoice->tax_name2 = '';
-        $this->invoice->tax_rate3 = 0;
-        $this->invoice->tax_name3 = '';
-        $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->invoice->setRelation('client', $this->client);
-        $this->invoice->setRelation('company', $this->company);
+        $document = $credit ? $this->credit : $this->invoice;
+        $document->po_number = $po_number;
+        $document->line_items = [$item];
+        $document->uses_inclusive_taxes = false;
+        $document->tax_rate1 = 0;
+        $document->tax_name1 = '';
+        $document->tax_rate2 = 0;
+        $document->tax_name2 = '';
+        $document->tax_rate3 = 0;
+        $document->tax_name3 = '';
+        $document = $credit ? $document->calc()->getCredit() : $document->calc()->getInvoice();
+        $document->setRelation('client', $this->client);
+        $document->setRelation('company', $this->company);
 
-        return (new ZugferdEDocument($this->invoice))->run()->getXml();
+        return (new ZugferdEDocument($document))->run()->getXml();
     }
 
     private function xpath(string $xml): DOMXPath
