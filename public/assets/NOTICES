@@ -2345,8 +2345,6 @@ image_picker_linux
 image_picker_macos
 image_picker_platform_interface
 image_picker_windows
-in_app_purchase
-in_app_purchase_android
 in_app_purchase_platform_interface
 in_app_purchase_storekit
 local_auth
@@ -12344,6 +12342,8 @@ limitations under the License.
 google_sign_in_android
 google_sign_in_ios
 google_sign_in_web
+in_app_purchase
+in_app_purchase_android
 
 Copyright 2013 The Flutter Authors
 
