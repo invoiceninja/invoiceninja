@@ -68,7 +68,7 @@
                     }
                 });
 
-                document.querySelector('div[data-ref="required-fields-container"]').classList.toggle('h-0');
+                document.querySelector('div[data-ref="required-fields-container"]').style.display = 'none';
                 document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');
                 document.querySelector('div[data-ref="required-fields-container"]').classList.add('pointer-events-none');
 

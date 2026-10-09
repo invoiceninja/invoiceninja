@@ -6,7 +6,6 @@
     <meta name="require-quote-signature" content="{{ $requires_signature }}">
     <meta name="docuninja-active" content="{{ $docuninja_active }}">
     <meta name="accept-user-input" content="{{ $client->getSetting('accept_client_input_quote_approval') }}">
-    <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
 @section('body')

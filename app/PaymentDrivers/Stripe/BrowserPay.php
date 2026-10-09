@@ -26,7 +26,6 @@ use App\Utils\Ninja;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Stripe\ApplePayDomain;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 
@@ -205,27 +204,37 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
      */
     protected function ensureApplePayDomainIsValidated()
     {
-        $config = $this->stripe->company_gateway->getConfig();
-
-        if (property_exists($config, 'apple_pay_domain_id')) {
-            return;
-        }
-
         $domain = $this->getAppleDomain();
 
         if (! $domain) {
             throw new PaymentFailed('Unable to register Domain with Apple Pay', 500);
         }
 
-        $response = ApplePayDomain::create([
-            'domain_name' => $domain,
-        ], $this->stripe->stripe_connect_auth);
+        $config = $this->stripe->company_gateway->getConfig();
 
-        $config->apple_pay_domain_id = $response->id;
+        if ($this->hasRegisteredPaymentMethodDomain($config, $domain)) {
+            return;
+        }
+
+        $payment_method_domain = $this->stripe->ensurePaymentMethodDomainRegistered($domain);
+
+        $config->apple_pay_domain_id = $payment_method_domain->id;
+        $config->apple_pay_domain_name = $domain;
 
         $this->stripe->company_gateway->setConfig($config);
 
         $this->stripe->company_gateway->save();
+    }
+
+    private function hasRegisteredPaymentMethodDomain(object $config, string $domain): bool
+    {
+        $stored_id = $config->apple_pay_domain_id ?? null;
+        $stored_domain = $config->apple_pay_domain_name ?? null;
+
+        return is_string($stored_id)
+            && str_starts_with($stored_id, 'pmd_')
+            && is_string($stored_domain)
+            && $stored_domain === $domain;
     }
 
     private function getAppleDomain()

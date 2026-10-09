@@ -27,6 +27,8 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Database\QueryException;
 use App\Events\Statement\StatementWasEmailed;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 
 class ClientService
 {
@@ -319,6 +321,32 @@ class ClientService
     public function showSettingsMap(): array
     {
         return (new MapSettings($this->client))->run();
+    }
+
+    /**
+     * @return array{message: bool}
+     */
+    public function peppolDiscovery(): array
+    {
+        if ($this->client->checkDeliveryNetwork()) {
+            return ['message' => false];
+        }
+
+        $this->client->loadMissing('country', 'company');
+
+        $invoice = Invoice::make([ // @phpstan-ignore-line
+            'client_id' => $this->client->id,
+            'company_id' => $this->client->company_id,
+        ]);
+        $invoice->setRelation('client', $this->client);
+        $invoice->setRelation('company', $this->client->company);
+
+        $storecove = app(Storecove::class);
+
+        return [
+            'message' => (new RoutingResolver($invoice, $storecove->proxy, $storecove->router))
+                ->discoverOnPeppol(),
+        ];
     }
 
     /**

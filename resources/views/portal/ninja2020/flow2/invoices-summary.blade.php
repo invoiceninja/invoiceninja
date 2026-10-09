@@ -1,4 +1,4 @@
-<div class="w-full">
+<div class="w-full min-w-0 portal-summary">
     @if(!$isReady)
     <div class="rounded-lg border bg-card bg-white text-card-foreground shadow-sm overflow-hidden">
         <div class="pt-6 px-6 flex flex-row items-start bg-muted/50">
@@ -17,6 +17,11 @@
         </div>
     </div>
     @else
+    <details x-data x-init="$el.open = window.matchMedia('(min-width: 768px)').matches">
+        <summary class="cursor-pointer rounded-lg border bg-white p-4 font-semibold break-words">
+            {{ ctrans('texts.balance_due') }}: {{ $amount }}
+            <span class="block text-sm font-normal">{{ ctrans('texts.invoices') }} ({{ count($invoices) }})</span>
+        </summary>
     <div class="rounded-lg border bg-card bg-white text-card-foreground shadow-sm overflow-hidden" x-chunk="An order details card with order details, shipping information, customer information and payment information.">
         <div class="pt-6 px-6 flex flex-row items-start bg-muted/50">
             <div class="grid gap-0.5">
@@ -38,17 +43,17 @@
                 <dl class="grid gap-1">
                 <div class="flex items-center justify-between font-semibold">{{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice['number']])}}</div>
                 
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                     <dt class="text-muted-foreground">{{ ctrans('texts.invoice_date') }}</dt>
                     <dd>{{ $invoice['date'] }}</dd>
                 </div>
                 @if($invoice['due_date'])
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                     <dt class="text-muted-foreground">{{ ctrans('texts.due_date') }}</dt>
                     <dd>{{ $invoice['due_date'] }}</dd>
                 </div>
                 @endif
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                     <dt class="text-muted-foreground">{{ ctrans('texts.amount_due') }}</dt>
                     <dd>
                         {{ $invoice['formatted_currency'] }}    
@@ -72,43 +77,43 @@
             @endforeach
 
             @if($gateway_fee)
-            <button class="mb-4 w-full items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-gray-100">
+            <div class="mb-4 w-full items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-gray-100">
                 <dl class="grid gap-3">
 
-                    <div class="flex items-center justify-between">
+                    <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                         <dt class="font-semibold text-muted-foreground">{{ ctrans('texts.gateway_fees') }}</dt>
                         <dd>{{ $gateway_fee }}</dd>
                     </div>
                 
                 </dl>
-            </button>
+            </div>
             @endif
 
-            <button class="mb-4 w-full items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-gray-100">
+            <div class="mb-4 w-full items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-gray-100">
                 <dl class="grid gap-3">
 
-                    <div class="flex items-center justify-between">
+                    <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                         <dt class="font-semibold text-muted-foreground">{{ ctrans('texts.balance_due') }}</dt>
                         <dd>{{ $amount }}</dd>
                     </div>
                 
                 </dl>
-            </button>
+            </div>
 
             <div data-orientation="horizontal" role="none" class="shrink-0 bg-border h-[1px] w-full my-4"></div>
             <div class="grid gap-3">
                 <div class="font-semibold">{{ ctrans('texts.client_information') }}</div>
                 <dl class="grid gap-3">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                     <dt class="text-muted-foreground">{{ ctrans('texts.client') }}</dt>
                     <dd>{{ $client->present()->name() }}</dd>
                 </div>
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                     <dt class="text-muted-foreground">{{ ctrans('texts.email') }}</dt>
                     <dd><a href="mailto:">{{ $client->present()->email() }}</a></dd>
                 </div>
                 @if($client->present()->phone())
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3">
                     <dt class="text-muted-foreground">{{ ctrans('texts.phone') }}</dt>
                     <dd><a href="tel:">{{ $client->present()->phone() }} </a></dd>
                 </div>
@@ -123,5 +128,6 @@
             </div>
         </div>
     </div>
+    </details>
     @endif
 </div>

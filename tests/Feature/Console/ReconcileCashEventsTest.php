@@ -139,6 +139,23 @@ class ReconcileCashEventsTest extends TestCase
         $this->assertSame((int) $legacy->id, (int) $result['problems'][0]['ledger_event_id']);
     }
 
+    public function testAttemptLegacyPaymentIdBackfillForEventWhenPaymentIdIsZero(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->makePaidInvoiceForCash('2026-06-01');
+        $payment->date = '2026-06-01';
+        $payment->saveQuietly();
+        $paymentable = $this->setPaymentableApplicationDate($paymentable, '2026-06-01');
+        $amount = (float) $paymentable->amount;
+
+        $legacy = $this->createLegacyCashEvent($invoice, $payment, $amount, '2026-06-01', '2026-06-30');
+        $legacy->payment_id = 0;
+        $legacy->saveQuietly();
+
+        $this->assertTrue($this->runner()->attemptLegacyPaymentIdBackfillForEvent($this->company, $legacy->fresh()));
+        $legacy->refresh();
+        $this->assertSame((int) $payment->id, (int) $legacy->payment_id);
+    }
+
     public function testRunnerReconcilesV2DriftAfterRepeatedApplicationDateChanges(): void
     {
         [$invoice, $payment, $paymentable] = $this->makePaidInvoiceForCash('2026-01-10');

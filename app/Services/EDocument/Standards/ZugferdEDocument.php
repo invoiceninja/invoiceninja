@@ -178,6 +178,7 @@ class ZugferdEDocument extends AbstractService
             ->cursor()
             ->each(function ($document) {
 
+            /** @var \App\Models\Document $document */
                 if ($document->size > $this->max_attachment_size) {
                     return;
                 }

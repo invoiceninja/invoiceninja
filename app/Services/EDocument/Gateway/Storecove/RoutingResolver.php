@@ -144,6 +144,80 @@ class RoutingResolver
     }
 
     /**
+     * Whether the recipient is discoverable on the Peppol SMP (Storecove discovery API).
+     *
+     * Same cascade as {@see resolve()}, but requires a successful discovery call and
+     * never falls back to config-only routing (step 7).
+     *
+     */
+    public function discoverOnPeppol(): bool
+    {
+        if ($gln = $this->resolveGlnRoutingId()) {
+            return $this->discoveredFromRoutingResult($gln);
+        }
+
+        if ($finlandBg = $this->resolveFinlandBusinessGovernmentDualIdentifiers()) {
+            return $this->discoveredFromRoutingResult($finlandBg);
+        }
+
+        if ($italyBg = $this->resolveItalyBusinessGovernmentDualIdentifiers()) {
+            return $this->discoveredFromRoutingResult($italyBg);
+        }
+
+        if ($italyConsumer = $this->resolveItalyDomesticIndividualDualIdentifiers()) {
+            return $this->discoveredFromRoutingResult($italyConsumer);
+        }
+
+        if ($explicit = $this->resolveExplicitRoutingId()) {
+            return $this->discoveredFromRoutingResult($explicit);
+        }
+
+        if ($italyForeign = $this->resolveItalyForeignConsumerCombinedRouting()) {
+            return $this->discoveredFromRoutingResult($italyForeign);
+        }
+
+        $candidates = $this->handler->getCandidates(
+            $this->invoice->client,
+            $this->classification,
+            $this->router,
+        );
+
+        foreach ($candidates as $candidate) {
+            $id = StorecoveIdentifierValidator::dashSignificantScheme($candidate['scheme'])
+                ? preg_replace('/\s+/', '', $candidate['id'])
+                : preg_replace("/[^a-zA-Z0-9]/", "", $candidate['id']);
+
+            if (strlen($id) < 1) {
+                continue;
+            }
+
+            if ($this->proxyDiscovery($id, $candidate['scheme'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function discoveredFromRoutingResult(array $routingResult): bool
+    {
+        foreach ($routingResult['meta']['routing']['eIdentifiers'] ?? [] as $pair) {
+            $scheme = (string) ($pair['scheme'] ?? '');
+            $id = (string) ($pair['id'] ?? '');
+
+            if ($scheme === '' || $id === '') {
+                continue;
+            }
+
+            if ($this->proxyDiscovery($id, $scheme)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Valid GS1 GLN (13 digits, ICD 0088) in routing_id wins over handler candidates.
      *
      * @see \App\Services\EDocument\Support\GlnIdentifier

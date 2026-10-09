@@ -1376,6 +1376,7 @@ class StorecoveRouterTest extends TestCase
             'DK:DIGST'  => '/^(DK)?\d{8}$/i',
             'EE:CC'     => '/^\d{8}$/',
             'FI:OVT'    => '/^\d{12,13}[a-zA-Z0-9]{0,5}$/',
+            'FI:OPID'   => '/^\d{12,13}[a-zA-Z0-9]{0,5}$/',
             'FR:SIRENE' => '/^\d{9}$/',
             'FR:SIRET'  => '/^\d{14}$/',
             'NL:KVK'    => '/^\d{8}$/',

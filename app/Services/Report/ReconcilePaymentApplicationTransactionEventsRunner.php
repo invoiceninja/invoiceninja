@@ -144,6 +144,206 @@ class ReconcilePaymentApplicationTransactionEventsRunner
     }
 
     /**
+     * When a legacy PAYMENT_CASH row has payment_id = 0, bind it to the single provable payment application.
+     */
+    public function attemptLegacyPaymentIdBackfillForEvent(Company $company, TransactionEvent $event): bool
+    {
+        if ((int) $event->company_id !== (int) $company->id) {
+            return false;
+        }
+
+        if ((int) $event->payment_id !== 0
+            || (int) $event->event_id !== TransactionEvent::PAYMENT_CASH
+            || data_get($event->payment_request, 'schema_version')) {
+            return false;
+        }
+
+        $timezone = $company->timezone()?->name ?: config('app.timezone');
+        $period = $event->period?->toDateString();
+
+        if ($period === null) {
+            return false;
+        }
+
+        $paymentables = Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $event->invoice_id)
+            ->whereNull('deleted_at')
+            ->whereHas('payment', fn ($query) => $query
+                ->withTrashed()
+                ->where('company_id', $company->id)
+                ->where('is_deleted', false))
+            ->orderBy('id')
+            ->get()
+            ->filter(function (Paymentable $paymentable) use ($company, $event, $timezone): bool {
+                if ($this->writer->findSourceEvent((int) $event->invoice_id, (int) $paymentable->id)) {
+                    return false;
+                }
+
+                $intended = $this->resolver->resolve($paymentable, $timezone);
+
+                if ($intended === null) {
+                    return false;
+                }
+
+                $legacy_match = $this->identifyLegacyInIntendedMonth(
+                    $company->id,
+                    (int) $event->invoice_id,
+                    $intended,
+                    $timezone,
+                    $paymentable,
+                );
+
+                return ! $legacy_match['ambiguous']
+                    && $legacy_match['event']
+                    && (int) $legacy_match['event']->id === (int) $event->id;
+            });
+
+        if ($paymentables->count() !== 1) {
+            return false;
+        }
+
+        /** @var Paymentable $paymentable */
+        $paymentable = $paymentables->first();
+        $legacy_match = $this->identifyLegacyInIntendedMonth(
+            $company->id,
+            (int) $event->invoice_id,
+            (string) $this->resolver->resolve($paymentable, $timezone),
+            $timezone,
+            $paymentable,
+        );
+
+        $assessment = $this->assessLegacyPaymentIdBackfill(
+            $paymentable,
+            $event,
+            $legacy_match['history_index'],
+        );
+
+        if (! $assessment['eligible']) {
+            return false;
+        }
+
+        $payment_id = (int) $paymentable->payment_id;
+
+        return DB::transaction(function () use ($company, $event, $paymentable, $payment_id): bool {
+            $locked = TransactionEvent::query()
+                ->where('company_id', $company->id)
+                ->whereKey($event->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $locked || (int) $locked->payment_id !== 0) {
+                return false;
+            }
+
+            $payment = $paymentable->payment;
+
+            if (! $payment || $payment->is_deleted || (int) $payment->id !== $payment_id) { // @phpstan-ignore-line
+                return false;
+            }
+
+            $reassessment = $this->assessLegacyPaymentIdBackfill(
+                $paymentable,
+                $locked,
+                $this->resolveHistoryIndexForLegacyEvent($locked, $paymentable),
+            );
+
+            if (! $reassessment['eligible']) {
+                return false;
+            }
+
+            $locked->payment_id = $payment_id;
+            $locked->payment_status = $payment->status_id;
+
+            return $locked->save();
+        }, attempts: 3);
+    }
+
+    /**
+     * @return array{eligible: bool, skip_reason: string|null}
+     */
+    private function assessLegacyPaymentIdBackfill(
+        Paymentable $paymentable,
+        TransactionEvent $legacy_event,
+        ?int $history_index,
+    ): array {
+        if (data_get($legacy_event->payment_request, 'schema_version')) {
+            return ['eligible' => false, 'skip_reason' => 'not_legacy_event'];
+        }
+
+        if ((int) $legacy_event->event_id !== TransactionEvent::PAYMENT_CASH) {
+            return ['eligible' => false, 'skip_reason' => 'not_payment_cash'];
+        }
+
+        $payment_id = (int) $paymentable->payment_id;
+
+        if ($payment_id <= 0) {
+            return ['eligible' => false, 'skip_reason' => 'missing_payment_id_on_paymentable'];
+        }
+
+        $payment = $paymentable->payment;
+
+        if (! $payment || $payment->is_deleted) { // @phpstan-ignore-line
+            return ['eligible' => false, 'skip_reason' => 'payment_missing_or_deleted'];
+        }
+
+        if ((int) $legacy_event->payment_id !== 0 && (int) $legacy_event->payment_id !== $payment_id) {
+            return ['eligible' => false, 'skip_reason' => 'legacy_payment_id_mismatch'];
+        }
+
+        if (abs((float) $legacy_event->payment_applied - (float) $paymentable->amount) >= 0.01) {
+            return ['eligible' => false, 'skip_reason' => 'amount_mismatch'];
+        }
+
+        $history = data_get($legacy_event->metadata->toArray(), 'tax_report.payment_history');
+
+        if (is_array($history) && count($history) > 1) {
+            if ($history_index === null) {
+                return ['eligible' => false, 'skip_reason' => 'aggregated_legacy_event'];
+            }
+
+            $entry = $this->normalizeHistoryEntry($history[$history_index]);
+
+            if ($entry === null) {
+                return ['eligible' => false, 'skip_reason' => 'missing_payment_history'];
+            }
+
+            if (isset($entry['paymentable_id'])
+                && (int) $entry['paymentable_id'] > 0
+                && (int) $entry['paymentable_id'] !== (int) $paymentable->id) {
+                return ['eligible' => false, 'skip_reason' => 'payment_history_paymentable_id_mismatch'];
+            }
+
+            $entry_amount = $entry['amount'] ?? null;
+
+            if ($entry_amount !== null && abs((float) $entry_amount - (float) $paymentable->amount) >= 0.01) {
+                return ['eligible' => false, 'skip_reason' => 'payment_history_amount_mismatch'];
+            }
+
+            $number = (string) $payment->number;
+
+            if ($number !== ''
+                && isset($entry['number'])
+                && (string) $entry['number'] !== $number) {
+                return ['eligible' => false, 'skip_reason' => 'payment_history_number_mismatch'];
+            }
+        }
+
+        $resolved_index = $this->resolveHistoryIndexForLegacyEvent($legacy_event, $paymentable);
+
+        if ($resolved_index === null) {
+            return ['eligible' => false, 'skip_reason' => 'payment_history_entry_not_uniquely_identified'];
+        }
+
+        if ($history_index !== null && $resolved_index !== $history_index) {
+            return ['eligible' => false, 'skip_reason' => 'payment_history_index_mismatch'];
+        }
+
+        return ['eligible' => true, 'skip_reason' => null];
+    }
+
+    /**
      * @param  array<string, string>  $cash_reports
      * @param  list<array<string, mixed>>  $problems
      * @param  list<array<string, mixed>>  $repairs

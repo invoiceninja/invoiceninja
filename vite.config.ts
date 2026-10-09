@@ -3,6 +3,9 @@ import laravel from 'laravel-vite-plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
+    build: {
+        target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari13'],
+    },
     plugins: [
         laravel([
             'resources/js/app.js',

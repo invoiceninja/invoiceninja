@@ -547,7 +547,12 @@ class PeppolCountryTest extends TestCase
         $data = $this->buildScenario([
             'company_country' => 'FI', 'client_country' => 'FI',
         ]);
-        $this->runAndValidate($data['invoice'], 'FI => FI (business)');
+        $result = $this->runAndValidate($data['invoice'], 'FI => FI (business)');
+
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT)');
+        $this->assertSame('0037', $customerEndpoint->schemeID);
+        $this->assertSame('003712345678', $customerEndpoint->value);
     }
 
     // ── FR (France) ──
@@ -1009,6 +1014,11 @@ class PeppolCountryTest extends TestCase
 
         $this->assertContains('FI:OVT', $schemes, 'FI receiver must have FI:OVT (routing) in publicIdentifiers');
         $this->assertContains('FI:VAT', $schemes, 'FI receiver must have FI:VAT in publicIdentifiers when invoice has VAT');
+
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT) when routing_id is OPID');
+        $this->assertSame('0037', $customerEndpoint->schemeID);
+        $this->assertSame('003712345678', $customerEndpoint->value);
     }
 
     public function testSE_to_DK_Business(): void
