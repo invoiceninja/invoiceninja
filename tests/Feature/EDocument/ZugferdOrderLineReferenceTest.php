@@ -140,7 +140,10 @@ class ZugferdOrderLineReferenceTest extends TestCase
         $this->client->address1 = 'Client Street 1';
         $this->client->city = 'Berlin';
         $this->client->postal_code = '10115';
-        $this->client->save();
+        // Quietly, so the ClientObserver does not dispatch CheckVat: the live
+        // VIES lookup is not part of BT-132 and would make this test depend on
+        // an external service.
+        $this->client->saveQuietly();
     }
 
     private function buildXml(?string $po_number, ?string $order_line, string $root = 'InvoiceLine', bool $credit = false): string
