@@ -29,7 +29,7 @@ class CreditExport extends BaseExport
 
     private Decorator $decorator;
 
-    public string $date_key = 'created_at';
+    public string $date_key = 'date';
 
     public Writer $csv;
 
