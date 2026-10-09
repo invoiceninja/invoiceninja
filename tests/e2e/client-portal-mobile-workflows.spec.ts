@@ -408,19 +408,79 @@ test('blocked storage does not prevent rejecting analytics or using the page', a
     await expect(page.locator('[data-consent-preferences]')).toBeVisible();
 });
 
-test('mobile invoice summary stays compact and long values wrap when expanded', async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 568 });
+async function mountInvoiceSummary(page: Page) {
     await mount(page, `<script>window.livewireScriptConfig = {csrf: 'test', uri: '/livewire/update', progressBar: true};</script>
         <div class="grid grid-cols-1 md:grid-cols-2"><div class="min-w-0 p-2">${views.summary}</div><button id="payment-step">Payment method</button></div>`, 'resources/js/app.js');
-    // Exercise the reserved scrollbar space used by headed desktop browsers too.
-    await page.addStyleTag({ content: 'html { scrollbar-gutter: stable; }' });
-    await expect(page.locator('details')).not.toHaveAttribute('open');
-    const step = await page.locator('#payment-step').boundingBox();
-    expect(step!.y + step!.height).toBeLessThan(568);
-    await page.locator('summary').click();
-    await expect(page.locator('details')).toHaveAttribute('open');
+    await expect(page.locator('.portal-summary')).toBeVisible();
+}
+
+async function expectSummaryFits(page: Page) {
     await expect.poll(() => page.evaluate(() => {
         const root = document.documentElement;
         return root.scrollWidth <= root.clientWidth;
     })).toBe(true);
+}
+
+for (const width of [320, 390]) {
+    test(`mobile invoice summary stays compact and wraps long values at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 568 });
+        await mountInvoiceSummary(page);
+        await page.addStyleTag({ content: 'html { scrollbar-gutter: stable; }' });
+        await expect(page.locator('details')).not.toHaveAttribute('open');
+        const step = await page.locator('#payment-step').boundingBox();
+        expect(step!.y + step!.height).toBeLessThan(568);
+        await page.locator('summary').click();
+        await expect(page.locator('details')).toHaveAttribute('open');
+        await expect(page.getByText('INV-123', { exact: false })).toHaveCount(3);
+        await expectSummaryFits(page);
+        // Native summary keyboard activation must still toggle the mobile card.
+        await page.locator('summary').focus();
+        await page.keyboard.press('Enter');
+        await expect(page.locator('details')).not.toHaveAttribute('open');
+    });
+}
+
+for (const width of [1024, 1440]) {
+    test(`desktop invoice summary keeps the original visible card at ${width}px`, async ({ page }, testInfo) => {
+        await page.setViewportSize({ width, height: 1000 });
+        await mountInvoiceSummary(page);
+        await expect(page.locator('details')).toHaveAttribute('open');
+        await expect(page.locator('summary')).toBeHidden();
+        await expect(page.getByRole('heading', { name: 'Invoices', exact: true })).toBeVisible();
+        await expect(page.getByText('INV-123', { exact: false })).toHaveCount(3);
+        await expect(page.locator('dd').filter({ hasText: '$3.00' })).toBeVisible();
+        await expect(page.locator('dd').filter({ hasText: '$300.00' })).toBeVisible();
+        await expect(page.locator('button[wire\\:click^="downloadDocument"]')).toHaveCount(3);
+        const row = page.locator('dt').filter({ hasText: 'Invoice Date' }).first().locator('..');
+        await expect(row).toHaveCSS('flex-direction', 'row');
+        await expect(row).toHaveCSS('align-items', 'center');
+        await expectSummaryFits(page);
+        const card = await page.getByRole('heading', { name: 'Invoices', exact: true }).boundingBox();
+        expect(card!.y).toBeLessThan(50); // No extra accordion header above the original card.
+        await page.screenshot({ path: testInfo.outputPath(`invoice-summary-${width}.png`), fullPage: true });
+    });
+}
+
+test('invoice summary follows the desktop breakpoint and preserves mobile expansion', async ({ page }) => {
+    await page.setViewportSize({ width: 767, height: 900 });
+    await mountInvoiceSummary(page);
+    const details = page.locator('details');
+    const toggle = page.locator('summary');
+    await expect(details).not.toHaveAttribute('open');
+    await page.setViewportSize({ width: 768, height: 900 });
+    await expect(details).toHaveAttribute('open');
+    await expect(toggle).toBeHidden();
+    await page.setViewportSize({ width: 767, height: 900 });
+    await expect(toggle).toBeVisible();
+    await expect(details).not.toHaveAttribute('open');
+    await toggle.click();
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(details).toHaveAttribute('open');
+    await expect(toggle).toBeHidden();
+    await page.setViewportSize({ width: 390, height: 900 });
+    await expect(details).toHaveAttribute('open');
+    await expect(toggle).toBeVisible();
+    await expectSummaryFits(page);
+    await toggle.click();
+    await expect(details).not.toHaveAttribute('open');
 });
