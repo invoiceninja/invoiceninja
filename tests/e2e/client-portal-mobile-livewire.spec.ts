@@ -207,3 +207,69 @@ test('Livewire required-field errors remain accessible and valid input reveals t
         await context.restoreGatewayRequirements();
     }
 });
+
+for (const width of [390, 1280]) {
+    test(`invoice summary retains responsive behavior after a Livewire payment step at ${width}px`, async ({ api, page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.addInitScript(() => {
+            const scrollIntoView = Element.prototype.scrollIntoView;
+            (window as any).paymentPanelScrolls = 0;
+            Element.prototype.scrollIntoView = function (...args) {
+                if (this.getAttribute('wire:key')?.startsWith('step-')) {
+                    (window as any).paymentPanelScrolls++;
+                }
+                return scrollIntoView.apply(this, args);
+            };
+        });
+        let client = await createAndLogInClient(api, page, {
+            settings: { ...paymentTestSettings, payment_flow: 'smooth', show_accept_invoice_terms: true, require_invoice_signature: true },
+        });
+        client = await updateClient(api.context, client, defaultClientAddress);
+        const invoice = await createSentInvoice(api, client, {
+            label: uniqueName('responsive-summary'),
+            terms: 'Review the invoice terms before signing.',
+        });
+        await page.goto(`/client/invoices/${invoice.id}`);
+        const summary = page.locator('.portal-summary');
+        const details = summary.locator('details');
+        const toggle = summary.locator('summary');
+        const panel = page.locator('[wire\\:key^="step-"]');
+        await expect(page.locator('#accept-terms-button')).toBeVisible();
+        await expect(panel).toBeFocused();
+        await expect(panel).toHaveCSS('outline-color', 'rgba(0, 0, 0, 0)');
+        expect(await page.evaluate(() => (window as any).paymentPanelScrolls)).toBe(width < 768 ? 1 : 0);
+        await page.keyboard.press('Tab');
+        await expect(page.locator('#accept-terms-button')).toBeFocused();
+        await expect(page.locator('#accept-terms-button')).not.toHaveCSS('box-shadow', 'none');
+        if (width < 768) {
+            await expect(details).not.toHaveAttribute('open');
+            await toggle.click();
+        } else {
+            await expect(toggle).toBeHidden();
+        }
+        await expect(details).toHaveAttribute('open');
+        const update = page.waitForResponse(r => r.url().includes('/livewire/update') && r.request().method() === 'POST');
+        await page.locator('#accept-terms-button').click();
+        expect((await update).ok()).toBe(true);
+        await expect(page.locator('#signature-pad')).toBeVisible();
+        await expect(panel).toBeFocused();
+        await expect(panel).toHaveCSS('outline-color', 'rgba(0, 0, 0, 0)');
+        expect(await page.evaluate(() => (window as any).paymentPanelScrolls)).toBe(width < 768 ? 2 : 0);
+        if (width < 768) {
+            // Each payment step mounts a newly keyed summary. It starts compact on mobile.
+            await expect(details).not.toHaveAttribute('open');
+            await toggle.click();
+        } else {
+            await expect(toggle).toBeHidden();
+        }
+        await expect(details).toHaveAttribute('open');
+        await expect(summary.getByRole('heading', { name: 'Invoices', exact: true })).toBeVisible();
+        const download = page.waitForEvent('download');
+        await summary.locator('button[wire\\:click^="downloadDocument"]').first().click();
+        const pdf = await download;
+        expect(pdf.suggestedFilename()).toMatch(/\.pdf$/);
+        expect(await pdf.failure()).toBeNull();
+        await expect(details).toHaveAttribute('open');
+        await expectNoOverflow(page);
+    });
+}

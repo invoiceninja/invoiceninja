@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d3fba5642b207a0d613ffe0b7f06c9d3",
+    "content-hash": "261c8458217d90aa07761208c5a71818",
     "packages": [
         {
             "name": "apimatic/core",
@@ -385,16 +385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.400.0",
+            "version": "3.400.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "dc874b220df5ec8861fe826b436c19f919d27328"
+                "reference": "c0cf2c322bc1a344aaf39250da8856563532f82b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/dc874b220df5ec8861fe826b436c19f919d27328",
-                "reference": "dc874b220df5ec8861fe826b436c19f919d27328",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c0cf2c322bc1a344aaf39250da8856563532f82b",
+                "reference": "c0cf2c322bc1a344aaf39250da8856563532f82b",
                 "shasum": ""
             },
             "require": {
@@ -476,9 +476,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.400.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.400.1"
             },
-            "time": "2026-10-08T18:13:44+00:00"
+            "time": "2026-10-09T18:11:15+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -17160,12 +17160,12 @@
             "version": "v5.7.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/vlucas/phpdotenv.git",
+                "url": "https://github.com/phpdotenv/phpdotenv.git",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
+                "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40",
                 "shasum": ""
             },
@@ -18539,65 +18539,6 @@
                 "source": "https://github.com/iamcal/SQLParser/tree/v0.7"
             },
             "time": "2026-01-28T22:20:33+00:00"
-        },
-        {
-            "name": "laracasts/cypress",
-            "version": "3.03",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laracasts/cypress.git",
-                "reference": "acb651413be8f29b597c6043a71c571c80c378c6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laracasts/cypress/zipball/acb651413be8f29b597c6043a71c571c80c378c6",
-                "reference": "acb651413be8f29b597c6043a71c571c80c378c6",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "^6.0|^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
-                "php": "^8.0"
-            },
-            "require-dev": {
-                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0|^10.0",
-                "phpunit/phpunit": "^8.0|^9.5.10|^10.5|^11.5.3",
-                "spatie/laravel-ray": "^1.29"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Laracasts\\Cypress\\CypressServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Laracasts\\Cypress\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jeffrey Way",
-                    "email": "jeffrey@laracasts.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Laravel Cypress Boilerplate",
-            "homepage": "https://github.com/laracasts/cypress",
-            "keywords": [
-                "cypress",
-                "laracasts"
-            ],
-            "support": {
-                "issues": "https://github.com/laracasts/cypress/issues",
-                "source": "https://github.com/laracasts/cypress/tree/3.03"
-            },
-            "time": "2025-02-27T15:15:08+00:00"
         },
         {
             "name": "larastan/larastan",
