@@ -6408,7 +6408,6 @@ $lang = array(
     'product_catalogue' => 'Danh mục sản phẩm',
     'exclusive_taxes' => 'Thuế độc quyền',
     'exclusive_taxes_help' => 'Giá chưa bao gồm thuế. (Giá Thêm bao gồm thuế)',
-    );
     'add_column_right' => 'Add column right',
     'add_row_below' => 'Add row below',
     'add_table' => 'Add table',

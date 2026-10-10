@@ -6407,7 +6407,6 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'product_catalogue' => 'Catalogue de produits',
     'exclusive_taxes' => 'Taxes exclusives',
     'exclusive_taxes_help' => 'Les taxes ne sont pas incluses dans le prix. (Ajoutez les taxes au prix.)',
-    );
     'add_column_right' => 'Add column right',
     'add_row_below' => 'Add row below',
     'add_table' => 'Add table',

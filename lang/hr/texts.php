@@ -6409,7 +6409,6 @@ Nevažeći kontakt email',
     'product_catalogue' => 'Product Catalog',
     'exclusive_taxes' => 'Exclusive Taxes',
     'exclusive_taxes_help' => 'Taxes are not included in the price. (add tax on top of the price)',
-    );
     'add_column_right' => 'Add column right',
     'add_row_below' => 'Add row below',
     'add_table' => 'Add table',
