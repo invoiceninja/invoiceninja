@@ -346,6 +346,8 @@ class SettingsData
 
     public string $company_logo = ''; //@implemented
 
+    public string $company_logo_dark = ''; //@implemented
+
     public string $website = ''; //@implemented
 
     public string $address1 = ''; //@implemented
