@@ -12,30 +12,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Client;
-use App\Libraries\MultiDB;
-use Illuminate\Http\Response;
-use App\Models\CompanyGateway;
-use App\Utils\Traits\MakesHash;
 use App\DataMapper\FeesAndLimits;
-use App\Jobs\Util\ApplePayDomain;
-use Illuminate\Support\Facades\Cache;
 use App\Factory\CompanyGatewayFactory;
 use App\Filters\CompanyGatewayFilters;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Repositories\CompanyGatewayRepository;
-use App\Transformers\CompanyGatewayTransformer;
-use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
-use App\PaymentDrivers\CheckoutCom\CheckoutSetupWebhook;
 use App\Http\Requests\CompanyGateway\BulkCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\CloneCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
-use App\Http\Requests\CompanyGateway\TestCompanyGatewayRequest;
-use App\Http\Requests\CompanyGateway\CloneCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
-use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\TestCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
-use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
+use App\Jobs\Util\ApplePayDomain;
+use App\Libraries\MultiDB;
+use App\Models\Client;
+use App\Models\CompanyGateway;
+use App\PaymentDrivers\CheckoutCom\CheckoutSetupWebhook;
+use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
+use App\Repositories\CompanyGatewayRepository;
+use App\Transformers\CompanyGatewayTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class CompanyGatewayController.
@@ -232,7 +233,7 @@ class CompanyGatewayController extends BaseController
         ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
 
         switch ($company_gateway->gateway_key) {
-            case in_array($company_gateway->gateway_key, $this->stripe_keys):
+            case in_array($company_gateway->gateway_key, $this->stripe_keys) && Ninja::isSelfHost():
                 StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
                 break;
 

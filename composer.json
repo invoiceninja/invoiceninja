@@ -126,7 +126,6 @@
         "brianium/paratest": "^7",
         "filp/whoops": "^2.7",
         "friendsofphp/php-cs-fixer": "^3.14",
-        "laracasts/cypress": "^3.0",
         "larastan/larastan": "^2|^3",
         "laravel/boost": "^2",
         "mockery/mockery": "^1.4.4",

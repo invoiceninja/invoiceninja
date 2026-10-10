@@ -188,7 +188,19 @@ class PaymentIntentWebhook implements ShouldQueue
             $company,
         );
 
-        if (isset($pi['allowed_source_types']) && in_array('card', $pi['allowed_source_types'])) {
+        if (
+            isset($pi['payment_method_types'])
+            && array_intersect($pi['payment_method_types'], array_keys(self::ASYNC_PAYMENT_TYPES))
+        ) {
+            $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
+            $client = $invoice->client;
+
+            if ($invoice->is_deleted) {
+                return;
+            }
+
+            $this->updateAsyncPayment($payment_hash, $client, $meta, $pi);
+        } elseif (isset($pi['allowed_source_types']) && in_array('card', $pi['allowed_source_types'])) {
             $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
             $client = $invoice->client;
 
@@ -206,18 +218,6 @@ class PaymentIntentWebhook implements ShouldQueue
             }
 
             $this->updateCreditCardPayment($payment_hash, $client, $meta);
-        } elseif (
-            isset($pi['payment_method_types'])
-            && array_intersect($pi['payment_method_types'], array_keys(self::ASYNC_PAYMENT_TYPES))
-        ) {
-            $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
-            $client = $invoice->client;
-
-            if ($invoice->is_deleted) {
-                return;
-            }
-
-            $this->updateAsyncPayment($payment_hash, $client, $meta, $pi);
         } elseif (isset($pi['payment_method_types']) && in_array('promptpay', $pi['payment_method_types'])) {
             $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
             $client = $invoice->client;
