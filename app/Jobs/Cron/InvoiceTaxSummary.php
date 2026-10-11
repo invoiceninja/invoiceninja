@@ -44,6 +44,8 @@ class InvoiceTaxSummary implements ShouldQueue
     public function handle()
     {
         
+        config(['database.default' => config('ninja.db.default')]);
+        
         nlog("InvoiceTaxSummary:: Starting job @ " . now()->toDateTimeString());
         $start = now();
 
@@ -51,7 +53,6 @@ class InvoiceTaxSummary implements ShouldQueue
 
 
         if (! config('ninja.db.multi_db_enabled')) {
-            config(['database.default' => config('ninja.db.default')]);
             $this->runAction($transitioningTimezones);
             return;
         
