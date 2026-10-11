@@ -43,23 +43,42 @@ class InvoiceTaxSummary implements ShouldQueue
 
     public function handle()
     {
+        
         nlog("InvoiceTaxSummary:: Starting job @ " . now()->toDateTimeString());
         $start = now();
 
         $transitioningTimezones = $this->getTransitioningTimezones(now('UTC'));
 
+
+        if (! config('ninja.db.multi_db_enabled')) {
+            config(['database.default' => config('ninja.db.default')]);
+            $this->runAction($transitioningTimezones);
+            return;
+        
+        } 
+
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
             // Only process companies in timezones that just transitioned
-            $companies = $this->getCompaniesInTimezones($transitioningTimezones);
 
-            foreach ($companies as $company) {
-                $this->processCompanyTaxSummary($company);
-            }
+            $this->runAction($transitioningTimezones);
+
         }
 
         nlog("InvoiceTaxSummary:: Job completed in " . (int) now()->diffInSeconds($start) . " seconds");
     }
+
+
+    private function runAction($transitioningTimezones)
+    {
+        $companies = $this->getCompaniesInTimezones($transitioningTimezones);
+
+        foreach ($companies as $company) {
+            $this->processCompanyTaxSummary($company);
+        }
+
+    }
+
 
     private function getTransitioningTimezones(?Carbon $utcNow = null): array
     {

@@ -6517,7 +6517,13 @@ $lang = array(
     'words_count_other' => ':count words',
     'zoom_in' => 'Zoom in',
     'zoom_out' => 'Zoom out',
-
+    'edit_individually' => 'Edit not available from this view, edit each task individually',
+    'disconnect_stripe_confirmation' => 'Are you sure you want to disconnect your Stripe account?',
+    'add_custom_fields_to_pdf' => 'Add custom fields to PDF',
+    'keyboard_shortcuts_help' => 'Customize keyboard bindings for common shortcuts.',
+    'shortcut_set' => 'Shortcut Set',
+    'no_shortcut_set' => 'No Shortcut Set',
+    'shortcut_conflict' => 'This keybinding is already in use by another action.',
 );
 
 return $lang;
