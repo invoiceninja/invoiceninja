@@ -1,0 +1,16 @@
+{
+  "upstream_base": "493c3884e4214028bc5970cb41bafbd9c4d96401",
+  "branch_base": "v5-develop",
+  "runtime": {"php":"8.3.35","laravel":"12.69.3","laravel_mcp":"1.0.2","phpunit":"11.5.57","mcp_sdk":"1.32.1"},
+  "repository_mcp": {"tests":44,"assertions":1654,"result":"passed"},
+  "existing_rest_regression": {"tests":36,"assertions":139,"suites":["PermissionsTest","TaskApiValidationTest"],"result":"passed"},
+  "docker_sdk": {"tools":32,"operations":244,"failed":0,"result":"passed"},
+  "sdk_protocol_and_persistence_scenarios": {"passed":36,"failed":0},
+  "direct_database_effects": {"client_update":true,"time_tracking":true,"offline_refund":true,"activity_note":true},
+  "php_cs_fixer": "passed, PSR-12, feature files only",
+  "phpstan_larastan": "passed, focused level 5",
+  "composer_platform_requirements": "passed",
+  "upstream_check_limitations": ["composer lint invokes missing pint", "phpstan.neon includes missing phpstan-baseline.neon", "other PHP versions and the entire repository suite remain for upstream CI"],
+  "assistant_integration": {"authenticated_discovery_from_master_container":"verified", "control_plane_registration":"pending", "actual_assistant_tool_invocation":"pending"},
+  "pull_request": "not opened; assistant integration verification is required first"
+}
