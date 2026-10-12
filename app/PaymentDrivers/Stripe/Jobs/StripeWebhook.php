@@ -82,7 +82,7 @@ class StripeWebhook implements ShouldQueue
 
         foreach ($endpoints['data'] as $endpoint) {
             if ($endpoint->url === $webhook_url) {
-                \Stripe\WebhookEndpoint::update($endpoint->id, ['enabled_events' => $this->events], $stripe->stripe_connect_auth);
+                \Stripe\WebhookEndpoint::update($endpoint->id, ['enabled_events' => $this->events, 'api_version' => $stripe->apiVersion()], $stripe->stripe_connect_auth);
 
                 $this->url_found = true;
             }
@@ -93,6 +93,7 @@ class StripeWebhook implements ShouldQueue
             \Stripe\WebhookEndpoint::create([
                 'url' => $webhook_url,
                 'enabled_events' => $this->events,
+                'api_version' => $stripe->apiVersion()
             ], $stripe->stripe_connect_auth);
         }
     }

@@ -132,12 +132,15 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
-            // Stripe::setAPiVersion('2023-10-16');
-            // Stripe::setApiVersion('2024-04-10');
-            Stripe::setApiVersion('2025-03-31.basil');
+            Stripe::setApiVersion($this->apiVersion());
         }
 
         return $this;
+    }
+
+    public function apiVersion(): string
+    {
+        return '2025-03-31.basil';
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -823,6 +826,9 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         $event ??= \Stripe\Event::constructFrom($request->all());
+
+
+        nlog("STRIPE API version: " . ($event->api_version ?? 'no api version'));
 
         if (in_array($event->type, [
             'payment_method.detached',
