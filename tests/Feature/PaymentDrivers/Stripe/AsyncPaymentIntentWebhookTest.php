@@ -25,6 +25,7 @@ use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -59,7 +60,7 @@ class AsyncPaymentIntentWebhookTest extends TestCase
         $this->company_gateway->save();
     }
 
-    public function testAsyncPaymentTypesAreConsistentAcrossWebhookJobs(): void
+    public function testSucceededWebhookAlsoSupportsRedirectPaymentTypes(): void
     {
         $expected = [
             'us_bank_account' => PaymentType::ACH,
@@ -75,7 +76,15 @@ class AsyncPaymentIntentWebhookTest extends TestCase
             (new ReflectionClass(PaymentIntentProcessingWebhook::class))->getConstant('ASYNC_PAYMENT_TYPES'),
         );
         $this->assertSame(
-            $expected,
+            $expected + [
+                'ideal' => PaymentType::IDEAL,
+                'bancontact' => PaymentType::BANCONTACT,
+                'eps' => PaymentType::EPS,
+                'p24' => PaymentType::PRZELEWY24,
+                'klarna' => PaymentType::KLARNA,
+                'fpx' => PaymentType::FPX,
+                'alipay' => PaymentType::ALIPAY,
+            ],
             (new ReflectionClass(PaymentIntentWebhook::class))->getConstant('ASYNC_PAYMENT_TYPES'),
         );
     }
@@ -302,6 +311,98 @@ class AsyncPaymentIntentWebhookTest extends TestCase
         $this->assertCount(1, collect($invoice->line_items)->where('unit_code', $payment_hash->hash));
         $this->assertEquals(round($starting_amount + 5, 2), round((float) $invoice->amount, 2));
         $this->assertSame(1, Payment::query()->where('transaction_reference', $payment_intent->id)->count());
+    }
+
+    public static function redirectPaymentTypes(): array
+    {
+        return [
+            'ideal' => ['ideal', GatewayType::IDEAL, PaymentType::IDEAL],
+            'bancontact' => ['bancontact', GatewayType::BANCONTACT, PaymentType::BANCONTACT],
+            'eps' => ['eps', GatewayType::EPS, PaymentType::EPS],
+            'p24' => ['p24', GatewayType::PRZELEWY24, PaymentType::PRZELEWY24],
+            'klarna' => ['klarna', GatewayType::KLARNA, PaymentType::KLARNA],
+            'fpx' => ['fpx', GatewayType::FPX, PaymentType::FPX],
+            'alipay' => ['alipay', GatewayType::ALIPAY, PaymentType::ALIPAY],
+        ];
+    }
+
+    #[DataProvider('redirectPaymentTypes')]
+    public function testRedirectSucceededWebhookCreatesPaymentWithoutBrowserReturn(
+        string $stripe_type,
+        int $gateway_type,
+        int $payment_type,
+    ): void {
+        $payment_hash = $this->makePaymentHash();
+        $starting_balance = (float) $this->invoice->fresh()->balance;
+        $payment_intent = [
+            'id' => 'pi_redirect_' . $stripe_type,
+            'object' => 'payment_intent',
+            'status' => 'succeeded',
+            'amount' => 100,
+            'currency' => 'usd',
+            'customer' => 'cus_redirect_test',
+            'payment_method' => 'pm_redirect_test',
+            'payment_method_types' => [$stripe_type],
+            'latest_charge' => 'ch_redirect_' . $stripe_type,
+            'metadata' => [
+                'payment_hash' => $payment_hash->hash,
+                'gateway_type_id' => (string) $gateway_type,
+            ],
+        ];
+        $charge = [
+            'id' => $payment_intent['latest_charge'],
+            'object' => 'charge',
+            'payment_intent' => $payment_intent['id'],
+            'customer' => $payment_intent['customer'],
+            'payment_method' => $payment_intent['payment_method'],
+            'payment_method_details' => ['type' => $stripe_type],
+            'metadata' => $payment_intent['metadata'],
+        ];
+
+        ApiRequestor::setHttpClient(new class ($payment_intent, $charge) implements ClientInterface {
+            public function __construct(private array $intent, private array $charge)
+            {
+            }
+
+            public function request(
+                $method,
+                $absUrl,
+                $headers,
+                $params,
+                $hasFile,
+                $apiMode = 'v1',
+                $maxNetworkRetries = null,
+            ): array {
+                $response = match (parse_url($absUrl, PHP_URL_PATH)) {
+                    '/v1/payment_intents/' . $this->intent['id'] => $this->intent,
+                    '/v1/charges/' . $this->charge['id'] => $this->charge,
+                    default => throw new \RuntimeException('Unexpected Stripe request: ' . $absUrl),
+                };
+
+                return [json_encode($response, JSON_THROW_ON_ERROR), 200, []];
+            }
+        });
+
+        try {
+            (new PaymentIntentWebhook(
+                ['object' => $payment_intent],
+                $this->company->company_key,
+                $this->company_gateway->id,
+            ))->handle();
+        } finally {
+            ApiRequestor::setHttpClient(null);
+        }
+
+        $payment = Payment::query()
+            ->where('transaction_reference', $payment_intent['id'])
+            ->sole();
+
+        $this->assertSame(Payment::STATUS_COMPLETED, $payment->status_id);
+        $this->assertSame($payment_type, $payment->type_id);
+        $this->assertSame($gateway_type, $payment->gateway_type_id);
+        $this->assertEquals(1, $payment->amount);
+        $this->assertSame($payment->id, $payment_hash->fresh()->payment_id);
+        $this->assertEquals($starting_balance - 1, (float) $this->invoice->fresh()->balance);
     }
 
     private function makePaymentHashWithFee(float $fee): PaymentHash

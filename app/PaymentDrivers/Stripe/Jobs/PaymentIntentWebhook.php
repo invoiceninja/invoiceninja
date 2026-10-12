@@ -48,6 +48,13 @@ class PaymentIntentWebhook implements ShouldQueue
         'acss_debit' => PaymentType::ACSS,
         'sepa_debit' => PaymentType::SEPA,
         'customer_balance' => PaymentType::STRIPE_BANK_TRANSFER,
+        'ideal' => PaymentType::IDEAL,
+        'bancontact' => PaymentType::BANCONTACT,
+        'eps' => PaymentType::EPS,
+        'p24' => PaymentType::PRZELEWY24,
+        'klarna' => PaymentType::KLARNA,
+        'fpx' => PaymentType::FPX,
+        'alipay' => PaymentType::ALIPAY,
     ];
 
     public $tries = 1; //number of retries
