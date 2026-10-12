@@ -83,7 +83,9 @@ return [
         // Space-separated scopes.
         'scopes'         => env('OIDC_SCOPES', 'openid profile email'),
         // Human-readable label used on the Blade login page button.
-        'provider_label' => env('OIDC_PROVIDER_LABEL', 'OIDC'),
+        'provider_label' => env('OIDC_PROVIDER_LABEL', 'Single Sign-On'),
+        // Redirect automatically to OIDC provider on login page.
+        'auto' => env('OIDC_AUTO', false),
     ],
 
     'ses' => [
