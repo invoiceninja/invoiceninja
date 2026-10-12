@@ -64,7 +64,7 @@ class CompanyTaskRunner implements ShouldQueue
 
                     if(Ninja::isHosted() && !$scheduler->company->account->isPaid()) 
                         return;
-                    }
+                    
 
                     $scheduler->service()->runTask();
                 } catch (\Throwable $e) {
