@@ -1,5 +1,6 @@
 <div
-    class="main_layout h-screen flex overflow-hidden bg-gray-100"
+    data-portal-target="shell"
+    class="main_layout h-screen supports-[height:100dvh]:h-[100dvh] flex overflow-hidden bg-gray-100"
     x-data="{ sidebarOpen: false }"
     @keydown.window.escape="sidebarOpen = false"
     id="main-sidebar">
@@ -20,11 +21,12 @@
         @endif
         
         <main
+            data-portal-target="content"
             class="flex-1 relative z-0 overflow-y-auto pt-6 focus:outline-none"
             tabindex="0" x-data
             x-init="$el.focus()">
 
-            <div class="mx-auto px-4 sm:px-6 md:px-8">
+            <div data-portal-target="page-header" class="mx-auto px-4 sm:px-6 md:px-8">
                 @yield('header')
             </div>
 
@@ -32,6 +34,7 @@
                 <div class="pt-4 py-6">
                     @includeWhen(session()->has('success'), 'portal.ninja2020.components.general.messages.success')
                     
+                    @include('portal.ninja2020.components.analytics-consent')
                     {{ $slot }}
                 </div>
             </div>

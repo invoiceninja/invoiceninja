@@ -157,10 +157,8 @@ class AuthorizeAuthorizeACH {
         // Visual feedback
         if (isValid) {
             this.submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
-            this.submitButton.classList.add('hover:bg-primary-dark');
         } else {
             this.submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-            this.submitButton.classList.remove('hover:bg-primary-dark');
         }
     }
 

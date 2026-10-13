@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\Utils\AppLink;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\DataMapper\PaymentSync;
@@ -492,9 +493,9 @@ class Payment extends BaseModel
         return ctrans('texts.payment');
     }
 
-    public function portalUrl($use_react_url): string
+    public function portalUrl(): string
     {
-        return $use_react_url ? config('ninja.react_url') . "/#/payments/{$this->hashed_id}/edit" : config('ninja.app_url');
+        return AppLink::forRecord('payments', $this);
     }
 
     public function setRefundMeta(array $data)

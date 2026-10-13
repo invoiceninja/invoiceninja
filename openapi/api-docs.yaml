@@ -21519,6 +21519,12 @@ components:
           description: 'An array of objects which define the line items of the quote'
           items:
             $ref: '#/components/schemas/InvoiceItem'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
     Document:
       properties:
         id:
@@ -21968,6 +21974,30 @@ components:
           description: 'Notes that are visible to the client'
           type: string
           example: 'These are public notes visible to clients'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        display_name:
+          description: 'The calculated display name of the client'
+          type: string
+          example: 'Acme Inc'
+          readOnly: true
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
       type: object
 
     Quote:
@@ -22206,6 +22236,63 @@ components:
           description: 'The unique identifier of the vendor associated with this quote'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        invoice_id:
+          description: 'The hashed id of the invoice created from this quote'
+          type: string
+          example: Opnel5aKBz
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object
 
     InvoiceRequest:
@@ -22378,6 +22465,12 @@ components:
           description: 'The project associated with this invoice'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     ProductRequest:
       type: object
@@ -22539,6 +22632,12 @@ components:
           type: string
           description: 'The accounting income account identifier this product maps to (used by external accounting integrations such as QuickBooks).'
           example: '42'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
 
     InvoiceInvitationRequest:
       required:
@@ -22931,6 +23030,51 @@ components:
           description: 'The date the most recent reminder was sent (YYYY-MM-DD), an empty string when not sent'
           type: string
           example: '1994-07-30'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        subscription_id:
+          description: 'The subscription associated with this purchase order'
+          type: string
+          example: Opnel5aKBz
+        expense_id:
+          description: 'The expense created from this purchase order'
+          type: string
+          example: Opnel5aKBz
       type: object
 
     InvoiceInvitation:
@@ -23228,6 +23372,12 @@ components:
               send_email:
                 type: boolean
                 example: true
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     Company:
       properties:
@@ -23994,6 +24144,30 @@ components:
           description: 'The unique identifier of the vendor associated with this recurring invoice'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object
       
 
@@ -24104,6 +24278,12 @@ components:
               tax_id:
                 type: string
                 example: '1'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     Payment:
       properties:
@@ -24230,6 +24410,47 @@ components:
           description: 'Unique key to ensure idempotent payment processing'
           type: string
           example: 'key_1234567890abcdef'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        applied:
+          description: 'The amount of this payment already applied to invoices or credits'
+          type: number
+          format: float
+          example: 50.00
+          readOnly: true
+        transaction_id:
+          description: 'The hashed id of the related bank transaction'
+          type: string
+          example: Opnel5aKBz
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        gateway_type_id:
+          description: 'The payment gateway type id'
+          type: string
+          example: '1'
+        status_id:
+          description: 'The payment status id'
+          type: string
+          example: '4'
+        project_id:
+          description: 'The project associated with this payment'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The vendor associated with this payment'
+          type: string
+          example: Opnel5aKBz
+        currency_id:
+          description: 'The currency id of the payment'
+          type: string
+          example: '1'
       type: object
     
 
@@ -24479,6 +24700,64 @@ components:
           description: 'The unique identifier of the vendor associated with this credit'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        backup:
+          description: 'Invoice backup metadata'
+          type: object
+          nullable: true
+          additionalProperties: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object
 
     Subscription:
@@ -24673,6 +24952,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        current_hours:
+          description: 'Logged hours currently recorded against the project'
+          type: integer
+          example: 12
+          readOnly: true
+        budgeted_amount:
+          description: 'The budgeted monetary amount for the project'
+          type: number
+          format: float
+          example: 5000.00
       required:
         - id
         - user_id
@@ -25568,6 +25857,22 @@ components:
           description: "Default footer for credit notes"
           type: string
           example: "Credit note footer"
+        global_tag_inheritance:
+          description: 'When true, newly created records inherit matching global tags from related records'
+          type: boolean
+          example: false
+        documents_public_by_default:
+          description: 'When true, newly uploaded documents are public by default'
+          type: boolean
+          example: true
+        france_reporting_enabled:
+          description: 'When true, French tax reporting extras are enabled'
+          type: boolean
+          example: false
+        france_reporting_schedule:
+          description: 'The French reporting schedule. ten_day or monthly'
+          type: string
+          example: ten_day
     Design:
       properties:
         id:
@@ -26456,6 +26761,22 @@ components:
           description: 'The email signature for emails'
           type: string
           example: 'Bob Smith'
+        global_tag_inheritance:
+          description: 'When true, newly created records inherit matching global tags from related records'
+          type: boolean
+          example: false
+        documents_public_by_default:
+          description: 'When true, newly uploaded documents are public by default'
+          type: boolean
+          example: true
+        france_reporting_enabled:
+          description: 'When true, French tax reporting extras are enabled'
+          type: boolean
+          example: false
+        france_reporting_schedule:
+          description: 'The French reporting schedule. ten_day or monthly'
+          type: string
+          example: ten_day
       type: object
     BTRules:
       properties:
@@ -26648,12 +26969,6 @@ components:
           description: 'The due date of the invoice (YYYY-MM-DD), an empty string when not set'
           type: string
           example: '1994-07-30'
-        created_at:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
-          readOnly: true
         updated_at:
           description: Timestamp
           type: number
@@ -26724,68 +27039,10 @@ components:
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
-        tax_info:
-          description: 'The tax data calculated for this invoice'
-          type: object
-          additionalProperties: true
-          readOnly: true
-        backup:
-          description: 'Internal state of the invoice, such as cancellation and e-invoice clearance data'
-          type: object
-          additionalProperties: true
-          nullable: true
-          readOnly: true
-        sync:
-          description: 'Synchronisation state with third party accounting systems'
-          type: object
-          additionalProperties: true
-          nullable: true
-          readOnly: true
         recurring_id:
           description: 'The hashed id of the recurring invoice that generated this invoice, an empty string when there is none'
           type: string
           example: Opnel5aKBz
-          readOnly: true
-        entity_type:
-          description: 'The entity type, always invoice'
-          type: string
-          example: invoice
-          readOnly: true
-        reminder1_sent:
-          description: 'The date the first reminder was sent (YYYY-MM-DD), an empty string when not sent'
-          type: string
-          example: '1994-07-30'
-          readOnly: true
-        reminder2_sent:
-          description: 'The date the second reminder was sent (YYYY-MM-DD), an empty string when not sent'
-          type: string
-          example: '1994-07-30'
-          readOnly: true
-        reminder3_sent:
-          description: 'The date the third reminder was sent (YYYY-MM-DD), an empty string when not sent'
-          type: string
-          example: '1994-07-30'
-          readOnly: true
-        reminder_last_sent:
-          description: 'The date the most recent reminder was sent (YYYY-MM-DD), an empty string when not sent'
-          type: string
-          example: '1994-07-30'
-          readOnly: true
-        has_tasks:
-          description: 'Deprecated, always false'
-          type: boolean
-          deprecated: true
-          readOnly: true
-        has_expenses:
-          description: 'Deprecated, always false'
-          type: boolean
-          deprecated: true
-          readOnly: true
-        tags:
-          description: 'The tags attached to this invoice'
-          type: array
-          items:
-            type: object
           readOnly: true
         documents:
           description: 'The documents attached to this invoice'
@@ -26802,6 +27059,60 @@ components:
           description: 'The unique identifier of the vendor associated with this invoice'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        backup:
+          description: 'Invoice backup metadata'
+          type: object
+          nullable: true
+          additionalProperties: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object
 
     ClientRequest:
@@ -26954,6 +27265,12 @@ components:
           example: 'individual'
         settings:
           $ref: '#/components/schemas/ClientSettings'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     PaymentTerm:
       properties:
@@ -27154,7 +27471,7 @@ components:
 
     TagAssignment:
       type: object
-      description: 'A tag assigned to a task or project.'
+      description: 'A tag assigned to an entity.'
       properties:
         id:
           description: 'The hashed tag id'
@@ -27248,8 +27565,21 @@ components:
           description: 'Required on create. Immutable after creation.'
           type: string
           enum:
-            - 'App\Models\Task'
+            - 'App\Models\Company'
+            - 'App\Models\BankTransaction'
+            - 'App\Models\Client'
+            - 'App\Models\Credit'
+            - 'App\Models\Expense'
+            - 'App\Models\Invoice'
+            - 'App\Models\Payment'
+            - 'App\Models\Product'
             - 'App\Models\Project'
+            - 'App\Models\PurchaseOrder'
+            - 'App\Models\Quote'
+            - 'App\Models\RecurringExpense'
+            - 'App\Models\RecurringInvoice'
+            - 'App\Models\Task'
+            - 'App\Models\Vendor'
           example: 'App\Models\Task'
         name:
           description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
@@ -27344,6 +27674,12 @@ components:
           description: 'An array of objects which define the line items of the invoice'
           items:
             $ref: '#/components/schemas/InvoiceItem'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
     Product:
       type: object
       properties:
@@ -27504,6 +27840,11 @@ components:
           type: string
           description: 'The accounting income account identifier this product maps to (used by external accounting integrations such as QuickBooks).'
           example: '42'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
 
     PaymentRequest:
       properties:
@@ -27556,6 +27897,12 @@ components:
           description: 'The payment number - is a unique alpha numeric number per payment per company'
           type: string
           example: PAY_101
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     
     RecurringQuote:
@@ -27904,6 +28251,77 @@ components:
           description: 'The ID number of the bank account'
           type: integer
           example: 1
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        bank_integration_id:
+          description: 'The hashed id of the bank integration'
+          type: string
+          example: AS3df3A
+        ninja_category_id:
+          description: 'The hashed id of the mapped Invoice Ninja expense category'
+          type: string
+          example: Opnel5aKBz
+        status_id:
+          description: 'The bank transaction status id'
+          type: string
+          example: '1'
+        participant:
+          description: 'The counterparty account identifier from the bank feed'
+          type: string
+          example: 'DE89370400440532013000'
+        participant_name:
+          description: 'The counterparty name from the bank feed'
+          type: string
+          example: 'ACME Supplies'
+        invoice_ids:
+          description: 'Comma-separated hashed invoice ids matched to this transaction'
+          type: string
+          example: 'JxboYBLegw,JxboYBLeXX'
+        expense_id:
+          description: 'The hashed expense id created from this transaction'
+          type: string
+          example: Opnel5aKBz
+        payment_id:
+          description: 'The hashed payment id matched to this transaction'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The hashed vendor id matched to this transaction'
+          type: string
+          example: Opnel5aKBz
+        bank_transaction_rule_id:
+          description: 'The hashed id of the rule that matched this transaction'
+          type: string
+          example: Opnel5aKBz
+        is_deleted:
+          description: 'Whether the bank transaction is deleted'
+          type: boolean
+          example: false
+        nordigen_transaction_id:
+          description: 'The upstream Nordigen/GoCardless transaction id'
+          type: string
+          example: '20220101-abc123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object
     ProjectRequest:
       required:
@@ -28491,6 +28909,12 @@ components:
           description: 'The project associated with this credit'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     User:
       properties:
@@ -29043,6 +29467,11 @@ components:
           description: 'The unique identifier of the vendor associated with this recurring expense'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       type: object
 
     ClientContact:
@@ -29487,6 +29916,29 @@ components:
           description: 'The unique identifier of the vendor associated with this expense'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        expense_currency_id:
+          description: 'The currency id of the expense (alias of currency_id)'
+          type: string
+          example: '2'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+          example: expense
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
       type: object
 
     Task:
@@ -29636,6 +30088,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        date:
+          description: 'The calculated start date of the task, an empty string when not set'
+          type: string
+          example: '2024-01-15'
       type: object
     FeesAndLimits:
       properties:
@@ -29850,6 +30306,17 @@ components:
           description: 'The routing identifier for e-invoicing'
           type: string
           example: '0088:12345678901'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object
 
 tags:

@@ -12,6 +12,7 @@
 
 namespace App\Repositories;
 
+use App\Services\ClientPortal\PortalHtmlSanitizer;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Location;
@@ -71,6 +72,10 @@ class ClientRepository extends BaseRepository
             $this->syncResolvedTags($client, $tag_ids);
 
             return $client;
+        }
+
+        if (isset($data['settings'])) {
+            $data['settings'] = (new PortalHtmlSanitizer())->cleanSettings((array) $data['settings']);
         }
 
         $client->fill($data);

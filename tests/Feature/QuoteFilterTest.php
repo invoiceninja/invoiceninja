@@ -162,4 +162,19 @@ class QuoteFilterTest extends TestCase
         $this->assertNotContains($this->approvedQuote->hashed_id, $ids);
         $this->assertNotContains($this->rejectedQuote->hashed_id, $ids);
     }
+
+    public function testClientStatusRejectedReturnsOnlyRejectedQuotes(): void
+    {
+        $response = $this->withHeaders($this->headers())
+            ->get('/api/v1/quotes?client_status=rejected&per_page=500')
+            ->assertStatus(200);
+
+        $ids = $this->quoteIdsFromResponse($response->json());
+
+        $this->assertContains($this->rejectedQuote->hashed_id, $ids);
+        $this->assertNotContains($this->quote->hashed_id, $ids);
+        $this->assertNotContains($this->draftQuote->hashed_id, $ids);
+        $this->assertNotContains($this->approvedQuote->hashed_id, $ids);
+        $this->assertNotContains($this->cancelledQuote->hashed_id, $ids);
+    }
 }

@@ -8,139 +8,80 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-class Payment {
-    constructor(displayTerms, displaySignature) {
-        this.shouldDisplayTerms = displayTerms;
-        this.shouldDisplaySignature = displaySignature;
-        
-        this.submitting = false;
-        this.steps = new Map()
+import { setupDialog, openDialog, closeDialog } from '../dialog';
+import { createSignature } from '../signature';
 
-        this.steps.set("rff", {
-            element: document.getElementById('displayRequiredFieldsModal'),
-            nextButton: document.getElementById('rff-next-step'),
-            callback: () => {
-                const fields = {
-                    firstName: document.querySelector('input[name="rff_first_name"]'),
-                    lastName: document.querySelector('input[name="rff_last_name"]'),
-                    email: document.querySelector('input[name="rff_email"]'),
-                    city: document.querySelector('input[name="rff_city"]'),
-                    postalCode: document.querySelector('input[name="rff_postal_code"]'),
-                }
+const form = document.getElementById('payment-form');
+const enabled = name => Boolean(+document.querySelector(`meta[name="${name}"]`)?.content);
+const signatureDialog = document.getElementById('displaySignatureModal');
+const nextSignature = document.getElementById('signature-next-step');
+const fields = {
+    rff_first_name: 'contact_first_name',
+    rff_last_name: 'contact_last_name',
+    rff_email: 'contact_email',
+    rff_city: 'client_city',
+    rff_postal_code: 'client_postal_code',
+};
+let steps = [];
+let drawing;
+let submitting = false;
+let selectedMethod;
 
-                if (fields.firstName) {
-                    document.querySelector('input[name="contact_first_name"]').value = fields.firstName.value;
-                }
-
-                if (fields.lastName) {
-                    document.querySelector('input[name="contact_last_name"]').value = fields.lastName.value;
-                }
-
-                if (fields.email) {
-                    document.querySelector('input[name="contact_email"]').value = fields.email.value;
-                }
-
-                if (fields.city) {
-                    document.querySelector('input[name="client_city"]').value = fields.city.value;
-                }
-
-                if (fields.postalCode) {
-                    document.querySelector('input[name="client_postal_code"]').value = fields.postalCode.value;
-                }
-
-            }
-        });
-
-        if (this.shouldDisplaySignature) {
-            this.steps.set("signature", {
-                element: document.getElementById('displaySignatureModal'),
-                nextButton: document.getElementById('signature-next-step'),
-                boot: () => this.signaturePad = new SignaturePad(
-                    document.getElementById("signature-pad"),
-                    {
-                        penColor: "rgb(0, 0, 0)"
-                    }
-                ),
-                callback: () => document.querySelector('input[name="signature"').value = this.signaturePad.toDataURL(),
-            });
+async function advance() {
+    if (steps.length) {
+        const dialog = document.getElementById(steps[0]);
+        if (!await openDialog(dialog, selectedMethod)) return;
+        if (dialog === signatureDialog) {
+            drawing ??= createSignature(dialog.querySelector('canvas'), signed => nextSignature.disabled = !signed);
+            drawing.resize();
         }
-
-        if (this.shouldDisplayTerms) {
-            this.steps.set("terms", {
-                element: document.getElementById('displayTermsModal'),
-                nextButton: document.getElementById('accept-terms-button'),
-            });
-        }
-    }
-
-    handleMethodSelect(element) {
-
-        document.getElementById("company_gateway_id").value =
-            element.dataset.companyGatewayId;
-        document.getElementById("payment_method_id").value =
-            element.dataset.gatewayTypeId;
-              
-        const filledRff = document.querySelector('input[name="contact_first_name"').value.length >=1 &&
-            document.querySelector('input[name="contact_last_name"').value.length >= 1 &&
-            document.querySelector('input[name="contact_email"').value.length >= 1 &&
-            document.querySelector('input[name="client_city"').value.length >= 1 &&
-            document.querySelector('input[name="client_postal_code"').value.length >= 1;
-
-        if (element.dataset.isPaypal != '1' || filledRff) {
-            this.steps.delete("rff");
-        }
-
-        if (this.steps.size === 0) {
-            return this.submitForm();
-        }
-
-        const next = this.steps.values().next().value;
-
-        next.element.removeAttribute("style");
-        
-        if (next.boot) {
-            next.boot();
-        }
-
-        console.log(next);
-
-        next.nextButton.addEventListener('click', () => {
-            next.element.setAttribute("style", "display: none;");
-
-            this.steps = new Map(Array.from(this.steps.entries()).slice(1));
-
-            if (next.callback) {
-                next.callback();
-            }
-
-            this.handleMethodSelect(element);
-        });
-    }
-
-    submitForm() {
-        this.submitting = true;
-
-        document.getElementById("payment-form").submit();
-    }
-
-    handle() {
-
-        document
-            .querySelectorAll(".dropdown-gateway-button")
-            .forEach(element => {
-                element.addEventListener("click", () => {
-                    if (!this.submitting) {
-                        this.handleMethodSelect(element)
-                    }
-                });
-            });
+    } else if (!submitting) {
+        submitting = true;
+        form.submit();
     }
 }
 
-const signature = document.querySelector(
-    'meta[name="require-invoice-signature"]'
-).content;
+function next() {
+    closeDialog(document.getElementById(steps.shift()));
+    advance();
+}
 
-const terms = document.querySelector('meta[name="show-invoice-terms"]').content;
+['displayRequiredFieldsModal', 'displaySignatureModal', 'displayTermsModal'].forEach(id => {
+    setupDialog(document.getElementById(id), () => {
+        steps = [];
+        selectedMethod?.focus();
+    });
+});
 
-new Payment(Boolean(+terms), Boolean(+signature)).handle();
+document.querySelectorAll('.dropdown-gateway-button').forEach(button => {
+    button.addEventListener('click', event => {
+        event.preventDefault();
+        if (submitting || steps.length) return;
+        selectedMethod = button;
+        form.elements.company_gateway_id.value = button.dataset.companyGatewayId;
+        form.elements.payment_method_id.value = button.dataset.gatewayTypeId;
+        const missingFields = Object.values(fields).some(name => !form.elements[name].value.trim());
+        steps = [];
+        if (button.dataset.isPaypal === '1' && missingFields) steps.push('displayRequiredFieldsModal');
+        if (enabled('require-invoice-signature')) steps.push('displaySignatureModal');
+        if (enabled('show-invoice-terms')) steps.push('displayTermsModal');
+        advance();
+    });
+});
+document.getElementById('rff-next-step').addEventListener('click', () => {
+    if (steps[0] !== 'displayRequiredFieldsModal') return;
+    Object.entries(fields).forEach(([source, target]) => {
+        const input = document.querySelector(`input[name="${source}"]`);
+        if (input) form.elements[target].value = input.value;
+    });
+    next();
+});
+nextSignature.addEventListener('click', () => {
+    if (steps[0] !== 'displaySignatureModal' || !drawing || drawing.pad.isEmpty()) return;
+    form.elements.signature.value = drawing.pad.toDataURL();
+    next();
+});
+document.getElementById('clear-signature').addEventListener('click', () => drawing?.clear());
+document.getElementById('accept-terms-button').addEventListener('click', () => {
+    if (steps[0] === 'displayTermsModal') next();
+});

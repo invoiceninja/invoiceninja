@@ -47,7 +47,7 @@
             <div class="bg-white px-4 py-5 flex items-center w-full justify-end">
                 <button type="button"
                         id="copy-billing-button"
-                        class="bg-gray-100 hover:bg-gray-200 px-4 py-2 text-sm rounded transition-colors">
+                        class="button button-secondary leading-normal py-2">
                     {{ ctrans('texts.copy_billing') }}
                 </button>
             </div>

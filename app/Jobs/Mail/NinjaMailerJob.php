@@ -184,7 +184,7 @@ class NinjaMailerJob implements ShouldQueue
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
                 $this->cleanUpMailers();
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
 
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
@@ -198,26 +198,27 @@ class NinjaMailerJob implements ShouldQueue
                 match ((new SmtpFailure())->action($e, $this->attempts(), $this->tries)) {
                     SmtpFailure::RETRY => $this->release($this->backoff()[$this->attempts() - 1]),
                     SmtpFailure::FALLBACK => $this->fallbackSmtp($e->getMessage()),
-                    SmtpFailure::FAIL => $this->logMailError($e->getMessage(), $this->company->clients()->first()),
+                    SmtpFailure::FAIL => $this->logMailError($e->getMessage()),
+                    default => $this->logMailError($e->getMessage()),
                 };
                 $this->cleanUpMailers();
                 return;
             }
 
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             return;
 
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
 
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
 
             return;
         } catch (\Google\Service\Exception $e) {
@@ -225,7 +226,7 @@ class NinjaMailerJob implements ShouldQueue
             if ($e->getCode() == '429') {
 
                 $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 sleep(rand(1, 2));
                 $this->release(900);
 
@@ -235,7 +236,7 @@ class NinjaMailerJob implements ShouldQueue
 
             nlog("Mailer failed with an Error Exception {$e->getMessage()}");
             $message = "Attachment size is too large.";
-            $this->logMailError($message, $this->company->clients()->first());
+            $this->logMailError($message);
             $this->entityEmailFailed($message);
             $this->cleanUpMailers();
 
@@ -253,7 +254,7 @@ class NinjaMailerJob implements ShouldQueue
             if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->logMailError($e->getMessage());
 
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
@@ -331,7 +332,7 @@ class NinjaMailerJob implements ShouldQueue
 
     private function fallbackSmtp(string $message): void
     {
-        $this->logMailError($message, $this->company->clients()->first());
+        $this->logMailError($message);
         $this->retryWithDefaultMailer();
     }
 
@@ -775,7 +776,7 @@ class NinjaMailerJob implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
         } catch (\Exception $e) {
-            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->logMailError('Gmail Token Invalid');
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -885,7 +886,7 @@ class NinjaMailerJob implements ShouldQueue
      * @param  \App\Models\User | \App\Models\Client | null $recipient_object
      * @return void
      */
-    private function logMailError($errors, $recipient_object): void
+    private function logMailError($errors, $recipient_object = null): void
     {
         (
             new SystemLogger(

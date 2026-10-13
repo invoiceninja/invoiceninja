@@ -196,7 +196,7 @@ class QuoteController extends Controller
         $client_contact = auth()->user();
 
         $quote_invitations = QuoteInvitation::query()
-            ->with('quote', 'company')
+            ->with('quote')
             ->whereIn('quote_id', $ids)
             ->where('client_contact_id', $client_contact->id)
             ->withTrashed()

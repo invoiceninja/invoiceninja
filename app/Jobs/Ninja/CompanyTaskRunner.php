@@ -20,6 +20,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
+use App\Utils\Ninja;
 
 class CompanyTaskRunner implements ShouldQueue
 {
@@ -42,7 +43,7 @@ class CompanyTaskRunner implements ShouldQueue
             MultiDB::setDB($this->db);
         }
 
-        Scheduler::with('company')
+        Scheduler::with('company.account')
             ->where('company_id', $this->company_id)
             ->where('is_paused', false)
             ->where('is_deleted', false)
@@ -60,6 +61,11 @@ class CompanyTaskRunner implements ShouldQueue
 
                 try {
                     /** @var \App\Models\Scheduler $scheduler */
+
+                    if(Ninja::isHosted() && !$scheduler->company->account->isPaid()) 
+                        return;
+                    }
+
                     $scheduler->service()->runTask();
                 } catch (\Throwable $e) {
                     nlog("Exception:: CompanyTaskRunner:: #{$scheduler->id}:: " . $e->getMessage());

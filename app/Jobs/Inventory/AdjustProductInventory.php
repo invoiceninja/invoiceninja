@@ -167,7 +167,7 @@ class AdjustProductInventory implements ShouldQueue
 
             /** @var \App\Models\CompanyUser $cu */
             if ($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user', 'inventory_threshold_all', 'inventory_threshold_user']) && (! in_array($product->id, $this->notified_products))) {
-                $nmo->mailable = new NinjaMailer((new InventoryNotificationObject($product, $notification_level, $cu->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new InventoryNotificationObject($product, $notification_level))->build());
                 $nmo->to_user = $cu->user;
                 NinjaMailerJob::dispatch($nmo);
                 $this->notified_products[] = $product->id;

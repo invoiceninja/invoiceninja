@@ -15,12 +15,15 @@ namespace App\Services\Template;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
@@ -28,6 +31,7 @@ use App\Models\Vendor;
 use App\Services\Template\TemplateMock;
 use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\PaymentHtmlEngine;
@@ -302,6 +306,8 @@ class TemplateService
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($this->compiled_html);
         } else {
             $pdf = $this->makePdf(null, null, $this->compiled_html);
         }
@@ -545,8 +551,9 @@ class TemplateService
                 'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
                 'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
                 'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], //@phpstan-ignore-line
-                'tasks' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
-                'projects' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
+                'tasks', 'projects' => $processed = ($invitation = $this->resolveClientInvitation($value->first()->client)) // @phpstan-ignore-line
+                    ? (new HtmlEngine($invitation))->setSettings($this->getSettings())->generateLabelsAndValues()
+                    : [],
                 'purchase_orders' => $processed = (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
                 'aging' => $processed = [],
                 default => $processed = [],
@@ -556,6 +563,29 @@ class TemplateService
 
         })->toArray();
 
+    }
+
+    /**
+     * Projects and tasks have no invitations. Borrow the client's first
+     * invoice invitation, then a quote, then a credit, so design labels
+     * can still be resolved. Returns null when the client has none.
+     */
+    private function resolveClientInvitation(Client $client): InvoiceInvitation|QuoteInvitation|CreditInvitation|null
+    {
+        foreach ([$client->invoices(), $client->quotes(), $client->credits()] as $documents) {
+            $invitation = $documents //@phpstan-ignore-line
+                ->whereHas('invitations')
+                ->with('invitations')
+                ->first()
+                ?->invitations
+                ?->first();
+
+            if ($invitation instanceof InvoiceInvitation || $invitation instanceof QuoteInvitation || $invitation instanceof CreditInvitation) {
+                return $invitation;
+            }
+        }
+
+        return null;
     }
 
     /**

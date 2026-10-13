@@ -362,7 +362,11 @@ class ClientIdentifierValidationTest extends TestCase
             'BE' => [56,  'BE', ['vat_number' => 'BE0202239951']],
             'DK' => [208, 'DK', ['vat_number' => 'DK12345678']],
             'EE' => [233, 'EE', ['id_number'  => '12345678']],
-            'FI' => [246, 'FI', ['id_number'  => '123456789012']],
+            'FI' => [246, 'FI', [
+                'vat_number' => 'FI12345678',
+                'id_number'  => '003712345678',
+                'routing_id' => '003721291126',
+            ]],
             'DE' => [276, 'DE', ['vat_number' => 'DE123456789']],
             'IS' => [352, 'IS', ['id_number'  => '123456']],
             'LT' => [440, 'LT', ['id_number'  => '1234567']],
@@ -609,6 +613,54 @@ class ClientIdentifierValidationTest extends TestCase
         $errors = $this->clientErrors($client);
 
         $this->assertTrue($this->hasErrorForField($errors, 'vat_number'));
+    }
+
+    public function testFiBusinessWithOpidOvtAndVatPasses(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 246,
+            'classification' => 'business',
+            'vat_number' => 'FI12345678',
+            'id_number' => '003712345678',
+            'routing_id' => '003721291126',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertFalse($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertFalse($this->hasErrorForField($errors, 'id_number'));
+        $this->assertFalse($this->hasErrorForField($errors, 'vat_number'));
+    }
+
+    public function testFiBusinessMissingOpidIsBlocked(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 246,
+            'classification' => 'business',
+            'vat_number' => 'FI12345678',
+            'id_number' => '003712345678',
+            'routing_id' => '',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+    }
+
+    public function testFiRoutingIdWithOvtEndpointDefersToHandler(): void
+    {
+        $client = $this->makeClient([
+            'country_id' => 246,
+            'classification' => 'business',
+            'vat_number' => 'FI12345678',
+            'id_number' => '003712345678',
+            'routing_id' => '0216:003712345678',
+        ]);
+
+        $errors = $this->clientErrors($client);
+
+        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertStringContainsStringIgnoringCase('FI:OPID', $this->firstErrorLabel($errors, 'routing_id') ?? '');
     }
 
     public function testItDomesticConsumerRequiresCodiceFiscaleAndCuuo(): void

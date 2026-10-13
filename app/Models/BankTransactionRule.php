@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\BankTransactionRuleFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransactionRule filter(\App\Filters\QueryFilters $filters)

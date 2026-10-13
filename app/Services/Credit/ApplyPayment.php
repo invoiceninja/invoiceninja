@@ -131,8 +131,8 @@ class ApplyPayment
                  ->client
                  ->service()
                  ->updateBalance($this->amount_applied * -1)
-                 ->adjustCreditBalance($this->amount_applied * -1)
                  ->updatePaidToDate($this->amount_applied)
+                 ->adjustCreditBalance($this->amount_applied * -1)
                  ->save();
 
         $this->invoice

@@ -156,6 +156,191 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $this->assertSame('EXEMPT_CODE', $tax_code_id);
     }
 
+    public function test_invoice_gst_merges_with_line_pst_on_same_slot(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            (object) [
+                'tax_name1' => 'PST',
+                'tax_rate1' => 7,
+                'tax_name2' => '',
+                'tax_rate2' => 0,
+                'tax_name3' => '',
+                'tax_rate3' => 0,
+            ],
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'PST', 'rate' => 7.0],
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_invoice_gst_does_not_duplicate_matching_line_gst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'GST', 'rate' => 5],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_header_gst_and_line_pst_resolves_to_composite_not_single_rate(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame('GST_PST_BC', $this->resolveLineTaxCode($merged, [
+            $this->gstPstComponentKey() => [
+                ['tax_code_id' => 'GST_PST_BC', 'name' => 'GST/PST BC'],
+            ],
+        ]));
+    }
+
+    public function test_header_gst_and_line_pst_requests_composite_tax_code_not_gst_only(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+            $this->lineItem(),
+        ]);
+
+        $unresolved = $this->unresolvedTaxCodeComponents($invoice, []);
+
+        $this->assertArrayHasKey($this->gstPstComponentKey(), $unresolved);
+        $this->assertSame([
+            ['name' => 'PST', 'rate' => 7.0],
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $unresolved[$this->gstPstComponentKey()]);
+        $this->assertArrayNotHasKey(
+            TaxCodeComponentKey::fromComponents([
+                ['name' => 'GST', 'rate' => 5],
+            ]),
+            $unresolved
+        );
+    }
+
+    public function test_header_gst_and_line_pst_is_resolved_when_composite_exists(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+            $this->lineItem(),
+        ]);
+
+        $this->assertSame([], $this->unresolvedTaxCodeComponents($invoice, [
+            $this->gstPstComponentKey() => [
+                ['tax_code_id' => 'GST_PST_BC', 'name' => 'GST/PST BC'],
+            ],
+        ]));
+    }
+
+    public function test_merge_does_not_mutate_source_line_item(): void
+    {
+        $line = $this->taxedLineItem([
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [$line]);
+
+        $this->resolver->mergeInvoiceLevelTaxes(
+            $line,
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame('PST', $line->tax_name1);
+        $this->assertSame(7.0, (float) $line->tax_rate1);
+        $this->assertSame('', $line->tax_name2);
+        $this->assertSame(0.0, (float) $line->tax_rate2);
+    }
+
+    public function test_header_gst_does_not_duplicate_when_line_already_has_gst_and_pst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'GST', 'rate' => 5],
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'GST', 'rate' => 5.0],
+            ['name' => 'PST', 'rate' => 7.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_header_gst_percent_suffix_does_not_duplicate_line_gst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST 5%', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'GST', 'rate' => 5],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_exempt_line_is_not_unresolved_when_invoice_has_gst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([], '5'),
+        ]);
+
+        $this->assertSame([], $this->unresolvedTaxCodeComponents($invoice, []));
+    }
+
     public function test_unresolved_composite_tax_key_requests_lazy_tax_code_refresh(): void
     {
         $components = [
@@ -579,6 +764,31 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $this->assertSame('qb-rate-6', $result['TaxLine'][0]['TaxLineDetail']['TaxRateRef']['value']);
         $this->assertSame(0.06, $result['TaxLine'][0]['Amount']);
         $this->assertSame(1.0, $result['TaxLine'][0]['TaxLineDetail']['NetAmountTaxable']);
+    }
+
+    /**
+     * @param  array<int, array{name: string, rate: float|int}>  $taxes
+     */
+    private function taxedLineItem(array $taxes, string $tax_id = '1'): object
+    {
+        $item = $this->lineItem();
+        $item->tax_id = $tax_id;
+
+        foreach ($taxes as $index => $tax) {
+            $slot = $index + 1;
+            $item->{"tax_name{$slot}"} = $tax['name'];
+            $item->{"tax_rate{$slot}"} = $tax['rate'];
+        }
+
+        return $item;
+    }
+
+    private function gstPstComponentKey(): string
+    {
+        return TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'PST', 'rate' => 7],
+        ]);
     }
 
     /**

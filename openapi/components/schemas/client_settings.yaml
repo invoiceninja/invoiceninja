@@ -831,4 +831,20 @@
           description: 'The email signature for emails'
           type: string
           example: 'Bob Smith'
+        global_tag_inheritance:
+          description: 'When true, newly created records inherit matching global tags from related records'
+          type: boolean
+          example: false
+        documents_public_by_default:
+          description: 'When true, newly uploaded documents are public by default'
+          type: boolean
+          example: true
+        france_reporting_enabled:
+          description: 'When true, French tax reporting extras are enabled'
+          type: boolean
+          example: false
+        france_reporting_schedule:
+          description: 'The French reporting schedule. ten_day or monthly'
+          type: string
+          example: ten_day
       type: object

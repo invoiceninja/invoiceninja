@@ -23,6 +23,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class CheckVat implements ShouldQueue
 {
@@ -54,7 +55,13 @@ class CheckVat implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         $tax_service = new TaxService($this->client);
-        $tax_service->validateVat();
+
+        try{
+            $tax_service->validateVat();
+        } catch(\Throwable $e){
+            Cache::put('vat_status_'.$this->client->client_hash, 'unavailable', 3600);
+            throw $e;
+        }
 
     }
 

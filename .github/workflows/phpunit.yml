@@ -43,7 +43,8 @@ jobs:
       NINJA_LICENSE: ${{ secrets.ninja_license }}
       TRAVIS: true
       MAIL_MAILER: log
-      PDF_GENERATOR: hosted_ninja
+      PDF_GENERATOR: simulator
+      PDF_GENERATOR_REAL: snappdf
       SENTRY_SAMPLE_RATE: 0
       
     services:
@@ -138,6 +139,7 @@ jobs:
         cat .env
         vendor/bin/snappdf download
         tests/ci
+      # Snappdf is for tests that opt into PDF_GENERATOR_REAL (see UsesRealPdfGeneration).
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true

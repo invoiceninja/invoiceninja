@@ -46,6 +46,7 @@ use App\PaymentDrivers\Stripe\Klarna;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentMethodDomain;
 use App\Exceptions\StripeConnectFailure;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\PaymentDrivers\Stripe\Bancontact;
@@ -1083,11 +1084,59 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function setApplePayDomain($domain)
     {
+        $this->ensurePaymentMethodDomainRegistered($domain);
+    }
+
+    /**
+     * Register and validate a payment method domain for Apple Pay / wallet buttons.
+     *
+     * @throws ApiErrorException
+     */
+    public function ensurePaymentMethodDomainRegistered(string $domain): PaymentMethodDomain
+    {
         $this->init();
 
-        \Stripe\ApplePayDomain::create([
-            'domain_name' => $domain,
-        ], $this->stripe_connect_auth);
+        $opts = $this->stripe_connect_auth;
+
+        $payment_method_domain = $this->findPaymentMethodDomain($domain, $opts);
+
+        if (! $payment_method_domain) {
+            $payment_method_domain = PaymentMethodDomain::create(
+                ['domain_name' => $domain],
+                $opts
+            );
+        }
+
+        if (($payment_method_domain->apple_pay->status ?? '') !== 'active') {
+            $payment_method_domain->validate(null, $opts);
+            $payment_method_domain = PaymentMethodDomain::retrieve($payment_method_domain->id, $opts);
+        }
+
+        return $payment_method_domain;
+    }
+
+    private function findPaymentMethodDomain(string $domain, array $opts): ?PaymentMethodDomain
+    {
+        $config = $this->company_gateway->getConfig();
+        $stored_id = $config->apple_pay_domain_id ?? null;
+
+        if (is_string($stored_id) && str_starts_with($stored_id, 'pmd_')) {
+            try {
+                $payment_method_domain = PaymentMethodDomain::retrieve($stored_id, $opts);
+
+                if ($payment_method_domain->domain_name === $domain) {
+                    return $payment_method_domain;
+                }
+            } catch (ApiErrorException) {
+            }
+        }
+
+        $domains = PaymentMethodDomain::all(
+            ['domain_name' => $domain, 'limit' => 1],
+            $opts
+        );
+
+        return $domains->data[0] ?? null;
     }
 
     public function disconnect()

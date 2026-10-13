@@ -263,7 +263,12 @@ class Purify
         $css = preg_replace('/http\s*:\s*\/\//i', '', $css);
         $css = preg_replace('/file\s*:\s*\/\//i', '', $css);
 
-        return $css;
+        // Escape closing style tags after normalization without changing other CSS syntax.
+        return preg_replace_callback(
+            '~</style~i',
+            static fn(array $match): string => '\\3C ' . substr($match[0], 1),
+            $css
+        );
     }
 
     /**
@@ -479,12 +484,6 @@ class Purify
                     return;
                 }
 
-                // Sanitize <style> block content to protect whitelabel logo
-                if (strtolower($node->tagName) === 'style') {
-                    $node->textContent = self::sanitizeStyleBlockContent($node->textContent);
-                    return;
-                }
-
                 // Store current attributes before removing them
                 $current_attributes = [];
                 foreach ($node->attributes as $attr) {
@@ -500,9 +499,21 @@ class Purify
                     $node->removeAttribute($attr_name);
                 }
 
+                // Style blocks must also pass through the attribute allowlist below.
+                if (strtolower($node->tagName) === 'style') {
+                    $node->textContent = self::sanitizeStyleBlockContent($node->textContent);
+                }
+
                 // Then add back only the allowed attributes
                 foreach ($current_attributes as $name => $value) {
                     $attr_name = strtolower($name);
+
+                    // Preserve stylesheet scope for PDF designs; portal styles use a stricter second pass.
+                    if (strtolower($node->tagName) === 'style'
+                        && ($attr_name === 'media' || ($attr_name === 'type' && strtolower($value) === 'text/css'))) {
+                        $node->setAttribute($name, $value);
+                        continue;
+                    }
 
                     // Add special handling for style attributes
                     if ($attr_name === 'style') {
@@ -604,8 +615,13 @@ class Purify
                 if ($body) {
                     $wrapper = $body->firstChild;
                     if ($wrapper && $wrapper->nodeName === 'div') {
-                        foreach ($wrapper->childNodes as $child) {
-                            $html .= $document->saveHTML($child);
+                        // Malformed fragments can close the wrapper early. Preserve
+                        // the sanitized siblings as well as the wrapper's children.
+                        foreach ($body->childNodes as $child) {
+                            $nodes = $child === $wrapper ? $wrapper->childNodes : [$child];
+                            foreach ($nodes as $node) {
+                                $html .= $document->saveHTML($node);
+                            }
                         }
                     } else {
                         foreach ($body->childNodes as $child) {

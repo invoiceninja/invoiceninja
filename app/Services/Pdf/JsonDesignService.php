@@ -239,6 +239,11 @@ class JsonDesignService
             $content = $this->paginationTable($pagination, $headerHtml, $bodyHtml, $footerHtml);
         }
 
+        $bodyClass = $pagination !== 'none' ? ' class="invoice-paginated-document"' : '';
+        $bodyContent = $pagination !== 'none'
+            ? $content
+            : "<div class=\"invoice-container\">\n{$content}\n</div>";
+
         return <<<HTML
             <!DOCTYPE html>
             <html lang="en">
@@ -251,10 +256,8 @@ class JsonDesignService
                 </style>
                 {$customStyleElement}
             </head>
-            <body>
-                <div class="invoice-container">
-                    {$content}
-                </div>
+            <body{$bodyClass}>
+                {$bodyContent}
             </body>
             </html>
             HTML;
@@ -356,16 +359,21 @@ class JsonDesignService
 
         if (in_array($pagination, ['header', 'both'], true)) {
             $height = $this->chromeHeight('headerHeight', 80);
-            $html .= "<thead>\n<tr>\n<td class=\"invoice-page-header\" style=\"min-height: {$height}px; vertical-align: top;\">\n{$headerHtml}</td>\n</tr>\n</thead>\n";
+            $headerBg = $this->chromeBackgroundStyle('headerBackground', 'header_background');
+            $headerCell = $this->wrapPaginatedChromeCell($headerHtml, $height, $headerBg);
+            $html .= "<thead>\n<tr>\n<td class=\"invoice-page-header\" style=\"width: 100%; box-sizing: border-box; padding: 0; vertical-align: top;\">\n{$headerCell}</td>\n</tr>\n</thead>\n";
         }
 
         $html .= "<tbody>\n<tr>\n<td class=\"invoice-page-body\" style=\"vertical-align: top;\">\n{$bodyHtml}</td>\n</tr>\n</tbody>\n";
 
         if (in_array($pagination, ['footer', 'both'], true)) {
             $height = $this->chromeHeight('footerHeight', 48);
-            $html .= "<tfoot>\n<tr>\n<td class=\"invoice-page-footer-space\" style=\"height: {$height}px; min-height: {$height}px;\"></td>\n</tr>\n</tfoot>\n";
+            $footerBg = $this->chromeBackgroundStyle('footerBackground', 'footer_background');
+            $footerFill = $footerBg !== '' ? $footerBg : '';
+            $html .= "<tfoot>\n<tr>\n<td class=\"invoice-page-footer-space\" style=\"width: 100%; box-sizing: border-box; height: {$height}px; min-height: {$height}px;{$footerFill}\"></td>\n</tr>\n</tfoot>\n";
             $html .= "</table>\n";
-            $html .= "<div class=\"invoice-page-footer\" style=\"min-height: {$height}px;\">\n{$footerHtml}</div>\n";
+            $footerCell = $this->wrapPaginatedChromeCell($footerHtml, $height, $footerBg, 'footer');
+            $html .= "<div class=\"invoice-page-footer\" style=\"min-height: {$height}px; padding: 0;\">\n{$footerCell}</div>\n";
 
             return $html;
         }
@@ -388,6 +396,66 @@ class JsonDesignService
         }
 
         return max(24, min(400, (int) round((float) $raw)));
+    }
+
+    /**
+     * Safe hex chrome background from documentSettings (camelCase or snake_case).
+     */
+    private function chromeBackgroundStyle(string $camelKey, string $snakeKey): string
+    {
+        $settings = $this->documentSettings();
+        $raw = $settings[$camelKey] ?? $settings[$snakeKey] ?? null;
+
+        if (! is_string($raw)) {
+            return '';
+        }
+
+        $trimmed = trim($raw);
+
+        if ($trimmed === '' || ! preg_match('/^#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $trimmed)) {
+            return '';
+        }
+
+        return ' background-color: '.$trimmed.';';
+    }
+
+    /**
+     * Full-width chrome background layer with inset content (matches visual designer).
+     */
+    private function wrapPaginatedChromeCell(string $html, int $minHeight, string $backgroundCss, string $region = 'header'): string
+    {
+        $paddingLeft = $this->formatCssNumber($this->pageContentInsetPx('Left'));
+        $paddingRight = $this->formatCssNumber($this->pageContentInsetPx('Right'));
+        $contentPadding = 'padding-left: '.$paddingLeft.'px; padding-right: '.$paddingRight.'px;';
+
+        if ($region === 'footer') {
+            $paddingBottom = $this->formatCssNumber($this->pageContentInsetPx('Bottom'));
+            $contentPadding .= ' padding-bottom: '.$paddingBottom.'px;';
+        }
+
+        $fill = $backgroundCss !== ''
+            ? '<div style="position:absolute; inset:0;'.trim($backgroundCss).';"></div>'
+            : '';
+
+        return '<div style="position:relative; width:100%; min-height: '.$minHeight.'px; box-sizing:border-box;">'
+            .$fill
+            .'<div style="position:relative; min-height: '.$minHeight.'px; '.$contentPadding.' box-sizing:border-box;">'
+            .$html
+            .'</div></div>';
+    }
+
+    private function pageContentInsetPx(string $edge): float
+    {
+        $docSettings = $this->documentSettings();
+        $paddingKey = 'pagePadding' . $edge;
+        $padding = array_key_exists($paddingKey, $docSettings)
+            ? (float) $docSettings[$paddingKey]
+            : 30.0;
+
+        return max(
+            0,
+            $padding + (float) ($docSettings['pageMargin' . $edge] ?? 0)
+        );
     }
 
     /**
@@ -588,9 +656,13 @@ class JsonDesignService
         // inset repeats on EVERY page — container padding only spaces the first
         // page, leaving page 2+ with no top margin. Legacy pageSettings payloads
         // keep their original @page margin behavior.
-        $pageMargins = $this->hasLayoutOverrides()
-            ? $this->combinedPageInset()
-            : $this->getPageMarginsCSS($pageSettings);
+        $pagination = $this->paginationMode();
+        $pageMargins = $pagination !== 'none'
+            ? $this->combinedPageInsetForPaginatedChrome()
+            : ($this->hasLayoutOverrides()
+                ? $this->combinedPageInset()
+                : $this->getPageMarginsCSS($pageSettings));
+        $bodyZoom = $pagination !== 'none' ? '100%' : '80%';
 
         $css = <<<CSS
                     @page {
@@ -607,7 +679,13 @@ class JsonDesignService
                         -moz-osx-font-smoothing: grayscale;
                         -webkit-print-color-adjust: exact;
                         print-color-adjust: exact;
-                        zoom: 80%;
+                        zoom: {$bodyZoom};
+                    }
+                    body.invoice-paginated-document {
+                        width: 100%;
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
                     }
                     .invoice-container {
                         width: 100%;
@@ -706,10 +784,15 @@ class JsonDesignService
 
             CSS;
 
-        if ($this->paginationMode() !== 'none') {
-            $css .= <<<'CSS'
+        if ($pagination !== 'none') {
+            $contentPadLeft = $this->formatCssNumber($this->pageContentInsetPx('Left'));
+            $contentPadRight = $this->formatCssNumber($this->pageContentInsetPx('Right'));
+            $contentPadTop = $this->formatCssNumber($this->pageContentInsetPx('Top'));
+            $contentPadBottom = $this->formatCssNumber($this->pageContentInsetPx('Bottom'));
+            $css .= <<<CSS
                     .invoice-pagination {
                         width: 100%;
+                        max-width: 100%;
                         border-collapse: collapse;
                     }
                     .invoice-pagination > thead {
@@ -723,15 +806,28 @@ class JsonDesignService
                         page-break-inside: auto;
                     }
                     .invoice-page-header,
-                    .invoice-page-body {
+                    .invoice-page-footer-space {
+                        width: 100%;
+                        box-sizing: border-box;
+                    }
+                    .invoice-page-header,
+                    .invoice-page-body,
+                    .invoice-page-footer {
                         vertical-align: top;
+                        box-sizing: border-box;
+                    }
+                    .invoice-page-body {
+                        padding-left: {$contentPadLeft}px;
+                        padding-right: {$contentPadRight}px;
+                        padding-top: {$contentPadTop}px;
+                        padding-bottom: {$contentPadBottom}px;
                     }
                     .invoice-page-footer {
                         position: fixed;
                         bottom: 0;
                         left: 0;
-                        width: 100%;
-                        box-sizing: border-box;
+                        right: 0;
+                        width: auto;
                         z-index: 50;
                     }
                     .invoice-widget--table,
@@ -918,6 +1014,16 @@ class JsonDesignService
         }
 
         return implode(' ', $values);
+    }
+
+    /**
+     * Paginated chrome backgrounds are full-bleed on the physical page. Page
+     * margin + padding from documentSettings are applied as content padding on
+     * body/chrome cells (see pageContentInsetPx), not as @page margin.
+     */
+    private function combinedPageInsetForPaginatedChrome(): string
+    {
+        return '0px 0px 0px 0px';
     }
 
     /**

@@ -4,15 +4,15 @@
     }
 
     .bg-primary {
-        background-color: var(--primary-color);
+        background-color: var(--portal-primary, var(--primary-color));
     }
 
     .bg-primary-darken {
-        background-color: var(--primary-color);
+        background-color: var(--portal-primary, var(--primary-color));
         filter: brightness(90%);
     }
 
     .text-primary {
-        color: var(--primary-color);
+        color: var(--portal-primary, var(--primary-color));
     }
 </style>

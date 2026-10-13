@@ -272,6 +272,159 @@ class InvoiceTaxExportCoverageTest extends TestCase
         $this->assertSame('HST_CODE', $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
     }
 
+    public function test_ninja_to_qb_invoice_gst_plus_line_pst_resolves_composite_tax_code(): void
+    {
+        $composite_key = TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+
+        $pst_line = $this->lineItemWithTaxes([
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+        $pst_line->product_key = 'PST Item';
+
+        $untaxed_line = InvoiceItemFactory::create();
+        $untaxed_line->product_key = 'Plain Item';
+        $untaxed_line->quantity = 1;
+        $untaxed_line->cost = 50;
+        $untaxed_line->line_total = 50;
+        $untaxed_line->notes = 'Plain Item';
+        $untaxed_line->tax_id = '1';
+
+        [$qb_data, $invoice] = $this->ninjaToQbAndInvoice([
+            'country' => 'CA',
+            'automatic_taxes' => false,
+            'default_taxable_code' => '40',
+            'default_exempt_code' => '9',
+            'tax_rate_map' => [
+                ['id' => 'r1', 'name' => 'GST', 'rate' => 5, 'tax_code_id' => 'GST_CODE'],
+                ['id' => 'r2', 'name' => 'PST', 'rate' => 7, 'tax_code_id' => 'PST_CODE'],
+            ],
+            'composite_tax_code_map' => [
+                $composite_key => [
+                    ['tax_code_id' => 'GST_PST', 'name' => 'GST/PST'],
+                ],
+            ],
+        ], [$pst_line, $untaxed_line], invoice_level_taxes: [
+            ['name' => 'GST', 'rate' => 5],
+        ]);
+
+        $this->assertEquals(14.5, (float) $invoice->total_taxes);
+        $this->assertEquals(164.5, (float) $invoice->amount);
+        $this->assertSame('GST', $invoice->tax_name1);
+        $this->assertEquals(5, (float) $invoice->tax_rate1);
+        $this->assertSame('PST', $invoice->line_items[0]->tax_name1);
+        $this->assertEquals(7, (float) $invoice->line_items[0]->tax_rate1);
+        $this->assertSame('', $invoice->line_items[0]->tax_name2 ?? '');
+        $this->assertSame('', $invoice->line_items[1]->tax_name1 ?? '');
+
+        $this->assertSame('GST_PST', $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertSame('GST_CODE', $qb_data['Line'][1]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertNotSame('GST_CODE', $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertNotSame('PST_CODE', $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertSame('TaxExcluded', $qb_data['GlobalTaxCalculation']);
+        $this->assertArrayNotHasKey('TxnTaxDetail', $qb_data);
+    }
+
+    public function test_ninja_to_qb_header_gst_plus_line_pst_throws_when_composite_missing(): void
+    {
+        $this->expectException(QuickbooksMissingTaxCode::class);
+        $this->expectExceptionMessage('PST 7% + GST 5%');
+
+        $this->ninjaToQbWithSettings([
+            'country' => 'CA',
+            'automatic_taxes' => false,
+            'default_taxable_code' => '40',
+            'default_exempt_code' => '9',
+            'tax_rate_map' => [
+                ['id' => 'r1', 'name' => 'GST', 'rate' => 5, 'tax_code_id' => 'GST_CODE'],
+                ['id' => 'r2', 'name' => 'PST', 'rate' => 7, 'tax_code_id' => 'PST_CODE'],
+            ],
+            'composite_tax_code_map' => [],
+        ], $this->lineItemWithTaxes([
+            ['name' => 'PST', 'rate' => 7],
+        ]), expect_company_sync_refresh: true, invoice_level_taxes: [
+            ['name' => 'GST', 'rate' => 5],
+        ], expect_ensure_components: [
+            ['name' => 'PST', 'rate' => 7],
+            ['name' => 'GST', 'rate' => 5],
+        ]);
+    }
+
+    public function test_ninja_to_qb_header_gst_plus_exempt_and_pst_lines(): void
+    {
+        $composite_key = TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+
+        $pst_line = $this->lineItemWithTaxes([
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+        $pst_line->product_key = 'PST Item';
+
+        $exempt_line = InvoiceItemFactory::create();
+        $exempt_line->product_key = 'Exempt Item';
+        $exempt_line->quantity = 1;
+        $exempt_line->cost = 25;
+        $exempt_line->line_total = 25;
+        $exempt_line->notes = 'Exempt Item';
+        $exempt_line->tax_id = '5';
+
+        $qb_data = $this->ninjaToQbWithSettings([
+            'country' => 'CA',
+            'automatic_taxes' => false,
+            'default_taxable_code' => '40',
+            'default_exempt_code' => '9',
+            'tax_rate_map' => [
+                ['id' => 'r1', 'name' => 'GST', 'rate' => 5, 'tax_code_id' => 'GST_CODE'],
+                ['id' => 'r2', 'name' => 'PST', 'rate' => 7, 'tax_code_id' => 'PST_CODE'],
+            ],
+            'composite_tax_code_map' => [
+                $composite_key => [
+                    ['tax_code_id' => 'GST_PST', 'name' => 'GST/PST'],
+                ],
+            ],
+        ], [$pst_line, $exempt_line], invoice_level_taxes: [
+            ['name' => 'GST', 'rate' => 5],
+        ]);
+
+        $this->assertSame('GST_PST', $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+        $this->assertSame('9', $qb_data['Line'][1]['SalesItemLineDetail']['TaxCodeRef']['value']);
+    }
+
+    public function test_ninja_to_qb_header_gst_does_not_triple_line_gst_pst(): void
+    {
+        $composite_key = TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+
+        $qb_data = $this->ninjaToQbWithSettings([
+            'country' => 'CA',
+            'automatic_taxes' => false,
+            'default_taxable_code' => '40',
+            'default_exempt_code' => '9',
+            'tax_rate_map' => [
+                ['id' => 'r1', 'name' => 'GST', 'rate' => 5, 'tax_code_id' => 'GST_CODE'],
+                ['id' => 'r2', 'name' => 'PST', 'rate' => 7, 'tax_code_id' => 'PST_CODE'],
+            ],
+            'composite_tax_code_map' => [
+                $composite_key => [
+                    ['tax_code_id' => 'GST_PST', 'name' => 'GST/PST'],
+                ],
+            ],
+        ], $this->lineItemWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'PST', 'rate' => 7],
+        ]), invoice_level_taxes: [
+            ['name' => 'GST', 'rate' => 5],
+        ]);
+
+        $this->assertSame('GST_PST', $qb_data['Line'][0]['SalesItemLineDetail']['TaxCodeRef']['value']);
+    }
+
     public function test_ninja_to_qb_us_manual_txn_tax_detail_structure(): void
     {
         $qb_data = $this->ninjaToQbWithSettings([
@@ -402,14 +555,40 @@ class InvoiceTaxExportCoverageTest extends TestCase
 
     /**
      * @param  array<string, mixed>  $settings
+     * @param  object|array<int, object>  $line_item
      * @param  array<int, array{name: string, rate: float|int}>|null  $invoice_level_taxes
+     * @param  array<int, array{name: string, rate: float|int}>|null  $expect_ensure_components
      * @return array<string, mixed>
      */
     private function ninjaToQbWithSettings(
         array $settings,
-        object $line_item,
+        object|array $line_item,
         bool $expect_company_sync_refresh = false,
         ?array $invoice_level_taxes = null,
+        ?array $expect_ensure_components = null,
+    ): array {
+        return $this->ninjaToQbAndInvoice(
+            $settings,
+            $line_item,
+            $expect_company_sync_refresh,
+            $invoice_level_taxes,
+            $expect_ensure_components
+        )[0];
+    }
+
+    /**
+     * @param  array<string, mixed>  $settings
+     * @param  object|array<int, object>  $line_item
+     * @param  array<int, array{name: string, rate: float|int}>|null  $invoice_level_taxes
+     * @param  array<int, array{name: string, rate: float|int}>|null  $expect_ensure_components
+     * @return array{0: array<string, mixed>, 1: Invoice}
+     */
+    private function ninjaToQbAndInvoice(
+        array $settings,
+        object|array $line_item,
+        bool $expect_company_sync_refresh = false,
+        ?array $invoice_level_taxes = null,
+        ?array $expect_ensure_components = null,
     ): array {
         $this->company->quickbooks = new QuickbooksSettings([
             'accessTokenKey' => 'test-access-token',
@@ -454,7 +633,7 @@ class InvoiceTaxExportCoverageTest extends TestCase
             'tax_rate2' => 0,
             'tax_name3' => '',
             'tax_rate3' => 0,
-            'line_items' => [$line_item],
+            'line_items' => is_array($line_item) ? $line_item : [$line_item],
         ]);
 
         if ($invoice_level_taxes) {
@@ -478,7 +657,18 @@ class InvoiceTaxExportCoverageTest extends TestCase
         $helper->shouldReceive('cleanHtmlText')->andReturnUsing(fn (string $text): string => $text);
 
         $tax_rate = Mockery::mock(QbTaxRate::class);
-        $tax_rate->shouldReceive('ensureTaxCodeForComponents')->andReturn(null);
+
+        if ($expect_ensure_components !== null) {
+            $expected_key = TaxCodeComponentKey::fromComponents($expect_ensure_components);
+            $tax_rate->shouldReceive('ensureTaxCodeForComponents')
+                ->once()
+                ->with(Mockery::on(function (array $components) use ($expected_key): bool {
+                    return TaxCodeComponentKey::fromComponents($components) === $expected_key;
+                }))
+                ->andReturn(null);
+        } else {
+            $tax_rate->shouldReceive('ensureTaxCodeForComponents')->andReturn(null);
+        }
 
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $this->company->fresh();
@@ -492,7 +682,10 @@ class InvoiceTaxExportCoverageTest extends TestCase
             $service->shouldReceive('companySync')->never();
         }
 
-        return (new InvoiceTransformer($this->company))->ninjaToQb($invoice->fresh(['client.contacts']), $service);
+        $mapped_invoice = $invoice->fresh(['client.contacts']);
+        $qb_data = (new InvoiceTransformer($this->company))->ninjaToQb($mapped_invoice, $service);
+
+        return [$qb_data, $mapped_invoice];
     }
 
     /**

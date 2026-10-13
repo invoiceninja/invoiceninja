@@ -182,15 +182,19 @@ class InvoicePay extends Component
 
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
 
+        $invoices = $this->markPayableInvoicesSent($invite->contact->client_id);
+        $payable_invoices = $this->buildPayableInvoicesPayload($invoices);
+
         $this->bulkSetContext($invite->key, [
             'company_gateway_id' => $company_gateway_id,
             'gateway_type_id' => $gateway_type_id,
-            'amount' => $amount,
+            'amount' => array_sum(array_column($payable_invoices, 'amount')),
+            'invoices' => $invoices,
+            'payable_invoices' => $payable_invoices,
             'pre_payment' => false,
             'is_recurring' => false,
             'payment_processed' => null,
         ]);
-
 
         $this->payment_method_accepted = true;
 
@@ -304,20 +308,7 @@ class InvoicePay extends Component
             'entity_type' => 'invoice',
         ]);
 
-        $invoices = Invoice::withTrashed()
-                        ->whereIn('id', $this->transformKeys($this->invoices))
-                        ->where('client_id', $invite->contact->client_id)
-                        ->where('is_deleted', 0)
-                        ->get()
-                        ->map(function (Invoice $invoice): ?Invoice {
-                            $invoice = $invoice->service()
-                                ->markSent()
-                                ->save();
-
-                            return $invoice?->isPayable() ? $invoice : null;
-                        })
-                        ->filter()
-                        ->values();
+        $invoices = $this->loadPayableInvoices($invite->contact->client_id);
                         
         //required fields
         $this->terms_accepted = !$settings->show_accept_invoice_terms;
@@ -346,19 +337,7 @@ class InvoicePay extends Component
             $this->signature_accepted = true;
         }
 
-        $payable_invoices = $invoices->map(function ($i) {
-            /** @var \App\Models\Invoice $i */
-            return [
-                'invoice_id' => $i->hashed_id,
-                'amount' => $i->partial > 0 ? $i->partial : $i->balance,
-                'formatted_amount' => Number::formatValue($i->partial > 0 ? $i->partial : $i->balance, $i->client->currency()),
-                'formatted_currency' => Number::formatMoney($i->partial > 0 ? $i->partial : $i->balance, $i->client),
-                'number' => $i->number,
-                'date' => $i->translateDate($i->date, $i->client->date_format(), $i->client->locale()),
-                'due_date' => $i->translateDate($i->due_date, $i->client->date_format(), $i->client->locale()),
-                'terms' => $i->terms,
-            ];
-        })->toArray();
+        $payable_invoices = $this->buildPayableInvoicesPayload($invoices);
 
         $this->bulkSetContext($invite->key, [
             'variables' => $this->variables,
@@ -371,6 +350,72 @@ class InvoicePay extends Component
 
         $this->dispatch(self::CONTEXT_READY);
 
+    }
+
+    private function loadPayableInvoices(int $client_id)
+    {
+        return Invoice::withTrashed()
+            ->with('client')
+            ->whereIn('id', $this->transformKeys($this->invoices))
+            ->where('client_id', $client_id)
+            ->where('is_deleted', 0)
+            ->get()
+            ->filter(fn (Invoice $invoice) => $invoice->isPayable())
+            ->values();
+    }
+
+    private function markPayableInvoicesSent(int $client_id)
+    {
+        return Invoice::withTrashed()
+            ->with('client')
+            ->whereIn('id', $this->transformKeys($this->invoices))
+            ->where('client_id', $client_id)
+            ->where('is_deleted', 0)
+            ->get()
+            ->map(function (Invoice $invoice): ?Invoice {
+                if ($invoice->status_id === Invoice::STATUS_DRAFT) {
+                    $invoice = $invoice->service()->markSent()->save();
+                }
+
+                return $invoice->isPayable() ? $invoice : null;
+            })
+            ->filter()
+            ->values();
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, Invoice>  $invoices
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildPayableInvoicesPayload($invoices): array
+    {
+        return $invoices->map(function (Invoice $invoice): array {
+            $amount = $this->payableAmountFor($invoice);
+
+            return [
+                'invoice_id' => $invoice->hashed_id,
+                'amount' => $amount,
+                'formatted_amount' => Number::formatValue($amount, $invoice->client->currency()),
+                'formatted_currency' => Number::formatMoney($amount, $invoice->client),
+                'number' => $invoice->number,
+                'date' => $invoice->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()),
+                'due_date' => $invoice->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()),
+                'terms' => $invoice->terms,
+            ];
+        })->values()->all();
+    }
+
+    private function payableAmountFor(Invoice $invoice): float
+    {
+        if ($invoice->partial > 0) {
+            return (float) $invoice->partial;
+        }
+
+        if ($invoice->status_id === Invoice::STATUS_DRAFT) {
+            return (float) $invoice->amount;
+        }
+
+        return (float) $invoice->balance;
     }
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View

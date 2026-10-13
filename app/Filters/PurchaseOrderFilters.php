@@ -48,16 +48,6 @@ class PurchaseOrderFilters extends QueryFilters
                 $po_status[] = PurchaseOrder::STATUS_DRAFT;
             }
 
-            if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', PurchaseOrder::STATUS_SENT)
-                        ->where(function ($q) {
-                            $q->whereNull('due_date')
-                                ->orWhere('due_date', '>=', now()->toDateString());
-                        });
-                });
-            }
-
             if (in_array('accepted', $status_parameters)) {
                 $po_status[] = PurchaseOrder::STATUS_ACCEPTED;
             }
@@ -65,10 +55,15 @@ class PurchaseOrderFilters extends QueryFilters
             if (in_array('cancelled', $status_parameters)) {
                 $po_status[] = PurchaseOrder::STATUS_CANCELLED;
             }
+            
+            if (in_array('sent', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_SENT;
+            }
 
             if (count($po_status) >= 1) {
-                $query->orWhereIn('status_id', $po_status);
+                $query->whereIn('status_id', $po_status);
             }
+
         });
 
         return $this->builder;

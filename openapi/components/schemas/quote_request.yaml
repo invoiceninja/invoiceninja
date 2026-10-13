@@ -47,3 +47,9 @@
           description: 'An array of objects which define the line items of the quote'
           items:
             $ref: '#/components/schemas/InvoiceItem'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz

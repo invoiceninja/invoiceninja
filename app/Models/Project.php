@@ -53,6 +53,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\Company $company
  * @property-read int|null $documents_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $tags_count
  * @property-read mixed $hashed_id
  * @property-read Project|null $project
@@ -60,7 +61,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\User $user
  * @property-read \App\Models\User $assigned_user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\ProjectFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Project filter(\App\Filters\QueryFilters $filters)
@@ -183,7 +184,7 @@ class Project extends BaseModel
         return $this->belongsTo(self::class)->withTrashed();
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }

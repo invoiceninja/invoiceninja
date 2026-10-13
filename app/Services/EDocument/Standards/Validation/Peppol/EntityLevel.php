@@ -28,8 +28,9 @@ use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
-use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
+use App\Services\EDocument\Standards\Peppol\FI as FinlandCountryHandler;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class EntityLevel implements EntityLevelInterface
 {
@@ -353,6 +354,15 @@ class EntityLevel implements EntityLevelInterface
 
         // scheme:id form — always validated strictly.
         if (strpos($value, ':') !== false) {
+            $country = $client->country->iso_3166_2;
+            $classification = $client->classification ?? 'business';
+
+            if ($country === 'FI'
+                && in_array($classification, ['business', 'government'], true)
+                && FinlandCountryHandler::isOvtEndpointRoutingId($value)) {
+                return null;
+            }
+
             return $this->validateSchemeColonId($value);
         }
 

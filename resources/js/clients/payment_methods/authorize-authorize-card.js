@@ -16,6 +16,10 @@ class AuthorizeAuthorizeCard {
         this.cardHolderName = document.getElementById("cardholder_name");
         this.cardButton = document.getElementById("card_button");
 
+        this.cvvRequired = document.querySelector(
+            'meta[name="authnet-require-cvv"]'
+        ).content;
+
         this.sc = createSimpleCard({
             fields: {
                 card: {
@@ -41,10 +45,10 @@ class AuthorizeAuthorizeCard {
                 $errors.style.display = 'block';
             }
 
-            document.getElementById('pay-now').disabled = false;
-            document.querySelector('#pay-now > svg').classList.add('hidden');
+            document.getElementById('card_button').disabled = false;
+            document.querySelector('#card_button > svg').classList.add('hidden');
             document
-                .querySelector('#pay-now > span')
+                .querySelector('#card_button > span')
                 .classList.remove('hidden');
             return;
         }

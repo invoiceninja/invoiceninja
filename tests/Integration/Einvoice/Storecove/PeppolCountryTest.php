@@ -120,6 +120,7 @@ class PeppolCountryTest extends TestCase
                 'vat' => 'FI12345678', 'id_number' => '003712345678', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
+                'routing_id' => '003721291126',
             ],
             'FR' => [
                 'vat' => 'FRAA123456789', 'id_number' => '12345678901234', 'tax_rate' => 20, 'tax_name' => 'TVA',
@@ -546,7 +547,12 @@ class PeppolCountryTest extends TestCase
         $data = $this->buildScenario([
             'company_country' => 'FI', 'client_country' => 'FI',
         ]);
-        $this->runAndValidate($data['invoice'], 'FI => FI (business)');
+        $result = $this->runAndValidate($data['invoice'], 'FI => FI (business)');
+
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT)');
+        $this->assertSame('0037', $customerEndpoint->schemeID);
+        $this->assertSame('003712345678', $customerEndpoint->value);
     }
 
     // ── FR (France) ──
@@ -1008,6 +1014,11 @@ class PeppolCountryTest extends TestCase
 
         $this->assertContains('FI:OVT', $schemes, 'FI receiver must have FI:OVT (routing) in publicIdentifiers');
         $this->assertContains('FI:VAT', $schemes, 'FI receiver must have FI:VAT in publicIdentifiers when invoice has VAT');
+
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT) when routing_id is OPID');
+        $this->assertSame('0037', $customerEndpoint->schemeID);
+        $this->assertSame('003712345678', $customerEndpoint->value);
     }
 
     public function testSE_to_DK_Business(): void

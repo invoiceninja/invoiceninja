@@ -34,6 +34,7 @@ class DocumentsTable extends Component
     use WithPagination;
     use WithSorting;
 
+    #[Computed()]
     public int $client_id;
 
     public int $per_page = 10;

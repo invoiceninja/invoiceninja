@@ -44,7 +44,7 @@ use Illuminate\Support\Carbon;
  * @property \App\Models\Credit $credit
  * @property mixed $hashed_id
  * @property \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\CreditInvitationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|CreditInvitation newModelQuery()

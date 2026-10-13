@@ -84,22 +84,11 @@ class QuoteFilters extends QueryFilters
 
         $this->builder->where(function ($query) use ($status_parameters) {
 
-            if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', Quote::STATUS_SENT)
-                    ->where(function ($q) {
-                        $q->whereNull('due_date')
-                        ->orWhere('due_date', '>=', now()->toDateString());
-                    });
-                });
-            }
-
             $quote_filters = [];
 
             if (in_array('draft', $status_parameters)) {
                 $quote_filters[] = Quote::STATUS_DRAFT;
             }
-
 
             if (in_array('approved', $status_parameters)) {
                 $quote_filters[] = Quote::STATUS_APPROVED;
@@ -109,8 +98,22 @@ class QuoteFilters extends QueryFilters
                 $quote_filters[] = Quote::STATUS_CANCELLED;
             }
 
+            if (in_array('rejected', $status_parameters)) {
+                $quote_filters[] = Quote::STATUS_REJECTED;
+            }
+
             if (count($quote_filters) > 0) {
-                $query->orWhereIn('status_id', $quote_filters);
+                $query->whereIn('status_id', $quote_filters);
+            }
+
+            if (in_array('sent', $status_parameters)) {
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                    ->where(function ($q) {
+                        $q->whereNull('due_date')
+                        ->orWhere('due_date', '>=', now()->toDateString());
+                    });
+                });
             }
 
             if (in_array('expired', $status_parameters)) {

@@ -127,48 +127,51 @@ class InvoiceTransactionEventEntryCash
             ->whereIn('id', $paymentable_ids)
             ->get()
             ->each(function (Paymentable $paymentable) use ($invoice, $old_date, $new_date): void {
-                $source = $this->findSourceEvent($invoice->id, $paymentable->id)
-                    ?? $this->runForPaymentable($invoice, $paymentable, $old_date);
+                DB::transaction(function () use ($invoice, $paymentable, $old_date, $new_date): void {
+                    $source = $this->findSourceEvent($invoice->id, $paymentable->id)
+                        ?? $this->runForPaymentable($invoice, $paymentable, $old_date);
 
-                if (! $source) {
-                    return;
-                }
+                    if (! $source) {
+                        return;
+                    }
 
-                $correction_base = implode('|', [
-                    'payment_application_date',
-                    $paymentable->id,
-                    $old_date,
-                    $new_date,
-                ]);
+                    $correction_base = implode('|', [
+                        'payment_application_date',
+                        $paymentable->id,
+                        $old_date,
+                        $new_date,
+                    ]);
 
-                $this->writeCorrection(
-                    $source,
-                    $old_date,
-                    -1,
-                    'payment_application_date',
-                    sha1($correction_base.'|remove'),
-                    [
+                    $correction_context = [
                         'old_date' => $old_date,
                         'new_date' => $new_date,
                         'old_period' => CarbonImmutable::parse($old_date)->endOfMonth()->toDateString(),
                         'new_period' => CarbonImmutable::parse($new_date)->endOfMonth()->toDateString(),
-                        'direction' => 'remove',
-                    ],
-                );
-                $this->writeCorrection(
-                    $source,
-                    $new_date,
-                    1,
-                    'payment_application_date',
-                    sha1($correction_base.'|apply'),
-                    [
-                        'old_date' => $old_date,
-                        'new_date' => $new_date,
-                        'old_period' => CarbonImmutable::parse($old_date)->endOfMonth()->toDateString(),
-                        'new_period' => CarbonImmutable::parse($new_date)->endOfMonth()->toDateString(),
-                        'direction' => 'apply',
-                    ],
-                );
+                    ];
+
+                    $this->writeCorrection(
+                        $source,
+                        $old_date,
+                        -1,
+                        'payment_application_date',
+                        sha1($correction_base.'|remove'),
+                        [
+                            ...$correction_context,
+                            'direction' => 'remove',
+                        ],
+                    );
+                    $this->writeCorrection(
+                        $source,
+                        $new_date,
+                        1,
+                        'payment_application_date',
+                        sha1($correction_base.'|apply'),
+                        [
+                            ...$correction_context,
+                            'direction' => 'apply',
+                        ],
+                    );
+                });
             });
     }
 
@@ -217,7 +220,13 @@ class InvoiceTransactionEventEntryCash
                 fn (TransactionEvent $event): bool => data_get($event->payment_request, 'correction_key') === $correction_key,
             );
 
-            if ($existing) {
+            if ($existing && $this->shouldReusePaymentApplicationDateCorrection(
+                $existing,
+                $kind,
+                $context,
+                $latest_date_change,
+                $current_application_date,
+            )) {
                 return $existing;
             }
 
@@ -261,6 +270,41 @@ class InvoiceTransactionEventEntryCash
                 'period' => $period,
             ]);
         }, attempts: 3);
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    private function shouldReusePaymentApplicationDateCorrection(
+        TransactionEvent $existing,
+        string $kind,
+        array $context,
+        ?TransactionEvent $latest_apply,
+        string $source_application_date,
+    ): bool {
+        if ($kind !== 'payment_application_date') {
+            return true;
+        }
+
+        $new_date = (string) ($context['new_date'] ?? '');
+
+        if ($new_date === '') {
+            return true;
+        }
+
+        $ledger_date = $latest_apply
+            ? (string) data_get($latest_apply->payment_request, 'effective_date', $source_application_date)
+            : $source_application_date;
+
+        if ($ledger_date === $new_date) {
+            return true;
+        }
+
+        if ($latest_apply && (int) $existing->id !== (int) $latest_apply->id) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

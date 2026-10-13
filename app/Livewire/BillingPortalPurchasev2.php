@@ -14,6 +14,7 @@ namespace App\Livewire;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\InvoiceItem;
+use App\Services\Subscription\ProductTaxes;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -151,6 +152,7 @@ class BillingPortalPurchasev2 extends Component
     public $recurring_total;
     public $discount;
     public $sub_total;
+    public $tax;
     public $authenticated = false;
     public $login;
 
@@ -272,7 +274,7 @@ class BillingPortalPurchasev2 extends Component
             $this->createBlankClient();
         }
 
-        $this->getPaymentMethods();
+        $this->buildBundle();
 
         $this->authenticated = true;
         $this->payment_started = true;
@@ -364,6 +366,7 @@ class BillingPortalPurchasev2 extends Component
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
                 'tags' => InvoiceItem::tagsFromNames($p->tags),
+                ...ProductTaxes::from($p),
                 'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                 'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                 'total' => $total,
@@ -383,6 +386,7 @@ class BillingPortalPurchasev2 extends Component
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
                 'tags' => InvoiceItem::tagsFromNames($p->tags),
+                ...ProductTaxes::from($p),
                 'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                 'price' => Number::formatMoney($total, $subscription->company),
                 'total' => $total,
@@ -407,6 +411,7 @@ class BillingPortalPurchasev2 extends Component
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
                         'tags' => InvoiceItem::tagsFromNames($p->tags),
+                        ...ProductTaxes::from($p),
                         'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                         'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                         'total' => $total,
@@ -431,6 +436,7 @@ class BillingPortalPurchasev2 extends Component
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
                         'tags' => InvoiceItem::tagsFromNames($p->tags),
+                        ...ProductTaxes::from($p),
                         'product' => substr(strip_tags($p->markdownNotes($notes_entity)), 0, 50),
                         'price' => Number::formatMoney($total, $subscription->company),
                         'total' => $total,
@@ -441,27 +447,18 @@ class BillingPortalPurchasev2 extends Component
             }
         }
 
-        $this->sub_total = Number::formatMoney($this->bundle->sum('total'), $subscription->company);
         $this->recurring_total = Number::formatMoney($this->bundle->where('is_recurring', true)->sum('total'), $subscription->company);
         $this->non_recurring_total = Number::formatMoney($this->bundle->where('is_recurring', false)->sum('total'), $subscription->company);
-        $this->total = $this->sub_total;
-
-        if ($this->valid_coupon) {
-            if ($this->subscription()->is_amount_discount) {
-                $discount = $subscription->promo_discount;
-            } else {
-                $discount = round($this->bundle->sum('total') * ($subscription->promo_discount / 100), 2);
-            }
-
-            $this->discount = Number::formatMoney($discount, $subscription->company);
-
-            $this->total = Number::formatMoney(($this->bundle->sum('total') - $discount), $subscription->company);
-
-            $this->float_amount_total = ($this->bundle->sum('total') - $discount);
-        } else {
-            $this->float_amount_total = $this->bundle->sum('total');
-            $this->total = Number::formatMoney($this->float_amount_total, $subscription->company);
-        }
+        $calculator = $subscription->calc();
+        $client = $this->contact()?->client;
+        $preview = $calculator->preview($calculator->buildV2Items($this->bundle), $client, $this->valid_coupon);
+        $entity = $client ?? $subscription->company;
+        $this->sub_total = Number::formatMoney($preview->getSubTotal(), $entity);
+        $this->discount = $this->valid_coupon ? Number::formatMoney($preview->getTotalDiscount(), $entity) : 0;
+        $this->tax = $preview->getTotalTaxes() ? Number::formatMoney($preview->getTotalTaxes(), $entity) : null;
+        $this->float_amount_total = $preview->getTotal();
+        $this->total = Number::formatMoney($this->float_amount_total, $entity);
+        $this->getPaymentMethods();
 
         return $this;
     }
@@ -491,11 +488,9 @@ class BillingPortalPurchasev2 extends Component
     {
         $contact = $this->contact();
 
-        if ($this->float_amount_total == 0) {
-            $this->methods = [];
-        }
+        $this->methods = [];
 
-        if ($contact && $this->float_amount_total >= 0) {
+        if ($contact && $this->float_amount_total > 0) {
             $this->methods = $contact->client->service()->getPaymentMethods($this->float_amount_total);
         }
 
@@ -595,6 +590,7 @@ class BillingPortalPurchasev2 extends Component
      */
     public function handleBeforePaymentEvents(): self
     {
+        $this->buildBundle();
         $subscription = $this->subscription();
         $contact = $this->contact();
 
@@ -682,6 +678,10 @@ class BillingPortalPurchasev2 extends Component
     {
         $this->resetValidation('payment');
 
+        if (BcMath::isZero($this->float_amount_total)) {
+            $this->buildBundle();
+        }
+
         if (! BcMath::isZero($this->float_amount_total)) {
             $this->addError('payment', ctrans('texts.subscription_payment_required'));
             return $this;
@@ -703,9 +703,14 @@ class BillingPortalPurchasev2 extends Component
             ->createInvoiceV2($this->bundle, $contact->client_id, $this->valid_coupon)
             ->service()
             ->fillDefaults()
-            ->adjustInventory()
             ->save();
 
+        if (! BcMath::isZero($invoice->amount)) {
+            $this->addError('payment', ctrans('texts.subscription_payment_required'));
+            return $this;
+        }
+
+        $invoice->service()->adjustInventory()->save();
         $invoice->number = null;
 
         $invoice->service()

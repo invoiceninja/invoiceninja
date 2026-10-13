@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Database\Factories\TagFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Tag query()
  * @method static \Illuminate\Database\Eloquent\Builder|Tag withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @mixin \Eloquent
  */
 class Tag extends BaseModel

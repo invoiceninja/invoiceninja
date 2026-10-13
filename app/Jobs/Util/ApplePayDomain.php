@@ -77,8 +77,6 @@ class ApplePayDomain implements ShouldQueue
             $domain = config('ninja.app_url');
         }
 
-        $parsed_url = parse_url($domain);
-
-        return $parsed_url['host'] ?? '';
+        return str_replace(['https://', '/public'], '', $domain);
     }
 }
