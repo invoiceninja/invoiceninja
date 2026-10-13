@@ -57,7 +57,6 @@ class OpenApiContractTest extends TestCase
      * - GET /clients/create returns settings without the required currency_id
      * - GET /{invoices,quotes,credits,...}/create returns line_items as the string "[]" instead of an array
      * - GET /tags/create returns an empty name and entity_type
-     * - GET /task_schedulers/{id}/edit is routed but not implemented (HTTP 500)
      * - users have no edit or delete route, client gateway tokens no bulk route
      * - POST /companies returns the new company users instead of the company, so the
      *   company from MockAccountData is used and the store response has a test of its own.
@@ -93,7 +92,7 @@ class OpenApiContractTest extends TestCase
         'bank_integration' => ['/api/v1/bank_integrations', ['bank_account_name' => 'Contract Test Bank']],
         'bank_transaction' => ['/api/v1/bank_transactions', ['bank_integration_id' => '{bank_integration}', 'amount' => 10, 'description' => 'Contract test transaction', 'base_type' => 'CREDIT', 'date' => '2026-01-01']],
         'bank_transaction_rule' => ['/api/v1/bank_transaction_rules', ['name' => 'Contract Test Rule', 'rules' => [['search_key' => 'description', 'operator' => 'contains', 'value' => 'contract']], 'applies_to' => 'CREDIT']],
-        'task_scheduler' => ['/api/v1/task_schedulers', ['name' => 'Contract Test Schedule', 'template' => 'client_statement', 'frequency_id' => 5, 'next_run' => '2030-01-01', 'parameters' => ['date_range' => 'last_month', 'show_payments_table' => true, 'show_aging_table' => true, 'status' => 'paid', 'clients' => []]], ['edit']],
+        'task_scheduler' => ['/api/v1/task_schedulers', ['name' => 'Contract Test Schedule', 'template' => 'client_statement', 'frequency_id' => 5, 'next_run' => '2030-01-01', 'parameters' => ['date_range' => 'last_month', 'show_payments_table' => true, 'show_aging_table' => true, 'status' => 'paid', 'clients' => []]]],
         'company' => ['/api/v1/companies', ['name' => 'Contract Test Company'], ['store', 'bulk', 'delete']],
         'company_gateway' => ['/api/v1/company_gateways', ['gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb', 'config' => '{"publishableKey":"pk_test","apiKey":"sk_test"}']],
         'client_gateway_token' => ['/api/v1/client_gateway_tokens', ['client_id' => '{client}', 'company_gateway_id' => '{company_gateway}', 'gateway_type_id' => '1', 'token' => 'tok_contract', 'meta' => ['brand' => 'visa', 'last4' => '4242']], ['bulk']],
@@ -174,7 +173,7 @@ class OpenApiContractTest extends TestCase
         'report client balance' => ['post', '/api/v1/reports/client_balance_report', [], self::REPORT],
         'report client sales' => ['post', '/api/v1/reports/client_sales_report', [], self::REPORT],
         'report tax summary' => ['post', '/api/v1/reports/tax_summary_report', [], self::REPORT],
-        'report tax period' => ['post', '/api/v1/reports/tax_period_report', [], ['is_income_billed' => true] + self::REPORT],
+        'report tax period' => ['post', '/api/v1/reports/tax_period_report', [], self::REPORT],
         'report user sales' => ['post', '/api/v1/reports/user_sales_report', [], self::REPORT],
         'report projects' => ['post', '/api/v1/reports/projects', [], self::REPORT],
     ];
