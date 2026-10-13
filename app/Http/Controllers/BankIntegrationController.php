@@ -213,7 +213,11 @@ class BankIntegrationController extends BaseController
         if (Ninja::isHosted() && $user->account->bank_integration_account_id) {
             $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->each(function ($bank_integration) use ($user_account) {
                 /** @var \App\Models\BankIntegration $bank_integration */
-                ProcessBankTransactionsYodlee::dispatch($user_account->bank_integration_account_id, $bank_integration);
+                try{
+                    (new ProcessBankTransactionsYodlee($user_account->bank_integration_account_id, $bank_integration))->handle();
+                } catch (\Throwable $e) {
+                    nlog('YODLEE:: Error processing transactions for bank integration: ' . $e->getMessage());
+                }
             });
         }
 
