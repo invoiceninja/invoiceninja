@@ -200,7 +200,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyUser"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CompanyUser'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -323,6 +330,37 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user:
+                          type: object
+                          additionalProperties: true
+                        invoice:
+                          type: object
+                          additionalProperties: true
+                        client:
+                          type: object
+                          additionalProperties: true
+                        activity_type_id:
+                          type: integer
+                        id:
+                          type: string
+                        hashed_id:
+                          type: string
+                        notes:
+                          type: string
+                        created_at:
+                          type: integer
+                        ip:
+                          type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -357,6 +395,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Activity'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -530,7 +575,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyUser"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CompanyUser'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1530,6 +1582,17 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BankTransaction'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1960,6 +2023,21 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currencies:
+                    type: object
+                    additionalProperties:
+                      type: string
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                additionalProperties:
+                  type: object
         422:
           $ref: "#/components/responses/422"
         429:
@@ -1994,6 +2072,21 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currencies:
+                    type: object
+                    additionalProperties:
+                      type: string
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                additionalProperties:
+                  type: object
         422:
           $ref: "#/components/responses/422"
         429:
@@ -2026,6 +2119,17 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                additionalProperties:
+                  type: object
         422:
           $ref: "#/components/responses/422"
         429:
@@ -2058,6 +2162,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: integer
         422:
           $ref: "#/components/responses/422"
         429:
@@ -2769,7 +2877,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Company"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2814,7 +2925,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Company'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2851,7 +2965,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Company'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3771,7 +3888,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Template"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4517,7 +4637,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4545,6 +4668,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  url:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4949,7 +5081,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5682,6 +5817,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5781,6 +5923,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hash:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6157,6 +6306,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  company_name:
+                    type: string
+                  user_name:
+                    type: string
         401:
           $ref: "#/components/responses/401"
   /api/v1/health_check:
@@ -6178,6 +6336,74 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  system_health:
+                    type: boolean
+                  extensions:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+                  php_version:
+                    type: object
+                    properties:
+                      minimum_php_version:
+                        type: string
+                      current_php_version:
+                        type: string
+                      current_php_cli_version:
+                        type: string
+                      is_okay:
+                        type: boolean
+                      memory_limit:
+                        type: string
+                  env_writable:
+                    type: boolean
+                  simple_db_check:
+                    type: boolean
+                  cache_enabled:
+                    type: boolean
+                  phantom_enabled:
+                    type: boolean
+                  exec:
+                    type: boolean
+                  open_basedir:
+                    type: boolean
+                  mail_mailer:
+                    type: string
+                  flutter_renderer:
+                    type: string
+                  pdf_engine:
+                    type: string
+                  queue:
+                    type: string
+                  queue_data:
+                    type: object
+                    properties:
+                      failed:
+                        type: integer
+                      pending:
+                        type: integer
+                      last_error:
+                        type: string
+                  jobs_pending:
+                    type: integer
+                  trailing_slash:
+                    type: boolean
+                  file_permissions:
+                    type: string
+                  exchange_rate_api_not_configured:
+                    type: boolean
+                  api_version:
+                    type: string
+                  is_docker:
+                    type: boolean
+                  pending_migrations:
+                    type: boolean
         401:
           $ref: "#/components/responses/401"
   /api/v1/last_error:
@@ -6200,6 +6426,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_error:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6258,6 +6491,11 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6285,6 +6523,11 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6691,7 +6934,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringExpense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7075,6 +7321,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7110,6 +7363,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7143,6 +7403,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7178,6 +7445,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7211,6 +7485,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7246,6 +7527,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7281,6 +7569,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7316,6 +7611,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7351,6 +7653,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7386,6 +7695,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7421,6 +7737,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7456,6 +7779,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7491,6 +7821,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7526,6 +7863,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7561,6 +7905,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7594,6 +7945,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7627,6 +7985,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7660,6 +8025,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7693,6 +8065,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7726,6 +8105,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7759,6 +8145,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7792,6 +8185,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7825,6 +8225,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7858,6 +8265,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7891,6 +8305,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8049,6 +8470,292 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  industries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TagAssignment'
+                  countries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        capital:
+                          type: string
+                          nullable: true
+                        citizenship:
+                          type: string
+                        country_code:
+                          type: string
+                        currency:
+                          type: string
+                          nullable: true
+                        currency_code:
+                          type: string
+                          nullable: true
+                        currency_sub_unit:
+                          type: string
+                          nullable: true
+                        full_name:
+                          type: string
+                          nullable: true
+                        iso_3166_2:
+                          type: string
+                        iso_3166_3:
+                          type: string
+                        name:
+                          type: string
+                        region_code:
+                          type: string
+                        sub_region_code:
+                          type: string
+                        eea:
+                          type: boolean
+                        swap_postal_code:
+                          type: boolean
+                        swap_currency_symbol:
+                          type: boolean
+                        thousand_separator:
+                          type: string
+                        decimal_separator:
+                          type: string
+                  payment_types:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        gateway_type_id:
+                          type: integer
+                          nullable: true
+                  languages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        locale:
+                          type: string
+                  currencies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        symbol:
+                          type: string
+                        precision:
+                          type: integer
+                        thousand_separator:
+                          type: string
+                        decimal_separator:
+                          type: string
+                        code:
+                          type: string
+                        swap_currency_symbol:
+                          type: boolean
+                        exchange_rate:
+                          type: integer
+                  sizes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TagAssignment'
+                  datetime_formats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        format:
+                          type: string
+                        format_moment:
+                          type: string
+                        format_dart:
+                          type: string
+                  gateways:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        key:
+                          type: string
+                        provider:
+                          type: string
+                        visible:
+                          type: boolean
+                        sort_order:
+                          type: integer
+                        site_url:
+                          type: string
+                        is_offsite:
+                          type: boolean
+                        is_secure:
+                          type: boolean
+                        fields:
+                          type: string
+                        default_gateway_type_id:
+                          type: string
+                        created_at:
+                          type: integer
+                        updated_at:
+                          type: integer
+                        options:
+                          type: object
+                          additionalProperties: true
+                  timezones:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        location:
+                          type: string
+                        utc_offset:
+                          type: integer
+                  date_formats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        format:
+                          type: string
+                        format_moment:
+                          type: string
+                        format_dart:
+                          type: string
+                  templates:
+                    type: object
+                    properties:
+                      invoice:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      quote:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      payment:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      payment_failed:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      quote_reminder1:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      reminder1:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      reminder2:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      reminder3:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      reminder_endless:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      statement:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      purchase_order:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                      partial_payment:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          body:
+                            type: string
+                  bulk_updates:
+                    type: object
+                    properties:
+                      client:
+                        type: array
+                        items:
+                          type: string
+                      expense:
+                        type: array
+                        items:
+                          type: string
+                      recurring_invoice:
+                        type: array
+                        items:
+                          type: string
+                      task:
+                        type: array
+                        items:
+                          type: string
+                  license_key:
+                    type: boolean
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9563,7 +10270,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Template"
+                type: object
+                properties:
+                  subject:
+                    type: string
+                  body:
+                    type: string
+                  wrapper:
+                    type: string
+                  raw_body:
+                    type: string
+                  raw_subject:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9638,6 +10356,80 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clients:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        id:
+                          type: string
+                        path:
+                          type: string
+                  client_contacts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        id:
+                          type: string
+                        path:
+                          type: string
+                  invoices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        id:
+                          type: string
+                        path:
+                          type: string
+                  projects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+                        id:
+                          type: string
+                        path:
+                          type: string
+                  settings:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        heading:
+                          type: string
+                        type:
+                          type: string
+                        id:
+                          type: string
+                        path:
+                          type: string
+                        keywords:
+                          type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10283,6 +11075,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10320,6 +11119,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10357,6 +11163,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -11198,6 +12011,11 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -11260,7 +12078,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12864,7 +13685,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringInvoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -13426,7 +14250,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Task"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -13489,6 +14316,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: "#/components/responses/401"
         403:
@@ -14258,7 +15092,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Quote'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -14300,6 +15137,11 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -14361,7 +15203,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15309,6 +16154,11 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15367,6 +16217,11 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16009,7 +16864,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Project"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16596,7 +17454,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -17067,7 +17928,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -17178,7 +18042,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -18111,6 +18978,13 @@ paths:
               $ref: '#/components/headers/X-RateLimit-Remaining'
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: '#/components/responses/401'
         403:
@@ -18282,12 +19156,10 @@ paths:
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
           content:
-            application/json:
+            application/pdf:
               schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Client'
+                type: string
+                format: binary
         401:
           $ref: '#/components/responses/401'
         403:
@@ -18948,7 +19820,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PurchaseOrder'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -19010,7 +19885,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -19052,6 +19930,11 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -19680,7 +20563,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -21127,8 +22013,10 @@ components:
           example: 134341234234
           readOnly: true
         status_order:
-          description: 'The status order'
+          description: 'The sort order of the status, null when the statuses have not been sorted'
           type: integer
+          nullable: true
+          example: 1
       type: object
     TaxRate:
       properties:
@@ -22219,6 +23107,25 @@ components:
           type: number
           format: integer
           example: 134341234234
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        height:
+          description: 'The height'
+          type: integer
+        is_public:
+          description: 'Whether the document is public'
+          type: boolean
+        link:
+          description: 'The link'
+          type: string
+        size:
+          description: 'The size'
+          type: integer
+        width:
+          description: 'The width'
+          type: integer
       type: object
     Error:
       properties:
@@ -24659,6 +25566,161 @@ components:
         use_credits_payment:
           description: 'Whether to use credits payment'
           type: string
+        activities:
+          description: 'The activities'
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        bank_integrations:
+          description: 'The bank integrations'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankIntegration'
+        bank_transaction_rules:
+          description: 'The bank transaction rules'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransactionRule'
+        bank_transactions:
+          description: 'The bank transactions'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransaction'
+        clients:
+          description: 'The clients'
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        company_gateways:
+          description: 'The company gateways'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyGateway'
+        credits:
+          description: 'The credits'
+          type: array
+          items:
+            $ref: '#/components/schemas/Credit'
+        designs:
+          description: 'The designs'
+          type: array
+          items:
+            $ref: '#/components/schemas/Design'
+        expense_categories:
+          description: 'The expense categories'
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseCategory'
+        expenses:
+          description: 'The expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+        groups:
+          description: 'The groups'
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupSetting'
+        invoices:
+          description: 'The invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        locations:
+          description: 'The locations'
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        payment_terms:
+          description: 'The payment terms'
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentTerm'
+        payments:
+          description: 'The payments'
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        products:
+          description: 'The products'
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        projects:
+          description: 'The projects'
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        purchase_orders:
+          description: 'The purchase orders'
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseOrder'
+        quotes:
+          description: 'The quotes'
+          type: array
+          items:
+            $ref: '#/components/schemas/Quote'
+        recurring_expenses:
+          description: 'The recurring expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringExpense'
+        recurring_invoices:
+          description: 'The recurring invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringInvoice'
+        subscriptions:
+          description: 'The subscriptions'
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        system_logs:
+          description: 'The system logs'
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemLog'
+        task_schedulers:
+          description: 'The task schedulers'
+          type: array
+          items:
+            type: object
+        task_statuses:
+          description: 'The task statuses'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskStatus'
+        tasks:
+          description: 'The tasks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        tax_rates:
+          description: 'The tax rates'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxRate'
+        tokens_hashed:
+          description: 'The tokens hashed'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyToken'
+        users:
+          description: 'The users'
+          type: array
+          items:
+            type: object
+        vendors:
+          description: 'The vendors'
+          type: array
+          items:
+            $ref: '#/components/schemas/Vendor'
+        webhooks:
+          description: 'The webhooks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
       type: object
 
     CompanyLedger:
@@ -27901,9 +28963,143 @@ components:
           example: AS3df3A
           readOnly: true
         account_sms_verified:
-          description: 'Boolean flag if the account has been verified by sms'
+          description: 'Whether the account phone number has been verified by SMS'
+          type: boolean
+          example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        can_trial:
+          description: 'The can trial'
+          type: boolean
+        current_version:
+          description: 'The current version'
           type: string
-          example: "true"
+        debug_enabled:
+          description: 'The debug enabled'
+          type: boolean
+        default_company_id:
+          description: 'The default company id'
+          type: string
+        default_url:
+          description: 'The default url'
+          type: string
+        disable_auto_update:
+          description: 'The disable auto update'
+          type: boolean
+        docuninja_num_users:
+          description: 'The docuninja num users'
+          type: integer
+        e_invoice_quota:
+          description: 'The e invoice quota'
+          type: integer
+        email_quota:
+          description: 'The email quota'
+          type: integer
+        emails_sent:
+          description: 'The emails sent'
+          type: integer
+        has_iap_plan:
+          description: 'Whether the account has iap plan'
+          type: boolean
+        hosted_client_count:
+          description: 'The hosted client count'
+          type: integer
+        hosted_company_count:
+          description: 'The hosted company count'
+          type: integer
+        is_docker:
+          description: 'Whether the account is docker'
+          type: boolean
+        is_hosted:
+          description: 'Whether the account is hosted'
+          type: boolean
+        is_migrated:
+          description: 'Whether the account is migrated'
+          type: boolean
+        is_premium:
+          description: 'Whether the account is premium'
+          type: boolean
+        is_scheduler_running:
+          description: 'Whether the account is scheduler running'
+          type: boolean
+        key:
+          description: 'The key'
+          type: string
+        latest_version:
+          description: 'The latest version'
+          type: string
+        nordigen_enabled:
+          description: 'The nordigen enabled'
+          type: boolean
+        num_users:
+          description: 'The num users'
+          type: integer
+        payment_id:
+          description: 'The payment id'
+          type: string
+        plan:
+          description: 'The plan'
+          type: string
+        plan_expires:
+          description: 'The plan expires'
+          type: string
+        plan_paid:
+          description: 'The plan paid'
+          type: string
+        plan_price:
+          description: 'The plan price'
+          type: integer
+        plan_started:
+          description: 'The plan started'
+          type: string
+        plan_term:
+          description: 'The plan term'
+          type: string
+        referral_code:
+          description: 'The referral code'
+          type: string
+        report_errors:
+          description: 'The report errors'
+          type: boolean
+        set_react_as_default_ap:
+          description: 'The set react as default ap'
+          type: boolean
+        tax_api_enabled:
+          description: 'The tax api enabled'
+          type: boolean
+        trial_days_left:
+          description: 'The trial days left'
+          type: integer
+        trial_plan:
+          description: 'The trial plan'
+          type: string
+        trial_started:
+          description: 'The trial started'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        upload_extensions:
+          description: 'The upload extensions'
+          type: string
+        user_agent:
+          description: 'The user agent'
+          type: string
+        utm_content:
+          description: 'The utm content'
+          type: string
+        utm_medium:
+          description: 'The utm medium'
+          type: string
+        utm_source:
+          description: 'The utm source'
+          type: string
+        utm_term:
+          description: 'The utm term'
+          type: string
       type: object
     Invoice:
       properties:
@@ -29361,17 +30557,26 @@ components:
           type: integer
           example: 1
         log:
-          description: 'The json object of the error'
-          type: object
-          example: {}
+          description: 'The log entry: an object, or a string for plain messages'
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: array
+              items: {}
+            - type: string
         updated_at:
           description: Timestamp
-          type: string
-          example: '2'
+          type: number
+          format: integer
+          example: 1434342123
         created_at:
           description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+        company_id:
+          description: 'The company id'
           type: string
-          example: '2'
       type: object
     BankTransaction:
       properties:
@@ -30446,9 +31651,9 @@ components:
           example: true
           readOnly: true
         google_2fa_secret:
-          description: 'The google 2fa secret for the user'
-          type: string
-          example: '123456'
+          description: 'Whether the user has two factor authentication enabled'
+          type: boolean
+          example: false
           readOnly: true
         passkey_enabled:
           description: 'Boolean flag if passkey auth is enabled for this user'
@@ -30465,9 +31670,9 @@ components:
           type: string
           example: 'refresh_token_abc123'
         oauth_user_token:
-          description: 'OAuth access token data for the user'
-          type: object
-          additionalProperties: true
+          description: 'Masked when the user has connected an OAuth account, an empty string otherwise'
+          type: string
+          example: '***'
         shopify_user_id:
           description: 'The unique identifier of the Shopify user'
           type: string
@@ -30476,6 +31681,40 @@ components:
           description: 'Flag indicating whether to send login notifications'
           type: boolean
           example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        company_user:
+          description: 'The company user'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        email_verified_at:
+          description: 'The email verified at'
+          type: number
+          format: integer
+        last_login:
+          description: 'The last login'
+          type: integer
+        referral_code:
+          description: 'The referral code'
+          type: string
+        referral_meta:
+          description: 'The referral meta'
+          type: object
+          additionalProperties: true
+        settings:
+          description: 'The settings'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
 
     CompanyUser:
@@ -30542,6 +31781,10 @@ components:
           description: 'The permissions updated at'
           type: number
           format: integer
+        meta:
+          description: 'The meta'
+          type: object
+          additionalProperties: true
       type: object
     CompanyUserRef:
       properties:

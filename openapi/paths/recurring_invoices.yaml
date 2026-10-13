@@ -632,7 +632,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringInvoice"
         401:
           $ref: "#/components/responses/401"
         403:

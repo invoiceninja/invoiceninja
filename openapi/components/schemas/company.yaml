@@ -517,4 +517,159 @@
         use_credits_payment:
           description: 'Whether to use credits payment'
           type: string
+        activities:
+          description: 'The activities'
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        bank_integrations:
+          description: 'The bank integrations'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankIntegration'
+        bank_transaction_rules:
+          description: 'The bank transaction rules'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransactionRule'
+        bank_transactions:
+          description: 'The bank transactions'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransaction'
+        clients:
+          description: 'The clients'
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        company_gateways:
+          description: 'The company gateways'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyGateway'
+        credits:
+          description: 'The credits'
+          type: array
+          items:
+            $ref: '#/components/schemas/Credit'
+        designs:
+          description: 'The designs'
+          type: array
+          items:
+            $ref: '#/components/schemas/Design'
+        expense_categories:
+          description: 'The expense categories'
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseCategory'
+        expenses:
+          description: 'The expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+        groups:
+          description: 'The groups'
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupSetting'
+        invoices:
+          description: 'The invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        locations:
+          description: 'The locations'
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        payment_terms:
+          description: 'The payment terms'
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentTerm'
+        payments:
+          description: 'The payments'
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        products:
+          description: 'The products'
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        projects:
+          description: 'The projects'
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        purchase_orders:
+          description: 'The purchase orders'
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseOrder'
+        quotes:
+          description: 'The quotes'
+          type: array
+          items:
+            $ref: '#/components/schemas/Quote'
+        recurring_expenses:
+          description: 'The recurring expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringExpense'
+        recurring_invoices:
+          description: 'The recurring invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringInvoice'
+        subscriptions:
+          description: 'The subscriptions'
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        system_logs:
+          description: 'The system logs'
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemLog'
+        task_schedulers:
+          description: 'The task schedulers'
+          type: array
+          items:
+            type: object
+        task_statuses:
+          description: 'The task statuses'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskStatus'
+        tasks:
+          description: 'The tasks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        tax_rates:
+          description: 'The tax rates'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxRate'
+        tokens_hashed:
+          description: 'The tokens hashed'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyToken'
+        users:
+          description: 'The users'
+          type: array
+          items:
+            type: object
+        vendors:
+          description: 'The vendors'
+          type: array
+          items:
+            $ref: '#/components/schemas/Vendor'
+        webhooks:
+          description: 'The webhooks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
       type: object

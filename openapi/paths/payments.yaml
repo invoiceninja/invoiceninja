@@ -456,7 +456,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Payment'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -567,7 +570,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:

@@ -62,6 +62,10 @@
           description: 'The permissions updated at'
           type: number
           format: integer
+        meta:
+          description: 'The meta'
+          type: object
+          additionalProperties: true
       type: object
     CompanyUserRef:
       properties:

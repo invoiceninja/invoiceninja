@@ -277,8 +277,10 @@
           example: 134341234234
           readOnly: true
         status_order:
-          description: 'The status order'
+          description: 'The sort order of the status, null when the statuses have not been sorted'
           type: integer
+          nullable: true
+          example: 1
       type: object
     TaxRate:
       properties:

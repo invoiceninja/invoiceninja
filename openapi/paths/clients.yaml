@@ -918,6 +918,13 @@
               $ref: '#/components/headers/X-RateLimit-Remaining'
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         401:
           $ref: '#/components/responses/401'
         403:
@@ -1089,12 +1096,10 @@
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
           content:
-            application/json:
+            application/pdf:
               schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Client'
+                type: string
+                format: binary
         401:
           $ref: '#/components/responses/401'
         403:

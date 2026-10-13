@@ -244,9 +244,9 @@
           example: true
           readOnly: true
         google_2fa_secret:
-          description: 'The google 2fa secret for the user'
-          type: string
-          example: '123456'
+          description: 'Whether the user has two factor authentication enabled'
+          type: boolean
+          example: false
           readOnly: true
         passkey_enabled:
           description: 'Boolean flag if passkey auth is enabled for this user'
@@ -263,9 +263,9 @@
           type: string
           example: 'refresh_token_abc123'
         oauth_user_token:
-          description: 'OAuth access token data for the user'
-          type: object
-          additionalProperties: true
+          description: 'Masked when the user has connected an OAuth account, an empty string otherwise'
+          type: string
+          example: '***'
         shopify_user_id:
           description: 'The unique identifier of the Shopify user'
           type: string
@@ -274,4 +274,38 @@
           description: 'Flag indicating whether to send login notifications'
           type: boolean
           example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        company_user:
+          description: 'The company user'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        email_verified_at:
+          description: 'The email verified at'
+          type: number
+          format: integer
+        last_login:
+          description: 'The last login'
+          type: integer
+        referral_code:
+          description: 'The referral code'
+          type: string
+        referral_meta:
+          description: 'The referral meta'
+          type: object
+          additionalProperties: true
+        settings:
+          description: 'The settings'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
