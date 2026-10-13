@@ -12,4 +12,7 @@
           description: 'The value to search for'
           type: string
           example: bob
+        search_key:
+          description: 'The search key'
+          type: string
       type: object

@@ -216,4 +216,56 @@
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        auto_bill:
+          description: 'The auto bill'
+          type: string
+        auto_bill_enabled:
+          description: 'The auto bill enabled'
+          type: boolean
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        design_id:
+          description: 'The design id'
+          type: string
+        documents:
+          description: 'The documents attached to the recurring quote'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        due_date_days:
+          description: 'The due date days'
+          type: string
+        entity_type:
+          description: 'The entity type'
+          type: string
+        exchange_rate:
+          description: 'The exchange rate'
+          type: integer
+        has_expenses:
+          description: 'Whether the recurring quote has expenses'
+          type: boolean
+        has_tasks:
+          description: 'Whether the recurring quote has tasks'
+          type: boolean
+        invitations:
+          description: 'The invitations of the recurring quote'
+          type: array
+          items:
+            type: object
+        project_id:
+          description: 'The project id'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        subscription_id:
+          description: 'The subscription id'
+          type: string
+        vendor_id:
+          description: 'The vendor id'
+          type: string
       type: object

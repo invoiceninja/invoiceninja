@@ -25,4 +25,11 @@
           description: 'The created at timestamp'
           type: integer
           example: 2
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        color:
+          description: 'The color'
+          type: string
       type: object

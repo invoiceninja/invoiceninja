@@ -111,6 +111,41 @@
           readOnly: true
         company_user:
             $ref: '#/components/schemas/CompanyUserRef'
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        email_verified_at:
+          description: 'The email verified at'
+          nullable: true
+        last_login:
+          description: 'The last login'
+          type: integer
+        oauth_user_token:
+          description: 'The oauth user token'
+          type: string
+        referral_code:
+          description: 'The referral code'
+          type: string
+        referral_meta:
+          description: 'The referral meta'
+          type: object
+          additionalProperties: true
+        settings:
+          description: 'The settings'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        user_logged_in_notification:
+          description: 'The user logged in notification'
+          type: boolean
       type: object
     UserRef:
       properties:

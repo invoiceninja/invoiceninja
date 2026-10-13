@@ -149,4 +149,9 @@
           description: 'The calculated start date of the task, an empty string when not set'
           type: string
           example: '2024-01-15'
+        documents:
+          description: 'The documents attached to the task'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object

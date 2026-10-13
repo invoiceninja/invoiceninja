@@ -100,6 +100,54 @@
           type: number
           format: integer
           example: 134341234234
+        assigned_user_id:
+          description: 'The assigned user id'
+          type: string
+        company_id:
+          description: 'The company id'
+          type: string
+        group_id:
+          description: 'The group id'
+          type: string
+        name:
+          description: 'The name'
+          type: string
+        optional_product_ids:
+          description: 'The optional product ids'
+          type: string
+        optional_recurring_product_ids:
+          description: 'The optional recurring product ids'
+          type: string
+        plan_map:
+          description: 'The plan map'
+          type: string
+        price:
+          description: 'The price'
+          type: integer
+        product_ids:
+          description: 'The product ids'
+          type: string
+        promo_price:
+          description: 'The promo price'
+          type: integer
+        purchase_page:
+          description: 'The purchase page'
+          type: string
+        recurring_product_ids:
+          description: 'The recurring product ids'
+          type: string
+        registration_required:
+          description: 'The registration required'
+          type: boolean
+        remaining_cycles:
+          description: 'The remaining cycles'
+          type: integer
+        steps:
+          description: 'The steps'
+          type: string
+        use_inventory_management:
+          description: 'Whether to use inventory management'
+          type: boolean
       type: object
     BulkAction:
       type: array

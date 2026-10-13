@@ -219,4 +219,19 @@
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
+        documents:
+          description: 'The documents attached to the client'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        gateway_tokens:
+          description: 'The gateway tokens'
+          type: array
+          items:
+            type: object
+        locations:
+          description: 'The locations'
+          type: array
+          items:
+            type: object
       type: object

@@ -5903,7 +5903,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/Payment"
+                    $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -11064,7 +11064,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/Invoice"
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -20903,6 +20903,26 @@ components:
           description: 'The settings object'
           type: object
           example: {}
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        documents:
+          description: 'The documents attached to the group setting'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        is_deleted:
+          description: 'Whether the group setting has been deleted'
+          type: boolean
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     InvoicePaymentable:
       properties:
@@ -21106,6 +21126,9 @@ components:
           format: integer
           example: 134341234234
           readOnly: true
+        status_order:
+          description: 'The status order'
+          type: integer
       type: object
     TaxRate:
       properties:
@@ -21126,6 +21149,18 @@ components:
           description: 'Boolean flag determining if the tax has been deleted'
           type: boolean
           example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     Template:
       properties:
@@ -21216,6 +21251,35 @@ components:
           description: 'JSON or UBL'
           type: string
           example: JSON
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        company_id:
+          description: 'The company id'
+          type: string
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        headers:
+          description: 'The headers'
+          type: array
+          items:
+            type: object
+        is_deleted:
+          description: 'Whether the webhook has been deleted'
+          type: boolean
+        rest_method:
+          description: 'The rest method'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        user_id:
+          description: 'The user id'
+          type: string
       type: object
 
     PaymentType:
@@ -22336,6 +22400,13 @@ components:
           description: 'The created at timestamp'
           type: integer
           example: 2
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        color:
+          description: 'The color'
+          type: string
       type: object
     Client:
       properties:
@@ -22558,6 +22629,21 @@ components:
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
+        documents:
+          description: 'The documents attached to the client'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        gateway_tokens:
+          description: 'The gateway tokens'
+          type: array
+          items:
+            type: object
+        locations:
+          description: 'The locations'
+          type: array
+          items:
+            type: object
       type: object
 
     Quote:
@@ -22853,6 +22939,16 @@ components:
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        documents:
+          description: 'The documents attached to the quote'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the quote'
+          type: array
+          items:
+            type: object
       type: object
 
     InvoiceRequest:
@@ -23302,6 +23398,45 @@ components:
           description: 'iso_3166_3 code'
           type: string
           example: USD
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        auto_sync:
+          description: 'The auto sync'
+          type: boolean
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        disabled_upstream:
+          description: 'The disabled upstream'
+          type: boolean
+        from_date:
+          description: 'The from date'
+          type: string
+        integration_type:
+          description: 'The integration type'
+          type: string
+        is_deleted:
+          description: 'Whether the bank integration has been deleted'
+          type: boolean
+        nickname:
+          description: 'The nickname'
+          type: string
+        nordigen_institution_id:
+          description: 'The nordigen institution id'
+          type: string
+        provider_id:
+          description: 'The provider id'
+          type: integer
+        provider_name:
+          description: 'The provider name'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     CompanyToken:
       properties:
@@ -23317,6 +23452,27 @@ components:
           description: 'Determines whether the token is created by the system rather than a user'
           type: boolean
           example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        id:
+          description: 'The company token hashed id'
+          type: string
+        is_deleted:
+          description: 'Whether the company token has been deleted'
+          type: boolean
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        user_id:
+          description: 'The user id'
+          type: string
       type: object
     PurchaseOrder:
       properties:
@@ -23635,6 +23791,16 @@ components:
           description: 'The expense created from this purchase order'
           type: string
           example: Opnel5aKBz
+        documents:
+          description: 'The documents attached to the purchase order'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the purchase order'
+          type: array
+          items:
+            type: object
       type: object
 
     InvoiceInvitation:
@@ -23810,6 +23976,16 @@ components:
           description: 'When true this contact is permitted to electronically sign purchase order invitations.'
           type: boolean
           example: false
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        last_login:
+          description: 'The last login'
+          type: integer
+        link:
+          description: 'The link'
+          type: string
       type: object
 
     ClientGatewayToken:
@@ -23839,6 +24015,31 @@ components:
           description: 'Flag determining if the token is the default payment method'
           type: boolean
           example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        gateway_customer_reference:
+          description: 'The gateway customer reference'
+          type: string
+        gateway_type_id:
+          description: 'The gateway type id'
+          type: string
+        is_deleted:
+          description: 'Whether the client gateway token has been deleted'
+          type: boolean
+        meta:
+          description: 'The meta'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     VendorRequest:
       required:
@@ -24411,6 +24612,53 @@ components:
           example: true
         settings:
           $ref: '#/components/schemas/CompanySettings'
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        documents:
+          description: 'The documents attached to the company'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        enable_modules:
+          description: 'Whether to enable modules'
+          type: boolean
+        expense_amount_is_pretax:
+          description: 'The expense amount is pretax'
+          type: boolean
+        google_analytics_url:
+          description: 'The google analytics url'
+          type: string
+        has_e_invoice_certificate:
+          description: 'Whether the company has e invoice certificate'
+          type: boolean
+        has_e_invoice_certificate_passphrase:
+          description: 'Whether the company has e invoice certificate passphrase'
+          type: boolean
+        hide_empty_columns_on_pdf:
+          description: 'Whether to hide empty columns on pdf'
+          type: boolean
+        quickbooks:
+          description: 'The quickbooks'
+          nullable: true
+        smtp_password:
+          description: 'The smtp password'
+          type: string
+        smtp_username:
+          description: 'The smtp username'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        use_credits_payment:
+          description: 'Whether to use credits payment'
+          type: string
       type: object
 
     CompanyLedger:
@@ -24443,6 +24691,19 @@ components:
           type: number
           format: integer
           example: 1434342123
+        activity_id:
+          description: 'The activity id'
+          type: integer
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        credit_id:
+          description: 'The credit id'
+          type: string
+        invoice_id:
+          description: 'The invoice id'
+          type: string
       type: object
     RecurringInvoice:
       properties:
@@ -24728,6 +24989,27 @@ components:
           format: integer
           example: 1434342123
           readOnly: true
+        documents:
+          description: 'The documents attached to the recurring invoice'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the recurring invoice'
+          type: array
+          items:
+            type: object
+        next_send_datetime:
+          description: 'The next send datetime'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        subscription_id:
+          description: 'The subscription id'
+          type: string
       type: object
       
 
@@ -25009,6 +25291,11 @@ components:
           description: 'The currency id of the payment'
           type: string
           example: '1'
+        documents:
+          description: 'The documents attached to the payment'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
     
 
@@ -25316,6 +25603,11 @@ components:
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        documents:
+          description: 'The documents attached to the credit'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
 
     Subscription:
@@ -25420,6 +25712,54 @@ components:
           type: number
           format: integer
           example: 134341234234
+        assigned_user_id:
+          description: 'The assigned user id'
+          type: string
+        company_id:
+          description: 'The company id'
+          type: string
+        group_id:
+          description: 'The group id'
+          type: string
+        name:
+          description: 'The name'
+          type: string
+        optional_product_ids:
+          description: 'The optional product ids'
+          type: string
+        optional_recurring_product_ids:
+          description: 'The optional recurring product ids'
+          type: string
+        plan_map:
+          description: 'The plan map'
+          type: string
+        price:
+          description: 'The price'
+          type: integer
+        product_ids:
+          description: 'The product ids'
+          type: string
+        promo_price:
+          description: 'The promo price'
+          type: integer
+        purchase_page:
+          description: 'The purchase page'
+          type: string
+        recurring_product_ids:
+          description: 'The recurring product ids'
+          type: string
+        registration_required:
+          description: 'The registration required'
+          type: boolean
+        remaining_cycles:
+          description: 'The remaining cycles'
+          type: integer
+        steps:
+          description: 'The steps'
+          type: string
+        use_inventory_management:
+          description: 'Whether to use inventory management'
+          type: boolean
       type: object
     BulkAction:
       type: array
@@ -25520,6 +25860,11 @@ components:
           type: number
           format: float
           example: 5000.00
+        documents:
+          description: 'The documents attached to the project'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       required:
         - id
         - user_id
@@ -26431,6 +26776,178 @@ components:
           description: 'The French reporting schedule. ten_day or monthly'
           type: string
           example: ten_day
+        brevo_secret:
+          description: 'The brevo secret'
+          type: string
+        client_portal_enable_uploads:
+          description: 'The client portal enable uploads'
+          type: boolean
+        credit_design_id:
+          description: 'The credit design id'
+          type: string
+        delivery_note_design_id:
+          description: 'The delivery note design id'
+          type: string
+        e_expense_forward_email:
+          description: 'The e expense forward email'
+          type: string
+        e_invoice_forward_email:
+          description: 'The e invoice forward email'
+          type: string
+        e_quote_type:
+          description: 'The e quote type'
+          type: string
+        email_quote_subject_reminder1:
+          description: 'The email quote subject reminder1'
+          type: string
+        email_quote_template_reminder1:
+          description: 'The email quote template reminder1'
+          type: string
+        email_subject_credit:
+          description: 'The email subject credit'
+          type: string
+        email_subject_payment_failed:
+          description: 'The email subject payment failed'
+          type: string
+        email_subject_payment_partial:
+          description: 'The email subject payment partial'
+          type: string
+        email_template_credit:
+          description: 'The email template credit'
+          type: string
+        email_template_payment_failed:
+          description: 'The email template payment failed'
+          type: string
+        email_template_payment_partial:
+          description: 'The email template payment partial'
+          type: string
+        enable_client_profile_update:
+          description: 'Whether to enable client profile update'
+          type: boolean
+        enable_quote_reminder1:
+          description: 'Whether to enable quote reminder1'
+          type: boolean
+        enable_rappen_rounding:
+          description: 'Whether to enable rappen rounding'
+          type: boolean
+        id_number:
+          description: 'The id number'
+          type: string
+        late_fee_percent1:
+          description: 'The late fee percent1'
+          type: integer
+        late_fee_percent2:
+          description: 'The late fee percent2'
+          type: integer
+        late_fee_percent3:
+          description: 'The late fee percent3'
+          type: integer
+        merge_e_invoice_to_pdf:
+          description: 'The merge e invoice to pdf'
+          type: boolean
+        page_layout:
+          description: 'The page layout'
+          type: string
+        payment_email_all_contacts:
+          description: 'The payment email all contacts'
+          type: boolean
+        payment_flow:
+          description: 'The payment flow'
+          type: string
+        payment_receipt_design_id:
+          description: 'The payment receipt design id'
+          type: string
+        payment_refund_design_id:
+          description: 'The payment refund design id'
+          type: string
+        pdf_variables:
+          description: 'The pdf variables'
+          type: object
+          additionalProperties: true
+        portal_custom_css:
+          description: 'The portal custom css'
+          type: string
+        portal_custom_footer:
+          description: 'The portal custom footer'
+          type: string
+        portal_custom_head:
+          description: 'The portal custom head'
+          type: string
+        portal_custom_js:
+          description: 'The portal custom js'
+          type: string
+        preference_product_notes_for_html_view:
+          description: 'The preference product notes for html view'
+          type: boolean
+        project_number_counter:
+          description: 'The project number counter'
+          type: integer
+        project_number_pattern:
+          description: 'The project number pattern'
+          type: string
+        quote_late_fee_amount1:
+          description: 'The quote late fee amount1'
+          type: integer
+        quote_late_fee_percent1:
+          description: 'The quote late fee percent1'
+          type: integer
+        quote_num_days_reminder1:
+          description: 'The quote num days reminder1'
+          type: integer
+        quote_schedule_reminder1:
+          description: 'The quote schedule reminder1'
+          type: string
+        recurring_expense_number_counter:
+          description: 'The recurring expense number counter'
+          type: integer
+        recurring_expense_number_pattern:
+          description: 'The recurring expense number pattern'
+          type: string
+        recurring_number_prefix:
+          description: 'The recurring number prefix'
+          type: string
+        recurring_quote_number_counter:
+          description: 'The recurring quote number counter'
+          type: integer
+        recurring_quote_number_pattern:
+          description: 'The recurring quote number pattern'
+          type: string
+        ses_access_key:
+          description: 'The ses access key'
+          type: string
+        ses_from_address:
+          description: 'The ses from address'
+          type: string
+        ses_region:
+          description: 'The ses region'
+          type: string
+        ses_secret_key:
+          description: 'The ses secret key'
+          type: string
+        ses_topic_arn:
+          description: 'The ses topic arn'
+          type: string
+        show_pdfhtml_on_mobile:
+          description: 'Whether to show pdfhtml on mobile'
+          type: boolean
+        skip_automatic_email_with_peppol:
+          description: 'The skip automatic email with peppol'
+          type: boolean
+        statement_design_id:
+          description: 'The statement design id'
+          type: string
+        task_round_to_nearest:
+          description: 'The task round to nearest'
+          type: integer
+        task_round_up:
+          description: 'The task round up'
+          type: boolean
+        unlock_invoice_documents_after_payment:
+          description: 'The unlock invoice documents after payment'
+          type: boolean
+        use_unapplied_payment:
+          description: 'Whether to use unapplied payment'
+          type: string
     Design:
       properties:
         id:
@@ -26485,6 +27002,19 @@ components:
           type: number
           format: integer
           example: 134341234234
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        entities:
+          description: 'The entities'
+          type: string
+        is_free:
+          description: 'Whether the design is free'
+          type: boolean
+        is_template:
+          description: 'Whether the design is template'
+          type: boolean
       type: object
     ClientSettings:
       required:
@@ -27335,6 +27865,15 @@ components:
           description: 'The French reporting schedule. ten_day or monthly'
           type: string
           example: ten_day
+        entity:
+          description: 'The entity'
+          type: string
+        industry_id:
+          description: 'The industry id'
+          type: string
+        size_id:
+          description: 'The size id'
+          type: string
       type: object
     BTRules:
       properties:
@@ -27350,6 +27889,9 @@ components:
           description: 'The value to search for'
           type: string
           example: bob
+        search_key:
+          description: 'The search key'
+          type: string
       type: object
     Account:
       properties:
@@ -27852,6 +28394,12 @@ components:
           type: number
           format: integer
           example: 134341234234
+        id:
+          description: 'The payment term hashed id'
+          type: string
+        is_deleted:
+          description: 'Whether the payment term has been deleted'
+          type: boolean
       type: object
     ClientContactRequest:
       properties:
@@ -27963,6 +28511,21 @@ components:
           description: 'The category hashed id'
           type: string
           example: AS3df3A
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        is_deleted:
+          description: 'Whether the bank transaction rule has been deleted'
+          type: boolean
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     CreditInvitationRequest:
       required:
@@ -28398,6 +28961,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        documents:
+          description: 'The documents attached to the product'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
 
     PaymentRequest:
       properties:
@@ -28676,6 +29244,58 @@ components:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        auto_bill:
+          description: 'The auto bill'
+          type: string
+        auto_bill_enabled:
+          description: 'The auto bill enabled'
+          type: boolean
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        design_id:
+          description: 'The design id'
+          type: string
+        documents:
+          description: 'The documents attached to the recurring quote'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        due_date_days:
+          description: 'The due date days'
+          type: string
+        entity_type:
+          description: 'The entity type'
+          type: string
+        exchange_rate:
+          description: 'The exchange rate'
+          type: integer
+        has_expenses:
+          description: 'Whether the recurring quote has expenses'
+          type: boolean
+        has_tasks:
+          description: 'Whether the recurring quote has tasks'
+          type: boolean
+        invitations:
+          description: 'The invitations of the recurring quote'
+          type: array
+          items:
+            type: object
+        project_id:
+          description: 'The project id'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        subscription_id:
+          description: 'The subscription id'
+          type: string
+        vendor_id:
+          description: 'The vendor id'
+          type: string
       type: object
     Paymentable:
       properties:
@@ -29001,6 +29621,13 @@ components:
           type: boolean
           example: false
           readOnly: true
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        message_id:
+          description: 'The message id'
+          type: string
 
 
     ProductBulkAction:
@@ -29199,6 +29826,88 @@ components:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
+        always_show_required_fields:
+          description: 'The always show required fields'
+          type: boolean
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        custom_value1:
+          description: 'The custom value1'
+          type: string
+        custom_value2:
+          description: 'The custom value2'
+          type: string
+        custom_value3:
+          description: 'The custom value3'
+          type: string
+        custom_value4:
+          description: 'The custom value4'
+          type: string
+        is_deleted:
+          description: 'Whether the company gateway has been deleted'
+          type: boolean
+        label:
+          description: 'The label'
+          type: string
+        require_client_name:
+          description: 'Whether to require client name'
+          type: boolean
+        require_client_phone:
+          description: 'Whether to require client phone'
+          type: boolean
+        require_contact_email:
+          description: 'Whether to require contact email'
+          type: boolean
+        require_contact_name:
+          description: 'Whether to require contact name'
+          type: boolean
+        require_custom_value1:
+          description: 'Whether to require custom value1'
+          type: boolean
+        require_custom_value2:
+          description: 'Whether to require custom value2'
+          type: boolean
+        require_custom_value3:
+          description: 'Whether to require custom value3'
+          type: boolean
+        require_custom_value4:
+          description: 'Whether to require custom value4'
+          type: boolean
+        require_cvv:
+          description: 'Whether to require cvv'
+          type: boolean
+        require_postal_code:
+          description: 'Whether to require postal code'
+          type: boolean
+        require_zip:
+          description: 'Whether to require zip'
+          type: boolean
+        settings:
+          description: 'The settings'
+          type: object
+          additionalProperties: true
+        show_billing_address:
+          description: 'Whether to show billing address'
+          type: boolean
+        show_shipping_address:
+          description: 'Whether to show shipping address'
+          type: boolean
+        test_mode:
+          description: 'The test mode'
+          type: boolean
+        token_billing:
+          description: 'The token billing'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     
     
@@ -29295,6 +30004,28 @@ components:
           $ref: '#/components/schemas/Vendor'
         vendor_contact:
           $ref: '#/components/schemas/VendorContact'
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        purchase_order_id:
+          description: 'The purchase order id'
+          type: string
+        quote_id:
+          description: 'The quote id'
+          type: string
+        recurring_expense_id:
+          description: 'The recurring expense id'
+          type: string
+        recurring_invoice_id:
+          description: 'The recurring invoice id'
+          type: string
+        vendor_contact_id:
+          description: 'The vendor contact id'
+          type: string
+        vendor_id:
+          description: 'The vendor id'
+          type: string
       type: object
     CreditRequest:
       required:
@@ -29582,6 +30313,41 @@ components:
           readOnly: true
         company_user:
             $ref: '#/components/schemas/CompanyUserRef'
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        email_verified_at:
+          description: 'The email verified at'
+          nullable: true
+        last_login:
+          description: 'The last login'
+          type: integer
+        oauth_user_token:
+          description: 'The oauth user token'
+          type: string
+        referral_code:
+          description: 'The referral code'
+          type: string
+        referral_meta:
+          description: 'The referral meta'
+          type: object
+          additionalProperties: true
+        settings:
+          description: 'The settings'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        user_logged_in_notification:
+          description: 'The user logged in notification'
+          type: boolean
       type: object
     UserRef:
       properties:
@@ -29757,6 +30523,25 @@ components:
           $ref: '#/components/schemas/UserRef'
         token:
           $ref: '#/components/schemas/CompanyToken'
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        ninja_portal_url:
+          description: 'The ninja portal url'
+          type: string
+        notifications:
+          description: 'The notifications'
+          type: object
+          additionalProperties: true
+        permissions_updated_at:
+          description: 'The permissions updated at'
+          type: number
+          format: integer
       type: object
     CompanyUserRef:
       properties:
@@ -30025,6 +30810,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        documents:
+          description: 'The documents attached to the recurring expense'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        entity_type:
+          description: 'The entity type'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        recurring_expense_currency_id:
+          description: 'The recurring expense currency id'
+          type: string
+        status_id:
+          description: 'The status id'
+          type: string
       type: object
 
     ClientContact:
@@ -30160,6 +30968,13 @@ components:
           format: integer
           example: 134341234234
           readOnly: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        link:
+          description: 'The link'
+          type: string
       type: object
     TaskSortRequest:
       required:
@@ -30266,6 +31081,14 @@ components:
           description: 'Timestamp of when the location was last updated'
           type: integer
           example: 1623456999
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        tax_data:
+          description: 'The tax data'
+          type: object
+          additionalProperties: true
       type: object 
     Expense:
       properties:
@@ -30492,6 +31315,11 @@ components:
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
+        documents:
+          description: 'The documents attached to the expense'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
 
     Task:
@@ -30645,6 +31473,11 @@ components:
           description: 'The calculated start date of the task, an empty string when not set'
           type: string
           example: '2024-01-15'
+        documents:
+          description: 'The documents attached to the task'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
     FeesAndLimits:
       properties:
@@ -30870,6 +31703,11 @@ components:
           format: integer
           example: 1434342123
           readOnly: true
+        documents:
+          description: 'The documents attached to the vendor'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
 
 tags:

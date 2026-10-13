@@ -92,6 +92,11 @@
           type: number
           format: float
           example: 5000.00
+        documents:
+          description: 'The documents attached to the project'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       required:
         - id
         - user_id

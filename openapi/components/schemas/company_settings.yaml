@@ -900,3 +900,175 @@
           description: 'The French reporting schedule. ten_day or monthly'
           type: string
           example: ten_day
+        brevo_secret:
+          description: 'The brevo secret'
+          type: string
+        client_portal_enable_uploads:
+          description: 'The client portal enable uploads'
+          type: boolean
+        credit_design_id:
+          description: 'The credit design id'
+          type: string
+        delivery_note_design_id:
+          description: 'The delivery note design id'
+          type: string
+        e_expense_forward_email:
+          description: 'The e expense forward email'
+          type: string
+        e_invoice_forward_email:
+          description: 'The e invoice forward email'
+          type: string
+        e_quote_type:
+          description: 'The e quote type'
+          type: string
+        email_quote_subject_reminder1:
+          description: 'The email quote subject reminder1'
+          type: string
+        email_quote_template_reminder1:
+          description: 'The email quote template reminder1'
+          type: string
+        email_subject_credit:
+          description: 'The email subject credit'
+          type: string
+        email_subject_payment_failed:
+          description: 'The email subject payment failed'
+          type: string
+        email_subject_payment_partial:
+          description: 'The email subject payment partial'
+          type: string
+        email_template_credit:
+          description: 'The email template credit'
+          type: string
+        email_template_payment_failed:
+          description: 'The email template payment failed'
+          type: string
+        email_template_payment_partial:
+          description: 'The email template payment partial'
+          type: string
+        enable_client_profile_update:
+          description: 'Whether to enable client profile update'
+          type: boolean
+        enable_quote_reminder1:
+          description: 'Whether to enable quote reminder1'
+          type: boolean
+        enable_rappen_rounding:
+          description: 'Whether to enable rappen rounding'
+          type: boolean
+        id_number:
+          description: 'The id number'
+          type: string
+        late_fee_percent1:
+          description: 'The late fee percent1'
+          type: integer
+        late_fee_percent2:
+          description: 'The late fee percent2'
+          type: integer
+        late_fee_percent3:
+          description: 'The late fee percent3'
+          type: integer
+        merge_e_invoice_to_pdf:
+          description: 'The merge e invoice to pdf'
+          type: boolean
+        page_layout:
+          description: 'The page layout'
+          type: string
+        payment_email_all_contacts:
+          description: 'The payment email all contacts'
+          type: boolean
+        payment_flow:
+          description: 'The payment flow'
+          type: string
+        payment_receipt_design_id:
+          description: 'The payment receipt design id'
+          type: string
+        payment_refund_design_id:
+          description: 'The payment refund design id'
+          type: string
+        pdf_variables:
+          description: 'The pdf variables'
+          type: object
+          additionalProperties: true
+        portal_custom_css:
+          description: 'The portal custom css'
+          type: string
+        portal_custom_footer:
+          description: 'The portal custom footer'
+          type: string
+        portal_custom_head:
+          description: 'The portal custom head'
+          type: string
+        portal_custom_js:
+          description: 'The portal custom js'
+          type: string
+        preference_product_notes_for_html_view:
+          description: 'The preference product notes for html view'
+          type: boolean
+        project_number_counter:
+          description: 'The project number counter'
+          type: integer
+        project_number_pattern:
+          description: 'The project number pattern'
+          type: string
+        quote_late_fee_amount1:
+          description: 'The quote late fee amount1'
+          type: integer
+        quote_late_fee_percent1:
+          description: 'The quote late fee percent1'
+          type: integer
+        quote_num_days_reminder1:
+          description: 'The quote num days reminder1'
+          type: integer
+        quote_schedule_reminder1:
+          description: 'The quote schedule reminder1'
+          type: string
+        recurring_expense_number_counter:
+          description: 'The recurring expense number counter'
+          type: integer
+        recurring_expense_number_pattern:
+          description: 'The recurring expense number pattern'
+          type: string
+        recurring_number_prefix:
+          description: 'The recurring number prefix'
+          type: string
+        recurring_quote_number_counter:
+          description: 'The recurring quote number counter'
+          type: integer
+        recurring_quote_number_pattern:
+          description: 'The recurring quote number pattern'
+          type: string
+        ses_access_key:
+          description: 'The ses access key'
+          type: string
+        ses_from_address:
+          description: 'The ses from address'
+          type: string
+        ses_region:
+          description: 'The ses region'
+          type: string
+        ses_secret_key:
+          description: 'The ses secret key'
+          type: string
+        ses_topic_arn:
+          description: 'The ses topic arn'
+          type: string
+        show_pdfhtml_on_mobile:
+          description: 'Whether to show pdfhtml on mobile'
+          type: boolean
+        skip_automatic_email_with_peppol:
+          description: 'The skip automatic email with peppol'
+          type: boolean
+        statement_design_id:
+          description: 'The statement design id'
+          type: string
+        task_round_to_nearest:
+          description: 'The task round to nearest'
+          type: integer
+        task_round_up:
+          description: 'The task round up'
+          type: boolean
+        unlock_invoice_documents_after_payment:
+          description: 'The unlock invoice documents after payment'
+          type: boolean
+        use_unapplied_payment:
+          description: 'Whether to use unapplied payment'
+          type: string

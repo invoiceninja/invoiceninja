@@ -5784,7 +5784,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/Payment"
+                    $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:

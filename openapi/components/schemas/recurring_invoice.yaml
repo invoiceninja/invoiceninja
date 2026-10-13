@@ -282,5 +282,26 @@
           format: integer
           example: 1434342123
           readOnly: true
+        documents:
+          description: 'The documents attached to the recurring invoice'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the recurring invoice'
+          type: array
+          items:
+            type: object
+        next_send_datetime:
+          description: 'The next send datetime'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        subscription_id:
+          description: 'The subscription id'
+          type: string
       type: object
       

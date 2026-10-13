@@ -164,5 +164,10 @@
           description: 'The currency id of the payment'
           type: string
           example: '1'
+        documents:
+          description: 'The documents attached to the payment'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
     

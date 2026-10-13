@@ -53,6 +53,26 @@
           description: 'The settings object'
           type: object
           example: {}
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        documents:
+          description: 'The documents attached to the group setting'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        is_deleted:
+          description: 'Whether the group setting has been deleted'
+          type: boolean
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     InvoicePaymentable:
       properties:
@@ -256,6 +276,9 @@
           format: integer
           example: 134341234234
           readOnly: true
+        status_order:
+          description: 'The status order'
+          type: integer
       type: object
     TaxRate:
       properties:
@@ -276,6 +299,18 @@
           description: 'Boolean flag determining if the tax has been deleted'
           type: boolean
           example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     Template:
       properties:
@@ -366,6 +401,35 @@
           description: 'JSON or UBL'
           type: string
           example: JSON
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        company_id:
+          description: 'The company id'
+          type: string
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        headers:
+          description: 'The headers'
+          type: array
+          items:
+            type: object
+        is_deleted:
+          description: 'Whether the webhook has been deleted'
+          type: boolean
+        rest_method:
+          description: 'The rest method'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        user_id:
+          description: 'The user id'
+          type: string
       type: object
 
     PaymentType:

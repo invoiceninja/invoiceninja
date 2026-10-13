@@ -315,4 +315,14 @@
           description: 'The expense created from this purchase order'
           type: string
           example: Opnel5aKBz
+        documents:
+          description: 'The documents attached to the purchase order'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the purchase order'
+          type: array
+          items:
+            type: object
       type: object

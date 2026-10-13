@@ -320,7 +320,7 @@
                 type: object
                 properties:
                   data:
-                    $ref: "#/components/schemas/Invoice"
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:

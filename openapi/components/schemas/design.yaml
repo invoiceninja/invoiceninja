@@ -52,4 +52,17 @@
           type: number
           format: integer
           example: 134341234234
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        entities:
+          description: 'The entities'
+          type: string
+        is_free:
+          description: 'Whether the design is free'
+          type: boolean
+        is_template:
+          description: 'Whether the design is template'
+          type: boolean
       type: object

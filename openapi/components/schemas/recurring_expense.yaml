@@ -219,4 +219,27 @@
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        documents:
+          description: 'The documents attached to the recurring expense'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        entity_type:
+          description: 'The entity type'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        recurring_expense_currency_id:
+          description: 'The recurring expense currency id'
+          type: string
+        status_id:
+          description: 'The status id'
+          type: string
       type: object

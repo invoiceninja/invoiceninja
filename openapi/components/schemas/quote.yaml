@@ -291,4 +291,14 @@
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        documents:
+          description: 'The documents attached to the quote'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the quote'
+          type: array
+          items:
+            type: object
       type: object
