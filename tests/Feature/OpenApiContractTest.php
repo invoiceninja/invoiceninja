@@ -21,6 +21,7 @@ use Illuminate\Testing\TestResponse;
 use League\OpenAPIValidation\PSR7\Exception\ValidationFailed;
 use League\OpenAPIValidation\PSR7\OperationAddress;
 use League\OpenAPIValidation\PSR7\ResponseValidator;
+use League\OpenAPIValidation\PSR7\RoutedServerRequestValidator;
 use League\OpenAPIValidation\PSR7\ValidatorBuilder;
 use League\OpenAPIValidation\Schema\Exception\SchemaMismatch;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -50,9 +51,10 @@ class OpenApiContractTest extends TestCase
      * - GET /{invoices,quotes,credits,...}/create returns line_items as the string "[]" instead of an array
      * - GET /tags/create returns an empty name and entity_type
      * - GET /task_schedulers/{id}/edit is routed but not implemented (HTTP 500)
-     * - users have no edit route
+     * - users have no edit or delete route, client gateway tokens no bulk route
      * - POST /companies returns the new company users instead of the company, so the
-     *   company from MockAccountData is used and the store response has a test of its own
+     *   company from MockAccountData is used and the store response has a test of its own.
+     *   Deleting that company would take the test account with it
      */
     private const ENTITIES = [
         'client' => ['/api/v1/clients', ['name' => 'Contract Test Client'], ['create']],
@@ -76,18 +78,18 @@ class OpenApiContractTest extends TestCase
         'design' => ['/api/v1/designs', ['name' => 'Contract Test Design', 'design' => ['body' => '<div></div>', 'includes' => '', 'product' => '', 'task' => '', 'footer' => '', 'header' => '']]],
         'group_setting' => ['/api/v1/group_settings', ['name' => 'Contract Test Group', 'settings' => ['currency_id' => '1']]],
         'location' => ['/api/v1/locations', ['name' => 'Contract Test Location', 'client_id' => '{client}']],
-        'tag' => ['/api/v1/tags', ['name' => 'Contract Test Tag', 'entity_type' => 'invoice'], ['create']],
+        'tag' => ['/api/v1/tags', ['name' => 'Contract Test Tag', 'entity_type' => 'App\\Models\\Invoice'], ['create']],
         'token' => ['/api/v1/tokens', ['name' => 'Contract Test Token']],
-        'user' => ['/api/v1/users', ['first_name' => 'Contract', 'last_name' => 'Test', 'email' => 'contract-test@example.com'], ['edit']],
+        'user' => ['/api/v1/users', ['first_name' => 'Contract', 'last_name' => 'Test', 'email' => 'contract-test@example.com'], ['edit', 'delete']],
         'webhook' => ['/api/v1/webhooks', ['target_url' => 'https://example.com/hook', 'event_id' => '1', 'rest_method' => 'post', 'format' => 'JSON']],
         'subscription' => ['/api/v1/subscriptions', ['name' => 'Contract Test Subscription', 'product_ids' => '{product}', 'steps' => 'cart,auth.login-or-register']],
         'bank_integration' => ['/api/v1/bank_integrations', ['bank_account_name' => 'Contract Test Bank']],
         'bank_transaction' => ['/api/v1/bank_transactions', ['bank_integration_id' => '{bank_integration}', 'amount' => 10, 'description' => 'Contract test transaction', 'base_type' => 'CREDIT', 'date' => '2026-01-01']],
         'bank_transaction_rule' => ['/api/v1/bank_transaction_rules', ['name' => 'Contract Test Rule', 'rules' => [['search_key' => 'description', 'operator' => 'contains', 'value' => 'contract']], 'applies_to' => 'CREDIT']],
         'task_scheduler' => ['/api/v1/task_schedulers', ['name' => 'Contract Test Schedule', 'template' => 'client_statement', 'frequency_id' => 5, 'next_run' => '2030-01-01', 'parameters' => ['date_range' => 'last_month', 'show_payments_table' => true, 'show_aging_table' => true, 'status' => 'paid', 'clients' => []]], ['edit']],
-        'company' => ['/api/v1/companies', ['name' => 'Contract Test Company'], ['store']],
+        'company' => ['/api/v1/companies', ['name' => 'Contract Test Company'], ['store', 'bulk', 'delete']],
         'company_gateway' => ['/api/v1/company_gateways', ['gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb', 'config' => '{"publishableKey":"pk_test","apiKey":"sk_test"}']],
-        'client_gateway_token' => ['/api/v1/client_gateway_tokens', ['client_id' => '{client}', 'company_gateway_id' => '{company_gateway}', 'gateway_type_id' => '1', 'token' => 'tok_contract', 'meta' => ['brand' => 'visa', 'last4' => '4242']]],
+        'client_gateway_token' => ['/api/v1/client_gateway_tokens', ['client_id' => '{client}', 'company_gateway_id' => '{company_gateway}', 'gateway_type_id' => '1', 'token' => 'tok_contract', 'meta' => ['brand' => 'visa', 'last4' => '4242']], ['bulk']],
     ];
 
     /** Collections that can only be listed, validated after an invoice and a payment were created through the API. */
@@ -101,12 +103,16 @@ class OpenApiContractTest extends TestCase
         'edit' => ['get', '/{id}/edit'],
         'update' => ['put', '/{id}'],
         'create' => ['get', '/create'],
+        'bulk' => ['post', '/bulk'],
+        'delete' => ['delete', '/{id}'],
     ];
 
     /** hashed ids of the entities created through the API, keyed by name */
     private array $created = [];
 
     private ResponseValidator $validator;
+
+    private RoutedServerRequestValidator $requestValidator;
 
     protected function setUp(): void
     {
@@ -121,6 +127,7 @@ class OpenApiContractTest extends TestCase
         $this->created['company'] = $this->company->hashed_id;
 
         $this->validator = (new ValidatorBuilder())->fromYamlFile(base_path('openapi/api-docs.yaml'))->getResponseValidator();
+        $this->requestValidator = new RoutedServerRequestValidator($this->validator->getSchema());
     }
 
     /** Plain data only: phpunit.xml runs tests in separate processes, so rows get serialized. */
@@ -137,13 +144,23 @@ class OpenApiContractTest extends TestCase
 
         foreach (array_diff_key(self::OPERATIONS, array_flip(self::ENTITIES[$entity][2] ?? [])) as $operation => [$method, $suffix]) {
             $path = $collection.$suffix;
-            $response = $this->apiRequest($method, str_replace('{id}', $this->created[$entity] ?? '', $path), $method === 'get' ? [] : $body);
+            $sent = match ($operation) {
+                'store', 'update' => $body,
+                'bulk' => ['action' => 'archive', 'ids' => [$this->created[$entity]]],
+                default => null,
+            };
+            $response = $this->apiRequest($method, str_replace('{id}', $this->created[$entity] ?? '', $path).($operation === 'bulk' ? '?action=archive' : ''), $sent ?? []);
 
             if ($operation === 'store') {
                 $this->created[$entity] = $response->json('data.id');
             }
 
-            if ($mismatch = $this->specMismatch($method, $path, $response, $this->created[$entity] ?? null)) {
+            $mismatch = array_merge(
+                $sent === null ? [] : $this->requestMismatch($method, $path, $sent),
+                $this->specMismatch($method, $path, $response, $this->created[$entity] ?? null),
+            );
+
+            if ($mismatch) {
                 $mismatches[] = strtoupper($method)." {$path}:\n  - ".implode("\n  - ", $mismatch);
             }
 
@@ -211,7 +228,8 @@ class OpenApiContractTest extends TestCase
         return $this->created[$entity] ??= $this->apiRequest('post', $collection, $body)->assertSuccessful()->json('data.id');
     }
 
-    private function apiRequest(string $method, string $url, array $body = []): TestResponse
+    /** Replaces '{name}' values by the hashed id of that entity, creating it when needed. */
+    private function resolve(array $body): array
     {
         array_walk_recursive($body, function (&$value) {
             if (is_string($value) && preg_match('/^\{(\w+)\}$/', $value, $match)) {
@@ -219,10 +237,50 @@ class OpenApiContractTest extends TestCase
             }
         });
 
+        return $body;
+    }
+
+    private function apiRequest(string $method, string $url, array $body = []): TestResponse
+    {
         return $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->json(strtoupper($method), $url, $body);
+        ])->json(strtoupper($method), $url, $this->resolve($body));
+    }
+
+    /** The reasons the request body does not match the spec, empty when it does. */
+    private function requestMismatch(string $method, string $path, array $body): array
+    {
+        if (empty($this->validator->getSchema()->paths->getPath($path)?->{$method}?->requestBody?->content)) {
+            return ['the spec documents no request body'];
+        }
+
+        $factory = new Psr17Factory();
+        $request = $factory->createServerRequest(strtoupper($method), 'http://localhost'.$path)
+            ->withQueryParams(isset($body['action']) ? ['action' => $body['action']] : [])
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('X-API-TOKEN', $this->token)
+            ->withHeader('X-Requested-With', 'XMLHttpRequest')
+            ->withBody($factory->createStream(json_encode($this->resolve($body))));
+
+        try {
+            $this->requestValidator->validate(new OperationAddress($path, $method), $request);
+        } catch (ValidationFailed $e) {
+            return array_map(fn ($reason) => 'request: '.$reason, $this->reasons($e));
+        }
+
+        return [];
+    }
+
+    private function reasons(ValidationFailed $e): array
+    {
+        $reasons = [];
+        for ($ex = $e; $ex; $ex = $ex->getPrevious()) {
+            $field = $ex instanceof SchemaMismatch && $ex->dataBreadCrumb() ? ' (at '.implode('.', $ex->dataBreadCrumb()->buildChain()).')' : '';
+            $reasons[] = $ex->getMessage().$field;
+        }
+
+        return $reasons;
     }
 
     /** The reasons the response does not match the spec, empty when it does. */
@@ -256,13 +314,7 @@ class OpenApiContractTest extends TestCase
         try {
             $this->validator->validate(new OperationAddress($path, $method), $psr);
         } catch (ValidationFailed $e) {
-            $reasons = [];
-            for ($ex = $e; $ex; $ex = $ex->getPrevious()) {
-                $field = $ex instanceof SchemaMismatch && $ex->dataBreadCrumb() ? ' (at '.implode('.', $ex->dataBreadCrumb()->buildChain()).')' : '';
-                $reasons[] = $ex->getMessage().$field;
-            }
-
-            return $reasons;
+            return $this->reasons($e);
         }
 
         return [];
