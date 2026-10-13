@@ -2046,7 +2046,7 @@ paths:
           content:
             application/json:
               schema:
-                type: integer
+                type: number
         422:
           $ref: "#/components/responses/422"
         429:
@@ -7130,6 +7130,71 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
+  "/api/v1/recurring_quotes/{id}/upload":
+    post:
+      tags:
+        - Recurring Quotes
+      summary: "Add recurring quote document"
+      description: "Handles the uploading of a document to a recurring_quote"
+      operationId: uploadRecurringQuote
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The RecurringQuote Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: "Returns the RecurringQuote object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
   /api/v1/recurring_quotes/bulk:
     post:
       tags:
@@ -11465,6 +11530,2028 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/vendors":
+    post:
+      tags:
+        - reports
+      summary: "Report vendors"
+      description: "Report vendors"
+      operationId: postReportsVendors
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_range:
+                  type: string
+                report_keys:
+                  type: array
+                  items:
+                    type: object
+                send_email:
+                  type: boolean
+      responses:
+        200:
+          description: "Report vendors"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/purchase_orders":
+    post:
+      tags:
+        - reports
+      summary: "Report purchase orders"
+      description: "Report purchase orders"
+      operationId: postReportsPurchaseOrders
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_range:
+                  type: string
+                report_keys:
+                  type: array
+                  items:
+                    type: object
+                send_email:
+                  type: boolean
+      responses:
+        200:
+          description: "Report purchase orders"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/purchase_order_items":
+    post:
+      tags:
+        - reports
+      summary: "Report purchase order items"
+      description: "Report purchase order items"
+      operationId: postReportsPurchaseOrderItems
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_range:
+                  type: string
+                report_keys:
+                  type: array
+                  items:
+                    type: object
+                send_email:
+                  type: boolean
+      responses:
+        200:
+          description: "Report purchase order items"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/recurring_invoice_items":
+    post:
+      tags:
+        - reports
+      summary: "Report recurring invoice items"
+      description: "Report recurring invoice items"
+      operationId: postReportsRecurringInvoiceItems
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_range:
+                  type: string
+                report_keys:
+                  type: array
+                  items:
+                    type: object
+                send_email:
+                  type: boolean
+      responses:
+        200:
+          description: "Report recurring invoice items"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/locations":
+    post:
+      tags:
+        - reports
+      summary: "Report locations"
+      description: "Report locations"
+      operationId: postReportsLocations
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_range:
+                  type: string
+                report_keys:
+                  type: array
+                  items:
+                    type: object
+                send_email:
+                  type: boolean
+      responses:
+        200:
+          description: "Report locations"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/client_locations":
+    post:
+      tags:
+        - reports
+      summary: "Report client locations"
+      description: "Report client locations"
+      operationId: postReportsClientLocations
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_range:
+                  type: string
+                report_keys:
+                  type: array
+                  items:
+                    type: object
+                send_email:
+                  type: boolean
+      responses:
+        200:
+          description: "Report client locations"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/charts/chart_summary":
+    post:
+      tags:
+        - charts
+      summary: "Chart summary"
+      description: "Chart summary"
+      operationId: postChartsChartSummary
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+      responses:
+        200:
+          description: "Chart summary"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                additionalProperties:
+                  type: object
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/charts/analytics_summary":
+    post:
+      tags:
+        - charts
+      summary: "Chart analytics summary"
+      description: "Chart analytics summary"
+      operationId: postChartsAnalyticsSummary
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+      responses:
+        200:
+          description: "Chart analytics summary"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                additionalProperties:
+                  type: object
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/charts/analytics_totals":
+    post:
+      tags:
+        - charts
+      summary: "Chart analytics totals"
+      description: "Chart analytics totals"
+      operationId: postChartsAnalyticsTotals
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+      responses:
+        200:
+          description: "Chart analytics totals"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currencies:
+                    type: object
+                    additionalProperties:
+                      type: string
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                additionalProperties:
+                  type: object
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/charts/cashflow_forecast":
+    post:
+      tags:
+        - charts
+      summary: "Chart cashflow forecast"
+      description: "Chart cashflow forecast"
+      operationId: postChartsCashflowForecast
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+      responses:
+        200:
+          description: "Chart cashflow forecast"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                  bucket_type:
+                    type: string
+                  buckets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period:
+                          type: string
+                        period_start:
+                          type: string
+                        period_end:
+                          type: string
+                        inflows:
+                          type: object
+                          additionalProperties: true
+                        outflows:
+                          type: object
+                          additionalProperties: true
+                        net:
+                          type: number
+                        weighted_net:
+                          type: number
+                        confidence:
+                          type: number
+                  totals:
+                    type: object
+                    properties:
+                      total_inflows:
+                        type: number
+                      weighted_inflows:
+                        type: number
+                      total_outflows:
+                        type: number
+                      net:
+                        type: number
+                      weighted_net:
+                        type: number
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/charts/client_payment_analytics":
+    post:
+      tags:
+        - charts
+      summary: "Chart client payment analytics"
+      description: "Chart client payment analytics"
+      operationId: postChartsClientPaymentAnalytics
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+      responses:
+        200:
+          description: "Chart client payment analytics"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  company_summary:
+                    type: object
+                    properties:
+                      avg_payment_days:
+                        type: number
+                      stddev_payment_days:
+                        type: number
+                      total_invoices:
+                        type: number
+                      late_payment_ratio:
+                        type: number
+                  thresholds:
+                    type: object
+                    properties:
+                      avg_days:
+                        type: object
+                        properties:
+                          green:
+                            type: number
+                          yellow:
+                            type: number
+                      stddev:
+                        type: object
+                        properties:
+                          green:
+                            type: number
+                          yellow:
+                            type: number
+                      late_rate:
+                        type: object
+                        properties:
+                          green:
+                            type: number
+                          yellow:
+                            type: number
+                      data_points:
+                        type: object
+                        properties:
+                          green:
+                            type: number
+                          yellow:
+                            type: number
+                  clients:
+                    type: array
+                    items:
+                      type: object
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/charts/project_analytics/{project}":
+    post:
+      tags:
+        - charts
+      summary: "Chart project analytics"
+      description: "Chart project analytics"
+      operationId: postChartsProjectAnalyticsProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: project
+          in: path
+          description: "The project"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+      responses:
+        200:
+          description: "Chart project analytics"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  budget_summary:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        client_id:
+                          type: string
+                        budgeted_hours:
+                          type: number
+                        current_hours:
+                          type: number
+                        task_rate:
+                          type: number
+                        due_date:
+                          nullable: true
+                        total_tasks:
+                          type: number
+                        invoiced_tasks:
+                          type: number
+                        uninvoiced_tasks:
+                          type: number
+                        running_tasks:
+                          type: number
+                        utilization:
+                          type: number
+                        hours_remaining:
+                          type: number
+                        budgeted_amount:
+                          type: number
+                        actual_amount:
+                          type: number
+                        remaining_budget:
+                          type: number
+                        budget_utilization:
+                          type: number
+                        currency_id:
+                          type: string
+                  budget_vs_actual:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        budgeted_amount:
+                          type: number
+                        actual_amount:
+                          type: number
+                        labor_value:
+                          type: number
+                        expense_amount:
+                          type: number
+                        remaining_budget:
+                          type: number
+                        budget_utilization:
+                          type: number
+                        currency_id:
+                          type: string
+                  estimated_vs_logged_hours:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        estimated_hours:
+                          type: number
+                        logged_hours:
+                          type: number
+                        billable_hours:
+                          type: number
+                        remaining_hours:
+                          type: number
+                        task_estimated_hours:
+                          type: number
+                        remaining_estimated_hours:
+                          type: number
+                        unestimated_active_task_count:
+                          type: number
+                        active_tasks_over_estimate_count:
+                          type: number
+                        utilization:
+                          type: number
+                  invoice_progress:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        completion_percentage:
+                          type: number
+                        work_value:
+                          type: number
+                        invoiced_amount:
+                          type: number
+                        paid_amount:
+                          type: number
+                        outstanding_amount:
+                          type: number
+                        unbilled_amount:
+                          type: number
+                        invoice_progress:
+                          type: number
+                        paid_progress:
+                          type: number
+                        currency_id:
+                          type: string
+                  forecast_completion:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        average_daily_velocity:
+                          type: number
+                        remaining_hours:
+                          type: number
+                        forecast_finish_date:
+                          type: string
+                        due_date:
+                          nullable: true
+                        schedule_variance_days:
+                          nullable: true
+                  project_health:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        health_score:
+                          type: number
+                        health_status:
+                          type: string
+                        indicators:
+                          type: object
+                          additionalProperties: true
+                  team_contribution:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        team_contribution:
+                          type: array
+                          items:
+                            type: object
+                  time_distribution:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        time_distribution:
+                          type: array
+                          items:
+                            type: object
+                  unbilled_hours:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        unbilled_hours:
+                          type: number
+                        unbilled_amount:
+                          type: number
+                        uninvoiced_tasks:
+                          type: number
+                        currency_id:
+                          type: string
+                  velocity_trend:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        velocity_trend:
+                          type: array
+                          items:
+                            type: object
+                  timeline_variance:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        due_date:
+                          nullable: true
+                        forecast_finish_date:
+                          type: string
+                        completion_percentage:
+                          type: number
+                        ideal_progress_percentage:
+                          nullable: true
+                        schedule_variance_days:
+                          nullable: true
+                  expense_breakdown:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        expense_breakdown:
+                          type: array
+                          items:
+                            type: object
+                  cumulative_spend:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        cumulative_spend:
+                          type: array
+                          items:
+                            type: object
+                  profitability:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        project_id:
+                          type: string
+                        project_name:
+                          type: string
+                        client_id:
+                          type: string
+                        invoiced_amount:
+                          type: number
+                        expense_amount:
+                          type: number
+                        net_margin:
+                          type: number
+                        margin_ratio:
+                          type: number
+                        currency_id:
+                          type: string
+                  metadata:
+                    type: object
+                    properties:
+                      project_count:
+                        type: number
+                      include_drafts:
+                        type: boolean
+                      generated_at:
+                        type: string
+                      can_view_financials:
+                        type: boolean
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/charts/project_burnup/{project}":
+    post:
+      tags:
+        - charts
+      summary: "Chart project burnup"
+      description: "Chart project burnup"
+      operationId: postChartsProjectBurnupProject
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: project
+          in: path
+          description: "The project"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+      responses:
+        200:
+          description: "Chart project burnup"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_date:
+                    type: string
+                  end_date:
+                    type: string
+                  bucket_type:
+                    type: string
+                  project:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      client_id:
+                        type: string
+                      start_date:
+                        type: string
+                      due_date:
+                        nullable: true
+                      budgeted_hours:
+                        type: number
+                      task_estimated_hours:
+                        type: number
+                      task_rate:
+                        type: number
+                      budgeted_amount:
+                        type: number
+                      currency_id:
+                        type: string
+                  markers:
+                    type: object
+                    properties:
+                      due_date:
+                        nullable: true
+                      budgeted_hours:
+                        type: number
+                      task_estimated_hours:
+                        type: number
+                      budgeted_amount:
+                        type: number
+                  series:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period:
+                          type: string
+                        date:
+                          type: string
+                        period_start:
+                          type: string
+                        period_end:
+                          type: string
+                        logged_hours:
+                          type: number
+                        billable_hours:
+                          type: number
+                        task_value:
+                          type: number
+                        invoiced_amount:
+                          type: number
+                        paid_to_date:
+                          type: number
+                        outstanding_amount:
+                          type: number
+                        expense_amount:
+                          type: number
+                        net_invoiced_amount:
+                          type: number
+                        net_paid_amount:
+                          type: number
+                        task_log_count:
+                          type: number
+                        invoice_count:
+                          type: number
+                        expense_count:
+                          type: number
+                        cumulative_logged_hours:
+                          type: number
+                        cumulative_billable_hours:
+                          type: number
+                        cumulative_task_value:
+                          type: number
+                        cumulative_invoiced_amount:
+                          type: number
+                        cumulative_paid_to_date:
+                          type: number
+                        cumulative_outstanding_amount:
+                          type: number
+                        cumulative_expense_amount:
+                          type: number
+                        cumulative_net_invoiced_amount:
+                          type: number
+                        cumulative_net_paid_amount:
+                          type: number
+                        budgeted_hours:
+                          type: number
+                        task_estimated_hours:
+                          type: number
+                        budgeted_amount:
+                          type: number
+                        ideal_hours:
+                          type: number
+                        ideal_amount:
+                          type: number
+                  totals:
+                    type: object
+                    properties:
+                      logged_hours:
+                        type: number
+                      billable_hours:
+                        type: number
+                      task_value:
+                        type: number
+                      invoiced_amount:
+                        type: number
+                      paid_to_date:
+                        type: number
+                      outstanding_amount:
+                        type: number
+                      expense_amount:
+                        type: number
+                      net_invoiced_amount:
+                        type: number
+                      net_paid_amount:
+                        type: number
+                  metadata:
+                    type: object
+                    properties:
+                      can_view_financials:
+                        type: boolean
+                      unestimated_task_count:
+                        type: number
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/credits/{id}/{action}":
+    get:
+      tags:
+        - credits
+      summary: "Credit action"
+      description: "Credit action"
+      operationId: getCreditsIdAction
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: id
+          in: path
+          description: "The id"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+        - name: action
+          in: path
+          description: "The action"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Credit action"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Credit'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/designs/set/default":
+    post:
+      tags:
+        - designs
+      summary: "Default design"
+      description: "Default design"
+      operationId: postDesignsSetDefault
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entity:
+                  type: string
+                design_id:
+                  type: string
+                settings_level:
+                  type: string
+      responses:
+        200:
+          description: "Default design"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/clients/{client}/show_settings":
+    post:
+      tags:
+        - clients
+      summary: "Client settings"
+      description: "Client settings"
+      operationId: postClientsClientShowSettings
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: client
+          in: path
+          description: "The client"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Client settings"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  group_settings:
+                    type: array
+                    items:
+                      type: object
+                  client_settings:
+                    type: array
+                    items:
+                      type: object
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/update_reminders":
+    post:
+      tags:
+        - invoices
+      summary: "Update reminders"
+      description: "Update reminders"
+      operationId: postInvoicesUpdateReminders
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Update reminders"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/subscriptions/steps":
+    get:
+      tags:
+        - subscriptions
+      summary: "Subscription steps"
+      description: "Subscription steps"
+      operationId: getSubscriptionsSteps
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Subscription steps"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  "App\\Livewire\\BillingPortal\\Authentication\\Login":
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      dependencies:
+                        type: array
+                        items:
+                          type: object
+                  "App\\Livewire\\BillingPortal\\Authentication\\RegisterOrLogin":
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      dependencies:
+                        type: array
+                        items:
+                          type: object
+                  "App\\Livewire\\BillingPortal\\Authentication\\Register":
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      dependencies:
+                        type: array
+                        items:
+                          type: object
+                  "App\\Livewire\\BillingPortal\\Cart\\Cart":
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      dependencies:
+                        type: array
+                        items:
+                          type: object
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/refresh_react":
+    post:
+      tags:
+        - refresh_react
+      summary: "Refresh react"
+      description: "Refresh react"
+      operationId: postRefreshReact
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                created_at:
+                  type: integer
+                updated_at:
+                  type: integer
+      responses:
+        200:
+          description: "Refresh react"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CompanyUser'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/login/precheck":
+    post:
+      tags:
+        - login
+      summary: "Login precheck"
+      description: "Login precheck"
+      operationId: postLoginPrecheck
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        200:
+          description: "Login precheck"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  methods:
+                    type: array
+                    items:
+                      type: string
+                  secret_required:
+                    type: boolean
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/company_gateways/{company_gateway}/clone":
+    post:
+      tags:
+        - company_gateways
+      summary: "Clone company gateway"
+      description: "Clone company gateway"
+      operationId: postCompanyGatewaysCompanyGatewayClone
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: company_gateway
+          in: path
+          description: "The company gateway"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Clone company gateway"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CompanyGateway'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/webhooks/{webhook}/retry":
+    post:
+      tags:
+        - webhooks
+      summary: "Retry webhook"
+      description: "Retry webhook"
+      operationId: postWebhooksWebhookRetry
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: webhook
+          in: path
+          description: "The webhook"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entity:
+                  type: string
+                entity_id:
+                  type: string
+      responses:
+        200:
+          description: "Retry webhook"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Webhook'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/filters/{entity}":
+    post:
+      tags:
+        - filters
+      summary: "Filters"
+      description: "Filters"
+      operationId: postFiltersEntity
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: entity
+          in: path
+          description: "The entity"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Filters"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/live_preview":
+    post:
+      tags:
+        - live_preview
+      summary: "Live preview"
+      description: "Live preview"
+      operationId: postLivePreview
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entity:
+                  type: string
+                entity_id:
+                  type: string
+                client_id:
+                  type: string
+                line_items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      product_key:
+                        type: string
+                      notes:
+                        type: string
+                      cost:
+                        type: integer
+                      quantity:
+                        type: integer
+      responses:
+        200:
+          description: "Live preview"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{invoice}/payment_schedule":
+    post:
+      tags:
+        - invoices
+      summary: "Payment schedule"
+      description: "Payment schedule"
+      operationId: postInvoicesInvoicePaymentSchedule
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: invoice
+          in: path
+          description: "The invoice"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                frequency_id:
+                  type: integer
+                remaining_cycles:
+                  type: integer
+                next_run:
+                  type: string
+      responses:
+        200:
+          description: "Payment schedule"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/companies/{company}/logo":
+    get:
+      tags:
+        - companies
+      summary: "Company logo"
+      description: "Company logo"
+      operationId: getCompaniesCompanyLogo
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: company
+          in: path
+          description: "The company"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Company logo"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            text/html:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/documents/{document}":
+    get:
+      tags:
+        - documents
+      summary: "Show document"
+      description: "Show document"
+      operationId: getDocumentsDocument
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: document
+          in: path
+          description: "The document"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Show document"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+    put:
+      tags:
+        - documents
+      summary: "Update document"
+      description: "Update document"
+      operationId: putDocumentsDocument
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: document
+          in: path
+          description: "The document"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                is_public:
+                  type: boolean
+      responses:
+        200:
+          description: "Update document"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+    delete:
+      tags:
+        - documents
+      summary: "Delete document"
+      description: "Delete document"
+      operationId: deleteDocumentsDocument
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: document
+          in: path
+          description: "The document"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Delete document"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/documents/{document}/download":
+    get:
+      tags:
+        - documents
+      summary: "Download document"
+      description: "Download document"
+      operationId: getDocumentsDocumentDownload
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: document
+          in: path
+          description: "The document"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Download document"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            text/html:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/company_users/{user}":
+    put:
+      tags:
+        - company_users
+      summary: "Update company user"
+      description: "Update company user"
+      operationId: putCompanyUsersUser
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: user
+          in: path
+          description: "The user"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company_user:
+                  type: object
+                  properties:
+                    notifications:
+                      type: object
+                      properties:
+                        email:
+                          type: array
+                          items:
+                            type: string
+      responses:
+        200:
+          description: "Update company user"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CompanyUser'
         401:
           $ref: "#/components/responses/401"
         403:
