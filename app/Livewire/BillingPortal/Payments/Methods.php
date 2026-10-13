@@ -16,11 +16,13 @@ use Livewire\Component;
 use App\Models\Subscription;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Locked;
 
 class Methods extends Component
 {
     use MakesHash;
 
+    #[Locked]
     public string $subscription_id;
 
     public array $context;
