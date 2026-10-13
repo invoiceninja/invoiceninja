@@ -23,6 +23,7 @@ use App\Utils\Traits\MakesHash;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Attributes\Locked;
 
 class RequiredClientInfo extends Component
 {
@@ -45,8 +46,10 @@ class RequiredClientInfo extends Component
      */
     public $fields = [];
 
+    #[Locked]
     public $contact_id;
 
+    #[Locked]
     public $client_id;
 
     /**
