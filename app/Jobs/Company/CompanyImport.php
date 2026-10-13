@@ -1632,8 +1632,12 @@ class CompanyImport implements ShouldQueue
         return in_array($extension, $allowed, true);
     }
 
-    private function isValidFilePath(string $filename): bool
+    private function isValidFilePath(?string $filename): bool
     {
+        if ($filename === null) {
+            return false;
+        }
+
         if (str_contains($filename, "\0")) {
             return false;
         }
