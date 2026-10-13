@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3de1ef3a23e1e3b6aa87cffad06cf613",
+    "content-hash": "261c8458217d90aa07761208c5a71818",
     "packages": [
         {
             "name": "apimatic/core",
@@ -385,16 +385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.400.1",
+            "version": "3.401.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c0cf2c322bc1a344aaf39250da8856563532f82b"
+                "reference": "4a1b9615de78a69d91614d45966402cc28d4dfe3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c0cf2c322bc1a344aaf39250da8856563532f82b",
-                "reference": "c0cf2c322bc1a344aaf39250da8856563532f82b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/4a1b9615de78a69d91614d45966402cc28d4dfe3",
+                "reference": "4a1b9615de78a69d91614d45966402cc28d4dfe3",
                 "shasum": ""
             },
             "require": {
@@ -476,9 +476,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.400.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.401.0"
             },
-            "time": "2026-10-09T18:11:15+00:00"
+            "time": "2026-10-12T18:06:22+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -1068,16 +1068,16 @@
         },
         {
             "name": "btcpayserver/btcpayserver-greenfield-php",
-            "version": "v2.9.1",
+            "version": "v2.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/btcpayserver/btcpayserver-greenfield-php.git",
-                "reference": "a3004b382bebd13b391a16901a4bd4926e1975b9"
+                "reference": "2835146578c5c23b02b9baf739c1cd4091ca59d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/btcpayserver/btcpayserver-greenfield-php/zipball/a3004b382bebd13b391a16901a4bd4926e1975b9",
-                "reference": "a3004b382bebd13b391a16901a4bd4926e1975b9",
+                "url": "https://api.github.com/repos/btcpayserver/btcpayserver-greenfield-php/zipball/2835146578c5c23b02b9baf739c1cd4091ca59d8",
+                "reference": "2835146578c5c23b02b9baf739c1cd4091ca59d8",
                 "shasum": ""
             },
             "require": {
@@ -1116,9 +1116,9 @@
             "description": "BTCPay Server Greenfield API PHP client library.",
             "support": {
                 "issues": "https://github.com/btcpayserver/btcpayserver-greenfield-php/issues",
-                "source": "https://github.com/btcpayserver/btcpayserver-greenfield-php/tree/v2.9.1"
+                "source": "https://github.com/btcpayserver/btcpayserver-greenfield-php/tree/v2.9.2"
             },
-            "time": "2026-04-30T09:29:35+00:00"
+            "time": "2026-10-12T15:50:50+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -2747,16 +2747,16 @@
         },
         {
             "name": "gocardless/gocardless-pro",
-            "version": "8.14.2",
+            "version": "8.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gocardless/gocardless-pro-php.git",
-                "reference": "2dde932969a394e55867606519e4056ad8e0088b"
+                "reference": "93a2971b8d73a2c3f4837a41016faed31689bdc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/2dde932969a394e55867606519e4056ad8e0088b",
-                "reference": "2dde932969a394e55867606519e4056ad8e0088b",
+                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/93a2971b8d73a2c3f4837a41016faed31689bdc5",
+                "reference": "93a2971b8d73a2c3f4837a41016faed31689bdc5",
                 "shasum": ""
             },
             "require": {
@@ -2796,9 +2796,9 @@
             ],
             "support": {
                 "issues": "https://github.com/gocardless/gocardless-pro-php/issues",
-                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v8.14.2"
+                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v8.15.0"
             },
-            "time": "2026-10-07T15:03:31+00:00"
+            "time": "2026-10-12T11:51:34+00:00"
         },
         {
             "name": "goetas-webservices/xsd2php-runtime",
@@ -4397,66 +4397,6 @@
                 }
             ],
             "time": "2022-05-21T17:30:32+00:00"
-        },
-        {
-            "name": "invoiceninja/admin-api",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "../admin-api",
-                "reference": "8acbbd68df6886c42c0386d144bf2ab67aae053e"
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "illuminate/database": "^11|^12",
-                "illuminate/support": "^11|^12",
-                "imdhemy/laravel-purchases": "^1.7",
-                "php": "^8.2|^8.3|^8.4"
-            },
-            "require-dev": {
-                "larastan/larastan": "^3.0",
-                "orchestra/testbench": "^9.0",
-                "phpstan/phpstan": "^2.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "InvoiceNinja\\AdminApi\\Providers\\AdminApiServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "InvoiceNinja\\AdminApi\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Tests\\": "tests/"
-                },
-                "files": [
-                    "tests/Support/BillingState.php"
-                ]
-            },
-            "license": [
-                "Elastic"
-            ],
-            "authors": [
-                {
-                    "name": "David Bomba",
-                    "email": "turbo124@gmail.com"
-                }
-            ],
-            "description": "API endpoints for the admin interface",
-            "transport-options": {
-                "relative": true
-            }
         },
         {
             "name": "invoiceninja/einvoice",
@@ -18758,16 +18698,16 @@
         },
         {
             "name": "laravel/mcp",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "92987a9d03847801299ff4abe909ba7686147dde"
+                "reference": "26c7803551028653beab49af0e672ae38607b772"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/92987a9d03847801299ff4abe909ba7686147dde",
-                "reference": "92987a9d03847801299ff4abe909ba7686147dde",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/26c7803551028653beab49af0e672ae38607b772",
+                "reference": "26c7803551028653beab49af0e672ae38607b772",
                 "shasum": ""
             },
             "require": {
@@ -18785,6 +18725,7 @@
                 "symfony/process": "^7.4.5|^8.0.5"
             },
             "require-dev": {
+                "jasonmccreary/double": "^1.0",
                 "laravel/pint": "^1.20",
                 "orchestra/testbench": "^9.15|^10.8|^11.0",
                 "pestphp/pest": "^3.8.5|^4.3.2",
@@ -18828,7 +18769,7 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2026-09-24T10:45:09+00:00"
+            "time": "2026-10-11T20:52:46+00:00"
         },
         {
             "name": "laravel/roster",
@@ -22073,7 +22014,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "beganovich/snappdf": 20,
-        "invoiceninja/admin-api": 20,
         "invoiceninja/einvoice": 20
     },
     "prefer-stable": true,
