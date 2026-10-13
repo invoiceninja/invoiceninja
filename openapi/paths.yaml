@@ -526,6 +526,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankIntegration"
       responses:
         200:
           description: "Returns the saved bank_integration object"
@@ -621,6 +628,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankIntegration"
       responses:
         200:
           description: "Returns the bank_integration object"
@@ -678,6 +692,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankIntegration"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -790,16 +811,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Action paramters"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Bulk Action response"
@@ -810,6 +827,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BankIntegration"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1013,6 +1039,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankTransaction"
       responses:
         200:
           description: "Returns the saved bank_transaction object"
@@ -1108,6 +1141,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankTransaction"
       responses:
         200:
           description: "Returns the bank_transaction object"
@@ -1165,6 +1205,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransaction"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1273,16 +1320,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Action paramters"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Bulk Action response"
@@ -1293,6 +1336,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BankTransaction"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1437,6 +1489,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankTransactionRule"
       responses:
         200:
           description: "Returns the saved bank_transaction rule object"
@@ -1532,6 +1591,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankTransactionRule"
       responses:
         200:
           description: "Returns the bank_transaction rule object"
@@ -1589,6 +1655,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransactionRule"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1701,16 +1774,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Action paramters"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Bulk Action response"
@@ -1721,6 +1790,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BankTransactionRule"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1925,6 +2003,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientGatewayToken"
       responses:
         200:
           description: "Returns the saved client payment token object"
@@ -2020,6 +2105,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientGatewayToken"
       responses:
         200:
           description: "Returns the client payment token object"
@@ -2077,6 +2169,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ClientGatewayToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2371,6 +2470,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Company"
       responses:
         200:
           description: "Returns the company object"
@@ -2428,6 +2534,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Company"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2689,6 +2802,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyGateway"
       responses:
         200:
           description: "Returns the saved CompanyGateway object"
@@ -2818,6 +2938,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyGateway"
       responses:
         200:
           description: "Returns the CompanyGateway object"
@@ -2872,6 +2999,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyGateway"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2938,16 +3072,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Array of company gateway IDs"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Company Gateways response"
@@ -2961,7 +3091,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyGateway"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CompanyGateway"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3104,6 +3239,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Design"
       responses:
         200:
           description: "Returns the saved design object"
@@ -3193,6 +3335,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Design"
       responses:
         200:
           description: "Returns the design object"
@@ -3247,6 +3396,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Design"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3350,16 +3506,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "User credentials"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Design User response"
@@ -3373,7 +3525,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Design"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Design"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3555,6 +3712,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseCategory"
       responses:
         200:
           description: "Returns the saved invoice object"
@@ -3675,6 +3839,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseCategory"
       responses:
         200:
           description: "Returns the ExpenseCategory object"
@@ -3727,6 +3898,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExpenseCategory"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3790,16 +3968,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Expens Categorys"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The ExpenseCategory List response"
@@ -3813,7 +3987,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExpenseCategory"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3876,6 +4055,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Expense"
       responses:
         200:
           description: "Returns the saved expense object"
@@ -3963,6 +4149,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Expense"
       responses:
         200:
           description: "Returns the expense object"
@@ -4016,6 +4209,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4116,16 +4316,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "User credentials"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Expense User response"
@@ -4139,7 +4335,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4286,6 +4487,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupSetting"
       responses:
         200:
           description: "Returns the saved GroupSetting object"
@@ -4409,6 +4617,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupSetting"
       responses:
         200:
           description: "Returns the GroupSetting object"
@@ -4462,6 +4677,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4526,16 +4748,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "An array of group_settings ids"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Bulk Action response"
@@ -4546,6 +4764,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5628,6 +5855,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentTerm"
       responses:
         200:
           description: "Returns the Payment Term object"
@@ -5681,6 +5915,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5745,16 +5986,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Payment Ter,s"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Payment Terms response"
@@ -5768,7 +6005,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaymentTerm"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5987,6 +6229,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecurringExpense"
       responses:
         200:
           description: "Returns the saved recurring expense object"
@@ -6074,6 +6323,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecurringExpense"
       responses:
         200:
           description: "Returns the recurring expense object"
@@ -6127,6 +6383,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6227,16 +6490,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "User credentials"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The RecurringExpense User response"
@@ -6250,7 +6509,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringExpense"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6371,6 +6635,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecurringQuote"
       responses:
         200:
           description: "Returns the saved RecurringQuote object"
@@ -6494,6 +6765,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecurringQuote"
       responses:
         200:
           description: "Returns the RecurringQuote object"
@@ -6547,6 +6825,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringQuote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6611,16 +6896,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed ids"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The RecurringQuote response"
@@ -6634,7 +6915,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringQuote"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/RecurringQuote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7705,6 +7991,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subscription"
       responses:
         200:
           description: "Returns the saved subscriptions object"
@@ -7828,6 +8121,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subscription"
       responses:
         200:
           description: "Returns the subscriptions object"
@@ -7881,6 +8181,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscription"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7945,16 +8252,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "User credentials"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Subscription response"
@@ -7968,7 +8271,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscription"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Subscription"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8355,6 +8663,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskScheduler"
         401:
           $ref: "#/components/responses/401"
         default:
@@ -8371,16 +8686,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "array of ids"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The TaskSchedule response"
@@ -8394,7 +8705,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskSchedulerSchema"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TaskScheduler"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8587,6 +8903,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskStatus"
       responses:
         200:
           description: "Returns the TaskStatusobject"
@@ -8640,6 +8963,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskStatus"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8704,16 +9034,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "TaskStatus Ter,s"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The TaskStatus Terms response"
@@ -8727,7 +9053,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskStatus"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TaskStatus"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8913,6 +9244,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaxRate"
       responses:
         200:
           description: "Returns the TaxRate object"
@@ -8965,6 +9303,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaxRate"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9028,16 +9373,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Tax Rates"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The TaxRate List response"
@@ -9051,7 +9392,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TaxRate"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9235,6 +9581,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyToken"
       responses:
         200:
           description: "Returns the saved token object"
@@ -9322,6 +9675,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyToken"
       responses:
         200:
           description: "Returns the token object"
@@ -9375,6 +9735,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9475,16 +9842,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Token ids"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Token response"
@@ -9498,7 +9861,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyToken"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CompanyToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9560,6 +9928,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
       responses:
         200:
           description: "Returns the saved User object"
@@ -9683,6 +10058,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
       responses:
         200:
           description: "Returns the User object"
@@ -9720,16 +10102,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed ids"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The User response"
@@ -9743,7 +10121,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9945,6 +10328,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Webhook"
       responses:
         200:
           description: "Returns the saved Webhook object"
@@ -10032,6 +10422,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Webhook"
       responses:
         200:
           description: "Returns the Webhook object"
@@ -10085,6 +10482,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Webhook"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10185,16 +10589,12 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "User credentials"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Webhook User response"
@@ -10208,7 +10608,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Webhook"
         401:
           $ref: "#/components/responses/401"
         403:

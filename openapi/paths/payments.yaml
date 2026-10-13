@@ -242,6 +242,13 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentRequest"
       responses:
         200:
           description: "Returns the Payment object"
@@ -311,6 +318,13 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -467,16 +481,12 @@
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "User credentials"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Payment response"
@@ -490,7 +500,12 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:

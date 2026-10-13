@@ -463,6 +463,13 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: "The entity to save"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceRequest"
       responses:
         200:
           description: "Returns the invoice object"
@@ -537,6 +544,13 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -783,6 +797,15 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
