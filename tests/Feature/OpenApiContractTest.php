@@ -34,6 +34,15 @@ class OpenApiContractTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    private const INVOICE = [
+        'client_id' => '{client}',
+        'number' => 'CONTRACT-0001',
+        'line_items' => [['product_key' => 'Contract', 'notes' => 'Contract test item', 'cost' => 10, 'quantity' => 2]],
+    ];
+
+    /** hashed ids of the entities created through the API in setUp, keyed by name */
+    private array $created = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -43,12 +52,14 @@ class OpenApiContractTest extends TestCase
         Model::reguard();
 
         // MockAccountData skips the API's defaults (e.g. settings.currency_id), so
-        // list rows filter down to a client created through the API instead.
-        $this->apiRequest('post', '/api/v1/clients', ['name' => 'Contract Test Client'])->assertSuccessful();
+        // rows run against entities created through the API instead.
+        $this->created['client'] = $this->store('/api/v1/clients', ['name' => 'Contract Test Client']);
+        $this->created['invoice'] = $this->store('/api/v1/invoices', self::INVOICE);
     }
 
     /**
-     * [method, spec path, MockAccountData property whose hashed_id fills {id}, request body (query string for GET)].
+     * [method, spec path, created entity whose hashed id fills {id}, request body (query string for GET)].
+     * A '{name}' body value is replaced by the hashed id of that created entity.
      * Plain data only: phpunit.xml runs tests in separate processes, so rows get serialized.
      */
     public static function operations(): array
@@ -56,19 +67,33 @@ class OpenApiContractTest extends TestCase
         return [
             'list clients' => ['get', '/api/v1/clients', null, ['name' => 'Contract Test Client']],
             'store client' => ['post', '/api/v1/clients', null, ['name' => 'Contract Test Client']],
+            'list invoices' => ['get', '/api/v1/invoices', null, ['number' => 'CONTRACT-0001']],
+            'store invoice' => ['post', '/api/v1/invoices', null, ['number' => 'CONTRACT-0002'] + self::INVOICE],
+            'show invoice' => ['get', '/api/v1/invoices/{id}', 'invoice'],
         ];
     }
 
     #[DataProvider('operations')]
     public function testResponseMatchesSpec(string $method, string $path, ?string $entity, array $body = []): void
     {
-        $url = $entity ? str_replace('{id}', $this->{$entity}->hashed_id, $path) : $path;
+        $url = $entity ? str_replace('{id}', $this->created[$entity], $path) : $path;
 
         $this->assertMatchesSpec($method, $path, $this->apiRequest($method, $url, $body));
     }
 
+    private function store(string $url, array $body): string
+    {
+        return $this->apiRequest('post', $url, $body)->assertSuccessful()->json('data.id');
+    }
+
     private function apiRequest(string $method, string $url, array $body = []): TestResponse
     {
+        array_walk_recursive($body, function (&$value) {
+            if (is_string($value) && preg_match('/^\{(\w+)\}$/', $value, $match)) {
+                $value = $this->created[$match[1]];
+            }
+        });
+
         if ($method === 'get' && $body) {
             [$url, $body] = [$url.'?'.http_build_query($body), []];
         }
