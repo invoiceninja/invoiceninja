@@ -28,7 +28,35 @@ try {
   await scenario('protocol.initialize', async()=>{ assert.equal(client.getServerVersion().name,'Invoice Ninja'); return {}; });
   let tools = [], cursor;
   do { const page = await client.listTools(cursor ? {cursor} : {}); tools.push(...page.tools); cursor=page.nextCursor; } while(cursor);
-  await scenario('protocol.tools_list', async()=>{ assert.deepEqual(tools.map(t=>t.name).sort(), Object.keys(catalog).sort()); return {count:tools.length}; });
+  await scenario('protocol.tools_list', async()=>{
+    assert.deepEqual(tools.map(t=>t.name).sort(), Object.keys(catalog).sort());
+    const bytes=Buffer.byteLength(JSON.stringify(tools));
+    assert.ok(bytes<256*1024, 'Discovery schemas grew beyond the compact catalog budget');
+    const clients=tools.find(t=>t.name==='clients');
+    assert.equal(clients.inputSchema.properties.data.properties.name.type,'string');
+    return {count:tools.length,bytes};
+  });
+  await scenario('security.normalized_inputs', async()=>{
+    const id=fixture.entities.alpha.clients;
+    const before=body(await client.callTool({name:'clients',arguments:{operation:'show',parameters:{client:id}}}));
+    for(const arguments_ of [
+      {operation:'index',query:{include:'user. companies'}},
+      {operation:'index',query:{['include\0ignored']:'user.companies'}},
+      {operation:'bulk',query:{['action\0ignored']:'download'},data:{ids:[id]}},
+      {operation:'index',data:{include:['contacts,user. company_tokens']}},
+      {operation:'bulk',query:{action:' download '},data:{ids:[id],action:'archive'}},
+      {operation:'bulk',query:{action:'delete'},data:{ids:[id],action:'archive'}},
+      {operation:'bulk',data:{ids:[id],action:' BULK_PRINT '}},
+      {operation:'bulk',data:{ids:[id],action:' template '}},
+    ]) {
+      const reply=await client.callTool({name:'clients',arguments:arguments_});
+      assert.equal(reply.isError,true);
+      assert.ok(!reply.structuredContent, 'Rejected inputs must not reach the REST dispatcher');
+    }
+    const after=body(await client.callTool({name:'clients',arguments:{operation:'show',parameters:{client:id}}}));
+    assert.deepEqual(after,before);
+    return {rejected:8};
+  });
   for (const tool of tools) {
     const operation = tool.name === 'charts' ? 'totals' : tool.name === 'emails' ? 'client_history' : 'index';
     await scenario(`${tool.name}.${operation}`, async()=>{

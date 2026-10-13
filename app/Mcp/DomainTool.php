@@ -10,7 +10,6 @@
 
 namespace App\Mcp;
 
-use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Validation\Rule;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -25,8 +24,10 @@ class DomainTool extends Tool
         $this->title = ucwords(str_replace('_', ' ', $domain));
         $operations = app(Catalog::class)->available($domain);
         $details = [];
+        $openApi = app(OpenApi::class);
         foreach ($operations as $operation => $spec) {
-            $details[] = $operation.'('.implode(', ', $spec['parameters']).')';
+            $summary = $openApi->operation($spec)['summary'] ?? 'See REST API (not yet described in OpenAPI)';
+            $details[] = $operation.'('.implode(', ', $spec['parameters']).'): '.mb_substr($summary, 0, 100);
         }
         $this->description = $this->title.' REST operations: '.implode('; ', $details).'. Pass path parameters as parameters, REST filters as query, and the REST JSON payload as data. Original controller validation and permissions apply. Mutating operations may send mail or invoke configured gateways.';
     }
@@ -36,20 +37,17 @@ class DomainTool extends Tool
         return app(Catalog::class)->available($this->name) !== [];
     }
 
+    public function toArray(): array
+    {
+        $result = parent::toArray();
+        $result['inputSchema'] = app(OpenApi::class)->inputSchema(app(Catalog::class)->available($this->name));
+        return $result;
+    }
+
     public function annotations(): array
     {
         $specs = app(Catalog::class)->available($this->name);
         return ['readOnlyHint' => $specs !== [] && !in_array(false, array_column($specs, 'read_only'), true), 'destructiveHint' => true, 'openWorldHint' => true];
-    }
-
-    public function schema(JsonSchema $schema): array
-    {
-        return [
-            'operation' => $schema->string()->enum(array_keys(app(Catalog::class)->available($this->name)))->required(),
-            'parameters' => $schema->object()->description('Required path parameter names are listed next to each operation. Use hashed entity IDs.'),
-            'query' => $schema->object()->description('REST query filters, includes, page and per_page. Do not pass credentials.'),
-            'data' => $schema->object()->description('JSON body in the existing REST API format; validated by the original FormRequest.'),
-        ];
     }
 
     public function handle(Request $request): Response|ResponseFactory

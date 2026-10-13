@@ -15,6 +15,16 @@ use Tests\TestCase;
 
 class McpCatalogTest extends TestCase
 {
+    public function testNewRoutesAndChangedControllersAreNotAutomaticallyExposed(): void
+    {
+        $before = app(Catalog::class)->operations();
+        \Illuminate\Support\Facades\Route::middleware('token_auth')->get('api/v1/charts/future', 'App\Http\Controllers\ChartController@future');
+        \Illuminate\Support\Facades\Route::middleware('token_auth')->get('api/v1/clients/future', 'App\Http\Controllers\ClientController@index');
+        $this->assertSame($before, app(Catalog::class)->operations());
+        \Illuminate\Support\Facades\Route::middleware('token_auth')->get('api/v1/clients', 'App\Http\Controllers\ClientController@future');
+        $this->assertArrayNotHasKey('index', app(Catalog::class)->operations()['clients']);
+    }
+
     public function testCatalogIsClosedAndEveryOperationUsesAnAuthenticatedRestRoute(): void
     {
         $catalog = app(Catalog::class)->operations();

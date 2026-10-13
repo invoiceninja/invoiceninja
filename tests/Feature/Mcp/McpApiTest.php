@@ -82,6 +82,28 @@ class McpApiTest extends TestCase
         $this->assertDatabaseHas('payment_terms', ['company_id' => $this->fixture['companies']['alpha']->id, 'num_days' => 45]);
     }
 
+    public function testNormalizedIncludesAndActionSourcesCannotBypassTransportRestrictions(): void
+    {
+        $client = $this->fixture['entities']['alpha']['clients'];
+        $before = $client->fresh()->getAttributes();
+        foreach ([
+            ['operation' => 'index', 'query' => ['include' => 'user. companies']],
+            ['operation' => 'index', 'query' => ["include\0ignored" => 'user.companies']],
+            ['operation' => 'bulk', 'query' => ["action\0ignored" => 'download'], 'data' => ['ids' => [$client->hashed_id]]],
+            ['operation' => 'index', 'data' => ['include' => ['contacts,user. company_tokens']]],
+            ['operation' => 'bulk', 'query' => ['action' => ' download '], 'data' => ['ids' => [$client->hashed_id], 'action' => 'archive']],
+            ['operation' => 'bulk', 'query' => ['action' => 'delete'], 'data' => ['ids' => [$client->hashed_id], 'action' => 'archive']],
+            ['operation' => 'bulk', 'data' => ['ids' => [$client->hashed_id], 'action' => "\tBULK_PRINT\n"]],
+        ] as $arguments) {
+            $reply = $this->callTool('clients', $arguments);
+            $reply->assertOk()->assertJsonPath('result.isError', true);
+            $this->assertSame($before, $client->fresh()->getAttributes());
+        }
+        $canonical = $this->mcpResult($this->callTool('clients', ['operation' => 'show', 'parameters' => ['client' => $client->hashed_id], 'query' => ['include' => ' contacts ']]));
+        $ordinary = $this->mcpResult($this->callTool('clients', ['operation' => 'show', 'parameters' => ['client' => $client->hashed_id], 'query' => ['include' => 'contacts']]));
+        $this->assertSame($ordinary, $canonical);
+    }
+
     public function testProductNotesMutationPersistsAndMatchesRest(): void
     {
         $created = $this->mcpResult($this->callTool('products', ['operation' => 'store', 'data' => ['product_key' => 'MCP product', 'price' => 25, 'notes' => 'Before']]));

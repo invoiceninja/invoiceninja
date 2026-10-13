@@ -32,47 +32,23 @@ class Catalog
             if (!str_starts_with($uri, 'api/v1/')) {
                 continue;
             }
-            $parts = explode('/', substr($uri, 7));
-            $domain = $parts[0];
-            $action = $route->getActionMethod();
             $methods = array_values(array_diff($route->methods(), ['HEAD', 'PATCH']));
-            if (count($methods) !== 1 || !in_array('token_auth', $route->gatherMiddleware(), true)) {
+            if (count($methods) !== 1 || !in_array('token_auth', $route->gatherMiddleware(), true)
+                || in_array('password_protected', $route->gatherMiddleware(), true)) {
                 continue;
             }
             $method = $methods[0];
-            if (in_array('password_protected', $route->gatherMiddleware(), true) || $domain === 'task_statuses' && $action === 'edit' || $domain === 'tasks' && $action === 'sort') {
+            $reviewed = ReviewedOperations::ROUTES[$method.' '.$uri] ?? null;
+            if ($reviewed === null || $route->getActionName() !== 'App\\Http\\Controllers\\'.$reviewed[2]) {
                 continue;
             }
-            $name = null;
-            if (in_array($domain, self::DOMAINS, true)) {
-                $crud = ['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
-                if (in_array($action, $crud, true)) {
-                    if ($domain === 'documents' && in_array($action, ['create', 'store'], true)) {
-                        continue; // Empty REST controller methods, not implemented operations.
-                    }
-                    $name = $action;
-                } elseif (in_array($action, ['bulk', 'action', 'paymentSchedule', 'deletePaymentSchedule', 'update_reminders', 'sort', 'documents', 'showSettings', 'vatStatus', 'default', 'match', 'refund'], true)) {
-                    $name = \Illuminate\Support\Str::snake($action);
-                }
-            } elseif ($domain === 'emails' && in_array($action, ['send', 'clientHistory', 'entityHistory'], true)) {
-                $name = \Illuminate\Support\Str::snake($action);
-            } elseif ($domain === 'charts') {
-                $name = \Illuminate\Support\Str::snake($action);
-            } elseif ($domain === 'activities' && in_array($action, ['index', 'entityActivity', 'note'], true)) {
-                $name = \Illuminate\Support\Str::snake($action);
-            } elseif (in_array($domain, ['company_ledger', 'search'], true) && (in_array($action, ['index', '__invoke'], true) || in_array($domain, ['search', 'statics'], true))) {
-                $name = 'index';
-            }
-            if ($name === null) {
-                continue;
-            }
+            [$domain, $name, , $readOnly] = $reviewed;
             preg_match_all('/\{([^}?]+)\??\}/', $uri, $parameters);
             $operations[$domain][$name] = [
                 'method' => $method, 'uri' => $uri, 'parameters' => $parameters[1],
                 'controller' => $route->getActionName(),
                 // GET action endpoints mutate. Only explicitly reviewed reads get this hint.
-                'read_only' => in_array($name, ['index', 'show', 'edit', 'vat_status'], true)
-                    || $domain === 'charts' || $domain === 'search',
+                'read_only' => $readOnly,
             ];
         }
         ksort($operations);
@@ -121,6 +97,7 @@ class Catalog
                 $inventory[] = [
                     'api' => $key, 'controller' => $route->getActionName(), 'tool' => $tool,
                     'exclusion' => $tool ? null : $this->exclusion($route),
+                    'openapi_documented' => $tool ? app(OpenApi::class)->operation(['method' => $method === 'PATCH' ? 'PUT' : $method, 'uri' => $route->uri()]) !== [] : null,
                     'test' => $tool ? 'tools/mcp/full-e2e.mjs; tests/Feature/Mcp/McpApiTest.php (authentication/policies)' : null,
                     'result' => $tool ? 'pending' : 'excluded',
                 ];
@@ -164,6 +141,6 @@ class Catalog
         if (in_array($domain, ['bank_integrations', 'calendar_connection', 'connected_account', 'quickbooks', 'einvoice', 'brevo', 'smtp', 'mailer', 'stripe', 'yodlee', 'nordigen', 'verify', 'subscriptions'], true)) {
             return 'External provider enrollment, verification, synchronization or checkout flow; requires a provider-specific authenticated/interactive setup not represented by this JSON business transport.';
         }
-        return 'External delivery, provider lookup, interactive confirmation or a non-JSON business workflow is not implemented by this catalog; its REST endpoint remains available. See MCP.md.';
+        return 'Not in the explicitly reviewed MCP operation allowlist. New routes require review of authorization, tenant scope and JSON behavior before exposure; REST remains available.';
     }
 }

@@ -23,6 +23,11 @@ class Dispatcher
         $parameters = $request->get('parameters', []);
         $query = $request->get('query', []);
         $data = $request->get('data', []);
+        try {
+            [$parameters, $query, $data] = app(InputGuard::class)->normalize($spec, $parameters, $query, $data);
+        } catch (\InvalidArgumentException $exception) {
+            return Response::error($exception->getMessage());
+        }
         if (array_diff(array_keys($parameters), $spec['parameters']) || array_diff($spec['parameters'], array_keys($parameters))) {
             return Response::error('Path parameters must be exactly: '.implode(', ', $spec['parameters']));
         }
@@ -30,35 +35,6 @@ class Dispatcher
             if (!is_string($value) || $value === '' || preg_match('~[/\\\\?#%\x00-\x20]~', $value)) {
                 return Response::error('Path parameters must be non-empty URL-safe strings.');
             }
-        }
-        // Account and credential relationship expansions are outside the company business catalog.
-        foreach ([$query, $data] as $input) {
-            if (isset($input['showAccountUsers'])) {
-                return Response::error('Account-wide user selection is outside this company-bound catalog.');
-            }
-            $includes = $input['include'] ?? '';
-            $includes = is_array($includes) ? $includes : explode(',', (string)$includes);
-            foreach ($includes as $include) {
-                if (!is_string($include)) {
-                    return Response::error('Includes must be relationship names.');
-                }
-                foreach (explode('.', $include) as $segment) {
-                    $name = explode(':', $segment)[0];
-                    if (in_array($name, ['account', 'accounts', 'companies', 'company_users', 'tokens', 'company_tokens', 'company_gateways'], true)) {
-                        return Response::error('Account and credential includes are outside this company-bound catalog.');
-                    }
-                }
-            }
-        }
-        foreach (['_method', 'X-API-TOKEN', 'X-API-SECRET', 'Authorization'] as $reserved) {
-            if (array_key_exists($reserved, $data) || array_key_exists($reserved, $query)) {
-                return Response::error('Credentials and method overrides cannot be supplied as tool arguments.');
-            }
-        }
-        $fileActions = ['download', 'bulk_download', 'bulk_print', 'delivery_note', 'print'];
-        $action = $parameters['action'] ?? $data['action'] ?? null;
-        if (in_array($action, $fileActions, true)) {
-            return Response::error('File-producing actions are not part of the JSON MCP catalog. Use REST for this operation.');
         }
         $outer = request();
         $uri = preg_replace_callback('/\{([^}?]+)\??\}/', fn ($match) => rawurlencode($parameters[$match[1]]), $spec['uri']);
