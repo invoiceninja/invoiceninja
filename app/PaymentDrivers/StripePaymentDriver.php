@@ -911,10 +911,11 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
                     if (isset($transaction['payment_method_details']['au_becs_debit'])) {
                         $payment->transaction_reference = $transaction['id'];
+                        $payment->saveQuietly();
                     }
 
-                    $payment->status_id = Payment::STATUS_COMPLETED;
-                    $payment->save();
+                    $payment = $payment->service()->completePendingPayment();
+
                 }
             }
 
@@ -937,8 +938,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                     $payment = self::findPaymentByStripeReference($this->company_gateway->company_id, $transaction);
 
                     if ($payment) {
-                        $payment->status_id = Payment::STATUS_COMPLETED;
-                        $payment->save();
+                        $payment = $payment->service()->completePendingPayment();
                     }
                 }
             }

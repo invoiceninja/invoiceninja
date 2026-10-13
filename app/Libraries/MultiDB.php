@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Document;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use Illuminate\Support\Str;
 use App\Models\CompanyToken;
@@ -614,6 +615,37 @@ class MultiDB
         self::setDB($current_db);
 
         return false;
+    }
+
+    /**
+     * @param list<non-empty-string> $references
+     */
+    public static function findAndSetByStripePaymentReferences(array $references): ?Payment
+    {
+        if ($references === []) {
+            return null;
+        }
+
+        foreach (self::getDbs() as $db) {
+            $payment = Payment::on($db)
+                ->where('is_manual', false)
+                ->whereIn('transaction_reference', $references)
+                ->whereHas('company_gateway', function ($query) {
+                    $query->whereIn('gateway_key', [
+                        'd14dd26a37cecc30fdd65700bfb55b23',
+                        'd14dd26a47cecc30fdd65700bfb67b34',
+                    ]);
+                })
+                ->first();
+
+            if ($payment) {
+                self::setDb($db);
+
+                return $payment;
+            }
+        }
+
+        return null;
     }
 
     public static function findAndSetDbByInvitation($entity, $invitation_key)

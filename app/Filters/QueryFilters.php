@@ -640,6 +640,17 @@ abstract class QueryFilters
 
     }
 
+    public function user_ids(string $user_ids = ''): Builder
+    {
+        if (strlen($user_ids) == 0 || !in_array('user_id', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        return $this->builder->where(function ($q) use ($user_ids) {
+            $q->whereIn('user_id', $this->transformKeys(explode(',', $user_ids)));
+        });
+    }
+
     public function assigned_user_ids(string $assigned_user_ids = ''): Builder
     {
         if (strlen($assigned_user_ids) == 0 || !in_array('assigned_user_id', $this->tableColumns())) {

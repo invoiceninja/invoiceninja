@@ -168,6 +168,7 @@ class HandleRestore extends AbstractService
         //adjust payments down by the amount applied to the invoice payment.
 
         $this->invoice->net_payments()->each(function ($payment) {
+            
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)

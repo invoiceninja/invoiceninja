@@ -216,8 +216,7 @@ class PayPalWebhook implements ShouldQueue
 
             nlog("payment status check");
             if ($payment_hash->payment && $payment_hash->payment->status_id != Payment::STATUS_COMPLETED) { // Make sure the payment is marked as completed
-                $payment_hash->payment->status_id = Payment::STATUS_COMPLETED;
-                $payment_hash->push();
+                $payment_hash->payment->service()->completePendingPayment();
             }
             return;
         }

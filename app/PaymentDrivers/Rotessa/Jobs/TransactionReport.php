@@ -87,8 +87,7 @@ class TransactionReport implements ShouldQueue
                                     ->cursor()
                                     ->each(function ($payment) use ($transactions) {
 
-                                        $payment->status_id = Payment::STATUS_COMPLETED;
-                                        $payment->save();
+                                        $payment = $payment->service()->completePendingPayment();
 
                                         $references = collect($transactions)->where('id', $payment->transaction_reference)->first();
 

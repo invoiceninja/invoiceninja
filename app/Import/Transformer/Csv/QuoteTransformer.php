@@ -154,57 +154,6 @@ class QuoteTransformer extends BaseTransformer
             );
         }
 
-        if (isset($quote_data['payment.amount'])) {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($quote_data['payment.date'])
-                        ? $this->parseDate($quote_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $quote_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $this->getFloat(
-                        $quote_data,
-                        'payment.amount'
-                    ),
-                ],
-            ];
-        } elseif ($status === 'paid') {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($quote_data['payment.date'])
-                        ? $this->parseDate($quote_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $quote_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $this->getFloat(
-                        $quote_data,
-                        'quote.amount'
-                    ),
-                ],
-            ];
-        } elseif (
-            isset($transformed['amount'])
-           && isset($transformed['balance'])
-           && $transformed['amount'] != $transformed['balance']
-        ) {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($quote_data['payment.date'])
-                        ? $this->parseDate($quote_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $quote_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $transformed['amount'] - $transformed['balance'],
-                ],
-            ];
-        }
-
         $line_items = [];
         foreach ($line_items_data as $record) {
             $line_items[] = [

@@ -94,9 +94,7 @@ class PaymentIntentWebhook implements ShouldQueue
             $payment = self::findPaymentByStripeReference($company->id, $transaction);
 
             if ($payment) {
-                $payment->status_id = Payment::STATUS_COMPLETED;
-                $payment->save();
-
+                $payment = $payment->service()->completePendingPayment();
                 $this->payment_completed = true;
             }
         }
@@ -160,8 +158,7 @@ class PaymentIntentWebhook implements ShouldQueue
             nlog(" payment found and status correct - returning ");
             return;
         } elseif ($payment) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+            $payment = $payment->service()->completePendingPayment();
         }
 
         $hash = $pi['metadata']['payment_hash'] ?? $charge['metadata']['payment_hash'] ?? false;

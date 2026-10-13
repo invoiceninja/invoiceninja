@@ -6524,6 +6524,8 @@ $lang = array(
     'shortcut_set' => 'Shortcut Set',
     'no_shortcut_set' => 'No Shortcut Set',
     'shortcut_conflict' => 'This keybinding is already in use by another action.',
+    'decimal_hours' => 'Decimal Hours',
+    'locked_task' => 'This task is locked and cannot be edited.',
 );
 
 return $lang;
