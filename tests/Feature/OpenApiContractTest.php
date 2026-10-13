@@ -176,6 +176,37 @@ class OpenApiContractTest extends TestCase
         'report tax period' => ['post', '/api/v1/reports/tax_period_report', [], self::REPORT],
         'report user sales' => ['post', '/api/v1/reports/user_sales_report', [], self::REPORT],
         'report projects' => ['post', '/api/v1/reports/projects', [], self::REPORT],
+        'report vendors' => ['post', '/api/v1/reports/vendors', [], self::REPORT],
+        'report purchase orders' => ['post', '/api/v1/reports/purchase_orders', [], self::REPORT],
+        'report purchase order items' => ['post', '/api/v1/reports/purchase_order_items', [], self::REPORT],
+        'report recurring invoice items' => ['post', '/api/v1/reports/recurring_invoice_items', [], self::REPORT],
+        'report locations' => ['post', '/api/v1/reports/locations', [], self::REPORT],
+        'report client locations' => ['post', '/api/v1/reports/client_locations', [], self::REPORT],
+        'chart summary' => ['post', '/api/v1/charts/chart_summary', [], self::RANGE],
+        'chart analytics summary' => ['post', '/api/v1/charts/analytics_summary', [], self::RANGE],
+        'chart analytics totals' => ['post', '/api/v1/charts/analytics_totals', [], self::RANGE],
+        'chart cashflow forecast' => ['post', '/api/v1/charts/cashflow_forecast', [], self::RANGE],
+        'chart client payment analytics' => ['post', '/api/v1/charts/client_payment_analytics', [], self::RANGE],
+        'chart project analytics' => ['post', '/api/v1/charts/project_analytics/{project}', ['project' => '{project}'], self::RANGE],
+        'chart project burnup' => ['post', '/api/v1/charts/project_burnup/{project}', ['project' => '{project}'], self::RANGE],
+        'credit action' => ['get', '/api/v1/credits/{id}/{action}', ['id' => '{credit}', 'action' => 'mark_sent']],
+        'default design' => ['post', '/api/v1/designs/set/default', [], ['entity' => 'invoice', 'design_id' => '{design}', 'settings_level' => 'company']],
+        'client settings' => ['post', '/api/v1/clients/{client}/show_settings', ['client' => '{client}']],
+        'update reminders' => ['post', '/api/v1/invoices/update_reminders'],
+        'subscription steps' => ['get', '/api/v1/subscriptions/steps'],
+        'refresh react' => ['post', '/api/v1/refresh_react', [], self::NOTHING_CHANGED],
+        'login precheck' => ['post', '/api/v1/login/precheck', [], ['email' => '{me.email}']],
+        'clone company gateway' => ['post', '/api/v1/company_gateways/{company_gateway}/clone', ['company_gateway' => '{company_gateway}']],
+        'retry webhook' => ['post', '/api/v1/webhooks/{webhook}/retry', ['webhook' => '{webhook}'], ['entity' => 'invoice', 'entity_id' => '{invoice}']],
+        'filters' => ['post', '/api/v1/filters/{entity}', ['entity' => 'invoices']],
+        'live preview' => ['post', '/api/v1/live_preview', [], ['entity' => 'invoice', 'entity_id' => '{invoice}', 'client_id' => '{client}', 'line_items' => self::LINE_ITEMS]],
+        'payment schedule' => ['post', '/api/v1/invoices/{invoice}/payment_schedule', ['invoice' => '{invoice}'], ['frequency_id' => 5, 'remaining_cycles' => 2, 'next_run' => '2030-01-01']],
+        'company logo' => ['get', '/api/v1/companies/{company}/logo', ['company' => '{company}']],
+        'show document' => ['get', '/api/v1/documents/{document}', ['document' => '{uploaded.documents.0.id}']],
+        'update document' => ['put', '/api/v1/documents/{document}', ['document' => '{uploaded.documents.0.id}'], ['name' => 'contract-renamed.png', 'is_public' => true]],
+        'download document' => ['get', '/api/v1/documents/{document}/download', ['document' => '{uploaded.documents.0.id}']],
+        'delete document' => ['delete', '/api/v1/documents/{document}', ['document' => '{uploaded.documents.0.id}']],
+        'update company user' => ['put', '/api/v1/company_users/{user}', ['user' => '{me.hashed_id}'], ['company_user' => ['notifications' => ['email' => ['invoice_sent']]]]],
     ];
 
     /**
@@ -209,6 +240,39 @@ class OpenApiContractTest extends TestCase
         ],
     ];
 
+    /**
+     * Routes under /api/v1 the spec does not document, as URI prefixes by the reason why.
+     * testEveryRouteIsDocumentedOrListed fails when a route is neither documented nor listed here.
+     */
+    private const UNDOCUMENTED = [
+        'e-invoicing network, needs a provider account' => [
+            'einvoice/', 'clients/{client}/peppol_discovery', 'clients/{client}/check_vat', 'clients/{client}/vat_status',
+        ],
+        'third party integration, needs an account there' => [
+            'quickbooks/', 'calendar_connection', 'stripe/', 'yodlee/', 'nordigen/', 'oidc/', 'oauth_login', 'connected_account/gmail',
+            'company_gateways/{company_gateway}/import_customers', 'company_gateways/{company_gateway}/test', 'mailer/check', 'smtp/check',
+            'companies/updateOriginTaxData/{company}',
+        ],
+        'webhook for an external service' => [
+            'brevo_', 'mailgun_', 'postmark_inbound_webhook', 'ppcp/webhook', 'sns_webhook',
+        ],
+        'hosted platform only' => [
+            'signup', 'check_subdomain', 'check_license', 'accounts/{account}', 'sms_reset', 'verify', 'feedback',
+        ],
+        'client portal and shop API, authenticated separately' => [
+            'shop/', 'contact/',
+        ],
+        'not documented yet' => [
+            'documents', 'system_logs', 'credit/{invitation_key}/download_e_credit', 'invoice/{invitation_key}/download_e_invoice',
+            'purchase_order/{invitation_key}/download_e_purchase_order', 'quote/{invitation_key}/download_e_quote', 'password_timeout',
+            'settings/enable_two_factor', 'settings/disable_two_factor', 'reset_password', 'users/{user}/disconnect_mailer',
+            'users/{user}/disconnect_oauth', 'users/{user}/purge', 'vendors/{vendor}/{mergeable_vendor}/merge', 'live_design',
+            'live_preview/purchase_order', 'protected_download/{hash}', 'emails/clientHistory/{client}', 'emails/entityHistory',
+            'subscriptions/steps/check', 'clients/{client}/documents', 'client_gateway_tokens/{client_gateway_token}/setAsDefault',
+            'company_users/{user}/preferences', 'invoices/{invoice}/payment_schedule', 'edocument/upload',
+        ],
+    ];
+
     /** [operation => [method, path suffix]], in the order they run */
     private const OPERATIONS = [
         'store' => ['post', ''],
@@ -225,7 +289,7 @@ class OpenApiContractTest extends TestCase
     /** The entities documents can be uploaded to. */
     private const UPLOADS = [
         'client', 'company', 'credit', 'expense', 'group_setting', 'invoice', 'payment', 'product', 'project',
-        'purchase_order', 'quote', 'recurring_expense', 'recurring_invoice', 'task', 'vendor',
+        'purchase_order', 'quote', 'recurring_expense', 'recurring_invoice', 'recurring_quote', 'task', 'vendor',
     ];
 
     /** hashed ids of the entities created through the API, keyed by name */
@@ -382,6 +446,42 @@ class OpenApiContractTest extends TestCase
         );
     }
 
+    public function testEveryRouteIsDocumentedOrListed(): void
+    {
+        $normalize = fn (string $path) => preg_replace('/\{\w+\??\}/', '{}', trim($path, '/'));
+
+        $documented = [];
+        foreach ($this->validator->getSchema()->paths as $path => $item) {
+            foreach (array_keys($item->getOperations()) as $method) {
+                $documented[strtoupper($method).' '.$normalize($path)] = true;
+            }
+        }
+
+        $prefixes = array_merge(...array_values(self::UNDOCUMENTED));
+        $missing = [];
+
+        foreach (Route::getRoutes() as $route) {
+            if (! str_starts_with($route->uri(), 'api/v1/')) {
+                continue;
+            }
+
+            $uri = substr($route->uri(), strlen('api/v1/'));
+
+            foreach (array_intersect($route->methods(), ['GET', 'POST', 'PUT', 'DELETE']) as $method) {
+                // Uploads are routed as PUT and documented as the POST that spoofs it.
+                $verb = $method === 'PUT' && str_ends_with($uri, '/upload') ? 'POST' : $method;
+
+                $listed = array_filter($prefixes, fn ($prefix) => str_starts_with($uri, $prefix));
+
+                if (! isset($documented[$verb.' '.$normalize($route->uri())]) && ! $listed) {
+                    $missing[] = $method.' '.$route->uri();
+                }
+            }
+        }
+
+        $this->assertEmpty($missing, "Routes that are neither documented nor listed in UNDOCUMENTED:\n".implode("\n", $missing));
+    }
+
     public function testDocumentedOperationsAreRouted(): void
     {
         $unrouted = [];
@@ -445,6 +545,13 @@ class OpenApiContractTest extends TestCase
     {
         if ($name === 'me') {
             return data_get($this->user, $field);
+        }
+
+        // An invoice with an uploaded document.
+        if ($name === 'uploaded') {
+            $this->stored[$name] ??= $this->upload('/api/v1/invoices/'.$this->created('invoice').'/upload')->assertSuccessful()->json('data');
+
+            return data_get($this->stored[$name], $field);
         }
 
         $id = $this->created($name);
