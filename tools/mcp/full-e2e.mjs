@@ -21,6 +21,7 @@ try {
       const row={tool:domain,operation,api:`${operations[operation].method} ${operations[operation].uri}`,result:'pending'};
       try {
         const args=argumentsFor(domain,operation,operations[operation],id,suffix);
+        if(domain==='payments' && operation==='refund') args.data.id=id;
         const reply=await client.callTool({name:domain,arguments:args});
         const value=reply.structuredContent ?? (reply.content?.[0]?.text ? JSON.parse(reply.content[0].text):null);
         assert.equal(reply.isError,false,JSON.stringify(value ?? reply.content));
@@ -28,6 +29,14 @@ try {
         if(operation==='store') { assert.equal(typeof value.body.data.id,'string'); id=value.body.data.id; }
         if(operation==='show' || operation==='edit' || operation==='update') {
           if(value.body?.data?.id) assert.equal(value.body.data.id,id);
+        }
+        if(operation==='update') {
+          for(const [field,expected] of Object.entries(args.data)) {
+            if(value.body?.data && typeof expected!=='object') {
+              assert.ok(Object.hasOwn(value.body.data,field),`Updated field is absent: ${domain}.${field}`);
+              assert.equal(String(value.body.data[field]),String(expected),`Updated ${domain}.${field}`);
+            }
+          }
         }
         row.result='passed'; row.status=value.status;
       } catch(error) { row.result='failed'; row.message=String(error.message); }

@@ -17,7 +17,7 @@ export function createData(domain, suffix) {
     case 'projects': return {name,client_id:ids.clients,task_rate:50};
     case 'tasks': return {client_id:ids.clients,project_id:ids.projects,description:name,time_log:JSON.stringify([[1768471200,1768474800]])};
     case 'tax_rates': return {name,rate:10};
-    case 'payment_terms': return {name,num_days:30};
+    case 'payment_terms': return {num_days:30};
     case 'expense_categories': case 'group_settings': case 'task_statuses': return {name};
     case 'locations': return {name,client_id:ids.clients,country_id:840};
     case 'tags': return {name,entity_type:'App\\Models\\Client'};
@@ -34,11 +34,12 @@ export function updateData(domain, suffix) {
   switch(domain) {
     case 'invoices': case 'quotes': case 'credits': case 'purchase_orders': case 'recurring_invoices': case 'recurring_quotes': return {public_notes:name};
     case 'payments': return {private_notes:name};
-    case 'expenses': case 'recurring_expenses': case 'products': return {private_notes:name};
+    case 'expenses': case 'recurring_expenses': return {private_notes:name};
+    case 'products': return {notes:name};
     case 'tasks': return {description:name};
     case 'bank_transactions': return {description:name,date:'2026-01-15',bank_integration_id:ids.bank_integrations};
     case 'locations': return {name,client_id:ids.clients};
-    case 'payment_terms': return {name,num_days:30};
+    case 'payment_terms': return {num_days:45};
     case 'subscriptions': return {name,steps:'cart,auth.login-or-register',frequency_id:5};
     case 'webhooks': return {target_url:'https://mcp-webhook.example.invalid/updated',event_id:21,rest_method:'post'};
     default: return {name};

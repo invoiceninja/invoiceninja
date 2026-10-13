@@ -8,7 +8,15 @@
     "operations": 244,
     "passed": 244,
     "failed": 0,
-    "master": "pending"
+    "master": "pending",
+    "assistant": {
+      "tools": 32,
+      "operations": 244,
+      "passed": 244,
+      "failed": 0,
+      "client": "native Codex tools",
+      "report": "tools/mcp/assistant-results.json"
+    }
   },
   "routes": [
     {
@@ -216,11 +224,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/bank_transactions/create",
@@ -229,11 +239,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/bank_transactions",
@@ -242,11 +254,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/bank_transactions/{bank_transaction}",
@@ -255,11 +269,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/bank_transactions/{bank_transaction}/edit",
@@ -268,11 +284,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/bank_transactions/{bank_transaction}",
@@ -281,11 +299,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/bank_transactions/{bank_transaction}",
@@ -294,11 +314,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/bank_transactions/{bank_transaction}"
     },
     {
@@ -308,11 +330,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/bank_transactions/bulk",
@@ -321,11 +345,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -341,11 +367,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transactions.match",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transactions.match (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/bank_transaction_rules",
@@ -354,11 +382,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/bank_transaction_rules/create",
@@ -367,11 +397,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/bank_transaction_rules",
@@ -380,11 +412,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/bank_transaction_rules/{bank_transaction_rule}",
@@ -393,11 +427,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/bank_transaction_rules/{bank_transaction_rule}/edit",
@@ -406,11 +442,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/bank_transaction_rules/{bank_transaction_rule}",
@@ -419,11 +457,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/bank_transaction_rules/{bank_transaction_rule}",
@@ -432,11 +472,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/bank_transaction_rules/{bank_transaction_rule}"
     },
     {
@@ -446,11 +488,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/bank_transaction_rules/bulk",
@@ -459,11 +503,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: bank_transaction_rules.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: bank_transaction_rules.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -515,11 +561,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: activities.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: activities.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/activities/entity",
@@ -528,11 +576,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: activities.entity_activity",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: activities.entity_activity (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/activities/notes",
@@ -541,11 +591,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: activities.note",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: activities.note (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/activities/download_entity/{activity}",
@@ -563,11 +615,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.totals",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.totals (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/chart_summary",
@@ -576,11 +630,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.chart_summary",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.chart_summary (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/totals_v2",
@@ -589,11 +645,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.totals_v2",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.totals_v2 (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/chart_summary_v2",
@@ -602,11 +660,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.chart_summary_v2",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.chart_summary_v2 (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/calculated_fields",
@@ -615,11 +675,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.calculated_fields",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.calculated_fields (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/analytics_summary",
@@ -628,11 +690,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.analytics_summary",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.analytics_summary (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/analytics_totals",
@@ -641,11 +705,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.analytics_totals",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.analytics_totals (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/cashflow_forecast",
@@ -654,11 +720,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.cashflow_forecast",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.cashflow_forecast (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/client_payment_analytics",
@@ -667,11 +735,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.client_payment_analytics",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.client_payment_analytics (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/project_analytics/{project}",
@@ -680,11 +750,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.project_analytics",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.project_analytics (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/charts/project_burnup/{project}",
@@ -693,11 +765,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: charts.project_burnup",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: charts.project_burnup (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/claim_license",
@@ -724,11 +798,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/clients/create",
@@ -737,11 +813,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/clients",
@@ -750,11 +828,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/clients/{client}",
@@ -763,11 +843,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/clients/{client}/edit",
@@ -776,11 +858,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/clients/{client}",
@@ -789,11 +873,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/clients/{client}",
@@ -802,11 +888,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/clients/{client}"
     },
     {
@@ -816,11 +904,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/clients/{client}/upload",
@@ -865,11 +955,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -885,11 +977,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.documents",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.documents (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/clients/{client}/show_settings",
@@ -898,11 +992,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.show_settings",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.show_settings (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/clients/{client}/peppol_discovery",
@@ -929,11 +1025,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: clients.vat_status",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: clients.vat_status (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/reactivate_email/{bounce_id}",
@@ -1266,11 +1364,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: company_ledger.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: company_ledger.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/company_gateways",
@@ -1405,11 +1505,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/credits/create",
@@ -1418,11 +1520,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/credits",
@@ -1431,11 +1535,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/credits/{credit}",
@@ -1444,11 +1550,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/credits/{credit}/edit",
@@ -1457,11 +1565,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/credits/{credit}",
@@ -1470,11 +1580,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/credits/{credit}",
@@ -1483,11 +1595,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/credits/{credit}"
     },
     {
@@ -1497,11 +1611,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/credits/{credit}/upload",
@@ -1519,11 +1635,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.action",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.action (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -1539,11 +1657,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: credits.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: credits.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -1577,11 +1697,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/designs/create",
@@ -1590,11 +1712,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/designs",
@@ -1603,11 +1727,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/designs/{design}",
@@ -1616,11 +1742,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/designs/{design}/edit",
@@ -1629,11 +1757,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/designs/{design}",
@@ -1642,11 +1772,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/designs/{design}",
@@ -1655,11 +1787,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/designs/{design}"
     },
     {
@@ -1669,11 +1803,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/designs/bulk",
@@ -1682,11 +1818,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -1702,11 +1840,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: designs.default",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: designs.default (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/documents",
@@ -1715,11 +1855,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: documents.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: documents.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/documents/create",
@@ -1746,11 +1888,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: documents.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: documents.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/documents/{document}/edit",
@@ -1759,11 +1903,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: documents.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: documents.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/documents/{document}",
@@ -1772,11 +1918,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: documents.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: documents.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/documents/{document}",
@@ -1785,11 +1933,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: documents.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: documents.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/documents/{document}"
     },
     {
@@ -1817,11 +1967,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: documents.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: documents.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -1990,11 +2142,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: emails.send",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: emails.send (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/emails/clientHistory/{client}",
@@ -2003,11 +2157,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: emails.client_history",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: emails.client_history (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/emails/entityHistory",
@@ -2016,11 +2172,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: emails.entity_history",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: emails.entity_history (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/expenses",
@@ -2029,11 +2187,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/expenses/create",
@@ -2042,11 +2202,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/expenses",
@@ -2055,11 +2217,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/expenses/{expense}",
@@ -2068,11 +2232,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/expenses/{expense}/edit",
@@ -2081,11 +2247,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/expenses/{expense}",
@@ -2094,11 +2262,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/expenses/{expense}",
@@ -2107,11 +2277,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/expenses/{expense}"
     },
     {
@@ -2121,11 +2293,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/expenses/{expense}/upload",
@@ -2143,11 +2317,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expenses.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expenses.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -2181,11 +2357,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/expense_categories/create",
@@ -2194,11 +2372,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/expense_categories",
@@ -2207,11 +2387,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/expense_categories/{expense_category}",
@@ -2220,11 +2402,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/expense_categories/{expense_category}/edit",
@@ -2233,11 +2417,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/expense_categories/{expense_category}",
@@ -2246,11 +2432,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/expense_categories/{expense_category}",
@@ -2259,11 +2447,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/expense_categories/{expense_category}"
     },
     {
@@ -2273,11 +2463,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/expense_categories/bulk",
@@ -2286,11 +2478,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: expense_categories.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: expense_categories.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -2306,11 +2500,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/group_settings/create",
@@ -2319,11 +2515,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/group_settings",
@@ -2332,11 +2530,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/group_settings/{group_setting}",
@@ -2345,11 +2545,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/group_settings/{group_setting}/edit",
@@ -2358,11 +2560,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/group_settings/{group_setting}",
@@ -2371,11 +2575,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/group_settings/{group_setting}",
@@ -2384,11 +2590,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/group_settings/{group_setting}"
     },
     {
@@ -2398,11 +2606,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/group_settings/bulk",
@@ -2411,11 +2621,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: group_settings.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: group_settings.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -2467,11 +2679,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/invoices/create",
@@ -2480,11 +2694,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/invoices",
@@ -2493,11 +2709,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/invoices/{invoice}",
@@ -2506,11 +2724,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/invoices/{invoice}/edit",
@@ -2519,11 +2739,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/invoices/{invoice}",
@@ -2532,11 +2754,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/invoices/{invoice}",
@@ -2545,11 +2769,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/invoices/{invoice}"
     },
     {
@@ -2559,11 +2785,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/invoices/{invoice}/delivery_note",
@@ -2581,11 +2809,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.action",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.action (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -2610,11 +2840,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.payment_schedule",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.payment_schedule (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "DELETE api/v1/invoices/{invoice}/payment_schedule",
@@ -2623,11 +2855,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.delete_payment_schedule",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.delete_payment_schedule (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/invoice/{invitation_key}/download",
@@ -2654,11 +2888,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -2674,11 +2910,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: invoices.update_reminders",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: invoices.update_reminders (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/locations",
@@ -2687,11 +2925,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/locations/create",
@@ -2700,11 +2940,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/locations",
@@ -2713,11 +2955,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/locations/{location}",
@@ -2726,11 +2970,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/locations/{location}/edit",
@@ -2739,11 +2985,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/locations/{location}",
@@ -2752,11 +3000,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/locations/{location}",
@@ -2765,11 +3015,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/locations/{location}"
     },
     {
@@ -2779,11 +3031,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/locations/bulk",
@@ -2792,11 +3046,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: locations.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: locations.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -2830,11 +3086,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/payments/create",
@@ -2843,11 +3101,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/payments",
@@ -2856,11 +3116,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/payments/{payment}",
@@ -2869,11 +3131,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/payments/{payment}/edit",
@@ -2882,11 +3146,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/payments/{payment}",
@@ -2895,11 +3161,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/payments/{payment}",
@@ -2908,11 +3176,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/payments/{payment}"
     },
     {
@@ -2922,11 +3192,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/payments/refund",
@@ -2935,11 +3207,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.refund",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.refund (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/payments/bulk",
@@ -2948,11 +3222,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payments.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payments.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -2977,11 +3253,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/payment_terms/create",
@@ -2990,11 +3268,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/payment_terms",
@@ -3003,11 +3283,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/payment_terms/{payment_term}",
@@ -3016,11 +3298,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/payment_terms/{payment_term}/edit",
@@ -3029,11 +3313,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/payment_terms/{payment_term}",
@@ -3042,11 +3328,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/payment_terms/{payment_term}",
@@ -3055,11 +3343,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/payment_terms/{payment_term}"
     },
     {
@@ -3069,11 +3359,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/payment_terms/bulk",
@@ -3082,11 +3374,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: payment_terms.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: payment_terms.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3147,11 +3441,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/products/create",
@@ -3160,11 +3456,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/products",
@@ -3173,11 +3471,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/products/{product}",
@@ -3186,11 +3486,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/products/{product}/edit",
@@ -3199,11 +3501,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/products/{product}",
@@ -3212,11 +3516,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/products/{product}",
@@ -3225,11 +3531,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/products/{product}"
     },
     {
@@ -3239,11 +3547,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/products/bulk",
@@ -3252,11 +3562,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: products.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: products.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3281,11 +3593,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/projects/create",
@@ -3294,11 +3608,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/projects",
@@ -3307,11 +3623,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/projects/{project}",
@@ -3320,11 +3638,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/projects/{project}/edit",
@@ -3333,11 +3653,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/projects/{project}",
@@ -3346,11 +3668,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/projects/{project}",
@@ -3359,11 +3683,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/projects/{project}"
     },
     {
@@ -3373,11 +3699,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/projects/bulk",
@@ -3386,11 +3714,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: projects.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: projects.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3415,11 +3745,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/purchase_orders/create",
@@ -3428,11 +3760,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/purchase_orders",
@@ -3441,11 +3775,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/purchase_orders/{purchase_order}",
@@ -3454,11 +3790,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/purchase_orders/{purchase_order}/edit",
@@ -3467,11 +3805,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/purchase_orders/{purchase_order}",
@@ -3480,11 +3820,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/purchase_orders/{purchase_order}",
@@ -3493,11 +3835,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/purchase_orders/{purchase_order}"
     },
     {
@@ -3507,11 +3851,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/purchase_orders/bulk",
@@ -3520,11 +3866,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3549,11 +3897,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: purchase_orders.action",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: purchase_orders.action (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3587,11 +3937,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/quotes/create",
@@ -3600,11 +3952,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/quotes",
@@ -3613,11 +3967,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/quotes/{quote}",
@@ -3626,11 +3982,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/quotes/{quote}/edit",
@@ -3639,11 +3997,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/quotes/{quote}",
@@ -3652,11 +4012,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/quotes/{quote}",
@@ -3665,11 +4027,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/quotes/{quote}"
     },
     {
@@ -3679,11 +4043,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/quotes/{quote}/{action}",
@@ -3692,11 +4058,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.action",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.action (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3712,11 +4080,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: quotes.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: quotes.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3804,11 +4174,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_expenses/create",
@@ -3817,11 +4189,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/recurring_expenses",
@@ -3830,11 +4204,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_expenses/{recurring_expense}",
@@ -3843,11 +4219,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_expenses/{recurring_expense}/edit",
@@ -3856,11 +4234,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/recurring_expenses/{recurring_expense}",
@@ -3869,11 +4249,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/recurring_expenses/{recurring_expense}",
@@ -3882,11 +4264,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/recurring_expenses/{recurring_expense}"
     },
     {
@@ -3896,11 +4280,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/recurring_expenses/bulk",
@@ -3909,11 +4295,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_expenses.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_expenses.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -3938,11 +4326,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_invoices/create",
@@ -3951,11 +4341,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/recurring_invoices",
@@ -3964,11 +4356,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_invoices/{recurring_invoice}",
@@ -3977,11 +4371,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_invoices/{recurring_invoice}/edit",
@@ -3990,11 +4386,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/recurring_invoices/{recurring_invoice}",
@@ -4003,11 +4401,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/recurring_invoices/{recurring_invoice}",
@@ -4016,11 +4416,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/recurring_invoices/{recurring_invoice}"
     },
     {
@@ -4030,11 +4432,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/recurring_invoices/bulk",
@@ -4043,11 +4447,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_invoices.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_invoices.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -4072,11 +4478,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_quotes/create",
@@ -4085,11 +4493,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/recurring_quotes",
@@ -4098,11 +4508,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_quotes/{recurring_quote}",
@@ -4111,11 +4523,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/recurring_quotes/{recurring_quote}/edit",
@@ -4124,11 +4538,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/recurring_quotes/{recurring_quote}",
@@ -4137,11 +4553,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/recurring_quotes/{recurring_quote}",
@@ -4150,11 +4568,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/recurring_quotes/{recurring_quote}"
     },
     {
@@ -4164,11 +4584,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/recurring_quotes/bulk",
@@ -4177,11 +4599,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: recurring_quotes.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: recurring_quotes.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -4530,11 +4954,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: search.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: search.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/task_schedulers",
@@ -4732,11 +5158,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tasks/create",
@@ -4745,11 +5173,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/tasks",
@@ -4758,11 +5188,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tasks/{task}",
@@ -4771,11 +5203,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tasks/{task}/edit",
@@ -4784,11 +5218,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/tasks/{task}",
@@ -4797,11 +5233,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/tasks/{task}",
@@ -4810,11 +5248,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/tasks/{task}"
     },
     {
@@ -4824,11 +5264,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/tasks/bulk",
@@ -4837,11 +5279,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tasks.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tasks.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -4875,11 +5319,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/task_statuses/create",
@@ -4888,11 +5334,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/task_statuses",
@@ -4901,11 +5349,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/task_statuses/{task_status}",
@@ -4914,11 +5364,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/task_statuses/{task_status}/edit",
@@ -4936,11 +5388,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/task_statuses/{task_status}",
@@ -4949,11 +5403,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/task_statuses/{task_status}"
     },
     {
@@ -4963,11 +5419,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/task_statuses/bulk",
@@ -4976,11 +5434,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: task_statuses.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: task_statuses.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -4996,11 +5456,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tags/create",
@@ -5009,11 +5471,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/tags",
@@ -5022,11 +5486,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tags/{tag}",
@@ -5035,11 +5501,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tags/{tag}/edit",
@@ -5048,11 +5516,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/tags/{tag}",
@@ -5061,11 +5531,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/tags/{tag}",
@@ -5074,11 +5546,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/tags/{tag}"
     },
     {
@@ -5088,11 +5562,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/tags/bulk",
@@ -5101,11 +5577,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tags.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tags.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -5121,11 +5599,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tax_rates/create",
@@ -5134,11 +5614,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/tax_rates",
@@ -5147,11 +5629,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tax_rates/{tax_rate}",
@@ -5160,11 +5644,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/tax_rates/{tax_rate}/edit",
@@ -5173,11 +5659,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/tax_rates/{tax_rate}",
@@ -5186,11 +5674,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/tax_rates/{tax_rate}",
@@ -5199,11 +5689,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/tax_rates/{tax_rate}"
     },
     {
@@ -5213,11 +5705,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/tax_rates/bulk",
@@ -5226,11 +5720,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: tax_rates.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: tax_rates.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -5417,11 +5913,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/vendors/create",
@@ -5430,11 +5928,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/vendors",
@@ -5443,11 +5943,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/vendors/{vendor}",
@@ -5456,11 +5958,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/vendors/{vendor}/edit",
@@ -5469,11 +5973,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/vendors/{vendor}",
@@ -5482,11 +5988,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/vendors/{vendor}",
@@ -5495,11 +6003,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/vendors/{vendor}"
     },
     {
@@ -5509,11 +6019,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/vendors/bulk",
@@ -5522,11 +6034,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: vendors.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: vendors.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -5668,11 +6182,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/webhooks/create",
@@ -5681,11 +6197,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/webhooks",
@@ -5694,11 +6212,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/webhooks/{webhook}",
@@ -5707,11 +6227,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/webhooks/{webhook}/edit",
@@ -5720,11 +6242,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/webhooks/{webhook}",
@@ -5733,11 +6257,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/webhooks/{webhook}",
@@ -5746,11 +6272,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/webhooks/{webhook}"
     },
     {
@@ -5760,11 +6288,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/webhooks/bulk",
@@ -5773,11 +6303,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: webhooks.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: webhooks.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",
@@ -5874,11 +6406,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.index",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.index (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/subscriptions/create",
@@ -5887,11 +6421,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.create",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.create (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/subscriptions",
@@ -5900,11 +6436,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.store",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.store (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/subscriptions/{subscription}",
@@ -5913,11 +6451,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.show",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.show (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "GET api/v1/subscriptions/{subscription}/edit",
@@ -5926,11 +6466,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.edit",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.edit (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PUT api/v1/subscriptions/{subscription}",
@@ -5939,11 +6481,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "PATCH api/v1/subscriptions/{subscription}",
@@ -5952,11 +6496,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.update",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.update (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "api_alias_of": "PUT api/v1/subscriptions/{subscription}"
     },
     {
@@ -5966,11 +6512,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.destroy",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.destroy (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
-      "master_result": "pending"
+      "master_result": "pending",
+      "assistant_result": "passed"
     },
     {
       "api": "POST api/v1/subscriptions/bulk",
@@ -5979,11 +6527,13 @@
       "exclusion": null,
       "test": {
         "docker": "tools/mcp/full-e2e.mjs: subscriptions.bulk",
-        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence"
+        "repository": "tests/Feature/Mcp/McpApiTest.php: shared authentication/permissions and business-domain list equivalence",
+        "assistant": "tools/mcp/assistant-results.json: subscriptions.bulk (native Codex invocation)"
       },
       "result": "passed",
       "classification": "business",
       "master_result": "pending",
+      "assistant_result": "passed",
       "excluded_file_actions": [
         "download",
         "bulk_download",

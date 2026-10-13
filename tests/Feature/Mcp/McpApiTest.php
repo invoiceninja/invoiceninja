@@ -69,6 +69,31 @@ class McpApiTest extends TestCase
         $this->withHeaders(['Authorization' => 'Bearer ' . $this->fixture['roles']['alpha']['admin']['token']->token])->postJson('/api/v1/mcp', ['jsonrpc' => '2.0', 'method' => 'notifications/initialized'])->assertStatus(202);
     }
 
+    public function testPaymentTermUpdateUsesDaysAndTheSameDerivedLabelAsRest(): void
+    {
+        $created = $this->mcpResult($this->callTool('payment_terms', ['operation' => 'store', 'data' => ['num_days' => 30]]));
+        $id = $created['body']['data']['id'];
+        $updated = $this->mcpResult($this->callTool('payment_terms', ['operation' => 'update', 'parameters' => ['payment_term' => $id], 'data' => ['num_days' => 45]]));
+        $this->assertSame(45, $updated['body']['data']['num_days']);
+        $rest = $this->withHeaders(['X-API-TOKEN' => $this->fixture['roles']['alpha']['admin']['token']->token])->getJson('/api/v1/payment_terms/' . $id);
+        $rest->assertOk();
+        $this->assertSame($rest->json('data'), $updated['body']['data']);
+        $this->assertStringEndsWith('45', $updated['body']['data']['name']);
+        $this->assertDatabaseHas('payment_terms', ['company_id' => $this->fixture['companies']['alpha']->id, 'num_days' => 45]);
+    }
+
+    public function testProductNotesMutationPersistsAndMatchesRest(): void
+    {
+        $created = $this->mcpResult($this->callTool('products', ['operation' => 'store', 'data' => ['product_key' => 'MCP product', 'price' => 25, 'notes' => 'Before']]));
+        $id = $created['body']['data']['id'];
+        $updated = $this->mcpResult($this->callTool('products', ['operation' => 'update', 'parameters' => ['product' => $id], 'data' => ['notes' => 'After']]));
+        $this->assertSame('After', $updated['body']['data']['notes']);
+        $rest = $this->withHeaders(['X-API-TOKEN' => $this->fixture['roles']['alpha']['admin']['token']->token])->getJson('/api/v1/products/' . $id);
+        $rest->assertOk();
+        $this->assertSame($rest->json('data'), $updated['body']['data']);
+        $this->assertDatabaseHas('products', ['company_id' => $this->fixture['companies']['alpha']->id, 'product_key' => 'MCP product', 'notes' => 'After']);
+    }
+
     public static function domains(): array
     {
         return array_combine(Catalog::DOMAINS, array_map(fn ($domain) => [$domain], Catalog::DOMAINS));
