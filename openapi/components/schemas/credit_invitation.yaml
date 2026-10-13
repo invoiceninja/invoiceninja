@@ -20,19 +20,16 @@
           example: 'https://www.example.com/invitations/Opnel5aKBz4343343566236gvbb'
           readOnly: true
         sent_date:
-          description: 'The invitation sent date'
+          description: 'The invitation sent date, an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         viewed_date:
-          description: 'The invitation viewed date'
+          description: 'The invitation viewed date, an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         opened_date:
-          description: 'The invitation opened date'
+          description: 'The invitation opened date, an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         updated_at:
           description: 'Timestamp'

@@ -91,7 +91,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -150,7 +153,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -195,7 +201,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -294,7 +303,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -332,7 +344,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:

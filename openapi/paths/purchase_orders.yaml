@@ -143,7 +143,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -189,7 +192,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -202,7 +208,6 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/purchase_order/{id}":
     put:
       tags:
         - Purchase Orders
@@ -265,7 +270,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -350,7 +358,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -388,7 +399,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:

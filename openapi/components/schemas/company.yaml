@@ -269,8 +269,18 @@
           type: boolean
           example: true
         client_registration_fields:
-          description: "The client registration fields for the company"
-          type: object
+          description: 'The client registration fields for the company'
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: first_name
+              required:
+                type: boolean
+              visible:
+                type: boolean
         stop_on_unpaid_recurring:
           description: "A flag determining whether to stop recurring invoices when they are unpaid"
           type: boolean
@@ -413,12 +423,11 @@
           example: 587
 
         smtp_encryption:
-          description: "The encryption method for SMTP"
+          description: 'The encryption method for SMTP, an empty string when not set'
           type: string
           nullable: true
-          enum: [tls, ssl]
-          example: "tls"
-
+          enum: [tls, ssl, '']
+          example: tls
         smtp_local_domain:
           description: "The local domain for SMTP"
           type: string
@@ -435,8 +444,9 @@
           additionalProperties: true
 
         legal_entity_id:
-          description: "The ID of the legal entity associated with the company"
+          description: 'The ID of the legal entity associated with the company, null when there is none'
           type: integer
+          nullable: true
           example: 1234
         convert_rate_to_client:
           description: 'Flag indicating whether to convert rates to the client currency'

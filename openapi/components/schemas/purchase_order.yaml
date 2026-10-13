@@ -141,24 +141,20 @@
           format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the purchase order was sent to the vendor'
+          description: 'The last date the purchase order was sent to the vendor, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next scheduled date for sending a reminder for the purchase order'
+          description: 'The next scheduled date for sending a reminder for the purchase order, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the partial or deposit amount'
+          description: 'The due date for the partial or deposit amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date for the total amount of the purchase order'
+          description: 'The due date for the total amount of the purchase order, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
@@ -259,23 +255,19 @@
           type: string
           example: Opnel5aKBz
         reminder1_sent:
-          description: 'Timestamp when the first reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the first reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
         reminder2_sent:
-          description: 'Timestamp when the second reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the second reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
         reminder3_sent:
-          description: 'Timestamp when the third reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the third reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
         reminder_last_sent:
-          description: 'Timestamp when the last reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the most recent reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
       type: object

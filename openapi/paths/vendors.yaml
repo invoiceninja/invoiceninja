@@ -147,7 +147,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -204,7 +207,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -281,7 +287,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -390,7 +399,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -439,7 +451,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:

@@ -30,9 +30,9 @@
           type: boolean
           example: true
         fees_and_limits:
-          description: 'A mapped collection of the fees and limits for the configured gateway'
-          type: array
-          items:
+          description: 'The fees and limits for the configured gateway, keyed by gateway type id'
+          type: object
+          additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
       type: object
     

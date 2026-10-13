@@ -50,9 +50,9 @@
           type: boolean
           example: true
         currency_id:
-          description: Unique identifier for the currency used in the subscription
-          type: integer
-          example: 1
+          description: 'Unique identifier for the currency used in the subscription, an empty string when not set'
+          type: string
+          example: '1'
         max_seats_limit:
           description: Maximum number of seats allowed for the subscription
           type: integer
@@ -78,9 +78,9 @@
           type: integer
           example: 30
         webhook_configuration:
-          description: Webhook configuration for the subscription
-          type: string
-          example: 'expand reference for this'
+          description: 'Webhook configuration for the subscription'
+          type: object
+          additionalProperties: true
         is_deleted:
           description: Indicates whether the subscription has been deleted
           type: boolean

@@ -28,9 +28,9 @@
           type: boolean
           example: true
         payment_terms:
-          description: "-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days"
-          type: integer
-          example: 1
+          description: 'The payment terms in days as a string: -1 sets no payment term, 0 sets payment due immediately. An empty string when not set'
+          type: string
+          example: '30'
         company_gateway_ids:
           description: "A commad separate list of available gateways"
           type: string
@@ -70,9 +70,8 @@
           enum: [plain, light, dark, custom]
           example: "light"
         reply_to_email:
-          description: "The reply to email address"
+          description: "The reply to email address, an empty string when not set"
           type: string
-          format: email
           example: "email@gmail.com"
         bcc_email:
           description: "A comma separate list of BCC emails"
@@ -117,10 +116,10 @@
           type: string
           example: "Please approve quote"
         lock_invoices:
-          description: "Toggles whether invoices are locked once sent and cannot be modified further"
+          description: 'Toggles whether invoices are locked once sent and cannot be modified further'
           type: string
-          enum: [off, when_sent, when_paid, end_of_month]
-          example: "off"
+          enum: ['off', when_sent, when_paid, end_of_month]
+          example: 'off'
         auto_archive_invoice:
           description: "Toggles whether a invoice is archived immediately following payment"
           type: boolean
@@ -222,13 +221,14 @@
           type: string
           example: "R"
         reset_counter_frequency_id:
-          description: "CONSTANT which is used to apply the frequency which the counters are reset"
-          type: integer
+          description: 'CONSTANT which is used to apply the frequency which the counters are reset. The default is returned as the string 0'
+          oneOf:
+            - type: integer
+            - type: string
           example: 1
         reset_counter_date:
-          description: "The explicit date which is used to reset counters"
+          description: "The explicit date which is used to reset counters, an empty string when not set"
           type: string
-          format: date
           example: "2019-01-01"
         counter_padding:
           description: "Pads the counter with leading zeros"
@@ -440,9 +440,8 @@
           type: string
           example: "555-213-3948"
         email:
-          description: "The company email"
+          description: "The company email, an empty string when not set"
           type: string
-          format: email
           example: "joe@acme.co"
         country_id:
           description: "The country ID"
@@ -569,20 +568,20 @@
           type: integer
           example: 9
         schedule_reminder1:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder2:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder3:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         late_fee_amount1:
           description: "The late fee amount for reminder 1"
           type: number
@@ -653,9 +652,8 @@
           type: boolean
           example: false
         custom_sending_email:
-          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting."
+          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting, an empty string when not set"
           type: string
-          format: email
           example: "bob@gmail.com"
         show_paid_stamp:
           description: "Determines if the PAID stamp is shown on the invoice"
@@ -666,11 +664,9 @@
           type: boolean
           example: false
         company_logo_size:
-          description: "The size of the company logo on the PDF - percentage value between 0 and 100"
-          type: integer
-          minimum: 0
-          maximum: 100
-          example: 100
+          description: 'The size of the company logo on the PDF as a CSS size, an empty string when not set'
+          type: string
+          example: '65%'
         show_email_footer:
           description: "Determines if the email footer is shown on emails"
           type: boolean
@@ -749,10 +745,10 @@
           type: integer
           example: 1
         page_numbering_alignment:
-          description: "The alignment for page numbering: options include left / center / right"
+          description: 'The alignment for page numbering: L (left), C (center) or R (right)'
           type: string
-          enum: [left, center, right]
-          example: "left"
+          enum: [L, C, R]
+          example: C
         page_numbering:
           description: "Determines if page numbering is enabled on Document PDFs"
           type: boolean
@@ -771,9 +767,9 @@
           enum: [all, uninvoiced, invoiced]
           example: "all"
         entity_send_time:
-          description: "The time that emails are sent. The time is localized to the clients locale, integer values from 1 - 24"
+          description: 'The hour emails are sent at, localized to the clients locale. Integer values from 0 - 24'
           type: integer
-          minimum: 1
+          minimum: 0
           maximum: 24
           example: 9
         shared_invoice_credit_counter:
@@ -793,9 +789,10 @@
           type: boolean
           example: false
         use_credits_payment:
-          description: "Determines if credits can be used as a payment method"
-          type: boolean
-          example: false
+          description: 'Determines if credits can be used as a payment method'
+          type: string
+          enum: [always, option, 'off']
+          example: 'off'
         recurring_invoice_number_pattern:
           description: "The pattern for recurring invoice numbers"
           type: string
@@ -833,10 +830,10 @@
           type: boolean
           example: false
         auto_bill:
-          description: "Determines how autobilling is applied for recurring invoices"
+          description: 'Determines how autobilling is applied for recurring invoices'
           type: string
-          enum: [off, always, optin, optout]
-          example: "off"
+          enum: ['off', always, optin, optout]
+          example: 'off'
         client_portal_terms:
           description: "The terms which are displayed on the client portal"
           type: string

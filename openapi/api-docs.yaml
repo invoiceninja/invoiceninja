@@ -658,7 +658,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankIntegration"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankIntegration"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -703,7 +706,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankIntegration"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankIntegration"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -747,7 +753,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankIntegration"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankIntegration"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -832,7 +841,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankIntegration"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankIntegration"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -869,7 +881,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankIntegration"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankIntegration"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -963,7 +978,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_integrations/remove_account/account_id:
+  "/api/v1/bank_integrations/remove_account/{acc_id}":
     post:
       tags:
         - bank_integrations
@@ -974,6 +989,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - name: acc_id
+          in: path
+          description: "The bank account id"
+          required: true
+          schema:
+            type: string
+          example: "123456"
       responses:
         200:
           description: "Returns the bank_integration object"
@@ -1000,7 +1022,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_integrations/get_transactions/account_id:
+  "/api/v1/bank_integrations/get_transactions/{acc_id}":
     post:
       tags:
         - bank_integrations
@@ -1011,6 +1033,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - name: acc_id
+          in: path
+          description: "The bank account id"
+          required: true
+          schema:
+            type: string
+          example: "123456"
       responses:
         200:
           description: "Retrieve transactions for a account"
@@ -1116,7 +1145,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransaction"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransaction"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1161,7 +1193,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransaction"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransaction"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1205,7 +1240,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransaction"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransaction"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1286,7 +1324,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransaction"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransaction"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1323,7 +1364,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransaction"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransaction"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1525,7 +1569,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransactionRule"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransactionRule"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1570,7 +1617,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransactionRule"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransactionRule"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1614,7 +1664,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransactionRule"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransactionRule"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1699,7 +1752,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransactionRule"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransactionRule"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1736,7 +1792,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankTransactionRule"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/BankTransactionRule"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1998,7 +2057,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ClientGatewayToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ClientGatewayToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2043,7 +2105,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ClientGatewayToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ClientGatewayToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2087,7 +2152,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ClientGatewayToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ClientGatewayToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2172,7 +2240,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ClientGatewayToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ClientGatewayToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2209,7 +2280,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ClientGatewayToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ClientGatewayToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2281,7 +2355,7 @@ paths:
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "Returns the saved company object"
+          description: "Returns the company users of the new company"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -2292,7 +2366,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CompanyUser"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2329,7 +2408,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Company"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2374,7 +2456,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Company"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2418,7 +2503,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Company"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2503,7 +2591,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Company"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Company"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2730,7 +2821,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyGateway"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyGateway"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2767,7 +2861,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyGateway"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyGateway"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2809,7 +2906,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyGateway"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyGateway"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2850,7 +2950,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyGateway"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyGateway"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -2929,7 +3032,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyGateway"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyGateway"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3016,38 +3122,6 @@ paths:
                       $ref: '#/components/schemas/CompanyLedger'
                   meta:
                     $ref: '#/components/schemas/Meta'
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  /api/v1/company_users:
-    post:
-      tags:
-        - company_user
-      summary: "Update a company user record"
-      description: "Attempts to update a company user record. A company user can modify only their settings fields. Full access for Admin users"
-      operationId: updateCompanyUser
-      parameters:
-        - $ref: "#/components/parameters/X-Requested-With"
-      responses:
-        200:
-          description: "The Company User response"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CompanyUser"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3162,7 +3236,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Design"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Design"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3204,7 +3281,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Design"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Design"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3245,7 +3325,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Design"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Design"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3324,7 +3407,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Design"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Design"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3358,7 +3444,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Design"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Design"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3598,7 +3687,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExpenseCategory"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExpenseCategory"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3630,7 +3722,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExpenseCategory"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExpenseCategory"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3670,7 +3765,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExpenseCategory"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExpenseCategory"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3709,7 +3807,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExpenseCategory"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExpenseCategory"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3784,7 +3885,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExpenseCategory"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/ExpenseCategory"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3904,7 +4008,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3945,7 +4052,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -3985,7 +4095,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4062,7 +4175,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4095,7 +4211,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Expense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4299,7 +4418,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GroupSetting"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4332,7 +4454,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GroupSetting"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4373,7 +4498,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GroupSetting"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4413,7 +4541,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GroupSetting"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -4490,7 +4621,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GroupSetting"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GroupSetting"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5197,7 +5331,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/apple/confirm_purchase:
+  "/api/v1/confirm_purchase":
     post:
       tags:
         - postmark
@@ -5226,7 +5360,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/apple/process_webhook:
+  "/api/v1/process_webhook":
     post:
       tags:
         - postmark
@@ -5257,7 +5391,7 @@ paths:
           $ref: "#/components/responses/default"
   
   /api/v1/claim_license:
-    get:
+    post:
       tags:
         - claim_license
       summary: "Attempts to claim a white label license"
@@ -5329,7 +5463,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/migration/purge/{company}":
+  "/api/v1/companies/purge/{company}":
     post:
       tags:
         - migration
@@ -5365,7 +5499,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/migration/purge_save_settings/{company}":
+  "/api/v1/companies/purge_save_settings/{company}":
     post:
       tags:
         - migration
@@ -5383,42 +5517,6 @@ paths:
             type: string
             format: string
           example: D2J234DFA
-      responses:
-        200:
-          description: Success
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  /api/v1/migration/start:
-    post:
-      tags:
-        - migration
-      summary: "Starts the migration from previous version of Invoice Ninja"
-      description: "Starts the migration from previous version of Invoice Ninja"
-      operationId: postStartMigration
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/X-API-PASSWORD"
-        - name: migration
-          in: query
-          description: "The migraton file"
-          required: true
-          schema:
-            type: object
-            format: file
       responses:
         200:
           description: Success
@@ -5539,7 +5637,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaymentTerm"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5572,7 +5673,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5613,7 +5717,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaymentTerm"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5653,7 +5760,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaymentTerm"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -5730,7 +5840,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaymentTerm"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PaymentTerm"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6006,7 +6119,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringExpense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6047,7 +6163,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringExpense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6087,7 +6206,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringExpense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6164,7 +6286,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringExpense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6197,7 +6322,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringExpense"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringExpense"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6375,7 +6503,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringQuote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringQuote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6408,7 +6539,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringQuote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringQuote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6449,7 +6583,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringQuote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringQuote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6489,7 +6626,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringQuote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringQuote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6566,7 +6706,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringQuote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringQuote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -6600,55 +6743,6 @@ paths:
       responses:
         200:
           description: "The RecurringQuote response"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RecurringQuote"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/recurring_quotes/{id}/{action}":
-    get:
-      tags:
-        - recurring_quotes
-      summary: "Performs a custom action on an RecurringQuote"
-      description: "Performs a custom action on an RecurringQuote.\n\n    The current range of actions are as follows\n    - clone_to_RecurringQuote\n    - clone_to_quote\n    - history\n    - delivery_note\n    - mark_paid\n    - download\n    - archive\n    - delete\n    - email"
-      operationId: actionRecurringQuote
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The RecurringQuote Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-        - name: action
-          in: path
-          description: "The action string to be performed"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: clone_to_quote
-      responses:
-        200:
-          description: "Returns the RecurringQuote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -7743,7 +7837,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscription"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscription"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7776,7 +7873,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscription"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscription"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7817,7 +7917,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscription"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscription"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7857,7 +7960,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscription"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscription"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7934,7 +8040,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Subscription"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Subscription"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8162,6 +8271,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TaskScheduler"
         401:
           $ref: "#/components/responses/401"
         default:
@@ -8191,6 +8309,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskScheduler"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8225,7 +8350,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskSchedulerSchema"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskScheduler"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8261,6 +8389,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskScheduler"
         401:
           $ref: "#/components/responses/401"
         default:
@@ -8298,6 +8433,13 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskScheduler"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8454,7 +8596,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskStatus"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8487,7 +8632,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskStatus"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8528,7 +8676,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskStatus"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8568,7 +8719,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskStatus"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8645,7 +8799,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskStatus"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskStatus"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8739,6 +8896,47 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
+    post:
+      tags:
+        - tax_rates
+      summary: "Adds a tax rate"
+      description: "Adds a tax rate to the company"
+      operationId: storeTaxRate
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        description: "The tax rate"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaxRate"
+      responses:
+        200:
+          description: "Returns the TaxRate object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaxRate"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
   /api/v1/tax_rates/create:
     get:
       tags:
@@ -8762,7 +8960,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaxRate"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaxRate"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8802,7 +9003,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaxRate"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaxRate"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8841,7 +9045,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaxRate"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaxRate"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -8916,7 +9123,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaxRate"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaxRate"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9157,7 +9367,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9198,7 +9411,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9238,7 +9454,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9315,7 +9534,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9348,7 +9570,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompanyToken"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CompanyToken"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9467,7 +9692,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9500,7 +9728,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9541,7 +9772,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9581,92 +9815,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-    delete:
-      tags:
-        - users
-      summary: "Deletes a User"
-      description: "Handles the deletion of an User by id"
-      operationId: deleteUser
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: token_name
-          in: query
-          description: "Customized name for the Users API Token"
-          required: false
-          schema:
-            type: string
-            format: string
-          example: "iOS Device 11 iPad"
-        - name: id
-          in: path
-          description: "The User Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns a HTTP status"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/users/{id}/edit":
-    get:
-      tags:
-        - users
-      summary: "Shows an User for editting"
-      description: "Displays an User by id"
-      operationId: editUser
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The User Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the User object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9793,7 +9945,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/users/{user}/reconfirm":
+  "/api/v1/user/{user}/reconfirm":
     post:
       tags:
         - users
@@ -9831,7 +9983,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   
-  /api/v1/webcron:
+  "/webcron":
     get:
       tags:
         - webcron
@@ -9925,7 +10077,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Webhook"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -9966,7 +10121,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Webhook"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10006,7 +10164,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Webhook"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10083,7 +10244,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Webhook"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10116,7 +10280,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Webhook"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Webhook"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10263,7 +10430,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10322,7 +10492,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10367,7 +10540,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10466,7 +10642,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -10504,7 +10683,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credit"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Credit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -11211,7 +11393,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -11258,7 +11443,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -11324,7 +11512,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -11411,6 +11602,68 @@ paths:
             --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
             --header 'X-API-TOKEN: YOUR-TOKEN' \
             --header 'Accept: application/json'
+  "/api/v1/locations/{id}/edit":
+    get:
+      tags:
+        - locations
+      summary: 'Edit location'
+      description: |
+        ##  GET /api/v1/locations/{id}/edit
+
+        Displays a location by id for editing
+      operationId: editLocation
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+        - name: id
+          in: path
+          description: 'The Location Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the location object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
 
   /api/v1/locations/create:
     get:
@@ -11439,7 +11692,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -11779,7 +12035,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringInvoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -11837,7 +12096,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringInvoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -11881,7 +12143,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringInvoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -11966,7 +12231,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringInvoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12004,7 +12272,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/RecurringInvoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12077,101 +12348,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: '#/components/responses/422'
-        429:
-          $ref: '#/components/responses/429'
-        5XX:
-          description: 'Server error'
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/recurring_invoices/{id}/{action}":
-    get:
-      deprecated: true
-      tags:
-        - Recurring Invoices
-      summary: "Custom recurring invoice action"
-      description: "Performs a custom action on an RecurringInvoice.\n\n    The current range of actions are as follows\n    - clone_to_RecurringInvoice\n    - clone_to_quote\n    - history\n    - delivery_note\n    - mark_paid\n    - download\n    - archive\n    - delete\n    - email"
-      operationId: actionRecurringInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The RecurringInvoice Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-        - name: action
-          in: path
-          description: "The action string to be performed"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: clone_to_quote
-      responses:
-        200:
-          description: "Returns the RecurringInvoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RecurringInvoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: '#/components/responses/422'
-        429:
-          $ref: '#/components/responses/429'
-        5XX:
-          description: 'Server error'
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/recurring_invoice/{invitation_key}/download":
-    get:
-      tags:
-        - Recurring Invoices
-      summary: "Download recurring invoice PDF"
-      description: "Downloads a specific invoice"
-      operationId: downloadRecurringInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: invitation_key
-          in: path
-          description: "The Recurring Invoice Invitation Key"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the recurring invoice pdf"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12372,7 +12548,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Task"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12429,7 +12608,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Task"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12504,7 +12686,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Task"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12613,7 +12798,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Task"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -12662,7 +12850,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Task"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -13088,7 +13279,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -13150,7 +13344,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -13255,7 +13452,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -13373,7 +13573,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -13427,7 +13630,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -14882,7 +15088,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Project"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -14939,7 +15148,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Project"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15014,7 +15226,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Project"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15123,7 +15338,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Project"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15172,7 +15390,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Project"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Project"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15444,7 +15665,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15501,7 +15725,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15578,7 +15805,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15687,7 +15917,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -15736,7 +15969,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Vendor"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Vendor"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16008,7 +16244,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16066,7 +16305,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16110,7 +16352,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16207,7 +16452,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16244,7 +16492,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Payment"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Payment"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -16349,61 +16600,6 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/payments/{id}/{action}":
-    get:
-      deprecated: true
-      tags:
-        - payments
-      summary: "Custom payment actions"
-      description: "Performs a custom action on an Payment.\n\n    The current range of actions are as follows\n    - clone_to_Payment\n    - clone_to_quote\n    - history\n    - delivery_note\n    - mark_paid\n    - download\n    - archive\n    - delete\n    - email"
-      operationId: actionPayment
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Payment Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-        - name: action
-          in: path
-          description: "The action string to be performed"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: clone_to_quote
-      responses:
-        200:
-          description: "Returns the Payment object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Payment"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: '#/components/responses/422'
-        429:
-          $ref: '#/components/responses/429'
-        5XX:
-          description: 'Server error'
-        default:
-          $ref: "#/components/responses/default"
-  
   "/api/v1/payments/{id}/upload":
     post:
       tags:
@@ -17845,7 +18041,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -17891,7 +18090,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -17904,7 +18106,6 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/purchase_order/{id}":
     put:
       tags:
         - Purchase Orders
@@ -17967,7 +18168,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -18052,7 +18256,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -18090,7 +18297,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -18449,7 +18659,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -18509,7 +18722,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -18584,7 +18800,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -18702,7 +18921,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -18754,7 +18976,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -20134,6 +20359,65 @@ components:
 
 
 
+    TaskScheduler:
+      properties:
+        id:
+          description: 'The scheduler hashed id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        name:
+          description: 'The name of the scheduler'
+          type: string
+          example: 'Monthly statements'
+        frequency_id:
+          description: 'The frequency the scheduler runs at, as a string'
+          type: string
+          example: '5'
+        next_run:
+          description: 'The next date the scheduler runs (YYYY-MM-DD)'
+          type: string
+          example: '2030-01-01'
+        template:
+          description: 'The template the scheduler runs'
+          type: string
+          example: client_statement
+        is_paused:
+          description: 'Whether the scheduler is paused'
+          type: boolean
+          example: false
+        parameters:
+          description: 'The template specific parameters'
+          type: object
+          additionalProperties: true
+        remaining_cycles:
+          description: 'The number of runs left, -1 for endless'
+          type: integer
+          example: -1
+        is_deleted:
+          description: 'Whether the scheduler has been deleted'
+          type: boolean
+          example: false
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+      type: object
     TaskSchedulerSchema:
       properties:
         paused:
@@ -21108,6 +21392,10 @@ components:
           type: string
           format: date
           example: '2024-01-31'
+        estimated_duration:
+          description: 'Estimated duration for the task in seconds'
+          type: integer
+          example: 7200
         priority:
           description: 'Priority level of the task'
           type: integer
@@ -21119,7 +21407,6 @@ components:
             type: string
             example: Opnel5aKBz
       type: object
-
     LocationRequest:
       properties:
         name:
@@ -21826,24 +22113,20 @@ components:
           format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the quote was sent to the client'
+          description: 'The last date the quote was sent to the client, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next scheduled date for sending a reminder for the quote'
+          description: 'The next scheduled date for sending a reminder for the quote, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the partial or deposit amount'
+          description: 'The due date for the partial or deposit amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date for the total amount of the quote'
+          description: 'The due date for the total amount of the quote, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
@@ -22519,24 +22802,20 @@ components:
           format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the purchase order was sent to the vendor'
+          description: 'The last date the purchase order was sent to the vendor, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next scheduled date for sending a reminder for the purchase order'
+          description: 'The next scheduled date for sending a reminder for the purchase order, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the partial or deposit amount'
+          description: 'The due date for the partial or deposit amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date for the total amount of the purchase order'
+          description: 'The due date for the total amount of the purchase order, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
@@ -22637,25 +22916,21 @@ components:
           type: string
           example: Opnel5aKBz
         reminder1_sent:
-          description: 'Timestamp when the first reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the first reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
         reminder2_sent:
-          description: 'Timestamp when the second reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the second reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
         reminder3_sent:
-          description: 'Timestamp when the third reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the third reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
         reminder_last_sent:
-          description: 'Timestamp when the last reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the most recent reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
       type: object
 
     InvoiceInvitation:
@@ -23225,8 +23500,18 @@ components:
           type: boolean
           example: true
         client_registration_fields:
-          description: "The client registration fields for the company"
-          type: object
+          description: 'The client registration fields for the company'
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: first_name
+              required:
+                type: boolean
+              visible:
+                type: boolean
         stop_on_unpaid_recurring:
           description: "A flag determining whether to stop recurring invoices when they are unpaid"
           type: boolean
@@ -23369,12 +23654,11 @@ components:
           example: 587
 
         smtp_encryption:
-          description: "The encryption method for SMTP"
+          description: 'The encryption method for SMTP, an empty string when not set'
           type: string
           nullable: true
-          enum: [tls, ssl]
-          example: "tls"
-
+          enum: [tls, ssl, '']
+          example: tls
         smtp_local_domain:
           description: "The local domain for SMTP"
           type: string
@@ -23391,8 +23675,9 @@ components:
           additionalProperties: true
 
         legal_entity_id:
-          description: "The ID of the legal entity associated with the company"
+          description: 'The ID of the legal entity associated with the company, null when there is none'
           type: integer
+          nullable: true
           example: 1234
         convert_rate_to_client:
           description: 'Flag indicating whether to convert rates to the client currency'
@@ -23474,8 +23759,8 @@ components:
           example: '4'
         frequency_id:
           description: 'The recurring invoice frequency'
-          type: number
-          example: 4
+          type: string
+          example: '4'
         remaining_cycles:
           description: 'The number of invoices left to be generated'
           type: number
@@ -23554,8 +23839,9 @@ components:
           example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the invoice'
-          type: object
-          example: {}
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         amount:
           description: 'The invoice amount'
           type: number
@@ -23594,29 +23880,24 @@ components:
           type: boolean
           example: true
         date:
-          description: 'The Invoice Date'
+          description: 'The Invoice Date, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the invoice was sent out'
+          description: 'The last date the invoice was sent out, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent'
+          description: 'The Next date for a reminder to be sent (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the deposit/partial amount'
+          description: 'The due date for the deposit/partial amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the invoice'
+          description: 'The due date of the invoice, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
@@ -23688,9 +23969,9 @@ components:
           type: string
           example: Opnel5aKBz
         due_date_days:
-          description: 'Number of days until the due date'
-          type: integer
-          example: 30
+          description: "The day of the month the invoices are due, 'terms' to use the payment terms or 'on_receipt'"
+          type: string
+          example: terms
         e_invoice:
           description: 'E-invoice configuration and data'
           type: object
@@ -23848,7 +24129,9 @@ components:
           type: string
           example: Opnel5aKBz
         type_id:
-          $ref: '#/components/schemas/PaymentType'
+          description: 'The payment type id (see PaymentType for the values), an empty string when not set'
+          type: string
+          example: '1'
         date:
           description: 'The Payment date'
           type: string
@@ -23896,7 +24179,10 @@ components:
           type: string
           example: "3"
         paymentables:
-          $ref: '#/components/schemas/Paymentable'
+          description: 'The invoices and credits this payment is applied to'
+          type: array
+          items:
+            $ref: '#/components/schemas/Paymentable'
         invoices:
           description: ''
           type: array
@@ -24099,14 +24385,12 @@ components:
           format: date
           example: "1994-07-30"
         last_sent_date:
-          description: "The date the credit was last sent out"
+          description: "The date the credit was last sent out, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
         next_send_date:
-          description: "The next scheduled date for sending a credit reminder"
+          description: "The next scheduled date for sending a credit reminder, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
         partial_due_date:
           description: "The due date for the partial amount of the credit"
@@ -24114,9 +24398,8 @@ components:
           format: date
           example: "1994-07-30"
         due_date:
-          description: "The due date for the total amount of the credit"
+          description: "The due date for the total amount of the credit, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
         settings:
           $ref: "#/components/schemas/CompanySettings"
@@ -24250,9 +24533,9 @@ components:
           type: boolean
           example: true
         currency_id:
-          description: Unique identifier for the currency used in the subscription
-          type: integer
-          example: 1
+          description: 'Unique identifier for the currency used in the subscription, an empty string when not set'
+          type: string
+          example: '1'
         max_seats_limit:
           description: Maximum number of seats allowed for the subscription
           type: integer
@@ -24278,9 +24561,9 @@ components:
           type: integer
           example: 30
         webhook_configuration:
-          description: Webhook configuration for the subscription
-          type: string
-          example: 'expand reference for this'
+          description: 'Webhook configuration for the subscription'
+          type: object
+          additionalProperties: true
         is_deleted:
           description: Indicates whether the subscription has been deleted
           type: boolean
@@ -24337,9 +24620,8 @@ components:
           description: The default rate per task for the project
         due_date:
           type: string
-          format: date
           example: '2019-01-01'
-          description: The due date for the project
+          description: 'The due date for the project, an empty string when not set'
         private_notes:
           type: string
           description: Private notes associated with the project
@@ -24430,9 +24712,9 @@ components:
           type: boolean
           example: true
         payment_terms:
-          description: "-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days"
-          type: integer
-          example: 1
+          description: 'The payment terms in days as a string: -1 sets no payment term, 0 sets payment due immediately. An empty string when not set'
+          type: string
+          example: '30'
         company_gateway_ids:
           description: "A commad separate list of available gateways"
           type: string
@@ -24472,9 +24754,8 @@ components:
           enum: [plain, light, dark, custom]
           example: "light"
         reply_to_email:
-          description: "The reply to email address"
+          description: "The reply to email address, an empty string when not set"
           type: string
-          format: email
           example: "email@gmail.com"
         bcc_email:
           description: "A comma separate list of BCC emails"
@@ -24519,10 +24800,10 @@ components:
           type: string
           example: "Please approve quote"
         lock_invoices:
-          description: "Toggles whether invoices are locked once sent and cannot be modified further"
+          description: 'Toggles whether invoices are locked once sent and cannot be modified further'
           type: string
-          enum: [off, when_sent, when_paid, end_of_month]
-          example: "off"
+          enum: ['off', when_sent, when_paid, end_of_month]
+          example: 'off'
         auto_archive_invoice:
           description: "Toggles whether a invoice is archived immediately following payment"
           type: boolean
@@ -24624,13 +24905,14 @@ components:
           type: string
           example: "R"
         reset_counter_frequency_id:
-          description: "CONSTANT which is used to apply the frequency which the counters are reset"
-          type: integer
+          description: 'CONSTANT which is used to apply the frequency which the counters are reset. The default is returned as the string 0'
+          oneOf:
+            - type: integer
+            - type: string
           example: 1
         reset_counter_date:
-          description: "The explicit date which is used to reset counters"
+          description: "The explicit date which is used to reset counters, an empty string when not set"
           type: string
-          format: date
           example: "2019-01-01"
         counter_padding:
           description: "Pads the counter with leading zeros"
@@ -24842,9 +25124,8 @@ components:
           type: string
           example: "555-213-3948"
         email:
-          description: "The company email"
+          description: "The company email, an empty string when not set"
           type: string
-          format: email
           example: "joe@acme.co"
         country_id:
           description: "The country ID"
@@ -24971,20 +25252,20 @@ components:
           type: integer
           example: 9
         schedule_reminder1:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder2:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder3:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         late_fee_amount1:
           description: "The late fee amount for reminder 1"
           type: number
@@ -25055,9 +25336,8 @@ components:
           type: boolean
           example: false
         custom_sending_email:
-          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting."
+          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting, an empty string when not set"
           type: string
-          format: email
           example: "bob@gmail.com"
         show_paid_stamp:
           description: "Determines if the PAID stamp is shown on the invoice"
@@ -25068,11 +25348,9 @@ components:
           type: boolean
           example: false
         company_logo_size:
-          description: "The size of the company logo on the PDF - percentage value between 0 and 100"
-          type: integer
-          minimum: 0
-          maximum: 100
-          example: 100
+          description: 'The size of the company logo on the PDF as a CSS size, an empty string when not set'
+          type: string
+          example: '65%'
         show_email_footer:
           description: "Determines if the email footer is shown on emails"
           type: boolean
@@ -25151,10 +25429,10 @@ components:
           type: integer
           example: 1
         page_numbering_alignment:
-          description: "The alignment for page numbering: options include left / center / right"
+          description: 'The alignment for page numbering: L (left), C (center) or R (right)'
           type: string
-          enum: [left, center, right]
-          example: "left"
+          enum: [L, C, R]
+          example: C
         page_numbering:
           description: "Determines if page numbering is enabled on Document PDFs"
           type: boolean
@@ -25173,9 +25451,9 @@ components:
           enum: [all, uninvoiced, invoiced]
           example: "all"
         entity_send_time:
-          description: "The time that emails are sent. The time is localized to the clients locale, integer values from 1 - 24"
+          description: 'The hour emails are sent at, localized to the clients locale. Integer values from 0 - 24'
           type: integer
-          minimum: 1
+          minimum: 0
           maximum: 24
           example: 9
         shared_invoice_credit_counter:
@@ -25195,9 +25473,10 @@ components:
           type: boolean
           example: false
         use_credits_payment:
-          description: "Determines if credits can be used as a payment method"
-          type: boolean
-          example: false
+          description: 'Determines if credits can be used as a payment method'
+          type: string
+          enum: [always, option, 'off']
+          example: 'off'
         recurring_invoice_number_pattern:
           description: "The pattern for recurring invoice numbers"
           type: string
@@ -25235,10 +25514,10 @@ components:
           type: boolean
           example: false
         auto_bill:
-          description: "Determines how autobilling is applied for recurring invoices"
+          description: 'Determines how autobilling is applied for recurring invoices'
           type: string
-          enum: [off, always, optin, optout]
-          example: "off"
+          enum: ['off', always, optin, optout]
+          example: 'off'
         client_portal_terms:
           description: "The terms which are displayed on the client portal"
           type: string
@@ -25301,9 +25580,21 @@ components:
           type: string
           example: Beauty
         design:
-          description: 'The design HTML'
-          type: string
-          example: '<html></html>'
+          description: 'The HTML sections of the design'
+          type: object
+          properties:
+            includes:
+              type: string
+            header:
+              type: string
+            body:
+              type: string
+            product:
+              type: string
+            task:
+              type: string
+            footer:
+              type: string
         is_custom:
           description: 'Flag to determine if the design is a custom user design'
           type: boolean
@@ -26893,8 +27184,21 @@ components:
           description: 'The fully qualified class name this tag may be assigned to'
           type: string
           enum:
-            - 'App\Models\Task'
+            - 'App\Models\Company'
+            - 'App\Models\BankTransaction'
+            - 'App\Models\Client'
+            - 'App\Models\Credit'
+            - 'App\Models\Expense'
+            - 'App\Models\Invoice'
+            - 'App\Models\Payment'
+            - 'App\Models\Product'
             - 'App\Models\Project'
+            - 'App\Models\PurchaseOrder'
+            - 'App\Models\Quote'
+            - 'App\Models\RecurringExpense'
+            - 'App\Models\RecurringInvoice'
+            - 'App\Models\Task'
+            - 'App\Models\Vendor'
           example: 'App\Models\Task'
         name:
           description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
@@ -27279,8 +27583,8 @@ components:
           example: '4'
         frequency_id:
           description: 'The recurring quote frequency'
-          type: number
-          example: 4
+          type: string
+          example: '4'
         remaining_cycles:
           description: 'The number of quotes left to be generated'
           type: number
@@ -27359,8 +27663,9 @@ components:
           example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the quote'
-          type: object
-          example: {}
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         amount:
           description: 'The quote amount'
           type: number
@@ -27399,29 +27704,24 @@ components:
           type: boolean
           example: true
         date:
-          description: 'The quote Date'
+          description: 'The quote Date, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the quote was sent out'
+          description: 'The last date the quote was sent out, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent'
+          description: 'The Next date for a reminder to be sent, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the deposit/partial amount'
+          description: 'The due date for the deposit/partial amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the quote'
+          description: 'The due date of the quote, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
@@ -27693,19 +27993,16 @@ components:
           example: 'https://www.example.com/invitations/Opnel5aKBz4343343566236gvbb'
           readOnly: true
         sent_date:
-          description: 'The invitation sent date'
+          description: 'The invitation sent date, an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         viewed_date:
-          description: 'The invitation viewed date'
+          description: 'The invitation viewed date, an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         opened_date:
-          description: 'The invitation opened date'
+          description: 'The invitation opened date, an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         updated_at:
           description: 'Timestamp'
@@ -27927,9 +28224,9 @@ components:
           type: boolean
           example: true
         fees_and_limits:
-          description: 'A mapped collection of the fees and limits for the configured gateway'
-          type: array
-          items:
+          description: 'The fees and limits for the configured gateway, keyed by gateway type id'
+          type: object
+          additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
       type: object
     
@@ -28292,9 +28589,9 @@ components:
           example: true
           readOnly: true
         google_2fa_secret:
-          description: 'The google 2fa secret for the user'
-          type: string
-          example: '123456'
+          description: 'Whether the user has two factor authentication enabled'
+          type: boolean
+          example: false
           readOnly: true
         passkey_enabled:
           description: 'Boolean flag if passkey auth is enabled for this user'
@@ -28638,10 +28935,9 @@ components:
           format: float
           example: 10.00
         frequency_id:
-          description: 'The frequency this recurring expense fires'
-          type: number
-          format: int
-          example: 1
+          description: 'The frequency this recurring expense fires, an empty string when not set'
+          type: string
+          example: '1'
         remaining_cycles:
           description: 'The number of remaining cycles for this recurring expense'
           type: number
@@ -28674,14 +28970,12 @@ components:
           type: boolean
           example: true
         last_sent_date:
-          description: 'The Date it was sent last'
+          description: 'The Date it was sent last, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next send date'
+          description: 'The next send date (YYYY-MM-DD HH:MM:SS)'
           type: string
-          format: date
           example: '1994-07-30'
         invoice_documents:
           description: 'Boolean flag determining if the documents associated with this expense should be passed onto the invoice if it is converted to an invoice'
@@ -29250,6 +29544,15 @@ components:
           description: 'The task duration in seconds'
           type: integer
           example: 3600
+        due_date:
+          description: 'The due date of the task, an empty string when not set'
+          type: string
+          example: '2024-01-31'
+        estimated_duration:
+          description: 'The estimated duration of the task in seconds, null when not set'
+          type: integer
+          nullable: true
+          example: 7200
         task_status_order:
           description: 'The order of the task'
           type: integer
@@ -29310,16 +29613,19 @@ components:
           type: string
           example: 'a1b2c3d4e5f6'
         meta:
-          description: 'Metadata associated with this task'
-          type: object
-          additionalProperties: true
+          description: 'Metadata associated with this task, an empty string when there is none'
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: string
         status_id:
           description: 'The unique identifier of the task status'
           type: string
           example: Opnel5aKBz
         status_order:
-          description: 'Sort order for status display'
+          description: 'Sort order for status display, null when the task has not been sorted'
           type: integer
+          nullable: true
           example: 1
         status_sort_order:
           description: 'Alternative sort order for status'
@@ -29331,8 +29637,6 @@ components:
           items:
             $ref: '#/components/schemas/TagAssignment'
       type: object
-
-
     FeesAndLimits:
       properties:
         min_limit:

@@ -106,10 +106,9 @@
           format: float
           example: 10.00
         frequency_id:
-          description: 'The frequency this recurring expense fires'
-          type: number
-          format: int
-          example: 1
+          description: 'The frequency this recurring expense fires, an empty string when not set'
+          type: string
+          example: '1'
         remaining_cycles:
           description: 'The number of remaining cycles for this recurring expense'
           type: number
@@ -142,14 +141,12 @@
           type: boolean
           example: true
         last_sent_date:
-          description: 'The Date it was sent last'
+          description: 'The Date it was sent last, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next send date'
+          description: 'The next send date (YYYY-MM-DD HH:MM:SS)'
           type: string
-          format: date
           example: '1994-07-30'
         invoice_documents:
           description: 'Boolean flag determining if the documents associated with this expense should be passed onto the invoice if it is converted to an invoice'

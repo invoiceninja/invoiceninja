@@ -29,9 +29,8 @@
           description: The default rate per task for the project
         due_date:
           type: string
-          format: date
           example: '2019-01-01'
-          description: The due date for the project
+          description: 'The due date for the project, an empty string when not set'
         private_notes:
           type: string
           description: Private notes associated with the project

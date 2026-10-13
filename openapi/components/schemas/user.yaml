@@ -95,9 +95,9 @@
           example: true
           readOnly: true
         google_2fa_secret:
-          description: 'The google 2fa secret for the user'
-          type: string
-          example: '123456'
+          description: 'Whether the user has two factor authentication enabled'
+          type: boolean
+          example: false
           readOnly: true
         passkey_enabled:
           description: 'Boolean flag if passkey auth is enabled for this user'

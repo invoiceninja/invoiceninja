@@ -143,7 +143,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -203,7 +206,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -278,7 +284,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -396,7 +405,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -448,7 +460,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Product"
         401:
           $ref: '#/components/responses/401'
         403:
