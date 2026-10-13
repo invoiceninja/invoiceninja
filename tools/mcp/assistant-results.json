@@ -3217,6 +3217,5 @@
     "seconds": 7200,
     "native_update_read": "passed",
     "database": "passed"
-  },
-  "stormMaster": "Control plane registration and Storm model invocations still pending; this report proves calls from this Codex chat."
+  }
 }
