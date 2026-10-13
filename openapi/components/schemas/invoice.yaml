@@ -147,30 +147,27 @@
           format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the invoice was sent out'
+          description: 'The last date the invoice was sent out (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent'
+          description: 'The Next date for a reminder to be sent (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the deposit/partial amount'
+          description: 'The due date for the deposit/partial amount (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the invoice'
+          description: 'The due date of the invoice (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
-        last_viewed:
+        created_at:
           description: Timestamp
           type: number
           format: integer
           example: 1434342123
+          readOnly: true
         updated_at:
           description: Timestamp
           type: number
@@ -221,11 +218,6 @@
           description: 'The project associated with this invoice'
           type: string
           example: Opnel5aKBz
-        auto_bill_tries:
-          description: 'The number of times the invoice has attempted to be auto billed'
-          type: integer
-          example: 1
-          readOnly: true
         auto_bill_enabled:
           description: 'Boolean flag determining if the invoice is set to auto bill'
           type: boolean
@@ -246,6 +238,75 @@
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
+        tax_info:
+          description: 'The tax data calculated for this invoice'
+          type: object
+          additionalProperties: true
+          readOnly: true
+        backup:
+          description: 'Internal state of the invoice, such as cancellation and e-invoice clearance data'
+          type: object
+          additionalProperties: true
+          nullable: true
+          readOnly: true
+        sync:
+          description: 'Synchronisation state with third party accounting systems'
+          type: object
+          additionalProperties: true
+          nullable: true
+          readOnly: true
+        recurring_id:
+          description: 'The hashed id of the recurring invoice that generated this invoice, an empty string when there is none'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        entity_type:
+          description: 'The entity type, always invoice'
+          type: string
+          example: invoice
+          readOnly: true
+        reminder1_sent:
+          description: 'The date the first reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
+          readOnly: true
+        reminder2_sent:
+          description: 'The date the second reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
+          readOnly: true
+        reminder3_sent:
+          description: 'The date the third reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
+          readOnly: true
+        reminder_last_sent:
+          description: 'The date the most recent reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          type: string
+          example: '1994-07-30'
+          readOnly: true
+        has_tasks:
+          description: 'Deprecated, always false'
+          type: boolean
+          deprecated: true
+          readOnly: true
+        has_expenses:
+          description: 'Deprecated, always false'
+          type: boolean
+          deprecated: true
+          readOnly: true
+        tags:
+          description: 'The tags attached to this invoice'
+          type: array
+          items:
+            type: object
+          readOnly: true
+        documents:
+          description: 'The documents attached to this invoice'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+          readOnly: true
         exchange_rate:
           description: 'The exchange rate used for currency conversion'
           type: number
