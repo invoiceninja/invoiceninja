@@ -13,6 +13,7 @@
 namespace Tests\Feature;
 
 use App\Http\Middleware\PasswordProtection;
+use cebe\openapi\spec\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
@@ -317,6 +318,32 @@ class OpenApiContractTest extends TestCase
             return $this->reasons($e);
         }
 
-        return [];
+        $schema = $this->validator->getSchema()->paths->getPath($path)->{$method}->responses->getResponse('200')->content['application/json']->schema;
+
+        return array_map(
+            fn ($field) => "returns {$field}, which the spec does not document",
+            array_unique($this->undocumented($schema->properties['data'] ?? null, $content->data, 'data')),
+        );
+    }
+
+    /** The returned fields the schema does not list. Validation alone ignores them. */
+    private function undocumented(?Schema $schema, mixed $data, string $at): array
+    {
+        if (is_array($data)) {
+            return array_merge([], ...array_map(fn ($row) => $this->undocumented($schema?->items, $row, $at.'.*'), $data));
+        }
+
+        if (! $data instanceof \stdClass || empty($schema?->properties)) {
+            return [];
+        }
+
+        $fields = [];
+        foreach (get_object_vars($data) as $key => $value) {
+            $fields = array_merge($fields, isset($schema->properties[$key])
+                ? $this->undocumented($schema->properties[$key], $value, "{$at}.{$key}")
+                : ["{$at}.{$key}"]);
+        }
+
+        return $fields;
     }
 }
