@@ -25,6 +25,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -84,17 +85,29 @@ class PaymentIntentWebhook implements ShouldQueue
 
         foreach ($this->stripe_request as $transaction) {
 
-            // Newer API versions expose the charge ID and metadata on the PaymentIntent.
-            $charge = data_get($transaction, 'charges.data.0') ?? [
-                'id' => data_get($transaction, 'latest_charge'),
-                'amount' => data_get($transaction, 'amount_received'),
-                'metadata' => data_get($transaction, 'metadata', []),
-            ];
-            $ninja_promo = data_get($charge, 'metadata.product', false);
+            if(\App\Utils\Ninja::isHosted()) {
+                $charge = data_get($transaction, 'charges.data.0') ?? [
+                    'id' => data_get($transaction, 'latest_charge'),
+                    'amount' => data_get($transaction, 'amount_received'),
+                    'metadata' => data_get($transaction, 'metadata', []),
+                ];
 
-            if ($ninja_promo && class_exists(\Modules\Admin\Jobs\Stripe\CampaignCharge::class)) {
-                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch($charge)->delay(5);
-                continue;
+                $ninja_promo = data_get($charge, 'metadata.product', false);
+
+                $upgrade_quote_key = data_get($charge, 'metadata.upgrade_quote_key')
+                                        ?: data_get($transaction, 'metadata.upgrade_quote_key');
+
+                                        
+                if ($ninja_promo && class_exists(\Modules\Admin\Jobs\Stripe\CampaignCharge::class)) {
+                    \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch($charge)->delay(5);
+                    continue;
+                }
+                // elseif ($upgrade_quote_key && class_exists(\Modules\Admin\Jobs\Stripe\UpgradeQuote::class)) {
+                //     \Modules\Admin\Jobs\Stripe\UpgradeQuote::dispatch($upgrade_quote_key, $charge)->delay(5);
+                //     continue;
+                // }
+                //@todo
+
             }
 
             $payment = self::findPaymentByStripeReference($company->id, $transaction);

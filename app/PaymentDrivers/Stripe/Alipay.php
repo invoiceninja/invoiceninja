@@ -72,7 +72,8 @@ class Alipay implements LivewireMethodInterface
             }
 
             /** @phpstan-ignore-next-line */
-            if ($pi->status == 'requires_source_action' && $pi->next_action->alipay_handle_redirect) {
+            if (in_array($pi->status, ['requires_source_action', 'requires_action'], true)
+                && $pi->next_action->alipay_handle_redirect) { /** @phpstan-ignore-line */
                 /** @phpstan-ignore-next-line */
                 return redirect($pi->next_action->alipay_handle_redirect->url);
             }
