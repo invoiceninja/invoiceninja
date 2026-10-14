@@ -54,7 +54,6 @@ class OpenApiContractTest extends TestCase
      * A '{name}' body value is replaced by the hashed id of that entity, which is created on demand.
      *
      * Skipped operations are ones the API does not offer, or known API deviations the spec can't express:
-     * - GET /clients/create returns settings without the required currency_id
      * - GET /{invoices,quotes,credits,...}/create returns line_items as the string "[]" instead of an array
      * - GET /tags/create returns an empty name and entity_type
      * - users have no edit or delete route, client gateway tokens no bulk route
@@ -63,7 +62,7 @@ class OpenApiContractTest extends TestCase
      *   Deleting that company would take the test account with it
      */
     private const ENTITIES = [
-        'client' => ['/api/v1/clients', ['name' => 'Contract Test Client'], ['create']],
+        'client' => ['/api/v1/clients', ['name' => 'Contract Test Client']],
         'invoice' => ['/api/v1/invoices', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS], ['create']],
         'quote' => ['/api/v1/quotes', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS], ['create']],
         'credit' => ['/api/v1/credits', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS], ['create']],
