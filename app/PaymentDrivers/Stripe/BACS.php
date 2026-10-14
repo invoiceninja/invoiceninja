@@ -44,7 +44,7 @@ class BACS implements LivewireMethodInterface
             'customer' => $customer->id,
             'success_url' => str_replace("%7B", "{", str_replace("%7D", "}", $this->buildAuthorizeUrl())),
             'cancel_url' => route('client.payment_methods.index'),
-        ]);
+        ], $this->stripe->stripe_connect_auth);
         return render('gateways.stripe.bacs.authorize', $data);
     }
     private function buildAuthorizeUrl(): string
@@ -59,7 +59,13 @@ class BACS implements LivewireMethodInterface
     {
         $this->stripe->init();
         if ($request->session_id) {
-            $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
+            $session = Session::retrieve(
+                [
+                    'id' => $request->session_id,
+                    'expand' => ['setup_intent'],
+                ],
+                $this->stripe->stripe_connect_auth
+            );
 
             $customer = $this->stripe->findOrCreateCustomer();
             $this->stripe->attach($session->setup_intent->payment_method, $customer);

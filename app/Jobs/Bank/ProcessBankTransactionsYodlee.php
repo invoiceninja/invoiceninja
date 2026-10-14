@@ -124,6 +124,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                 ];
 
                 $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+                BankMatchingService::dispatch($this->company->id, $this->company->db);
                 return;
             }
         } while ($this->stop_loop);
