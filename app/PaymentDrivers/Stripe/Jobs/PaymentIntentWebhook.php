@@ -84,11 +84,16 @@ class PaymentIntentWebhook implements ShouldQueue
 
         foreach ($this->stripe_request as $transaction) {
 
-            //@stripe webhook API 2018 - requires action for API version update
-            $ninja_promo = data_get($transaction, 'charges.data.0.metadata.product', false);
+            // Newer API versions expose the charge ID and metadata on the PaymentIntent.
+            $charge = data_get($transaction, 'charges.data.0') ?? [
+                'id' => data_get($transaction, 'latest_charge'),
+                'amount' => data_get($transaction, 'amount_received'),
+                'metadata' => data_get($transaction, 'metadata', []),
+            ];
+            $ninja_promo = data_get($charge, 'metadata.product', false);
 
             if ($ninja_promo && class_exists(\Modules\Admin\Jobs\Stripe\CampaignCharge::class)) {
-                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch(data_get($transaction, 'charges.data.0'))->delay(5);
+                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch($charge)->delay(5);
                 continue;
             }
 

@@ -508,7 +508,10 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      */
     public function getSetupIntent(): SetupIntent
     {
-        return $this->createSetupIntent(['usage' => 'off_session']);
+        return $this->createSetupIntent([
+            'usage' => 'off_session',
+            'payment_method_types' => ['card'],
+        ]);
     }
 
     public function createSetupIntent(array $params): SetupIntent

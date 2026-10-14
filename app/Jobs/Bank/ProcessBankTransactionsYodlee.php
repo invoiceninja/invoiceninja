@@ -59,7 +59,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public function retryUntil(): \DateTimeInterface
     {
-        return now()->addHour(1);
+        return now()->addHour();
     }
 
     /**
