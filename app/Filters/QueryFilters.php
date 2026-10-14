@@ -260,6 +260,26 @@ abstract class QueryFilters
         });
     }
 
+
+    public function project_id(string $project_id = ''): Builder
+    {
+
+        if (strlen($project_id) == 0 || !in_array('project_id', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        $decoded = $this->decodePrimaryKey($project_id);
+
+        return $this->builder
+            ->where('project_id', $decoded)
+            ->whereExists(function ($query) use ($decoded) {
+                $query->selectRaw('1')
+                    ->from('projects')
+                    ->where('projects.id', $decoded)
+                    ->where('projects.company_id', auth()->user()->companyId());
+            });
+    }
+
     /**
      * String to operator convertor.
      *
