@@ -132,9 +132,7 @@ class UpdatePaymentMethods
     private function storeEligibleBankMethod(PaymentMethod $method, Customer $customer, Client $client): void
     {
         // Serialize imports for this client without holding a lock across Stripe requests.
-        $client->getConnection()->transaction(function () use ($method, $customer, $client) {
-            $client->newQuery()->whereKey($client->id)->lockForUpdate()->firstOrFail();
-            $token = ClientGatewayToken::on($client->getConnectionName())->where([
+            $token = ClientGatewayToken::where([
                 'company_id' => $client->company_id,
                 'client_id' => $client->id,
                 'company_gateway_id' => $this->stripe->company_gateway->id,
@@ -166,7 +164,7 @@ class UpdatePaymentMethods
                 'state' => 'authorized',
             ]);
             $token->save();
-        });
+        
     }
 
     public function importBankAccounts($customer, $client)
