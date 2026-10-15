@@ -17,7 +17,6 @@ use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 use Stripe\Customer;
@@ -117,8 +116,8 @@ class UpdatePaymentMethods
         );
 
         foreach ($methods->autoPagingIterator() as $method) {
-            // Verification and webhook flows own existing hosted token states.
-            if ($this->isHostedConnect() && $this->bankTokenQuery($method, $customer, $client)->exists()) {
+            // Verification and webhook flows own existing token states.
+            if ($this->bankTokenQuery($method, $customer, $client)->exists()) {
                 continue;
             }
 
@@ -139,26 +138,24 @@ class UpdatePaymentMethods
     private function storeEligibleBankMethod(PaymentMethod $method, Customer $customer, Client $client): void
     {
         // Recheck after Stripe lookups in case another flow created the token.
+        /** @var ?ClientGatewayToken $token */
         $token = $this->bankTokenQuery($method, $customer, $client)->first();
 
-        if ($token && $this->isHostedConnect()) {
+        if ($token) {
             return;
         }
 
-        if (!$token) {
-            $token = ClientGatewayTokenFactory::create($client->company_id);
-            $token->setConnection($client->getConnectionName());
-            $token->client_id = $client->id;
-            $token->company_gateway_id = $this->stripe->company_gateway->id;
-            $token->gateway_customer_reference = $customer->id;
-            $token->token = $method->id;
-            $token->gateway_type_id = GatewayType::BANK_TRANSFER;
-            $token->is_default = !ClientGatewayToken::on($client->getConnectionName())
-                ->where('company_id', $client->company_id)
-                ->where('client_id', $client->id)
-                ->where('is_default', true)
-                ->exists();
-        }
+        $token = ClientGatewayTokenFactory::create($client->company_id);
+        $token->client_id = $client->id;
+        $token->company_gateway_id = $this->stripe->company_gateway->id;
+        $token->gateway_customer_reference = $customer->id;
+        $token->token = $method->id;
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->is_default = ClientGatewayToken::query()
+            ->where('company_id', $client->company_id)
+            ->where('client_id', $client->id)
+            ->where('is_default', true)
+            ->doesntExist();
 
         $meta = is_object($token->meta) ? (array) $token->meta : [];
         unset($meta['next_action']);
@@ -171,18 +168,10 @@ class UpdatePaymentMethods
         $token->save();
     }
 
-    private function isHostedConnect(): bool
-    {
-        return $this->stripe->stripe_connect && Ninja::isHosted();
-    }
-
     private function bankTokenQuery(PaymentMethod $method, Customer $customer, Client $client): Builder
     {
-        $query = $this->isHostedConnect()
-            ? ClientGatewayToken::on($client->getConnectionName())
-            : ClientGatewayToken::query();
 
-        $query->where([
+        return ClientGatewayToken::query()->where([
             'company_id' => $client->company_id,
             'client_id' => $client->id,
             'company_gateway_id' => $this->stripe->company_gateway->id,
@@ -190,11 +179,6 @@ class UpdatePaymentMethods
             'token' => $method->id,
         ]);
 
-        if ($this->isHostedConnect()) {
-            $query->where('gateway_type_id', GatewayType::BANK_TRANSFER);
-        }
-
-        return $query;
     }
 
     public function importBankAccounts($customer, $client)
