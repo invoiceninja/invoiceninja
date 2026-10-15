@@ -22,7 +22,9 @@
           type: string
           example: Opnel5aKBz
         type_id:
-          $ref: '#/components/schemas/PaymentType'
+          description: 'The payment type id (see PaymentType for the values), an empty string when not set'
+          type: string
+          example: '1'
         date:
           description: 'The Payment date'
           type: string
@@ -70,7 +72,10 @@
           type: string
           example: "3"
         paymentables:
-          $ref: '#/components/schemas/Paymentable'
+          description: 'The invoices and credits this payment is applied to'
+          type: array
+          items:
+            $ref: '#/components/schemas/Paymentable'
         invoices:
           description: ''
           type: array
@@ -159,5 +164,10 @@
           description: 'The currency id of the payment'
           type: string
           example: '1'
+        documents:
+          description: 'The documents attached to the payment'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
     

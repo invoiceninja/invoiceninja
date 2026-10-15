@@ -28,4 +28,17 @@
           type: number
           format: integer
           example: 1434342123
+        activity_id:
+          description: 'The activity id'
+          type: integer
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        credit_id:
+          description: 'The credit id'
+          type: string
+        invoice_id:
+          description: 'The invoice id'
+          type: string
       type: object

@@ -114,12 +114,12 @@ class TaskStatusController extends BaseController
 
     /**
      * @param EditTaskStatusRequest $request
-     * @param TaskStatus $payment
+     * @param TaskStatus $task_status
      * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
-    public function edit(EditTaskStatusRequest $request, TaskStatus $payment)
+    public function edit(EditTaskStatusRequest $request, TaskStatus $task_status)
     {
-        return $this->itemResponse($payment);
+        return $this->itemResponse($task_status);
     }
 
     /**

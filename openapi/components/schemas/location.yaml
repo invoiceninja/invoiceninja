@@ -82,4 +82,12 @@
           description: 'Timestamp of when the location was last updated'
           type: integer
           example: 1623456999
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        tax_data:
+          description: 'The tax data'
+          type: object
+          additionalProperties: true
       type: object 

@@ -1,7 +1,4 @@
     ClientRequest:
-      required:
-        - contacts
-        - country_id
       properties:
         id:
           description: 'The unique identifier of the client'

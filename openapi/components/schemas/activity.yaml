@@ -91,4 +91,26 @@
           $ref: '#/components/schemas/Vendor'
         vendor_contact:
           $ref: '#/components/schemas/VendorContact'
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        purchase_order_id:
+          description: 'The purchase order id'
+          type: string
+        quote_id:
+          description: 'The quote id'
+          type: string
+        recurring_expense_id:
+          description: 'The recurring expense id'
+          type: string
+        recurring_invoice_id:
+          description: 'The recurring invoice id'
+          type: string
+        vendor_contact_id:
+          description: 'The vendor contact id'
+          type: string
+        vendor_id:
+          description: 'The vendor id'
+          type: string
       type: object

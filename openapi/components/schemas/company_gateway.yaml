@@ -30,10 +30,92 @@
           type: boolean
           example: true
         fees_and_limits:
-          description: 'A mapped collection of the fees and limits for the configured gateway'
-          type: array
-          items:
+          description: 'The fees and limits for the configured gateway, keyed by gateway type id'
+          type: object
+          additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
+        always_show_required_fields:
+          description: 'The always show required fields'
+          type: boolean
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        custom_value1:
+          description: 'The custom value1'
+          type: string
+        custom_value2:
+          description: 'The custom value2'
+          type: string
+        custom_value3:
+          description: 'The custom value3'
+          type: string
+        custom_value4:
+          description: 'The custom value4'
+          type: string
+        is_deleted:
+          description: 'Whether the company gateway has been deleted'
+          type: boolean
+        label:
+          description: 'The label'
+          type: string
+        require_client_name:
+          description: 'Whether to require client name'
+          type: boolean
+        require_client_phone:
+          description: 'Whether to require client phone'
+          type: boolean
+        require_contact_email:
+          description: 'Whether to require contact email'
+          type: boolean
+        require_contact_name:
+          description: 'Whether to require contact name'
+          type: boolean
+        require_custom_value1:
+          description: 'Whether to require custom value1'
+          type: boolean
+        require_custom_value2:
+          description: 'Whether to require custom value2'
+          type: boolean
+        require_custom_value3:
+          description: 'Whether to require custom value3'
+          type: boolean
+        require_custom_value4:
+          description: 'Whether to require custom value4'
+          type: boolean
+        require_cvv:
+          description: 'Whether to require cvv'
+          type: boolean
+        require_postal_code:
+          description: 'Whether to require postal code'
+          type: boolean
+        require_zip:
+          description: 'Whether to require zip'
+          type: boolean
+        settings:
+          description: 'The settings'
+          type: object
+          additionalProperties: true
+        show_billing_address:
+          description: 'Whether to show billing address'
+          type: boolean
+        show_shipping_address:
+          description: 'Whether to show shipping address'
+          type: boolean
+        test_mode:
+          description: 'The test mode'
+          type: boolean
+        token_billing:
+          description: 'The token billing'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
     
     

@@ -101,4 +101,14 @@
           description: 'When true this contact is permitted to electronically sign purchase order invitations.'
           type: boolean
           example: false
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        last_login:
+          description: 'The last login'
+          type: integer
+        link:
+          description: 'The link'
+          type: string
       type: object

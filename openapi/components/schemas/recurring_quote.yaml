@@ -23,8 +23,8 @@
           example: '4'
         frequency_id:
           description: 'The recurring quote frequency'
-          type: number
-          example: 4
+          type: string
+          example: '4'
         remaining_cycles:
           description: 'The number of quotes left to be generated'
           type: number
@@ -103,8 +103,9 @@
           example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the quote'
-          type: object
-          example: {}
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         amount:
           description: 'The quote amount'
           type: number
@@ -143,29 +144,24 @@
           type: boolean
           example: true
         date:
-          description: 'The quote Date'
+          description: 'The quote Date, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the quote was sent out'
+          description: 'The last date the quote was sent out, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent'
+          description: 'The Next date for a reminder to be sent, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the deposit/partial amount'
+          description: 'The due date for the deposit/partial amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the quote'
+          description: 'The due date of the quote, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
@@ -220,4 +216,56 @@
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        auto_bill:
+          description: 'The auto bill'
+          type: string
+        auto_bill_enabled:
+          description: 'The auto bill enabled'
+          type: boolean
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        design_id:
+          description: 'The design id'
+          type: string
+        documents:
+          description: 'The documents attached to the recurring quote'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        due_date_days:
+          description: 'The due date days'
+          type: string
+        entity_type:
+          description: 'The entity type'
+          type: string
+        exchange_rate:
+          description: 'The exchange rate'
+          type: integer
+        has_expenses:
+          description: 'Whether the recurring quote has expenses'
+          type: boolean
+        has_tasks:
+          description: 'Whether the recurring quote has tasks'
+          type: boolean
+        invitations:
+          description: 'The invitations of the recurring quote'
+          type: array
+          items:
+            type: object
+        project_id:
+          description: 'The project id'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        subscription_id:
+          description: 'The subscription id'
+          type: string
+        vendor_id:
+          description: 'The vendor id'
+          type: string
       type: object

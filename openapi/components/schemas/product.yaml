@@ -163,3 +163,8 @@
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        documents:
+          description: 'The documents attached to the product'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'

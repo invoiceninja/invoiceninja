@@ -43,6 +43,29 @@
           $ref: '#/components/schemas/UserRef'
         token:
           $ref: '#/components/schemas/CompanyToken'
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        ninja_portal_url:
+          description: 'The ninja portal url'
+          type: string
+        notifications:
+          description: 'The notifications'
+          type: object
+          additionalProperties: true
+        permissions_updated_at:
+          description: 'The permissions updated at'
+          type: number
+          format: integer
+        meta:
+          description: 'The meta'
+          type: object
+          additionalProperties: true
       type: object
     CompanyUserRef:
       properties:

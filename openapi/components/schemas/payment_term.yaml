@@ -23,4 +23,10 @@
           type: number
           format: integer
           example: 134341234234
+        id:
+          description: 'The payment term hashed id'
+          type: string
+        is_deleted:
+          description: 'Whether the payment term has been deleted'
+          type: boolean
       type: object
