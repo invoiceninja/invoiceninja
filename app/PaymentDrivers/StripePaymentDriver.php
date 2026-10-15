@@ -132,12 +132,15 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
-            // Stripe::setAPiVersion('2023-10-16');
-            // Stripe::setApiVersion('2024-04-10');
-            Stripe::setApiVersion('2025-03-31.basil');
+            Stripe::setApiVersion($this->apiVersion());
         }
 
         return $this;
+    }
+
+    public function apiVersion(): string
+    {
+        return '2025-03-31.basil';
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -505,7 +508,10 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      */
     public function getSetupIntent(): SetupIntent
     {
-        return $this->createSetupIntent(['usage' => 'off_session']);
+        return $this->createSetupIntent([
+            'usage' => 'off_session',
+            'payment_method_types' => ['card'],
+        ]);
     }
 
     public function createSetupIntent(array $params): SetupIntent
@@ -824,6 +830,9 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         $event ??= \Stripe\Event::constructFrom($request->all());
 
+
+        nlog("STRIPE API version: " . ($event->api_version ?? 'no api version'));
+
         if (in_array($event->type, [
             'payment_method.detached',
             'payment_method.updated',
@@ -905,10 +914,11 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
                     if (isset($transaction['payment_method_details']['au_becs_debit'])) {
                         $payment->transaction_reference = $transaction['id'];
+                        $payment->saveQuietly();
                     }
 
-                    $payment->status_id = Payment::STATUS_COMPLETED;
-                    $payment->save();
+                    $payment = $payment->service()->completePendingPayment();
+
                 }
             }
 
@@ -931,8 +941,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                     $payment = self::findPaymentByStripeReference($this->company_gateway->company_id, $transaction);
 
                     if ($payment) {
-                        $payment->status_id = Payment::STATUS_COMPLETED;
-                        $payment->save();
+                        $payment = $payment->service()->completePendingPayment();
                     }
                 }
             }

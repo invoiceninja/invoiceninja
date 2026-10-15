@@ -101,8 +101,7 @@ class LawPayWebhook implements ShouldQueue
 
         // Handle charge completion (important for ACH which starts as PENDING)
         if (in_array($status, ['completed', 'settled']) && $payment->status_id === Payment::STATUS_PENDING) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+            $payment = $payment->service()->completePendingPayment();
 
             SystemLogger::dispatch(
                 ['action' => 'webhook_completed', 'transaction' => $payment->transaction_reference],

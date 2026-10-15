@@ -25,6 +25,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -48,6 +49,13 @@ class PaymentIntentWebhook implements ShouldQueue
         'acss_debit' => PaymentType::ACSS,
         'sepa_debit' => PaymentType::SEPA,
         'customer_balance' => PaymentType::STRIPE_BANK_TRANSFER,
+        'ideal' => PaymentType::IDEAL,
+        'bancontact' => PaymentType::BANCONTACT,
+        'eps' => PaymentType::EPS,
+        'p24' => PaymentType::PRZELEWY24,
+        'klarna' => PaymentType::KLARNA,
+        'fpx' => PaymentType::FPX,
+        'alipay' => PaymentType::ALIPAY,
     ];
 
     public $tries = 1; //number of retries
@@ -77,19 +85,35 @@ class PaymentIntentWebhook implements ShouldQueue
 
         foreach ($this->stripe_request as $transaction) {
 
-            $ninja_promo = data_get($transaction, 'charges.data.0.metadata.product', false);
+            if(\App\Utils\Ninja::isHosted()) {
+                $charge = data_get($transaction, 'charges.data.0') ?? [
+                    'id' => data_get($transaction, 'latest_charge'),
+                    'amount' => data_get($transaction, 'amount_received'),
+                    'metadata' => data_get($transaction, 'metadata', []),
+                ];
 
-            if ($ninja_promo && class_exists(\Modules\Admin\Jobs\Stripe\CampaignCharge::class)) {
-                \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch(data_get($transaction, 'charges.data.0'))->delay(5);
-                continue;
+                $ninja_promo = data_get($charge, 'metadata.product', false);
+
+                $upgrade_quote_key = data_get($charge, 'metadata.upgrade_quote_key')
+                                        ?: data_get($transaction, 'metadata.upgrade_quote_key');
+
+                                        
+                if ($ninja_promo && class_exists(\Modules\Admin\Jobs\Stripe\CampaignCharge::class)) {
+                    \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch($charge)->delay(5);
+                    continue;
+                }
+                elseif ($upgrade_quote_key && class_exists(\Modules\Admin\Jobs\Stripe\UpgradeQuote::class)) {
+                    \Modules\Admin\Jobs\Stripe\UpgradeQuote::dispatch($upgrade_quote_key, $charge)->delay(5);
+                    continue;
+                }
+                //@todo
+
             }
 
             $payment = self::findPaymentByStripeReference($company->id, $transaction);
 
             if ($payment) {
-                $payment->status_id = Payment::STATUS_COMPLETED;
-                $payment->save();
-
+                $payment = $payment->service()->completePendingPayment();
                 $this->payment_completed = true;
             }
         }
@@ -153,8 +177,7 @@ class PaymentIntentWebhook implements ShouldQueue
             nlog(" payment found and status correct - returning ");
             return;
         } elseif ($payment) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+            $payment = $payment->service()->completePendingPayment();
         }
 
         $hash = $pi['metadata']['payment_hash'] ?? $charge['metadata']['payment_hash'] ?? false;

@@ -39,6 +39,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string
      */
+    #[Locked]
     public $hash;
 
     /**

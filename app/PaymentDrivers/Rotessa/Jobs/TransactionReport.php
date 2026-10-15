@@ -46,119 +46,131 @@ class TransactionReport implements ShouldQueue
     {
         set_time_limit(0);
 
+        if (! config('ninja.db.multi_db_enabled')) {
+            config(['database.default' => config('ninja.db.default')]);
+            $this->runAction();
+            return;
+        
+        } 
+
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
-            Artisan::call('queue:prune-batches');
-
-            CompanyGateway::query()
-                            ->where('gateway_key', '91be24c7b792230bced33e930ac61676')
-                            ->cursor()
-                            ->each(function ($cg) {
-
-                                $driver = $cg->driver()->init();
-
-                                //Approved Transactions
-                                $transactions = $driver->gatewayRequest("get", "transaction_report", ['page' => 1, 'status' => 'Approved', 'start_date' => now()->subMonths(2)->format('Y-m-d')]);
-
-                                if ($transactions->successful()) {
-                                    $transactions = $transactions->json();
-                                    nlog($transactions);
-
-                                    Payment::query()
-                                        ->where('company_id', $cg->company_id)
-                                        ->where('status_id', Payment::STATUS_PENDING)
-                                        ->whereIn('transaction_reference', array_column($transactions, "transaction_schedule_id"))
-                                        ->cursor()
-                                        ->each(function ($payment) use ($transactions) {
-
-                                            $payment->status_id = Payment::STATUS_COMPLETED;
-                                            $payment->save();
-
-                                            $references = collect($transactions)->where('id', $payment->transaction_reference)->first();
-
-                                            if ($references) {
-                                                SystemLogger::dispatch(
-                                                    ['response' => $references->toArray(), 'data' => []],
-                                                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                                                    SystemLog::EVENT_GATEWAY_SUCCESS,
-                                                    SystemLog::TYPE_ROTESSA,
-                                                    $payment->client,
-                                                    $payment->company,
-                                                );
-                                            }
-
-                                        });
-
-                                }
-
-
-                                //Declined / Charged Back Transactions
-                                $declined_transactions = $driver->gatewayRequest("get", "transaction_report", ['page' => 1, 'status' => 'Declined', 'start_date' => now()->subMonths(2)->format('Y-m-d')]);
-                                $chargeback_transactions = $driver->gatewayRequest("get", "transaction_report", ['page' => 1, 'status' => 'Chargeback', 'start_date' => now()->subMonths(2)->format('Y-m-d')]);
-
-                                if ($declined_transactions->successful() && $chargeback_transactions->successful()) {
-
-                                    $transactions = array_merge($declined_transactions->json(), $chargeback_transactions->json());
-
-                                    nlog($transactions);
-
-                                    Payment::query()
-                                        ->where('company_id', $cg->company_id)
-                                        ->where('status_id', Payment::STATUS_PENDING)
-                                        ->whereIn('transaction_reference', array_column($transactions, "transaction_schedule_id"))
-                                        ->cursor()
-                                        ->each(function ($payment) use ($transactions) {
-
-
-                                            $client = $payment->client;
-
-                                            $payment->service()->deletePayment();
-
-                                            $payment->status_id = Payment::STATUS_FAILED;
-                                            $payment->save();
-
-                                            $payment_hash = PaymentHash::query()->where('payment_id', $payment->id)->first();
-
-                                            if ($payment_hash) {
-
-                                                App::forgetInstance('translator');
-                                                $t = app('translator');
-                                                $t->replace(Ninja::transformTranslations($client->getMergedSettings()));
-                                                App::setLocale($client->locale());
-
-                                                $error = ctrans('texts.client_payment_failure_body', [
-                                                    'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                                                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client),
-                                                ]);
-
-                                            } else {
-                                                $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
-                                            }
-
-                                            PaymentFailedMailer::dispatch(
-                                                $payment_hash,
-                                                $client->company,
-                                                $client,
-                                                $error
-                                            );
-
-                                            if (collect($transactions)->where('id', $payment->transaction_reference)->first()) {
-                                                SystemLogger::dispatch(
-                                                    ['response' => collect($transactions)->where('id', $payment->transaction_reference)->first()->toArray(), 'data' => []],
-                                                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                                                    SystemLog::EVENT_GATEWAY_FAILURE,
-                                                    SystemLog::TYPE_ROTESSA,
-                                                    $payment->client,
-                                                    $payment->company,
-                                                );
-                                            }
-
-                                        });
-                                }
-                            });
+            $this->runAction();
 
         }
     }
 
+    private function runAction()
+    {
+
+        Artisan::call('queue:prune-batches');
+
+        CompanyGateway::query()
+                        ->where('gateway_key', '91be24c7b792230bced33e930ac61676')
+                        ->cursor()
+                        ->each(function ($cg) {
+
+                            $driver = $cg->driver()->init();
+
+                            //Approved Transactions
+                            $transactions = $driver->gatewayRequest("get", "transaction_report", ['page' => 1, 'status' => 'Approved', 'start_date' => now()->subMonths(2)->format('Y-m-d')]);
+
+                            if ($transactions->successful()) {
+                                $transactions = $transactions->json();
+                                nlog($transactions);
+
+                                Payment::query()
+                                    ->where('company_id', $cg->company_id)
+                                    ->where('status_id', Payment::STATUS_PENDING)
+                                    ->whereIn('transaction_reference', array_column($transactions, "transaction_schedule_id"))
+                                    ->cursor()
+                                    ->each(function ($payment) use ($transactions) {
+
+                                        $payment = $payment->service()->completePendingPayment();
+
+                                        $references = collect($transactions)->where('id', $payment->transaction_reference)->first();
+
+                                        if ($references) {
+                                            SystemLogger::dispatch(
+                                                ['response' => $references->toArray(), 'data' => []],
+                                                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                                                SystemLog::EVENT_GATEWAY_SUCCESS,
+                                                SystemLog::TYPE_ROTESSA,
+                                                $payment->client,
+                                                $payment->company,
+                                            );
+                                        }
+
+                                    });
+
+                            }
+
+
+                            //Declined / Charged Back Transactions
+                            $declined_transactions = $driver->gatewayRequest("get", "transaction_report", ['page' => 1, 'status' => 'Declined', 'start_date' => now()->subMonths(2)->format('Y-m-d')]);
+                            $chargeback_transactions = $driver->gatewayRequest("get", "transaction_report", ['page' => 1, 'status' => 'Chargeback', 'start_date' => now()->subMonths(2)->format('Y-m-d')]);
+
+                            if ($declined_transactions->successful() && $chargeback_transactions->successful()) {
+
+                                $transactions = array_merge($declined_transactions->json(), $chargeback_transactions->json());
+
+                                nlog($transactions);
+
+                                Payment::query()
+                                    ->where('company_id', $cg->company_id)
+                                    ->where('status_id', Payment::STATUS_PENDING)
+                                    ->whereIn('transaction_reference', array_column($transactions, "transaction_schedule_id"))
+                                    ->cursor()
+                                    ->each(function ($payment) use ($transactions) {
+
+
+                                        $client = $payment->client;
+
+                                        $payment->service()->deletePayment();
+
+                                        $payment->status_id = Payment::STATUS_FAILED;
+                                        $payment->save();
+
+                                        $payment_hash = PaymentHash::query()->where('payment_id', $payment->id)->first();
+
+                                        if ($payment_hash) {
+
+                                            App::forgetInstance('translator');
+                                            $t = app('translator');
+                                            $t->replace(Ninja::transformTranslations($client->getMergedSettings()));
+                                            App::setLocale($client->locale());
+
+                                            $error = ctrans('texts.client_payment_failure_body', [
+                                                'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
+                                                'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client),
+                                            ]);
+
+                                        } else {
+                                            $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
+                                        }
+
+                                        PaymentFailedMailer::dispatch(
+                                            $payment_hash,
+                                            $client->company,
+                                            $client,
+                                            $error
+                                        );
+
+                                        if (collect($transactions)->where('id', $payment->transaction_reference)->first()) {
+                                            SystemLogger::dispatch(
+                                                ['response' => collect($transactions)->where('id', $payment->transaction_reference)->first()->toArray(), 'data' => []],
+                                                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                                                SystemLog::EVENT_GATEWAY_FAILURE,
+                                                SystemLog::TYPE_ROTESSA,
+                                                $payment->client,
+                                                $payment->company,
+                                            );
+                                        }
+
+                                    });
+                            }
+                        });
+
+    }
 }
