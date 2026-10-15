@@ -1,0 +1,232 @@
+
+  /api/v1/charts/chart_summary:
+    post:
+      tags:
+        - charts
+      summary: 'Get dashboard chart summary'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getChartSummary
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/analytics_summary:
+    post:
+      tags:
+        - charts
+      summary: 'Get analytics summary'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getAnalyticsSummary
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/analytics_totals:
+    post:
+      tags:
+        - charts
+      summary: 'Get analytics totals'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getAnalyticsTotals
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/cashflow_forecast:
+    post:
+      tags:
+        - charts
+      summary: 'Get cash flow forecast'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getCashflowForecast
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartForecastRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/client_payment_analytics:
+    post:
+      tags:
+        - charts
+      summary: 'Get client payment analytics'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getClientPaymentAnalytics
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/charts/project_analytics/{project}':
+    post:
+      tags:
+        - charts
+      summary: 'Get project analytics'
+      description: 'Requires view access to an undeleted project. Results retain the current user visibility scope.'
+      operationId: getProjectAnalytics
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: project
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/charts/project_burnup/{project}':
+    post:
+      tags:
+        - charts
+      summary: 'Get project burnup'
+      description: 'Requires view access to an undeleted project. Results retain the current user visibility scope.'
+      operationId: getProjectBurnup
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: project
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectBurnupRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'

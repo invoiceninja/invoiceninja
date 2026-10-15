@@ -28,14 +28,14 @@ final class InputGuard
         'purchase_orders' => ['email', 'mark_sent', 'send_email', 'add_to_inventory', 'expense', 'cancel'],
         'quotes' => ['convert', 'convert_to_invoice', 'convert_to_project', 'email', 'clone_to_quote', 'convert_to_purchase_order', 'approve', 'send_email', 'mark_sent', 'cancel'],
         'recurring_expenses' => ['start', 'stop'],
-        'recurring_invoices' => ['increase_prices', 'update_prices', 'start', 'stop', 'send_now', 'set_payment_link', 'bulk_update', 'auto_bill', 'auto_bill_enabled'],
+        'recurring_invoices' => ['increase_prices', 'update_prices', 'start', 'stop', 'send_now', 'set_payment_link', 'bulk_update'],
         'subscriptions' => ['assign_invoice'],
         'tasks' => ['bulk_update', 'start', 'stop'],
     ];
 
     private const ENTITY_ACTIONS = [
         'credits' => ['mark_paid', 'clone_to_credit', 'mark_sent', 'email', 'send_email'],
-        'invoices' => ['auto_bill', 'clone_to_invoice', 'clone_to_quote', 'convert_to_purchase_order', 'mark_paid', 'mark_sent', 'email', 'send_email', 'cancel'],
+        'invoices' => ['auto_bill', 'clone_to_invoice', 'clone_to_quote', 'convert_to_purchase_order', 'mark_paid', 'mark_sent', 'cancel'],
         'purchase_orders' => ['mark_sent', 'email', 'send_email', 'add_to_inventory', 'expense', 'cancel'],
         'quotes' => ['convert_to_project', 'convert', 'convert_to_invoice', 'clone_to_invoice', 'clone_to_quote', 'convert_to_purchase_order', 'approve', 'cancel', 'email', 'send_email', 'mark_sent'],
     ];

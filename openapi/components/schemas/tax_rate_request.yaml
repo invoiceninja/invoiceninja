@@ -1,0 +1,11 @@
+    TaxRateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 'Unique among active tax rates in the authenticated company.'
+        rate:
+          type: number
+      required:
+        - name
+        - rate

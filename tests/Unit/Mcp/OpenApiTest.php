@@ -11,10 +11,45 @@
 namespace Tests\Unit\Mcp;
 
 use App\Mcp\OpenApi;
+use App\Mcp\Catalog;
 use Tests\TestCase;
 
 class OpenApiTest extends TestCase
 {
+    public function testEveryReviewedOperationHasAnOpenApiDefinition(): void
+    {
+        $api = app(OpenApi::class);
+        foreach (app(Catalog::class)->operations() as $tool => $operations) {
+            foreach ($operations as $operation => $spec) {
+                $definition = $api->operation($spec);
+                $this->assertNotEmpty($definition['operationId'] ?? null, $tool.'.'.$operation);
+                $this->assertNotEmpty($definition['summary'] ?? null, $tool.'.'.$operation);
+                $this->assertArrayHasKey('responses', $definition, $tool.'.'.$operation);
+            }
+        }
+    }
+
+    public function testNewRequestDefinitionsReachDiscovery(): void
+    {
+        $api = app(OpenApi::class);
+        $catalog = app(Catalog::class)->operations();
+        foreach ([
+            ['tax_rates', 'store', 'name', 'string'],
+            ['tax_rates', 'store', 'rate', 'number'],
+            ['documents', 'update', 'is_public', 'boolean'],
+            ['documents', 'bulk', 'ids', 'array'],
+            ['designs', 'default', 'design_id', 'string'],
+            ['emails', 'entity_history', 'entity_id', 'string'],
+            ['invoices', 'payment_schedule', 'parameters', 'object'],
+            ['charts', 'cashflow_forecast', 'bucket_type', 'string'],
+            ['charts', 'analytics_summary', 'start_date', 'string'],
+            ['charts', 'project_burnup', 'include_drafts', 'boolean'],
+        ] as [$tool, $operation, $field, $type]) {
+            $schema = $api->inputSchema([$operation => $catalog[$tool][$operation]]);
+            $this->assertSame($type, $schema['properties']['data']['properties']->{$field}->type);
+        }
+    }
+
     public function testReusesExistingRequestSchemaAndMapsPlaceholderNames(): void
     {
         $api = app(OpenApi::class);

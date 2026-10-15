@@ -1,0 +1,19 @@
+    DocumentBulkRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            description: 'Document hashed ID.'
+          minItems: 1
+        action:
+          type: string
+          enum:
+            - archive
+            - restore
+            - delete
+            - download
+      required:
+        - ids
+        - action

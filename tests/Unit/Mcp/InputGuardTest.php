@@ -76,4 +76,27 @@ class InputGuardTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         (new InputGuard())->normalize(['uri' => 'api/v1/recurring_quotes/bulk', 'parameters' => []], [], [], ['action' => 'set_tax_id']);
     }
+
+    public static function unimplementedActions(): array
+    {
+        return [
+            ['invoices/{invoice}/{action}', ['invoice', 'action'], 'email'],
+            ['invoices/{invoice}/{action}', ['invoice', 'action'], 'send_email'],
+            ['recurring_invoices/bulk', [], 'auto_bill'],
+            ['recurring_invoices/bulk', [], 'auto_bill_enabled'],
+        ];
+    }
+
+    #[DataProvider('unimplementedActions')]
+    public function testRejectsActionsNotImplementedByTheSelectedRestHandler(string $path, array $parameters, string $action): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        (new InputGuard())->normalize(['uri' => 'api/v1/'.$path, 'parameters' => $parameters], [], [], ['action' => $action]);
+    }
+
+    public function testInvoiceBulkEmailRemainsAvailable(): void
+    {
+        [, , $data] = (new InputGuard())->normalize(['uri' => 'api/v1/invoices/bulk', 'parameters' => []], [], [], ['action' => 'email']);
+        $this->assertSame('email', $data['action']);
+    }
 }

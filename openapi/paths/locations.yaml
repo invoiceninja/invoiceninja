@@ -497,4 +497,39 @@
           $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
-    
+
+  '/api/v1/locations/{location}/edit':
+    get:
+      tags:
+        - locations
+      summary: 'Get a location for editing'
+      description: 'Requires edit access to the location.'
+      operationId: editLocation
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: location
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'

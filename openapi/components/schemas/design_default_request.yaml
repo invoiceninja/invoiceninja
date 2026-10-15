@@ -1,0 +1,30 @@
+    DesignDefaultRequest:
+      type: object
+      properties:
+        entity:
+          type: string
+          enum:
+            - invoice
+            - quote
+            - credit
+            - purchase_order
+            - recurring_invoice
+        design_id:
+          type: string
+          description: 'Design hashed ID.'
+        settings_level:
+          type: string
+          enum:
+            - company
+            - client
+            - group_settings
+          default: company
+        client_id:
+          type: string
+          description: 'Client hashed ID. Required when settings_level is client.'
+        group_settings_id:
+          type: string
+          description: 'Group settings hashed ID. Required when settings_level is group_settings.'
+      required:
+        - entity
+        - design_id

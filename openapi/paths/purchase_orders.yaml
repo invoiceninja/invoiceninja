@@ -202,7 +202,6 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/purchase_order/{id}":
     put:
       tags:
         - Purchase Orders
@@ -242,7 +241,7 @@
       - lang: curl
         label: curl
         source: |
-          curl -X PUT https://demo.invoiceninja.com/api/v1/purchase_order/D2J234DFA \
+          curl -X PUT https://demo.invoiceninja.com/api/v1/purchase_orders/D2J234DFA \
             -H "X-API-TOKEN: YOUR-TOKEN" \
             -H "Content-Type: application/json" \
             -H "X-Requested-With: XMLHttpRequest" \

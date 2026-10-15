@@ -57,6 +57,23 @@ try {
     assert.deepEqual(after,before);
     return {rejected:8};
   });
+  await scenario('protocol.unimplemented_actions_rejected', async()=>{
+    const invoice=fixture.entities.alpha.invoices;
+    const recurring=fixture.entities.alpha.recurring_invoices;
+    const beforeInvoice=body(await client.callTool({name:'invoices',arguments:{operation:'show',parameters:{invoice}}}));
+    const beforeRecurring=body(await client.callTool({name:'recurring_invoices',arguments:{operation:'show',parameters:{recurring_invoice:recurring}}}));
+    for(const call of [
+      ...['email','send_email'].map(action=>({name:'invoices',arguments:{operation:'action',parameters:{invoice,action}}})),
+      ...['auto_bill','auto_bill_enabled'].map(action=>({name:'recurring_invoices',arguments:{operation:'bulk',data:{ids:[recurring],action}}})),
+    ]) {
+      const reply=await client.callTool(call);
+      assert.equal(reply.isError,true);
+      assert.ok(!reply.structuredContent,'Unimplemented actions must not reach REST');
+    }
+    assert.deepEqual(body(await client.callTool({name:'invoices',arguments:{operation:'show',parameters:{invoice}}})),beforeInvoice);
+    assert.deepEqual(body(await client.callTool({name:'recurring_invoices',arguments:{operation:'show',parameters:{recurring_invoice:recurring}}})),beforeRecurring);
+    return {rejected:4};
+  });
   for (const tool of tools) {
     const operation = tool.name === 'charts' ? 'totals' : tool.name === 'emails' ? 'client_history' : 'index';
     await scenario(`${tool.name}.${operation}`, async()=>{
