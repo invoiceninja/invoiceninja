@@ -8739,6 +8739,39 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
+    post:
+      tags:
+        - tax_rates
+      summary: 'Create a tax rate'
+      description: 'Administrator only.'
+      operationId: storeTaxRate
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxRateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TaxRate'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
   /api/v1/tax_rates/create:
     get:
       tags:
@@ -17859,7 +17892,6 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/purchase_order/{id}":
     put:
       tags:
         - Purchase Orders
@@ -17899,7 +17931,7 @@ paths:
       - lang: curl
         label: curl
         source: |
-          curl -X PUT https://demo.invoiceninja.com/api/v1/purchase_order/D2J234DFA \
+          curl -X PUT https://demo.invoiceninja.com/api/v1/purchase_orders/D2J234DFA \
             -H "X-API-TOKEN: YOUR-TOKEN" \
             -H "Content-Type: application/json" \
             -H "X-Requested-With: XMLHttpRequest" \
@@ -18861,6 +18893,829 @@ paths:
           description: 'Server error'
         default:
           $ref: '#/components/responses/default'
+  /api/v1/charts/chart_summary:
+    post:
+      tags:
+        - charts
+      summary: 'Get dashboard chart summary'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getChartSummary
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/charts/analytics_summary:
+    post:
+      tags:
+        - charts
+      summary: 'Get analytics summary'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getAnalyticsSummary
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/charts/analytics_totals:
+    post:
+      tags:
+        - charts
+      summary: 'Get analytics totals'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getAnalyticsTotals
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/charts/cashflow_forecast:
+    post:
+      tags:
+        - charts
+      summary: 'Get cash flow forecast'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getCashflowForecast
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartForecastRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/charts/client_payment_analytics:
+    post:
+      tags:
+        - charts
+      summary: 'Get client payment analytics'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getClientPaymentAnalytics
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/charts/project_analytics/{project}':
+    post:
+      tags:
+        - charts
+      summary: 'Get project analytics'
+      description: 'Requires view access to an undeleted project. Results retain the current user visibility scope.'
+      operationId: getProjectAnalytics
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: project
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/charts/project_burnup/{project}':
+    post:
+      tags:
+        - charts
+      summary: 'Get project burnup'
+      description: 'Requires view access to an undeleted project. Results retain the current user visibility scope.'
+      operationId: getProjectBurnup
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: project
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectBurnupRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/clients/{client}/documents':
+    post:
+      tags:
+        - clients
+      summary: 'List client documents'
+      description: 'Read-only POST. Requires view access to the client.'
+      operationId: getClientDocuments
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+        -
+          $ref: '#/components/parameters/per_page_meta'
+        -
+          $ref: '#/components/parameters/page_meta'
+        -
+          name: filter
+          in: query
+          schema:
+            type: string
+        -
+          name: sort
+          in: query
+          schema:
+            type: string
+          description: 'Document column and direction separated by |, for example name|asc.'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/clients/{client}/show_settings':
+    post:
+      tags:
+        - clients
+      summary: 'Get resolved client settings map'
+      description: 'Read-only POST. Requires view access to the client. Returns the effective settings map and its sources.'
+      operationId: getClientSettingsMap
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/clients/{client}/vat_status':
+    get:
+      tags:
+        - clients
+      summary: 'Get cached client VAT status'
+      description: 'Requires view access to the client. A completed cached status is consumed by this request.'
+      operationId: getClientVatStatus
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    nullable: true
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/credits/{credit}/{action}':
+    get:
+      tags:
+        - credits
+      summary: 'Perform a credit action'
+      description: 'Requires edit access to the credit. Actions include mark_paid, clone_to_credit, mark_sent, archive, restore, delete, email and send_email. Download returns a PDF rather than JSON. This GET endpoint can mutate records and send mail.'
+      operationId: actionCredit
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: credit
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+        -
+          name: action
+          in: path
+          required: true
+          description: 'Action name. This GET endpoint can mutate the credit.'
+          schema:
+            type: string
+            enum:
+              - mark_paid
+              - clone_to_credit
+              - mark_sent
+              - archive
+              - restore
+              - delete
+              - email
+              - send_email
+              - download
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Credit'
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/designs/set/default:
+    post:
+      tags:
+        - designs
+      summary: 'Apply a default design'
+      description: 'Administrator only. Updates existing entities at company, group settings or client scope.'
+      operationId: setDefaultDesign
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DesignDefaultRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/documents/{document}':
+    get:
+      tags:
+        - documents
+      summary: 'Show document metadata'
+      description: 'Requires view access to the document through its related entity.'
+      operationId: showDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+    put:
+      tags:
+        - documents
+      summary: 'Update document metadata'
+      description: 'Requires edit access to the document. Updates metadata and touches its related entity.'
+      operationId: updateDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpdateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/documents/{document}/edit':
+    get:
+      tags:
+        - documents
+      summary: 'Get document metadata for editing'
+      description: 'Requires edit access to the document.'
+      operationId: editDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/documents/bulk:
+    post:
+      tags:
+        - documents
+      summary: 'Apply an action to documents'
+      description: 'Archive, restore and delete require edit access to each related entity. Download requires document view access and queues ZIP delivery.'
+      operationId: bulkDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentBulkRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  -
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Document'
+                      meta:
+                        $ref: '#/components/schemas/Meta'
+                  -
+                    type: object
+                    properties:
+                      message:
+                        type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/emails/clientHistory/{client}':
+    post:
+      tags:
+        - emails
+      summary: 'Get client email history'
+      description: 'Read-only POST. Requires view access to the client.'
+      operationId: getClientEmailHistory
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/emails/entityHistory:
+    post:
+      tags:
+        - emails
+      summary: 'Get entity email history'
+      description: 'Read-only POST. The entity must belong to the authenticated company.'
+      operationId: getEntityEmailHistory
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityEmailHistoryRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/invoices/{invoice}/payment_schedule':
+    post:
+      tags:
+        - invoices
+      summary: 'Create an invoice payment schedule'
+      description: 'Requires edit access to the invoice. Creates a payment scheduler using the existing scheduler repository.'
+      operationId: setInvoicePaymentSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: invoice
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentScheduleRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+    delete:
+      tags:
+        - invoices
+      summary: 'Delete an invoice payment schedule'
+      description: 'Requires edit access to the invoice. Deletes its payment scheduler and resets partial payment fields.'
+      operationId: deleteInvoicePaymentSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: invoice
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/invoices/update_reminders:
+    post:
+      tags:
+        - invoices
+      summary: 'Recalculate company invoice reminders'
+      description: 'Administrator only. Dispatches the existing reminder update job for the authenticated company.'
+      operationId: updateInvoiceReminders
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/locations/{location}/edit':
+    get:
+      tags:
+        - locations
+      summary: 'Get a location for editing'
+      description: 'Requires edit access to the location.'
+      operationId: editLocation
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: location
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
 
 components:
   headers:
@@ -18952,26 +19807,13 @@ components:
     #         - prev: null
     #         - next: null
   responses:
-    default:
-      description: 'Unexpected Error'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    429:
-      description: 'Rate Limit Exceeded'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/RateLimiterError'
-    400:      
+    400:
       description: 'Invalid user input'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/InvalidInputError'
-
-    401:      
+    401:
       description: 'Authentication error'
       content:
         application/json:
@@ -18983,12 +19825,25 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/AuthorizationError'
+
     422:
       description: 'Validation error'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ValidationError'
+    429:
+      description: 'Rate Limit Exceeded'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RateLimiterError'
+    default:
+      description: 'Unexpected Error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     X-API-SECRET:
       name: X-API-SECRET
@@ -19246,6 +20101,109 @@ components:
         type: number
         example: 1
 
+########################### Generic filters available across all filter ##################################
+    status:
+      name: status
+      in: query
+      description: |
+        Filter the entity based on their status. ie active / archived / deleted. Format is a comma separated string with any of the following options:
+        - active
+        - archived
+        - deleted
+
+        ```html
+        GET /api/v1/invoices?status=archived,deleted
+        Returns only archived and deleted invoices
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?status=archived,deleted
+    client_id:
+      name: client_id
+      in: query
+      description: |
+        Filters the entity list by client_id. Suitable when you only want the entities of a specific client.
+
+        ```html
+        GET /api/v1/invoices?client_id=AxB7Hjk9
+        Returns only invoices for the specified client
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?client_id={client_id}
+    created_at:
+      name: created_at
+      in: query
+      description: |
+        Filters the entity list by the created at timestamp. Parameter value can be a datetime string or unix timestamp
+
+        ```html
+        GET /api/v1/invoices?created_at=2022-01-10
+        Returns entities created on January 10th, 2022
+        ```
+      required: false
+      schema:
+        type: integer
+      example: 1641772800
+    updated_at:
+      name: updated_at
+      in: query
+      description: |
+        Filters the entity list by the updated at timestamp. Parameter value can be a datetime string or unix timestamp
+
+        ```html
+        GET /api/v1/invoices?updated_at=2022-01-10
+        Returns entities last updated on January 10th, 2022
+        ```
+      required: false
+      schema:
+        type: integer
+      example: 1641772800
+    is_deleted:
+      name: is_deleted
+      in: query
+      description: |
+        Filters the entity list by entities that have been deleted.
+
+        ```html
+        GET /api/v1/invoices?is_deleted=true
+        Returns only soft-deleted entities
+        ```
+      required: false
+      schema:
+        type: boolean
+      example: true
+    vendor_id:
+      name: vendor_id
+      in: query
+      description: |
+        Filters the entity list by an associated vendor
+
+        ```html
+        GET /api/v1/purchases?vendor_id=AxB7Hjk9
+        Returns only purchases for the specified vendor
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?vendor_id={vendor_id}
+    filter_deleted_clients:
+      name: filter_deleted_clients
+      in: query
+      description: |
+        Filters the entity list and only returns entities for clients that have not been deleted
+
+        ```html
+        GET /api/v1/invoices?filter_deleted_clients=true
+        Returns only invoices for active (non-deleted) clients
+        ```
+      required: false
+      schema:
+        type: string
+      example: ?filter_deleted_clients=true
+  ########################### Generic filters available across all filter ##################################
 # Entity-specific `sort` query parameters (query name is always `sort`). Appended under components.parameters — 4-space indent for keys.
     sort_clients:
       name: sort
@@ -19913,110 +20871,8 @@ components:
         example:
           - "created_at|desc"
 
-########################### Generic filters available across all filter ##################################
-    status:
-      name: status
-      in: query
-      description: |
-        Filter the entity based on their status. ie active / archived / deleted. Format is a comma separated string with any of the following options:  
-        - active
-        - archived
-        - deleted  
-
-        ```html
-        GET /api/v1/invoices?status=archived,deleted
-        Returns only archived and deleted invoices
-        ```
-      required: false
-      schema:
-        type: string
-      example: ?status=archived,deleted
-    client_id:
-      name: client_id
-      in: query
-      description: |
-        Filters the entity list by client_id. Suitable when you only want the entities of a specific client.
-
-        ```html
-        GET /api/v1/invoices?client_id=AxB7Hjk9
-        Returns only invoices for the specified client
-        ```
-      required: false
-      schema:
-        type: string
-      example: ?client_id={client_id}
-    created_at:
-      name: created_at
-      in: query
-      description: |
-        Filters the entity list by the created at timestamp. Parameter value can be a datetime string or unix timestamp
-
-        ```html
-        GET /api/v1/invoices?created_at=2022-01-10
-        Returns entities created on January 10th, 2022
-        ```
-      required: false
-      schema:
-        type: integer
-      example: 1641772800
-    updated_at:
-      name: updated_at
-      in: query
-      description: |
-        Filters the entity list by the updated at timestamp. Parameter value can be a datetime string or unix timestamp
-
-        ```html
-        GET /api/v1/invoices?updated_at=2022-01-10
-        Returns entities last updated on January 10th, 2022
-        ```
-      required: false
-      schema:
-        type: integer
-      example: 1641772800
-    is_deleted:
-      name: is_deleted
-      in: query
-      description: |
-        Filters the entity list by entities that have been deleted.
-
-        ```html
-        GET /api/v1/invoices?is_deleted=true
-        Returns only soft-deleted entities
-        ```
-      required: false
-      schema:
-        type: boolean
-      example: true
-    vendor_id:
-      name: vendor_id
-      in: query
-      description: |
-        Filters the entity list by an associated vendor
-
-        ```html
-        GET /api/v1/purchases?vendor_id=AxB7Hjk9
-        Returns only purchases for the specified vendor
-        ```
-      required: false
-      schema:
-        type: string
-      example: ?vendor_id={vendor_id}
-    filter_deleted_clients:
-      name: filter_deleted_clients
-      in: query
-      description: |
-        Filters the entity list and only returns entities for clients that have not been deleted
-
-        ```html
-        GET /api/v1/invoices?filter_deleted_clients=true
-        Returns only invoices for active (non-deleted) clients
-        ```
-      required: false
-      schema:
-        type: string
-      example: ?filter_deleted_clients=true
-  ########################### Generic filters available across all filter ##################################
   schemas:
+
     CreditPaymentable:
       properties:
         credit_id:
@@ -21063,6 +21919,10 @@ components:
           type: string
           format: date
           example: '2024-01-31'
+        estimated_duration:
+          description: 'Estimated duration for the task in seconds'
+          type: integer
+          example: 7200
         priority:
           description: 'Priority level of the task'
           type: integer
@@ -21187,6 +22047,12 @@ components:
           description: 'An array of objects which define the line items of the quote'
           items:
             $ref: '#/components/schemas/InvoiceItem'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
     Document:
       properties:
         id:
@@ -21612,6 +22478,30 @@ components:
           description: 'Notes that are visible to the client'
           type: string
           example: 'These are public notes visible to clients'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        display_name:
+          description: 'The calculated display name of the client'
+          type: string
+          example: 'Acme Inc'
+          readOnly: true
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
       type: object
 
     Quote:
@@ -21854,6 +22744,63 @@ components:
           description: 'The unique identifier of the vendor associated with this quote'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        invoice_id:
+          description: 'The hashed id of the invoice created from this quote'
+          type: string
+          example: Opnel5aKBz
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object
 
     InvoiceRequest:
@@ -22026,6 +22973,12 @@ components:
           description: 'The project associated with this invoice'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     ProductRequest:
       type: object
@@ -22187,6 +23140,12 @@ components:
           type: string
           description: 'The accounting income account identifier this product maps to (used by external accounting integrations such as QuickBooks).'
           example: '42'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
 
     InvoiceInvitationRequest:
       required:
@@ -22587,6 +23546,51 @@ components:
           type: number
           format: integer
           example: 1234567890
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        subscription_id:
+          description: 'The subscription associated with this purchase order'
+          type: string
+          example: Opnel5aKBz
+        expense_id:
+          description: 'The expense created from this purchase order'
+          type: string
+          example: Opnel5aKBz
       type: object
 
     InvoiceInvitation:
@@ -22877,6 +23881,12 @@ components:
               send_email:
                 type: boolean
                 example: true
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     Company:
       properties:
@@ -23637,6 +24647,30 @@ components:
           description: 'The unique identifier of the vendor associated with this recurring invoice'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object
       
 
@@ -23747,6 +24781,12 @@ components:
               tax_id:
                 type: string
                 example: '1'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     Payment:
       properties:
@@ -23868,6 +24908,47 @@ components:
           description: 'Unique key to ensure idempotent payment processing'
           type: string
           example: 'key_1234567890abcdef'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        applied:
+          description: 'The amount of this payment already applied to invoices or credits'
+          type: number
+          format: float
+          example: 50.00
+          readOnly: true
+        transaction_id:
+          description: 'The hashed id of the related bank transaction'
+          type: string
+          example: Opnel5aKBz
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        gateway_type_id:
+          description: 'The payment gateway type id'
+          type: string
+          example: '1'
+        status_id:
+          description: 'The payment status id'
+          type: string
+          example: '4'
+        project_id:
+          description: 'The project associated with this payment'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The vendor associated with this payment'
+          type: string
+          example: Opnel5aKBz
+        currency_id:
+          description: 'The currency id of the payment'
+          type: string
+          example: '1'
       type: object
     
 
@@ -24120,6 +25201,64 @@ components:
           description: 'The unique identifier of the vendor associated with this credit'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        backup:
+          description: 'Invoice backup metadata'
+          type: object
+          nullable: true
+          additionalProperties: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object
 
     Subscription:
@@ -24315,6 +25454,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        current_hours:
+          description: 'Logged hours currently recorded against the project'
+          type: integer
+          example: 12
+          readOnly: true
+        budgeted_amount:
+          description: 'The budgeted monetary amount for the project'
+          type: number
+          format: float
+          example: 5000.00
       required:
         - id
         - user_id
@@ -25213,6 +26362,22 @@ components:
           description: "Default footer for credit notes"
           type: string
           example: "Credit note footer"
+        global_tag_inheritance:
+          description: 'When true, newly created records inherit matching global tags from related records'
+          type: boolean
+          example: false
+        documents_public_by_default:
+          description: 'When true, newly uploaded documents are public by default'
+          type: boolean
+          example: true
+        france_reporting_enabled:
+          description: 'When true, French tax reporting extras are enabled'
+          type: boolean
+          example: false
+        france_reporting_schedule:
+          description: 'The French reporting schedule. ten_day or monthly'
+          type: string
+          example: ten_day
     Design:
       properties:
         id:
@@ -26089,6 +27254,22 @@ components:
           description: 'The email signature for emails'
           type: string
           example: 'Bob Smith'
+        global_tag_inheritance:
+          description: 'When true, newly created records inherit matching global tags from related records'
+          type: boolean
+          example: false
+        documents_public_by_default:
+          description: 'When true, newly uploaded documents are public by default'
+          type: boolean
+          example: true
+        france_reporting_enabled:
+          description: 'When true, French tax reporting extras are enabled'
+          type: boolean
+          example: false
+        france_reporting_schedule:
+          description: 'The French reporting schedule. ten_day or monthly'
+          type: string
+          example: ten_day
       type: object
     BTRules:
       properties:
@@ -26374,6 +27555,60 @@ components:
           description: 'The unique identifier of the vendor associated with this invoice'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        backup:
+          description: 'Invoice backup metadata'
+          type: object
+          nullable: true
+          additionalProperties: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object
 
     ClientRequest:
@@ -26526,6 +27761,12 @@ components:
           example: 'individual'
         settings:
           $ref: '#/components/schemas/ClientSettings'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     PaymentTerm:
       properties:
@@ -26726,7 +27967,7 @@ components:
 
     TagAssignment:
       type: object
-      description: 'A tag assigned to a task or project.'
+      description: 'A tag assigned to an entity.'
       properties:
         id:
           description: 'The hashed tag id'
@@ -26756,8 +27997,21 @@ components:
           description: 'The fully qualified class name this tag may be assigned to'
           type: string
           enum:
-            - 'App\Models\Task'
+            - 'App\Models\Company'
+            - 'App\Models\BankTransaction'
+            - 'App\Models\Client'
+            - 'App\Models\Credit'
+            - 'App\Models\Expense'
+            - 'App\Models\Invoice'
+            - 'App\Models\Payment'
+            - 'App\Models\Product'
             - 'App\Models\Project'
+            - 'App\Models\PurchaseOrder'
+            - 'App\Models\Quote'
+            - 'App\Models\RecurringExpense'
+            - 'App\Models\RecurringInvoice'
+            - 'App\Models\Task'
+            - 'App\Models\Vendor'
           example: 'App\Models\Task'
         name:
           description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
@@ -26807,8 +28061,21 @@ components:
           description: 'Required on create. Immutable after creation.'
           type: string
           enum:
-            - 'App\Models\Task'
+            - 'App\Models\Company'
+            - 'App\Models\BankTransaction'
+            - 'App\Models\Client'
+            - 'App\Models\Credit'
+            - 'App\Models\Expense'
+            - 'App\Models\Invoice'
+            - 'App\Models\Payment'
+            - 'App\Models\Product'
             - 'App\Models\Project'
+            - 'App\Models\PurchaseOrder'
+            - 'App\Models\Quote'
+            - 'App\Models\RecurringExpense'
+            - 'App\Models\RecurringInvoice'
+            - 'App\Models\Task'
+            - 'App\Models\Vendor'
           example: 'App\Models\Task'
         name:
           description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
@@ -26903,6 +28170,12 @@ components:
           description: 'An array of objects which define the line items of the invoice'
           items:
             $ref: '#/components/schemas/InvoiceItem'
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
     Product:
       type: object
       properties:
@@ -27063,6 +28336,11 @@ components:
           type: string
           description: 'The accounting income account identifier this product maps to (used by external accounting integrations such as QuickBooks).'
           example: '42'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
 
     PaymentRequest:
       properties:
@@ -27115,6 +28393,12 @@ components:
           description: 'The payment number - is a unique alpha numeric number per payment per company'
           type: string
           example: PAY_101
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     
     RecurringQuote:
@@ -27467,6 +28751,77 @@ components:
           description: 'The ID number of the bank account'
           type: integer
           example: 1
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        bank_integration_id:
+          description: 'The hashed id of the bank integration'
+          type: string
+          example: AS3df3A
+        ninja_category_id:
+          description: 'The hashed id of the mapped Invoice Ninja expense category'
+          type: string
+          example: Opnel5aKBz
+        status_id:
+          description: 'The bank transaction status id'
+          type: string
+          example: '1'
+        participant:
+          description: 'The counterparty account identifier from the bank feed'
+          type: string
+          example: 'DE89370400440532013000'
+        participant_name:
+          description: 'The counterparty name from the bank feed'
+          type: string
+          example: 'ACME Supplies'
+        invoice_ids:
+          description: 'Comma-separated hashed invoice ids matched to this transaction'
+          type: string
+          example: 'JxboYBLegw,JxboYBLeXX'
+        expense_id:
+          description: 'The hashed expense id created from this transaction'
+          type: string
+          example: Opnel5aKBz
+        payment_id:
+          description: 'The hashed payment id matched to this transaction'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The hashed vendor id matched to this transaction'
+          type: string
+          example: Opnel5aKBz
+        bank_transaction_rule_id:
+          description: 'The hashed id of the rule that matched this transaction'
+          type: string
+          example: Opnel5aKBz
+        is_deleted:
+          description: 'Whether the bank transaction is deleted'
+          type: boolean
+          example: false
+        nordigen_transaction_id:
+          description: 'The upstream Nordigen/GoCardless transaction id'
+          type: string
+          example: '20220101-abc123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object
     ProjectRequest:
       required:
@@ -28057,6 +29412,12 @@ components:
           description: 'The project associated with this credit'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Full sync array of hashed tag IDs. Omit to leave existing tags unchanged; send [] to detach all tags.'
+          type: array
+          items:
+            type: string
+            example: Opnel5aKBz
       type: object
     User:
       properties:
@@ -28612,6 +29973,11 @@ components:
           description: 'The unique identifier of the vendor associated with this recurring expense'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
       type: object
 
     ClientContact:
@@ -29056,6 +30422,29 @@ components:
           description: 'The unique identifier of the vendor associated with this expense'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        expense_currency_id:
+          description: 'The currency id of the expense (alias of currency_id)'
+          type: string
+          example: '2'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+          example: expense
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
       type: object
 
     Task:
@@ -29113,6 +30502,15 @@ components:
           description: 'The task duration in seconds'
           type: integer
           example: 3600
+        due_date:
+          description: 'The due date of the task'
+          type: string
+          format: date
+          example: '2024-01-31'
+        estimated_duration:
+          description: 'The estimated duration of the task in seconds'
+          type: integer
+          example: 7200
         task_status_order:
           description: 'The order of the task'
           type: integer
@@ -29193,6 +30591,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        date:
+          description: 'The calculated start date of the task'
+          type: string
+          format: date
+          example: '2024-01-15'
       type: object
 
 
@@ -29409,7 +30812,233 @@ components:
           description: 'The routing identifier for e-invoicing'
           type: string
           example: '0088:12345678901'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object
+    ChartDateRequest:
+      type: object
+      properties:
+        date_range:
+          type: string
+          enum:
+            - last7_days
+            - last30_days
+            - last365_days
+            - this_month
+            - last_month
+            - this_quarter
+            - last_quarter
+            - this_year
+            - last_year
+            - all_time
+            - custom
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        include_drafts:
+          type: boolean
+
+    ChartForecastRequest:
+      type: object
+      properties:
+        date_range:
+          $ref: '#/components/schemas/ChartDateRequest/properties/date_range'
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        include_drafts:
+          type: boolean
+        bucket_type:
+          type: string
+          enum:
+            - daily
+            - weekly
+            - monthly
+          default: monthly
+
+    DesignDefaultRequest:
+      type: object
+      properties:
+        entity:
+          type: string
+          enum:
+            - invoice
+            - quote
+            - credit
+            - purchase_order
+            - recurring_invoice
+        design_id:
+          type: string
+          description: 'Design hashed ID.'
+        settings_level:
+          type: string
+          enum:
+            - company
+            - client
+            - group_settings
+          default: company
+        client_id:
+          type: string
+          description: 'Client hashed ID. Required when settings_level is client.'
+        group_settings_id:
+          type: string
+          description: 'Group settings hashed ID. Required when settings_level is group_settings.'
+      required:
+        - entity
+        - design_id
+
+    DocumentBulkRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            description: 'Document hashed ID.'
+          minItems: 1
+        action:
+          type: string
+          enum:
+            - archive
+            - restore
+            - delete
+            - download
+      required:
+        - ids
+        - action
+
+    DocumentUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        is_public:
+          type: boolean
+
+    EntityEmailHistoryRequest:
+      type: object
+      properties:
+        entity:
+          type: string
+          enum:
+            - invoice
+            - quote
+            - credit
+            - recurring_invoice
+            - purchase_order
+        entity_id:
+          type: string
+          description: 'Entity hashed ID belonging to the authenticated company.'
+      required:
+        - entity
+        - entity_id
+
+    InvoicePaymentScheduleRequest:
+      type: object
+      properties:
+        next_run:
+          type: string
+          format: date
+        frequency_id:
+          type: integer
+          description: 'Required with remaining_cycles. Uses the existing recurring frequency identifiers.'
+        remaining_cycles:
+          type: integer
+          description: 'Required with frequency_id.'
+        parameters:
+          type: object
+          properties:
+            auto_bill:
+              type: boolean
+              default: false
+            schedule:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  date:
+                    type: string
+                    format: date
+                  amount:
+                    type: number
+                  is_amount:
+                    type: boolean
+                required:
+                  - id
+                  - date
+                  - amount
+                  - is_amount
+        schedule:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              amount:
+                type: number
+              is_amount:
+                type: boolean
+            required:
+              - date
+              - amount
+              - is_amount
+          description: 'Alternative schedule input. Amounts must total the invoice amount, or percentages must total 100.'
+      required:
+        - next_run
+      description: 'Supply frequency_id with remaining_cycles, or explicit schedule entries. The server supplies parameters.invoice_id from the route and normalizes the schedule.'
+
+    ProjectBurnupRequest:
+      type: object
+      properties:
+        date_range:
+          $ref: '#/components/schemas/ChartDateRequest/properties/date_range'
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        include_drafts:
+          type: boolean
+        bucket_type:
+          type: string
+          enum:
+            - daily
+            - weekly
+            - monthly
+          default: daily
+
+    TaxRateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 'Unique among active tax rates in the authenticated company.'
+        rate:
+          type: number
+      required:
+        - name
+        - rate
+
 
 tags:
   - name: auth
