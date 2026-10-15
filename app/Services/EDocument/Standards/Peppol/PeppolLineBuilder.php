@@ -15,6 +15,8 @@ namespace App\Services\EDocument\Standards\Peppol;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
+use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\LineID;
+use InvoiceNinja\EInvoice\Models\Peppol\OrderLineReferenceType\OrderLineReference;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
@@ -128,6 +130,8 @@ class PeppolLineBuilder
 
                 $this->buildPriceAndDiscounts($line, $item, $invoice, $currencyCode, false);
             }
+
+            $this->addOrderLineReference($line, $item, $isCreditNote);
 
             $lines[] = $line;
         }
@@ -308,6 +312,42 @@ class PeppolLineBuilder
 
         return ($item->cost * $item->quantity) * ($item->discount / 100);
 
+    }
+
+    /**
+     * Adds the reference to the line of the buyer's purchase order (BT-132).
+     *
+     * The value is read from a proxy value on the line item that follows the
+     * UBL structure: e_invoice->InvoiceLine->OrderLineReference->LineID
+     * (CreditNoteLine for credit notes). It is only written when the document
+     * carries a purchase order number (BT-13). Without one, the header
+     * OrderReference falls back to the document number, and a line reference
+     * to it would be meaningless.
+     *
+     * @param  InvoiceLine|CreditNoteLine $line
+     * @param  object $item
+     * @param  bool $isCreditNote
+     * @return void
+     */
+    private function addOrderLineReference(InvoiceLine|CreditNoteLine $line, object $item, bool $isCreditNote): void
+    {
+        $root = $isCreditNote ? 'CreditNoteLine' : 'InvoiceLine';
+        $order_line = data_get($item, "e_invoice.{$root}.OrderLineReference.LineID");
+        $order_line = is_scalar($order_line) ? trim((string) $order_line) : '';
+
+        $po_number = (string) ($this->peppol->getInvoiceModel()->po_number ?? '');
+
+        if ($order_line === '' || strlen($po_number) <= 1) {
+            return;
+        }
+
+        $id = new LineID();
+        $id->value = $order_line;
+
+        $reference = new OrderLineReference();
+        $reference->LineID = $id;
+
+        $line->OrderLineReference = [$reference];
     }
 
     /**
