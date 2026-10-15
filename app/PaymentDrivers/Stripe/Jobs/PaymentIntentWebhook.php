@@ -102,10 +102,10 @@ class PaymentIntentWebhook implements ShouldQueue
                     \Modules\Admin\Jobs\Stripe\CampaignCharge::dispatch($charge)->delay(5);
                     continue;
                 }
-                // elseif ($upgrade_quote_key && class_exists(\Modules\Admin\Jobs\Stripe\UpgradeQuote::class)) {
-                //     \Modules\Admin\Jobs\Stripe\UpgradeQuote::dispatch($upgrade_quote_key, $charge)->delay(5);
-                //     continue;
-                // }
+                elseif ($upgrade_quote_key && class_exists(\Modules\Admin\Jobs\Stripe\UpgradeQuote::class)) {
+                    \Modules\Admin\Jobs\Stripe\UpgradeQuote::dispatch($upgrade_quote_key, $charge)->delay(5);
+                    continue;
+                }
                 //@todo
 
             }
