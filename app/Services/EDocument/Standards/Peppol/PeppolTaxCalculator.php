@@ -103,7 +103,7 @@ class PeppolTaxCalculator
      * VAT exemption metadata for Peppol / EN 16931 (BT-120, BT-121) on zero-rated lines.
      *
      * @param  object{tax_id?: string|int}  $item
-     * @return array{tax_type: string, reason_code: string, reason: string}
+     * @return array{tax_type: string, reason_code: ?string, reason: ?string}
      */
     public function getExemptionReasonMetadataForItem(object $item): array
     {
@@ -118,6 +118,14 @@ class PeppolTaxCalculator
         $client_in_eu = in_array($client_country, $eu_states);
 
         $tax_id = (string) ($item->tax_id ?? '');
+
+        if ($tax_id === (string) Product::PRODUCT_TYPE_ZERO_RATED) {
+            return [
+                'tax_type' => 'Z',
+                'reason_code' => null,
+                'reason' => null,
+            ];
+        }
 
         // Non-EU company — use generic tax exempt categories
         if (!$company_in_eu) {
@@ -171,10 +179,15 @@ class PeppolTaxCalculator
         $taxScheme->ID->value = $this->standardizeTaxSchemeId('vat');
         $taxCategory->TaxScheme = $taxScheme;
 
-        $terc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode();
-        $terc->value = $reason_code;
-        $taxCategory->TaxExemptionReasonCode = $terc;
-        $taxCategory->TaxExemptionReason = $reason;
+        if ($reason_code !== null) {
+            $terc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\TaxExemptionReasonCode();
+            $terc->value = $reason_code;
+            $taxCategory->TaxExemptionReasonCode = $terc;
+        }
+
+        if ($reason !== null) {
+            $taxCategory->TaxExemptionReason = $reason;
+        }
 
         $this->peppol->setGlobalTaxCategories([$taxCategory]);
 

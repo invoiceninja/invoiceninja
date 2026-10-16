@@ -79,6 +79,8 @@ class PaymentIntentWebhook implements ShouldQueue
 
     public function handle()
     {
+        nlog($this->stripe_request);
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::query()->where('company_key', $this->company_key)->firstOrFail();
@@ -106,8 +108,7 @@ class PaymentIntentWebhook implements ShouldQueue
                     \Modules\Admin\Jobs\Stripe\UpgradeQuote::dispatch($upgrade_quote_key, $charge)->delay(5);
                     continue;
                 }
-                //@todo
-
+                
             }
 
             $payment = self::findPaymentByStripeReference($company->id, $transaction);

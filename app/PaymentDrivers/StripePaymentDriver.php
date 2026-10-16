@@ -831,9 +831,6 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         $event ??= \Stripe\Event::constructFrom($request->all());
 
-
-        nlog("STRIPE API version: " . ($event->api_version ?? 'no api version'));
-
         if (in_array($event->type, [
             'payment_method.detached',
             'payment_method.updated',
