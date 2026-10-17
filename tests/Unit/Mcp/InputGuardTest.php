@@ -23,7 +23,12 @@ class InputGuardTest extends TestCase
         foreach (["action\0ignored", 'action[ignored]', 'include[0]', "include\0ignored", 'showAccountUsers[0]', 'include.static', 'include static'] as $key) {
             $cases[] = ['query', [$key => 'download']];
         }
-        foreach (['user. companies', ' user . company_tokens ', 'user.CompanyTokens', 'clients,user.\tcompanies', ['clients', 'user. companies'], ['clients,user.companies'], 'user:limit(1).companies', 'user.%63ompanies', 'user..companies', null, 12, [['companies']]] as $include) {
+        foreach ([
+            'user. companies', ' user . company_tokens ', 'user.CompanyTokens',
+            'activities.user.company_user.company', 'user.company_user.token', 'company_gateway',
+            'clients,user.\tcompanies', ['clients', 'user. companies'], ['clients,user.companies'],
+            'user:limit(1).companies', 'user.%63ompanies', 'user..companies', null, 12, [['companies']],
+        ] as $include) {
             foreach (['query', 'data'] as $source) {
                 $cases[] = [$source, ['include' => $include]];
             }

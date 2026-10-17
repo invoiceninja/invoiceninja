@@ -201,6 +201,22 @@ class McpApiTest extends TestCase
         $this->rpc('tools/list', [], 'admin', 'beta')->assertOk();
     }
 
+    public function testPathParametersCannotSelectAnotherRestRoute(): void
+    {
+        $key = $this->fixture['companies']['alpha']->id.':'.$this->fixture['roles']['alpha']['admin']['user']->id;
+        config(['mcp.disabled_tools' => [$key => ['clients.create']]]);
+
+        $this->callTool('clients', ['operation' => 'create'])
+            ->assertOk()
+            ->assertJsonPath('result.isError', true);
+        $this->callTool('clients', ['operation' => 'show', 'parameters' => ['client' => 'create']])
+            ->assertOk()
+            ->assertJsonPath('result.isError', true);
+        $this->callTool('documents', ['operation' => 'show', 'parameters' => ['document' => 'create']])
+            ->assertOk()
+            ->assertJsonPath('result.isError', true);
+    }
+
     public function testValidationMutationsAndPaginationUseOriginalRestBehavior(): void
     {
         $created = $this->mcpResult($this->callTool('clients', ['operation' => 'store', 'data' => ['name' => 'MCP created', 'contacts' => [['email' => 'demo@example.invalid']]]]));
@@ -267,7 +283,14 @@ class McpApiTest extends TestCase
         $names = array_column($this->rpc('tools/list')->json('result.tools'), 'name');
         $this->assertNotContains('users', $names);
         $this->assertNotContains('statics', $names);
-        foreach ([['include' => 'user.companies'], ['include' => 'company_users'], ['include' => 'account'], ['showAccountUsers' => true]] as $query) {
+        foreach ([
+            ['include' => 'user.companies'],
+            ['include' => 'company_users'],
+            ['include' => 'activities.user.company_user.company'],
+            ['include' => 'activities.user.company_user.token'],
+            ['include' => 'account'],
+            ['showAccountUsers' => true],
+        ] as $query) {
             $this->callTool('clients', ['operation' => 'index', 'query' => $query])->assertOk()->assertJsonPath('result.isError', true);
         }
     }
@@ -298,8 +321,9 @@ class McpApiTest extends TestCase
     public function testOriginConflictingCredentialsDisabledEndpointAndTraversal(): void
     {
         $this->withHeaders(['Origin' => 'https://evil.invalid'])->rpc('tools/list')->assertStatus(403);
+        $this->withHeaders(['Origin' => '0'])->rpc('tools/list')->assertStatus(403);
         $this->withHeaders(['Origin' => '', 'X-API-TOKEN' => 'conflict'])->rpc('tools/list')->assertStatus(403);
-        $this->withHeaders(['X-API-TOKEN' => '']);
+        $this->flushHeaders();
         $this->callTool('clients', ['operation' => 'show', 'parameters' => ['client' => '../tokens']])->assertOk()->assertJsonPath('result.isError', true);
         $this->callTool('clients', ['operation' => 'store', 'data' => ['_method' => 'DELETE']])->assertOk()->assertJsonPath('result.isError', true);
         config(['mcp.enabled' => false]);

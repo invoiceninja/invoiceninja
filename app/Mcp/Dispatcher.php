@@ -48,6 +48,12 @@ class Dispatcher
             'HTTP_X_API_SECRET' => $outer->header('X-API-SECRET'),
             'REMOTE_ADDR' => $outer->ip(),
         ], json_encode((object)$data, JSON_THROW_ON_ERROR));
+        $route = app('router')->getRoutes()->match($inner);
+        if ($route->uri() !== $spec['uri']
+            || $route->getActionName() !== $spec['controller']
+            || !in_array($spec['method'], $route->methods(), true)) {
+            return Response::error('Resolved REST route is outside the reviewed MCP operation.');
+        }
         try {
             // A native subrequest: full HTTP middleware, route binding, FormRequest, policy,
             // controller, repository and transformer. No loopback HTTP or alternate grants.

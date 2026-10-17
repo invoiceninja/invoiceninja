@@ -25,9 +25,10 @@ class Authenticate
         abort_unless(config('mcp.enabled'), 404);
 
         // Streamable HTTP requires Origin validation, including for authenticated clients.
-        if ($origin = $request->headers->get('Origin')) {
+        if ($request->headers->has('Origin')) {
+            $origin = $request->headers->get('Origin');
             $allowed = array_merge([$request->getSchemeAndHttpHost()], config('mcp.allowed_origins', []));
-            if (!in_array($origin, $allowed, true)) {
+            if (!is_string($origin) || !in_array($origin, $allowed, true)) {
                 return response()->json(['message' => 'Origin not allowed.'], 403);
             }
         }

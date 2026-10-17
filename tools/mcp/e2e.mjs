@@ -57,6 +57,28 @@ try {
     assert.deepEqual(after,before);
     return {rejected:8};
   });
+  await scenario('security.route_collisions_rejected', async()=>{
+    const reply=await client.callTool({name:'documents',arguments:{operation:'show',parameters:{document:'create'}}});
+    assert.equal(reply.isError,true);
+    assert.ok(!reply.structuredContent, 'A colliding static REST route must not be dispatched');
+    return {rejected:1};
+  });
+  await scenario('security.singular_company_includes_rejected', async()=>{
+    for(const include of ['activities.user.company_user.company','activities.user.company_user.token']) {
+      const reply=await client.callTool({name:'clients',arguments:{operation:'show',parameters:{client:fixture.entities.alpha.clients},query:{include}}});
+      assert.equal(reply.isError,true);
+      assert.ok(!reply.structuredContent, 'Company administration includes must not reach REST');
+    }
+    return {rejected:2};
+  });
+  await scenario('security.present_invalid_origin_rejected', async()=>{
+    const reply=await fetch(endpoint,{method:'POST',headers:{
+      Authorization:`Bearer ${fixture.tokens.alpha.admin}`,
+      Origin:'0', Accept:'application/json, text/event-stream', 'Content-Type':'application/json',
+    },body:JSON.stringify({jsonrpc:'2.0',id:3205,method:'tools/list',params:{}})});
+    assert.equal(reply.status,403);
+    return {status:reply.status};
+  });
   await scenario('protocol.unimplemented_actions_rejected', async()=>{
     const invoice=fixture.entities.alpha.invoices;
     const recurring=fixture.entities.alpha.recurring_invoices;

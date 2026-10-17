@@ -108,7 +108,10 @@ final class InputGuard
                 }
                 foreach (explode('.', $include) as $segment) {
                     $name = strtolower(str_replace('_', '', $segment));
-                    if (in_array($name, ['account', 'accounts', 'companies', 'companyusers', 'tokens', 'companytokens', 'companygateways'], true)) {
+                    if (in_array($name, [
+                        'account', 'accounts', 'company', 'companies', 'companyuser', 'companyusers',
+                        'token', 'tokens', 'companytoken', 'companytokens', 'companygateway', 'companygateways',
+                    ], true)) {
                         throw new InvalidArgumentException('Account and credential includes are outside this company-bound catalog.');
                     }
                 }
