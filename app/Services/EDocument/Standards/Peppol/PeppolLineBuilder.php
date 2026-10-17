@@ -16,7 +16,6 @@ use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
 use InvoiceNinja\EInvoice\Models\Peppol\CreditNoteLineType\CreditNoteLine;
@@ -65,6 +64,7 @@ class PeppolLineBuilder
     private function buildLines(bool $isCreditNote): array
     {
         $lines = [];
+        $this->peppol->setGlobalTaxCategories([]);
         $invoice = $this->peppol->getInvoiceModel();
         $taxCalculator = $this->peppol->getTaxCalculator();
         $currencyCode = $invoice->client->currency()->code;
@@ -148,64 +148,41 @@ class PeppolLineBuilder
         $_item->Name = strlen($item->product_key ?? '') >= 1 ? $item->product_key : ctrans('texts.item');
         $_item->Description = $item->notes ?? '';
 
-        $ctc = new ClassifiedTaxCategory();
-        $ctc->ID = new ID();
-        $ctc->ID->value = $taxCalculator->getTaxType($item->tax_id);
-
-        if ($item->tax_rate1 > 0) {
-            $ctc->Percent = (string) $item->tax_rate1;
-        }
-
-        $ts = new TaxScheme();
-        $id = new ID();
-        $id->value = $taxCalculator->standardizeTaxSchemeId($item->tax_name1);
-        $ts->ID = $id;
-        $ctc->TaxScheme = $ts;
-
-        if (floatval($item->tax_rate1) === 0.0) {
-            $ctc = $taxCalculator->resolveTaxExemptReason($item, $ctc);
-
-            if ($this->peppol->getTaxCategoryId() == 'O') {
-                unset($ctc->Percent);
-            }
-        }
-
-        $_item->ClassifiedTaxCategory[] = $ctc;
+        $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory(
+            $taxCalculator, $item, (float) $item->tax_rate1, (string) $item->tax_name1,
+        );
 
         if ($item->tax_rate2 > 0) {
-            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item->tax_id, $item->tax_rate2, $item->tax_name2);
+            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item, $item->tax_rate2, $item->tax_name2);
         }
 
         if ($item->tax_rate3 > 0) {
-            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item->tax_id, $item->tax_rate3, $item->tax_name3);
+            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item, $item->tax_rate3, $item->tax_name3);
         }
 
         return $_item;
     }
 
     /**
-     * Builds a ClassifiedTaxCategory for secondary/tertiary tax rates.
+     * Builds the line representation of a resolved tax category.
      *
      * @param  PeppolTaxCalculator $taxCalculator
-     * @param  string $taxId
+     * @param  object $item
      * @param  float $taxRate
      * @param  string $taxName
      * @return ClassifiedTaxCategory
      */
-    private function buildTaxCategory(PeppolTaxCalculator $taxCalculator, string $taxId, float $taxRate, string $taxName): ClassifiedTaxCategory
+    private function buildTaxCategory(PeppolTaxCalculator $taxCalculator, object $item, float $taxRate, string $taxName): ClassifiedTaxCategory
     {
-        $ctc = new ClassifiedTaxCategory();
-        $ctc->ID = new ID();
-        $ctc->ID->value = $taxCalculator->getTaxType($taxId);
-        $ctc->Percent = (string) $taxRate;
+        $resolved = $taxCalculator->resolveLineTaxCategory($item, $taxRate, $taxName);
+        $category = new ClassifiedTaxCategory();
+        $category->ID = clone $resolved->ID;
+        if (isset($resolved->Percent)) {
+            $category->Percent = $resolved->Percent;
+        }
+        $category->TaxScheme = clone $resolved->TaxScheme;
 
-        $ts = new TaxScheme();
-        $id = new ID();
-        $id->value = $taxCalculator->standardizeTaxSchemeId($taxName);
-        $ts->ID = $id;
-        $ctc->TaxScheme = $ts;
-
-        return $ctc;
+        return $category;
     }
 
     /**
@@ -316,16 +293,9 @@ class PeppolLineBuilder
      * cannot produce a valid Peppol line and contribute nothing to totals,
      * so dropping them is loss-less.
      *
-     * Why both conditions: missing tax_name1 means the line gets a
-     * synthesised category code on the line (PeppolTaxCalculator::getTaxType)
-     * but no matching VAT breakdown entry (PeppolTaxCalculator::getAllUsedTaxes
-     * filters by `strlen(tax_name1) > 1`), so BR-S-01 / BR-Z-01 / BR-E-01 /
-     * BR-AE-01 / BR-K-01 / BR-G-01 / BR-O-01 fail. Combined with cost==0,
-     * dropping the row is loss-less.
-     *
-     * A row with non-zero cost is never dropped, even if tax_name1 is empty —
-     * that row is a real Peppol-validity failure and the schematron will
-     * surface it; silently dropping would change the invoice total.
+     * A row with non-zero cost is never dropped, even if tax_name1 is empty.
+     * Its category is resolved from the product and transaction context, and
+     * its amount must remain in the VAT breakdown and document totals.
      *
      * Half-cent epsilon for the cost comparison matches the rounding regime
      * used elsewhere in the builder (round($..., 2)).

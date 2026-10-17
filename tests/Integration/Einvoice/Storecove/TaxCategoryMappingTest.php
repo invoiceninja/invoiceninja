@@ -25,9 +25,10 @@ use App\DataMapper\CompanySettings;
 use App\Services\EDocument\Standards\Peppol;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Tests for PeppolTaxCalculator::getTaxType() and ::resolveTaxExemptReason().
+ * Tests for PeppolTaxCalculator::getTaxType() and ::resolveLineTaxCategory().
  *
  * These tests exercise tax category mapping through the full Peppol generation
  * pipeline, asserting on the generated XML to verify correct tax categories.
@@ -163,7 +164,9 @@ class TaxCategoryMappingTest extends TestCase
     private function generatePeppolXml(Invoice $invoice): string
     {
         $p = new Peppol($invoice);
-        return $p->run()->toXml();
+        $p->run();
+        $this->assertEmpty($p->getErrors(), implode('; ', $p->getErrors()));
+        return $p->toXml();
     }
 
     private function extractTaxCategoryFromXml(string $xml): string
@@ -250,17 +253,14 @@ class TaxCategoryMappingTest extends TestCase
         $this->assertEquals('E', $this->extractTaxCategoryFromXml($xml));
     }
 
-    public function testZeroRatedProductDomesticGetsCategoryE(): void
+    public function testZeroRatedProductDomesticGetsCategoryZ(): void
     {
-        // When tax_rate is 0, resolveTaxExemptReason() overrides the initial 'Z' category.
-        // For domestic (DE→DE), zero-rate exempt reason sets category 'E' (exempt).
-        // This documents the actual behavior: the exempt reason resolver takes
-        // precedence over getTaxType() when rate is zero.
+        // An explicit domestic zero-rated product must retain Z.
         $data = $this->setupTestData(['client_country' => 'DE', 'client_vat' => 'DE173755434', 'has_valid_vat' => true]);
         $invoice = $this->createInvoiceWithTaxId($data['client'], (string) Product::PRODUCT_TYPE_ZERO_RATED, 0, '');
         $xml = $this->generatePeppolXml($invoice);
 
-        $this->assertEquals('E', $this->extractTaxCategoryFromXml($xml));
+        $this->assertEquals('Z', $this->extractTaxCategoryFromXml($xml));
     }
 
     public function testZeroRatedProductExportGetsCategoryG(): void
@@ -275,6 +275,33 @@ class TaxCategoryMappingTest extends TestCase
         $xml = $this->generatePeppolXml($invoice);
 
         $this->assertEquals('G', $this->extractTaxCategoryFromXml($xml));
+    }
+
+    public static function zeroTaxRoutes(): iterable
+    {
+        yield 'intra-community zero-rated product' => ['DE', 'FR', Product::PRODUCT_TYPE_ZERO_RATED, 'K', 'vatex-eu-ic'];
+        yield 'non-EU cross-border zero-rated product' => ['US', 'DE', Product::PRODUCT_TYPE_ZERO_RATED, 'O', 'vatex-eu-o'];
+        yield 'non-EU domestic zero-rated product' => ['AU', 'AU', Product::PRODUCT_TYPE_ZERO_RATED, 'Z', ''];
+        yield 'non-EU domestic exempt product' => ['AU', 'AU', Product::PRODUCT_TYPE_EXEMPT, 'E', ''];
+        yield 'domestic reverse charge' => ['BE', 'BE', Product::PRODUCT_TYPE_REVERSE_TAX, 'AE', 'vatex-eu-ae'];
+    }
+
+    #[DataProvider('zeroTaxRoutes')]
+    public function testExplicitZeroTaxRoutes(string $seller, string $buyer, int $taxId, string $category, string $reason): void
+    {
+        $data = $this->setupTestData(['company_country' => $seller, 'client_country' => $buyer]);
+        $invoice = $this->createInvoiceWithTaxId($data['client'], (string) $taxId, 0, '');
+        $xml = $this->generatePeppolXml($invoice);
+        $this->assertSame($category, $this->extractTaxCategoryFromXml($xml));
+        $this->assertSame($reason, $this->extractTaxExemptReasonCodeFromXml($xml));
+    }
+
+    public function testNonEuDomesticZeroTaxRequiresExplicitTreatment(): void
+    {
+        $data = $this->setupTestData(['company_country' => 'AU', 'client_country' => 'AU']);
+        $invoice = $this->createInvoiceWithTaxId($data['client'], '', 0, '');
+        $peppol = (new Peppol($invoice))->run();
+        $this->assertStringContainsString('Select a tax category', implode('; ', $peppol->getErrors()));
     }
 
     public function testReducedTaxProductMapsToCategoryS(): void
@@ -415,7 +442,7 @@ class TaxCategoryMappingTest extends TestCase
         $this->assertEquals('vatex-eu-o', $reasonCode);
     }
 
-    public function testNonEuCompanyDomesticExemptReasonIsOutsideScope(): void
+    public function testNonEuCompanyDomesticExemptionDoesNotClaimOutsideScope(): void
     {
         $data = $this->setupTestData([
             'company_country' => 'AU',
@@ -423,10 +450,11 @@ class TaxCategoryMappingTest extends TestCase
             'client_country' => 'AU',
         ]);
 
-        $invoice = $this->createInvoiceWithTaxId($data['client'], '', 0, '');
+        $invoice = $this->createInvoiceWithTaxId($data['client'], (string) Product::PRODUCT_TYPE_EXEMPT, 0, '');
         $xml = $this->generatePeppolXml($invoice);
         $reasonCode = $this->extractTaxExemptReasonCodeFromXml($xml);
 
-        $this->assertEquals('vatex-eu-o', $reasonCode);
+        $this->assertSame('', $reasonCode);
+        $this->assertStringContainsString('Exempt from VAT', $xml);
     }
 }

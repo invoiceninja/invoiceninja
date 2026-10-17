@@ -62,6 +62,10 @@ trait UblStorecoveTestHarness
         $settings->email = uniqid('ubl-storecove') . '@gmail.com';
         $settings->currency_id = '3';
         $settings->e_invoice_type = 'PEPPOL';
+        $settings->address1 = 'Test Street 1';
+        $settings->city = 'Berlin';
+        $settings->postal_code = '10115';
+        $settings->phone = '+49301234567';
 
         $tax_data = new TaxModel();
         $tax_data->regions->EU->has_sales_above_threshold = false;
