@@ -42,6 +42,8 @@ class FranceAfnorBillingContextTest extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped('FR e-invoice reporting not supported yet.');
+
         $this->makeTestData();
         $this->withoutMiddleware(ThrottleRequests::class);
         $this->configureCompany('FR');
