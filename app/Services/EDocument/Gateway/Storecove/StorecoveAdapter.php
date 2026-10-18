@@ -51,6 +51,8 @@ class StorecoveAdapter
 
     private bool $has_error = false;
 
+    private const MAX_ATTACHMENTS = 10;
+
     private UblDocumentKind $documentKind = UblDocumentKind::Invoice;
 
     /**
@@ -168,6 +170,12 @@ class StorecoveAdapter
 
             $encoded = $e->encode($decoded, 'json');
             $this->storecove_invoice = $serializer->deserialize($encoded, $parent, 'json', $context);
+
+            $attachments = $this->storecove_invoice->getAttachments() ?? [];
+
+            $this->storecove_invoice->setAttachments(
+                array_slice($attachments, 0, self::MAX_ATTACHMENTS)
+            );
 
             $this->hydrateAllowanceChargeIndicatorsFromUblXml($xml);
 
