@@ -60,6 +60,12 @@ trait CompanySettingsSaver
 
         $company_settings = CompanySettings::defaults();
 
+        $existing = $entity->settings->pdf_variables ?? null;
+
+        if (is_object($existing) && count(get_object_vars($existing)) > 0) {
+            $company_settings->pdf_variables = $existing;
+        }
+
         foreach ($settings as $key => $value) {
             if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
@@ -221,7 +227,7 @@ trait CompanySettingsSaver
                 }
 
                 continue;
-            } elseif ($key == 'pdf_variables') {
+            } elseif ($key == 'pdf_variables' && property_exists($settings, $key)) {
                 settype($settings->{$key}, 'object');
             }
 
