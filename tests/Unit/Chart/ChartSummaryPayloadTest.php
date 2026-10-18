@@ -289,6 +289,43 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertEquals(75, (float) $all_time - (float) $bounded);
     }
 
+    public function testChartSummaryV2HonoursIncludeDrafts(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 75,
+            'balance' => 75,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'exchange_rate' => 1,
+            'date' => '1900-01-03',
+            'due_date' => '1900-02-03',
+            'is_deleted' => false,
+        ]);
+
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        $window = ['start_date' => '1900-01-01', 'end_date' => '1900-01-31'];
+
+        $without_drafts = $this->withHeaders($headers)
+            ->postJson('/api/v1/charts/chart_summary_v2', $window)
+            ->assertStatus(200)
+            ->json('999.invoices');
+
+        $this->assertSame([], $without_drafts);
+
+        $with_drafts = $this->withHeaders($headers)
+            ->postJson('/api/v1/charts/chart_summary_v2', $window + ['include_drafts' => true])
+            ->assertStatus(200)
+            ->json('999.invoices');
+
+        $this->assertSame(['1900-01-03'], array_column($with_drafts, 'date'));
+    }
+
     public function testChartSummaryPreservesInclusiveDateBoundaries(): void
     {
         foreach ([
