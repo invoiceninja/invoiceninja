@@ -300,7 +300,6 @@ class ActivityController extends BaseController
                 return $this->itemResponse($activity);
             case RecurringExpense::class:
                 $activity->recurring_expense_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
@@ -315,7 +314,6 @@ class ActivityController extends BaseController
 
             case PurchaseOrder::class:
                 $activity->purchase_order_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;

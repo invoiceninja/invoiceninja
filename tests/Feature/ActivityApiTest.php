@@ -12,6 +12,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\DB;
@@ -178,6 +179,37 @@ class ActivityApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals('These are notes', $arr['data']['notes']);
+        $this->assertEquals($this->recurring_expense->hashed_id, $arr['data']['recurring_expense_id']);
+        $this->assertEquals('', $arr['data']['expense_id']);
+    }
+
+    public function testActivityEntityRecurringExpense()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/activities/notes', [
+                'entity' => 'recurring_expenses',
+                'entity_id' => $this->recurring_expense->hashed_id,
+                'notes' => 'Recurring expense note',
+            ]);
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/activities/entity', [
+                'entity' => 'recurring_expense',
+                'entity_id' => $this->recurring_expense->hashed_id,
+            ]);
+
+        $response->assertStatus(200);
+
+        $notes = collect($response->json('data'))->where('activity_type_id', Activity::USER_NOTE);
+
+        $this->assertCount(1, $notes);
+        $this->assertEquals('Recurring expense note', $notes->first()['notes']);
     }
 
 
@@ -219,6 +251,8 @@ class ActivityApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals('These are notes', $arr['data']['notes']);
+        $this->assertEquals($this->purchase_order->hashed_id, $arr['data']['purchase_order_id']);
+        $this->assertEquals('', $arr['data']['expense_id']);
     }
 
     public function testActivityTaskNotes()
