@@ -129,7 +129,7 @@ class ChartService
     /**
      * chart_summary_batched
      *
-     * Reduces N+1 queries @todo additional testing prior to replacing chart_summary
+     * Batches per-currency queries for the chart summary endpoints.
      *
      * @successor-for chart-summary-batched
      * @see chart_summary()

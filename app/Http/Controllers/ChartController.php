@@ -55,7 +55,7 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->chart_summary(
+        return response()->json($cs->chart_summary_batched(
             $request->input('start_date'),
             $request->input('end_date'),
             $request->input('date_range') === 'all_time',
@@ -89,7 +89,7 @@ class ChartController extends BaseController
 
         $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
-        return response()->json($cs->chart_summary(
+        return response()->json($cs->chart_summary_batched(
             $request->input('start_date'),
             $request->input('end_date'),
             $request->input('date_range') === 'all_time',

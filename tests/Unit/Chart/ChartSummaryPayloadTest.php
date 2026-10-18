@@ -195,7 +195,8 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame($emptyCurrencyPayload, $payload[2]);
         $this->assertSame($emptyCurrencyPayload, $payload[999]);
 
-        $allTimePayload = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $allTimePayload = $chartService->chart_summary_batched('2000-01-01', '2026-01-31', true);
+        $this->assertEquals($chartService->chart_summary('2000-01-01', '2026-01-31', true), $allTimePayload);
         $this->assertSame('2000-01-01', $allTimePayload['start_date']);
     }
 
@@ -206,7 +207,8 @@ class ChartSummaryPayloadTest extends TestCase
         $this->createChartExpense(['date' => '1997-01-01']);
 
         $chartService = new ChartService($this->chartCompany, $this->user, true);
-        $summary = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $summary = $chartService->chart_summary_batched('2000-01-01', '2026-01-31', true);
+        $this->assertEquals($chartService->chart_summary('2000-01-01', '2026-01-31', true), $summary);
         $totals = $chartService->totals('2000-01-01', '2026-01-31', true);
 
         $this->assertSame('1997-01-01', $summary['start_date']);
