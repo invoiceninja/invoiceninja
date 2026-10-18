@@ -286,11 +286,17 @@ class UserRepository extends BaseRepository
 
         \DB::transaction(function () use ($user, $new_owner_user) {
 
+        $purged_user_company_ids = $user->company_users()
+                                    ->pluck('company_id')
+                                    ->unique()
+                                    ->values()
+                                    ->all();
+
             /* Remove all of the system tokens for the user */
             $user->tokens()->where('is_system', true)->forceDelete();
 
             // Relations to transfer user_id to new owner
-            $allRelations = [
+            $all_relations = [
                 'activities', 'bank_integrations', 'bank_transaction_rules',
                 'bank_transactions', 'client_contacts', 'company_gateways',
                 'company_ledgers', 'company_tokens', 'credit_invitations',
@@ -307,21 +313,24 @@ class UserRepository extends BaseRepository
                 'recurring_quotes',
             ];
 
-            foreach ($allRelations as $relation) {
-                $user->{$relation}()->update(['user_id' => $new_owner_user->id]);
+            foreach ($all_relations as $relation) {
+                 $user->{$relation}()
+                    ->whereIn('company_id', $purged_user_company_ids)
+                    ->update(['user_id' => $new_owner_user->id]);
             }
 
             // Models with both user_id and assigned_user_id
-            $modelsWithAssignedUser = [
+            $models_with_assigned_user = [
                 Client::class, Invoice::class, Credit::class, Quote::class,
                 Payment::class, Expense::class, Task::class, Project::class,
                 Vendor::class, Product::class, PurchaseOrder::class,
                 RecurringInvoice::class, RecurringExpense::class, RecurringQuote::class,
             ];
 
-            foreach ($modelsWithAssignedUser as $model) {
+            foreach ($models_with_assigned_user as $model) {
                 // Null out assigned_user_id
                 $model::withTrashed()
+                    ->whereIn('company_id', $purged_user_company_ids)
                     ->where('assigned_user_id', $user->id)
                     ->update(['assigned_user_id' => null]);
             }

@@ -418,7 +418,13 @@ class CompanyExport implements ShouldQueue
             $quote = $this->transformBasicEntities($quote);
             $quote = $this->transformArrayOfKeys($quote, ['invoice_id','recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id', 'location_id']);
 
-            return $this->withoutRelations($quote->makeVisible(['id']));
+            $status_id = $quote->getAttributes()['status_id'];
+            $data = $quote->makeVisible(['id'])
+                ->makeHidden(['status_id'])
+                ->attributesToArray();
+            $data['status_id'] = $status_id;
+
+            return $data;
         })->all();
 
 
