@@ -209,6 +209,7 @@ class TaxPeriodReport extends BaseExport
             });
 
         $ii = Invoice::withTrashed()
+                ->where('company_id', $this->company->id)
                 ->whereHas('transaction_events', function ($query) {
                     $query->where('event_id', TransactionEvent::INVOICE_UPDATED)
                         ->where('period', '<=', $this->end_date);
