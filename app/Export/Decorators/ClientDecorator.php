@@ -84,7 +84,7 @@ class ClientDecorator extends Decorator implements DecoratorInterface
 
     public function payment_terms(Client $client)
     {
-        return $client?->settings?->payment_terms ?? $client->company->settings->payment_terms;
+        return $client->settings->payment_terms ?? $client->company->settings->payment_terms ?? 0;
     }
 
     public function public_notes(Client $client)
@@ -94,7 +94,8 @@ class ClientDecorator extends Decorator implements DecoratorInterface
 
     public function classification(Client $client)
     {
-        ctrans("texts.{$client->classification}") ?? '';
+        $classification = $client->classification ?? 'business';
+        return ctrans("texts.{$classification}");
     }
 
     public function status(Client $client)

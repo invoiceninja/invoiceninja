@@ -44,6 +44,10 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public Company $company;
 
+    public $maxExceptions = 1;
+
+    public $tries = 6;
+
     /**
      * Create a new job instance.
      */
@@ -51,6 +55,11 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     {
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
+    }
+
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHour();
     }
 
     /**
@@ -61,11 +70,9 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE) {
-            throw new \Exception("Invalid BankIntegration Type");
-        }
+        set_time_limit(600);
 
-        set_time_limit(0);
+        sleep(rand(1,5));
 
         //Loop through everything until we are up to date - improve handling of delayed accounts
         $this->from_date = $this->from_date ? Carbon::parse($this->from_date)->subWeeks(2)->format('Y-m-d') : '2021-01-01';
@@ -117,6 +124,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                 ];
 
                 $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+                BankMatchingService::dispatch($this->company->id, $this->company->db);
                 return;
             }
         } while ($this->stop_loop);
@@ -170,24 +178,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         $now = now();
 
         foreach ($transactions as $transaction) {
-            if (BankTransaction::query() //ensure we don't duplicate transactions with the same ID
-                            ->where('transaction_id', $transaction['transaction_id'])
-                            ->where('company_id', $this->company->id)
-                            ->where('bank_integration_id', $this->bank_integration->id)
-                            ->withTrashed()
-                            ->exists()) {
-                continue;
-            } elseif (BankTransaction::query() //ensure we don't duplicate transactions that have the same amount, currency, account type, category type, date, and description
-                            ->where('company_id', $this->company->id)
-                            ->where('bank_integration_id', $this->bank_integration->id)
-                            ->where('amount', $transaction['amount'])
-                            ->where('currency_id', $transaction['currency_id'])
-                            ->where('account_type', $transaction['account_type'])
-                            ->where('category_type', $transaction['category_type'])
-                            ->where('date', $transaction['date'])
-                            ->where('description', $transaction['description'])
-                            ->withTrashed()
-                            ->exists()) {
+            if ($this->isDuplicateTransaction($transaction)) {
                 continue;
             }
 
@@ -213,6 +204,65 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
             $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->save();
         }
+    }
+
+    /**
+     * Determines whether an incoming transaction already exists for this company.
+     *
+     * Two checks are applied:
+     *  1. Exact upstream id match, scoped to this integration. Catches the
+     *     steady-state case where the same feed is re-fetched (Yodlee ids are
+     *     stable within a single integration).
+     *  2. Company-grain natural-key match. Catches duplicates that arrive under a
+     *     *new* bank_integration_id after the user re-links the same bank account
+     *     (Yodlee re-issues transaction ids, so check 1 misses them). The running
+     *     balance + check number (persisted in the Yodlee-unused participant /
+     *     participant_name columns) disambiguate genuinely-distinct same-day /
+     *     same-amount transactions: a real duplicate carries the *same* running
+     *     balance, whereas two distinct payments leave different balances behind.
+     *     The disambiguators are applied null-tolerantly so we never create a
+     *     duplicate against legacy rows captured before they were populated.
+     *
+     * @param array<string, mixed> $transaction
+     */
+    private function isDuplicateTransaction(array $transaction): bool
+    {
+        $exists_by_id = BankTransaction::query()
+            ->where('company_id', $this->company->id)
+            ->where('bank_integration_id', $this->bank_integration->id)
+            ->where('transaction_id', $transaction['transaction_id'])
+            ->withTrashed()
+            ->exists();
+
+        if ($exists_by_id) {
+            return true;
+        }
+
+        $query = BankTransaction::query()
+            ->where('company_id', $this->company->id)
+            ->where('amount', $transaction['amount'])
+            ->where('currency_id', $transaction['currency_id'])
+            ->where('account_type', $transaction['account_type'])
+            ->where('category_type', $transaction['category_type'])
+            ->where('date', $transaction['date'])
+            ->where('description', $transaction['description'])
+            ->withTrashed();
+
+        if (!is_null($transaction['participant'] ?? null)) {
+            $query->where(function ($q) use ($transaction) {
+                $q->whereNull('participant')
+                  ->orWhere('participant', $transaction['participant']);
+            });
+        }
+
+        if (!is_null($transaction['participant_name'] ?? null)) {
+            $query->where(function ($q) use ($transaction) {
+                $q->whereNull('participant_name')
+                  ->orWhere('participant_name', $transaction['participant_name']);
+            });
+        }
+
+        return $query->exists();
     }
 
 

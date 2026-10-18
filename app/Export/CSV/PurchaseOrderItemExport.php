@@ -66,9 +66,9 @@ class PurchaseOrderItemExport extends BaseExport
                         ->whereHas('vendor', function ($q) {
                             $q->where('is_deleted', false);
                         })
-                        ->with('vendor', 'location')->where('company_id', $this->company->id);
+                        ->with('vendor', 'location', 'tags')->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
@@ -79,6 +79,9 @@ class PurchaseOrderItemExport extends BaseExport
         if ($clients) {
             $query = $this->addClientFilter($query, $clients);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
@@ -193,9 +196,14 @@ class PurchaseOrderItemExport extends BaseExport
             $entity = $this->decorateAdvancedFields($purchase_order, $transformed_items);
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
-            $this->storage_array[] = $this->convertFloats($entity);
+            $this->storage_array[] = $this->convertFloats($entity, ['purchase_order' => $purchase_order->id]);
         }
 
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'purchase_order.') ? 'purchase_order' : null;
     }
 
     protected function buildRow(PurchaseOrder $purchase_order): array
@@ -207,11 +215,16 @@ class PurchaseOrderItemExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'item') {
+            if ($parts[0] === 'item') {
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'purchase_order' && array_key_exists($parts[1], $transformed_purchase_order)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $purchase_order);
+                continue;
+            }
+
+            if ($parts[0] === 'purchase_order' && isset($parts[1], $transformed_purchase_order[$parts[1]])) {
                 $entity[$key] = $transformed_purchase_order[$parts[1]];
             } elseif (array_key_exists($key, $transformed_purchase_order)) {
                 $entity[$key] = $transformed_purchase_order[$key];
@@ -242,7 +255,7 @@ class PurchaseOrderItemExport extends BaseExport
         }
 
         if (in_array('purchase_order.user_id', $this->input['report_keys'])) {
-            $entity['purchase_order.user_id'] = $purchase_order->user ? $purchase_order->user->present()->name() : '';
+            $entity['purchase_order.user_id'] = $purchase_order->user->present()->name() ?? '';
         }
 
         if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {

@@ -17,17 +17,17 @@
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
 
-        <ul class="list-none space-y-2">
+        <ul class="payment-method-list">
             @if(count($tokens) > 0)
                 @foreach($tokens as $token)
-                <li class="py-2 hover:bg-gray-100 rounded transition-colors duration-150">
-                    <label class="flex items-center cursor-pointer px-2">
+                <li class="payment-method-item">
+                    <label class="payment-method-label">
                         <input
                             type="radio"
                             data-token="{{ $token->hashed_id }}"
                             name="payment-type"
-                            class="form-radio text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
-                        <span class="ml-2 cursor-pointer">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
+                            class="form-radio cursor-pointer toggle-payment-with-token"/>
+                        <span class="ml-1">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
                     </label>
                 </li>
                 @endforeach

@@ -59,7 +59,7 @@ class VendorMergeTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->company = Company::factory()->create([
@@ -107,7 +107,7 @@ class VendorMergeTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $company = Company::factory()->create([
@@ -181,7 +181,7 @@ class VendorMergeTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $company = Company::factory()->create([

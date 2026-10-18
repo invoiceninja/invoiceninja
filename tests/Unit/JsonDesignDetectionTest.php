@@ -31,9 +31,12 @@ class JsonDesignDetectionTest extends TestCase
         $this->assertArrayHasKey('blocks', $designData);
         $this->assertIsArray($designData['blocks']);
 
-        // May have pageSettings or templateId
-        $hasExpectedKeys = isset($designData['pageSettings']) || isset($designData['templateId']);
-        $this->assertTrue($hasExpectedKeys, "Should have pageSettings or templateId");
+        // Modern visual-designer payloads carry documentSettings; older
+        // fixtures may still have pageSettings or templateId.
+        $hasExpectedKeys = isset($designData['documentSettings'])
+            || isset($designData['pageSettings'])
+            || isset($designData['templateId']);
+        $this->assertTrue($hasExpectedKeys, "Should have documentSettings, pageSettings, or templateId");
 
         echo "\n✅ JSON design structure validated\n";
         echo "Blocks count: " . count($designData['blocks']) . "\n";

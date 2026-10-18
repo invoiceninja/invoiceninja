@@ -42,11 +42,14 @@ class StoreLocationRequest extends Request
         $rules['name'] = 'required|unique:locations,name,null,null,company_id,' . $user->companyId();
 
         $rules['client_id'] = 'required_without:vendor_id|nullable|integer|bail|exists:clients,id,company_id,' . $user->companyId();
-        $rules['vendor_id'] = 'required_without:client_id|nullable|integer|bail|exists:vendors,id,company_id,' . $user->companyId();
 
         $rules['country_id'] = 'integer|bail|exists:countries,id';
 
-        return $this->globalRules($rules);
+        $rules = $this->globalRules($rules);
+
+        $rules['vendor_id'] = 'required_without:client_id|nullable|integer|bail|exists:vendors,id,company_id,' . $user->companyId();
+
+        return $rules;
     }
 
     public function prepareForValidation()

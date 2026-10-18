@@ -68,6 +68,19 @@ class TagApiTest extends TestCase
         $this->assertSame('#ff0000', $arr['data']['color']);
     }
 
+    public function testStoreAcceptsAllConfiguredEntityTypeAliases(): void
+    {
+        foreach (Tag::TAGGABLE_TYPES as $alias => $entity_type) {
+            $response = $this->withHeaders($this->headers())->postJson('/api/v1/tags', [
+                'entity_type' => $alias,
+                'name' => 'allowed-'.$alias,
+            ]);
+
+            $response->assertStatus(200);
+            $this->assertSame($entity_type, $response->json('data.entity_type'));
+        }
+    }
+
     public function testTagCreatedViaApiCanBeAttachedToTask(): void
     {
         $create = $this->withHeaders($this->headers())->postJson('/api/v1/tags', [
@@ -91,7 +104,7 @@ class TagApiTest extends TestCase
     public function testStoreRejectsDisallowedEntityType(): void
     {
         $payload = [
-            'entity_type' => 'App\\Models\\Invoice',
+            'entity_type' => 'App\\Models\\Location',
             'name' => 'follow-up',
         ];
 
@@ -111,6 +124,18 @@ class TagApiTest extends TestCase
         $response = $this->withHeaders($this->headers())->postJson('/api/v1/tags', $payload);
 
         $response->assertStatus(422);
+    }
+
+    public function testStoreRejectsCommaInTagName(): void
+    {
+        $response = $this->withHeaders($this->headers())->postJson('/api/v1/tags', [
+            'entity_type' => 'product',
+            'name' => 'Retail,Priority',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonPath('errors.name.0', 'Tag names may not contain commas.');
     }
 
     public function testNullColorAllowed(): void
@@ -182,7 +207,7 @@ class TagApiTest extends TestCase
     {
         $response = $this->withHeaders($this->headers())->getJson('/api/v1/tags');
 
-        $response->assertStatus(422);
+        $response->assertStatus(200);
     }
 
     public function testIndexFilterByEntityType(): void
@@ -213,6 +238,46 @@ class TagApiTest extends TestCase
         }
     }
 
+    public function testIndexIgnoresInvalidIncludeWhenTransformerHasNoIncludes(): void
+    {
+        Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Project::class,
+            'name' => 'no-include-project-tag',
+        ]);
+
+        foreach (['foo', 'clients'] as $include) {
+            $response = $this->withHeaders($this->headers())
+                ->getJson('/api/v1/tags?entity_type=project&include='.$include);
+
+            $response->assertStatus(200);
+            $this->assertNotEmpty($response->json('data'));
+        }
+    }
+
+    public function testIndexFilterAcceptsCanonicalEntityType(): void
+    {
+        Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Project::class,
+            'name' => 'canonical-project-tag',
+        ]);
+
+        $response = $this->withHeaders($this->headers())
+            ->getJson('/api/v1/tags?entity_type=project');
+
+        $response->assertStatus(200);
+
+        $rows = $response->json('data');
+        $this->assertNotEmpty($rows);
+
+        foreach ($rows as $row) {
+            $this->assertSame(Project::class, $row['entity_type']);
+        }
+    }
+
     public function testUpdateTagName(): void
     {
         $tag = Tag::factory()->create([
@@ -227,6 +292,26 @@ class TagApiTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertSame('new', $response->json('data.name'));
+    }
+
+    public function testUpdateRejectsCommaInTagName(): void
+    {
+        $tag = Tag::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'entity_type' => Task::class,
+            'name' => 'original',
+        ]);
+
+        $response = $this->withHeaders($this->headers())
+            ->putJson('/api/v1/tags/'.$this->encodePrimaryKey($tag->id), [
+                'name' => 'Updated,Invalid',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name'])
+            ->assertJsonPath('errors.name.0', 'Tag names may not contain commas.');
+        $this->assertSame('original', $tag->fresh()->name);
     }
 
     public function testEntityTypeIsImmutableOnUpdate(): void

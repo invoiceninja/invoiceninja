@@ -95,7 +95,7 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     }
     public function user_id(Invoice $invoice)
     {
-        return $invoice->user ? $invoice->user->present()->name() : '';
+        return $invoice->user->present()->name() ?? '';
     }
 
     public function recurring_id(Invoice $invoice)
@@ -106,6 +106,11 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     public function auto_bill_enabled(Invoice $invoice)
     {
         return $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
+    }
+
+    public function po_number(Invoice $invoice)
+    {
+        return $invoice->po_number ?? '';
     }
 
 }

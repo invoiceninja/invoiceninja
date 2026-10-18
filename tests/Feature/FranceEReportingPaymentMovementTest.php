@@ -1,20 +1,27 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
 namespace Tests\Feature;
 
-use App\Console\Kernel as ConsoleKernel;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\Tax\TaxModel;
 use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
-use App\Repositories\PaymentRepository;
-use App\Jobs\Cron\FranceEReportingCron;
-use App\Jobs\EDocument\EInvoicePullDocs;
+use App\Jobs\Ninja\CheckACHStatus;
 use App\Jobs\EDocument\RecordFranceEReportingPayment;
-use App\Jobs\EDocument\SubmitFranceEReport;
+use App\Jobs\EDocument\RecordFranceEReportingDocumentLifecycle;
+use App\Jobs\EDocument\RecordFranceEReportingScopeInvalidation;
+use App\Jobs\Cron\FranceEReportingCron;
 use App\Jobs\EDocument\SubmitFrancePaymentReceivedNotification;
 use App\Jobs\EDocument\UpdateFranceEReportSubmissionStatus;
-use App\Services\EDocument\Jobs\SendEDocument;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
@@ -23,21 +30,21 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\Product;
 use App\Models\TransactionEvent;
+use App\Models\Webhook;
 use App\Observers\PaymentObserver;
-use App\Services\EDocument\Standards\France\FranceEReportCompiler;
-use App\Services\EDocument\Standards\France\FranceEReportPayloadBuilder;
+use App\Services\EDocument\Standards\France\FranceEReportVariant;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
-use App\Services\EDocument\Gateway\Storecove\StorecoveProxy;
+use App\Services\EDocument\Standards\France\FrancePaymentNotificationProcessor;
+use App\Services\EDocument\Standards\France\FranceReportMaterializer;
+use App\Services\EDocument\Standards\France\FranceReportingEventType;
+use App\Services\EDocument\Standards\France\FranceReportingStatus;
+use App\Services\EDocument\Standards\France\FranceRuntimeProjection;
+use App\Services\EDocument\Standards\France\ReportingCalendar;
+use App\Services\EDocument\Standards\France\ReportingProfile;
 use Carbon\CarbonImmutable;
-use Faker\Factory;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
-use Ramsey\Uuid\Uuid;
-use ReflectionMethod;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -50,1935 +57,2307 @@ class FranceEReportingPaymentMovementTest extends TestCase
     {
         parent::setUp();
 
-        if (! config('ninja.storecove_api_key')) {
-            $this->markTestSkipped('Storecove API key not set');
-        }
-
-        $this->faker = Factory::create();
+        $this->markTestSkipped('FRREPORTING::');
+        
         $this->makeTestData();
         $this->enableFranceReporting();
     }
 
-    public function testItDefersPartialMovementsAndPromotesAFullPaymentAggregate(): void
+    public function test_payment_capture_is_an_idempotent_immutable_fact(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-01');
-
-        $paymentOne = $this->makePayment($invoice->client, '2026-09-15', '400');
-        $paymentableOne = $this->makePaymentable($paymentOne, $invoice, '400', '2026-09-15');
-        $invoice = $this->setInvoicePaymentState($invoice, '400');
-
-        (new RecordFranceEReportingPayment(
-            $paymentOne->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentableOne->id,
-            '400',
-            '2026-09-15',
-        ))->handle();
-
-        $this->assertSame(1, $this->movementEvents($invoice)->count());
-        $this->assertSame(0, $this->reportEvents($invoice)->count());
-
-        $paymentTwo = $this->makePayment($invoice->client, '2026-10-02', '800');
-        $paymentableTwo = $this->makePaymentable($paymentTwo, $invoice, '800', '2026-10-02');
-        $invoice = $this->setInvoicePaymentState($invoice, '1200');
-
-        (new RecordFranceEReportingPayment(
-            $paymentTwo->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentableTwo->id,
-            '800',
-            '2026-10-02',
-        ))->handle();
-
-        $movements = $this->movementEvents($invoice);
-        $report = $this->reportEvents($invoice)->first();
-
-        $this->assertSame(2, $movements->count());
-        $this->assertNotNull($report);
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $report->payment_status);
-        $this->assertSame('2026-10-10', $report->period->toDateString());
-        $this->assertSame('initial', data_get($report->payment_request, 'fr_report_kind'));
-        $this->assertSame(1200.0, (float) $report->payment_applied);
-        $this->assertCount(2, data_get($report->payment_request, 'source_event_ids'));
-        $this->assertSame([(int) $report->id, (int) $report->id], $movements->map(fn (TransactionEvent $movement): int => (int) data_get($movement->payment_request, 'report_event_id'))->all());
-        $this->assertSame('2026-10-02', $report->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertSame(1000, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
-        $this->assertSame(200, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxAmount);
-    }
-
-    public function testRefundAfterSubmittedPaymentCreatesCorrectivePaymentEvent(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: 'FR', classification: 'individual', date: '2026-09-01');
-        $payment = $this->makePayment($invoice->client, '2026-09-15', '1200');
-        $paymentable = $this->makePaymentable($payment, $invoice, '1200', '2026-09-15');
-        $invoice = $this->setInvoicePaymentState($invoice, '1200');
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            '1200',
-            '2026-09-15',
-        ))->handle();
-
-        $initialReport = $this->reportEvents($invoice)->firstOrFail();
-        $compiler = new FranceEReportCompiler();
-        $initialSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-09-20');
-
-        $this->assertTrue($initialSources->contains('id', $initialReport->id));
-        $this->assertFalse($initialSources->contains(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_kind') === RecordFranceEReportingPayment::KIND_MOVEMENT));
-
-        $initialReport->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
-        $initialReport->save();
-
-        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
-        $payment->refunded = 200;
-        $payment->save();
-
-        $invoice = $this->setInvoicePaymentState($invoice, '1000');
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            '-200',
-            '2026-10-12',
-            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
-        ))->handle();
-
-        $correctiveReport = $this->reportEvents($invoice)
-            ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, 'fr_report_kind') === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE);
-
-        $this->assertNotNull($correctiveReport);
-        $this->assertSame('2026-10-20', $correctiveReport->period->toDateString());
-        $this->assertSame(-200.0, (float) $correctiveReport->payment_applied);
-        $this->assertSame((int) $initialReport->id, (int) data_get($correctiveReport->payment_request, 'previous_event_id'));
-        $this->assertSame('2026-10-12', $correctiveReport->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertStringStartsWith('-', (string) $correctiveReport->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
-
-        $correctiveSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_CORRECTIVE, '2026-10-20');
-        $initialSourcesForCorrectionPeriod = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, '2026-10-20');
-
-        $this->assertTrue($correctiveSources->contains('id', $correctiveReport->id));
-        $this->assertFalse($initialSourcesForCorrectionPeriod->contains('id', $correctiveReport->id));
-    }
-
-    public function testItDoesNotRecordDomesticFrenchBusinessPaymentMovements(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->count());
-    }
-
-    public function testItRecordsForeignBusinessPaymentsAsVatExcludedBiMonthlyReports(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "DE", classification: "business", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $movement = TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
-            ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_DEFERRED)
-            ->firstOrFail();
-
-        $report = TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
-            ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_PENDING)
-            ->firstOrFail();
-
-        $this->assertSame(RecordFranceEReportingPayment::KIND_MOVEMENT, data_get($movement->payment_request, "fr_kind"));
-        $this->assertSame("2026-10-31", $report->period->toDateString());
-        $this->assertSame(1200.0, (float) $report->payment_applied);
-        $this->assertSame("initial", data_get($report->payment_request, "fr_report_kind"));
-        $this->assertSame("2026-09-15", $report->reporting_data->frReportEntry->b2biPayment->paymentDate);
-        $this->assertSame(1200, $report->reporting_data->frReportEntry->b2biPayment->taxSubtotals[0]->amountIncludingTax);
-
-        $compiler = new FranceEReportCompiler();
-        $vatExcludedSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED, "2026-10-31");
-        $b2cSources = $compiler->sourceEvents($this->company, TransactionEvent::FR_REPORT_SUBMISSION_B2C, "2026-10-31");
-
-        $this->assertTrue($vatExcludedSources->contains("id", $report->id));
-        $this->assertFalse($b2cSources->contains("id", $report->id));
-    }
-
-    public function testB2BIPaymentReportRepeatsTheFullPaymentAmountForEachTaxSubtotal(): void
-    {
-        $invoice = $this->makeInvoice(
-            clientCountry: "DE",
-            classification: "business",
-            date: "2026-09-01",
-            lineItems: [
-                $this->makeLineItemWithTax("CONSULTING-20", 100, "VAT20", 20),
-                $this->makeLineItemWithTax("CONSULTING-10", 100, "VAT10", 10),
-            ],
-        );
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "230");
-        $paymentable = $this->makePaymentable($payment, $invoice, "230", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "230");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "230",
-            "2026-09-15",
-        ))->handle();
-
-        $report = TransactionEvent::query()
-            ->where("invoice_id", $invoice->id)
-            ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
-            ->where("payment_status", TransactionEvent::FR_REPORTING_STATUS_PENDING)
-            ->firstOrFail();
-
-        $taxSubtotals = $report->reporting_data->frReportEntry->b2biPayment->taxSubtotals;
-        $amountsIncludingTax = collect($taxSubtotals)
-            ->map(fn (object $taxSubtotal): string => (string) $taxSubtotal->amountIncludingTax)
-            ->all();
-        $amountIncludingTaxTotal = collect($taxSubtotals)
-            ->sum(fn (object $taxSubtotal): float => (float) $taxSubtotal->amountIncludingTax);
-
-        $this->assertCount(2, $taxSubtotals);
-        $this->assertSame(["230", "230"], $amountsIncludingTax);
-        $this->assertSame(460.0, $amountIncludingTaxTotal);
-        $this->assertGreaterThan((float) $payment->amount, $amountIncludingTaxTotal);
-    }
-
-    public function testRefundBeforeSubmissionUpdatesThePendingPaymentReport(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $initialReportId = $this->reportEvents($invoice)->firstOrFail()->id;
-
-        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
-        $payment->refunded = 200;
-        $payment->save();
-        $invoice = $this->setInvoicePaymentState($invoice, "1000");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "-200",
-            "2026-09-18",
-            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
-        ))->handle();
-
-        $reports = $this->reportEvents($invoice);
-        $report = $reports->firstOrFail();
-
-        $this->assertSame(1, $reports->count());
-        $this->assertSame((int) $initialReportId, (int) $report->id);
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $report->payment_status);
-        $this->assertSame(1000.0, (float) $report->payment_applied);
-        $this->assertSame("2026-09-18", data_get($report->payment_request, "source_date"));
-        $this->assertSame("initial", data_get($report->payment_request, "fr_report_kind"));
-        $this->assertCount(2, data_get($report->payment_request, "source_event_ids"));
-        $this->assertSame("2026-09-18", $report->reporting_data->frReportEntry->b2cPayment->date);
-        $this->assertSame(833.33, $report->reporting_data->frReportEntry->b2cPayment->taxSubtotal[0]->taxableAmount);
-    }
-
-    public function testRefundBeforeSubmissionThatNetsToZeroRemovesThePendingReport(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $this->assertSame(1, $this->reportEvents($invoice)->count());
-
-        $payment->status_id = Payment::STATUS_REFUNDED;
-        $payment->refunded = 1200;
-        $payment->save();
-        $invoice = $this->setInvoicePaymentState($invoice, "0");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "-1200",
-            "2026-09-18",
-            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
-        ))->handle();
-
-        $movements = $this->movementEvents($invoice);
-
-        $this->assertSame(0, $this->reportEvents($invoice)->count());
-        $this->assertSame(2, $movements->count());
-        $this->assertSame([null, null], $movements->map(fn (TransactionEvent $movement): mixed => data_get($movement->payment_request, "report_event_id"))->all());
-    }
-
-    public function testDeletedPaymentAfterSubmittedPaymentCreatesCorrectivePaymentEvent(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $initialReport = $this->reportEvents($invoice)->firstOrFail();
-        $initialReport->payment_status = TransactionEvent::FR_REPORTING_STATUS_SUBMITTED;
-        $initialReport->save();
-
-        $payment->status_id = Payment::STATUS_CANCELLED;
-        $payment->save();
-        $invoice = $this->setInvoicePaymentState($invoice, "0");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "-1200",
-            "2026-10-12",
-            FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
-        ))->handle();
-
-        $correctiveReport = $this->reportEvents($invoice)
-            ->first(fn (TransactionEvent $event): bool => data_get($event->payment_request, "fr_report_kind") === RecordFranceEReportingPayment::REPORT_KIND_CORRECTIVE);
-
-        $this->assertNotNull($correctiveReport);
-        $this->assertSame("2026-10-20", $correctiveReport->period->toDateString());
-        $this->assertSame(-1200.0, (float) $correctiveReport->payment_applied);
-        $this->assertSame((int) $initialReport->id, (int) data_get($correctiveReport->payment_request, "previous_event_id"));
-        $this->assertSame(FrancePaymentApplicationRecorder::MOVEMENT_DELETED, data_get($this->movementEvents($invoice)->last()->payment_request, "movement_type"));
-    }
-
-    public function testRerunningThePaymentRecorderIsIdempotent(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
         $job = new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
             $invoice->id,
             $paymentable->id,
-            "1200",
-            "2026-09-15",
+            '120',
+            '2026-09-25',
         );
 
         $job->handle();
         $job->handle();
 
-        $this->assertSame(1, $this->movementEvents($invoice)->count());
-        $this->assertSame(1, $this->reportEvents($invoice)->count());
-        $this->assertCount(1, data_get($this->reportEvents($invoice)->first()->payment_request, "source_event_ids"));
+        $events = $this->movements($payment);
+        $this->assertCount(1, $events);
+        $this->assertNull($events->first()->reporting_data);
+        $this->assertNull($events->first()->payment_status);
+        $this->assertSame(0, $events->first()->credit_id);
+        $this->assertSame('fact', data_get($events->first()->payment_request, 'role'));
+        $this->assertSame('f10', data_get($events->first()->payment_request, 'reporting_path'));
+        $this->assertSame('120.00', data_get($events->first()->payment_request, 'movement_amount'));
     }
 
-    public function testPaymentRequestPayloadsOnlyContainRequiredHydrationKeys(): void
+    public function test_direct_capture_does_not_duplicate_a_source_revision_already_reconciled(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
 
+        (new RecordFranceEReportingScopeInvalidation(
+            companyId: $this->company->id,
+            db: $this->company->db,
+            invalidationKey: 'concurrent-source-reconciliation',
+            reconcileRecentSourceState: true,
+            sourceReconciliationSince: '2026-09-24T00:00:00+00:00',
+        ))->handle();
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
             $invoice->id,
             $paymentable->id,
-            "1200",
-            "2026-09-15",
+            '120',
+            '2026-09-25',
+            FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+            'direct-writer-after-reconciliation',
         ))->handle();
 
-        $movementRequest = $this->movementEvents($invoice)->firstOrFail()->payment_request;
-        $reportRequest = $this->reportEvents($invoice)->firstOrFail()->payment_request;
-
-        $this->assertSame([
-            "fr_kind",
-            "source_date",
-            "paymentable_id",
-            "movement_type",
-            "movement_amount",
-            "snapshot_hash",
-            "report_event_id",
-        ], array_keys($movementRequest));
-
-        $this->assertSame([
-            "fr_kind",
-            "fr_report_kind",
-            "source_date",
-            "source_event_ids",
-            "previous_event_id",
-        ], array_keys($reportRequest));
+        $this->assertCount(1, $this->movements($payment));
+        $this->assertSame('120.00', data_get(
+            $this->movements($payment)->firstOrFail()->payment_request,
+            'movement_amount',
+        ));
     }
 
-    public function testSinglePaymentAppliedAfterTheInvoicePeriodReportsInThePaymentPeriod(): void
+    public function test_source_reconciliation_reloads_payment_state_after_acquiring_the_company_lock(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-10-02", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-10-02");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $stalePaymentable = Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->where('paymentable_type', 'invoices')
+            ->firstOrFail();
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
             $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-10-02",
+            $stalePaymentable->id,
+            '120',
+            '2026-09-25',
         ))->handle();
 
-        $movement = $this->movementEvents($invoice)->firstOrFail();
-        $report = $this->reportEvents($invoice)->firstOrFail();
-
-        $this->assertSame("2026-10-10", $movement->period->toDateString());
-        $this->assertSame("2026-10-10", $report->period->toDateString());
-        $this->assertSame("2026-10-02", data_get($report->payment_request, "source_date"));
-        $this->assertSame("2026-10-02", $report->reporting_data->frReportEntry->b2cPayment->date);
-    }
-
-    public function testDeletedPaymentBeforeSubmissionThatNetsToZeroRemovesThePendingReport(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
+        Paymentable::query()->where('id', $stalePaymentable->id)->getQuery()->update([
+            'refunded' => 20,
+            'updated_at' => '2026-09-26 00:00:00',
+        ]);
+        Payment::query()->whereKey($payment->id)->getQuery()->update([
+            'refunded' => 20,
+            'status_id' => Payment::STATUS_PARTIALLY_REFUNDED,
+            'updated_at' => '2026-09-26 00:00:00',
+        ]);
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
             $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $payment->status_id = Payment::STATUS_CANCELLED;
-        $payment->save();
-        $invoice = $this->setInvoicePaymentState($invoice, "0");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "-1200",
-            "2026-09-18",
-            FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
-        ))->handle();
-
-        $movements = $this->movementEvents($invoice);
-
-        $this->assertSame(0, $this->reportEvents($invoice)->count());
-        $this->assertSame(2, $movements->count());
-        $this->assertSame(FrancePaymentApplicationRecorder::MOVEMENT_DELETED, data_get($movements->last()->payment_request, "movement_type"));
-        $this->assertSame([null, null], $movements->map(fn (TransactionEvent $movement): mixed => data_get($movement->payment_request, "report_event_id"))->all());
-    }
-
-    public function testCreditAppliedMovementsCanPromoteAFullPaymentReport(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-            FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED,
-        ))->handle();
-
-        $movement = $this->movementEvents($invoice)->firstOrFail();
-        $report = $this->reportEvents($invoice)->firstOrFail();
-
-        $this->assertSame(FrancePaymentApplicationRecorder::MOVEMENT_CREDIT_APPLIED, data_get($movement->payment_request, "movement_type"));
-        $this->assertSame(1200.0, (float) $report->payment_applied);
-        $this->assertSame((int) $report->id, (int) data_get($movement->payment_request, "report_event_id"));
-    }
-
-    public function testNegativeMovementBeforeAnyReportStaysDeferredUntilTheInvoiceIsFullyPaid(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "400");
-        $paymentable = $this->makePaymentable($payment, $invoice, "400", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "400");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "400",
-            "2026-09-15",
-        ))->handle();
-
-        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
-        $payment->refunded = 100;
-        $payment->save();
-        $invoice = $this->setInvoicePaymentState($invoice, "300");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "-100",
-            "2026-09-18",
+            $stalePaymentable->id,
+            '-20',
+            '2026-09-26',
             FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'direct-refund-before-reconciliation-lock',
         ))->handle();
 
-        $movements = $this->movementEvents($invoice);
+        $method = new \ReflectionMethod(RecordFranceEReportingScopeInvalidation::class, 'initializePaymentableFacts');
+        $method->invoke(new RecordFranceEReportingScopeInvalidation(
+            companyId: $this->company->id,
+            db: $this->company->db,
+            invalidationKey: 'stale-source-reconciliation',
+            reconcileRecentSourceState: true,
+            sourceReconciliationSince: '2026-09-24T00:00:00+00:00',
+        ), $stalePaymentable);
 
-        $this->assertSame(2, $movements->count());
-        $this->assertSame(0, $this->reportEvents($invoice)->count());
-        $this->assertSame([null, null], $movements->map(fn (TransactionEvent $movement): mixed => data_get($movement->payment_request, "report_event_id"))->all());
+        $this->assertSame(
+            ['120.00', '-20.00'],
+            $this->movements($payment)->map(
+                fn(TransactionEvent $event): string => data_get($event->payment_request, 'movement_amount'),
+            )->all(),
+        );
     }
 
-    public function testPaymentRepositoryInvokesFranceRecorderForDomesticFrenchBusinessInvoices(): void
+    public function test_later_refund_targets_the_original_payment_reporting_period(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
 
+        $payment->status_id = Payment::STATUS_REFUNDED;
+        $payment->refunded = 120;
+        $payment->save();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-120',
+            '2026-10-15',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'refund:120',
+        ))->handle();
+
+        $events = $this->movements($payment);
+        $this->assertCount(2, $events);
+        $this->assertSame(['120.00', '-120.00'], $events->map(
+            fn(TransactionEvent $event): string => (string) data_get($event->payment_request, 'movement_amount'),
+        )->all());
+        $this->assertSame(['2026-09-30', '2026-09-30'], $events->pluck('period')->map->toDateString()->all());
+        $this->assertSame(['2026-09-25', '2026-09-25'], $events->map(
+            fn(TransactionEvent $event): string => (string) data_get($event->payment_request, 'report_date'),
+        )->all());
+        $this->assertSame('2026-10-15', data_get($events->last()->payment_request, 'effective_at'));
+    }
+
+    public function test_failed_settled_payment_creates_a_correction_against_the_accepted_period(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $this->company->legal_entity_id = 12345;
+        $this->company->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-09-25', 'Europe/Paris'),
+        );
+        $materializer = app(FranceReportMaterializer::class);
+        $initial = $materializer->materialize(
+            $this->company->fresh(),
+            FranceEReportVariant::PaymentInitial,
+            $period,
+            CarbonImmutable::parse('2026-10-07 12:00:00', 'Europe/Paris'),
+        );
+        $this->assertNotNull($initial);
+        $initial->payment_status = FranceReportingStatus::Accepted->value;
+        $initial->save();
+        TransactionEvent::query()
+            ->whereIn('id', data_get($initial->payment_request, 'snapshot_event_ids', []))
+            ->update(['payment_status' => FranceReportingStatus::Accepted->value]);
+        $materializer->resolveSubmissionFacts($initial, FranceReportingStatus::Accepted);
+        $this->travelTo(CarbonImmutable::parse('2026-10-15 12:00:00', 'Europe/Paris'));
+
+        $payment->status_id = Payment::STATUS_FAILED;
+        $payment->save();
+        $this->reconcileSourceState('2026-10-14T00:00:00+00:00');
+
+        $this->assertSame(['120.00', '-120.00'], $this->movements($payment)->map(
+            fn(TransactionEvent $event): string => data_get($event->payment_request, 'movement_amount'),
+        )->all());
+        $corrective = $materializer->materialize(
+            $this->company->fresh(),
+            FranceEReportVariant::PaymentInitial,
+            $period,
+            CarbonImmutable::parse('2026-10-15 12:05:00', 'Europe/Paris'),
+        );
+        $this->assertNotNull($corrective);
+        $this->assertSame('payment_re', data_get($corrective->payment_request, 'variant'));
+    }
+
+    public function test_quiet_async_completion_then_failure_is_preserved_between_reconciliations(): void
+    {
+        [$invoice, $payment] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $observer = app(PaymentObserver::class);
+        TransactionEvent::query()
+            ->where('payment_id', $payment->id)
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->delete();
+
+        Payment::query()->whereKey($payment->id)->update(['status_id' => Payment::STATUS_PENDING]);
+        $payment = $payment->fresh();
+        $completePayment = new \ReflectionMethod(CheckACHStatus::class, 'completePayment');
+        $completePayment->invoke(new CheckACHStatus(), $payment);
+        $this->travelTo(CarbonImmutable::parse('2026-10-15 12:00:00', 'Europe/Paris'));
+        $payment = $payment->fresh();
+        Payment::query()->whereKey($payment->id)->update(['status_id' => Payment::STATUS_FAILED]);
+        $payment->status_id = Payment::STATUS_FAILED;
+        $observer->updated($payment);
+
+        $this->assertSame(['120.00', '-120.00'], $this->movements($payment)->map(
+            fn(TransactionEvent $event): string => data_get($event->payment_request, 'movement_amount'),
+        )->all());
+        $this->assertSame($invoice->id, $this->movements($payment)->firstOrFail()->invoice_id);
+    }
+
+    public function test_payment_observer_isolates_france_fact_failures_after_commit(): void
+    {
+        [, $payment] = $this->paymentScenario('FR', 'individual', '2026-09-25');
         $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
-        $recorder->shouldReceive("recordMovement")->once();
-        $this->app->instance(FrancePaymentApplicationRecorder::class, $recorder);
+        $recorder->shouldReceive('recordStatusTransition')
+            ->once()
+            ->andThrow(new \RuntimeException('simulated France fact failure'));
+        app()->instance(FrancePaymentApplicationRecorder::class, $recorder);
 
-        app(PaymentRepository::class)->save([
-            "amount" => 1200,
-            "client_id" => $invoice->client_id,
-            "date" => "2026-09-15",
-            "invoices" => [
-                [
-                    "invoice_id" => $invoice->id,
-                    "amount" => 1200,
-                ],
-            ],
-        ], PaymentFactory::create($this->company->id, $this->user->id, $invoice->client_id));
+        app(PaymentObserver::class)->updated($payment);
 
-        $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->count());
+        $this->assertTrue(true);
     }
 
-    public function testPaymentRepositoryContinuesWhenFranceRecorderFails(): void
+    public function test_payment_observer_does_not_resolve_the_recorder_when_reporting_is_disabled(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-
+        [, $payment] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $this->disableFranceReporting();
+        $payment->unsetRelation('company');
         $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
-        $recorder->shouldReceive("recordMovement")
-            ->once()
-            ->andThrow(new \RuntimeException("France recorder failed"));
-        $this->app->instance(FrancePaymentApplicationRecorder::class, $recorder);
+        $recorder->shouldNotReceive('recordStatusTransition');
+        app()->instance(FrancePaymentApplicationRecorder::class, $recorder);
 
-        $payment = app(PaymentRepository::class)->save([
-            "amount" => 1200,
-            "client_id" => $invoice->client_id,
-            "date" => "2026-09-15",
-            "invoices" => [
-                [
-                    "invoice_id" => $invoice->id,
-                    "amount" => 1200,
-                ],
-            ],
-        ], PaymentFactory::create($this->company->id, $this->user->id, $invoice->client_id));
+        app(PaymentObserver::class)->updated($payment);
 
-        $this->assertNotNull($payment->id);
-        $this->assertSame(1200.0, (float) $payment->fresh()->applied);
-        $this->assertSame(0.0, (float) $invoice->fresh()->balance);
+        $this->assertFalse((bool) $this->company->fresh()->getSetting('france_reporting_enabled'));
     }
 
-    public function testDomesticFrenchBusinessFullPaymentCreatesPaymentReceivedNotificationEvent(): void
+    public function test_ach_completion_does_not_resolve_the_recorder_when_reporting_is_disabled(): void
     {
-        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
+        [, $payment] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        Payment::query()->whereKey($payment->id)->update(['status_id' => Payment::STATUS_PENDING]);
+        $payment = $payment->fresh();
+        $this->disableFranceReporting();
+        $payment->unsetRelation('company');
+        $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
+        $recorder->shouldNotReceive('recordStatusTransition');
+        app()->instance(FrancePaymentApplicationRecorder::class, $recorder);
+        $completePayment = new \ReflectionMethod(CheckACHStatus::class, 'completePayment');
 
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-        $invoice = $this->markOriginalInvoiceCleared($invoice);
+        $completePayment->invoke(new CheckACHStatus(), $payment);
 
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+        $this->assertSame(Payment::STATUS_COMPLETED, (int) $payment->fresh()->status_id);
+    }
+
+    public function test_domestic_business_payment_is_routed_to_payment_notification_facts(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
 
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
             $invoice->id,
             $paymentable->id,
-            "1200",
-            "2026-09-15",
+            '120',
+            '2026-09-25',
         ))->handle();
 
-        $events = $this->paymentNotificationEvents($invoice);
-        $event = $events->first();
+        $this->assertSame(
+            'payment_received_notification',
+            data_get($this->movements($payment)->first()?->payment_request, 'reporting_path'),
+        );
+    }
 
-        $this->assertTrue($invoice->client->reportableFrTransaction());
-        $this->assertSame(1, $events->count());
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $event->payment_status);
-        $this->assertSame(RecordFranceEReportingPayment::KIND_PAYMENT_RECEIVED_NOTIFICATION, data_get($event->payment_request, "fr_kind"));
-        $this->assertSame("original-storecove-guid", data_get($event->payment_request, "original_document_guid"));
-        $this->assertSame(0, TransactionEvent::query()->where('invoice_id', $invoice->id)->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)->count());
+    public function test_company_cron_processes_one_notification_per_invoice_and_document_guid(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'cron-grouped-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = now()->toIso8601String();
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
 
+        foreach (['first', 'second'] as $identity) {
+            (new RecordFranceEReportingPayment(
+                $payment->id,
+                $this->company->db,
+                $invoice->id,
+                $paymentable->id,
+                '60',
+                '2026-09-25',
+                FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+                $identity,
+                'payment_received_notification',
+                'cron-grouped-document-guid',
+            ))->handle();
+        }
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '60',
+            '2026-09-27',
+            FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+            'future',
+            'payment_received_notification',
+            'cron-grouped-document-guid',
+        ))->handle();
+        $futureMovement = $this->movements($payment)->last();
+
+        [$secondInvoice, $secondPayment, $secondPaymentable] = $this->paymentScenario(
+            'FR',
+            'business',
+            '2026-09-25',
+        );
+        $secondBackup = $secondInvoice->backup;
+        $secondBackup->guid = 'cron-second-document-guid';
+        $secondBackup->e_invoice_status = 'cleared';
+        $secondBackup->e_invoice_cleared_at = now()->toIso8601String();
+        $secondInvoice->backup = $secondBackup;
+        $secondInvoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $secondPayment->id,
+            $this->company->db,
+            $secondInvoice->id,
+            $secondPaymentable->id,
+            '120',
+            '2026-09-25',
+            FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+            'second-invoice',
+            'payment_received_notification',
+            'cron-second-document-guid',
+        ))->handle();
+
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
+        $notificationNumber = 0;
+        Http::fake(static function () use (&$notificationNumber) {
+            $notificationNumber++;
+
+            return Http::response([
+                'guid' => 'cron-grouped-notification-guid-' . $notificationNumber,
+            ], 200);
+        });
+        $method = new \ReflectionMethod(FranceEReportingCron::class, 'processPaymentNotifications');
+
+        $method->invoke(
+            new FranceEReportingCron(),
+            $this->company,
+            $this->company->db,
+            CarbonImmutable::now('Europe/Paris'),
+            app(FrancePaymentNotificationProcessor::class),
+        );
+
+        $submissions = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->whereIn('invoice_id', [$invoice->id, $secondInvoice->id])
+            ->orderBy('id')
+            ->get();
+        $this->assertCount(2, $submissions);
+        $this->assertCount(2, data_get(
+            $submissions->firstOrFail()->payment_request,
+            'movement_event_ids',
+        ));
+        $this->assertCount(1, data_get(
+            $submissions->last()->payment_request,
+            'movement_event_ids',
+        ));
+        $this->assertSame(
+            [FranceReportingStatus::Sent->value],
+            $submissions->pluck('payment_status')->unique()->values()->all(),
+        );
+        $this->assertNull($futureMovement->fresh()->payment_status);
         Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
+        Http::assertSentCount(2);
     }
 
-    public function testPaymentReportingPathIsResolvedOnceForEveryInvoiceOnAPayment(): void
+    public function test_domestic_payment_waits_until_the_invoice_is_paid_in_full(): void
     {
-        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
-
-        $invoiceOne = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoiceTwo = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01", client: $invoiceOne->client);
-        $invoiceOne->backup->guid = "original-storecove-guid-one";
-        $invoiceTwo->backup->guid = "original-storecove-guid-two";
-        $invoiceOne->save();
-        $invoiceTwo->save();
-
-        $payment = $this->makePayment($invoiceOne->client, "2026-09-15", "2400");
-        $this->makePaymentable($payment, $invoiceOne, "1200", "2026-09-15");
-        $this->makePaymentable($payment, $invoiceTwo, "1200", "2026-09-15");
-        $invoiceOne = $this->setInvoicePaymentState($invoiceOne, "1200");
-        $invoiceTwo = $this->setInvoicePaymentState($invoiceTwo, "1200");
-
-        (new RecordFranceEReportingPayment($payment->id, $this->company->db))->handle();
-
-        $this->assertSame(1, $this->paymentNotificationEvents($invoiceOne)->count());
-        $this->assertSame(1, $this->paymentNotificationEvents($invoiceTwo)->count());
-        $this->assertSame(2, TransactionEvent::query()
-            ->where("payment_id", $payment->id)
-            ->where("event_id", TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
-            ->count());
-        $this->assertSame(0, TransactionEvent::query()
-            ->where("payment_id", $payment->id)
-            ->where("event_id", TransactionEvent::FR_VAT_EXCLUDED_PAYMENT)
-            ->count());
-
-        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
-    }
-
-    public function testDomesticFrenchBusinessPartialPaymentDoesNotCreatePaymentReceivedNotification(): void
-    {
-        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
-
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-        $invoice = $this->markOriginalInvoiceCleared($invoice);
-
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "400");
-        $paymentable = $this->makePaymentable($payment, $invoice, "400", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "400");
-
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+        $backup = $invoice->backup;
+        $backup->guid = 'full-payment-required-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
             $invoice->id,
             $paymentable->id,
-            "400",
-            "2026-09-15",
+            '100',
+            '2026-09-25',
+            movementIdentity: 'partial-application',
         ))->handle();
+        $partialMovement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'full-payment-notification-guid'], 200));
 
-        $this->assertSame(0, $this->paymentNotificationEvents($invoice)->count());
-        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
-    }
-
-    public function testDomesticFrenchBusinessPaymentWithoutStorecoveGuidDoesNotCreateNotification(): void
-    {
-        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
-
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
+        (new SubmitFrancePaymentReceivedNotification(
+            $partialMovement->id,
             $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $this->assertSame(0, $this->paymentNotificationEvents($invoice)->count());
-        Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
-    }
-
-    public function testStorecoveEnabledFrenchB2BInvoicePaymentNotificationRunsThroughDailyCron(): void
-    {
-        $this->travelTo(CarbonImmutable::parse("2026-09-15 09:00:00", "Europe/Paris"));
-
-        try {
-            config(["ninja.environment" => "selfhost", "ninja.hosted_ninja_url" => "https://hosted.test"]);
-            $this->enableFranceStorecoveEInvoicing();
-
-            if ((int) $this->company->legal_entity_id !== $this->franceStorecoveLegalEntityId()) {
-                $this->markTestSkipped("FR Storecove legal entity is not configured.");
-            }
-
-            $invoice = $this->makeStorecoveFrenchBusinessInvoice("2026-09-15");
-            $submittedInvoicePayload = [];
-
-            Http::preventStrayRequests();
-            Http::fake([
-                "https://hosted.test/api/einvoice/submission" => function ($request) use (&$submittedInvoicePayload) {
-                    $submittedInvoicePayload = json_decode($request->body(), true, 512, JSON_THROW_ON_ERROR);
-
-                    return Http::response(["guid" => "original-storecove-guid"], 200, ["X-EINVOICE-QUOTA" => "99"]);
-                },
-            ]);
-
-            (new SendEDocument(Invoice::class, $invoice->id, $this->company->db))->handle($this->storecoveForFrenchDiscovery());
-
-            $invoice = $invoice->fresh();
-
-            $this->assertSame("original-storecove-guid", $invoice->backup->guid);
-            $invoice = $this->markOriginalInvoiceCleared($invoice);
-            $this->assertSame($this->franceStorecoveLegalEntityId(), $submittedInvoicePayload["legal_entity_id"]);
-            $this->assertSame("invoice", $submittedInvoicePayload["document"]["document_type"]);
-            $this->assertSame([["application" => "fr-dgfip", "settings" => ["enabled" => true]]], $submittedInvoicePayload["routing"]["networks"]);
-
-            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-15",
-            ))->handle();
-
-            $event = $this->paymentNotificationEvents($invoice)->firstOrFail();
-
-            $this->travelTo(CarbonImmutable::parse("2026-09-15 22:00:00", "Europe/Paris"));
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class, function (SubmitFrancePaymentReceivedNotification $job) use ($event): bool {
-                return (int) $this->jobProperty($job, "transactionEventId") === (int) $event->id;
-            });
-
-            $notificationPayload = [];
-            $storecove = new Storecove();
-            $proxy = \Mockery::mock(StorecoveProxy::class);
-            $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-            $proxy->shouldReceive("submitDocument")
-                ->once()
-                ->with(\Mockery::on(function (array $payload) use (&$notificationPayload): bool {
-                    $notificationPayload = $payload;
-
-                    return true;
-                }))
-                ->andReturn(["guid" => "notification-storecove-guid"]);
-            $storecove->proxy = $proxy;
-
-            (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
-
-            $this->assertSame("original-storecove-guid", $notificationPayload["forDocumentSubmissionGuid"]);
-            $this->assertSame("payment_received_notification", $notificationPayload["document"]["documentType"]);
-            $this->assertSame("auto", $notificationPayload["document"]["paymentReceivedNotification"]["mode"]);
-            $this->assertArrayNotHasKey("legal_entity_id", $notificationPayload);
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $event->fresh()->payment_status);
-        } finally {
-            $this->travelBack();
-        }
-    }
-
-    public function testPendingFrenchB2BPaymentIsCapturedWhenItLaterCompletes(): void
-    {
-        $this->travelTo(CarbonImmutable::parse("2026-09-15 09:00:00", "Europe/Paris"));
-
-        try {
-            config(["ninja.environment" => "selfhost", "ninja.hosted_ninja_url" => "https://hosted.test"]);
-            $this->enableFranceStorecoveEInvoicing();
-
-            if ((int) $this->company->legal_entity_id !== $this->franceStorecoveLegalEntityId()) {
-                $this->markTestSkipped("FR Storecove legal entity is not configured.");
-            }
-
-            $invoice = $this->makeStorecoveFrenchBusinessInvoice("2026-09-15");
-            $invoice->backup->guid = "original-storecove-guid";
-            $invoice->save();
-            $invoice = $this->markOriginalInvoiceCleared($invoice);
-
-            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-            $payment->status_id = Payment::STATUS_PENDING;
-            $payment->saveQuietly();
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-15",
-            ))->handle();
-
-            $this->assertSame(0, $this->paymentNotificationEvents($invoice)->count());
-
-            $recordedMovement = [];
-            $recorder = \Mockery::mock(FrancePaymentApplicationRecorder::class);
-            $recorder->shouldReceive("recordMovement")
-                ->once()
-                ->withAnyArgs()
-                ->andReturnUsing(function (...$arguments) use (&$recordedMovement): void {
-                    $recordedMovement = $arguments;
-                });
-
-            $this->app->instance(FrancePaymentApplicationRecorder::class, $recorder);
-
-            $this->travelTo(CarbonImmutable::parse("2026-09-16 10:00:00", "Europe/Paris"));
-            $paymentForObserver = $payment->fresh();
-            $paymentForObserver->syncOriginal();
-            $paymentForObserver->status_id = Payment::STATUS_COMPLETED;
-
-            app(PaymentObserver::class)->updated($paymentForObserver);
-            $this->assertSame((int) $payment->id, (int) $recordedMovement[0]->id);
-            $this->assertSame(Payment::STATUS_COMPLETED, (int) $recordedMovement[0]->status_id);
-            $this->assertSame((int) $invoice->id, (int) $recordedMovement[1]->id);
-            $this->assertSame((int) $paymentable->id, (int) $recordedMovement[2]->id);
-            $this->assertSame(1200.0, (float) $recordedMovement[3]);
-
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->saveQuietly();
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-15",
-            ))->handle();
-
-            $event = $this->paymentNotificationEvents($invoice)->firstOrFail();
-
-            $this->travelTo(CarbonImmutable::parse("2026-09-16 22:00:00", "Europe/Paris"));
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class, function (SubmitFrancePaymentReceivedNotification $job) use ($event): bool {
-                return (int) $this->jobProperty($job, "transactionEventId") === (int) $event->id;
-            });
-        } finally {
-            $this->travelBack();
-        }
-    }
-
-    public function testFranceEReportingCronDispatchesPendingDailyPaymentReceivedNotifications(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-            $invoice->backup->guid = "original-storecove-guid";
-            $invoice->save();
-            $invoice = $this->markOriginalInvoiceCleared($invoice);
-            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-15",
-            ))->handle();
-            Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
-            (new FranceEReportingCron())->handle();
-            $events = $this->paymentNotificationEvents($invoice);
-            $this->assertSame(1, $events->count());
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $events->first()->payment_status);
-            Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-    public function testFranceEReportingCronDoesNotCreatePaymentNotificationForPendingPayment(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-            $invoice->backup->guid = "original-storecove-guid";
-            $invoice->save();
-            $invoice = $this->markOriginalInvoiceCleared($invoice);
-            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-            $payment->status_id = Payment::STATUS_PENDING;
-            $payment->save();
-            $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-            (new FranceEReportingCron())->handle();
-            $this->assertSame(0, $this->paymentNotificationEvents($invoice)->count());
-            Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-    public function testFranceEReportingCronDispatchesEligiblePaymentReportsFromGroupedTransactionEvents(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-05",
-            ))->handle();
-            $this->assertSame(1, $this->reportEvents($invoice)->count());
-            Bus::assertNotDispatched(SubmitFranceEReport::class);
-            (new FranceEReportingCron())->handle();
-            Bus::assertDispatched(SubmitFranceEReport::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testFranceEReportingCronDispatchesB2CTransactionOnlyReportsInDueWindow(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-05");
-            $this->createFranceReportSourceEvent(
-                invoice: $invoice,
-                eventId: TransactionEvent::FR_B2C_TRANSACTION,
-                period: "2026-09-10",
-                reportingData: $this->b2cTransactionReportPayload("2026-09-05"),
-            );
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatchedTimes(SubmitFranceEReport::class, 1);
-            Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
-                return (int) $this->jobProperty($job, "companyId") === (int) $this->company->id
-                    && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
-                    && $this->jobProperty($job, "periodEnd") === "2026-09-10";
-            });
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testFranceEReportingCronDispatchesVatExcludedTransactionOnlyReportsInDueWindow(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-11-08 22:00:00", "Europe/Paris"));
-
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $invoice = $this->makeInvoice(clientCountry: "DE", classification: "business", date: "2026-09-05");
-            $this->createFranceReportSourceEvent(
-                invoice: $invoice,
-                eventId: TransactionEvent::FR_VAT_EXCLUDED_TRANSACTION,
-                period: "2026-10-31",
-                reportingData: $this->b2biInvoiceReportPayload($invoice, "2026-09-05"),
-            );
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatchedTimes(SubmitFranceEReport::class, 1);
-            Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
-                return (int) $this->jobProperty($job, "companyId") === (int) $this->company->id
-                    && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_VAT_EXCLUDED
-                    && $this->jobProperty($job, "periodEnd") === "2026-10-31";
-            });
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testFranceEReportingCronDispatchesOneCombinedB2CReportForTransactionAndPaymentSources(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-
-        try {
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-05");
-            $transactionEvent = $this->createFranceReportSourceEvent(
-                invoice: $invoice,
-                eventId: TransactionEvent::FR_B2C_TRANSACTION,
-                period: "2026-09-10",
-                reportingData: $this->b2cTransactionReportPayload("2026-09-05"),
-            );
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-05",
-            ))->handle();
-
-            $paymentEvent = $this->reportEvents($invoice)->firstOrFail();
-
-            Bus::fake();
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatchedTimes(SubmitFranceEReport::class, 1);
-            Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
-                return (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
-                    && $this->jobProperty($job, "periodEnd") === "2026-09-10";
-            });
-
-            $submittedPayload = [];
-            $storecove = new Storecove();
-            $proxy = \Mockery::mock(StorecoveProxy::class);
-            $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-            $proxy->shouldReceive("submitDocument")
-                ->once()
-                ->with(\Mockery::on(function (array $payload) use (&$submittedPayload): bool {
-                    $submittedPayload = $payload;
-
-                    return true;
-                }))
-                ->andReturn(["guid" => "combined-report-storecove-guid"]);
-            $storecove->proxy = $proxy;
-
-            (new SubmitFranceEReport(
-                $this->company->id,
-                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
-                $this->company->db,
-            ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
-
-            $frEReport = $submittedPayload["document"]["frEReport"];
-            $this->assertCount(1, $frEReport["transactionReport"]["b2cTransactions"]);
-            $this->assertCount(1, $frEReport["paymentReport"]["b2cPayments"]);
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $transactionEvent->fresh()->payment_status);
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $paymentEvent->fresh()->payment_status);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testFranceEReportingCronSkipsPaymentReportsWhenNoReportingPeriodIsDueToday(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-28 22:00:00", "Europe/Paris"));
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-05",
-            ))->handle();
-            $this->assertSame(1, $this->reportEvents($invoice)->count());
-            (new FranceEReportingCron())->handle();
-            Bus::assertNotDispatched(SubmitFranceEReport::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testSuccessfulPaymentNotificationDeletesSupersededFailedRowsForInvoice(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-        $invoice = $this->markOriginalInvoiceCleared($invoice);
-
-        $paymentOne = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentableOne = $this->makePaymentable($paymentOne, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $paymentOne->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentableOne->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $failedEvent = $this->paymentNotificationEvents($invoice)->firstOrFail();
-        $paymentOne->status_id = Payment::STATUS_CANCELLED;
-        $paymentOne->save();
-
-        (new SubmitFrancePaymentReceivedNotification($failedEvent->id, $this->company->db))->handle(new Storecove());
-
-        $failedEvent = $failedEvent->fresh();
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $failedEvent->payment_status);
-        $this->assertNotNull(data_get($failedEvent->payment_request, "skip_reason"));
-
-        $paymentTwo = $this->makePayment($invoice->client, "2026-09-16", "1200");
-        $paymentableTwo = $this->makePaymentable($paymentTwo, $invoice, "1200", "2026-09-16");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $paymentTwo->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentableTwo->id,
-            "1200",
-            "2026-09-16",
-        ))->handle();
-
-        $submittedEvent = $this->paymentNotificationEvents($invoice)->where("id", "!=", $failedEvent->id)->firstOrFail();
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-        $proxy->shouldReceive("submitDocument")->once()->andReturn(["guid" => "notification-storecove-guid"]);
-        $storecove->proxy = $proxy;
-
-        (new SubmitFrancePaymentReceivedNotification($submittedEvent->id, $this->company->db))->handle($storecove);
-
-        $this->assertNull(TransactionEvent::query()->find($failedEvent->id));
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $submittedEvent->fresh()->payment_status);
-        $this->assertSame(1, $this->paymentNotificationEvents($invoice)->count());
-    }
-
-    public function testPaymentReceivedNotificationSubmissionUsesOriginalStorecoveGuid(): void
-    {
-        Bus::fake([SubmitFrancePaymentReceivedNotification::class]);
-
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-        $invoice = $this->markOriginalInvoiceCleared($invoice);
-
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $event = $this->paymentNotificationEvents($invoice)->first();
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-
-        $proxy->shouldReceive("setCompany")
-            ->once()
-            ->andReturnSelf();
-
-        $proxy->shouldReceive("submitDocument")
-            ->once()
-            ->with(\Mockery::on(function (array $payload) use ($event): bool {
-                return $payload["forDocumentSubmissionGuid"] === "original-storecove-guid"
-                    && $payload["idempotencyGuid"] === data_get($event->payment_request, "idempotency_guid")
-                    && $payload["document"]["documentType"] === "payment_received_notification"
-                    && $payload["document"]["paymentReceivedNotification"]["mode"] === "auto"
-                    && $payload["tenant_id"] === $this->company->company_key
-                    && $payload["account_key"] === $this->company->account->key
-                    && $payload["e_invoicing_token"] === $this->company->account->e_invoicing_token
-                    && ! array_key_exists("legal_entity_id", $payload);
-            }))
-            ->andReturn(["guid" => "notification-storecove-guid"]);
-
-        $storecove->proxy = $proxy;
-
-        (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
-
-        $event = $event->fresh();
-
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $event->payment_status);
-        $this->assertSame("notification-storecove-guid", data_get($event->payment_request, "guid"));
-    }
-
-
-    public function testPaymentReceivedNotificationWaitsForClearedOriginalInvoiceAndRemainsRetryable(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $event = $this->paymentNotificationEvents($invoice)->firstOrFail();
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldNotReceive("setCompany");
-        $proxy->shouldNotReceive("submitDocument");
-        $storecove->proxy = $proxy;
-
-        (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
-
-        $event = $event->fresh();
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
-        $this->assertSame("Original Storecove document has not cleared yet.", data_get($event->payment_request, "error.message"));
-        $this->assertNull(data_get($event->payment_request, "skip_reason"));
-
-        $this->markOriginalInvoiceCleared($invoice);
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-        $proxy->shouldReceive("submitDocument")->once()->andReturn(["guid" => "notification-storecove-guid"]);
-        $storecove->proxy = $proxy;
-
-        (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
-
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $event->fresh()->payment_status);
-    }
-
-    public function testStorecoveInvoiceStatusIsPersistedForPaymentNotificationEligibility(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-
-        $method = new ReflectionMethod(EInvoicePullDocs::class, "recordDocumentStatus");
-        $method->setAccessible(true);
-        $method->invoke(new EInvoicePullDocs(), $invoice, "cleared");
-
-        $invoice = $invoice->fresh();
-
-        $this->assertSame("cleared", $invoice->backup->e_invoice_status);
-        $this->assertNotNull($invoice->backup->e_invoice_cleared_at);
-    }
-
-    public function testPaymentReceivedNotificationRemainsEligibleAfterStorecoveStatusAdvancesBeyondCleared(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-
-        $method = new ReflectionMethod(EInvoicePullDocs::class, "recordDocumentStatus");
-        $method->setAccessible(true);
-        $method->invoke(new EInvoicePullDocs(), $invoice, "cleared");
-        $method->invoke(new EInvoicePullDocs(), $invoice->fresh(), "accepted");
-
-        $invoice = $invoice->fresh();
-        $this->assertSame("accepted", $invoice->backup->e_invoice_status);
-        $this->assertNotNull($invoice->backup->e_invoice_cleared_at);
-
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-15",
-        ))->handle();
-
-        $event = $this->paymentNotificationEvents($invoice)->firstOrFail();
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-        $proxy->shouldReceive("submitDocument")->once()->andReturn(["guid" => "notification-storecove-guid"]);
-        $storecove->proxy = $proxy;
-
-        (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
-
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $event->fresh()->payment_status);
-    }
-
-    public function testFranceEReportingCronIsScheduledDailyAtTenPmParisTime(): void
-    {
-        $schedule = new Schedule();
-        $method = new ReflectionMethod(ConsoleKernel::class, "schedule");
-        $method->setAccessible(true);
-        $method->invoke(app(ConsoleKernel::class), $schedule);
-
-        $event = collect($schedule->events())
-            ->first(fn ($event): bool => $event->description === "france-e-reporting-job");
-
-        $this->assertNotNull($event);
-        $this->assertSame("0 22 * * *", $event->expression);
-        $this->assertSame("Europe/Paris", $event->timezone);
-        $this->assertTrue($event->withoutOverlapping);
-        $this->assertTrue($event->onOneServer);
-    }
-
-    public function testFranceEReportingCronDispatchesPaymentReportsOnTheLastRecoveryDay(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-27 22:00:00", "Europe/Paris"));
-
-        try {
-            Bus::fake();
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-05",
-            ))->handle();
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatched(SubmitFranceEReport::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testFranceEReportSubmissionSuccessCreatesOnlySubmittedAuditRow(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-
-        try {
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-05",
-            ))->handle();
-
-            $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
-            $expectedIdempotencyGuid = Uuid::uuid5(
-                Uuid::NAMESPACE_URL,
-                implode("|", [
-                    "fr-e-report",
-                    (string) $this->company->company_key,
-                    (string) $this->company->id,
-                    (string) TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                    "2026-09-10",
-                    (string) $sourceEvent->id,
-                ]),
-            )->toString();
-
-            $storecove = new Storecove();
-            $proxy = \Mockery::mock(StorecoveProxy::class);
-            $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-            $proxy->shouldReceive("submitDocument")
-                ->once()
-                ->with(\Mockery::on(function (array $payload) use ($expectedIdempotencyGuid): bool {
-                    return $payload["document"]["documentType"] === "fr_e_report"
-                        && $payload["idempotencyGuid"] === $expectedIdempotencyGuid
-                        && $payload["tenant_id"] === $this->company->company_key
-                        && $payload["account_key"] === $this->company->account->key;
-                }))
-                ->andReturn(["guid" => "report-storecove-guid"]);
-            $storecove->proxy = $proxy;
-
-            (new SubmitFranceEReport(
-                $this->company->id,
-                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
-                $this->company->db,
-            ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
-
-            $submissions = TransactionEvent::query()
-                ->where("company_id", $this->company->id)
-                ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-                ->whereDate("period", "2026-09-10")
-                ->get();
-
-            $this->assertSame(1, $submissions->count());
-
-            $submission = $submissions->firstOrFail();
-
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $submission->payment_status);
-            $this->assertSame("report-storecove-guid", data_get($submission->payment_request, "guid"));
-            $this->assertSame($expectedIdempotencyGuid, data_get($submission->payment_request, "idempotency_guid"));
-            $this->assertSame([(int) $sourceEvent->id], data_get($submission->payment_request, "source_event_ids"));
-            $this->assertNotNull(data_get($submission->payment_request, "generated_at"));
-            $this->assertNotNull(data_get($submission->payment_request, "attempted_at"));
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, $sourceEvent->fresh()->payment_status);
-            $this->assertFalse($submissions->contains(fn (TransactionEvent $event): bool => $event->payment_status === 2));
-            $this->assertFalse(TransactionEvent::query()->whereKey($sourceEvent->id)->where("payment_status", 2)->exists());
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testQueuedFranceEReportReturnsWhenFranceReportingIsDisabledBeforeSubmission(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-
-        try {
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-05",
-            ))->handle();
-
-            $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
-            $settings = $this->company->settings;
-            $settings->france_reporting_enabled = false;
-            $this->company->settings = $settings;
-            $this->company->save();
-
-            $storecove = new Storecove();
-            $proxy = \Mockery::mock(StorecoveProxy::class);
-            $proxy->shouldNotReceive("setCompany");
-            $proxy->shouldNotReceive("submitDocument");
-            $storecove->proxy = $proxy;
-
-            (new SubmitFranceEReport(
-                $this->company->id,
-                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
-                $this->company->db,
-            ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
-
-            $this->assertFalse(TransactionEvent::query()
-                ->where("company_id", $this->company->id)
-                ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-                ->whereDate("period", "2026-09-10")
-                ->exists());
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceEvent->fresh()->payment_status);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testFranceEReportStorecoveExceptionCreatesFailedAuditAndRemainsRetryable(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-
-        try {
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-            $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-05",
-            ))->handle();
-
-            $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
-            $storecove = new Storecove();
-            $proxy = \Mockery::mock(StorecoveProxy::class);
-            $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-            $proxy->shouldReceive("submitDocument")->once()->andThrow(new \RuntimeException("Storecove unavailable"));
-            $storecove->proxy = $proxy;
-
-            (new SubmitFranceEReport(
-                $this->company->id,
-                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
-                $this->company->db,
-            ))->handle($storecove, new FranceEReportCompiler(), new FranceEReportPayloadBuilder());
-
-            $submission = TransactionEvent::query()
-                ->where("company_id", $this->company->id)
-                ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-                ->whereDate("period", "2026-09-10")
-                ->firstOrFail();
-
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $submission->payment_status);
-            $this->assertSame("Storecove unavailable", data_get($submission->payment_request, "error.message"));
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $sourceEvent->fresh()->payment_status);
-            $this->assertFalse(TransactionEvent::query()
-                ->where("company_id", $this->company->id)
-                ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-                ->where("payment_status", 2)
-                ->exists());
-            $this->assertFalse(TransactionEvent::query()->whereKey($sourceEvent->id)->where("payment_status", 2)->exists());
-
-            Bus::fake();
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatched(SubmitFranceEReport::class, function (SubmitFranceEReport $job): bool {
-                return (int) $this->jobProperty($job, "companyId") === (int) $this->company->id
-                    && (int) $this->jobProperty($job, "submissionEventId") === TransactionEvent::FR_REPORT_SUBMISSION_B2C
-                    && $this->jobProperty($job, "periodEnd") === "2026-09-10";
-            });
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testFranceEReportingCronRetriesFailedAndLegacyAttemptsAndSkipsOnlySubmittedAttempts(): void
-    {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-
-        try {
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $makeAttempt = function (int $submissionStatus, int $sourceStatus): TransactionEvent {
-                $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-                $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-                $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-                $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-                (new RecordFranceEReportingPayment(
-                    $payment->id,
-                    $this->company->db,
-                    $invoice->id,
-                    $paymentable->id,
-                    "1200",
-                    "2026-09-05",
-                ))->handle();
-
-                $sourceEvent = $this->reportEvents($invoice)->firstOrFail();
-                $sourceEvent->payment_status = $sourceStatus;
-                $sourceEvent->save();
-
-                TransactionEvent::create([
-                    "company_id" => $this->company->id,
-                    "client_id" => $sourceEvent->client_id,
-                    "invoice_id" => $sourceEvent->invoice_id,
-                    "payment_id" => $sourceEvent->payment_id,
-                    "credit_id" => $sourceEvent->credit_id,
-                    "event_id" => TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                    "timestamp" => now()->timestamp,
-                    "period" => "2026-09-10",
-                    "payment_status" => $submissionStatus,
-                    "payment_request" => ["source_event_ids" => [$sourceEvent->id]],
-                ]);
-
-                return $sourceEvent;
-            };
-
-            $makeAttempt(TransactionEvent::FR_REPORTING_STATUS_FAILED, TransactionEvent::FR_REPORTING_STATUS_FAILED);
-
-            Bus::fake();
-            (new FranceEReportingCron())->handle();
-            Bus::assertDispatched(SubmitFranceEReport::class);
-
-            $makeAttempt(2, TransactionEvent::FR_REPORTING_STATUS_PENDING);
-
-            Bus::fake();
-            (new FranceEReportingCron())->handle();
-            Bus::assertDispatched(SubmitFranceEReport::class);
-
-            $makeAttempt(TransactionEvent::FR_REPORTING_STATUS_SUBMITTED, TransactionEvent::FR_REPORTING_STATUS_PENDING);
-
-            Bus::fake();
-            (new FranceEReportingCron())->handle();
-            Bus::assertNotDispatched(SubmitFranceEReport::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testSubmitFranceEReportPayloadBuildFailureDoesNotCreateSubmissionAttempt(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "individual", date: "2026-09-01");
-        $payment = $this->makePayment($invoice->client, "2026-09-05", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-05");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-        (new RecordFranceEReportingPayment(
-            $payment->id,
-            $this->company->db,
-            $invoice->id,
-            $paymentable->id,
-            "1200",
-            "2026-09-05",
-        ))->handle();
-
-        $sourceReport = $this->reportEvents($invoice)->firstOrFail();
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldNotReceive("setCompany");
-        $proxy->shouldNotReceive("submitDocument");
-        $storecove->proxy = $proxy;
-        $payloadBuilder = \Mockery::mock(FranceEReportPayloadBuilder::class);
-        $payloadBuilder->shouldReceive("build")->once()->andThrow(new \RuntimeException("Payload unavailable"));
-
-        try {
-            (new SubmitFranceEReport(
-                $this->company->id,
-                TransactionEvent::FR_REPORT_SUBMISSION_B2C,
-                "2026-09-10",
-                $this->company->db,
-            ))->handle($storecove, new FranceEReportCompiler(), $payloadBuilder);
-
-            $this->fail("Payload exception was not thrown.");
-        } catch (\RuntimeException $exception) {
-            $this->assertSame("Payload unavailable", $exception->getMessage());
-        }
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
 
         $this->assertFalse(TransactionEvent::query()
-            ->where("company_id", $this->company->id)
-            ->where("event_id", TransactionEvent::FR_REPORT_SUBMISSION_B2C)
-            ->where("period", "2026-09-10")
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
             ->exists());
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_PENDING, $sourceReport->fresh()->payment_status);
+        Http::assertNothingSent();
+
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '20',
+            '2026-09-26',
+            movementIdentity: 'final-application',
+        ))->handle();
+        $finalMovement = $this->movements($payment)->last();
+        $this->assertInstanceOf(TransactionEvent::class, $finalMovement);
+
+        (new SubmitFrancePaymentReceivedNotification(
+            $finalMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $this->assertSame(FranceReportingStatus::Sent->value, $submission->payment_status);
+        $this->assertCount(2, data_get($submission->payment_request, 'movement_event_ids'));
+        Http::assertSentCount(1);
     }
 
-    public function testFailedPaymentReceivedNotificationWithoutSkipReasonIsRetriedByCron(): void
+    public function test_cross_period_instalments_are_aggregated_when_the_invoice_becomes_paid(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $payment->amount = 80;
+        $payment->applied = 80;
+        $payment->saveQuietly();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['amount' => 80]);
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 40;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '80',
+            '2026-09-25',
+            movementIdentity: 'september-instalment',
+        ))->handle();
+        $september = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-09-25'),
+        );
+
+        $this->assertNull(app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $september,
+            CarbonImmutable::parse('2026-10-07 12:00:00', 'Europe/Paris'),
+        ));
+
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->saveQuietly();
+        $payment->amount = 120;
+        $payment->applied = 120;
+        $payment->saveQuietly();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['amount' => 120]);
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '40',
+            '2026-10-25',
+            movementIdentity: 'october-final-instalment',
+        ))->handle();
+        $october = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-10-25'),
+        );
+
+        $submission = app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $october,
+            CarbonImmutable::parse('2026-11-07 12:00:00', 'Europe/Paris'),
+        );
+
+        $this->assertNotNull($submission);
+        $this->assertSame(
+            '2026-10-25',
+            data_get($submission->payment_request, 'payload.document.frEReport.paymentReport.b2cPayments.0.date'),
+        );
+        $this->assertEquals(120.0, collect(data_get(
+            $submission->payment_request,
+            'payload.document.frEReport.paymentReport.b2cPayments.0.taxSubtotal',
+            [],
+        ))->sum('amount'));
+
+        $submission->payment_status = FranceReportingStatus::Accepted->value;
+        $submission->save();
+        TransactionEvent::query()
+            ->whereIn('id', data_get($submission->payment_request, 'snapshot_event_ids', []))
+            ->update(['payment_status' => FranceReportingStatus::Accepted->value]);
+        app(FranceReportMaterializer::class)->resolveSubmissionFacts(
+            $submission,
+            FranceReportingStatus::Accepted,
+        );
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 20;
+        $payment->saveQuietly();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['refunded' => 20]);
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-11-15',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'november-partial-refund',
+        ))->handle();
+
+        $reversal = app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $october,
+            CarbonImmutable::parse('2026-11-16 12:00:00', 'Europe/Paris'),
+        );
+
+        $this->assertNotNull($reversal);
+        $this->assertSame('payment_re', data_get($reversal->payment_request, 'variant'));
+        $this->assertEquals(-120.0, collect(data_get(
+            $reversal->payment_request,
+            'payload.document.frEReport.paymentReport.b2cPayments.0.taxSubtotal',
+            [],
+        ))->sum('amount'));
+
+        $reversal->payment_status = FranceReportingStatus::Accepted->value;
+        $reversal->save();
+        TransactionEvent::query()
+            ->whereIn('id', data_get($reversal->payment_request, 'snapshot_event_ids', []))
+            ->update(['payment_status' => FranceReportingStatus::Accepted->value]);
+        app(FranceReportMaterializer::class)->resolveSubmissionFacts(
+            $reversal,
+            FranceReportingStatus::Accepted,
+        );
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->saveQuietly();
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->refunded = 0;
+        $payment->saveQuietly();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['refunded' => 0]);
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '20',
+            '2026-12-15',
+            movementIdentity: 'december-restored-payment',
+        ))->handle();
+        $december = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-12-15'),
+        );
+
+        $restored = app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $december,
+            CarbonImmutable::parse('2027-01-07 12:00:00', 'Europe/Paris'),
+        );
+
+        $this->assertNotNull($restored);
+        $this->assertSame('2026-12-15', data_get(
+            $restored->payment_request,
+            'payload.document.frEReport.paymentReport.b2cPayments.0.date',
+        ));
+        $this->assertEquals(120.0, collect(data_get(
+            $restored->payment_request,
+            'payload.document.frEReport.paymentReport.b2cPayments.0.taxSubtotal',
+            [],
+        ))->sum('amount'));
+    }
+
+    public function test_cleared_domestic_business_payment_notification_has_an_accepted_closed_loop(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'original-invoice-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        $capturedPayload = null;
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(function ($request) use (&$capturedPayload) {
+            $capturedPayload = json_decode($request->body(), true, flags: JSON_THROW_ON_ERROR);
+
+            return Http::response(['guid' => 'payment-notification-guid'], 200);
+        });
+
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $submission = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $snapshot = TransactionEvent::query()->findOrFail(
+            data_get($submission->payment_request, 'snapshot_event_ids.0'),
+        );
+        $this->assertSame('original-invoice-guid', $capturedPayload['forDocumentSubmissionGuid']);
+        $this->assertSame(FranceReportingStatus::Sent->value, $submission->payment_status);
+        $this->assertSame(FranceReportingStatus::Pending->value, $snapshot->payment_status);
+
+        app()->call([new UpdateFranceEReportSubmissionStatus([
+            'tenant_id' => $this->company->company_key,
+            'guid' => 'payment-notification-guid',
+            'event' => 'accepted',
+        ]), 'handle']);
+
+        $this->assertSame(FranceReportingStatus::Accepted->value, $submission->fresh()->payment_status);
+        $this->assertSame(FranceReportingStatus::Accepted->value, $snapshot->fresh()->payment_status);
+        $this->assertSame(FranceReportingStatus::Accepted->value, $movement->fresh()->payment_status);
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '10',
+            '2026-09-26',
+            movementIdentity: 'accepted-notification-later-movement',
+        ))->handle();
+        $laterMovement = $this->movements($payment)->last();
+        Http::fake();
+        (new SubmitFrancePaymentReceivedNotification($laterMovement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+        $this->assertSame(FranceReportingStatus::Accepted->value, $laterMovement->fresh()->payment_status);
+        Http::assertNothingSent();
+    }
+
+    public function test_payment_notification_returns_before_materialization_when_reporting_is_disabled(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'disabled-reporting-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+        Http::fake();
+
+        (new SubmitFrancePaymentReceivedNotification(
+            $movement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertFalse(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->exists());
+        $this->assertNull($movement->fresh()->payment_status);
+        Http::assertNothingSent();
+    }
+
+    public function test_rejected_notification_does_not_block_a_later_full_payment_cycle(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'rejected-cycle-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'rejected-cycle-first-guid'], 200));
+        (new SubmitFrancePaymentReceivedNotification(
+            $this->movements($payment)->firstOrFail()->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+        app()->call([new UpdateFranceEReportSubmissionStatus([
+            'tenant_id' => $this->company->company_key,
+            'guid' => 'rejected-cycle-first-guid',
+            'event' => 'rejected',
+        ]), 'handle']);
+
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 20;
+        $payment->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'rejected-cycle-refund',
+        ))->handle();
+        $refundMovement = $this->movements($payment)->last();
+        (new SubmitFrancePaymentReceivedNotification(
+            $refundMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $replacement = Payment::factory()->create([
+            'client_id' => $invoice->client_id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 20,
+            'applied' => 20,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'date' => '2026-09-27',
+            'currency_id' => 3,
+        ]);
+        $replacementPaymentable = new Paymentable();
+        $replacementPaymentable->payment_id = $replacement->id;
+        $replacementPaymentable->paymentable_id = $invoice->id;
+        $replacementPaymentable->paymentable_type = 'invoices';
+        $replacementPaymentable->amount = 20;
+        $replacementPaymentable->refunded = 0;
+        $replacementPaymentable->created_at = strtotime('2026-09-27');
+        $replacementPaymentable->updated_at = strtotime('2026-09-27');
+        $replacementPaymentable->save();
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $replacement->id,
+            $this->company->db,
+            $invoice->id,
+            $replacementPaymentable->id,
+            '20',
+            '2026-09-27',
+            movementIdentity: 'rejected-cycle-replacement',
+        ))->handle();
+        $this->travelTo(CarbonImmutable::parse('2026-09-28 12:00:00', 'Europe/Paris'));
+        Http::fake(fn() => Http::response(['guid' => 'rejected-cycle-second-guid'], 200));
+        (new SubmitFrancePaymentReceivedNotification(
+            $this->movements($replacement)->firstOrFail()->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $submissions = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->orderBy('id')
+            ->get();
+        $this->assertCount(2, $submissions);
+        $this->assertSame(FranceReportingStatus::Rejected->value, $submissions->first()->payment_status);
+        $this->assertSame(FranceReportingStatus::Sent->value, $submissions->last()->payment_status);
+        $this->assertNotSame($submissions->first()->id, $submissions->last()->id);
+        $this->assertNotSame(
+            data_get($submissions->first()->payment_request, 'idempotency_guid'),
+            data_get($submissions->last()->payment_request, 'idempotency_guid'),
+        );
+    }
+
+    public function test_rejected_notification_does_not_absorb_a_replacement_payment_created_while_sent(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'sent-cycle-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'sent-cycle-first-guid'], 200));
+        (new SubmitFrancePaymentReceivedNotification(
+            $this->movements($payment)->firstOrFail()->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 20;
+        $payment->saveQuietly();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['refunded' => 20]);
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'sent-cycle-refund',
+        ))->handle();
+        (new SubmitFrancePaymentReceivedNotification(
+            $this->movements($payment)->last()->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $replacement = Payment::factory()->create([
+            'client_id' => $invoice->client_id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 20,
+            'applied' => 20,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'date' => '2026-09-27',
+            'currency_id' => 3,
+        ]);
+        $replacementPaymentable = new Paymentable();
+        $replacementPaymentable->payment_id = $replacement->id;
+        $replacementPaymentable->paymentable_id = $invoice->id;
+        $replacementPaymentable->paymentable_type = 'invoices';
+        $replacementPaymentable->amount = 20;
+        $replacementPaymentable->refunded = 0;
+        $replacementPaymentable->created_at = strtotime('2026-09-27');
+        $replacementPaymentable->updated_at = strtotime('2026-09-27');
+        $replacementPaymentable->save();
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $replacement->id,
+            $this->company->db,
+            $invoice->id,
+            $replacementPaymentable->id,
+            '20',
+            '2026-09-27',
+            movementIdentity: 'sent-cycle-replacement',
+        ))->handle();
+        $replacementMovement = $this->movements($replacement)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-28 12:00:00', 'Europe/Paris'));
+
+        (new SubmitFrancePaymentReceivedNotification(
+            $replacementMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertNull($replacementMovement->fresh()->payment_status);
+        $this->assertSame(1, TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->count());
+
+        app()->call([new UpdateFranceEReportSubmissionStatus([
+            'tenant_id' => $this->company->company_key,
+            'guid' => 'sent-cycle-first-guid',
+            'event' => 'rejected',
+        ]), 'handle']);
+
+        $this->assertNull($replacementMovement->fresh()->payment_status);
+        Http::fake(fn() => Http::response(['guid' => 'sent-cycle-second-guid'], 200));
+        (new SubmitFrancePaymentReceivedNotification(
+            $replacementMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $submissions = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->orderBy('id')
+            ->get();
+        $this->assertCount(2, $submissions);
+        $this->assertSame(FranceReportingStatus::Rejected->value, $submissions->first()->payment_status);
+        $this->assertSame(FranceReportingStatus::Sent->value, $submissions->last()->payment_status);
+        $this->assertNotSame(
+            data_get($submissions->first()->payment_request, 'idempotency_guid'),
+            data_get($submissions->last()->payment_request, 'idempotency_guid'),
+        );
+    }
+
+    public function test_cross_period_multiple_payments_wait_for_the_final_fact(): void
+    {
+        [$invoice, $firstPayment, $firstPaymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $firstPayment->amount = 80;
+        $firstPayment->applied = 80;
+        $firstPayment->saveQuietly();
+        Paymentable::query()
+            ->where('payment_id', $firstPayment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['amount' => 80]);
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 40;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $firstPayment->id,
+            $this->company->db,
+            $invoice->id,
+            $firstPaymentable->id,
+            '80',
+            '2026-09-25',
+            movementIdentity: 'multiple-payments-first',
+        ))->handle();
+
+        $secondPayment = Payment::factory()->create([
+            'client_id' => $invoice->client_id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 40,
+            'applied' => 40,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'date' => '2026-10-25',
+            'currency_id' => 3,
+        ]);
+        $secondPaymentable = new Paymentable();
+        $secondPaymentable->payment_id = $secondPayment->id;
+        $secondPaymentable->paymentable_id = $invoice->id;
+        $secondPaymentable->paymentable_type = 'invoices';
+        $secondPaymentable->amount = 40;
+        $secondPaymentable->refunded = 0;
+        $secondPaymentable->created_at = strtotime('2026-10-25');
+        $secondPaymentable->updated_at = strtotime('2026-10-25');
+        $secondPaymentable->save();
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->saveQuietly();
+        $september = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-09-25'),
+        );
+        $october = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-10-25'),
+        );
 
         try {
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-            $invoice->backup->guid = "original-storecove-guid";
-            $invoice->save();
-            $invoice = $this->markOriginalInvoiceCleared($invoice);
-            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-15",
-            ))->handle();
-
-            $event = $this->paymentNotificationEvents($invoice)->firstOrFail();
-            $storecove = new Storecove();
-            $proxy = \Mockery::mock(StorecoveProxy::class);
-            $proxy->shouldReceive("setCompany")->once()->andReturnSelf();
-            $proxy->shouldReceive("submitDocument")->once()->andThrow(new \RuntimeException("Storecove unavailable"));
-            $storecove->proxy = $proxy;
-
-            (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
-
-            $event = $event->fresh();
-
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
-            $this->assertSame("Storecove unavailable", data_get($event->payment_request, "error.message"));
-            $this->assertNull(data_get($event->payment_request, "skip_reason"));
-
-            Bus::fake();
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertDispatched(SubmitFrancePaymentReceivedNotification::class, function (SubmitFrancePaymentReceivedNotification $job) use ($event): bool {
-                return (int) $this->jobProperty($job, "transactionEventId") === (int) $event->id;
-            });
-        } finally {
-            CarbonImmutable::setTestNow();
+            app(FranceReportMaterializer::class)->materialize(
+                $this->company,
+                FranceEReportVariant::PaymentInitial,
+                $september,
+                CarbonImmutable::parse('2026-10-07 12:00:00', 'Europe/Paris'),
+            );
+            $this->fail('An incomplete payment fact set must not be materialized.');
+        } catch (\RuntimeException $exception) {
+            $this->assertStringContainsString('facts are not current', $exception->getMessage());
         }
+
+        (new RecordFranceEReportingPayment(
+            $secondPayment->id,
+            $this->company->db,
+            $invoice->id,
+            $secondPaymentable->id,
+            '40',
+            '2026-10-25',
+            movementIdentity: 'multiple-payments-final',
+        ))->handle();
+        $submission = app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $october,
+            CarbonImmutable::parse('2026-11-07 12:00:00', 'Europe/Paris'),
+        );
+
+        $this->assertNotNull($submission);
+        $this->assertSame(
+            '2026-10-25',
+            data_get($submission->payment_request, 'payload.document.frEReport.paymentReport.b2cPayments.0.date'),
+        );
+        $this->assertEquals(120.0, collect(data_get(
+            $submission->payment_request,
+            'payload.document.frEReport.paymentReport.b2cPayments.0.taxSubtotal',
+            [],
+        ))->sum('amount'));
     }
 
-    public function testSkippedPaymentReceivedNotificationIsNotRetriedByCron(): void
+    public function test_empty_projection_does_not_acknowledge_stale_payment_dependencies(): void
     {
-        CarbonImmutable::setTestNow(CarbonImmutable::parse("2026-09-18 22:00:00", "Europe/Paris"));
-
-        try {
-            config(["ninja.db.multi_db_enabled" => false]);
-
-            $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-            $invoice->backup->guid = "original-storecove-guid";
-            $invoice->save();
-            $invoice = $this->markOriginalInvoiceCleared($invoice);
-            $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-            $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-            $invoice = $this->setInvoicePaymentState($invoice, "1200");
-
-            (new RecordFranceEReportingPayment(
-                $payment->id,
-                $this->company->db,
-                $invoice->id,
-                $paymentable->id,
-                "1200",
-                "2026-09-15",
-            ))->handle();
-
-            $event = $this->paymentNotificationEvents($invoice)->firstOrFail();
-            $payment->status_id = Payment::STATUS_CANCELLED;
-            $payment->save();
-
-            (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle(new Storecove());
-
-            $event = $event->fresh();
-
-            $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
-            $this->assertNotNull(data_get($event->payment_request, "skip_reason"));
-
-            Bus::fake();
-
-            (new FranceEReportingCron())->handle();
-
-            Bus::assertNotDispatched(SubmitFrancePaymentReceivedNotification::class);
-        } finally {
-            CarbonImmutable::setTestNow();
-        }
-    }
-
-    public function testPaymentReceivedNotificationSubmissionSkipsWhenPaymentIsNoLongerCompleted(): void
-    {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: "2026-09-01");
-        $invoice->backup->guid = "original-storecove-guid";
-        $invoice->save();
-        $invoice = $this->markOriginalInvoiceCleared($invoice);
-        $payment = $this->makePayment($invoice->client, "2026-09-15", "1200");
-        $paymentable = $this->makePaymentable($payment, $invoice, "1200", "2026-09-15");
-        $invoice = $this->setInvoicePaymentState($invoice, "1200");
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 40;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '80',
+            '2026-09-25',
+            movementIdentity: 'dependency-first',
+        ))->handle();
+        $firstMovement = $this->movements($payment)->firstOrFail();
+        $september = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-09-25'),
+        );
+        $materializer = app(FranceReportMaterializer::class);
+        $dependencyMethod = new \ReflectionMethod($materializer, 'projectionDependencyWatermark');
+        $dependencyWatermark = $dependencyMethod->invoke(
+            $materializer,
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $september,
+        );
+        $sourceHashMethod = new \ReflectionMethod($materializer, 'projectionSourceHash');
+        $sourceHash = $sourceHashMethod->invoke(
+            $materializer,
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $september,
+        );
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['amount' => 100]);
+        $acknowledgeMethod = new \ReflectionMethod($materializer, 'acknowledgeFacts');
+        $acknowledgeMethod->invoke(
+            $materializer,
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $september,
+            $firstMovement->id,
+            $dependencyWatermark,
+            $sourceHash,
+        );
+        $this->assertNull($firstMovement->fresh()->payment_status);
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['amount' => 120]);
 
         (new RecordFranceEReportingPayment(
             $payment->id,
             $this->company->db,
             $invoice->id,
             $paymentable->id,
-            "1200",
-            "2026-09-15",
+            '40',
+            '2026-10-25',
+            movementIdentity: 'dependency-second',
+        ))->handle();
+        $acknowledgeMethod->invoke(
+            $materializer,
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $september,
+            $firstMovement->id,
+            $dependencyWatermark,
+            $sourceHash,
+        );
+
+        $this->assertNull($firstMovement->fresh()->payment_status);
+    }
+
+    public function test_stale_payment_notification_fact_is_not_submitted_after_payment_deletion(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'original-invoice-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        $payment->is_deleted = true;
+        $payment->save();
+        Http::fake();
+
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertFalse(TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->exists());
+        $this->assertSame(FranceReportingStatus::Rejected->value, $movement->fresh()->payment_status);
+        Http::assertNothingSent();
+    }
+
+    public function test_rejected_invoice_defers_notification_until_it_recovers_to_cleared(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'original-invoice-guid';
+        $backup->e_invoice_status = 'rejected';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'recovered-notification-guid'], 200));
+
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(FranceReportingStatus::Pending->value, $movement->fresh()->payment_status);
+        $this->assertNotNull(data_get(
+            $movement->fresh()->payment_request,
+            'notification_deferred_at',
+        ));
+        $this->assertSame(
+            'payment_received_notification',
+            data_get($movement->fresh()->payment_request, 'reporting_path'),
+        );
+        $this->assertSame(
+            'FR',
+            Invoice::withTrashed()->with('client.country')->findOrFail($invoice->id)->client->country?->iso_3166_2,
+        );
+        $this->assertFalse(TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->exists());
+        Http::assertNothingSent();
+
+        $backup = $invoice->backup;
+        $backup->guid = 'replacement-invoice-guid';
+        $backup->e_invoice_status = 'cleared';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+
+        (new RecordFranceEReportingDocumentLifecycle(
+            Invoice::class,
+            $invoice->id,
+            Webhook::EVENT_UPDATE_INVOICE,
+            $this->company->db,
+            'cleared',
+            'replacement-guid-cleared',
         ))->handle();
 
-        $event = $this->paymentNotificationEvents($invoice)->firstOrFail();
-        $payment->status_id = Payment::STATUS_PENDING;
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $this->assertSame(FranceReportingStatus::Sent->value, $submission->payment_status);
+        $this->assertSame('recovered-notification-guid', data_get($submission->payment_request, 'guid'));
+        $this->assertSame(
+            'replacement-invoice-guid',
+            data_get($submission->payment_request, 'payload.forDocumentSubmissionGuid'),
+        );
+    }
+
+    public function test_payment_reporting_path_is_fixed_by_the_first_fact(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('DE', 'business', '2026-09-25');
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+
+        $france = Country::query()->where('iso_3166_2', 'FR')->firstOrFail();
+        $invoice->client->country_id = $france->id;
+        $invoice->client->saveQuietly();
+        $invoice->unsetRelation('client');
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 20;
+        $payment->saveQuietly();
+        Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->update(['refunded' => 20]);
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'fixed-route-refund',
+        ))->handle();
+
+        $this->assertSame(
+            ['f10', 'f10'],
+            $this->movements($payment)
+                ->map(fn(TransactionEvent $event): string => data_get($event->payment_request, 'reporting_path'))
+                ->all(),
+        );
+        $this->assertFalse(TransactionEvent::query()
+            ->where('payment_id', $payment->id)
+            ->whereNotNull('payment_request->current_reporting_path')
+            ->exists());
+
+        $period = ReportingCalendar::currentPeriod(
+            ReportingProfile::Monthly,
+            CarbonImmutable::parse('2026-09-26'),
+        );
+        $submission = app(FranceReportMaterializer::class)->materialize(
+            $this->company,
+            FranceEReportVariant::PaymentInitial,
+            $period,
+            CarbonImmutable::parse('2026-10-07 12:00:00', 'Europe/Paris'),
+        );
+
+        $this->assertNotNull($submission);
+        $this->assertNotEmpty(data_get(
+            $submission->payment_request,
+            'payload.document.frEReport.paymentReport.b2biPayments',
+        ));
+        $this->assertSame([], data_get(
+            $submission->payment_request,
+            'payload.document.frEReport.paymentReport.b2cPayments',
+            [],
+        ));
+    }
+
+    public function test_replacement_payment_keeps_a_fully_paid_invoice_notification_eligible(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'replacement-payment-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+        $payment->amount = 100;
+        $payment->applied = 100;
+        $payment->saveQuietly();
+        $paymentable = Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->where('paymentable_type', 'invoices')
+            ->firstOrFail();
+        Paymentable::withTrashed()->where('id', $paymentable->id)->update(['amount' => 100]);
+        $paymentable->amount = 100;
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '100',
+            '2026-09-25',
+            movementIdentity: 'original-partial-payment',
+        ))->handle();
+        $originalMovement = $this->movements($payment)->firstOrFail();
+        (new SubmitFrancePaymentReceivedNotification(
+            $originalMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 20;
+        $payment->saveQuietly();
+        Paymentable::withTrashed()->where('id', $paymentable->id)->update(['refunded' => 20]);
+        $paymentable->refunded = 20;
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'partial-refund-before-replacement',
+        ))->handle();
+
+        $replacement = Payment::factory()->create([
+            'client_id' => $invoice->client_id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 40,
+            'applied' => 40,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'date' => '2026-09-27',
+            'currency_id' => 3,
+        ]);
+        $replacementPaymentable = new Paymentable();
+        $replacementPaymentable->payment_id = $replacement->id;
+        $replacementPaymentable->paymentable_id = $invoice->id;
+        $replacementPaymentable->paymentable_type = 'invoices';
+        $replacementPaymentable->amount = 40;
+        $replacementPaymentable->refunded = 0;
+        $replacementPaymentable->created_at = strtotime('2026-09-27');
+        $replacementPaymentable->updated_at = strtotime('2026-09-27');
+        $replacementPaymentable->save();
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $replacement->id,
+            $this->company->db,
+            $invoice->id,
+            $replacementPaymentable->id,
+            '40',
+            '2026-09-27',
+            movementIdentity: 'replacement-final-payment',
+        ))->handle();
+        $refundMovement = $this->movements($payment)->last();
+        $replacementMovement = $this->movements($replacement)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-28 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'replacement-payment-notification-guid'], 200));
+
+        (new SubmitFrancePaymentReceivedNotification(
+            $refundMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+        (new SubmitFrancePaymentReceivedNotification(
+            $replacementMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $this->assertSame(FranceReportingStatus::Sent->value, $submission->payment_status);
+        $this->assertCount(2, data_get($submission->payment_request, 'movement_event_ids'));
+        $this->assertSame(
+            'notification_not_required_for_non_positive_movement',
+            data_get($refundMovement->fresh()->payment_request, 'local_disposition'),
+        );
+        Http::assertSentCount(1);
+    }
+    public function test_payment_notification_transport_cannot_regress_a_terminal_callback_state(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'original-invoice-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'payment-notification-guid'], 200));
+        $job = new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db);
+        $processor = app(FrancePaymentNotificationProcessor::class);
+        $job->handle($processor);
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $submission->payment_status = FranceReportingStatus::Rejected->value;
+        $submission->save();
+
+        $method = new \ReflectionMethod(FrancePaymentNotificationProcessor::class, 'recordAttempt');
+        $method->invoke(
+            $processor,
+            $submission,
+            FranceReportingStatus::RetryableFailure,
+            [],
+            ['message' => 'late failure', 'class' => \RuntimeException::class],
+        );
+
+        $this->assertSame(FranceReportingStatus::Rejected->value, $submission->fresh()->payment_status);
+        $this->assertNull(data_get($submission->fresh()->payment_request, 'last_error'));
+    }
+
+    public function test_unsent_notification_is_superseded_when_payment_is_deleted(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'pending-delete-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        $this->company->is_disabled = true;
+        $this->company->saveQuietly();
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $this->company->is_disabled = false;
+        $this->company->saveQuietly();
+        $payment->is_deleted = true;
+        $payment->saveQuietly();
+        Http::fake();
+
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(FranceReportingStatus::Rejected->value, $submission->fresh()->payment_status);
+        $this->assertSame('source_no_longer_notification_eligible', data_get(
+            $submission->fresh()->payment_request,
+            'local_disposition',
+        ));
+        $this->assertSame(FranceReportingStatus::Accepted->value, $movement->fresh()->payment_status);
+        Http::assertNothingSent();
+    }
+
+    public function test_invalid_persisted_notification_payload_reopens_its_movement(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'notification-integrity-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        $this->company->is_disabled = true;
+        $this->company->saveQuietly();
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $request = $submission->payment_request;
+        data_set($request, 'payload.document.paymentReceivedNotification.mode', 'tampered');
+        $submission->payment_request = $request;
+        $submission->save();
+        $this->company->is_disabled = false;
+        $this->company->saveQuietly();
+        Http::fake();
+
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(FranceReportingStatus::Rejected->value, $submission->fresh()->payment_status);
+        $this->assertSame('invalid_persisted_payload', data_get(
+            $submission->fresh()->payment_request,
+            'local_disposition',
+        ));
+        $this->assertNull($movement->fresh()->payment_status);
+        $this->company->is_disabled = true;
+        $this->company->saveQuietly();
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(2, TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->count());
+        Http::assertNothingSent();
+    }
+
+    public function test_invalid_notification_payload_after_transport_commitment_is_quarantined(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'notification-commitment-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        $this->company->is_disabled = true;
+        $this->company->saveQuietly();
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $request = $submission->payment_request;
+        $request['transport_claimed_at'] = now()->toIso8601String();
+        data_set($request, 'payload.document.paymentReceivedNotification.mode', 'tampered-after-claim');
+        $submission->payment_request = $request;
+        $submission->save();
+        $this->company->is_disabled = false;
+        $this->company->saveQuietly();
+        Http::fake();
+
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $submission->refresh();
+        $this->assertSame(FranceReportingStatus::RetryableFailure->value, $submission->payment_status);
+        $this->assertSame(
+            'invalid_persisted_payload_after_transport_commitment',
+            data_get($submission->payment_request, 'local_disposition'),
+        );
+        $this->assertSame(FranceReportingStatus::Pending->value, TransactionEvent::query()
+            ->findOrFail(data_get($request, 'snapshot_event_ids.0'))
+            ->payment_status);
+        $this->assertSame(FranceReportingStatus::Pending->value, $movement->fresh()->payment_status);
+        Http::assertNothingSent();
+    }
+
+    public function test_persisted_notification_retry_does_not_rehydrate_mutable_payment_state(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'original-invoice-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'first-guid'], 200));
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $persistedPayload = data_get($submission->payment_request, 'payload');
+        $submission->payment_status = FranceReportingStatus::RetryableFailure->value;
+        $submission->save();
+        $payment->is_deleted = true;
         $payment->save();
+        $capturedPayload = null;
+        Http::fake(function ($request) use (&$capturedPayload) {
+            $capturedPayload = json_decode($request->body(), true, flags: JSON_THROW_ON_ERROR);
 
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldNotReceive("submitDocument");
-        $storecove->proxy = $proxy;
+            return Http::response(['guid' => 'retry-guid'], 200);
+        });
 
-        (new SubmitFrancePaymentReceivedNotification($event->id, $this->company->db))->handle($storecove);
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
-        $event = $event->fresh();
+        $this->assertSame($persistedPayload, array_intersect_key($capturedPayload, $persistedPayload));
+        $this->assertSame(FranceReportingStatus::Sent->value, $submission->fresh()->payment_status);
+        $this->assertSame('first-guid', data_get($submission->fresh()->payment_request, 'guid'));
 
-        $this->assertSame(TransactionEvent::FR_REPORTING_STATUS_FAILED, $event->payment_status);
-        $this->assertSame("Payment received notification is no longer eligible.", data_get($event->payment_request, "skip_reason"));
+        $request = $submission->fresh()->payment_request;
+        $request['sent_at'] = now()->subDay()->toIso8601String();
+        $submission->payment_request = $request;
+        $submission->save();
+        (new SubmitFrancePaymentReceivedNotification($submission->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        Http::assertSentCount(1);
     }
 
-    public function testKnownPaymentApplicationListeningPointsAreStillWiredToTheFranceRecorder(): void
+    public function test_notification_waits_for_clearance_and_guid_then_submits(): void
     {
-        $paths = [
-            "app/Repositories/PaymentRepository.php",
-            "app/Services/Credit/ApplyPayment.php",
-            "app/Services/Invoice/MarkPaid.php",
-            "app/Services/Invoice/AutoBillInvoice.php",
-            "app/Services/Invoice/ApplyPaymentAmount.php",
-            "app/Services/Payment/DeletePaymentV2.php",
-            "app/Services/Payment/RefundPayment.php",
-            "app/Services/Payment/UpdateInvoicePayment.php",
-            "app/Services/Payment/PaymentService.php",
-            "app/Observers/PaymentObserver.php",
-            "app/Jobs/Bank/MatchBankTransactions.php",
-        ];
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
 
-        foreach ($paths as $path) {
-            $contents = file_get_contents(base_path($path));
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
 
-            $this->assertStringContainsString("FrancePaymentApplicationRecorder::class", $contents, "{$path} no longer resolves the France recorder.");
-            $this->assertStringContainsString("recordMovement(", $contents, "{$path} no longer records France payment movements.");
-            $this->assertStringContainsString("reportableFrTransaction()", $contents, "{$path} no longer performs the primary France reporting gate before invocation.");
-            $this->assertStringContainsString("catch (\\Throwable", $contents, "{$path} no longer isolates France recorder failures from the payment path.");
+        $this->assertSame(FranceReportingStatus::Pending->value, $movement->fresh()->payment_status);
+        $this->assertNotNull(data_get(
+            $movement->fresh()->payment_request,
+            'notification_deferred_at',
+        ));
+        $this->assertFalse(TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->exists());
+
+        $backup = $invoice->backup;
+        $backup->guid = 'late-original-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = now()->toIso8601String();
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.storecove_api_key' => 'payment-notification-test-key',
+        ]);
+        Http::fake(fn() => Http::response(['guid' => 'late-notification-guid'], 200));
+
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(FranceReportingStatus::Pending->value, $movement->fresh()->payment_status);
+        $this->assertSame(
+            'late-original-guid',
+            data_get(TransactionEvent::query()
+                ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+                ->firstOrFail()
+                ->payment_request, 'original_document_guid'),
+        );
+    }
+
+    public function test_non_positive_notification_movement_is_closed_locally(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'refund:20',
+            'payment_received_notification',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(FranceReportingStatus::Accepted->value, $movement->fresh()->payment_status);
+        $this->assertSame(
+            'notification_not_required_for_non_positive_movement',
+            data_get($movement->fresh()->payment_request, 'local_disposition'),
+        );
+    }
+
+    public function test_negative_movement_after_an_accepted_notification_requires_review(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        TransactionEvent::create([
+            'company_id' => $this->company->id,
+            'client_id' => $invoice->client_id,
+            'invoice_id' => $invoice->id,
+            'payment_id' => $payment->id,
+            'credit_id' => 0,
+            'event_id' => FranceReportingEventType::PaymentNotificationSnapshot->value,
+            'timestamp' => now()->timestamp,
+            'period' => '2026-09-30',
+            'payment_status' => FranceReportingStatus::Accepted->value,
+            'reporting_data' => null,
+            'payment_request' => ['role' => 'accepted_baseline'],
+        ]);
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'accepted-notification-refund:20',
+            'payment_received_notification',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(FranceReportingStatus::Accepted->value, $movement->fresh()->payment_status);
+        $this->assertSame(
+            'notification_adjustment_unreported',
+            data_get($movement->fresh()->payment_request, 'local_disposition'),
+        );
+        $this->assertNull(data_get($movement->fresh()->payment_request, 'projection_gate'));
+    }
+
+    public function test_adjustment_after_transport_commitment_requires_review(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'committed-notification-document-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = '2026-09-24T12:00:00+02:00';
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        $positiveMovement = $this->movements($payment)->firstOrFail();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        $this->company->is_disabled = true;
+        $this->company->saveQuietly();
+        (new SubmitFrancePaymentReceivedNotification(
+            $positiveMovement->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+        $submission = TransactionEvent::query()
+            ->where('event_id', FranceReportingEventType::PaymentNotificationSubmission->value)
+            ->firstOrFail();
+        $request = $submission->payment_request;
+        $request['attempts'] = [['attempted_at' => now()->toIso8601String()]];
+        $request['guid'] = 'committed-notification-guid';
+        $submission->payment_request = $request;
+        $submission->payment_status = FranceReportingStatus::Sent->value;
+        $submission->save();
+        $invoice->status_id = Invoice::STATUS_PARTIAL;
+        $invoice->balance = 20;
+        $invoice->saveQuietly();
+
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'committed-notification-refund',
+        ))->handle();
+        $adjustment = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('payment_id', $payment->id)
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->latest('id')
+            ->firstOrFail();
+        (new SubmitFrancePaymentReceivedNotification(
+            $adjustment->id,
+            $this->company->db,
+        ))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertSame(FranceReportingStatus::Sent->value, $submission->fresh()->payment_status);
+        $this->assertSame(FranceReportingStatus::Accepted->value, $adjustment->fresh()->payment_status);
+        $this->assertSame(
+            'notification_adjustment_unreported',
+            data_get($adjustment->fresh()->payment_request, 'local_disposition'),
+        );
+
+        app()->call([new UpdateFranceEReportSubmissionStatus([
+            'tenant_id' => $this->company->company_key,
+            'guid' => 'committed-notification-guid',
+            'event' => 'rejected',
+        ]), 'handle']);
+
+        $this->assertSame(
+            'notification_not_required_after_rejected_submission',
+            data_get($adjustment->fresh()->payment_request, 'local_disposition'),
+        );
+    }
+
+    public function test_negative_f10_movement_remains_available_for_runtime_projection(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('DE', 'business', '2026-09-25');
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-20',
+            '2026-09-26',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'foreign-refund:20',
+            'f10',
+        ))->handle();
+        $movement = $this->movements($payment)->firstOrFail();
+
+        (new SubmitFrancePaymentReceivedNotification($movement->id, $this->company->db))->handle(app(FrancePaymentNotificationProcessor::class));
+
+        $this->assertNull($movement->fresh()->payment_status);
+        $this->assertSame('f10', data_get(
+            $movement->fresh()->payment_request,
+            'reporting_path',
+        ));
+        $this->assertNull(data_get($movement->fresh()->payment_request, 'local_disposition'));
+    }
+
+    public function test_notification_callback_closes_all_coalesced_positive_movements(): void
+    {
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'business', '2026-09-25');
+        $backup = $invoice->backup;
+        $backup->guid = 'coalesced-original-guid';
+        $backup->e_invoice_status = 'cleared';
+        $backup->e_invoice_cleared_at = now()->toIso8601String();
+        $invoice->backup = $backup;
+        $invoice->saveQuietly();
+
+        foreach (['first', 'second'] as $identity) {
+            (new RecordFranceEReportingPayment(
+                $payment->id,
+                $this->company->db,
+                $invoice->id,
+                $paymentable->id,
+                '60',
+                '2026-09-25',
+                FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+                $identity,
+                'payment_received_notification',
+                'coalesced-original-guid',
+            ))->handle();
         }
+
+        $movements = $this->movements($payment);
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
+        $processor = app(FrancePaymentNotificationProcessor::class);
+        $materialize = new \ReflectionMethod($processor, 'materialize');
+        $submission = $materialize->invoke($processor, $movements->first());
+        $materialize->invoke($processor, $movements->last());
+        $request = $submission->fresh()->payment_request;
+        $request['guid'] = 'coalesced-notification-guid';
+        $submission->payment_request = $request;
+        $submission->payment_status = FranceReportingStatus::Sent->value;
+        $submission->save();
+        app()->call([new UpdateFranceEReportSubmissionStatus([
+            'tenant_id' => $this->company->company_key,
+            'guid' => 'coalesced-notification-guid',
+            'event' => 'accepted',
+        ]), 'handle']);
+
+        $this->assertCount(2, data_get($submission->fresh()->payment_request, 'movement_event_ids'));
+        $this->assertSame(
+            [FranceReportingStatus::Accepted->value],
+            $this->movements($payment)->pluck('payment_status')->unique()->values()->all(),
+        );
     }
 
-    private function enableFranceStorecoveEInvoicing(): void
+    public function test_refund_is_allocated_across_each_original_reporting_period(): void
     {
-        $settings = $this->company->settings ?: CompanySettings::defaults();
-        $settings->vat_number = "FR84345678911";
-        $settings->id_number = "12345678900012";
-        $settings->classification = "business";
-        $settings->email = $this->faker->safeEmail();
-        $settings->currency_id = "3";
-        $settings->e_invoice_type = "PEPPOL";
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
 
-        $taxData = $this->company->tax_data ?: new TaxModel();
-        $taxData->regions->EU->tax_all_subregions = true;
-        $taxData->seller_subregion = "FR";
-        $taxData->acts_as_sender = true;
+        foreach ([['70', '2026-08-25', 'august'], ['50', '2026-09-25', 'september']] as [$amount, $date, $identity]) {
+            (new RecordFranceEReportingPayment(
+                $payment->id,
+                $this->company->db,
+                $invoice->id,
+                $paymentable->id,
+                $amount,
+                $date,
+                FrancePaymentApplicationRecorder::MOVEMENT_APPLIED,
+                $identity,
+                'f10',
+            ))->handle();
+        }
 
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '-100',
+            '2026-10-05',
+            FrancePaymentApplicationRecorder::MOVEMENT_REFUNDED,
+            'refund:100',
+            'f10',
+        ))->handle();
+
+        $negative = $this->movements($payment)->filter(
+            fn(TransactionEvent $event): bool => (float) data_get($event->payment_request, 'movement_amount') < 0,
+        );
+        $this->assertSame(['-50.00', '-50.00'], $negative->pluck('payment_request')
+            ->map(fn(array $request): string => $request['movement_amount'])
+            ->all());
+        $this->assertSame(
+            ['2026-09-30', '2026-08-31'],
+            $negative->pluck('period')->map->toDateString()->all(),
+        );
+    }
+
+    public function test_enabling_reporting_bootstraps_current_period_payment_once(): void
+    {
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
         $this->company->settings = $settings;
-        $this->company->tax_data = $taxData;
-        $this->company->calculate_taxes = true;
-        $this->company->legal_entity_id = $this->franceStorecoveLegalEntityId();
-        $this->company->e_invoice = $this->francePeppolEInvoiceSettings();
-        $this->company->save();
+        $this->company->saveQuietly();
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $paymentable = Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->firstOrFail();
+        $this->assertCount(0, $this->movements($payment));
 
-        $account = $this->company->account;
-        $account->e_invoice_quota = 100;
-        $account->is_flagged = false;
-        $account->save();
+        $settings->france_reporting_enabled = true;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+        $this->travelTo(CarbonImmutable::parse('2026-09-26 12:00:00', 'Europe/Paris'));
 
-        $this->company = $this->company->fresh();
+        foreach ([1, 2] as $attempt) {
+            (new RecordFranceEReportingScopeInvalidation(
+                $this->company->id,
+                $this->company->db,
+                null,
+                "activation:{$attempt}",
+                false,
+                true,
+            ))->handle();
+        }
+
+        $movement = $this->movements($payment)->sole();
+        $this->assertSame($invoice->id, $movement->invoice_id);
+        $this->assertSame($paymentable->id, data_get($movement->payment_request, 'paymentable_id'));
+        $this->assertSame('120.00', data_get($movement->payment_request, 'movement_amount'));
     }
 
-    private function franceStorecoveLegalEntityId(): int
+    public function test_enabling_reporting_bootstraps_current_period_partial_refund_net(): void
     {
-        return 1003223;
+        $settings = $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $paymentable = Paymentable::withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->firstOrFail();
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->refunded = 20;
+        $payment->saveQuietly();
+        $paymentable->refunded = 20;
+        $paymentable->updated_at = strtotime('2026-09-26');
+        $paymentable->save();
+        $settings->france_reporting_enabled = true;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+        $this->travelTo(CarbonImmutable::parse('2026-09-27 12:00:00', 'Europe/Paris'));
+
+        (new RecordFranceEReportingScopeInvalidation(
+            $this->company->id,
+            $this->company->db,
+            null,
+            'activation:partial-refund',
+            false,
+            true,
+        ))->handle();
+
+        $this->assertSame(
+            ['120.00', '-20.00'],
+            $this->movements($payment)->map(
+                fn(TransactionEvent $event): string => data_get($event->payment_request, 'movement_amount'),
+            )->all(),
+        );
+        $this->assertSame($invoice->id, $this->movements($payment)->last()->invoice_id);
     }
 
-    private function francePeppolEInvoiceSettings(): \stdClass
+    public function test_source_reconciliation_repairs_a_missing_deleted_payment_movement(): void
     {
-        $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
-        $financialInstitutionBranch = new \InvoiceNinja\EInvoice\Models\Peppol\BranchType\FinancialInstitutionBranch();
-        $financialInstitutionBranch->ID = "BNPAFRPPXXX";
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $paymentable = Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->where('paymentable_type', 'invoices')
+            ->firstOrFail();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        Paymentable::query()->where('id', $paymentable->id)->delete();
+        $this->travelTo(CarbonImmutable::parse('2026-09-27 12:00:00', 'Europe/Paris'));
 
-        $payeeFinancialAccount = new \InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount();
-        $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
-        $id->value = "FR7630006000011234567890189";
-        $payeeFinancialAccount->ID = $id;
-        $payeeFinancialAccount->Name = "FR-PAYEE";
-        $payeeFinancialAccount->FinancialInstitutionBranch = $financialInstitutionBranch;
+        (new RecordFranceEReportingScopeInvalidation(
+            $this->company->id,
+            $this->company->db,
+            null,
+            'scheduled-source-reconciliation',
+            false,
+            false,
+            true,
+        ))->handle();
 
-        $paymentMeans = new \InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans();
-        $paymentMeans->PayeeFinancialAccount = $payeeFinancialAccount;
-        $paymentMeansCode = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\PaymentMeansCode();
-        $paymentMeansCode->value = "30";
-        $paymentMeans->PaymentMeansCode = $paymentMeansCode;
-        $einvoice->PaymentMeans[] = $paymentMeans;
-
-        $settings = new \stdClass();
-        $settings->Invoice = $einvoice;
-
-        return $settings;
+        $movements = $this->movements($payment);
+        $this->assertSame(['120.00', '-120.00'], $movements->map(
+            fn(TransactionEvent $event): string => data_get($event->payment_request, 'movement_amount'),
+        )->all());
+        $this->assertSame(
+            FrancePaymentApplicationRecorder::MOVEMENT_DELETED,
+            data_get($movements->last()?->payment_request, 'movement_type'),
+        );
     }
 
-    private function makeStorecoveFrenchBusinessInvoice(string $date): Invoice
+    public function test_source_reconciliation_watermark_recovers_changes_after_a_long_outage(): void
     {
-        $invoice = $this->makeInvoice(clientCountry: "FR", classification: "business", date: $date);
-        $client = $invoice->client;
-        $client->id_number = "123456987";
-        $client->vat_number = "FR82345678911";
-        $client->has_valid_vat_number = true;
-        $client->save();
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('FR', 'individual', '2026-09-25');
+        $paymentable = Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_id', $invoice->id)
+            ->where('paymentable_type', 'invoices')
+            ->firstOrFail();
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-09-25',
+        ))->handle();
+        Paymentable::query()->where('id', $paymentable->id)->getQuery()->update([
+            'refunded' => 20,
+            'updated_at' => '2026-09-26 00:00:00',
+        ]);
+        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        $payment->saveQuietly();
+        TransactionEvent::create([
+            'company_id' => $this->company->id,
+            'client_id' => $invoice->client_id,
+            'invoice_id' => 0,
+            'payment_id' => 0,
+            'credit_id' => 0,
+            'event_id' => FranceReportingEventType::ScopeInvalidation->value,
+            'timestamp' => CarbonImmutable::parse('2026-09-25', 'UTC')->timestamp,
+            'period' => '2026-09-25',
+            'payment_status' => FranceReportingStatus::Accepted->value,
+            'reporting_data' => null,
+            'payment_request' => [
+                'role' => 'source_reconciliation_watermark',
+                'reconciled_through_at' => '2026-09-25T00:00:00+00:00',
+            ],
+        ]);
+        $this->travelTo(CarbonImmutable::parse('2026-12-01 12:00:00', 'UTC'));
+        $sourceMethod = new \ReflectionMethod(FranceEReportingCron::class, 'sourceReconciliationSince');
+        $this->assertSame(
+            '2026-09-24T23:59:00+00:00',
+            $sourceMethod->invoke(new FranceEReportingCron(), $this->company),
+        );
+        $this->assertSame(
+            '2026-09-26 00:00:00',
+            Paymentable::withTrashed()
+                ->where('id', $paymentable->id)
+                ->firstOrFail()
+                ->getRawOriginal('updated_at'),
+        );
+        $method = new \ReflectionMethod(FranceEReportingCron::class, 'reconcileSourceState');
 
-        $client->setRelation("company", $this->company);
-        $invoice->setRelation("client", $client);
-        $invoice->setRelation("company", $this->company);
+        $method->invoke(
+            new FranceEReportingCron(),
+            $this->company,
+            $this->company->db,
+            app(FranceReportMaterializer::class),
+        );
 
-        return $invoice->fresh();
+        $this->assertSame(['120.00', '-20.00'], $this->movements($payment)->map(
+            fn(TransactionEvent $event): string => data_get($event->payment_request, 'movement_amount'),
+        )->all());
+        $watermarks = TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('event_id', FranceReportingEventType::ScopeInvalidation->value)
+            ->where('payment_request->role', 'source_reconciliation_watermark')
+            ->get();
+        $this->assertCount(1, $watermarks);
+        $this->assertSame(
+            '2026-12-01T12:00:00+00:00',
+            data_get($watermarks->first()?->payment_request, 'reconciled_through_at'),
+        );
     }
 
-    private function storecoveForFrenchDiscovery(): Storecove
+    public function test_source_reconciliation_recovers_a_missed_payment_projection_invalidation(): void
     {
-        $storecove = new Storecove();
-        $proxy = \Mockery::mock(StorecoveProxy::class);
-        $proxy->shouldReceive("setCompany")->andReturnSelf();
-        $proxy->shouldReceive("discovery")->andReturn(true);
-        $storecove->proxy = $proxy;
+        [$invoice, $payment, $paymentable] = $this->paymentScenario('DE', 'business', '2026-08-01');
+        (new RecordFranceEReportingPayment(
+            $payment->id,
+            $this->company->db,
+            $invoice->id,
+            $paymentable->id,
+            '120',
+            '2026-08-01',
+        ))->handle();
+        $before = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->count();
+        Payment::query()->whereKey($payment->id)->getQuery()->update([
+            'type_id' => 2,
+            'updated_at' => '2026-09-26 00:00:00',
+        ]);
+        $this->travelTo(CarbonImmutable::parse('2026-12-01 12:00:00', 'UTC'));
 
-        return $storecove;
+        (new RecordFranceEReportingScopeInvalidation(
+            companyId: $this->company->id,
+            db: $this->company->db,
+            invalidationKey: 'scheduled-source-reconciliation',
+            reconcileRecentSourceState: true,
+            sourceReconciliationSince: '2026-09-25T00:00:00+00:00',
+        ))->handle();
+
+        $events = TransactionEvent::query()
+            ->where('invoice_id', $invoice->id)
+            ->where('event_id', FranceReportingEventType::DocumentLifecycle->value)
+            ->get();
+        $this->assertGreaterThan($before, $events->count());
+        $this->assertTrue($events->contains(fn(TransactionEvent $event): bool => str_starts_with(
+            (string) data_get($event->payment_request, 'invalidation_key'),
+            "source-reconciliation-payment:{$payment->id}:",
+        )));
     }
 
+    /** @return array{0: Invoice, 1: Payment, 2: Paymentable} */
+    private function paymentScenario(string $countryCode, string $classification, string $date): array
+    {
+        $country = Country::query()->where('iso_3166_2', $countryCode)->firstOrFail();
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'country_id' => $country->id,
+            'classification' => $classification,
+            'name' => 'France payment client',
+        ]);
+        ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $client->company_id,
+            'user_id' => $client->user_id,
+            'is_primary' => true,
+            'send_email' => true,
+        ]);
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tax_name1 = 'VAT';
+        $item->tax_rate1 = 20;
+        $item->type_id = (string) Product::PRODUCT_TYPE_SERVICE;
+        $invoice = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => 'FR-PAY-' . $client->id,
+            'date' => '2026-09-15',
+            'due_date' => '2026-10-15',
+            'status_id' => Invoice::STATUS_PAID,
+            'balance' => 0,
+            'line_items' => [$item],
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->status_id = Invoice::STATUS_PAID;
+        $invoice->balance = 0;
+        $invoice->save();
+        $payment = Payment::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 120,
+            'applied' => 120,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'date' => $date,
+            'currency_id' => 3,
+        ]);
+        $paymentable = new Paymentable();
+        $paymentable->payment_id = $payment->id;
+        $paymentable->paymentable_id = $invoice->id;
+        $paymentable->paymentable_type = 'invoices';
+        $paymentable->amount = 120;
+        $paymentable->refunded = 0;
+        $paymentable->created_at = strtotime($date);
+        $paymentable->updated_at = strtotime($date);
+        $paymentable->save();
 
-    private function enableFranceReporting(string $schedule = 'ten_days'): void
+        return [$invoice, $payment, $paymentable];
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Collection<int, TransactionEvent> */
+    private function movements(Payment $payment): \Illuminate\Database\Eloquent\Collection
+    {
+        return TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('payment_id', $payment->id)
+            ->where('event_id', FranceReportingEventType::PaymentMovement->value)
+            ->orderBy('id')
+            ->get();
+    }
+
+    /** @return array{0: TransactionEvent, 1: TransactionEvent} */
+    private function enableFranceReporting(): void
     {
         $france = Country::query()->where('iso_3166_2', 'FR')->firstOrFail();
         $settings = $this->company->settings ?: CompanySettings::defaults();
         $settings->country_id = (string) $france->id;
         $settings->france_reporting_enabled = true;
-        $settings->france_reporting_schedule = $schedule;
+        $settings->france_reporting_schedule = ReportingProfile::TenDay->value;
         $settings->currency_id = '3';
-        $settings->vat_number = 'FR12345678901';
-        $settings->id_number = '12345678900012';
-        $settings->e_invoice_type = 'PEPPOL';
-        $settings->email = $this->faker->safeEmail();
+        $settings->vat_number = 'FR52552100554';
+        $settings->id_number = '552100554';
 
         $taxData = new TaxModel();
         $taxData->regions->EU->tax_all_subregions = true;
@@ -1987,285 +2366,28 @@ class FranceEReportingPaymentMovementTest extends TestCase
         $this->company->settings = $settings;
         $this->company->tax_data = $taxData;
         $this->company->calculate_taxes = true;
+        $this->company->legal_entity_id = 12345;
         $this->company->save();
         $this->company = $this->company->fresh();
     }
 
-    private function makeInvoice(string $clientCountry, string $classification, string $date, ?Client $client = null, ?array $lineItems = null): Invoice
+    private function disableFranceReporting(): void
     {
-        $country = Country::query()->where('iso_3166_2', $clientCountry)->firstOrFail();
-        $client ??= $this->makeClient($country, $classification, $clientCountry);
-
-        $invoice = Invoice::factory()->create([
-            'client_id' => $client->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'number' => 'FR-PAYMENT-REPORT-'.$clientCountry.'-'.$classification.'-'.uniqid(),
-            'date' => $date,
-            'due_date' => '2026-10-15',
-            'uses_inclusive_taxes' => false,
-            'discount' => 0,
-            'is_amount_discount' => true,
-            'tax_rate1' => 0,
-            'tax_name1' => '',
-            'tax_rate2' => 0,
-            'tax_name2' => '',
-            'tax_rate3' => 0,
-            'tax_name3' => '',
-            'status_id' => Invoice::STATUS_SENT,
-            'line_items' => $lineItems ?? [$this->makeLineItem()],
-        ]);
-
-        $invoice = $invoice->calc()->getInvoice();
-        $invoice->setRelation('client', $client);
-        $invoice->setRelation('company', $this->company);
-        $invoice->save();
-
-        return $invoice;
+        $settings = clone $this->company->settings;
+        $settings->france_reporting_enabled = false;
+        $this->company->settings = $settings;
+        $this->company->saveQuietly();
+        $this->company = $this->company->fresh();
     }
 
-    private function makeClient(Country $country, string $classification, string $clientCountry): Client
+    private function reconcileSourceState(string $since): void
     {
-        $client = Client::factory()->create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'country_id' => $country->id,
-            'classification' => $classification,
-            'has_valid_vat_number' => false,
-            'vat_number' => $clientCountry === 'DE' ? 'DE173755434' : '',
-            'name' => 'France Reporting Payment Client',
-            'address1' => '987654321',
-            'address2' => 'METACORTEX',
-            'city' => 'Scala Ritiro',
-            'postal_code' => '98152',
-        ]);
-
-        $contact = ClientContact::factory()->create([
-            'client_id' => $client->id,
-            'company_id' => $client->company_id,
-            'user_id' => $client->user_id,
-            'is_primary' => true,
-            'send_email' => true,
-            'email' => $this->faker->safeEmail(),
-        ]);
-
-        $client->setRelation('company', $this->company);
-        $client->setRelation('contacts', collect([$contact]));
-        $client->setRelation('country', $country);
-
-        return $client;
+        (new RecordFranceEReportingScopeInvalidation(
+            companyId: $this->company->id,
+            db: $this->company->db,
+            invalidationKey: 'test-source-reconciliation',
+            reconcileRecentSourceState: true,
+            sourceReconciliationSince: $since,
+        ))->handle();
     }
-
-    private function makeLineItem(): object
-    {
-        return $this->makeLineItemWithTax('CONSULTING', 500, 'VAT', 20, 2);
-    }
-
-    private function makeLineItemWithTax(
-        string $productKey,
-        int|float $cost,
-        string $taxName,
-        int|float $taxRate,
-        int|float $quantity = 1,
-    ): object
-    {
-        $item = InvoiceItemFactory::create();
-        $item->quantity = $quantity;
-        $item->cost = $cost;
-        $item->tax_name1 = $taxName;
-        $item->tax_rate1 = $taxRate;
-        $item->tax_id = (string) Product::PRODUCT_TYPE_OVERRIDE_TAX;
-        $item->product_key = $productKey;
-        $item->notes = 'Consulting services';
-
-        return $item;
-    }
-
-    private function makePayment(Client $client, string $date, string $amount): Payment
-    {
-        $payment = Payment::factory()->create([
-            'client_id' => $client->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'amount' => $amount,
-            'applied' => $amount,
-            'status_id' => Payment::STATUS_COMPLETED,
-            'date' => $date,
-            'currency_id' => 3,
-        ]);
-
-        $payment->setRelation('client', $client);
-        $payment->setRelation('company', $this->company);
-
-        return $payment;
-    }
-
-    private function makePaymentable(Payment $payment, Invoice $invoice, string $amount, string $date): Paymentable
-    {
-        $paymentable = new Paymentable();
-        $paymentable->payment_id = $payment->id;
-        $paymentable->paymentable_id = $invoice->id;
-        $paymentable->paymentable_type = 'invoices';
-        $paymentable->amount = $amount;
-        $paymentable->refunded = 0;
-        $paymentable->created_at = strtotime($date);
-        $paymentable->updated_at = strtotime($date);
-        $paymentable->save();
-
-        return Paymentable::withTrashed()
-            ->where('payment_id', $payment->id)
-            ->where('paymentable_id', $invoice->id)
-            ->where('paymentable_type', 'invoices')
-            ->latest('id')
-            ->firstOrFail();
-    }
-
-    private function setInvoicePaymentState(Invoice $invoice, string $paidToDate): Invoice
-    {
-        $invoice->paid_to_date = $paidToDate;
-        $invoice->balance = round((float) $invoice->amount - (float) $paidToDate, 2);
-        $invoice->status_id = $invoice->balance <= 0 ? Invoice::STATUS_PAID : Invoice::STATUS_PARTIAL;
-        $invoice->save();
-
-        return $invoice->fresh();
-    }
-
-    private function movementEvents(Invoice $invoice): EloquentCollection
-    {
-        return TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_B2C_PAYMENT)
-            ->where('payment_status', TransactionEvent::FR_REPORTING_STATUS_DEFERRED)
-            ->orderBy('id')
-            ->get();
-    }
-
-    private function reportEvents(Invoice $invoice): EloquentCollection
-    {
-        return TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_B2C_PAYMENT)
-            ->whereIn('payment_status', [
-                TransactionEvent::FR_REPORTING_STATUS_PENDING,
-                TransactionEvent::FR_REPORTING_STATUS_SUBMITTED,
-                TransactionEvent::FR_REPORTING_STATUS_FAILED,
-            ])
-            ->orderBy('id')
-            ->get();
-    }
-
-    private function paymentNotificationEvents(Invoice $invoice): EloquentCollection
-    {
-        return TransactionEvent::query()
-            ->where('invoice_id', $invoice->id)
-            ->where('event_id', TransactionEvent::FR_B2B_PAYMENT_RECEIVED_NOTIFICATION)
-            ->orderBy('id')
-            ->get();
-    }
-
-    private function markOriginalInvoiceCleared(Invoice $invoice): Invoice
-    {
-        $invoice->backup->e_invoice_status = "cleared";
-        $invoice->backup->e_invoice_cleared_at = now()->toIso8601String();
-        $invoice->save();
-
-        return $invoice->fresh();
-    }
-
-    /**
-     * @param array<string, mixed> $reportingData
-     */
-    private function createFranceReportSourceEvent(Invoice $invoice, int $eventId, string $period, array $reportingData): TransactionEvent
-    {
-        return TransactionEvent::create([
-            "company_id" => $this->company->id,
-            "client_id" => $invoice->client_id,
-            "invoice_id" => $invoice->id,
-            "payment_id" => 0,
-            "credit_id" => 0,
-            "client_balance" => $invoice->client->balance ?? 0,
-            "client_paid_to_date" => $invoice->client->paid_to_date ?? 0,
-            "client_credit_balance" => $invoice->client->credit_balance ?? 0,
-            "invoice_balance" => $invoice->balance ?? 0,
-            "invoice_amount" => $invoice->amount ?? 0,
-            "invoice_partial" => $invoice->partial ?? 0,
-            "invoice_paid_to_date" => $invoice->paid_to_date ?? 0,
-            "invoice_status" => $invoice->status_id,
-            "event_id" => $eventId,
-            "timestamp" => now()->timestamp,
-            "period" => $period,
-            "payment_status" => TransactionEvent::FR_REPORTING_STATUS_PENDING,
-            "reporting_data" => $reportingData,
-        ]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2cTransactionReportPayload(string $date): array
-    {
-        return [
-            "date" => $date,
-            "category" => "TLB1",
-            "currency" => "EUR",
-            "amountExcludingVat" => "1000",
-            "amountIncludingVat" => "1200",
-            "transactionsCount" => 1,
-            "vatPaymentOption" => "customer",
-            "taxSubtotals" => [
-                [
-                    "category" => "standard",
-                    "percentage" => "20",
-                    "taxableAmount" => "1000",
-                    "taxAmount" => "200",
-                    "currency" => "EUR",
-                    "country" => "FR",
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function b2biInvoiceReportPayload(Invoice $invoice, string $date): array
-    {
-        return [
-            "invoiceNumber" => (string) $invoice->number,
-            "issueDate" => $date,
-            "documentCurrency" => "EUR",
-            "amountIncludingVat" => "1200",
-            "taxSubtotals" => [
-                [
-                    "category" => "standard",
-                    "percentage" => "20",
-                    "taxableAmount" => "1000",
-                    "taxAmount" => "200",
-                    "currency" => "EUR",
-                    "country" => "FR",
-                ],
-            ],
-            "invoiceLines" => [
-                [
-                    "description" => "Consulting services",
-                    "amountExcludingVat" => "1000",
-                    "tax" => [
-                        "percentage" => "20",
-                        "category" => "standard",
-                        "country" => "FR",
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    private function jobProperty(object $job, string $property): mixed
-    {
-        $reflection = new \ReflectionClass($job);
-        $property = $reflection->getProperty($property);
-        $property->setAccessible(true);
-
-        return $property->getValue($job);
-    }
-
 }

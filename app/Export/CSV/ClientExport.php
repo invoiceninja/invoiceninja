@@ -130,15 +130,17 @@ class ClientExport extends BaseExport
             $this->input['report_keys'] = array_values($this->client_report_keys);
         }
 
-        $query = Client::query()->with('contacts', 'locations')
+        $query = Client::query()->with('contacts', 'locations', 'tags')
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
         $query = $this->addDateRange($query, ' clients');
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
@@ -194,6 +196,11 @@ class ClientExport extends BaseExport
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $client);
+                continue;
+            }
+
             if (count($parts) == 2 && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$key] = $transformed_client[$parts[1]];
             } elseif (count($parts) == 2 && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
@@ -245,11 +252,13 @@ class ClientExport extends BaseExport
         }
 
         if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {
-            $entity['client.classification'] = ctrans("texts.{$client->classification}") ?? '';
+            $classification = $client->classification ?? '';    
+            $entity['client.classification'] = ctrans("texts.{$classification}");
         }
 
         if (in_array('client.industry_id', $this->input['report_keys']) && isset($client->industry_id)) {
-            $entity['client.industry_id'] = ctrans("texts.industry_{$client->industry->name}") ?? '';
+            $name = $client->industry->name ?? '';    
+            $entity['client.industry_id'] = ctrans("texts.industry_{$name}");
         }
 
         if (in_array('client.country_id', $this->input['report_keys']) && isset($client->country_id)) {
@@ -261,23 +270,13 @@ class ClientExport extends BaseExport
         }
 
         if (in_array('location.country_id', $this->input['report_keys'])) {
+
+            /** @var \App\Models\Location $location */
             $location = $client->locations()->first();
-            $entity['location.country_id'] = $location && $location->country ? $location->country->full_name : '';
+            $entity['location.country_id'] = $location->country->full_name ?? '';
         }
 
         return $entity;
     }
 
-    // private function calculateStatus($client)
-    // {
-    //     if ($client->is_deleted) {
-    //         return ctrans('texts.deleted');
-    //     }
-
-    //     if ($client->deleted_at) {
-    //         return ctrans('texts.archived');
-    //     }
-
-    //     return ctrans('texts.active');
-    // }
 }

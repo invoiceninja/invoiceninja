@@ -51,7 +51,7 @@ class ExpenseTransformer extends BaseTransformer
         $transformed = [
             'company_id'  => $this->company->id,
             'vendor_id'   => $this->getVendorIdOrCreate($this->getString($data, 'Vendor')),
-            'number' 	  => $this->getString($data, 'Bill Number'),
+            'number' 	  => $this->getString($data, 'Bill Number', null),
             'public_notes' => $public_notes,
             'date'        => $this->parseDate($data['Transaction Date Added']) ?: now()->format('Y-m-d'), //27-01-2022
             'currency_id' => $this->company->settings->currency_id,

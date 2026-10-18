@@ -174,9 +174,9 @@ class CreateRawPdf
             throw new FilePermissionsFailure('Unable to generate the raw PDF => ' . $e->getMessage());
         }
 
-        // Prefer the resolved settings on PdfService (which may have been
-        // overridden by a JSON design's documentSettings.embedDocuments) over
-        // the raw client/company merged settings.
+        // Prefer the resolved settings on PdfService over the raw
+        // client/company merged settings. embed_documents is company/client
+        // owned (Invoice Design menu) and is not overridden by JSON designs.
         $merge_docs = isset($ps->config->settings->embed_documents)
             ? (bool) $ps->config->settings->embed_documents
             : (isset($this->entity->client)
@@ -187,11 +187,11 @@ class CreateRawPdf
             $pdf = $this->entity->documentMerge($pdf);
         }
 
-        if ($this->entity instanceof Invoice && ZugferdPdfMerger::shouldMerge($this->entity, $ps->config->settings)) {
+        if (($this->entity instanceof Invoice || $this->entity instanceof Credit) && ZugferdPdfMerger::shouldMerge($this->entity, $ps->config->settings)) {
             try {
                 $pdf = (new ZugferdPdfMerger($this->entity, $pdf, $ps->config->settings->e_invoice_type ?? null))->handle();
             } catch (\Throwable $e) {
-                nlog("ERROR MERGING E-INVOICE TO PDF [invoice {$this->entity->id}]: " . $e->getMessage());
+                nlog("ERROR MERGING E-DOCUMENT TO PDF [{$this->entity_string} {$this->entity->id}]: " . $e->getMessage());
             }
         }
 

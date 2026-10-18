@@ -20,6 +20,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Pdf\Purify;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
@@ -184,6 +185,8 @@ class Statement
             $pdf = (new Phantom())->convertHtmlToPdf($html);
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($html);
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($html);
         } else {
             $pdf = $this->makePdf(null, null, $html);
         }
@@ -314,7 +317,7 @@ class Statement
     public function getInvoices(): Builder
     {
         return Invoice::withTrashed()
-            ->with('payments.type')
+            ->with('payments.type', 'payments.tags', 'tags')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
@@ -356,7 +359,7 @@ class Statement
     protected function getPayments(): Builder
     {
         return Payment::withTrashed()
-            ->with('client.country', 'invoices')
+            ->with('client.country', 'invoices', 'tags')
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
@@ -369,6 +372,7 @@ class Statement
     {
         return Payment::query()
                         ->withTrashed()
+                        ->with('tags')
                         ->where('company_id', $this->client->company_id)
                         ->where('client_id', $this->client->id)
                         ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
@@ -384,7 +388,7 @@ class Statement
     protected function getCredits(): Builder
     {
         return Credit::withTrashed()
-            ->with('client.country', 'invoice')
+            ->with('client.country', 'invoice', 'tags')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)

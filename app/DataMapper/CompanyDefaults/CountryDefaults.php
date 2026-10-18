@@ -18,6 +18,8 @@ class CountryDefaults
     private const DEFAULTS = [
         'currency_id'             => null,
         'timezone_id'             => null,
+        'first_month_of_year'     => '1', // January — calendar fiscal year; override per-country below
+        'date_format_id'          => '14', // d/m/Y — world-majority slash; override per-country below
         'language_id'             => null,
         'e_invoice_type'          => null,
         'enabled_tax_rates'       => 0,
@@ -59,6 +61,7 @@ class CountryDefaults
         '124' => [ // Canada — CAD, America/Halifax
             'currency_id' => '9',
             'timezone_id' => '20',
+            'date_format_id' => '8', // Y-m-d (en-CA ISO; mixed in practice)
             'tax_rates' => [
                 ['name' => 'GST', 'rate' => 5],
                 ['name' => 'QST', 'rate' => 9.975],
@@ -69,6 +72,7 @@ class CountryDefaults
         '152' => [ // Chile — CLP, America/Santiago
             'currency_id' => '62',
             'timezone_id' => '22',
+            'date_format_id' => '9', // d-m-Y
             'tax_rates' => [
                 ['name' => 'IVA', 'rate' => 19],
             ],
@@ -102,6 +106,7 @@ class CountryDefaults
         '840' => [ // United States — USD, America/New_York
             'currency_id' => '1',
             'timezone_id' => '15',
+            'date_format_id' => '10', // m/d/Y
             'tax_rates' => [],
         ],
 
@@ -110,6 +115,7 @@ class CountryDefaults
         '40' => [ // Austria — EUR, Europe/Vienna
             'currency_id' => '3',
             'timezone_id' => '50',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'USt', 'rate' => 20],
                 ['name' => 'USt (ermäßigt)', 'rate' => 10],
@@ -128,6 +134,7 @@ class CountryDefaults
         '100' => [ // Bulgaria — BGN, Europe/Sofia
             'currency_id' => '39',
             'timezone_id' => '62',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'ДДС', 'rate' => 20],
                 ['name' => 'ДДС (намалена)', 'rate' => 9],
@@ -137,6 +144,7 @@ class CountryDefaults
         '191' => [ // Croatia — EUR, Europe/Zagreb
             'currency_id' => '43',
             'timezone_id' => '52',
+            'date_format_id' => '11', // d.m.Y (civil dd. MM. yyyy)
             'tax_rates' => [
                 ['name' => 'PDV', 'rate' => 25],
                 ['name' => 'PDV (sniženi)', 'rate' => 5],
@@ -155,6 +163,7 @@ class CountryDefaults
         '203' => [ // Czech Republic — CZK, Europe/Prague
             'currency_id' => '51',
             'timezone_id' => '45',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'DPH', 'rate' => 21],
                 ['name' => 'DPH (snížená)', 'rate' => 15],
@@ -164,6 +173,7 @@ class CountryDefaults
         '208' => [ // Denmark — DKK, Europe/Copenhagen
             'currency_id' => '5',
             'timezone_id' => '41',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'moms', 'rate' => 25],
             ],
@@ -172,6 +182,7 @@ class CountryDefaults
         '233' => [ // Estonia — EUR, Europe/Tallinn
             'currency_id' => '3',
             'timezone_id' => '63',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'KM', 'rate' => 22],
                 ['name' => 'KM (vähendatud)', 'rate' => 9],
@@ -181,6 +192,7 @@ class CountryDefaults
         '246' => [ // Finland — EUR, Europe/Helsinki
             'currency_id' => '3',
             'timezone_id' => '57',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'ALV', 'rate' => 25.5],
                 ['name' => 'ALV (alennettu)', 'rate' => 14],
@@ -199,6 +211,7 @@ class CountryDefaults
         '276' => [ // Germany — EUR, Europe/Berlin
             'currency_id' => '3',
             'timezone_id' => '37',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'MwSt', 'rate' => 19],
                 ['name' => 'MwSt (ermäßigt)', 'rate' => 7],
@@ -217,6 +230,7 @@ class CountryDefaults
         '348' => [ // Hungary — HUF, Europe/Budapest
             'currency_id' => '69',
             'timezone_id' => '40',
+            'date_format_id' => '8', // Y-m-d (year-first yyyy. MM. dd.)
             'tax_rates' => [
                 ['name' => 'ÁFA', 'rate' => 27],
                 ['name' => 'ÁFA (kedvezményes)', 'rate' => 5],
@@ -244,6 +258,7 @@ class CountryDefaults
         '428' => [ // Latvia — EUR, Europe/Riga
             'currency_id' => '3',
             'timezone_id' => '61',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'PVN', 'rate' => 21],
                 ['name' => 'PVN (samazināta)', 'rate' => 12],
@@ -253,6 +268,7 @@ class CountryDefaults
         '440' => [ // Lithuania — EUR, Europe/Vilnius
             'currency_id' => '3',
             'timezone_id' => '64',
+            'date_format_id' => '8', // Y-m-d (ISO)
             'tax_rates' => [
                 ['name' => 'PVM', 'rate' => 21],
                 ['name' => 'PVM (lengvatinis)', 'rate' => 9],
@@ -262,6 +278,7 @@ class CountryDefaults
         '442' => [ // Luxembourg — EUR, Europe/Brussels
             'currency_id' => '3',
             'timezone_id' => '39',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'TVA', 'rate' => 17],
                 ['name' => 'TVA (réduit)', 'rate' => 3],
@@ -280,6 +297,7 @@ class CountryDefaults
         '528' => [ // Netherlands — EUR, Europe/Amsterdam
             'currency_id' => '3',
             'timezone_id' => '35',
+            'date_format_id' => '9', // d-m-Y
             'tax_rates' => [
                 ['name' => 'BTW', 'rate' => 21],
                 ['name' => 'BTW (laag)', 'rate' => 9],
@@ -289,6 +307,7 @@ class CountryDefaults
         '616' => [ // Poland — PLN, Europe/Warsaw
             'currency_id' => '49',
             'timezone_id' => '51',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'VAT', 'rate' => 23],
                 ['name' => 'VAT (obniżony)', 'rate' => 8],
@@ -307,6 +326,7 @@ class CountryDefaults
         '642' => [ // Romania — RON, Europe/Bucharest
             'currency_id' => '42',
             'timezone_id' => '54',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'TVA', 'rate' => 19],
                 ['name' => 'TVA (redusă)', 'rate' => 5],
@@ -316,6 +336,7 @@ class CountryDefaults
         '703' => [ // Slovakia — EUR, Europe/Bratislava
             'currency_id' => '3',
             'timezone_id' => '38',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'DPH', 'rate' => 20],
                 ['name' => 'DPH (znížená)', 'rate' => 10],
@@ -325,6 +346,7 @@ class CountryDefaults
         '705' => [ // Slovenia — EUR, Europe/Ljubljana
             'currency_id' => '3',
             'timezone_id' => '42',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'DDV', 'rate' => 22],
                 ['name' => 'DDV (znižana)', 'rate' => 9.5],
@@ -353,6 +375,7 @@ class CountryDefaults
         '752' => [ // Sweden — SEK, Europe/Stockholm
             'currency_id' => '7',
             'timezone_id' => '49',
+            'date_format_id' => '8', // Y-m-d (ISO)
             'tax_rates' => [
                 ['name' => 'moms', 'rate' => 25],
                 ['name' => 'moms (reducerad)', 'rate' => 12],
@@ -364,6 +387,7 @@ class CountryDefaults
         '352' => [ // Iceland — ISK, Europe/London
             'currency_id' => '63',
             'timezone_id' => '33',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'VSK', 'rate' => 24],
                 ['name' => 'VSK (lægra)', 'rate' => 11],
@@ -373,6 +397,7 @@ class CountryDefaults
         '578' => [ // Norway — NOK, Europe/Berlin
             'currency_id' => '14',
             'timezone_id' => '37',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'mva', 'rate' => 25],
                 ['name' => 'mva (redusert)', 'rate' => 12],
@@ -382,6 +407,8 @@ class CountryDefaults
         '756' => [ // Switzerland — CHF, Europe/Berlin
             'currency_id' => '17',
             'timezone_id' => '37',
+            'enable_rappen_rounding' => true,
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'MWST', 'rate' => 8.1],
                 ['name' => 'MWST (reduziert)', 'rate' => 2.6],
@@ -391,6 +418,7 @@ class CountryDefaults
         '792' => [ // Turkey — TRY, Europe/Istanbul
             'currency_id' => '41',
             'timezone_id' => '65',
+            'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'KDV', 'rate' => 20],
                 ['name' => 'KDV (indirimli)', 'rate' => 10],
@@ -400,6 +428,7 @@ class CountryDefaults
         '826' => [ // United Kingdom — GBP, Europe/London
             'currency_id' => '2',
             'timezone_id' => '33',
+            'first_month_of_year' => '4', // financial year starts 1 April
             'tax_rates' => [
                 ['name' => 'VAT', 'rate' => 20],
                 ['name' => 'VAT (reduced)', 'rate' => 5],
@@ -411,6 +440,7 @@ class CountryDefaults
         '356' => [ // India — INR, Asia/Kolkata
             'currency_id' => '11',
             'timezone_id' => '80',
+            'first_month_of_year' => '4', // financial year Apr–Mar
             'tax_rates' => [
                 ['name' => 'GST', 'rate' => 18],
                 ['name' => 'GST (reduced)', 'rate' => 5],
@@ -436,6 +466,8 @@ class CountryDefaults
         '392' => [ // Japan — JPY, Asia/Tokyo
             'currency_id' => '45',
             'timezone_id' => '100',
+            'first_month_of_year' => '4', // fiscal year starts 1 April
+            'date_format_id' => '8', // Y-m-d (year-first)
             'tax_rates' => [
                 ['name' => '消費税', 'rate' => 10],
                 ['name' => '消費税 (軽減)', 'rate' => 8],
@@ -445,6 +477,7 @@ class CountryDefaults
         '410' => [ // South Korea — KRW, Asia/Seoul
             'currency_id' => '79',
             'timezone_id' => '99',
+            'date_format_id' => '8', // Y-m-d (year-first)
             'tax_rates' => [
                 ['name' => '부가가치세', 'rate' => 10],
             ],
@@ -462,6 +495,7 @@ class CountryDefaults
         '608' => [ // Philippines — PHP, Asia/Singapore
             'currency_id' => '10',
             'timezone_id' => '94',
+            'date_format_id' => '10', // m/d/Y (US-influenced)
             'tax_rates' => [
                 ['name' => 'VAT', 'rate' => 12],
             ],
@@ -504,6 +538,7 @@ class CountryDefaults
         '36' => [ // Australia — AUD, Australia/Sydney
             'currency_id' => '12',
             'timezone_id' => '105',
+            'first_month_of_year' => '7', // financial year 1 Jul–30 Jun
             'enabled_tax_rates' => 1,
             'enabled_item_tax_rates' => 1,
             'tax_rates' => [
@@ -517,6 +552,7 @@ class CountryDefaults
         '554' => [ // New Zealand — NZD, Pacific/Auckland
             'currency_id' => '15',
             'timezone_id' => '113',
+            'first_month_of_year' => '4', // tax year ends 31 March
             'enabled_tax_rates' => 1,
             'tax_rates' => [
                 ['name' => 'GST', 'rate' => 15],
@@ -528,6 +564,8 @@ class CountryDefaults
         '710' => [ // South Africa — ZAR, Africa/Harare
             'currency_id' => '4',
             'timezone_id' => '56',
+            'first_month_of_year' => '3', // SARS tax year 1 Mar–end Feb
+            'date_format_id' => '8', // Y-m-d (en-ZA year-first)
             'enabled_tax_rates' => 1,
             'enabled_item_tax_rates' => 1,
             'tax_rates' => [

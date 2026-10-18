@@ -14,6 +14,7 @@ namespace App\Repositories;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\InvoiceItem;
+use App\Services\Subscription\ProductTaxes;
 use App\Factory\InvoiceFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -136,26 +137,24 @@ class SubscriptionRepository extends BaseRepository
 
         $items = [];
 
-        foreach ($bundle['recurring_products'] as $key => $value) {
+        $recurring = array_merge(
+            $bundle['recurring_products'],
+            array_filter($bundle['optional_recurring_products'] ?? [], fn ($item) => $item['quantity'] >= 1)
+        );
+
+        foreach ($recurring as $value) {
 
             $line_item = new \stdClass();
             $line_item->product_key = $value['product']['product_key'];
             $line_item->qty = (float) $value['quantity'];
             $line_item->unit_cost = (float) $value['product']['price'];
             $line_item->description = $value['product']['notes'];
+            $line_item->tags = InvoiceItem::serializeTags($value['product']['tags'] ?? []);
             $line_item->is_recurring = $value['product']['is_recurring'] ?? false;
+            foreach (ProductTaxes::from($value['product']) as $field => $tax) {
+                $line_item->{$field} = $tax;
+            }
             $items[] = $line_item;
-        }
-
-        foreach ($bundle['recurring_products'] as $key => $value) {
-
-            $line_item = new \stdClass();
-            $line_item->product_key = $value['product']['product_key'];
-            $line_item->qty = (float) $value['quantity'];
-            $line_item->unit_cost = (float) $value['product']['price'];
-            $line_item->description = $value['product']['notes'];
-            $line_item->is_recurring = $value['product']['is_recurring'] ?? false;
-
         }
 
         return $items;
@@ -181,6 +180,10 @@ class SubscriptionRepository extends BaseRepository
             $line_item->quantity = (float) $item->qty;
             $line_item->cost = (float) $item->unit_cost;
             $line_item->notes = $item->description;
+            $line_item->tags = InvoiceItem::serializeTags($item->tags ?? '');
+            foreach (ProductTaxes::from($item) as $field => $value) {
+                $line_item->{$field} = $value;
+            }
 
             return $line_item;
         })->toArray();
@@ -198,6 +201,7 @@ class SubscriptionRepository extends BaseRepository
         $item->quantity = $this->quantity;
         $item->product_key = $product->product_key;
         $item->notes = $product->notes;
+        $item->tags = InvoiceItem::tagsFromNames($product->tags);
         $item->cost = $product->price * $multiplier;
         $item->tax_rate1 = $product->tax_rate1 ?: 0;
         $item->tax_name1 = $product->tax_name1 ?: '';

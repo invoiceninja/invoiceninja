@@ -55,7 +55,7 @@ class UserTransformer extends EntityTransformer
             'first_name' => $user->first_name ?: '',
             'last_name' => $user->last_name ?: '',
             'email' => $user->email ?: '',
-            'last_login' => Carbon::parse($user->last_login)->timestamp,
+            'last_login' => $user->last_login ? Carbon::parse($user->last_login)->timestamp : 0,
             'created_at' => (int) $user->created_at,
             'updated_at' => (int) $user->updated_at,
             'archived_at' => (int) $user->deleted_at,
@@ -124,7 +124,9 @@ class UserTransformer extends EntityTransformer
 
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        $cu = $user->company_users()->where('company_id', $user->company_id)->first();
+        $cu = $user->relationLoaded('company_users')
+            ? $user->company_users->firstWhere('company_id', $user->company_id)
+            : $user->company_users()->where('company_id', $user->company_id)->first();
 
         if (!$cu) {
             return null;

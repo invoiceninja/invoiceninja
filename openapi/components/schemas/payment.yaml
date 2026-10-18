@@ -118,5 +118,46 @@
           description: 'Unique key to ensure idempotent payment processing'
           type: string
           example: 'key_1234567890abcdef'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        applied:
+          description: 'The amount of this payment already applied to invoices or credits'
+          type: number
+          format: float
+          example: 50.00
+          readOnly: true
+        transaction_id:
+          description: 'The hashed id of the related bank transaction'
+          type: string
+          example: Opnel5aKBz
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        gateway_type_id:
+          description: 'The payment gateway type id'
+          type: string
+          example: '1'
+        status_id:
+          description: 'The payment status id'
+          type: string
+          example: '4'
+        project_id:
+          description: 'The project associated with this payment'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The vendor associated with this payment'
+          type: string
+          example: Opnel5aKBz
+        currency_id:
+          description: 'The currency id of the payment'
+          type: string
+          example: '1'
       type: object
     

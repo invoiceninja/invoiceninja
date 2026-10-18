@@ -20,6 +20,8 @@ use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\EInvoice\ValidCompanyScheme;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Rules\CommaSeparatedEmails;
+use App\Rules\EInvoice\FranceReportingEnabled;
+use App\Services\EDocument\Standards\France\ReportingProfile;
 use App\Services\Pdf\Purify;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -32,9 +34,7 @@ class UpdateCompanyRequest extends Request
     private array $protected_input = [
         'client_portal_privacy_policy',
         'client_portal_terms',
-        'portal_custom_footer',
         'portal_custom_css',
-        'portal_custom_head',
     ];
 
     /**
@@ -49,7 +49,7 @@ class UpdateCompanyRequest extends Request
         return $user->can('edit', $this->company);
     }
 
-    public function rules()
+    public function rules(): array
     {
 
         /** @var \App\Models\User $user */
@@ -103,11 +103,28 @@ class UpdateCompanyRequest extends Request
         $rules['settings.e_invoice_forward_email'] = 'sometimes|nullable|email';
         $rules['settings.e_expense_forward_email'] = 'sometimes|nullable|email';
         $rules['settings.skip_automatic_email_with_peppol'] = 'sometimes|boolean';
+        // $rules['settings.france_reporting_enabled'] = [
+        //     'bail',
+        //     'sometimes',
+        //     'boolean',
+        //     new FranceReportingEnabled($this->company),
+        // ];
+        // $franceReportingEnabled = FranceReportingEnabled::normalize(data_get(
+        //     $input,
+        //     'settings.france_reporting_enabled',
+        //     $this->company->getSetting('france_reporting_enabled'),
+        // ));
+
+        // $rules['settings.france_reporting_schedule'] = ['bail', 'sometimes'];
+
+        // if (Ninja::isHosted() && $franceReportingEnabled === true) {
+        //     $rules['settings.france_reporting_schedule'][] = Rule::enum(ReportingProfile::class);
+        // }
 
         return $rules;
     }
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
         $input = $this->all();
 
@@ -116,10 +133,19 @@ class UpdateCompanyRequest extends Request
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-
-
         if (isset($input['settings'])) {
             $input['settings'] = (array) $this->filterSaveableSettings($input['settings']);
+            // FRREPORTING:: - force false.
+            $input['settings']['france_reporting_enabled'] = false;
+
+        //     if (array_key_exists('france_reporting_enabled', $input['settings'])) {
+        //         $input['settings']['france_reporting_enabled'] = FranceReportingEnabled::normalize(
+        //             $input['settings']['france_reporting_enabled'],
+        //         );
+        //     } elseif (Ninja::isHosted()
+        //         && (bool) $this->company->getSetting('france_reporting_enabled')) {
+        //         $input['settings']['france_reporting_enabled'] = true;
+        //     }
         }
 
         /**
@@ -241,6 +267,7 @@ class UpdateCompanyRequest extends Request
             return $settings;
         }
 
+        $settings = is_array($settings) ? (object) $settings : $settings;
         $saveable_casts = CompanySettings::$free_plan_casts;
 
         foreach ($settings as $key => $value) {

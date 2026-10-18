@@ -89,22 +89,84 @@ class ImageFetcherTest extends TestCase
         $this->assertNull($this->fetcher->inline("data:text/html;base64,{$payload}"));
     }
 
-    public function test_302_redirect_is_hard_rejected(): void
+    public function test_unsafe_redirect_target_is_rejected(): void
     {
         Http::fake([
             'https://example.com/logo.png' => Http::response('', 302, ['Location' => 'http://127.0.0.1/']),
         ]);
 
         $this->assertNull($this->fetcher->inline('https://example.com/logo.png'));
+
+        Http::assertSentCount(1);
     }
 
-    public function test_301_redirect_is_hard_rejected(): void
+    public function test_redirect_to_non_image_is_rejected(): void
     {
         Http::fake([
-            'https://example.com/logo.png' => Http::response('', 301, ['Location' => 'https://evil.example/']),
+            'https://example.com/logo.png' => Http::response('', 301, ['Location' => 'https://example.com/missing.png']),
+            'https://example.com/missing.png' => Http::response('not found', 404),
         ]);
 
         $this->assertNull($this->fetcher->inline('https://example.com/logo.png'));
+
+        Http::assertSentCount(2);
+    }
+
+    public function test_follows_valid_redirect_to_image(): void
+    {
+        $body = $this->pngBody();
+
+        Http::fake([
+            'https://example.com/logo.png' => Http::response('', 302, ['Location' => 'https://example.com/final.png']),
+            'https://example.com/final.png' => Http::response($body, 200, ['Content-Type' => 'image/png']),
+        ]);
+
+        $result = $this->fetcher->inline('https://example.com/logo.png');
+
+        $this->assertIsString($result);
+        $this->assertStringStartsWith('data:image/png;base64,', $result);
+        Http::assertSentCount(2);
+    }
+
+    public function test_follows_relative_redirect_location(): void
+    {
+        $body = $this->pngBody();
+
+        Http::fake([
+            'https://example.com/images/logo.png' => Http::response('', 302, ['Location' => '/cdn/final.png']),
+            'https://example.com/cdn/final.png' => Http::response($body, 200, ['Content-Type' => 'image/png']),
+        ]);
+
+        $result = $this->fetcher->inline('https://example.com/images/logo.png');
+
+        $this->assertIsString($result);
+        $this->assertStringStartsWith('data:image/png;base64,', $result);
+        Http::assertSentCount(2);
+    }
+
+    public function test_rejects_redirect_chain_longer_than_max_hops(): void
+    {
+        Http::fake([
+            'https://example.com/a.png' => Http::response('', 302, ['Location' => 'https://example.com/b.png']),
+            'https://example.com/b.png' => Http::response('', 302, ['Location' => 'https://example.com/c.png']),
+            'https://example.com/c.png' => Http::response('', 302, ['Location' => 'https://example.com/d.png']),
+            'https://example.com/d.png' => Http::response($this->pngBody(), 200, ['Content-Type' => 'image/png']),
+        ]);
+
+        $this->assertNull($this->fetcher->inline('https://example.com/a.png'));
+
+        Http::assertSentCount(ImageFetcher::MAX_REDIRECT_HOPS);
+    }
+
+    public function test_redirect_to_ip_literal_is_rejected(): void
+    {
+        Http::fake([
+            'https://example.com/logo.png' => Http::response('', 302, ['Location' => 'https://127.0.0.1/logo.png']),
+        ]);
+
+        $this->assertNull($this->fetcher->inline('https://example.com/logo.png'));
+
+        Http::assertSentCount(1);
     }
 
     public function test_404_response_is_rejected(): void

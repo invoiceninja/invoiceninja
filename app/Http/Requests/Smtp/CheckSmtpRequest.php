@@ -75,6 +75,10 @@ class CheckSmtpRequest extends Request
 
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
             $host = $this->normalizeHost((string) $this->input('smtp_host'));
 

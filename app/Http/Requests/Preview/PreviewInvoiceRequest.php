@@ -128,7 +128,7 @@ class PreviewInvoiceRequest extends Request
     public function getClient(): ?Client
     {
         if (!$this->client) {
-            $this->client = Client::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->client_id);
+            $this->client = Client::query()->with('contacts', 'company', 'user', 'tags')->withTrashed()->find($this->client_id);
         }
 
         return $this->client;
@@ -143,7 +143,7 @@ class PreviewInvoiceRequest extends Request
 
     public function stubInvitation()
     {
-        $client = Client::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->client_id);
+        $client = Client::query()->with('contacts', 'company', 'user', 'tags')->withTrashed()->find($this->client_id);
         $this->setClient($client);
         $invitation = false;
 

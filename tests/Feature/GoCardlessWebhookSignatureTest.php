@@ -43,7 +43,7 @@ class GoCardlessWebhookSignatureTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->company = Company::factory()->create(['account_id' => $account->id]);

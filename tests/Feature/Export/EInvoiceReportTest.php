@@ -91,7 +91,7 @@ class EInvoiceReportTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32).'@example.com',
+            'email' => \Illuminate\Support\Str::random(32).'@gmail.com',
         ]);
 
         $settings = CompanySettings::defaults();

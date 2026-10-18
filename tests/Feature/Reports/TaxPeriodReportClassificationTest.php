@@ -62,7 +62,7 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32) . '@example.com',
+            'email' => \Illuminate\Support\Str::random(32) . '@gmail.com',
         ]);
 
         $settings = CompanySettings::defaults();
@@ -350,6 +350,44 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->travelBack();
     }
 
+    /**
+     * Document-vs-report parity for a MULTI-TAX inclusive line. Both the invoice
+     * document (InvoiceSumInclusive) and the tax report (TaxClassificationCalculator)
+     * now flow through App\Helpers\Invoice\InclusiveTax, so the classification rows
+     * must tie to the document tax EXACTLY (no tolerance). Before the single source
+     * of truth, the report over-taxed multi-tax inclusive lines.
+     */
+    public function testInclusiveMultiTaxReportTiesExactlyToDocument(): void
+    {
+        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+
+        $invoice = $this->makeInvoice(
+            [
+                $this->makeItem([
+                    'cost' => 1000, 'line_total' => 1000, 'type_id' => '1', 'tax_id' => '1',
+                    'tax_name1' => 'GST', 'tax_rate1' => 10,
+                    'tax_name2' => 'PST', 'tax_rate2' => 10,
+                ]),
+            ],
+            ['uses_inclusive_taxes' => true],
+        );
+
+        // document tax via the single source of truth: 1000 @ 2x10% -> 166.66
+        $this->assertEquals(166.66, round($invoice->total_taxes, 2));
+
+        (new InvoiceTransactionEventEntry())->run($invoice);
+        $event = $invoice->fresh()->transaction_events()->first();
+
+        $rows = $this->classificationRows($invoice->fresh());
+        $aggregate_tax = (float) $event->metadata->tax_report->tax_summary->tax_amount;
+
+        // report aggregate AND classification rows tie exactly to the document
+        $this->assertEquals(166.66, round($aggregate_tax, 2));
+        $this->assertEquals(round($invoice->total_taxes, 2), $this->sumRows($rows, 'tax_amount'));
+
+        $this->travelBack();
+    }
+
     public function testMultipleTaxRatesProduceCartesianBuckets(): void
     {
         $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
@@ -386,7 +424,7 @@ class TaxPeriodReportClassificationTest extends TestCase
 
     public function testCashModePartialPaymentScalesByPaidRatio(): void
     {
-        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+        $this->travelTo(\Carbon\Carbon::create(2025, 10, 1, 12, 0, 0, 'UTC'));
 
         $invoice = $this->makeInvoice([
             $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => '1']),
@@ -730,7 +768,7 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->client->shipping_postal_code = null;
         $this->client->save();
 
-        $this->travelTo(\Carbon\Carbon::createFromDate(2025, 10, 1)->startOfDay());
+        $this->travelTo(\Carbon\Carbon::create(2025, 10, 1, 12, 0, 0, 'UTC'));
 
         $invoice = $this->makeInvoice([
             $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => '1']),
@@ -1100,6 +1138,61 @@ class TaxPeriodReportClassificationTest extends TestCase
         $this->assertContains(ctrans('texts.yes'), $this->summaryColumnValues($corrections, ctrans('texts.requires_review')));
         $this->assertContains('2025-12-31', $this->summaryColumnValues($corrections, ctrans('texts.original_tax_period')));
         $this->assertContains('2026-01-31', $this->summaryColumnValues($corrections, ctrans('texts.correction_recorded_period')));
+
+        $this->travelBack();
+    }
+
+    public function testCrossPeriodPaymentApplicationDateChangeRequiresCorrectionReview(): void
+    {
+        $this->forceUnitedStatesCompany();
+        $this->travelTo(\Carbon\Carbon::parse('2026-01-31 12:00:00'));
+
+        $invoice = $this->makeInvoice([
+            $this->makeItem(['cost' => 100, 'line_total' => 100, 'type_id' => '1', 'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL]),
+        ], ['tax_data' => null]);
+        $invoice->service()->applyPaymentAmount($invoice->amount, 'PAY-DATE-MOVE')->save();
+        $invoice = $invoice->fresh();
+        $payment = $invoice->payments()->firstOrFail();
+        $paymentable = \App\Models\Paymentable::query()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $invoice->id)
+            ->firstOrFail();
+
+        \DB::table('paymentables')->where('id', $paymentable->id)->update([
+            'created_at' => '2026-01-31 12:00:00',
+            'updated_at' => '2026-01-31 12:00:00',
+        ]);
+
+        $writer = new InvoiceTransactionEventEntryCash();
+        $writer->run($invoice, '2026-01-01', '2026-01-31');
+
+        \DB::table('paymentables')->where('id', $paymentable->id)->update([
+            'created_at' => '2026-02-01 12:00:00',
+            'updated_at' => '2026-02-01 12:00:00',
+        ]);
+        $writer->reconcileApplicationDateChange(
+            $invoice->id,
+            $payment->id,
+            '2026-01-31',
+            '2026-02-01',
+            [$paymentable->id],
+        );
+
+        $this->travelTo(\Carbon\Carbon::parse('2026-03-01 00:00:00'));
+
+        $report = new TaxPeriodReport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => '2026-02-01',
+            'end_date' => '2026-02-28',
+            'is_income_billed' => false,
+        ], skip_initialization: true);
+        $data = $report->boot()->getData();
+
+        $this->assertContains(ctrans('texts.payment_correction'), $this->summaryColumnValues($data['corrections'], ctrans('texts.correction_type')));
+        $this->assertContains(ctrans('texts.yes'), $this->summaryColumnValues($data['corrections'], ctrans('texts.requires_review')));
+        $this->assertContains('2026-01-31', $this->summaryColumnValues($data['corrections'], ctrans('texts.original_tax_period')));
+        $this->assertContains('2026-02-28', $this->summaryColumnValues($data['corrections'], ctrans('texts.correction_recorded_period')));
 
         $this->travelBack();
     }

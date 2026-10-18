@@ -25,7 +25,7 @@ class Desglose extends BaseXmlModel
         $root = $this->createElement($doc, 'Desglose');
 
         // If we have DetalleDesglose objects in the desgloseIVA array, use them
-        if ($this->desgloseIVA !== null && is_array($this->desgloseIVA) && count($this->desgloseIVA) > 0) {
+        if (is_array($this->desgloseIVA) && count($this->desgloseIVA) > 0) {
             foreach ($this->desgloseIVA as $detalleDesglose) {
                 if ($detalleDesglose instanceof DetalleDesglose) {
                     $root->appendChild($detalleDesglose->toXml($doc));

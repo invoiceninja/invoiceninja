@@ -12,6 +12,7 @@
 
 namespace App\DataMapper\FranceEReporting;
 
+use App\Utils\BcMath;
 use InvalidArgumentException;
 
 final class ReportDataValidator
@@ -68,6 +69,24 @@ final class ReportDataValidator
         return $value;
     }
 
+    public static function assertPeriod(mixed $value, string $field): string
+    {
+        $value = self::assertNonEmptyString($value, $field);
+
+        if (! preg_match('/^(\d{4}-\d{2}-\d{2}) - (\d{4}-\d{2}-\d{2})$/', $value, $matches)) {
+            throw new InvalidArgumentException("{$field} must use YYYY-MM-DD - YYYY-MM-DD format.");
+        }
+
+        $start = self::assertDate($matches[1], "{$field}.start");
+        $end = self::assertDate($matches[2], "{$field}.end");
+
+        if ($start >= $end) {
+            throw new InvalidArgumentException("{$field} end date must be after its start date.");
+        }
+
+        return $value;
+    }
+
     public static function assertNumeric(mixed $value, string $field): int|float|string
     {
         if (! is_int($value) && ! is_float($value) && ! is_string($value)) {
@@ -93,7 +112,7 @@ final class ReportDataValidator
         return $number;
     }
 
-    public static function assertPositiveInteger(mixed $value, string $field): int
+    public static function assertNonNegativeInteger(mixed $value, string $field): int
     {
         if (! is_int($value) && ! ctype_digit((string) $value)) {
             throw new InvalidArgumentException("{$field} must be an integer.");
@@ -101,8 +120,49 @@ final class ReportDataValidator
 
         $value = (int) $value;
 
-        if ($value < 1) {
-            throw new InvalidArgumentException("{$field} must be greater than zero.");
+        if ($value < 0) {
+            throw new InvalidArgumentException("{$field} must be zero or greater.");
+        }
+
+        return $value;
+    }
+
+    public static function assertCountryCode(mixed $value, string $field): string
+    {
+        $value = self::assertNonEmptyString($value, $field);
+
+        if (! preg_match('/^[A-Z]{2}$/', $value)) {
+            throw new InvalidArgumentException("{$field} must be a two-letter uppercase country code.");
+        }
+
+        return $value;
+    }
+
+    public static function assertPercentage(mixed $value, string $field): int|float|string
+    {
+        $value = self::assertNumeric($value, $field);
+
+        if (BcMath::lessThan($value, '0', 6) || BcMath::greaterThan($value, '100', 6)) {
+            throw new InvalidArgumentException("{$field} must be between 0 and 100.");
+        }
+
+        return $value;
+    }
+
+    public static function canonicalNumericKey(mixed $value, string $field): string
+    {
+        $value = self::assertNumeric($value, $field);
+        $normalized = BcMath::round($value, 6);
+
+        return rtrim(rtrim($normalized, '0'), '.') ?: '0';
+    }
+
+    public static function assertCurrencyAmount(mixed $value, string $field): int|float|string
+    {
+        $value = self::assertNumeric($value, $field);
+
+        if (! BcMath::equal($value, BcMath::round($value, 2), 10)) {
+            throw new InvalidArgumentException("{$field} must not exceed two decimal places.");
         }
 
         return $value;

@@ -13,6 +13,7 @@
 namespace App\Services\EDocument;
 
 use App\Jobs\EDocument\CreateEDocument;
+use App\Models\Credit;
 use App\Models\Invoice;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
@@ -35,15 +36,13 @@ class ZugferdPdfMerger
         'XInvoice-Basic',
     ];
 
-    public function __construct(private Invoice $invoice, private string $pdf, private ?string $profile = null)
-    {
-    }
+    public function __construct(private Invoice|Credit $document, private string $pdf, private ?string $profile = null) {}
 
-    public static function shouldMerge(Invoice $invoice, object $settings): bool
+    public static function shouldMerge(Invoice|Credit $document, object $settings): bool
     {
         return (bool) ($settings->enable_e_invoice ?? false)
             && (bool) ($settings->merge_e_invoice_to_pdf ?? false)
-            && self::isZugferdProfile((string) ($settings->e_invoice_type ?? self::profileFor($invoice)));
+            && self::isZugferdProfile((string) ($settings->e_invoice_type ?? self::profileFor($document)));
     }
 
     public static function isZugferdProfile(?string $profile): bool
@@ -61,9 +60,9 @@ class ZugferdPdfMerger
         };
     }
 
-    public static function profileFor(Invoice $invoice): string
+    public static function profileFor(Invoice|Credit $document): string
     {
-        return self::normalizeProfile($invoice->client->getSetting('e_invoice_type') ?? null);
+        return self::normalizeProfile($document->client->getSetting('e_invoice_type') ?? null);
     }
 
     public static function normalizeProfile(?string $profile): string
@@ -73,7 +72,7 @@ class ZugferdPdfMerger
 
     public function handle(): string
     {
-        $profile = self::normalizeProfile($this->profile ?? self::profileFor($this->invoice));
+        $profile = self::normalizeProfile($this->profile ?? self::profileFor($this->document));
 
         if (!self::isZugferdProfile($profile)) {
             return $this->pdf;
@@ -88,7 +87,7 @@ class ZugferdPdfMerger
 
     protected function createDocument(): ZugferdDocumentBuilder
     {
-        $document = (new CreateEDocument($this->invoice, true))->handle();
+        $document = (new CreateEDocument($this->document, true))->handle();
 
         if (!$document instanceof ZugferdDocumentBuilder) {
             throw new \UnexpectedValueException('Unable to merge e-invoice into PDF: ZUGFeRD document builder was not returned.');

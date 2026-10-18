@@ -27,6 +27,13 @@ class SubscriptionFactory
             ->map(fn($step) => StepService::mapClassNameToString($step))
             ->implode(',');
 
+        $billing_subscription->webhook_configuration = [
+            'post_purchase_url' => '',
+            'post_purchase_rest_method' => 'post',
+            'post_purchase_headers' => [],
+            'return_url' => '',
+        ];
+        
         return $billing_subscription;
     }
 }

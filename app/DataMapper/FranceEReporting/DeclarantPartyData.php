@@ -59,6 +59,22 @@ final readonly class DeclarantPartyData implements Arrayable, JsonSerializable
         ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
     }
 
+    /** @return array<string, mixed> */
+    public function toB2BIAccountingPartyArray(): array
+    {
+        if (is_null($this->party)) {
+            throw new \InvalidArgumentException('B2Bi accounting party requires party details.');
+        }
+
+        return [
+            'party' => $this->party->toB2BIPartyArray(),
+            'publicIdentifiers' => array_values(array_map(
+                static fn (PublicIdentifierData $identifier): array => $identifier->toArray(),
+                $this->publicIdentifiers,
+            )),
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */

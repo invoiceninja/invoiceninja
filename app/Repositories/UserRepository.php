@@ -110,9 +110,21 @@ class UserRepository extends BaseRepository
             if (! $cu) {
                 $data['company_user']['account_id'] = $account->id;
                 $data['company_user']['notifications'] = isset($data['company_user']['notifications']['email']) ? $data['company_user']['notifications'] : CompanySettings::notificationDefaults();
+                $data['company_user']['is_owner'] = false;
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
-                if (auth()->user()->isAdmin()) {
+                if (auth()->user()->isOwner()) {
+                    $cu->fill($data['company_user']);
+                    $cu->restore();
+                    $cu->tokens()->restore();
+                    $cu->save();
+
+                    //05-08-2022
+                    if ($cu->tokens()->count() == 0) {
+                        (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
+                    }
+                } elseif (auth()->user()->isAdmin()) {
+                    unset($data['company_user']['is_owner']);
                     $cu->fill($data['company_user']);
                     $cu->restore();
                     $cu->tokens()->restore();
@@ -203,7 +215,7 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $user
      */
     public function restore($user)
     {
@@ -316,10 +328,10 @@ class UserRepository extends BaseRepository
 
             // Fix scheduler parameters JSON — embedded user_id
             $user->schedules()->each(function ($scheduler) use ($new_owner_user, $user) {
-                $params = $scheduler->parameters;
+                $params = $scheduler->parameters; // @phpstan-ignore-line
                 if (isset($params['user_id']) && $params['user_id'] == $user->id) {
                     $params['user_id'] = $new_owner_user->id;
-                    $scheduler->parameters = $params;
+                    $scheduler->parameters = $params; // @phpstan-ignore-line
                     $scheduler->save();
                 }
             });
@@ -328,6 +340,7 @@ class UserRepository extends BaseRepository
             $old_hashed_id = $user->hashed_id;
 
             $new_owner_user->account->companies()->cursor()->each(function ($company) use ($old_hashed_id) {
+                /** @var \App\Models\Company $company */
                 $settings = $company->settings;
                 if (isset($settings->gmail_sending_user_id) && $settings->gmail_sending_user_id === $old_hashed_id) {
                     $settings->gmail_sending_user_id = '0';

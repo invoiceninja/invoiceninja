@@ -21,6 +21,7 @@ use App\Utils\Traits\MakesHash;
 use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\PayFast\Token;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use App\PaymentDrivers\PayFast\CreditCard;
 use App\PaymentDrivers\PayFast\PaymentCompletedWebhook;
 use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
@@ -72,6 +73,47 @@ class PayFastPaymentDriver extends BaseDriver
     public function init()
     {
         return $this;
+    }
+
+    /**
+     * Validate the merchant ID and passphrase against PayFast's API PING endpoint.
+     *
+     * PayFast does not include the checkout merchant key in API signatures, so it
+     * can only be checked for presence here. The signed PING validates the API
+     * credentials without creating or changing any payment data.
+     */
+    public function auth(): string
+    {
+        $merchantId = trim((string) $this->company_gateway->getConfigField('merchantId'));
+        $merchantKey = trim((string) $this->company_gateway->getConfigField('merchantKey'));
+        $passphrase = trim((string) $this->company_gateway->getConfigField('passphrase'));
+
+        if ($merchantId === '' || $merchantKey === '' || $passphrase === '') {
+            return 'error';
+        }
+
+        $headers = [
+            'merchant-id' => $merchantId,
+            'version' => 'v1',
+            'timestamp' => now()->format('Y-m-d\TH:i:sO'),
+        ];
+
+        $headers['signature'] = \PayFast\Auth::generateApiSignature($headers, $passphrase);
+
+        try {
+            $response = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders($headers)
+                ->acceptJson()
+                ->timeout(15)
+                ->get(
+                    'https://api.payfast.co.za/ping',
+                    $this->company_gateway->getConfigField('testMode') ? ['testing' => 'true'] : []
+                );
+
+            return $response->successful() ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -142,7 +184,7 @@ class PayFastPaymentDriver extends BaseDriver
         return md5(http_build_query($fields));
     }
 
-    public function generateSignature($data)
+    public function generateSignature(array $data, ?string $passphrase = null): string
     {
         $fields = [];
 
@@ -171,16 +213,15 @@ class PayFastPaymentDriver extends BaseDriver
              * Subscriptions
              */
             'subscription_type', 'billing_date', 'recurring_amount', 'frequency', 'cycles',
-            /**
-             * Passphrase for md5 signature generation
-             */
-            'passphrase', ] as $key) {
+        ] as $key) {
             if (! empty($data[$key])) {
                 $fields[$key] = $data[$key];
             }
         }
 
-        nlog(http_build_query($fields));
+        if ($passphrase) {
+            $fields['passphrase'] = $passphrase;
+        }
 
         return md5(http_build_query($fields));
     }
@@ -212,38 +253,43 @@ class PayFastPaymentDriver extends BaseDriver
         parse_str($request->getContent(), $data);
 
         $passphrase = $this->company_gateway->getConfigField('passphrase') ?? '';
+        $tokenizationRequested = ($data['custom_int1'] ?? null) === '1';
+
+        if ($tokenizationRequested && $passphrase === '') {
+            return response()->json(['error' => 'PayFast tokenization requires a passphrase'], 400);
+        }
 
         if (strlen($passphrase) > 0 && ! $this->verifyItnSignature($data, $passphrase)) {
             return response()->json(['error' => 'Invalid Webhook Signature'], 400);
         }
 
-        if (array_key_exists('pf_payment_id', $data) && strlen($data['pf_payment_id']) > 1) {
-            PaymentCompletedWebhook::dispatch($data, $request->company_key, $this->company_gateway->id);
-            return;
-        }
-
         if (array_key_exists('m_payment_id', $data)) {
             $hash = Cache::get($data['m_payment_id']);
 
-            switch ($hash) {
-                case 'cc_auth':
-                    $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                         ->authorizeResponse($request);
+            if ($hash === 'cc_auth') {
+                $request->merge($data);
 
-                    return response()->json([], 200);
+                $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                    ->authorizeResponse($request);
 
-
-                default:
-
-                    $payment_hash = PaymentHash::where('hash', $data['m_payment_id'])->first();
-
-                    $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                            ->setPaymentHash($payment_hash)
-                            ->processPaymentResponse($request);
-
-                    return response()->json([], 200);
-
+                return response()->json([], 200);
             }
+        }
+
+        if (array_key_exists('pf_payment_id', $data) && strlen($data['pf_payment_id']) > 1) {
+            PaymentCompletedWebhook::dispatch($data, $request->company_key, $this->company_gateway->id);
+
+            return response()->json([], 200);
+        }
+
+        if (array_key_exists('m_payment_id', $data)) {
+            $payment_hash = PaymentHash::where('hash', $data['m_payment_id'])->first();
+
+            $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                ->setPaymentHash($payment_hash)
+                ->processPaymentResponse($request);
+
+            return response()->json([], 200);
         }
 
         return response()->json([], 200);

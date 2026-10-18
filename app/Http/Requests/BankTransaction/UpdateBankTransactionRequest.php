@@ -13,11 +13,15 @@
 namespace App\Http\Requests\BankTransaction;
 
 use App\Http\Requests\Request;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
 
 class UpdateBankTransactionRequest extends Request
 {
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = BankTransaction::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -41,16 +45,18 @@ class UpdateBankTransactionRequest extends Request
             $rules['currency_id'] = 'sometimes|exists:currencies,id';
         }
 
-        if (isset($this->vendor_id)) {
-            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
-        }
-
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
 
         $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
 
+        $rules = $this->globalRules($rules);
+
+        if (isset($this->vendor_id)) {
+            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
+        }
 
         return $rules;
+
     }
 
     public function prepareForValidation()
@@ -75,6 +81,8 @@ class UpdateBankTransactionRequest extends Request
         } elseif (array_key_exists('bank_integration_id', $input) && strlen($input['bank_integration_id'] ?? '') > 1) {
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
+
+        $input = $this->decodePrimaryKeys($input);
 
         $this->replace($input);
     }

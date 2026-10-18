@@ -69,7 +69,7 @@ class EInvoicePullDocs implements ShouldQueue
 
                     $account->companies->filter(function ($company) {
                         return $company->settings->e_invoice_type == 'PEPPOL';
-                        })
+                    })
                         ->each(function ($company) {
 
                             $this->einvoice_received_count = 0;
@@ -82,7 +82,7 @@ class EInvoicePullDocs implements ShouldQueue
 
     private function getSentDocs(Company $company)
     {
-        
+
         $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
                 ->withHeaders([
                     'Content-Type' => 'application/json',
@@ -96,47 +96,47 @@ class EInvoicePullDocs implements ShouldQueue
                     'legal_entity_id' => $company->legal_entity_id,
                 ]);
 
-            if ($response->successful()) {
+        if ($response->successful()) {
 
-                $hash = $response->header('X-CONFIRMATION-HASH');
+            $hash = $response->header('X-CONFIRMATION-HASH');
 
-                $this->handleSuccess($response->json(), $company, $hash);
-            } else {
-                nlog($response->body());
-            }
+            $this->handleSuccess($response->json(), $company, $hash);
+        } else {
+            nlog($response->body());
+        }
 
-            if ($this->einvoice_received_count > 0) {
+        if ($this->einvoice_received_count > 0) {
 
-                foreach ($company->company_users as $company_user) {
+            foreach ($company->company_users as $company_user) {
 
-                    $user = $company_user->user;
+                $user = $company_user->user;
 
-                    $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
+                $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
 
-                    if (!in_array('mail', $notifications)) {
-                        continue;
-                    }
-
-                    App::setLocale($company->getLocale());
-
-                    $mo = new EmailObject();
-                    $mo->subject = ctrans('texts.einvoice_received_subject');
-                    $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                    $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                    $mo->company_key = $company->company_key;
-                    $mo->html_template = 'email.template.admin';
-                    $mo->to = [new Address($user->email, $user->present()->name())];
-
-                    Email::dispatch($mo, $company);
+                if (!in_array('mail', $notifications)) {
+                    continue;
                 }
-            }
 
-            $this->pullSentDocuments($company);
+                App::setLocale($company->getLocale());
+
+                $mo = new EmailObject();
+                $mo->subject = ctrans('texts.einvoice_received_subject');
+                $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                $mo->company_key = $company->company_key;
+                $mo->html_template = 'email.template.admin';
+                $mo->to = [new Address($user->email, $user->present()->name())];
+
+                Email::dispatch($mo, $company);
+            }
+        }
+
+        $this->pullSentDocuments($company);
     }
 
     private function getStatuses(Company $company)
     {
-        
+
         $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
                 ->withHeaders([
                     'Content-Type' => 'application/json',
@@ -150,36 +150,49 @@ class EInvoicePullDocs implements ShouldQueue
                     'legal_entity_id' => $company->legal_entity_id,
                 ]);
 
-                if ($response->successful()) {
-                    $statuses = $response->json();
-                
-                    foreach ($statuses as $status) {
-                
-                        $model = Invoice::withTrashed()->where('backup->guid', $status['guid'])->first();
+        if ($response->successful()) {
+            $statuses = $response->json();
 
-                        if(!$model){
-                            $model = Credit::withTrashed()->where('backup->guid', $status['guid'])->first();
-                        }
+            foreach ($statuses as $status) {
 
-                        if(!$model){
-                            continue;
-                        }
+                $model = Invoice::withTrashed()->where('backup->guid', $status['guid'])->first();
 
-                        $statusEvent = (string) ($status['event'] ?? '');
-                        $this->recordDocumentStatus($model, $statusEvent);
-
-                        match($statusEvent){
-                            'cleared' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_cleared_for_sending')),
-                            'accepted' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_accepted')),
-                            'rejected' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_rejected')),
-                            'partially_paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_partially_paid')),
-                            'paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_paid')),                            
-                            default => null,
-                        };
-
-                    }
-                
+                if (!$model) {
+                    $model = Credit::withTrashed()->where('backup->guid', $status['guid'])->first();
                 }
+
+                if (!$model) {
+                    /**
+                     * France e-reporting submission GUIDs live on
+                     * TransactionEvent.payment_request->guid, not on an invoice/credit
+                     * backup->guid. Hand the status to the FR reconciler, which matches
+                     * by that key. On self-hosted multi_db is disabled, so the reconciler
+                     * resolves the local company and TransactionEvent directly.
+                    */
+                    // UpdateFranceEReportSubmissionStatus::dispatch([
+                    //     ...$status,
+                    //     'tenant_id' => $company->company_key,
+                    //     'guid' => $status['guid'],
+                    // ]);
+
+                    continue;
+                }
+
+                $statusEvent = (string) ($status['event'] ?? '');
+                $this->recordDocumentStatus($model, $statusEvent);
+
+                match ($statusEvent) {
+                    'cleared' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_cleared_for_sending')),
+                    'accepted' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_accepted')),
+                    'rejected' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_rejected')),
+                    'partially_paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_partially_paid')),
+                    'paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_paid')),
+                    default => null,
+                };
+
+            }
+
+        }
 
     }
 
@@ -190,28 +203,51 @@ class EInvoicePullDocs implements ShouldQueue
             return;
         }
 
-        $model->backup->e_invoice_status = $status;
+        $previousStatus = strtolower(trim((string) ($model->backup->e_invoice_status ?? '')));
 
-        if ($status === 'cleared' && is_null($model->backup->e_invoice_cleared_at)) {
+        $normalizedStatus = strtolower(trim($status));
+        $rejectionRemainsLatched = $previousStatus === 'rejected'
+            && ! in_array($normalizedStatus, ['accepted', 'cleared'], true);
+
+        if ($rejectionRemainsLatched) {
+            return;
+        }
+
+        $model->backup->e_invoice_status = $normalizedStatus;
+
+        if ($normalizedStatus === 'cleared' && is_null($model->backup->e_invoice_cleared_at)) {
             $model->backup->e_invoice_cleared_at = now()->toIso8601String();
         }
 
         $model->saveQuietly();
+        $company = $model->getRelationValue('company');
+
+        if ($previousStatus !== $normalizedStatus
+            && $company instanceof Company
+            && (bool) $company->getSetting('france_reporting_enabled')) {
+            RecordFranceEReportingDocumentLifecycle::dispatchSync(
+                get_class($model),
+                $model->id,
+                0,
+                $company->db,
+                $normalizedStatus,
+            );
+        }
     }
 
     private function writeActivity($model, int $activity_id, ?string $notes = '')
     {
         $model_key = 'invoice_id';
-        
-        if($model instanceof Credit) {
+
+        if ($model instanceof Credit) {
             $model_key = 'credit_id';
         }
 
-        if(Activity::where($model_key, $model->id)
+        if (Activity::where($model_key, $model->id)
         ->where('activity_type_id', $activity_id)
         ->where('notes', $notes)
         ->where('created_at', '>', now()->subDays(1))
-        ->exists()){
+        ->exists()) {
             return;
         }
 
@@ -262,6 +298,17 @@ class EInvoicePullDocs implements ShouldQueue
             if (strlen($document['html'] ?? '') > 5) {
 
                 $upload_document = TempFile::UploadedFileFromRaw($document['html'], "{$file_name}.html", 'text/html');
+                $this->saveDocument($upload_document, $expense, true);
+                $upload_document = null;
+            }
+
+            if (($document['original_document_mime_type'] ?? '') === 'application/pdf'
+                && strlen($document['original_base64_document'] ?? '') > 5) {
+                $upload_document = TempFile::UploadedFileFromBase64(
+                    $document['original_base64_document'],
+                    "{$file_name}.pdf",
+                    'application/pdf'
+                );
                 $this->saveDocument($upload_document, $expense, true);
                 $upload_document = null;
             }

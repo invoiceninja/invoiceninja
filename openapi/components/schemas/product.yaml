@@ -158,3 +158,8 @@
           type: string
           description: 'The accounting income account identifier this product maps to (used by external accounting integrations such as QuickBooks).'
           example: '42'
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'

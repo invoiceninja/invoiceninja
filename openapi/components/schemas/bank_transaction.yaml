@@ -49,4 +49,75 @@
           description: 'The ID number of the bank account'
           type: integer
           example: 1
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        bank_integration_id:
+          description: 'The hashed id of the bank integration'
+          type: string
+          example: AS3df3A
+        ninja_category_id:
+          description: 'The hashed id of the mapped Invoice Ninja expense category'
+          type: string
+          example: Opnel5aKBz
+        status_id:
+          description: 'The bank transaction status id'
+          type: string
+          example: '1'
+        participant:
+          description: 'The counterparty account identifier from the bank feed'
+          type: string
+          example: 'DE89370400440532013000'
+        participant_name:
+          description: 'The counterparty name from the bank feed'
+          type: string
+          example: 'ACME Supplies'
+        invoice_ids:
+          description: 'Comma-separated hashed invoice ids matched to this transaction'
+          type: string
+          example: 'JxboYBLegw,JxboYBLeXX'
+        expense_id:
+          description: 'The hashed expense id created from this transaction'
+          type: string
+          example: Opnel5aKBz
+        payment_id:
+          description: 'The hashed payment id matched to this transaction'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The hashed vendor id matched to this transaction'
+          type: string
+          example: Opnel5aKBz
+        bank_transaction_rule_id:
+          description: 'The hashed id of the rule that matched this transaction'
+          type: string
+          example: Opnel5aKBz
+        is_deleted:
+          description: 'Whether the bank transaction is deleted'
+          type: boolean
+          example: false
+        nordigen_transaction_id:
+          description: 'The upstream Nordigen/GoCardless transaction id'
+          type: string
+          example: '20220101-abc123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object

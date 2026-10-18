@@ -44,6 +44,7 @@ class PaymentSyncCast implements CastsAttributes
             $key => json_encode([
                 'qb_id' => $value->qb_id,
                 'qb_sync_token' => $value->qb_sync_token ?? '',
+                'qb_status_message' => $value->qb_status_message ?? '',
                 'qb_immutable' => $value->qb_immutable ?? false,
                 'qb_void_failed' => $value->qb_void_failed ?? false,
                 'qb_void_error' => $value->qb_void_error ?? '',

@@ -52,31 +52,28 @@ class AutoBill implements ShouldQueue
         if ($this->db) {
             MultiDB::setDb($this->db);
         }
-        $invoice = false;
 
+        $invoice = Invoice::withTrashed()->findorFail($this->invoice_id);
 
         try {
 
             nlog("autobill {$this->invoice_id}");
 
-            $invoice = Invoice::withTrashed()->find($this->invoice_id);
 
-            if ($invoice) {
                 App::setLocale($invoice->client->locale());
                 $t = app('translator');
                 $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
                 $invoice->service()->autoBill();
-            }
 
         } catch (\Exception $e) {
             nlog("Failed to capture payment for {$this->invoice_id} ->" . $e->getMessage());
 
-            if ($this->send_email_on_failure && $invoice) {
+            if ($this->send_email_on_failure) {
 
                 $invoice->invitations->each(function ($invitation) use ($invoice) {
 
                     //2025-04-06 additional conditional check to prevent duplicate emails from being sent.
-                    if ($invitation->contact && !$invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice') && !$invitation->contact->is_locked && $invoice->client->getSetting('client_online_payment_notification')) {
+                    if (!$invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice') && !$invitation->contact->is_locked && $invoice->client->getSetting('client_online_payment_notification')) {
                         try {
                             EmailEntity::dispatch($invitation->withoutRelations(), $invoice->company->db)->delay(rand(1, 2));
 

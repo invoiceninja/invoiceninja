@@ -21,6 +21,7 @@ use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\ClientSettings;
 use App\Factory\InvoiceItemFactory;
+use App\Services\Invoice\AutoBillInvoice;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -158,6 +159,70 @@ class AutoBillInvoiceApiTest extends TestCase
 
         $payment_count_after = Payment::where('client_id', $this->client->id)->count();
         $this->assertEquals($payment_count_before, $payment_count_after, 'No payment should be created when no payment source is available');
+    }
+
+    /**
+     * Every failed auto bill must consume exactly one try, and the invoice must
+     * be switched off once the budget is spent. Without this AutoBillCron - which
+     * selects on auto_bill_enabled and auto_bill_tries - retries forever.
+     *
+     * This covers the bail out before the gateway is reached (no payment method
+     * on file), which previously left the counter at 0.
+     */
+    public function testFailedAutoBillConsumesATryAndDisablesWhenExhausted(): void
+    {
+        $settings = ClientSettings::defaults();
+        $settings->use_credits_payment = 'off';
+        $settings->use_unapplied_payment = 'off';
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices?mark_sent=true', $this->invoiceData(100));
+
+        $response->assertStatus(200);
+
+        $invoice = Invoice::find($this->decodePrimaryKey($response->json()['data']['id']));
+        $invoice->auto_bill_enabled = true;
+        $invoice->save();
+
+        $this->assertEquals(0, (int) $invoice->auto_bill_tries);
+
+        /* Each attempt short of the limit consumes a try and leaves auto billing on */
+        foreach (range(1, AutoBillInvoice::MAX_TRIES - 1) as $expected_tries) {
+            $this->attemptAutoBill($invoice);
+
+            $invoice = $invoice->fresh();
+
+            $this->assertEquals($expected_tries, (int) $invoice->auto_bill_tries, "Attempt {$expected_tries} did not consume a try");
+            $this->assertTrue((bool) $invoice->auto_bill_enabled, "Attempt {$expected_tries} should not have disabled auto billing");
+        }
+
+        /* The final attempt exhausts the budget and parks the invoice */
+        $this->attemptAutoBill($invoice);
+
+        $invoice = $invoice->fresh();
+
+        $this->assertFalse((bool) $invoice->auto_bill_enabled, 'Auto billing must be disabled once the attempts are exhausted');
+        $this->assertEquals(0, (int) $invoice->auto_bill_tries, 'The counter is cleared so that re-enabling auto billing grants a fresh budget');
+
+        $this->assertEquals(0, Invoice::query()
+            ->where('id', $invoice->id)
+            ->where('auto_bill_enabled', true)
+            ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
+            ->count(), 'An exhausted invoice must no longer be selected by AutoBillCron');
+    }
+
+    private function attemptAutoBill(Invoice $invoice): void
+    {
+        try {
+            $invoice->service()->autoBill();
+        } catch (\Exception $e) {
+            // Expected: no payment method available
+        }
     }
 
     /**

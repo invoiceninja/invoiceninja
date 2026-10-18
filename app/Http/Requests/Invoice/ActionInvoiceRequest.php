@@ -44,7 +44,10 @@ class ActionInvoiceRequest extends Request
 
     public function withValidator($validator)
     {
-
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
             if ($this->action == 'delete' && ! $this->invoiceDeletable($this->invoice)) {

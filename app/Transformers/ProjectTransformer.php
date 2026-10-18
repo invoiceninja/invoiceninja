@@ -95,6 +95,13 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeTasks(Project $project): \League\Fractal\Resource\Collection
     {
+        $project->loadMissing([
+            'tasks.tags',
+            'tasks.documents',
+            'tasks.project.tags',
+            'tasks.project.documents',
+        ]);
+        
         $transformer = new TaskTransformer($this->serializer);
 
         return $this->includeCollection($project->tasks, $transformer, Task::class);
@@ -102,6 +109,7 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeInvoices(Project $project): \League\Fractal\Resource\Collection
     {
+       
         $transformer = new InvoiceTransformer($this->serializer);
 
         return $this->includeCollection($project->invoices, $transformer, Invoice::class);
@@ -146,18 +154,8 @@ class ProjectTransformer extends EntityTransformer
             'color' => (string) $project->color ?: '',
             'current_hours' => (int) $project->current_hours ?: 0,
             'tags' => $this->transformTags($project),
+            'budgeted_amount' => (float) $project->budgeted_amount,
         ];
     }
 
-    /**
-     * @return array<int, array{id: string, name: string, color: string|null}>
-     */
-    private function transformTags(Project $project): array
-    {
-        return $project->tags->map(fn ($tag) => [
-            'id' => (string) $this->encodePrimaryKey($tag->id),
-            'name' => (string) $tag->name,
-            'color' => $tag->color,
-        ])->values()->all();
-    }
 }

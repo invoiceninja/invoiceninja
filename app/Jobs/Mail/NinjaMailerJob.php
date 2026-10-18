@@ -37,6 +37,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
+use App\Services\Email\SmtpFailure;
 
 /*Multi Mailer implemented*/
 
@@ -67,6 +68,9 @@ class NinjaMailerJob implements ShouldQueue
 
     protected $client_ses_secret = false;
 
+    /** Prevents a second in-process fallback if the hosted mailer also throws */
+    private bool $used_hosted_fallback = false;
+
     public function __construct(public ?NinjaMailerObject $nmo, public bool $override = false) {}
 
     public function backoff()
@@ -80,7 +84,7 @@ class NinjaMailerJob implements ShouldQueue
         MultiDB::setDb($this->nmo->company->db);
 
         /* Serializing models from other jobs wipes the primary key */
-        $this->company = Company::query()->where('company_key', $this->nmo->company->company_key)->first();
+        $this->company = Company::query()->with('account')->where('company_key', $this->nmo->company->company_key)->first();
 
         /* Set the email driver */
         $this->setMailDriver();
@@ -118,7 +122,16 @@ class NinjaMailerJob implements ShouldQueue
                 });
         }
 
-        //send email
+        $this->deliver();
+
+        $this->nmo = null;
+        $this->company = null;
+
+        $this->cleanUpMailers();
+    }
+
+    private function deliver(): void
+    {
         try {
             nlog("Trying to send to {$this->nmo->to_user->email} " . now()->toDateTimeString());
             nlog("Using mailer => " . $this->mailer);
@@ -156,8 +169,6 @@ class NinjaMailerJob implements ShouldQueue
 
             $pendingMail->send($mailable);
 
-            /* Count the amount of emails sent across all the users accounts */
-
             $this->incrementEmailCounter();
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject, $this->nmo->mailable->viewData['text_body'] ?? ''))
@@ -166,22 +177,14 @@ class NinjaMailerJob implements ShouldQueue
         } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
             nlog("Mailer failed with a Transport Exception {$e->getMessage()}");
 
-            if (Ninja::isHosted() && $this->mailer == 'smtp') {
-                $settings = $this->nmo->settings;
-                $settings->email_sending_method = 'default';
-                $this->company->settings = $settings;
-                $this->company->save();
-            }
-
             if (stripos($e->getMessage(), 'code 406') !== false) {
 
                 $email = $this->nmo->to_user->email ?? '';
 
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
-                
                 $this->cleanUpMailers();
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
 
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
@@ -190,29 +193,40 @@ class NinjaMailerJob implements ShouldQueue
                 return;
             }
 
-            
+            /** Carefully retry transient failures */
+            if (Ninja::isHosted() && $this->mailer === 'smtp') {
+                match ((new SmtpFailure())->action($e, $this->attempts(), $this->tries)) {
+                    SmtpFailure::RETRY => $this->release($this->backoff()[$this->attempts() - 1]),
+                    SmtpFailure::FALLBACK => $this->fallbackSmtp($e->getMessage()),
+                    SmtpFailure::FAIL => $this->logMailError($e->getMessage()),
+                    default => $this->logMailError($e->getMessage()),
+                };
+                $this->cleanUpMailers();
+                return;
+            }
+
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             return;
 
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            
+            $this->logMailError($e->getMessage());
+
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
-            
+            $this->logMailError($e->getMessage());
+
             return;
         } catch (\Google\Service\Exception $e) {
 
             if ($e->getCode() == '429') {
 
                 $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 sleep(rand(1, 2));
                 $this->release(900);
 
@@ -222,10 +236,10 @@ class NinjaMailerJob implements ShouldQueue
 
             nlog("Mailer failed with an Error Exception {$e->getMessage()}");
             $message = "Attachment size is too large.";
-            $this->logMailError($message, $this->company->clients()->first());
+            $this->logMailError($message);
             $this->entityEmailFailed($message);
             $this->cleanUpMailers();
-            
+
             return;
 
         } catch (\Exception $e) {
@@ -240,27 +254,26 @@ class NinjaMailerJob implements ShouldQueue
             if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->logMailError($e->getMessage());
 
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }
 
                 $this->cleanUpMailers();
-            
+
                 return;
             }
 
             if (stripos($e->getMessage(), 'Dsn') !== false) {
 
                 nlog("Incorrectly configured mail server - setting to default mail driver.");
-                $this->nmo->settings->email_sending_method = 'default';
-                return $this->setMailDriver();
-
+                $this->retryWithDefaultMailer();
+                return;
             }
 
             /**
-             * Post mark buries the proper message in a guzzle response
+             * Post mark buries the proper message in a a guzzle response
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
@@ -278,33 +291,49 @@ class NinjaMailerJob implements ShouldQueue
                     $message = "Unknown issue sending via Postmark, please try again later.";
                 }
 
+                nlog("PostmarkException: {$message}");
+
                 $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
-            
+
                 return;
             }
 
             //only report once, not on all tries
-            if ($this->attempts() == $this->tries) {
+            if ($this->attempts() >= $this->tries) {
                 /* If there is an entity attached to the message send a failure mailer */
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }
 
+                $this->cleanUpMailers();
                 app('sentry')->captureException($e);
-
+                return;
             }
 
             /* Releasing immediately does not add in the backoff */
             sleep(rand(2, 3));
             $this->release($this->backoff()[$this->attempts() - 1]);
         }
+    }
 
-        $this->nmo = null;
-        $this->company = null;
+    private function retryWithDefaultMailer(): void
+    {
+        if ($this->used_hosted_fallback) {
+            return;
+        }
 
-        /*Clean up mailers*/
+        $this->used_hosted_fallback = true;
         $this->cleanUpMailers();
+        $this->nmo->settings->email_sending_method = 'default';
+        $this->setMailDriver();
+        $this->deliver();
+    }
+
+    private function fallbackSmtp(string $message): void
+    {
+        $this->logMailError($message);
+        $this->retryWithDefaultMailer();
     }
 
     private function incrementEmailCounter(): void
@@ -355,7 +384,6 @@ class NinjaMailerJob implements ShouldQueue
 
         if (Ninja::isHosted() && $this->nmo?->transport !== 'force' && (!$this->company->account->isPaid() || ($this->company->account->isNewHostedAccount() && $this->nmo->settings->email_sending_method == 'default'))) {
 
-        // if (Ninja::isHosted() && $this->nmo?->transport !== 'force' && ($this->company->account->isNewHostedAccount() || !$this->company->account->isPaid())) {
             $this->nmo->settings->email_sending_method = 'default';
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
@@ -748,7 +776,7 @@ class NinjaMailerJob implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
         } catch (\Exception $e) {
-            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->logMailError('Gmail Token Invalid');
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -800,51 +828,52 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         /* If we are migrating data we don't want to fire any emails */
-        if ($this->company->is_disabled) {
+        /* Ensure the user has a valid email address */
+        if ($this->company->is_disabled || !str_contains($this->nmo->to_user->email ?? '', "@")) {
             return true;
         }
 
         /* To handle spam users we drop all emails from flagged accounts */
-        if (Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) {
-            return true;
-        }
-
-        /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
-        if (Ninja::isHosted() && $this->nmo->to_user && strpos($this->nmo->to_user->email, '@example.com') !== false) {
-            return true;
-        }
-
-        /* GMail users are uncapped */
-        if (Ninja::isHosted() && (in_array($this->nmo->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun', 'client_brevo', 'client_ses']))) {
-            return false;
-        }
-
-        /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        if (Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded()) {
-            return true;
-        }
-
-        /* If the account is verified, we allow emails to flow */
-        if (Ninja::isHosted() && $this->company->account && $this->company->account->is_verified_account) {
-            return false;
-        }
-
-        /* Ensure the user has a valid email address */
-        if (!str_contains($this->nmo->to_user->email ?? '', "@")) {
-            return true;
-        }
-
-        /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
-        if (Ninja::isHosted() && $this->company->account && !$this->company->account->account_sms_verified) {
-            if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
-                (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+        if (Ninja::isHosted()){
+                
+            if($this->company->account->is_flagged) {
+                return true;
             }
-            return true;
-        }
 
-        /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
-        if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
-            return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+            /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
+            if ($this->nmo->to_user && strpos($this->nmo->to_user->email, '@example.com') !== false) {
+                return true;
+            }
+
+            /* GMail users are uncapped */
+            if ((in_array($this->nmo->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun', 'client_brevo', 'client_ses']))) {
+                return false;
+            }
+
+            /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
+            if ($this->company->account->emailQuotaExceeded()) {
+                return true;
+            }
+
+            /* If the account is verified, we allow emails to flow */
+            if ($this->company->account->is_verified_account) {
+                return false;
+            }
+
+
+            /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
+            if (!$this->company->account->account_sms_verified) {
+                if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
+                    (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+                }
+                return true;
+            }
+
+            /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
+            if (class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class)) {
+                return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+            }
+
         }
 
         return false;
@@ -857,7 +886,7 @@ class NinjaMailerJob implements ShouldQueue
      * @param  \App\Models\User | \App\Models\Client | null $recipient_object
      * @return void
      */
-    private function logMailError($errors, $recipient_object): void
+    private function logMailError($errors, $recipient_object = null): void
     {
         (
             new SystemLogger(

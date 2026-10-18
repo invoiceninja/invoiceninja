@@ -52,9 +52,7 @@ class InvitationTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
-        $faker = \Faker\Factory::create();
-
-        $fake_email = $faker->email();
+        $fake_email = uniqid('testuser') . '@gmail.com';
 
         $user = User::where('email', $fake_email)->first();
 

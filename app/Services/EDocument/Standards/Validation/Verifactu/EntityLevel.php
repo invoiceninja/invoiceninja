@@ -88,6 +88,17 @@ class EntityLevel implements EntityLevelInterface
         return ['passes' => true];
     }
 
+    public function checkCredit(Credit $credit): array
+    {
+        return [
+            'passes' => true,
+            'invoice' => [],
+            'credit' => [],
+            'client' => [],
+            'company' => [],
+        ];
+    }
+
     public function checkInvoice(Invoice $invoice): array
     {
 

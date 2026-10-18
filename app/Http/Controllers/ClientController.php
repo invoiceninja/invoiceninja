@@ -12,49 +12,53 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Models\Document;
-use App\Models\SystemLog;
-use Postmark\PostmarkClient;
-use Illuminate\Http\Response;
-use App\Factory\ClientFactory;
-use App\Filters\ClientFilters;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Uploadable;
-use App\Utils\Traits\BulkOptions;
-use App\Jobs\Client\UpdateTaxData;
-use App\Utils\Traits\SavesDocuments;
-use App\Repositories\ClientRepository;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasUpdated;
-use App\Transformers\ClientTransformer;
-use Illuminate\Support\Facades\Storage;
-use App\Services\Template\TemplateAction;
-use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Factory\ClientFactory;
+use App\Filters\ClientFilters;
+use App\Http\Controllers\BaseController;
 use App\Http\Requests\Client\BulkClientRequest;
-use App\Http\Requests\Client\EditClientRequest;
-use App\Http\Requests\Client\ShowClientRequest;
-use App\Http\Requests\Client\PurgeClientRequest;
-use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Client\ClientDocumentsRequest;
 use App\Http\Requests\Client\CreateClientRequest;
+use App\Http\Requests\Client\DestroyClientRequest;
+use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\MergeClientRequest;
+use App\Http\Requests\Client\PurgeClientRequest;
+use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Http\Requests\Client\ShowClientRequest;
+use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
-use App\Http\Requests\Client\DestroyClientRequest;
-use App\Http\Requests\Client\ClientDocumentsRequest;
-use App\Http\Requests\Client\ReactivateClientEmailRequest;
+use App\Jobs\Client\CheckVat;
+use App\Jobs\Client\UpdateTaxData;
+use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Credit;
+use App\Models\Document;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Models\SystemLog;
 use App\Models\Task;
+use App\Repositories\ClientRepository;
+use App\Services\Template\TemplateAction;
+use App\Transformers\ClientTransformer;
 use App\Transformers\DocumentTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\BulkOptions;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use App\Utils\Traits\Uploadable;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Postmark\PostmarkClient;
 
 /**
  * Class ClientController.
@@ -96,7 +100,7 @@ class ClientController extends BaseController
     {
         set_time_limit(45);
 
-        $clients = Client::filter($filters);
+        $clients = Client::filter($filters)->with('tags');
 
         return $this->listResponse($clients);
     }
@@ -309,7 +313,7 @@ class ClientController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $client, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $client, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($client->fresh());
@@ -345,14 +349,14 @@ class ClientController extends BaseController
     /**
          * Update the specified resource in storage.
          *
-         * @param PurgeClientRequest $request
+         * @param MergeClientRequest $request
          * @param Client $client
          * @param string $mergeable_client
          * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
          *
          */
 
-    public function merge(PurgeClientRequest $request, Client $client, string $mergeable_client)
+    public function merge(MergeClientRequest $request, Client $client, string $mergeable_client)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -378,11 +382,11 @@ class ClientController extends BaseController
     /**
      * Updates the client's tax data
      *
-     * @param  PurgeClientRequest $request
+     * @param  MergeClientRequest $request
      * @param  Client $client
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function updateTaxData(PurgeClientRequest $request, Client $client)
+    public function updateTaxData(MergeClientRequest $request, Client $client)
     {
         if ($client->company->account->isPaid()) {
             (new UpdateTaxData($client, $client->company))->handle();
@@ -418,7 +422,7 @@ class ClientController extends BaseController
 
             $resolved_bounce_id = false;
 
-            if ($log && ($log?->log['ID'] ?? false)) {
+            if (($log?->log['ID'] ?? false)) {
                 $resolved_bounce_id = $log->log['ID'] ?? false;
             }
 
@@ -455,7 +459,7 @@ class ClientController extends BaseController
 
         try {
 
-            /** @var ?\Postmark\Models\DynamicResponseModel $response */
+            /** @var \Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int) $bounce_id);
 
             // if ($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) { // @phpstan-ignore-line
@@ -488,12 +492,12 @@ class ClientController extends BaseController
             ->orWhereHasMorph('documentable', [Client::class], function ($query) use ($client) {
                 $query->where('id', $client->id);
             })
-            ->when(strlen($request->input('filter', '')) > 1, function ($query) use ($request) {
+            ->when(strlen($request->input('filter') ?? '') > 1, function ($query) use ($request) {
                 $query->where('name', 'like', '%' . $request->input('filter', '') . '%');
             })
-            ->when(strlen($request->input('sort', '')) > 1, function ($query) use ($request) {
+            ->when(strlen($request->input('sort') ?? '') > 1, function ($query) use ($request) {
 
-                $sort_col = explode('|', $request->input('sort', ''));
+                $sort_col = explode('|', $request->input('sort'));
 
                 if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($query->getModel()->getTable()))) {
                     return $query;
@@ -511,5 +515,30 @@ class ClientController extends BaseController
     public function showSettings(ShowClientRequest $request, Client $client)
     {
         return response()->json($client->service()->showSettingsMap(), 200);
+    }
+
+    public function peppolDiscovery(ShowClientRequest $request, Client $client)
+    {
+        return response()->json($client->service()->peppolDiscovery(), 200);
+    }
+
+    public function checkVat(ShowClientRequest $request, Client $client)
+    {
+        Cache::put('vat_status_'.$client->client_hash, 'pending', 3600);
+
+        CheckVat::dispatch($client, $client->company);
+
+        return response()->json(['message' => 'success'], 200);
+    }
+
+    public function vatStatus(ShowClientRequest $request, Client $client)
+    {
+        $status = Cache::get('vat_status_'.$client->client_hash);
+
+        if($status != 'pending'){
+            Cache::forget('vat_status_'.$client->client_hash);
+        }
+
+        return response()->json(['message' => $status], 200);
     }
 }

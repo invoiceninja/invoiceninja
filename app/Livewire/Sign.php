@@ -117,7 +117,7 @@ class Sign extends Component
         if ($this->entity_type == 'invoice') {
             $this->redirectRoute('client.payments.process', ['request_hash' => $this->request_hash]);
         } elseif ($this->entity_type == 'quote' && $this->request_hash) {
-            $this->redirectRoute('client.quotes.bulk', ['request_hash' => $this->request_hash]);
+            $this->redirectRoute('client.quotes.approval.continue', ['request_hash' => $this->request_hash]);
         } elseif ($this->entity_type == 'quote') {
             $this->dispatch('quote-signed');
         }

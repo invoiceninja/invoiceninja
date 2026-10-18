@@ -16,6 +16,7 @@ use App\Factory\TaskFactory;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Import\Providers\Csv;
 use App\Import\Transformer\BaseTransformer;
+use App\Import\Transformer\Csv\TaskTransformer;
 use App\Models\Task;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -46,6 +47,95 @@ class TaskImportTest extends TestCase
         $this->withoutExceptionHandling();
 
         auth()->login($this->user);
+    }
+
+    public function testTaskTransformerPreservesFalseBillableValues(): void
+    {
+        $transformer = new TaskTransformer($this->company);
+
+        foreach ([false, 'false', 'no', '0'] as $billable) {
+            $transformed = $transformer->transform([
+                'task.number' => 'billable-false',
+                'task.billable' => $billable,
+                'task.start_date' => '2026-01-01',
+                'task.start_time' => '09:00',
+                'task.end_date' => '2026-01-01',
+                'task.end_time' => '10:00',
+            ]);
+
+            $time_log = json_decode($transformed['time_log'], true);
+
+            $this->assertFalse($time_log[0][3], 'Expected billable false for '.var_export($billable, true));
+        }
+    }
+
+    public function testTaskTransformerMapsDueDateAndEstimatedDuration(): void
+    {
+        $transformer = new TaskTransformer($this->company);
+
+        $transformed = $transformer->transform([
+            'task.number' => 'due-date-task',
+            'task.description' => 'Imported task',
+            'task.due_date' => '2026-09-15',
+            'task.estimated_duration' => '7200',
+            'task.start_date' => '2026-01-01',
+            'task.start_time' => '09:00',
+            'task.end_date' => '2026-01-01',
+            'task.end_time' => '10:00',
+        ]);
+
+        $this->assertSame('2026-09-15', $transformed['due_date']);
+        $this->assertSame(7200, $transformed['estimated_duration']);
+    }
+
+    public function testTaskImportMapsDueDateAndEstimatedDuration(): void
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->forceDelete();
+
+        $clientName = str_replace('"', '""', $this->client->name);
+
+        $csv = <<<CSV
+User,Client,Task,Description,Due Date,Estimated Duration,Billable,Start date,Start time,End date,End time
+Jimmy,"{$clientName}",T-IMPORT,Imported task,2026-09-15,7200,No,2026-01-01,09:00,2026-01-01,10:00
+CSV;
+
+        $hash = Str::random(32);
+        $column_map = [
+            0 => 'task.user_id',
+            1 => 'client.name',
+            2 => 'task.number',
+            3 => 'task.description',
+            4 => 'task.due_date',
+            5 => 'task.estimated_duration',
+            6 => 'task.billable',
+            7 => 'task.start_date',
+            8 => 'task.start_time',
+            9 => 'task.end_date',
+            10 => 'task.end_time',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['task' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put($hash.'-task', base64_encode($csv), 360);
+
+        $csv_importer = new Csv($data, $this->company);
+        $csv_importer->import('task');
+
+        $task = Task::query()
+            ->where('company_id', $this->company->id)
+            ->where('number', 'T-IMPORT')
+            ->first();
+
+        $this->assertNotNull($task);
+        $this->assertSame('2026-09-15', $task->due_date);
+        $this->assertSame(7200, $task->estimated_duration);
     }
 
     public function testTaskImportWithGroupedTaskNumbers()
@@ -99,7 +189,7 @@ class TaskImportTest extends TestCase
         $time_log = json_decode($task->time_log);
 
         foreach ($time_log as $log) {
-            $this->assertTrue($log[3]);
+            $this->assertFalse($log[3]);
         }
 
         // x1233 spans two CSV rows (Bob 13:57:17→14:39:11 and James 14:29:25→16:31:24)
@@ -117,7 +207,7 @@ class TaskImportTest extends TestCase
             $messages = $entry['error'] ?? [];
             $messages = is_array($messages) ? $messages : [$messages];
             foreach ($messages as $msg) {
-                if (str_contains($msg, 'overlapping')) {
+                if (str_contains(strtolower($msg), 'overlap')) {
                     $hasOverlapError = true;
                     break 2;
                 }

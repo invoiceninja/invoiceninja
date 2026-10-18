@@ -109,9 +109,103 @@ class PdfmockTest extends TestCase
         $pdf_service->builder = $pdf_builder;
         $this->assertNotNull($pdf_config);
 
+        $line_items = $mock->line_items;
+        $line_items[0]->tags = 'Retail,Priority Customer';
+        $transformed_items = $pdf_builder->transformLineItems($line_items);
+
+        $this->assertSame('Retail · Priority Customer', $transformed_items[0]['$product.tags']);
+
         $html = $pdf_service->getHtml();
 
         $this->assertNotNull($html);
+    }
+
+    public function testTagVariablesHaveMatchingLabelsInLengthOrder(): void
+    {
+        $data = [
+            'settings' => CompanySettings::defaults(),
+            'settings_type' => 'company',
+            'entity_type' => 'invoice',
+        ];
+
+        $company = Company::factory()->make();
+        $account = Account::factory()->make();
+        $company->setRelation('account', $account);
+
+        $variables = (new PdfMock($data, $company))->build()->getStubVariables();
+        $expectedTagValueKeys = [
+            '$purchase_order.tags',
+            '$product.tags',
+            '$invoice.tags',
+            '$company.tags',
+            '$client.tags',
+            '$vendor.tags',
+            '$credit.tags',
+            '$quote.tags',
+            '$task.tags',
+        ];
+        $expectedTagLabelKeys = array_map(
+            fn (string $key): string => "{$key}_label",
+            $expectedTagValueKeys,
+        );
+        $tagLabels = array_intersect_key($variables['labels'], array_flip($expectedTagLabelKeys));
+        $tagLabelKeyLengths = array_map(strlen(...), array_keys($tagLabels));
+        $sortedTagLabelKeyLengths = $tagLabelKeyLengths;
+
+        rsort($sortedTagLabelKeyLengths);
+
+        $this->assertSame(
+            $expectedTagValueKeys,
+            array_keys(array_intersect_key($variables['values'], array_flip($expectedTagValueKeys))),
+        );
+        $this->assertSame($expectedTagLabelKeys, array_keys($tagLabels));
+        $this->assertSame($sortedTagLabelKeyLengths, $tagLabelKeyLengths);
+        $this->assertSame(
+            array_fill_keys($expectedTagLabelKeys, ctrans('texts.tags')),
+            $tagLabels,
+        );
+        $this->assertArrayNotHasKey('$tasks.tags_label', $variables['labels']);
+    }
+
+    public function testPurchaseOrderTagVariablesHaveMatchingLabelsInLengthOrder(): void
+    {
+        $data = [
+            'settings' => CompanySettings::defaults(),
+            'settings_type' => 'company',
+            'entity_type' => 'purchase_order',
+        ];
+
+        $company = Company::factory()->make();
+        $account = Account::factory()->make();
+        $company->setRelation('account', $account);
+
+        $pdfMock = (new PdfMock($data, $company))->build();
+        $pdfService = (new \ReflectionProperty(PdfMock::class, 'pdf_service'))->getValue($pdfMock);
+        $variables = $pdfService->html_variables;
+        $expectedTagValueKeys = [
+            '$purchase_order.tags',
+            '$vendor.tags',
+        ];
+        $expectedTagLabelKeys = array_map(
+            fn (string $key): string => "{$key}_label",
+            $expectedTagValueKeys,
+        );
+        $tagLabels = array_intersect_key($variables['labels'], array_flip($expectedTagLabelKeys));
+        $tagLabelKeyLengths = array_map(strlen(...), array_keys($tagLabels));
+        $sortedTagLabelKeyLengths = $tagLabelKeyLengths;
+
+        rsort($sortedTagLabelKeyLengths);
+
+        $this->assertSame(
+            $expectedTagValueKeys,
+            array_keys(array_intersect_key($variables['values'], array_flip($expectedTagValueKeys))),
+        );
+        $this->assertSame($expectedTagLabelKeys, array_keys($tagLabels));
+        $this->assertSame($sortedTagLabelKeyLengths, $tagLabelKeyLengths);
+        $this->assertSame(
+            array_fill_keys($expectedTagLabelKeys, ctrans('texts.tags')),
+            $tagLabels,
+        );
     }
 
 }

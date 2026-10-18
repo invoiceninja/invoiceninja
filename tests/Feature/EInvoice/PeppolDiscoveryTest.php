@@ -92,7 +92,7 @@ class PeppolDiscoveryTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $this->company->id,
             'is_primary' => 1,
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
         ]);
 
         return $client->fresh();
@@ -128,6 +128,39 @@ class PeppolDiscoveryTest extends TestCase
         }
 
         return $meta;
+    }
+
+    private function runDiscoverOnPeppolWithMock(Client $client, callable $discoveryCallback): bool
+    {
+        $client->load('country', 'company');
+
+        $this->invoice->client_id = $client->id;
+        $this->invoice->company_id = $this->company->id;
+        $this->invoice->save();
+        $this->invoice->setRelation('client', $client);
+        $this->invoice->setRelation('company', $this->company);
+
+        $proxyMock = $this->createMock(StorecoveProxy::class);
+        $proxyMock->method('discovery')->willReturnCallback($discoveryCallback);
+        $proxyMock->method('setCompany')->willReturnSelf();
+
+        $resolver = new RoutingResolver($this->invoice, $proxyMock, new StorecoveRouter());
+
+        return $resolver->discoverOnPeppol();
+    }
+
+    public function testDiscoverOnPeppolIsFalseWhenSmpLookupFailsDespiteConfigFallback(): void
+    {
+        $client = $this->makeClient(276, 'business', ['vat_number' => 'DE123456789']);
+
+        $this->assertFalse($this->runDiscoverOnPeppolWithMock($client, fn () => false));
+    }
+
+    public function testDiscoverOnPeppolIsTrueWhenSmpLookupSucceeds(): void
+    {
+        $client = $this->makeClient(276, 'business', ['vat_number' => 'DE123456789']);
+
+        $this->assertTrue($this->runDiscoverOnPeppolWithMock($client, fn () => true));
     }
 
     // ──────────────────────────────────────────────────────
@@ -666,6 +699,24 @@ class PeppolDiscoveryTest extends TestCase
     // IT B2B/B2G: Codice Destinatario (CUUO) + Partita IVA for SDI
     // ──────────────────────────────────────────────────────
 
+    public function testFiBusinessUsesOpidAndOvtForFinvoiceRouting(): void
+    {
+        $client = $this->makeClient($this->countryId('FI'), 'business', [
+            'vat_number' => 'FI09824102',
+            'id_number' => '003709824102',
+            'routing_id' => '003708599126',
+        ]);
+
+        $meta = $this->runMutatorWithMock($client, fn () => false);
+
+        $identifiers = $meta['routing']['eIdentifiers'] ?? [];
+        $this->assertCount(2, $identifiers);
+        $this->assertEquals('FI:OPID', $identifiers[0]['scheme']);
+        $this->assertEquals('003708599126', $identifiers[0]['id']);
+        $this->assertEquals('FI:OVT', $identifiers[1]['scheme']);
+        $this->assertEquals('003709824102', $identifiers[1]['id']);
+    }
+
     public function testItBusinessUsesRoutingIdForCuuo(): void
     {
         $client = $this->makeClient(380, 'business', [
@@ -711,7 +762,7 @@ class PeppolDiscoveryTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $itCompany->id,
             'is_primary' => 1,
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
         ]);
 
         $client = $client->fresh(['country']);
@@ -749,7 +800,7 @@ class PeppolDiscoveryTest extends TestCase
         $this->assertEquals('IT:CF', $meta['routing']['eIdentifiers'][0]['scheme']);
         $this->assertEquals('RSSMRA85M01H501Z', $meta['routing']['eIdentifiers'][0]['id']);
         $this->assertArrayHasKey('emails', $meta['routing']);
-        $this->assertContains('test@example.com', $meta['routing']['emails']);
+        $this->assertContains('test@gmail.com', $meta['routing']['emails']);
     }
 
     // ──────────────────────────────────────────────────────

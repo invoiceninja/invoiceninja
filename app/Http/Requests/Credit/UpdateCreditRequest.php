@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Credit;
 
 use App\Http\Requests\Request;
+use App\Models\Credit;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
@@ -24,6 +25,9 @@ class UpdateCreditRequest extends Request
     use MakesHash;
     use CleanLineItems;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Credit::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -86,7 +90,7 @@ class UpdateCreditRequest extends Request
 
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidCreditScheme()];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function withValidator($validator) {}

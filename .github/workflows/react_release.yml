@@ -1,12 +1,50 @@
 on:
   release:
     types: [released]
+  workflow_dispatch:
 
 name: React Release
 
 jobs:
+  check-dockerfiles-token:
+    name: Check Dockerfiles Token
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe DOCKERFILES_RELEASE_TOKEN
+        env:
+          GH_TOKEN: ${{ secrets.DOCKERFILES_RELEASE_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          echo "=== Identity ==="
+          gh api user --jq '"login=\(.login) type=\(.type) id=\(.id)"'
+
+          echo "=== Token scopes ==="
+          gh api -i user | tr -d '\r' | grep -iE '^(x-oauth-scopes|x-accepted-oauth-scopes|github-authentication-token-expiration):' || echo "No classic OAuth scope headers (likely a fine-grained token)"
+
+          echo "=== dockerfiles permissions ==="
+          gh api repos/invoiceninja/dockerfiles --jq '{full_name, private, permissions}'
+
+          echo "=== Can list dockerfiles releases ==="
+          gh release list --repo invoiceninja/dockerfiles --limit 3
+
+          echo "=== Can read branch heads used as tag targets ==="
+          gh api repos/invoiceninja/dockerfiles/git/ref/heads/master --jq '"master=\(.object.sha)"'
+          gh api repos/invoiceninja/dockerfiles/git/ref/heads/octane --jq '"octane=\(.object.sha)"'
+          gh api repos/invoiceninja/dockerfiles/git/ref/heads/debian --jq '"debian=\(.object.sha)"'
+
+          PUSH=$(gh api repos/invoiceninja/dockerfiles --jq '.permissions.push')
+          if [[ "${PUSH}" != "true" ]]; then
+            echo "DOCKERFILES_RELEASE_TOKEN cannot push to invoiceninja/dockerfiles; release creation will fail"
+            exit 1
+          fi
+
+          echo "DOCKERFILES_RELEASE_TOKEN can push to invoiceninja/dockerfiles and is usable by gh"
+
   build:
     name: Upload Release Asset
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Setup PHP
@@ -80,3 +118,73 @@ jobs:
           files: |
             /home/runner/work/invoiceninja/invoiceninja.tar
             /home/runner/work/invoiceninja/invoiceninja.tar.gz
+
+  tag-dockerfiles:
+    name: Tag Dockerfiles Releases
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Confirm release tarball is available
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/invoiceninja.tar.gz"
+          for i in $(seq 1 18); do
+            HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "$URL")
+            if [[ "${HTTP_CODE}" == "200" ]]; then
+              echo "Release asset is available: ${URL}"
+              exit 0
+            fi
+            echo "Waiting for ${URL} (HTTP ${HTTP_CODE}), attempt ${i}/18"
+            sleep 10
+          done
+          echo "Timed out waiting for ${URL}"
+          exit 1
+
+      - name: Create dockerfiles releases
+        env:
+          GH_TOKEN: ${{ secrets.DOCKERFILES_RELEASE_TOKEN }}
+          SOURCE_TAG: ${{ github.ref_name }}
+          SOURCE_URL: ${{ github.event.release.html_url }}
+        run: |
+          set -euo pipefail
+
+          VERSION="${SOURCE_TAG#v}"
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Skipping dockerfiles tags for non-semver tag ${SOURCE_TAG}"
+            exit 0
+          fi
+
+          NOTES="Invoice Ninja ${SOURCE_TAG}: ${SOURCE_URL}"
+          REPO="invoiceninja/dockerfiles"
+          FAILED=0
+
+          create_release() {
+            local tag="$1"
+            local target="$2"
+            local latest_flag="$3"
+
+            if gh release view "${tag}" --repo "${REPO}" >/dev/null 2>&1; then
+              echo "Release ${tag} already exists on ${REPO}, skipping"
+              return 0
+            fi
+
+            echo "Creating ${tag} on ${REPO} (${target})"
+            if ! gh release create "${tag}" \
+              --repo "${REPO}" \
+              --target "${target}" \
+              --title "${tag}" \
+              --notes "${NOTES}" \
+              --generate-notes \
+              --latest="${latest_flag}"; then
+              echo "Failed to create ${tag}"
+              return 1
+            fi
+          }
+
+          create_release "${VERSION}" "master" "false" || FAILED=1
+          create_release "${VERSION}-o" "octane" "false" || FAILED=1
+          create_release "${VERSION}-d" "debian" "true" || FAILED=1
+
+          exit "${FAILED}"

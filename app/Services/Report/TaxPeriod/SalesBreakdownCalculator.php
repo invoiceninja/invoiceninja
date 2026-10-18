@@ -19,6 +19,81 @@ use App\Utils\Number;
 final class SalesBreakdownCalculator
 {
     /**
+     * @return array{gross_sales:float,taxable_sales:float,exempt_sales:float,non_taxable_sales:float,zero_rated_sales:float}
+     */
+    public static function summaryTotals(Invoice $invoice, float $multiplier = 1.0): array
+    {
+        $line_items = is_array($invoice->line_items)
+            ? $invoice->line_items
+            : (array) $invoice->line_items;
+        $sub_total = array_sum(array_map(
+            fn (object $item): float => (float) ($item->line_total ?? 0),
+            $line_items,
+        ));
+        $totals = [
+            'gross_sales' => 0.0,
+            'taxable_sales' => 0.0,
+            'exempt_sales' => 0.0,
+            'non_taxable_sales' => 0.0,
+            'zero_rated_sales' => 0.0,
+        ];
+        $uses_inclusive = (bool) ($invoice->uses_inclusive_taxes ?? false);
+        $rate_format_entity = $invoice->client ?? $invoice->company;
+
+        foreach ($line_items as $item) {
+            $line_total = (float) ($item->line_total ?? 0);
+
+            if ($line_total == 0.0) {
+                continue;
+            }
+
+            $line_amount = self::discountedAmount(
+                $line_total,
+                (float) ($invoice->discount ?? 0),
+                (bool) ($invoice->is_amount_discount ?? false),
+                $sub_total,
+            );
+            $components = self::taxComponents($item, $line_amount, $uses_inclusive, $rate_format_entity);
+            $tax_total = array_sum(array_column($components, 'tax_amount'));
+            $gross_amount = $uses_inclusive ? $line_amount : $line_amount + $tax_total;
+            $treatments = $components === []
+                ? [self::untaxedTreatment($item)]
+                : array_unique(array_map(
+                    fn (array $component): string => self::taxedTreatment($item, (float) $component['tax_rate']),
+                    $components,
+                ));
+            $treatment = in_array('taxable', $treatments, true) ? 'taxable' : reset($treatments);
+            $key = match ($treatment) {
+                'taxable' => 'taxable_sales',
+                'exempt' => 'exempt_sales',
+                'zero_rated' => 'zero_rated_sales',
+                default => 'non_taxable_sales',
+            };
+            $totals['gross_sales'] += $gross_amount;
+            $totals[$key] += $gross_amount;
+        }
+
+        $target_gross = (float) $invoice->amount;
+        $residual = $target_gross - $totals['gross_sales'];
+
+        if (abs($residual) > 0.0001) {
+            $residual_key = (float) $invoice->total_taxes > 0
+                ? 'taxable_sales'
+                : collect(['exempt_sales', 'non_taxable_sales', 'zero_rated_sales'])
+                    ->sortByDesc(fn (string $key): float => $totals[$key])
+                    ->first();
+            $totals[$residual_key] += $residual;
+            $totals['gross_sales'] = $target_gross;
+        }
+
+        foreach ($totals as $key => $amount) {
+            $totals[$key] = round($amount * $multiplier, 2);
+        }
+
+        return $totals;
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     public static function calculate(Invoice $invoice, float $multiplier = 1.0): array
@@ -137,6 +212,14 @@ final class SalesBreakdownCalculator
     {
         $components = [];
 
+        $inclusive_split = $uses_inclusive
+            ? \App\Helpers\Invoice\InclusiveTax::backout($line_amount, [
+                (float) ($item->tax_rate1 ?? 0),
+                (float) ($item->tax_rate2 ?? 0),
+                (float) ($item->tax_rate3 ?? 0),
+            ], 2)
+            : null;
+
         for ($i = 1; $i <= 3; $i++) {
             $raw_tax_name = trim((string) ($item->{"tax_name{$i}"} ?? ''));
             $tax_rate = (float) ($item->{"tax_rate{$i}"} ?? 0);
@@ -145,8 +228,9 @@ final class SalesBreakdownCalculator
                 continue;
             }
 
+            // Tax-anchored additive split via the single source of truth.
             $tax_amount = $uses_inclusive
-                ? round($line_amount - ($line_amount / (1 + ($tax_rate / 100))), 2)
+                ? $inclusive_split['components'][$i - 1]
                 : round($line_amount * ($tax_rate / 100), 2);
 
             $components[] = [

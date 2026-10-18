@@ -21,6 +21,8 @@ use App\Models\Payment;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -94,6 +96,7 @@ class PaymentExport extends BaseExport
         }
 
         $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
+        $query = $this->addTagFilter($query);
         $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {
@@ -150,7 +153,7 @@ class PaymentExport extends BaseExport
 
     private function paymentReportRelations(): array
     {
-        $relations = ['client'];
+        $relations = ['client', 'tags'];
         $keys = $this->input['report_keys'];
 
         if (in_array('payment.user_id', $keys, true)) {
@@ -174,7 +177,16 @@ class PaymentExport extends BaseExport
                 $query->orderBy('created_at')->orderBy('id');
             };
 
-            $relations[] = 'paymentables.paymentable';
+            $relations['paymentables.paymentable'] = function (Relation $relation): void {
+                if (! $relation instanceof MorphTo) {
+                    return;
+                }
+
+                $relation->constrain([
+                    Invoice::class => fn($query) => $query->withTrashed(),
+                    Credit::class => fn($query) => $query->withTrashed(),
+                ]);
+            };
         }
 
         return $relations;
@@ -211,7 +223,18 @@ class PaymentExport extends BaseExport
 
         $query = $payment->paymentables()
             ->whereIn('paymentable_type', ['invoices', Credit::class])
-            ->with('paymentable');
+            ->with([
+                'paymentable' => function (Relation $relation): void {
+                    if (! $relation instanceof MorphTo) {
+                        return;
+                    }
+
+                    $relation->constrain([
+                        Invoice::class => fn($query) => $query->withTrashed(),
+                        Credit::class => fn($query) => $query->withTrashed(),
+                    ]);
+                },
+            ]);
 
         if (! ($this->input['include_deleted_applications'] ?? false)) {
             $query->whereNull('deleted_at');
@@ -232,7 +255,12 @@ class PaymentExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'payment' && array_key_exists($parts[1], $transformed_entity)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $payment);
+                continue;
+            }
+
+            if ($parts[0] === 'payment' && isset($parts[1], $transformed_entity[$parts[1]])) {
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
@@ -243,7 +271,16 @@ class PaymentExport extends BaseExport
         }
 
         $entity = $this->decorateAdvancedFields($payment, $entity);
-        return $this->convertFloats($entity);
+        return $this->convertFloats($entity, $this->fan_out ? ['payment' => $payment->id] : []);
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        $is_payment_column = $this->fan_out
+            && str_starts_with($column, 'payment.')
+            && ! in_array($column, self::APPLIED_INJECTED_KEYS, true);
+
+        return $is_payment_column ? 'payment' : null;
     }
 
     private function decorateAdvancedFields(Payment $payment, array $entity): array

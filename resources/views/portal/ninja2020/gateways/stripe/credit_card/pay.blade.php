@@ -53,28 +53,28 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-    <ul class="list-none">
+    <ul class="payment-method-list">
         @if(count($tokens) > 0)
             @foreach($tokens as $token)
-            <li>
-                <label class="block py-2 mr-4 cursor-pointer">
+            <li class="payment-method-item">
+            <label class="payment-method-label">
                     <input
                         type="radio"
                         data-token="{{ $token->token }}"
                         name="payment-type"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
                     <span class="ml-1">**** {{ $token->meta?->last4 }}</span>
                 </label>
             </li>
             @endforeach
         @endisset
 
-            <li>
-                <label class="block py-2 cursor-pointer">
+            <li class="payment-method-item">
+            <label class="payment-method-label">
                     <input
                         type="radio"
                         id="toggle-payment-with-credit-card"
-                        class="form-check-input text-indigo-600 rounded-full cursor-pointer"
+                        class="form-radio cursor-pointer"
                         name="payment-type"
                         checked/>
                     <span class="ml-1">{{ __('texts.new_card') }}</span>

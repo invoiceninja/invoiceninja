@@ -13,6 +13,7 @@
 namespace App\DataMapper;
 
 use App\Casts\InvoiceSyncCast;
+use App\Enum\InvoiceQbStatus;
 use Illuminate\Contracts\Database\Eloquent\Castable;
 
 /**
@@ -25,12 +26,16 @@ class InvoiceSync implements Castable
         public array $invitations = [],
         public bool $dn_completed = false,
         public string $dn_document_hashed_id = '',
+        public string $qb_status = '',
+        public string $qb_sync_token = '',
+        public string $qb_status_message = '',
     ) {}
+
     /**
-    * Get the name of the caster class to use when casting from / to this cast target.
-    *
-    * @param  array<string, mixed>  $arguments
-    */
+     * Get the name of the caster class to use when casting from / to this cast target.
+     *
+     * @param  array<string, mixed>  $arguments
+     */
     public static function castUsing(array $arguments): string
     {
         return InvoiceSyncCast::class;
@@ -43,7 +48,68 @@ class InvoiceSync implements Castable
             invitations: $data['invitations'] ?? [],
             dn_completed: $data['dn_completed'] ?? false,
             dn_document_hashed_id: $data['dn_document_hashed_id'] ?? '',
+            qb_status: $data['qb_status'] ?? '',
+            qb_sync_token: $data['qb_sync_token'] ?? '',
+            qb_status_message: $data['qb_status_message'] ?? '',
         );
+    }
+
+    public function status(): InvoiceQbStatus
+    {
+        return InvoiceQbStatus::tryFrom($this->qb_status) ?? InvoiceQbStatus::Syncable;
+    }
+
+    public function isLinked(): bool
+    {
+        return $this->qb_id !== '';
+    }
+
+    public function markSynced(string $qb_id, string $sync_token = '', bool $clear_status_message = true): void
+    {
+        $this->qb_id = $qb_id;
+        $this->qb_status = InvoiceQbStatus::Synced->value;
+        $this->qb_sync_token = $sync_token;
+
+        if ($clear_status_message) {
+            $this->qb_status_message = '';
+        }
+    }
+
+    public function markSyncable(bool $clear_status_message = true): void
+    {
+        $this->qb_status = InvoiceQbStatus::Syncable->value;
+
+        if ($clear_status_message) {
+            $this->qb_status_message = '';
+        }
+    }
+
+    public function markLinkable(string $message): void
+    {
+        $this->qb_status = InvoiceQbStatus::Linkable->value;
+        $this->qb_status_message = $message;
+    }
+
+    public function markAmountMismatch(string $message): void
+    {
+        $this->qb_status = InvoiceQbStatus::AmountMismatch->value;
+        $this->qb_status_message = $message;
+    }
+
+    public function markDataMismatch(string $message): void
+    {
+        $this->qb_status = InvoiceQbStatus::DataMismatch->value;
+        $this->qb_status_message = $message;
+    }
+
+    public function markPushFailure(string $message): void
+    {
+        $this->qb_status_message = $message;
+    }
+
+    public function clearStatusMessage(): void
+    {
+        $this->qb_status_message = '';
     }
 
     /**

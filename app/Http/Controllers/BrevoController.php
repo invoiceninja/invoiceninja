@@ -184,7 +184,10 @@ class BrevoController extends BaseController
     {
         $input = $request->all();
 
-        if (!($request->has('token') && $request->get('token') == config('ninja.inbound_mailbox.inbound_webhook_token'))) {
+        $inbound_token = config('ninja.inbound_mailbox.inbound_webhook_token');
+        $provided_token = $request->query('token') ?? $request->input('token');
+
+        if (!filled($inbound_token) || !is_string($provided_token) || !\hash_equals((string) $inbound_token, $provided_token)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

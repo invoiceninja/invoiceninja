@@ -29,6 +29,7 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Events\Quote\QuoteReminderWasEmailed;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * App\Models\Quote
@@ -56,7 +57,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
- * @property array|null $line_items
+ * @property object|array|string $line_items
  * @property object|null $backup
  * @property QuoteSync|null $sync
  * @property string|null $footer
@@ -69,7 +70,7 @@ use App\Models\Traits\IndexableItems;
  * @property float $tax_rate2
  * @property string|null $tax_name3
  * @property float $tax_rate3
- * @property string $total_taxes
+ * @property float $total_taxes
  * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -124,6 +125,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
@@ -136,16 +138,8 @@ class Quote extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
     use Searchable;
+    use HasTags;
     Use IndexableItems;
-    /**
-     * Get the index name for the model.
-     *
-     * @return string
-     */
-    public function searchableAs(): string
-    {
-        return 'quotes';
-    }
 
     protected $presenter = QuotePresenter::class;
 
@@ -217,7 +211,19 @@ class Quote extends BaseModel
 
     public const STATUS_REJECTED = 5;
 
+    public const STATUS_CANCELLED = 6;
+
     public const STATUS_EXPIRED = -1;
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
+    {
+        return 'quotes';
+    }
 
     public function toSearchableArray(): array
     {
@@ -227,7 +233,7 @@ class Quote extends BaseModel
 
         return [
             'id' => $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.quote') . " " . ($this->number ?? '') . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'name' => ctrans('texts.quote') . " " . ($this->number ?? '') . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->client) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'user_id' => (string) $this->user_id,
             'assigned_user_id' => (string) $this->assigned_user_id,
@@ -243,6 +249,7 @@ class Quote extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
     }
@@ -264,11 +271,25 @@ class Quote extends BaseModel
 
     public function getStatusIdAttribute($value)
     {
-        if ($this->due_date && ! $this->is_deleted && $value == self::STATUS_SENT && Carbon::parse($this->due_date)->lte(now()->startOfDay())) {
+        if (! $this->is_deleted && $value == self::STATUS_SENT && $this->hasLapsedValidUntil()) {
             return self::STATUS_EXPIRED;
         }
 
         return $value;
+    }
+
+    /**
+     * Valid-until is inclusive of the due date. The quote expires the following day.
+     */
+    public function hasLapsedValidUntil(mixed $due_date = null): bool
+    {
+        $due = $due_date ?? $this->due_date;
+
+        if (! $due) {
+            return false;
+        }
+
+        return Carbon::parse($due)->addDay()->lte(now()->setTimezone($this->client->timezone()->name)->startOfDay());
     }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -312,6 +333,11 @@ class Quote extends BaseModel
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class)->withTrashed();
+    }
+
+    public function purchase_orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
     }
 
     public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -392,6 +418,8 @@ class Quote extends BaseModel
                 return '<h5><span class="badge badge-light">' . ctrans('texts.converted') . '</span></h5>';
             case self::STATUS_REJECTED:
                 return '<h5><span class="badge badge-danger">' . ctrans('texts.rejected') . '</span></h5>';
+            case self::STATUS_CANCELLED:
+                return '<h5><span class="badge badge-secondary">' . ctrans('texts.cancelled') . '</span></h5>';
             default:
                 return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
         }
@@ -412,6 +440,8 @@ class Quote extends BaseModel
                 return ctrans('texts.converted');
             case self::STATUS_REJECTED:
                 return ctrans('texts.rejected');
+            case self::STATUS_CANCELLED:
+                return ctrans('texts.cancelled');
             default:
                 return ctrans('texts.draft');
 
@@ -439,6 +469,11 @@ class Quote extends BaseModel
         }
 
         return false;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status_id === $this::STATUS_CANCELLED;
     }
 
     public function getValidUntilAttribute()
@@ -508,7 +543,7 @@ class Quote extends BaseModel
      */
     public function canRemind(): bool
     {
-        if (in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_APPROVED, self::STATUS_CONVERTED]) || $this->is_deleted) {
+        if (in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_APPROVED, self::STATUS_CONVERTED, self::STATUS_CANCELLED]) || $this->is_deleted) {
             return false;
         }
 

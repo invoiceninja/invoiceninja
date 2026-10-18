@@ -13,7 +13,10 @@
 namespace App\Livewire\BillingPortal;
 
 use App\Utils\Ninja;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Number;
+use App\Utils\Helpers;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use App\Models\Subscription;
@@ -21,11 +24,13 @@ use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\App;
+use Livewire\Attributes\Locked;
 
 class Summary extends Component
 {
     use MakesHash;
 
+    #[Locked]
     public string $subscription_id;
 
     public array $context;
@@ -44,6 +49,13 @@ class Summary extends Component
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($subscription->company->settings));
         App::setLocale($subscription->company->locale());
+
+        // Remounting must not publish an older bundle over the buyer's cart edits.
+        if (isset($this->context['bundle'])) {
+            return;
+        }
+
+        $notes_entity = auth()->guard('contact')->user()->client ?? $subscription->company;
 
         $bundle = $this->context['bundle'] ?? [
             'recurring_products' => [],
@@ -64,7 +76,7 @@ class Summary extends Component
             $bundle['recurring_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
             $bundle['recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
@@ -80,7 +92,7 @@ class Summary extends Component
             $bundle['one_time_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' =>  $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
             $bundle['one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
@@ -96,7 +108,7 @@ class Summary extends Component
             $bundle['optional_recurring_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
             $bundle['optional_recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
@@ -112,7 +124,7 @@ class Summary extends Component
             $bundle['optional_one_time_products'][$product->hashed_id] = [
                 'product' => $product,
                 'quantity' => $default_quantity,
-                'notes' => $product->markdownNotes(),
+                'notes' => $product->markdownNotes($notes_entity),
             ];
 
 
@@ -180,17 +192,7 @@ class Summary extends Component
     #[Computed]
     public function discount(): float
     {
-        if (!isset($this->context['valid_coupon'])
-            || $this->context['valid_coupon'] != $this->subscription()->promo_code) {
-            return 0.0;
-        }
-
-        $subscription = $this->subscription();
-        $discount = $subscription->promo_discount;
-
-        return $subscription->is_amount_discount
-            ? $discount
-            : ($this->calculateSubtotal() * $discount / 100);
+        return $this->quote()->getTotalDiscount();
     }
 
     /**
@@ -200,8 +202,8 @@ class Summary extends Component
     public function subtotal(): string
     {
         return Number::formatMoney(
-            $this->calculateSubtotal(),
-            $this->subscription()->company
+            $this->quote()->getSubTotal(),
+            auth()->guard('contact')->user()->client ?? $this->subscription()->company
         );
     }
 
@@ -212,8 +214,20 @@ class Summary extends Component
     public function total(): string
     {
         return Number::formatMoney(
-            $this->calculateSubtotal() - $this->discount(),
-            $this->subscription()->company
+            $this->quote()->getTotal(),
+            auth()->guard('contact')->user()->client ?? $this->subscription()->company
+        );
+    }
+
+    #[Computed]
+    public function quote(): InvoiceSum|InvoiceSumInclusive
+    {
+        $calculator = $this->subscription()->calc();
+
+        return $calculator->preview(
+            $calculator->buildItems(['bundle' => $this->context['bundle'] ?? []]),
+            auth()->guard('contact')->user()?->client,
+            $calculator->hasValidCoupon($this->context),
         );
     }
 
@@ -225,10 +239,12 @@ class Summary extends Component
 
         $products = [];
 
+        $notes_entity = auth()->guard('contact')->user()->client ?? $this->subscription()->company;
+
         foreach ($this->context['bundle']['recurring_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription()->frequency_id),
@@ -238,7 +254,7 @@ class Summary extends Component
         foreach ($this->context['bundle']['optional_recurring_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company) . ' / ' . RecurringInvoice::frequencyForKey($this->subscription()->frequency_id),
@@ -248,7 +264,7 @@ class Summary extends Component
         foreach ($this->context['bundle']['one_time_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company),
@@ -258,14 +274,12 @@ class Summary extends Component
         foreach ($this->context['bundle']['optional_one_time_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],
-                'notes' => strip_tags(\Illuminate\Support\Str::markdown($item['product']['notes'] ?? '')),
+                'notes' => strip_tags(\Illuminate\Support\Str::markdown(Helpers::processReservedKeywords($item['product']['notes'] ?? '', $notes_entity) ?? '')),
                 'quantity' => $item['quantity'],
                 'total_raw' => $item['product']['price'] * $item['quantity'],
                 'total' => Number::formatMoney($item['product']['price'] * $item['quantity'], $this->subscription()->company),
             ];
         }
-
-        $this->dispatch('purchase.context', property: 'products', value: $products);
 
         return $products;
     }

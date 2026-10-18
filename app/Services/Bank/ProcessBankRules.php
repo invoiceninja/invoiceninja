@@ -46,6 +46,17 @@ class ProcessBankRules extends AbstractService
 
     public function run()
     {
+
+        if($this->bank_transaction->status_id != BankTransaction::STATUS_UNMATCHED ||
+        !empty($this->bank_transaction->expense_id) ||
+        !empty($this->bank_transaction->payment_id) ||
+        !empty($this->bank_transaction->invoice_ids) ||
+        $this->bank_transaction->bank_integration->is_deleted ||
+        $this->bank_transaction->bank_integration->trashed()
+        ) {
+            return;
+        }
+
         if ($this->bank_transaction->base_type == 'DEBIT') {
             $this->matchDebit();
         } else {

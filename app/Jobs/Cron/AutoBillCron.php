@@ -14,6 +14,8 @@ namespace App\Jobs\Cron;
 
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Services\Invoice\AutoBillInvoice;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -43,7 +45,7 @@ class AutoBillCron
         set_time_limit(0);
 
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
-        info('Performing Autobilling ' . Carbon::now()->format('Y-m-d h:i:s'));
+        nlog('Performing Autobilling ' . Carbon::now()->format('Y-m-d h:i:s'));
 
         Auth::logout();
 
@@ -54,7 +56,7 @@ class AutoBillCron
                                                 ->where('balance', '>', 0)
                                                 ->whereDate('partial_due_date', '<=', now())
                                                 ->where('auto_bill_enabled', true)
-                                                ->where('auto_bill_tries', '<', 3)
+                                                ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
                                                 ->whereHas('company', function ($query) {
                                                     $query->where('is_disabled', 0);
                                                 })
@@ -71,20 +73,7 @@ class AutoBillCron
                 sleep(1);
             });
 
-            $auto_bill_invoices = Invoice::query()
-                                        ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                                        ->where('balance', '>', 0)
-                                        ->whereDate('due_date', '<=', now())
-                                        ->where('auto_bill_enabled', true)
-                                        ->where('auto_bill_tries', '<', 3)
-                                        ->whereHas('company', function ($query) {
-                                            $query->where('is_disabled', 0);
-                                        })
-                                        ->whereHas('client', function ($query) {
-                                            $query->has('gateway_tokens', '>', 0);
-                                        })
-                                        ->where('is_deleted', false)
-                                        ->orderBy('id', 'DESC');
+            $auto_bill_invoices = self::autoBillableInvoicesQuery();
 
             nlog($auto_bill_invoices->count() . ' full invoices to auto bill');
 
@@ -104,7 +93,7 @@ class AutoBillCron
                                             ->whereDate('partial_due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
-                                            ->where('auto_bill_tries', '<', 3)
+                                            ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
                                             ->whereHas('company', function ($query) {
@@ -124,20 +113,7 @@ class AutoBillCron
                     sleep(1);
                 });
 
-                $auto_bill_invoices = Invoice::query()
-                                            ->whereDate('due_date', '<=', now())
-                                            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                                            ->where('auto_bill_enabled', true)
-                                            ->where('auto_bill_tries', '<', 3)
-                                            ->where('balance', '>', 0)
-                                            ->where('is_deleted', false)
-                                            ->whereHas('company', function ($query) {
-                                                $query->where('is_disabled', 0);
-                                            })
-                                            ->whereHas('client', function ($query) {
-                                                $query->has('gateway_tokens', '>=', 1);
-                                            })
-                                            ->orderBy('id', 'DESC');
+                $auto_bill_invoices = self::autoBillableInvoicesQuery();
 
                 nlog($auto_bill_invoices->count() . " full invoices to auto bill db = {$db}");
 
@@ -151,5 +127,28 @@ class AutoBillCron
 
             nlog('Auto Bill - fine');
         }
+    }
+
+    /**
+     * Invoices eligible for auto-bill on or after the due date.
+     *
+     * @return Builder<Invoice>
+     */
+    public static function autoBillableInvoicesQuery(): Builder
+    {
+        return Invoice::query()
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+            ->where('balance', '>', 0)
+            ->whereDate('due_date', '<=', now())
+            ->where('auto_bill_enabled', true)
+            ->where('auto_bill_tries', '<', AutoBillInvoice::MAX_TRIES)
+            ->whereHas('company', function ($query) {
+                $query->where('is_disabled', 0);
+            })
+            ->whereHas('client', function ($query) {
+                $query->has('gateway_tokens', '>', 0);
+            })
+            ->where('is_deleted', false)
+            ->orderBy('id', 'DESC');
     }
 }

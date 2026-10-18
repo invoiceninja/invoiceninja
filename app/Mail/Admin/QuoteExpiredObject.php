@@ -22,7 +22,7 @@ use stdClass;
 
 class QuoteExpiredObject
 {
-    public function __construct(public Quote $quote, public Company $company, public bool $use_react_url) {}
+    public function __construct(public Quote $quote, public Company $company) {}
 
     public function build()
     {
@@ -83,8 +83,8 @@ class QuoteExpiredObject
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->quote->invitations->first()->getAdminLink($this->use_react_url),
-            'button' => $this->use_react_url ? ctrans('texts.view_quote') : ctrans('texts.login'),
+            'url' => $this->quote->invitations->first()->getAdminLink(),
+            'button' => ctrans('texts.view_quote'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,

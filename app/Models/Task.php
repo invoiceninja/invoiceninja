@@ -45,6 +45,8 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  * @property string|null $custom_value3
  * @property string|null $custom_value4
  * @property int|null $duration
+ * @property string|null $due_date
+ * @property int|null $estimated_duration
  * @property string|null $description
  * @property bool $is_deleted
  * @property bool $is_running
@@ -117,6 +119,8 @@ class Task extends BaseModel
         'status_order',
         'hash',
         'meta',
+        'due_date',
+        'estimated_duration',
     ];
 
     protected $casts = [

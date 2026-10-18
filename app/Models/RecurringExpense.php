@@ -13,6 +13,7 @@
 namespace App\Models;
 
 use App\Services\Recurring\RecurringService;
+use App\Models\Traits\HasTags;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -141,12 +142,14 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class RecurringExpense extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
+    use HasTags;
 
     protected $fillable = [
         'client_id',

@@ -310,15 +310,24 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function auth(): string
     {
-        try {
-            $this->init()->generateAuthHeaders() && strlen($this->company_gateway->getConfigField('integratorId')) > 2;
-            return 'ok';
-        } catch (\Exception $e) {
+        $username = trim((string) $this->company_gateway->getConfigField('username'));
+        $password = trim((string) $this->company_gateway->getConfigField('password'));
+        $integratorId = trim((string) $this->company_gateway->getConfigField('integratorId'));
 
+        if ($username === '' || $password === '' || $integratorId === '') {
+            return 'error';
         }
 
-        return 'error';
+        try {
+            $response = $this->gatewayRequest('/v1/customer/export', [
+                'integrator_id' => $integratorId,
+                'customer_id' => 'invoice_ninja_auth_check',
+            ]);
 
+            return $response && ($response->success ?? false) === true ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     public function importCustomers()

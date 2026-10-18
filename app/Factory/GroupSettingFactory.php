@@ -23,6 +23,7 @@ class GroupSettingFactory
         $settings->entity = Client::class;
 
         $gs = new GroupSetting();
+        $gs->id = 0;
         $gs->name = '';
         $gs->company_id = $company_id;
         $gs->user_id = $user_id;

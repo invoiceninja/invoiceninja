@@ -36,6 +36,8 @@ class ProductMap
             16 => 'product.in_stock_quantity',
             17 => 'product.tax_category',
             18 => 'product.max_quantity',
+            19 => 'product.stock_notification',
+            20 => 'product.stock_notification_threshold',
         ];
     }
 
@@ -61,6 +63,8 @@ class ProductMap
             16 => 'texts.in_stock_quantity',
             17 => 'texts.tax_category',
             18 => 'texts.max_quantity',
+            19 => 'texts.stock_notifications',
+            20 => 'texts.notification_threshold',
         ];
     }
 }

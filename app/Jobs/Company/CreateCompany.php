@@ -93,6 +93,14 @@ class CreateCompany
 
             $defaults = CountryDefaults::get($country_id);
 
+            if(isset($defaults['enable_rappen_rounding'])){
+                $settings->enable_rappen_rounding = true;
+            }
+            
+            if ($defaults['date_format_id']) {
+                $settings->date_format_id = $defaults['date_format_id'];
+            }
+
             if ($defaults['currency_id']) {
                 $settings->currency_id = $defaults['currency_id'];
             }
@@ -115,6 +123,10 @@ class CreateCompany
                     $translations->{$key} = $value;
                 }
                 $settings->translations = $translations;
+            }
+
+            if(isset($defaults['first_month_of_year'])){
+                $company->first_month_of_year = $defaults['first_month_of_year'];
             }
 
             $company->enabled_tax_rates = $defaults['enabled_tax_rates'];

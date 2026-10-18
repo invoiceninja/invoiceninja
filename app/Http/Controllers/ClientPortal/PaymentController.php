@@ -75,7 +75,8 @@ class PaymentController extends Controller
         if ($invoice) {
             $backup = $invoice->backup;
             $url = $backup->redirect;
-            unset($backup->redirect);
+            $backup->redirect = null;
+            $invoice->backup = $backup;
             $invoice->saveQuietly();
             return redirect($url);
         }
@@ -207,7 +208,7 @@ class PaymentController extends Controller
 
         return $gateway
             ->driver($client)
-            ->setPaymentMethod($request->input('payment_method_id'))
+            ->setPaymentMethod($request->input('gateway_type_id') ?? $request->input('payment_method_id'))
             ->setPaymentHash($payment_hash)
             ->checkRequirements()
             ->processPaymentResponse($request);

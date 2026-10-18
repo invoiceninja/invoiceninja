@@ -4,6 +4,7 @@
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
             <select class="input w-full" id="province_code" required name="province_code">
+                <option value="">{{ ctrans('texts.select_option') }}</option>
                 @foreach($states as $code => $state)
                     <option value="{{ $code }}"  @selected(old('province_code', $province_code) == $code ) >{{ $state }}</option>
                 @endforeach

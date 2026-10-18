@@ -50,6 +50,7 @@ class UpdateDesignRequest extends Request
         return [
             'is_template' => 'sometimes|boolean',
             'entities' => 'sometimes|string|nullable',
+            'design.customCss' => 'sometimes|string|nullable',
         ];
     }
 

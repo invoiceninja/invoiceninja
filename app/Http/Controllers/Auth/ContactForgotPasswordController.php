@@ -123,7 +123,11 @@ class ContactForgotPasswordController extends Controller
 
         if ($contact) {
             /* Update all instances of the client */
-            $token = Str::random(60);
+            $expires_at = now()
+                ->addMinutes((int) config('auth.passwords.contacts.expire'))
+                ->timestamp;
+            $token = $expires_at . '.' . Str::random(49);
+
             ClientContact::where('email', $contact->email)
                 ->where('company_id', $contact->company_id)
                 ->update(['token' => $token]);

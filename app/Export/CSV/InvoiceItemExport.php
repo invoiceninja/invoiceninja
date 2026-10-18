@@ -71,7 +71,7 @@ class InvoiceItemExport extends BaseExport
 
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client', 'location')
+                        ->with('client', 'location', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -92,6 +92,8 @@ class InvoiceItemExport extends BaseExport
         if ($this->input['status'] ?? false) {
             $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
         }
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
@@ -212,9 +214,14 @@ class InvoiceItemExport extends BaseExport
 
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
-            $this->storage_array[] = $this->convertFloats($entity);
+            $this->storage_array[] = $this->convertFloats($entity, ['invoice' => $invoice->id]);
 
         }
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'invoice.') ? 'invoice' : null;
     }
 
     private function getTaxCategoryName($tax_id)
@@ -244,11 +251,16 @@ class InvoiceItemExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'item') {
+            if ($parts[0] == 'item') {
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $invoice);
+                continue;
+            }
+
+            if ($parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];

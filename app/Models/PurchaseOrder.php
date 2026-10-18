@@ -23,6 +23,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Services\PurchaseOrder\PurchaseOrderService;
 use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Models\Traits\HasTags;
 use App\Models\Traits\IndexableItems;
 /**
  * App\Models\PurchaseOrder
@@ -39,6 +40,7 @@ use App\Models\Traits\IndexableItems;
  * @property int|null $recurring_id
  * @property int|null $design_id
  * @property int|null $invoice_id
+ * @property int|null $quote_id
  * @property string|null $number
  * @property float $discount
  * @property bool $is_amount_discount
@@ -95,6 +97,7 @@ use App\Models\Traits\IndexableItems;
  * @property int|null $currency_id
  * @property int|null $location_id
  * @property int|null $invoice_id
+ * @property int|null $quote_id
  * @property object|null $tax_data
  * @property-read int|null $activities_count
  * @property \App\Models\User|null $assigned_user
@@ -104,6 +107,7 @@ use App\Models\Traits\IndexableItems;
  * @property \App\Models\Expense|null $expense
  * @property string $hashed_id
  * @property \App\Models\Invoice|null $invoice
+ * @property \App\Models\Quote|null $quote
  * @property \App\Models\Project|null $project
  * @property \App\Models\User $user
  * @property \App\Models\Vendor $vendor
@@ -126,9 +130,10 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel
@@ -136,6 +141,7 @@ class PurchaseOrder extends BaseModel
     use Filterable;
     use SoftDeletes;
     use Searchable;
+    use HasTags;
     use IndexableItems;
     /**
      * Get the index name for the model.
@@ -199,11 +205,12 @@ class PurchaseOrder extends BaseModel
         'custom_surcharge4',
         'design_id',
         'invoice_id',
+        'quote_id',
         'assigned_user_id',
         'exchange_rate',
-        'balance',
+        // 'balance',
         'partial',
-        'paid_to_date',
+        // 'paid_to_date',
         'vendor_id',
         'last_viewed',
         'currency_id',
@@ -237,7 +244,7 @@ class PurchaseOrder extends BaseModel
 
         return [
             'id' => $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $vendorName . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $vendorName . ' | ' . Number::formatMoney($this->amount, $this->vendor) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'user_id' => (string) $this->user_id,
             'assigned_user_id' => (string) $this->assigned_user_id,
@@ -253,6 +260,7 @@ class PurchaseOrder extends BaseModel
             'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
             'line_items' => $this->indexLineItems(),
         ];
 
@@ -378,6 +386,11 @@ class PurchaseOrder extends BaseModel
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function quote(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Quote::class);
     }
 
     /** @return PurchaseOrderService  */

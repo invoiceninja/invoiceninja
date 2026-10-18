@@ -57,7 +57,7 @@ class MultiPaymentDeleteTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => '11',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);

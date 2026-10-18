@@ -140,7 +140,7 @@ class UpdateOrCreateProduct implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info('update create failed with = ');
+        nlog('update create failed with = ');
         nlog($exception->getMessage());
     }
 }

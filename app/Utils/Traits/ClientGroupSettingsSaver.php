@@ -40,11 +40,26 @@ trait ClientGroupSettingsSaver
             return;
         }
 
-        $entity_settings = $this->settings;
+        $settings = (object) $settings;
+        $entity_settings = (object) $this->settings;
+
+        $account = $entity->company->account ?? null;
+
+        if ($account?->isFreeHostedClient()) {
+            foreach ($settings as $key => $value) {
+                if (! array_key_exists($key, CompanySettings::$free_plan_casts)) {
+                    unset($settings->{$key});
+                }
+            }
+        }
 
         //unset protected properties.
         foreach (CompanySettings::$protected_fields as $field) {
-            unset($settings[$field]);
+            unset($settings->{$field});
+        }
+
+        foreach (['translations', 'pdf_variables'] as $field) {
+            unset($settings->{$field}, $entity_settings->{$field});
         }
 
         $company_settings_stub = new CompanySettings();

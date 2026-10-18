@@ -12,7 +12,6 @@
 
 namespace App\Services\ClientPortal;
 
-use App\Exceptions\PaymentFailed;
 use App\Jobs\Invoice\InjectSignature;
 use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
@@ -94,11 +93,24 @@ class LivewireInstantPayment
         $payable_invoices = collect($this->data['payable_invoices']);
         $tokens = [];
 
-        $invoices = Invoice::query()
-            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
-            ->withTrashed()
-            ->get();
+        $invoices = Invoice::withTrashed()
+                            ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
+                            ->where('is_deleted', 0)
+                            ->get()
+                            ->map(function (Invoice $invoice): ?Invoice {
+                                $invoice = $invoice->service()
+                                    ->markSent()
+                                    ->save();
 
+                                return $invoice?->isPayable() ? $invoice : null;
+                            })
+                            ->filter()
+                            ->values();
+
+        if ($invoices->isEmpty()) {
+            return ['success' => false, 'error' => ctrans('texts.no_payable_invoices_selected')];
+        }
+        
         $client = $invoices->first()->client;
 
         /* pop non payable invoice from the $payable_invoices array */
@@ -130,6 +142,7 @@ class LivewireInstantPayment
             }
 
             $payable_invoice['additional_info'] = $additional_info;
+            $payable_invoice['recurring_invoice_id'] = $invoice->recurring_id;
 
             $payable_invoice_collection->push($payable_invoice);
         }
@@ -149,56 +162,19 @@ class LivewireInstantPayment
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
-        $starting_invoice_amount = $first_invoice->balance;
 
         $payment_hash_string = Str::random(32);
         
-        $raced_payment_hash = null;
+        $fee_totals = 0;
+        $fee_net = 0;
 
         if ($company_gateway) {
+            /** The invoice is not touched - the fee reaches it when the payment is confirmed. */
+            $fee = $first_invoice->service()->quoteGatewayFee($company_gateway, $payment_method_id, $invoice_totals);
 
-            $lock = Cache::lock("gateway-fee:{$first_invoice->company_id}:{$first_invoice->id}", 2);
-
-            if ($lock->get()) {
-
-                try{
-                    $first_invoice = $first_invoice->service()->addGatewayFee($company_gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
-                } finally {
-                    $lock->release();
-                }
-            }
-            else {
-                $lock->block(0.75);
-
-                try {
-                    $raced_payment_hash = PaymentHash::query()
-                        ->where('fee_invoice_id', $first_invoice->id)
-                        ->whereNull('payment_id')
-                        ->where('created_at', '>=', now()->subSeconds(2))
-                        ->orderBy('id', 'desc')
-                        ->first();
-            
-                    if (! $raced_payment_hash) {
-                        throw new PaymentFailed(ctrans('texts.processing_request'), 409);
-                    }
-            
-                    $payment_hash_string = $raced_payment_hash->hash;
-                    $first_invoice->refresh();
-
-                } finally {
-                    $lock->release();
-                }
-            }
+            $fee_totals = $fee['gross'];
+            $fee_net = $fee['net'];
         }
-
-        /**
-        * Gateway fee is calculated
-        * by adding it as a line item, and then subtract
-        * the starting and finishing amounts of the invoice.
-        */
-        // $fee_totals = $first_invoice->balance - $starting_invoice_amount;
-
-        $fee_totals = round(($first_invoice->balance - $starting_invoice_amount), $client->currency()->precision);
 
         if ($company_gateway) {
             $tokens = $client->gateway_tokens()
@@ -220,6 +196,7 @@ class LivewireInstantPayment
             'frequency_id' => $this->data['frequency_id'],
             'remaining_cycles' => $this->data['remaining_cycles'],
             'is_recurring' => $this->data['is_recurring'],
+            'fee_net' => $fee_net,
         ];
 
         if (isset($this->data['hash'])) {
@@ -230,18 +207,13 @@ class LivewireInstantPayment
             }
         }
 
-        /** Helper for race condition protection, early assignment! */
-        if (isset($raced_payment_hash)) {
-            $payment_hash = $raced_payment_hash;
-        } else {
-            $payment_hash = new PaymentHash();
-            $payment_hash->hash = $payment_hash_string;
-            $payment_hash->data = $hash_data;
-            $payment_hash->fee_total = $fee_totals;
-            $payment_hash->fee_invoice_id = $first_invoice->id;
+        $payment_hash = new PaymentHash();
+        $payment_hash->hash = $payment_hash_string;
+        $payment_hash->data = $hash_data;
+        $payment_hash->fee_total = $fee_totals;
+        $payment_hash->fee_invoice_id = $first_invoice->id;
 
-            $payment_hash->save();
-        }
+        $payment_hash->save();
 
         if ($this->is_credit_payment) {
             $amount_with_fee = max(0, (($invoice_totals + $fee_totals) - $credit_totals));
@@ -254,7 +226,7 @@ class LivewireInstantPayment
             'credit_totals' => $credit_totals,
             'invoice_totals' => $invoice_totals,
             'fee_total' => $fee_totals,
-            'amount_with_fee' => $amount_with_fee,
+            'amount_with_fee' => round($amount_with_fee, $client->currency()->precision),
         ];
 
         $data = [
@@ -264,7 +236,7 @@ class LivewireInstantPayment
             'invoices' => $payable_invoices,
             'tokens' => $tokens,
             'payment_method_id' => $payment_method_id,
-            'amount_with_fee' => $invoice_totals + $fee_totals,
+            'amount_with_fee' => round($invoice_totals + $fee_totals, $client->currency()->precision),
             'client' => $client,
             'pre_payment' => $this->data['pre_payment'],
             'is_recurring' => $this->data['is_recurring'],

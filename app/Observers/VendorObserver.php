@@ -29,6 +29,8 @@ class VendorObserver
     public function created(Vendor $vendor)
     {
         $subscriptions = Webhook::where('company_id', $vendor->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_CREATE_VENDOR)
                                     ->exists();
 
@@ -57,6 +59,8 @@ class VendorObserver
 
 
         $subscriptions = Webhook::where('company_id', $vendor->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -78,6 +82,8 @@ class VendorObserver
         }
 
         $subscriptions = Webhook::where('company_id', $vendor->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_VENDOR)
                                     ->exists();
 

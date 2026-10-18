@@ -95,16 +95,6 @@ class PreviewController extends BaseController
             'Server-Timing' => (string) (microtime(true) - $start),
         ]);
 
-        //@2025-06-25 - streamDownload forces attachment, which is not what we want. ->stream() is better.
-        // return response()->streamDownload(function () use ($pdf) {
-        //     echo $pdf;
-        // }, 'preview.pdf', [
-        //     'Content-Disposition' => 'inline',
-        //     'Content-Type' => 'application/pdf',
-        //     'Cache-Control:' => 'no-cache',
-        //     'Server-Timing' => (string)(microtime(true) - $start)
-        // ]);
-
     }
 
     /**
@@ -172,11 +162,11 @@ class PreviewController extends BaseController
             }
 
             if ($entity_obj->client) {
-                $entity_obj->load('client');
+                $entity_obj->load('client', 'client.tags');
                 $locale = $entity_obj->client->preferredLocale();
                 $settings = $entity_obj->client->getMergedSettings();
             } else {
-                $entity_obj->load('vendor');
+                $entity_obj->load('vendor', 'vendor.tags');
                 $locale = $entity_obj->vendor->preferredLocale();
                 $settings = $entity_obj->vendor->getMergedSettings();
             }
@@ -339,8 +329,9 @@ class PreviewController extends BaseController
         }
 
         $ps = new PdfService($invitation, 'product', [
-            'client' => $invitation->client ?? false,
-            'vendor' => $invitation->vendor ?? false,
+            // @todo Remove after next release - invitations have no client/vendor relation, these always resolve to false and are never read by the PDF pipeline
+            // 'client' => $invitation->client ?? false,
+            // 'vendor' => $invitation->vendor ?? false,
             "{$entity_string}s" => [$invitation->{$entity_string}],
         ]);
 

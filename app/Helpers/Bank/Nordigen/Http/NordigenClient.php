@@ -51,7 +51,7 @@ class NordigenClient
     /**
      * Get all requisitions with pagination
      */
-    public function getRequisitions(int $limit = 100, ?string $offset = null): Collection
+    public function getRequisitions(int $limit = 100, ?int $offset = null): Collection
     {
         $params = ['limit' => $limit];
         if ($offset) {
@@ -103,53 +103,19 @@ class NordigenClient
         return $response->successful();
     }
 
-    /**
-     * Get all requisitions with full pagination
-     */
     public function getAllRequisitions(): Collection
     {
         $allRequisitions = collect();
-        $offset = null;
+        $offset = 0;
         $limit = 100;
-        $maxIterations = 1000; // Safety limit to prevent infinite loops
-        $iteration = 0;
-
         do {
-            $iteration++;
-
-            // Safety check to prevent infinite loops
-            if ($iteration > $maxIterations) {
-                nlog("getAllRequisitions: Maximum iterations reached ({$maxIterations}), breaking to prevent infinite loop");
-                break;
-            }
-
             $requisitions = $this->getRequisitions($limit, $offset);
-
             if ($requisitions->isEmpty()) {
                 break;
             }
-
             $allRequisitions = $allRequisitions->merge($requisitions);
-
-            // Check if we got fewer results than requested (end of data)
-            if ($requisitions->count() < $limit) {
-                break;
-            }
-
-            // Use the last requisition's ID as the offset for cursor-based pagination
-            $lastRequisition = $requisitions->last();
-            $newOffset = $lastRequisition['id'] ?? null;
-
-            // Check if we're making progress (offset is changing)
-            if ($newOffset === $offset) {
-                nlog("getAllRequisitions: Offset not changing, likely stuck in loop. Breaking.");
-                break;
-            }
-
-            $offset = $newOffset;
-
-        } while ($offset);
-
+            $offset += $requisitions->count();
+        } while ($requisitions->count() === $limit);
         return $allRequisitions;
     }
 

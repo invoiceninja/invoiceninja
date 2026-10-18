@@ -44,8 +44,12 @@ class StripeWebhook implements ShouldQueue
         'source.chargeable',
         'charge.succeeded',
         'charge.failed',
+        'payment_intent.processing',
         'payment_intent.succeeded',
         'payment_intent.payment_failed',
+        'customer.source.updated',
+        'setup_intent.succeeded',
+        'setup_intent.setup_failed',
         'mandate.updated',
         'checkout.session.completed',
         'payment_method.automatically_updated',
@@ -66,10 +70,9 @@ class StripeWebhook implements ShouldQueue
         /** @var \App\Models\CompanyGateway $company_gateway **/
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
-        try{
+        try {
             $stripe = $company_gateway->driver()->init();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             return;
         }
 
@@ -90,6 +93,7 @@ class StripeWebhook implements ShouldQueue
             \Stripe\WebhookEndpoint::create([
                 'url' => $webhook_url,
                 'enabled_events' => $this->events,
+                'api_version' => $stripe->apiVersion()
             ], $stripe->stripe_connect_auth);
         }
     }

@@ -24,6 +24,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\QuickbooksService;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 
@@ -195,30 +196,7 @@ class PushToQuickbooks implements ShouldQueue
 
     private function extractReadableError(string $rawMessage): string
     {
-        if (preg_match('/with body:\s*\[(.+)\]/s', $rawMessage, $matches)) {
-            $body = trim($matches[1]);
-
-            try {
-                $xml = @simplexml_load_string($body);
-                if ($xml !== false && isset($xml->Fault->Error)) {
-                    $error = $xml->Fault->Error;
-                    $message = (string) ($error->Message ?? '');
-                    $detail = (string) ($error->Detail ?? '');
-
-                    if ($message && $detail) {
-                        return "{$message} - {$detail}";
-                    }
-
-                    return $message ?: $detail;
-                }
-            } catch (\Throwable $e) {
-                // XML parsing failed, fall through
-            }
-        }
-
-        $cleaned = str_replace('Request is not made successful. ', '', $rawMessage);
-
-        return mb_substr($cleaned, 0, 500);
+        return (new QuickbooksFaultParser())->humanMessage($rawMessage);
     }
 
     private function logActivityFailure($entity, string $errorMessage): void

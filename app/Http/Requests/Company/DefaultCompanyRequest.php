@@ -26,7 +26,8 @@ class DefaultCompanyRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->isAdmin() && $user->company()->id === $this->company->id;
+
     }
 
     public function rules()

@@ -13,6 +13,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Http\Requests\SelfUpdate\SelfUpdateRequest;
 use App\Models\Account;
 use App\Models\Company;
 use App\Utils\Ninja;
@@ -44,7 +45,7 @@ class SelfUpdateController extends BaseController
 
     public function __construct() {}
 
-    public function update()
+    public function update(SelfUpdateRequest $request)
     {
         set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));

@@ -197,12 +197,11 @@ class CreateAccountRequest extends Request
      */
     public function rules()
     {
-        
         return [
             'first_name'        => 'string|max:100',
-            'last_name'         =>  'string:max:100',
+            'last_name'         => 'string:max:100',
             'password'          => 'required|string|min:6|max:100',
-            'email'             =>  ['bail', 'required', 'max:255', 'email:rfc,dns', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()],
+            'email'             => ['bail', 'required', 'max:255', 'email:rfc,dns', 'indisposable:mx', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()],
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
             'utm_source'        => 'sometimes|nullable|string',
@@ -216,7 +215,10 @@ class CreateAccountRequest extends Request
 
     public function withValidator($validator)
     {
-
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
 
 

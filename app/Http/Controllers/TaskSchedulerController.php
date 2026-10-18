@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\SchedulerFactory;
 use App\Filters\SchedulerFilters;
+use App\Http\Requests\TaskScheduler\BulkTaskSchedulerRequest;
 use App\Http\Requests\TaskScheduler\CreateSchedulerRequest;
 use App\Http\Requests\TaskScheduler\DestroySchedulerRequest;
 use App\Http\Requests\TaskScheduler\ShowSchedulerRequest;
@@ -83,21 +84,17 @@ class TaskSchedulerController extends BaseController
         return $this->itemResponse($scheduler->fresh());
     }
 
-    public function bulk()
+    public function bulk(BulkTaskSchedulerRequest $request)
     {
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        if (!in_array($action, ['archive', 'restore', 'delete'])) {
-            return response()->json(['message' => 'Bulk action does not exist'], 400);
-        }
+        $ids = $request->input('ids');
 
-        $ids = request()->input('ids');
-
-        $task_schedulers = Scheduler::withTrashed()->company()->find($this->transformKeys($ids));
+        $task_schedulers = Scheduler::withTrashed()->company()->find($ids);
 
         $task_schedulers->each(function ($task_scheduler, $key) use ($action, $user) {
             if ($user->can('edit', $task_scheduler)) {
@@ -105,6 +102,6 @@ class TaskSchedulerController extends BaseController
             }
         });
 
-        return $this->listResponse(Scheduler::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Scheduler::withTrashed()->company()->whereIn('id', $ids));
     }
 }

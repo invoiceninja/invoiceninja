@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Transformers\CompanyTransformer;
 use App\DataMapper\Analytics\AccountDeleted;
-use App\Transformers\CompanyUserTransformer;
+use App\Transformers\AuthenticatedCompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
@@ -46,6 +46,7 @@ use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\Company\UploadCompanyRequest;
 use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
 
 /**
  * Class CompanyController.
@@ -262,7 +263,7 @@ class CompanyController extends BaseController
         $user_agent = request()->has('token_name') ? request()->input('token_name') : request()->server('HTTP_USER_AGENT');
 
         $company_token = (new CreateCompanyToken($company, auth()->user(), $user_agent))->handle();
-        $this->entity_transformer = CompanyUserTransformer::class;
+        $this->entity_transformer = AuthenticatedCompanyUserTransformer::class;
         $this->entity_type = CompanyUser::class;
 
         $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);
@@ -435,10 +436,17 @@ class CompanyController extends BaseController
             return $this->itemResponse($company->refresh());
         }
 
+        $originalSettings = clone $company->settings;
         $company = $this->company_repo->save($request->all(), $company);
 
+        // FRREPORTING::
+        // app(FranceScopeInvalidationRecorder::class)->recordCompanyConfigurationChange(
+        //     $company,
+        //     $originalSettings,
+        // );
+
         if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $company, $request->input('is_public', true));
+            $this->saveDocuments($request->input('documents'), $company, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         /** Explicitly handle the e-invoice certificate */
@@ -469,7 +477,8 @@ class CompanyController extends BaseController
                     ->where('balance', '>', 0)
                     ->cursor()
                     ->each(function ($invoice) {
-                        $invoice->service()->setReminder();
+                        nlog("updating {$invoice->number}");
+                        $invoice->service()->setReminder()->save();
                     });
 
 
@@ -477,11 +486,11 @@ class CompanyController extends BaseController
             RecurringInvoice::where('company_id', $company->id)
                             ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                             ->where('next_send_date', '>', now())
+                            ->whereNotNull('next_send_date_client')
                             ->cursor()
                             ->each(function ($recurring_invoice) {
 
-                                $offset = $recurring_invoice->client->timezone_offset();
-                                $recurring_invoice->next_send_date = \Carbon\Carbon::parse($recurring_invoice->next_send_date_client)->startOfDay()->addSeconds($offset);
+                                $recurring_invoice->next_send_date = $recurring_invoice->client->scheduledDateTimeUtc($recurring_invoice->next_send_date_client);
                                 $recurring_invoice->save();
 
                             });
@@ -683,7 +692,7 @@ class CompanyController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $company, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $company, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($company->fresh());

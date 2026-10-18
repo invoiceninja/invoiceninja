@@ -163,7 +163,7 @@ class CompanyTokenRotationTest extends TestCase
         $account = Account::factory()->create();
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => 'token-rotation-' . Str::uuid() . '@example.com',
+            'email' => 'token-rotation-' . Str::uuid() . '@gmail.com',
             'password' => Hash::make(self::PASSWORD),
         ]);
         $company = Company::factory()->create([

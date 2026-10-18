@@ -53,8 +53,13 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        /** @var \App\Models\CompanyGateway $company_gateway */
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
+
+        if (! $company_gateway) {
+            nlog("Checkout Setup Webhook: company gateway not found {$this->company_gateway_id}");
+
+            return;
+        }
 
         $this->checkout = $company_gateway->driver()->init();
 
@@ -69,15 +74,30 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         $workflows = $webhook->getWorkFlows();
 
-        $wf = collect($workflows['data'])->first(function ($workflow) {
-            return $workflow['name'] == $this->authentication_webhook_name;
-        });
+        if (! is_array($workflows)) {
+            nlog("Checkout Setup Webhook: unable to list workflows for company_gateway {$this->company_gateway_id}");
 
-        if ($wf) {
+            return;
+        }
+
+        if ($this->findAuthenticationWorkflow($workflows)) {
             return;
         }
 
         $this->createAuthenticationWorkflow();
+    }
+
+    /**
+     * @param array<string, mixed> $workflows
+     * @return array<string, mixed>|null
+     */
+    public function findAuthenticationWorkflow(array $workflows): ?array
+    {
+        $workflow = collect($workflows['data'] ?? [])->first(function ($workflow) {
+            return is_array($workflow) && ($workflow['name'] ?? null) === $this->authentication_webhook_name;
+        });
+
+        return is_array($workflow) ? $workflow : null;
     }
 
     /**

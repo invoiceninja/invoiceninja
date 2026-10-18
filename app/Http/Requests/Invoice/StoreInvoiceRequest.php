@@ -12,19 +12,23 @@
 
 namespace App\Http\Requests\Invoice;
 
+use App\Exceptions\DuplicatePaymentException;
 use App\Helpers\Cache\Atomic;
-use App\Models\Invoice;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Invoice\VerifactuAmountCheck;
+use App\Http\ValidationRules\Project\ValidProjectForClient;
+use App\Models\Invoice;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
-use App\Utils\Traits\CleanLineItems;
-use App\Http\ValidationRules\Project\ValidProjectForClient;
-use App\Http\ValidationRules\Invoice\VerifactuAmountCheck;
 
 class StoreInvoiceRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Invoice::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -83,9 +87,7 @@ class StoreInvoiceRequest extends Request
         $rules['custom_surcharge4'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
-        // $rules['modified_invoice_id'] = ['bail', 'sometimes', 'nullable', new CanGenerateModificationInvoice()];
-
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -94,14 +96,14 @@ class StoreInvoiceRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
-        $key = $this->ip() . "|INVOICE|" . $client_id . "|" . $user->company()->company_key;
-
-        if (!Atomic::set($key, 1, 2)) {
-            usleep(100000);
-        }
-
         $input = $this->all();
+        unset($input['lock_key']);
+
+        $lock_key = "|INVOICE|" . hash('sha256', json_encode($input)) . "|" . $user->company()->company_key;
+
+        if (!Atomic::set($lock_key, true, 1)) {
+            throw new DuplicatePaymentException('Duplicate request.', 429);
+        }
 
         $input = $this->decodePrimaryKeys($input);
 
@@ -171,7 +173,7 @@ class StoreInvoiceRequest extends Request
             $input['terms'] = str_replace("\n", "", $input['terms']);
         }
 
-        $input['lock_key'] = $key;
+        $input['lock_key'] = $lock_key;
 
         if (isset($input['sync'])) {
             unset($input['sync']);

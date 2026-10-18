@@ -289,7 +289,7 @@ class CreateUbl implements ShouldQueue
     public function taxAmount($taxable, $rate)
     {
         if ($this->invoice->uses_inclusive_taxes) {
-            return round($taxable - ($taxable / (1 + ($rate / 100))), 2);
+            return \App\Helpers\Invoice\InclusiveTax::backout((float) $taxable, [(float) $rate], 2)['tax'];
         } else {
             return round($taxable * ($rate / 100), 2);
         }

@@ -18,6 +18,7 @@ use App\Http\Requests\Twilio\Generate2faRequest;
 use App\Http\Requests\Twilio\GenerateSmsRequest;
 use App\Libraries\MultiDB;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Twilio\Rest\Client;
 
 class TwilioController extends BaseController
@@ -25,7 +26,6 @@ class TwilioController extends BaseController
     private array $invalid_codes = [
         '+23',
         '+21',
-        '+17152567760',
         '+93',
         '+85',
     ];
@@ -86,17 +86,38 @@ class TwilioController extends BaseController
         return response()->json(['message' => 'Code sent.'], 200);
     }
 
-    private function checkPhoneValidity($phone)
+    private function checkPhoneValidity(string $phone): bool
     {
-        foreach ($this->invalid_codes as $code) {
-
-            if (stripos($phone, $code) !== false) {
+        foreach ($this->getInvalidPhoneCodes() as $code) {
+            if (str_starts_with($phone, $code)) {
                 return false;
             }
-
-            return true;
-
         }
+
+        return true;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function getInvalidPhoneCodes(): array
+    {
+        $additional_codes = Cache::get('invalid_phone_codes', []);
+
+        if (! is_array($additional_codes)) {
+            return $this->invalid_codes;
+        }
+
+        $codes = array_filter(
+            array_merge($this->invalid_codes, $additional_codes),
+            fn(mixed $code): bool => is_string($code)
+        );
+        $codes = array_map(fn(string $code): string => trim($code), $codes);
+
+        return array_values(array_unique(array_filter(
+            $codes,
+            fn(string $code): bool => $code !== ''
+        )));
     }
 
     /**

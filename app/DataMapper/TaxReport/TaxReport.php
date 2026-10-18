@@ -25,6 +25,7 @@ class TaxReport
     public ?array $tax_details; // Array of TaxDetail objects (includes adjustments)
     public ?array $tax_details_by_classification; // Per (tax_name, tax_rate, classification) buckets
     public ?array $sales_breakdown; // Per tax treatment sales buckets
+    public ?array $sales_totals;
     public float $amount; // The total amount of the invoice
     public ?Collection $payment_history; // Collection of PaymentHistory objects
 
@@ -42,6 +43,9 @@ class TaxReport
         $this->sales_breakdown = isset($attributes['sales_breakdown'])
             ? array_map(fn($row) => is_array($row) ? $row : (array) $row, $attributes['sales_breakdown'])
             : null;
+        $this->sales_totals = isset($attributes['sales_totals'])
+            ? array_map(fn ($value): float => (float) $value, $attributes['sales_totals'])
+            : null;
         $this->payment_history = isset($attributes['payment_history'])
             ? collect($attributes['payment_history'])->map(fn($payment) => new PaymentHistory($payment))
             : null;
@@ -54,6 +58,7 @@ class TaxReport
             'tax_details' => $this->tax_details ? array_map(fn($detail) => $detail->toArray(), $this->tax_details) : null,
             'tax_details_by_classification' => $this->tax_details_by_classification,
             'sales_breakdown' => $this->sales_breakdown,
+            'sales_totals' => $this->sales_totals,
             'payment_history' => $this->payment_history ? $this->payment_history->map(fn($payment) => $payment->toArray())->toArray() : null,
         ];
     }

@@ -12,6 +12,10 @@
 
 namespace Tests\Unit\Storecove;
 
+use App\DataMapper\InvoiceBackup;
+use App\Jobs\EDocument\EInvoicePullDocs;
+use App\Models\Invoice;
+use Carbon\CarbonImmutable;
 use Tests\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
@@ -27,6 +31,55 @@ class DocumentSubmissionExtractUblTest extends TestCase
         if(!class_exists(DocumentSubmission::class)) {
             $this->markTestSkipped('DocumentSubmission class does not exist');
         }
+    }
+
+    protected function tearDown(): void
+    {
+        CarbonImmutable::setTestNow();
+
+        parent::tearDown();
+    }
+
+    public function testHostedAndSelfHostedStatusPersistenceHaveTheSameClearanceSemantics(): void
+    {
+        CarbonImmutable::setTestNow('2026-08-03 12:00:00 +02:00');
+        $hostedInvoice = new InMemoryStatusInvoice();
+        $hostedInvoice->backup = new InvoiceBackup();
+        $selfHostedInvoice = new InMemoryStatusInvoice();
+        $selfHostedInvoice->backup = new InvoiceBackup();
+
+        $hostedMethod = new ReflectionMethod(DocumentSubmission::class, 'recordDocumentStatus');
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'cleared');
+        $selfHostedMethod = new ReflectionMethod(EInvoicePullDocs::class, 'recordDocumentStatus');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'cleared');
+
+        $this->assertSame('cleared', $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_status, $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_cleared_at, $hostedInvoice->backup->e_invoice_cleared_at);
+        $this->assertTrue($hostedInvoice->savedQuietly);
+        $this->assertTrue($selfHostedInvoice->savedQuietly);
+
+        $clearedAt = $hostedInvoice->backup->e_invoice_cleared_at;
+        CarbonImmutable::setTestNow('2026-08-04 12:00:00 +02:00');
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'accepted');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'accepted');
+
+        $this->assertSame('accepted', $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_status, $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($clearedAt, $hostedInvoice->backup->e_invoice_cleared_at);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_cleared_at, $hostedInvoice->backup->e_invoice_cleared_at);
+
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'rejected');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'rejected');
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'paid');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'paid');
+        $this->assertSame('rejected', $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_status, $hostedInvoice->backup->e_invoice_status);
+
+        $hostedMethod->invoke(new DocumentSubmission([]), $hostedInvoice, 'cleared');
+        $selfHostedMethod->invoke(new EInvoicePullDocs(), $selfHostedInvoice, 'cleared');
+        $this->assertSame('cleared', $hostedInvoice->backup->e_invoice_status);
+        $this->assertSame($selfHostedInvoice->backup->e_invoice_status, $hostedInvoice->backup->e_invoice_status);
     }
     /**
      * Test extracting CreditNote from StandardBusinessDocument wrapper
@@ -77,7 +130,7 @@ class DocumentSubmissionExtractUblTest extends TestCase
          </cac:PartyLegalEntity>
          <cac:Contact>
             <cbc:Name>Test Contact</cbc:Name>
-            <cbc:ElectronicMail>supplier@example.com</cbc:ElectronicMail>
+            <cbc:ElectronicMail>supplier@gmail.com</cbc:ElectronicMail>
          </cac:Contact>
       </cac:Party>
    </cac:AccountingSupplierParty>
@@ -106,7 +159,7 @@ class DocumentSubmissionExtractUblTest extends TestCase
          </cac:PartyLegalEntity>
          <cac:Contact>
             <cbc:Telephone>123456789</cbc:Telephone>
-            <cbc:ElectronicMail>customer@example.com</cbc:ElectronicMail>
+            <cbc:ElectronicMail>customer@gmail.com</cbc:ElectronicMail>
          </cac:Contact>
       </cac:Party>
    </cac:AccountingCustomerParty>
@@ -317,5 +370,17 @@ class DocumentSubmissionExtractUblTest extends TestCase
         $dom = new \DOMDocument();
         $this->assertTrue($dom->loadXML($result), 'Extracted XML should be valid');
         $this->assertEquals('CreditNote', $dom->documentElement->localName);
+    }
+}
+
+class InMemoryStatusInvoice extends Invoice
+{
+    public bool $savedQuietly = false;
+
+    public function saveQuietly(array $options = [])
+    {
+        $this->savedQuietly = true;
+
+        return true;
     }
 }

@@ -65,7 +65,7 @@ class PermissionsTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $acc->id,
             'confirmation_code' => '123',
-            'email' =>  $this->faker->safeEmail(),
+            'email' =>  uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->cu = CompanyUserFactory::create($this->user->id, $this->company->id, $acc->id);
@@ -95,7 +95,7 @@ class PermissionsTest extends TestCase
         $u = User::factory()->create([
             'account_id' => $this->company->account_id,
             'confirmation_code' => '123',
-            'email' =>  $this->faker->safeEmail(),
+            'email' =>  uniqid('testuser') . '@gmail.com',
         ]);
 
         /** @var Client $c */

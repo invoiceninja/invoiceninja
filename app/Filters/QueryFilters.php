@@ -101,6 +101,21 @@ abstract class QueryFilters
                 continue;
             }
 
+            $method = new \ReflectionMethod($this, $name);
+
+            if (! $method->isPublic()) {
+                continue;
+            }
+
+            if ($name === 'filter' && is_string($value) && strlen($value)) {
+                $value = $this->cleanFilterString($value);
+
+                if (strlen($value) == 0) {
+                    $this->emptyFilterResults();
+                    continue;
+                }
+            }
+
             // potential multi column sort
             if ($name === 'sort' && is_array($value)) {
                 foreach ($value as $sort) {
@@ -170,6 +185,31 @@ abstract class QueryFilters
     }
 
     /**
+     * Normalize user-provided filter text into a query-safe string.
+     */
+    protected function cleanFilterString(string $filter): string
+    {
+        if (! mb_check_encoding($filter, 'UTF-8')) {
+            $filter = mb_scrub($filter, 'UTF-8');
+        }
+
+        $filter = preg_replace('/[\x{0000}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}-\x{009F}\x{10000}-\x{10FFFF}]/u', ' ', $filter);
+
+        if ($filter === null) {
+            return '';
+        }
+
+        $filter = preg_replace('/\s+/u', ' ', trim($filter));
+
+        return $filter ?? '';
+    }
+
+    protected function emptyFilterResults(): Builder
+    {
+        return $this->builder->whereIn($this->builder->getModel()->getQualifiedKeyName(), []);
+    }
+
+    /**
      * Explodes the value by delimiter.
      *
      * @param  string $value
@@ -218,6 +258,26 @@ abstract class QueryFilters
                 $query = $query->orWhere('is_deleted', 1);
             }
         });
+    }
+
+
+    public function project_id(string $project_id = ''): Builder
+    {
+
+        if (strlen($project_id) == 0 || !in_array('project_id', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        $decoded = $this->decodePrimaryKey($project_id);
+
+        return $this->builder
+            ->where('project_id', $decoded)
+            ->whereExists(function ($query) use ($decoded) {
+                $query->selectRaw('1')
+                    ->from('projects')
+                    ->where('projects.id', $decoded)
+                    ->where('projects.company_id', auth()->user()->companyId());
+            });
     }
 
     /**
@@ -598,6 +658,17 @@ abstract class QueryFilters
             return $this->builder;
         }
 
+    }
+
+    public function user_ids(string $user_ids = ''): Builder
+    {
+        if (strlen($user_ids) == 0 || !in_array('user_id', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        return $this->builder->where(function ($q) use ($user_ids) {
+            $q->whereIn('user_id', $this->transformKeys(explode(',', $user_ids)));
+        });
     }
 
     public function assigned_user_ids(string $assigned_user_ids = ''): Builder

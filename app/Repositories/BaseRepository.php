@@ -18,14 +18,20 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Tag;
+use App\Models\Task;
+use App\Models\Vendor;
 use App\Utils\BcMath;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
+use Illuminate\Validation\ValidationException;
 
 class BaseRepository
 {
@@ -35,6 +41,14 @@ class BaseRepository
     public bool $import_mode = false;
 
     private bool $new_model = false;
+
+    /**
+     * Whether the model handed to the current save() was a brand-new record.
+     * Captured by resolveTagIdsForSync() before any write, because intermediate
+     * save() calls (e.g. applyNumber()) reset Eloquent's wasRecentlyCreated.
+     */
+    private bool $record_was_created = false;
+
     /**
      * @param $entity
      * @param $type
@@ -154,6 +168,8 @@ class BaseRepository
             $model->client_id = $data['client_id'];
         }
 
+        $tag_ids = $this->resolveTagIdsForSync($data, $model);
+
         $client = Client::query()->with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();
 
         $state = [];
@@ -166,7 +182,11 @@ class BaseRepository
 
         if (!$model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
-            $data['exchange_rate'] = $company_defaults['exchange_rate'];
+
+            if ($this->import_mode && isset($data['exchange_rate']) && (float) $data['exchange_rate'] !== 0.0) {
+                unset($company_defaults['exchange_rate']);
+            }
+
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
 
             $data = array_merge($data, $company_defaults);
@@ -181,6 +201,10 @@ class BaseRepository
 
         if (isset($tmp_data['client_contacts'])) {
             unset($tmp_data['client_contacts']);
+        }
+
+        if (isset($tmp_data['tags'])) {
+            unset($tmp_data['tags']);
         }
 
         $model->fill($tmp_data);
@@ -440,7 +464,224 @@ class BaseRepository
 
         $model->saveQuietly();
 
+        $this->syncResolvedTags($model, $tag_ids);
+
         return $model->fresh();
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<int>|null
+     */
+    protected function resolveTagIdsForSync(array &$data, object $model): ?array
+    {
+        $this->record_was_created = ! $model->exists;
+
+        if (! array_key_exists('tags', $data)) {
+            return null;
+        }
+
+        if (! method_exists($model, 'tags') || ! method_exists($model, 'resolveTagIds')) {
+            unset($data['tags']);
+
+            return null;
+        }
+
+        if (! is_array($data['tags'])) {
+            throw ValidationException::withMessages([
+                'tags' => ['One or more tags are invalid for this entity.'],
+            ]);
+        }
+
+        $tag_ids = $model::resolveTagIds($data['tags'], (int) $model->company_id);
+
+        unset($data['tags']);
+
+        return $tag_ids;
+    }
+
+    /**
+     * @param array<int>|null $tag_ids
+     */
+    protected function syncResolvedTags(object $model, ?array $tag_ids): void
+    {
+        if (! method_exists($model, 'tags')) {
+            return;
+        }
+
+        $changed = false;
+
+        $inherited_tag_ids = $this->inheritedGlobalTagIds($model);
+
+        if ($tag_ids !== null || ! empty($inherited_tag_ids)) {
+            $model->tags()->sync(array_values(array_unique(array_merge($tag_ids ?? [], $inherited_tag_ids))));
+            $changed = true;
+        }
+
+        if ($this->rollUpInvoicedTags($model)) {
+            $changed = true;
+        }
+
+        if (! $changed) {
+            return;
+        }
+
+        if (method_exists($model, 'touchQuietly')) {
+            $model->touchQuietly();
+        }
+
+        if (method_exists($model, 'searchable')) {
+            $model->searchable();
+        }
+    }
+
+    /**
+     * Foreign keys on a child record that point at a taggable "parent" whose
+     * GLOBAL tags should cascade down. A single record may have several parents
+     * at once (e.g. an invoice belongs to both a client and a project) and
+     * inherits the union of their global tags.
+     *
+     * @var array<string, class-string>
+     */
+    protected array $global_tag_parents = [
+        'client_id' => Client::class,
+        'vendor_id' => Vendor::class,
+        'project_id' => Project::class,
+    ];
+
+    /**
+     * When global_tag_inheritance is enabled, a record that has just been
+     * created inherits the GLOBAL tags (entity_type = Company) assigned to each
+     * of its parents (client, vendor, project). Gated on wasRecentlyCreated so
+     * it applies exactly once - at initial creation - and never on updates.
+     *
+     * @return array<int>
+     */
+    protected function inheritedGlobalTagIds(object $model): array
+    {
+        if (! $this->record_was_created) {
+            return [];
+        }
+
+        if (! $model->company || ! $model->company->getSetting('global_tag_inheritance')) {
+            return [];
+        }
+
+        $tag_ids = [];
+
+        foreach ($this->global_tag_parents as $foreign_key => $parent_class) {
+            $parent_id = $model->{$foreign_key} ?? null;
+
+            if (! $parent_id || $model instanceof $parent_class) {
+                continue;
+            }
+
+            $tag_ids = array_merge(
+                $tag_ids,
+                $this->globalTagIdsForParent($parent_class, (int) $parent_id, (int) $model->company_id)
+            );
+        }
+
+        return array_values(array_unique($tag_ids));
+    }
+
+    /**
+     * @param  class-string $parent_class
+     * @return array<int>
+     */
+    private function globalTagIdsForParent(string $parent_class, int $parent_id, int $company_id): array
+    {
+        $parent = $parent_class::withTrashed()
+            ->where('company_id', $company_id)
+            ->find($parent_id);
+
+        if (! $parent || ! method_exists($parent, 'tags')) {
+            return [];
+        }
+
+        return $parent->tags()
+            ->where('tags.entity_type', Tag::GLOBAL_ENTITY_TYPE)
+            ->where('tags.is_deleted', false)
+            ->pluck('tags.id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
+    }
+
+    /**
+     * Rolls the GLOBAL tags of the tasks/expenses billed by an invoice up onto
+     * that invoice. Unlike the ownership cascade this is purely additive
+     * (syncWithoutDetaching) and runs on every save, since line items - and the
+     * entities they reference - can be added on later edits, not just creation.
+     */
+    private function rollUpInvoicedTags(object $model): bool
+    {
+        if (! $model instanceof Invoice) {
+            return false;
+        }
+
+        if (! $model->company->getSetting('global_tag_inheritance')) {
+            return false;
+        }
+
+        $task_ids = [];
+        $expense_ids = [];
+
+        foreach ($model->line_items ?? [] as $item) {
+            if (! empty($item->task_id) && ($id = $this->decodePrimaryKey($item->task_id)) > 0) {
+                $task_ids[] = (int) $id;
+            }
+
+            if (! empty($item->expense_id) && ($id = $this->decodePrimaryKey($item->expense_id)) > 0) {
+                $expense_ids[] = (int) $id;
+            }
+        }
+
+        $rollup_tag_ids = $this->globalTagIdsForTaggables($task_ids, $expense_ids, (int) $model->company_id);
+
+        if (empty($rollup_tag_ids)) {
+            return false;
+        }
+
+        $result = $model->tags()->syncWithoutDetaching($rollup_tag_ids);
+
+        return ! empty($result['attached']);
+    }
+
+    /**
+     * GLOBAL tag ids attached to any of the given tasks or expenses, resolved in
+     * a single query against the taggables pivot.
+     *
+     * @param  array<int> $task_ids
+     * @param  array<int> $expense_ids
+     * @return array<int>
+     */
+    private function globalTagIdsForTaggables(array $task_ids, array $expense_ids, int $company_id): array
+    {
+        if (empty($task_ids) && empty($expense_ids)) {
+            return [];
+        }
+
+        return Tag::query()
+            ->where('tags.company_id', $company_id)
+            ->where('tags.entity_type', Tag::GLOBAL_ENTITY_TYPE)
+            ->where('tags.is_deleted', false)
+            ->whereExists(function ($query) use ($task_ids, $expense_ids): void {
+                $query->selectRaw('1')
+                    ->from('taggables')
+                    ->whereColumn('taggables.tag_id', 'tags.id')
+                    ->where(function ($q) use ($task_ids, $expense_ids): void {
+                        if (! empty($task_ids)) {
+                            $q->orWhere(fn ($w) => $w->where('taggables.taggable_type', Task::class)->whereIn('taggables.taggable_id', $task_ids));
+                        }
+
+                        if (! empty($expense_ids)) {
+                            $q->orWhere(fn ($w) => $w->where('taggables.taggable_type', Expense::class)->whereIn('taggables.taggable_id', $expense_ids));
+                        }
+                    });
+            })
+            ->pluck('tags.id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
     }
 
     public function bulkUpdate(\Illuminate\Database\Eloquent\Builder $model, string $column, mixed $new_value): void
@@ -472,6 +713,50 @@ class BaseRepository
             $model->update([
                 $tax_name_column => $tax_name,
                 $tax_rate_column => $rate,
+            ]);
+
+            return;
+        }
+
+        if ($column == 'project_id') {
+            $project_id = $this->decodePrimaryKey($new_value);
+
+            $project = Project::withTrashed()
+                ->where('id', $project_id)
+                ->company()
+                ->first();
+
+            if (! $project) {
+                throw ValidationException::withMessages([
+                    'new_value' => ['The selected new value is invalid.'],
+                ]);
+            }
+
+            $model->update([
+                'project_id' => $project->id,
+                'client_id' => $project->client_id,
+            ]);
+
+            return;
+        }
+
+        if ($column == 'client_id') {
+            $client_id = $this->decodePrimaryKey($new_value);
+
+            $client = Client::withTrashed()
+                ->where('id', $client_id)
+                ->company()
+                ->first();
+
+            if (! $client) {
+                throw ValidationException::withMessages([
+                    'new_value' => ['The selected new value is invalid.'],
+                ]);
+            }
+
+            $model->update([
+                'client_id' => $client->id,
+                'project_id' => null,
             ]);
 
             return;

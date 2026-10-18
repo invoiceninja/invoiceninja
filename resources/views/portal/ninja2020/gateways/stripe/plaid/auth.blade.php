@@ -1,4 +1,4 @@
-<button id="link-button">Link Account</button>
+<button id="link-button" class="button button-primary bg-primary">Link Account</button>
 
 <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 <script type="text/javascript">

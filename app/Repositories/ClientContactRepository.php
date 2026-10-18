@@ -50,7 +50,7 @@ class ClientContactRepository extends BaseRepository
 
             if ($this->is_primary) {
                 /* The primary contact must always receive email and can never be CC-only. */
-                $contact['send_email'] = true;
+                // $contact['send_email'] = true;
                 $contact['cc_only'] = false;
             } elseif (filter_var($contact['cc_only'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
                 /* A non-primary CC-only contact never receives its own email. */
@@ -62,6 +62,15 @@ class ClientContactRepository extends BaseRepository
             return $contact;
         });
 
+        if (! $contacts->contains(fn ($c) => filter_var($c['send_email'] ?? false, FILTER_VALIDATE_BOOLEAN))) {
+            $contacts = $contacts->map(function ($contact) {
+                if ($contact['is_primary']) {
+                    $contact['send_email'] = true;
+                }
+                return $contact;
+            });
+        }
+        
         //loop and update/create contacts
         $contacts->each(function ($contact) use ($client) {
             $update_contact = null;

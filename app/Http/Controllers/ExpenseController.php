@@ -105,7 +105,7 @@ class ExpenseController extends BaseController
      */
     public function index(ExpenseFilters $filters)
     {
-        $expenses = Expense::filter($filters);
+        $expenses = Expense::filter($filters)->with('tags');
 
         return $this->listResponse($expenses);
     }
@@ -611,7 +611,7 @@ class ExpenseController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $expense, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $expense, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($expense->fresh());

@@ -94,8 +94,7 @@ final class CellStyleResolver
 
         if ($kind === self::KIND_TOTAL && $isTotal) {
             return $this->nonEmpty($blockProps['totalFontSize'] ?? null)
-                ?? $this->nonEmpty($blockProps['fontSize'] ?? null)
-                ?? '14px';
+                ?? $this->nonEmpty($blockProps['fontSize'] ?? null);
         }
 
         return $this->nonEmpty($blockProps['fontSize'] ?? null);

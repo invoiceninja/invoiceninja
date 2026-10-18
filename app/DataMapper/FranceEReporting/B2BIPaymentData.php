@@ -33,18 +33,34 @@ final readonly class B2BIPaymentData implements Arrayable, JsonSerializable
         public array $taxSubtotals = [],
     ) {
         ReportDataValidator::assertNonEmptyString($this->invoiceNumber, 'b2biPayments.invoiceNumber');
-        ReportDataValidator::assertDate($this->paymentDate, 'b2biPayments.paymentDate');
-
-        if (! is_null($this->amount)) {
-            ReportDataValidator::assertNumeric($this->amount, 'b2biPayments.amount');
+        if (mb_strlen($this->invoiceNumber) > 35) {
+            throw new \InvalidArgumentException('b2biPayments.invoiceNumber must not exceed 35 characters.');
         }
 
-        if (! is_null($this->currency)) {
-            ReportDataValidator::assertNonEmptyString($this->currency, 'b2biPayments.currency');
+        ReportDataValidator::assertDate($this->paymentDate, 'b2biPayments.paymentDate');
+
+        if (! is_null($this->amount) || ! is_null($this->currency)) {
+            throw new \InvalidArgumentException('B2Bi payment amount/currency mapping is disabled until Storecove-generated F10 XML proves it.');
+        }
+
+        if ($this->taxSubtotals === []) {
+            throw new \InvalidArgumentException('b2biPayments.taxSubtotals requires at least one item.');
         }
 
         if (! is_null($this->issueDate)) {
             ReportDataValidator::assertDate($this->issueDate, 'b2biPayments.issueDate');
+        }
+
+        if (is_null($this->issueDate)) {
+            throw new \InvalidArgumentException('b2biPayments.issueDate is required.');
+        }
+
+        foreach ($this->taxSubtotals as $subtotal) {
+            $subtotal->toB2BIPaymentArray();
+
+            if ($subtotal->currency !== 'EUR') {
+                throw new \InvalidArgumentException('Only EUR B2Bi payment reports are currently supported.');
+            }
         }
     }
 
@@ -78,13 +94,11 @@ final readonly class B2BIPaymentData implements Arrayable, JsonSerializable
             'issueDate' => $this->issueDate,
             'paymentDate' => $this->paymentDate,
             'paymentMeansCode' => $this->paymentMeansCode,
-            'amount' => is_null($this->amount) ? null : ReportDataValidator::numericValue($this->amount, 'b2biPayments.amount'),
-            'currency' => $this->currency,
             'taxSubtotals' => array_values(array_map(
-                static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
+                static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toB2BIPaymentArray(),
                 $this->taxSubtotals,
             )),
-        ], static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        ], static fn (mixed $value): bool => ! is_null($value));
     }
 
     /**

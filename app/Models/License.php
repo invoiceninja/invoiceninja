@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Casts\AsArrayObject;
  * @property bool $is_flagged
  * @property array|null $entities
  * @property-read \App\Models\RecurringInvoice $recurring_invoice
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\EInvoiceToken> $e_invoicing_tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\EInvoicingToken> $e_invoicing_tokens
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|License newModelQuery()

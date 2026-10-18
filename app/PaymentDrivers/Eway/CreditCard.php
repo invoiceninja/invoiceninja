@@ -146,13 +146,13 @@ class CreditCard implements LivewireMethodInterface
             $invoice_numbers = collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(','); //@phpstan-ignore-line
         }
 
-        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
+        $amount = $this->eway_driver->payment_hash->amount_with_fee();
 
         // $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
 
         $transaction = [
             'Payment' => [
-                'TotalAmount' => $this->convertAmountForEway(),
+                'TotalAmount' => $this->eway_driver->convertAmount($amount),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
                 'InvoiceDescription' => substr($invoice_numbers, 0, 63),
@@ -190,7 +190,7 @@ class CreditCard implements LivewireMethodInterface
 
     private function storePayment($response)
     {
-        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
+        $amount = $this->eway_driver->payment_hash->amount_with_fee();
 
         $payment_record = [];
         $payment_record['amount'] = $amount;
@@ -201,19 +201,6 @@ class CreditCard implements LivewireMethodInterface
         $payment = $this->eway_driver->createPayment($payment_record);
 
         return $payment;
-    }
-
-    private function convertAmountForEway($amount = false)
-    {
-        if (! $amount) {
-            $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
-        }
-
-        if (in_array($this->eway_driver->client->currency()->code, ['VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF'])) {
-            return $amount;
-        }
-
-        return $amount * 100;
     }
 
     private function logResponse($response, $success = true)
@@ -234,7 +221,7 @@ class CreditCard implements LivewireMethodInterface
 
     public function tokenBilling($token, $payment_hash)
     {
-        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $amount = $payment_hash->amount_with_fee();
 
         $invoice_numbers = '';
 
@@ -249,7 +236,7 @@ class CreditCard implements LivewireMethodInterface
                 'TokenCustomerID' => $token,
             ],
             'Payment' => [
-                'TotalAmount' => $this->convertAmountForEway($amount),
+                'TotalAmount' => $this->eway_driver->convertAmount($amount),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
                 'InvoiceDescription' => substr($invoice_numbers, 0, 63),

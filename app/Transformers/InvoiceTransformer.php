@@ -79,7 +79,7 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new ProjectTransformer($this->serializer);
 
-        if (!$invoice->project) {
+        if (!$invoice->project || $invoice->project->company_id !== $invoice->company_id) {
             return null;
         }
 
@@ -197,6 +197,7 @@ class InvoiceTransformer extends EntityTransformer
             'e_invoice' => $invoice->e_invoice ?: new \stdClass(),
             'backup' => $invoice->backup,
             'location_id' => $this->encodePrimaryKey($invoice->location_id),
+            'tags' => $this->transformTags($invoice),
             'sync' => $invoice->sync,
         ];
 

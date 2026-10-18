@@ -95,7 +95,7 @@ class ValidCreditsRules implements Rule
             return false;
         }
 
-        if (count($this->input['credits']) >= 1 && count($this->input['invoices']) == 0) {
+        if (count($this->input['credits']) >= 1 && (!isset($this->input['invoices']) || count($this->input['invoices']) == 0)) {
             $this->error_msg = ctrans('texts.credit_with_no_invoice');
 
             return false;

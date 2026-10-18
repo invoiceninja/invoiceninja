@@ -105,27 +105,6 @@ final readonly class FRReportData implements Arrayable, JsonSerializable
         );
     }
 
-    public static function combinedInitialReport(
-        string $documentId,
-        string $issueDate,
-        string $issueTime,
-        string $timeZone,
-        TransactionReportData $transactionReport,
-        PaymentReportData $paymentReport,
-        ?DeclarantPartyData $declarantParty = null,
-    ): self {
-        return new self(
-            typeCode: self::TYPE_INITIAL,
-            documentId: $documentId,
-            issueDate: $issueDate,
-            issueTime: $issueTime,
-            timeZone: $timeZone,
-            declarantParty: $declarantParty,
-            transactionReport: $transactionReport,
-            paymentReport: $paymentReport,
-        );
-    }
-
     public static function rectificativeTransactionReport(
         string $documentId,
         string $issueDate,
@@ -160,27 +139,6 @@ final readonly class FRReportData implements Arrayable, JsonSerializable
             issueTime: $issueTime,
             timeZone: $timeZone,
             declarantParty: $declarantParty,
-            paymentReport: $paymentReport,
-        );
-    }
-
-    public static function combinedRectificativeReport(
-        string $documentId,
-        string $issueDate,
-        string $issueTime,
-        string $timeZone,
-        TransactionReportData $transactionReport,
-        PaymentReportData $paymentReport,
-        ?DeclarantPartyData $declarantParty = null,
-    ): self {
-        return new self(
-            typeCode: self::TYPE_RECTIFICATIVE,
-            documentId: $documentId,
-            issueDate: $issueDate,
-            issueTime: $issueTime,
-            timeZone: $timeZone,
-            declarantParty: $declarantParty,
-            transactionReport: $transactionReport,
             paymentReport: $paymentReport,
         );
     }
@@ -222,12 +180,22 @@ final readonly class FRReportData implements Arrayable, JsonSerializable
         }
 
         ReportDataValidator::assertNonEmptyString($this->documentId, 'documentId');
+        if (mb_strlen($this->documentId) > 50) {
+            throw new InvalidArgumentException('documentId must not exceed 50 characters.');
+        }
+
+        if (! preg_match('/^[A-Za-z0-9+_\-\/]+(?: [A-Za-z0-9+_\-\/]+)*$/', $this->documentId)) {
+            throw new InvalidArgumentException('documentId contains unsupported characters or spacing.');
+        }
+
         ReportDataValidator::assertDate($this->issueDate, 'issueDate');
         ReportDataValidator::assertTime($this->issueTime, 'issueTime');
-        ReportDataValidator::assertNonEmptyString($this->timeZone, 'timeZone');
+        if (! preg_match('/^[+-](?:0\d|1[0-4])[0-5]\d$/', $this->timeZone)) {
+            throw new InvalidArgumentException('timeZone must use numeric UTC offset format, for example +0100.');
+        }
 
-        if (is_null($this->transactionReport) && is_null($this->paymentReport)) {
-            throw new InvalidArgumentException('At least one of transactionReport or paymentReport is required.');
+        if (is_null($this->transactionReport) === is_null($this->paymentReport)) {
+            throw new InvalidArgumentException('Exactly one of transactionReport or paymentReport is required.');
         }
     }
 

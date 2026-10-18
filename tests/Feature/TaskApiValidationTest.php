@@ -82,7 +82,7 @@ class TaskApiValidationTest extends TestCase
         ])->postJson("/api/v1/tasks", $data);
 
         $response->assertStatus(422);
-        nlog($response->json());
+        // nlog($response->json());
         
     }
     // ==================== VALID PAYLOADS (200 STATUS) ====================

@@ -12,26 +12,29 @@
 
 namespace App\Models;
 
-use Elastic\ScoutDriverPlus\Searchable;
-use App\DataMapper\ClientSync;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\MakesHash;
-use App\DataMapper\FeesAndLimits;
-use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
+use App\DataMapper\ClientSync;
 use App\DataMapper\CompanySettings;
-use Illuminate\Support\Facades\App;
-use Illuminate\Mail\Mailables\Address;
-use App\Services\Client\ClientService;
-use App\Utils\Traits\GeneratesCounter;
-use Laracasts\Presenter\PresentableTrait;
-use App\Models\Presenters\ClientPresenter;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\DataMapper\FeesAndLimits;
 use App\Libraries\Currency\Conversion\CurrencyApi;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Presenters\ClientPresenter;
+use App\Models\Traits\Excludable;
+use App\Models\Traits\HasTags;
+use App\Services\Client\ClientService;
+use App\Utils\AppLink;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\Client
@@ -75,7 +78,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int|null $shipping_country_id
  * @property object|null $settings
  * @property object|null $group_settings
- * @property object|null $sync
+ * @property ClientSync|null $sync
  * @property bool $is_deleted
  * @property int|null $group_settings_id
  * @property string|null $vat_number
@@ -113,6 +116,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Location> $locations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @method static \Illuminate\Database\Eloquent\Builder|Client exclude($columns)
  * @method static \Database\Factories\ClientFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Client filter(\App\Filters\QueryFilters $filters)
@@ -136,6 +140,7 @@ class Client extends BaseModel implements HasLocalePreference
     use ClientGroupSettingsSaver;
     use Excludable;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -299,6 +304,7 @@ class Client extends BaseModel implements HasLocalePreference
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
         ];
     }
 
@@ -463,6 +469,11 @@ class Client extends BaseModel implements HasLocalePreference
     public function system_logs(): HasMany
     {
         return $this->hasMany(SystemLog::class)->take(50)->orderBy('id', 'desc');
+    }
+
+    public function transaction_events(): HasMany
+    {
+        return $this->hasMany(TransactionEvent::class);
     }
 
     public function timezone(): Timezone
@@ -636,6 +647,11 @@ class Client extends BaseModel implements HasLocalePreference
     public function group_settings(): BelongsTo
     {
         return $this->belongsTo(GroupSetting::class);
+    }
+
+    public function purchase_orders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class)->withTrashed();
     }
 
     /**
@@ -1025,6 +1041,34 @@ class Client extends BaseModel implements HasLocalePreference
         return $offset;
 
     }
+    
+    /**
+     * scheduledDateTimeUtc
+     *
+     * Returns the UTC date and time for the scheduled entity. Allows for DST awareness.
+     * 
+     * @param  string|null $date
+     * @return Carbon
+     */
+    public function scheduledDateTimeUtc(?string $date): Carbon
+    {
+        $sendTime = (int) $this->getSetting('entity_send_time');
+    
+        if ($sendTime === 0) {
+            return Carbon::parse($date, 'UTC')->startOfDay();
+        }
+    
+        $scheduledDate = Carbon::parse($date, $this->timezone()->name)
+            ->startOfDay();
+    
+        if ($sendTime === 24) {
+            $scheduledDate->setTime(23, 59, 50);
+        } else {
+            $scheduledDate->setTime($sendTime, 0, 0);
+        }
+    
+        return $scheduledDate->utc();
+    }
 
     public function timezone_offset(): int
     {
@@ -1055,9 +1099,9 @@ class Client extends BaseModel implements HasLocalePreference
         return ctrans('texts.client');
     }
 
-    public function portalUrl(bool $use_react_url): string
+    public function portalUrl(): string
     {
-        return $use_react_url ? config('ninja.react_url') . "/#/clients/{$this->hashed_id}" : config('ninja.app_url');
+        return AppLink::forRecord('clients', $this);
     }
 
     /**
@@ -1081,7 +1125,7 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function reportableFrTransaction(): bool
     {
-        return (bool) $this->getSetting('france_reporting_enabled');
+        return (bool) $this->company->getSetting('france_reporting_enabled');
     }
 
     /**

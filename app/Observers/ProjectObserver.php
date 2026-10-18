@@ -29,6 +29,8 @@ class ProjectObserver
     public function created(Project $project)
     {
         $subscriptions = Webhook::where('company_id', $project->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_PROJECT_CREATE)
                             ->exists();
 
@@ -57,6 +59,8 @@ class ProjectObserver
 
 
         $subscriptions = Webhook::where('company_id', $project->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -78,6 +82,8 @@ class ProjectObserver
         }
 
         $subscriptions = Webhook::where('company_id', $project->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_ARCHIVE_PROJECT)
                             ->exists();
 

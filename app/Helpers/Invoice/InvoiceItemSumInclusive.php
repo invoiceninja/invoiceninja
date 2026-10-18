@@ -29,6 +29,9 @@ class InvoiceItemSumInclusive
     use NumberFormatter;
     use Discounter;
     use Taxer;
+    use HarvestsSurchargeTaxCategories;
+
+    public bool $peppol_enabled = false;
 
     //@phpstan-ignore-next-line
     private array $eu_tax_jurisdictions = [
@@ -136,6 +139,7 @@ class InvoiceItemSumInclusive
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
             $this->shouldCalculateTax();
+            $this->peppol_enabled = $this->client->getSetting('e_invoice_type') == 'PEPPOL';
         } else {
             $this->currency = $this->invoice->vendor->currency();
         }
@@ -149,7 +153,7 @@ class InvoiceItemSumInclusive
             return $this;
         }
 
-        $this->calcLineItems()->getPeppolSurchargeTaxes();
+        $this->calcLineItems()->applyTaxedSurchargeTaxes();
 
         return $this;
     }
@@ -184,17 +188,29 @@ class InvoiceItemSumInclusive
 
     private function setDiscount()
     {
-        if ($this->invoice->is_amount_discount) {
-            $this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision));
+        if ($this->lineItemUsesAmountDiscount()) {
+            $discount = $this->formatValue($this->item->discount, $this->currency->precision);
+            $this->setLineTotal($this->getLineTotal() - $discount);
             $this->total_discount += $this->item->discount;
         } else {
             $this->setLineTotal($this->getLineTotal() - $this->formatValue(($this->item->line_total * ($this->item->discount / 100)), $this->currency->precision));
             $this->total_discount += ($this->item->line_total * ($this->item->discount / 100));
         }
 
-        $this->item->is_amount_discount = $this->invoice->is_amount_discount;
+        if (!$this->invoice->is_amount_discount) {
+            $this->item->is_amount_discount = false;
+        }
 
         return $this;
+    }
+
+    private function lineItemUsesAmountDiscount(): bool
+    {
+        if (!$this->invoice->is_amount_discount) {
+            return false;
+        }
+
+        return (bool) $this->item->is_amount_discount;
     }
 
 
@@ -253,101 +269,79 @@ class InvoiceItemSumInclusive
             $this->item->tax_name3 = '';
         }
 
-        $item_tax = 0;
-
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
 
-        /** @var float $item_tax_rate1_total */
-        $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
+        $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
 
-        /** @var float $item_tax */
-        $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
+        // Tax-anchored additive inclusive back-out (see InclusiveTax): each tax is
+        // round(base x rate); net is the shared taxable base and absorbs the residual.
+        $inclusive = InclusiveTax::backout($amount, $rates, $this->currency->precision);
+        $net = $inclusive['net'];
+        $item_tax = $inclusive['tax'];
+        [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $inclusive['components'];
 
         if (strlen($this->item->tax_name1) > 1) {
-            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);
         }
-
-        $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
-
-        $item_tax += $this->formatValue($item_tax_rate2_total, $this->currency->precision);
 
         if (strlen($this->item->tax_name2) > 1) {
-            $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1', $net);
         }
-
-        $item_tax_rate3_total = $this->calcInclusiveLineTax($this->item->tax_rate3, $amount);
-
-        $item_tax += $this->formatValue($item_tax_rate3_total, $this->currency->precision);
 
         if (strlen($this->item->tax_name3) > 1) {
-            $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1');
+            $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1', $net);
         }
 
-        $this->item->tax_amount = $this->formatValue($item_tax, $this->currency->precision);
+        $this->item->tax_amount = $item_tax;
 
         try {
-            $this->item->net_cost = round(($amount - $this->item->tax_amount) / $this->item->quantity, $this->currency->precision);
+            $this->item->net_cost = round($net / $this->item->quantity, $this->currency->precision);
         } catch (\DivisionByZeroError $e) {
             $this->item->net_cost = $this->item->cost;
         }
 
-        $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
+        $this->setTotalTaxes($item_tax);
 
         return $this;
     }
 
-    private function getPeppolSurchargeTaxes(): self
+    /**
+     * NOTE: This is the single documented exception to routing inclusive tax
+     * through App\Helpers\Invoice\InclusiveTax when invoice-level taxes are present.
+     * When only line-item taxes exist, surcharges are taxed here using the same
+     * harvest order: document header first, then line items.
+     */
+    private function applyTaxedSurchargeTaxes(): self
     {
-
-        if (!$this->client->getSetting('enable_e_invoice')) {
+        if (! $this->hasSurchargesRequiringTaxAllocation() || $this->hasInvoiceLevelTaxCategories()) {
             return $this;
         }
 
         $this->custom_surcharge_map = collect([]);
 
-        collect($this->invoice->line_items)
-            ->flatMap(function ($item) {
-                return collect([1, 2, 3])
-                    ->map(fn($i) => [
-                        'name' => $item->{"tax_name{$i}"} ?? '',
-                        'percentage' => $item->{"tax_rate{$i}"} ?? 0,
-                        'tax_id' => $item->tax_id ?? '1',
-                    ])
-                    ->filter(fn($tax) => strlen($tax['name']) > 1);
-            })
-            ->unique(fn($tax) => $tax['percentage'] . '_' . $tax['name'])
-            ->values()
-            ->each(function ($tax) {
+        $this->harvestSurchargeTaxCategories()->each(function ($tax) {
 
-                $tax_component = 0;
+            $tax_component = 0;
+            $amount = 0;
 
-                if ($this->invoice->custom_surcharge1) {
-                    $tax_component += round($this->invoice->custom_surcharge1 - ($this->invoice->custom_surcharge1 / (1 + ($tax['percentage'] / 100))), 2);
-                    $this->setCustomSurchargeNetMap(['custom_surcharge1' => round($this->invoice->custom_surcharge1 / (1 + ($tax['percentage'] / 100)), 2)]);
+            foreach ([1, 2, 3, 4] as $i) {
+                if (! $this->shouldTaxSurcharge($i)) {
+                    continue;
                 }
 
-                if ($this->invoice->custom_surcharge2) {
-                    $tax_component += round($this->invoice->custom_surcharge2 - ($this->invoice->custom_surcharge2 / (1 + ($tax['percentage'] / 100))), 2);
-                    $this->setCustomSurchargeNetMap(['custom_surcharge2' => round($this->invoice->custom_surcharge2 / (1 + ($tax['percentage'] / 100)), 2)]);
-                }
+                $surcharge = $this->invoice->{"custom_surcharge{$i}"};
+                $tax_component += round($surcharge - ($surcharge / (1 + ($tax['percentage'] / 100))), 2);
+                $this->setCustomSurchargeNetMap([
+                    "custom_surcharge{$i}" => round($surcharge / (1 + ($tax['percentage'] / 100)), 2),
+                ]);
+                $amount += $surcharge;
+            }
 
-                if ($this->invoice->custom_surcharge3) {
-                    $tax_component += round($this->invoice->custom_surcharge3 - ($this->invoice->custom_surcharge3 / (1 + ($tax['percentage'] / 100))), 2);
-                    $this->setCustomSurchargeNetMap(['custom_surcharge3' => round($this->invoice->custom_surcharge3 / (1 + ($tax['percentage'] / 100)), 2)]);
-                }
+            if ($tax_component > 0) {
+                $this->groupTax($tax['name'], $tax['percentage'], $tax_component, $amount, $tax['tax_id']);
+            }
 
-                if ($this->invoice->custom_surcharge4) {
-                    $tax_component += round($this->invoice->custom_surcharge4 - ($this->invoice->custom_surcharge4 / (1 + ($tax['percentage'] / 100))), 2);
-                    $this->setCustomSurchargeNetMap(['custom_surcharge4' => round($this->invoice->custom_surcharge4 / (1 + ($tax['percentage'] / 100)), 2)]);
-                }
-
-                $amount = $this->invoice->custom_surcharge4 + $this->invoice->custom_surcharge3 + $this->invoice->custom_surcharge2 + $this->invoice->custom_surcharge1;
-
-                if ($tax_component > 0) {
-                    $this->groupTax($tax['name'], $tax['percentage'], $tax_component, $amount, $tax['tax_id']);
-                }
-
-            });
+        });
 
         return $this;
     }
@@ -369,7 +363,7 @@ class InvoiceItemSumInclusive
 
 
 
-    private function groupTax($tax_name, $tax_rate, $tax_total, $amount, $tax_id = '')
+    private function groupTax($tax_name, $tax_rate, $tax_total, $amount, $tax_id = '', $base_amount = null)
     {
         $group_tax = [];
 
@@ -380,7 +374,11 @@ class InvoiceItemSumInclusive
             return;
         }
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client) . '%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount];
+        // With additive inclusive tax the taxable base is the shared net (same
+        // for every rate on the line); fall back to the single-rate back-out.
+        $base_amount = $base_amount ?? ($tax_rate > 0 ? round($amount / (1 + ($tax_rate / 100)), 2) : $amount);
+
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client) . '%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $base_amount];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -476,30 +474,23 @@ class InvoiceItemSumInclusive
                 $amount = $this->item->line_total - ($this->invoice->discount * ($this->item->line_total / $this->sub_total));
             }
 
-            $item_tax = 0;
+            $rates = [$this->item->tax_rate1, $this->item->tax_rate2, $this->item->tax_rate3];
 
-            $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
-
-            $item_tax += $item_tax_rate1_total;
+            $inclusive = InclusiveTax::backout($amount, $rates, $this->currency->precision);
+            $net = $inclusive['net'];
+            $item_tax = $inclusive['tax'];
+            [$item_tax_rate1_total, $item_tax_rate2_total, $item_tax_rate3_total] = $inclusive['components'];
 
             if ($item_tax_rate1_total != 0) {
-                $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1');
+                $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total, $amount, $this->item->tax_id ?? '1', $net);
             }
-
-            $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
-
-            $item_tax += $item_tax_rate2_total;
 
             if ($item_tax_rate2_total != 0) {
-                $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id) ?? '1';
+                $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total, $amount, $this->item->tax_id ?? '1', $net);
             }
 
-            $item_tax_rate3_total = $this->calcInclusiveLineTax($this->item->tax_rate3, $amount);
-
-            $item_tax += $item_tax_rate3_total;
-
             if ($item_tax_rate3_total != 0) {
-                $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id) ?? '1';
+                $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total, $amount, $this->item->tax_id ?? '1', $net);
             }
 
             $this->setTotalTaxes($this->getTotalTaxes() + $item_tax);
@@ -508,15 +499,14 @@ class InvoiceItemSumInclusive
             $this->item->tax_amount = $item_tax;
 
             try {
-                $this->item->net_cost = round($amount * (100 / (100 + ($this->item->tax_rate1 + $this->item->tax_rate2 + $this->item->tax_rate3))) / $this->item->quantity, $this->currency->precision + 1);
-                $this->item->net_cost = round($this->item->net_cost, $this->currency->precision);
+                $this->item->net_cost = round($net / $this->item->quantity, $this->currency->precision);
             } catch (\DivisionByZeroError $e) {
                 $this->item->net_cost = $this->item->cost;
             }
 
         }
 
-        $this->getPeppolSurchargeTaxes();
+        $this->applyTaxedSurchargeTaxes();
 
         return $this;
 

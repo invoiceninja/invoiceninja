@@ -438,7 +438,9 @@ class SearchController extends Controller
     private function clientMap(User $user)
     {
 
-        $clients =  Client::query()
+        $clients = Client::query()
+                     ->without('gateway_tokens', 'documents', 'contacts.company')
+                     ->with('contacts')
                      ->withTrashed()
                      ->company()
                      ->where('is_deleted', 0)
@@ -457,12 +459,14 @@ class SearchController extends Controller
                 'path' => "/clients/{$client->hashed_id}",
             ];
 
-            $client->contacts->each(function ($contact) {
+            $client->contacts->each(function ($contact) use ($client) {
+                $contact->setRelation('client', $client);
+
                 $this->client_contacts[] = [
                     'name' => $contact->present()->search_display(),
                     'type' => '/client',
-                    'id' => $contact->client->hashed_id,
-                    'path' => "/clients/{$contact->client->hashed_id}",
+                    'id' => $client->hashed_id,
+                    'path' => "/clients/{$client->hashed_id}",
                 ];
             });
         }
@@ -474,9 +478,9 @@ class SearchController extends Controller
     {
 
         $projects = Project::query()
+                     ->without('documents')
                      ->withTrashed()
                      ->company()
-                     ->with('client')
                      ->where('is_deleted', 0)
                      ->whereHas('client', function ($q) {
                          $q->where('is_deleted', 0);
@@ -505,7 +509,10 @@ class SearchController extends Controller
         $invoices = Invoice::query()
                      ->withTrashed()
                      ->company()
-                     ->with('client')
+                     ->with(['client' => function ($query) {
+                         $query->without('gateway_tokens', 'documents', 'contacts.company')
+                               ->with('contacts');
+                     }])
                      ->where('is_deleted', 0)
                      ->whereHas('client', function ($q) {
                          $q->where('is_deleted', 0);

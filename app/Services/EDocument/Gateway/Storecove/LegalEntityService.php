@@ -35,6 +35,9 @@ class LegalEntityService
      */
     public function setup(array $data): array|\Illuminate\Http\Client\Response
     {
+        $handler = CountryFactory::make($data['country']);
+        $additionalIdentifiers = $handler->getAdditionalIdentifiers($data);
+
         $response = $this->create($data);
 
         if (! is_array($response)) {
@@ -42,8 +45,6 @@ class LegalEntityService
         }
 
         $legal_entity_id = $response['id'];
-        $handler = CountryFactory::make($data['country']);
-
         // Country-specific registration flow (e.g. SG CorpPass)
         $registrationResult = $handler->getRegistrationFlow($this->storecove, $legal_entity_id, $data);
         if ($registrationResult !== null) {
@@ -64,6 +65,7 @@ class LegalEntityService
             legal_entity_id: $legal_entity_id,
             identifier: $identifier,
             scheme: $scheme,
+            networksSpecification: $handler->getIdentifierNetworkSpecifications($scheme),
         );
 
         if (! is_array($add_identifier_response)) {
@@ -72,16 +74,21 @@ class LegalEntityService
         }
 
         // Country-specific additional identifiers (e.g. FR:SIRENE, BE:EN, DK:DIGST).
-        // Best-effort (does not roll back the legal entity), but a rejection must
-        // not be swallowed silently - log it so a missing identifier is detectable.
-        foreach ($handler->getAdditionalIdentifiers($data) as $extra) {
+        foreach ($additionalIdentifiers as $extra) {
             $extra_response = $this->addIdentifier(
                 legal_entity_id: $legal_entity_id,
                 identifier: $extra['identifier'],
                 scheme: $extra['scheme'],
+                networksSpecification: $handler->getIdentifierNetworkSpecifications($extra['scheme']),
             );
 
             if (! is_array($extra_response)) {
+                if ($extra['required'] ?? false) {
+                    $this->delete($legal_entity_id);
+
+                    return $extra_response;
+                }
+
                 nlog([
                     'message' => 'Storecove rejected additional Peppol identifier registration',
                     'legal_entity_id' => $legal_entity_id,
@@ -193,8 +200,10 @@ class LegalEntityService
 
     /**
      * Add a Peppol identifier to a legal entity.
+     *
+     * @param array<int, array<string, mixed>> $networksSpecification
      */
-    public function addIdentifier(int $legal_entity_id, string $identifier, string $scheme): array|\Illuminate\Http\Client\Response
+    public function addIdentifier(int $legal_entity_id, string $identifier, string $scheme, array $networksSpecification = []): array|\Illuminate\Http\Client\Response
     {
         $uri = "legal_entities/{$legal_entity_id}/peppol_identifiers";
         $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
@@ -203,6 +212,10 @@ class LegalEntityService
             "scheme" => $scheme,
             "superscheme" => "iso6523-actorid-upis",
         ];
+
+        if ($networksSpecification !== []) {
+            $data['networks_specification'] = $networksSpecification;
+        }
 
         $r = $this->storecove->httpClient($uri, (HttpVerb::POST)->value, $data);
 
@@ -241,7 +254,7 @@ class LegalEntityService
         $data = array_merge($data, [
             "superscheme" => "iso6523-actorid-upis",
         ]);
-        
+
         $r = $this->storecove->httpClient($uri, (HttpVerb::POST)->value, $data);
 
         if ($r->successful()) {

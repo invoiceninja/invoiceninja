@@ -13,12 +13,14 @@
 namespace App\Repositories;
 
 use App\DataMapper\TaskMeta;
-use App\Models\Task;
-use App\Models\Project;
 use App\Factory\TaskFactory;
 use App\Jobs\Task\TaskAssigned;
-use App\Utils\Traits\MakesHash;
+use App\Models\Client;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\User;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
@@ -166,14 +168,13 @@ class TaskRepository extends BaseRepository
             $this->new_task = false;
         }
 
-        if (!is_numeric($task->rate) && !isset($data['rate'])) {
+        $rate_provided = isset($data['rate']) && is_numeric($data['rate']);
+
+        if (!is_numeric($task->rate) && !$rate_provided) {
             $data['rate'] = 0;
         }
 
-        $tag_ids = null;
-        if (array_key_exists('tags', $data) && is_array($data['tags'])) {
-            $tag_ids = Task::resolveTagIds($data['tags'], (int) $task->company_id);
-        }
+        $tag_ids = $this->resolveTagIdsForSync($data, $task);
 
         $lockKey = $this->new_task ? $this->calendarEventLockKey($data, $task) : null;
 
@@ -210,7 +211,7 @@ class TaskRepository extends BaseRepository
             $task->status_id = $this->setDefaultStatus($task);
         }
 
-        if ($this->new_task && (!$task->rate || $task->rate <= 0)) {
+        if ($this->new_task && !$rate_provided && (!$task->rate || $task->rate <= 0)) {
             $task->rate = $task->getRate();
         }
 
@@ -311,9 +312,7 @@ class TaskRepository extends BaseRepository
             $this->saveDocuments($data['documents'], $task);
         }
 
-        if ($tag_ids !== null) {
-            $task->tags()->sync($tag_ids);
-        }
+        $this->syncResolvedTags($task, $tag_ids);
 
         $this->calculateProjectDuration($task);
 
@@ -550,7 +549,7 @@ class TaskRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $task
      */
     public function restore($task)
     {
@@ -565,7 +564,7 @@ class TaskRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $task
      */
     public function delete($task)
     {
@@ -593,9 +592,9 @@ class TaskRepository extends BaseRepository
         if ($column === 'project_id') {
             // Handle project_id updates with client_id synchronization
             $project = Project::withTrashed()
-                ->where('id', $new_value)
-                ->company()
-                ->first();
+                            ->where('id', $new_value)
+                            ->company()
+                            ->first();
 
             if ($project) {
                 /** @var \App\Models\Project $project */
@@ -605,8 +604,28 @@ class TaskRepository extends BaseRepository
                 ]);
             }
         } elseif ($column === 'client_id') {
+
+            $client = Client::withTrashed()
+                    ->where('id', $new_value)
+                    ->company()
+                    ->first();
+
+            if ($client) {
             // If you are updating the client - we will unset the project id!
-            $models->update([$column => $new_value, 'project_id' => null]);
+                $models->update(['client_id' => $client->id, 'project_id' => null]);
+            }
+            
+        } elseif ($column === 'assigned_user_id') {
+
+            $user = User::withTrashed()
+                    ->where('id', $new_value)
+                    ->where('account_id', auth()->user()->account_id)
+                    ->first();
+
+            if ($user) {
+                $models->update(['assigned_user_id' => $user->id]);
+            }
+            
         } else {
             // Assigned User
             $models->update([$column => $new_value]);

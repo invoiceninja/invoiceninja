@@ -14,8 +14,11 @@ namespace Tests\Feature;
 
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\Client;
+use App\Models\Company;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -209,6 +212,203 @@ class ExpenseApiTest extends TestCase
 
 
 
+    }
+
+    public function testBulkUpdateAcceptsCompanyProjectAndClient(): void
+    {
+        $other_client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $other_expense = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $other_client->id,
+        ]);
+
+        $expenses = collect([$this->expense, $other_expense]);
+
+        $expenses->each(function (Expense $expense): void {
+            $expense->client_id = null;
+            $expense->project_id = null;
+            $expense->save();
+        });
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', [
+            'action' => 'bulk_update',
+            'ids' => $expenses->pluck('hashed_id')->all(),
+            'column' => 'project_id',
+            'new_value' => $this->project->hashed_id,
+        ]);
+
+        $response->assertStatus(200);
+
+        $expenses->each(function (Expense $expense): void {
+            $this->assertSame($this->project->id, $expense->fresh()->project_id);
+            $this->assertSame($this->client->id, $expense->fresh()->client_id);
+        });
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', [
+            'action' => 'bulk_update',
+            'ids' => $expenses->pluck('hashed_id')->all(),
+            'column' => 'client_id',
+            'new_value' => $other_client->hashed_id,
+        ]);
+
+        $response->assertStatus(200);
+
+        $expenses->each(function (Expense $expense) use ($other_client): void {
+            $this->assertSame($other_client->id, $expense->fresh()->client_id);
+            $this->assertNull($expense->fresh()->project_id);
+        });
+    }
+
+    public function testBulkUpdateRejectsCrossCompanyProjectAndClient(): void
+    {
+        $other_company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $other_client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $other_company->id,
+        ]);
+
+        $other_project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $other_company->id,
+            'client_id' => $other_client->id,
+        ]);
+
+        foreach (['project_id' => $other_project, 'client_id' => $other_client] as $column => $entity) {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/expenses/bulk', [
+                'action' => 'bulk_update',
+                'ids' => [$this->expense->hashed_id],
+                'column' => $column,
+                'new_value' => $entity->hashed_id,
+            ]);
+
+            $response->assertStatus(422);
+            $response->assertJsonValidationErrors(['new_value']);
+        }
+
+        $this->assertNull($this->expense->fresh()->project_id);
+        $this->assertNull($this->expense->fresh()->client_id);
+    }
+
+    public function testBulkUpdateRejectsInvalidProjectAndClientValues(): void
+    {
+        foreach (['project_id', 'client_id'] as $column) {
+            foreach (['invalid-entity-id', null, '', '   '] as $invalid_value) {
+                $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/expenses/bulk', [
+                    'action' => 'bulk_update',
+                    'ids' => [$this->expense->hashed_id],
+                    'column' => $column,
+                    'new_value' => $invalid_value,
+                ]);
+
+                $response->assertStatus(422);
+                $response->assertJsonValidationErrors(['new_value']);
+            }
+        }
+
+        $this->assertNull($this->expense->fresh()->project_id);
+        $this->assertNull($this->expense->fresh()->client_id);
+    }
+
+    public function testBulkUpdateAcceptsArchivedProjectAndClient(): void
+    {
+        $archived_client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => false,
+        ]);
+        $archived_client->delete();
+
+        $archived_project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $archived_client->id,
+            'is_deleted' => false,
+        ]);
+        $archived_project->delete();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', [
+            'action' => 'bulk_update',
+            'ids' => [$this->expense->hashed_id],
+            'column' => 'project_id',
+            'new_value' => $archived_project->hashed_id,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertSame($archived_project->id, $this->expense->fresh()->project_id);
+        $this->assertSame($archived_client->id, $this->expense->fresh()->client_id);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', [
+            'action' => 'bulk_update',
+            'ids' => [$this->expense->hashed_id],
+            'column' => 'client_id',
+            'new_value' => $archived_client->hashed_id,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertSame($archived_client->id, $this->expense->fresh()->client_id);
+        $this->assertNull($this->expense->fresh()->project_id);
+    }
+
+    public function testBulkUpdateRejectsDeletedProjectAndClient(): void
+    {
+        $deleted_client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => true,
+        ]);
+        $deleted_client->delete();
+
+        $deleted_project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'is_deleted' => true,
+        ]);
+        $deleted_project->delete();
+
+        foreach (['project_id' => $deleted_project, 'client_id' => $deleted_client] as $column => $entity) {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/expenses/bulk', [
+                'action' => 'bulk_update',
+                'ids' => [$this->expense->hashed_id],
+                'column' => $column,
+                'new_value' => $entity->hashed_id,
+            ]);
+
+            $response->assertStatus(422);
+            $response->assertJsonValidationErrors(['new_value']);
+        }
+
+        $this->assertNull($this->expense->fresh()->project_id);
+        $this->assertNull($this->expense->fresh()->client_id);
     }
 
     public function testVendorPayment()

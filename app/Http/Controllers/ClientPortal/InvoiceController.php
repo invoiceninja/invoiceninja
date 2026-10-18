@@ -31,7 +31,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class InvoiceController extends Controller
@@ -61,20 +60,21 @@ class InvoiceController extends Controller
     {
         set_time_limit(0);
 
+        /** @var \App\Models\InvoiceInvitation|null $invitation */
         $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
-        // @phpstan-ignore-next-line
-        if ($invitation && auth()->guard('contact') && ! session()->get('is_silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact')->check() && ! session()->get('is_silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
             event(new InvoiceWasViewed($invitation, $invoice->company, Ninja::eventVars()));
         }
 
+
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
 
         $data = [
-            'invoice' => $invoice->service()->removeUnpaidGatewayFees()->save(),
+            'invoice' => $invoice,
             'invitation' => $invitation ?: $invoice->invitations->first(),
             '_key' => $invitation ? $invitation->key : false,
             'hash' => $hash,
@@ -113,44 +113,40 @@ class InvoiceController extends Controller
 
     }
 
-    public function showBlob($hash)
+    public function showBlob(string $entity_type, string $invitation_key)
     {
-        $data = Cache::get($hash);
+        $contact = auth()->guard('contact')->user();
 
-        for ($x = 0; $x < 18; $x++) {
-
-            $data = Cache::get($hash);
-
-            if ($data) {
-                break;
-            }
-
-            usleep(100000);
-
-        }
-
-        $invitation = false;
-
-        if (!isset($data['entity_type'])) {
-            nlog(array_merge(["showBlob"], $data ?? []));
-        }
-
-        match ($data['entity_type'] ?? 'invoice') {
-            'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']), //@todo - sometimes this is false!!
-            'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
-            'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
-            'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->find($data['invitation_id']),
-            default => $invitation = false,
+        $query = match ($entity_type) {
+            'invoice' => InvoiceInvitation::withTrashed(),
+            'quote' => QuoteInvitation::withTrashed(),
+            'credit' => CreditInvitation::withTrashed(),
+            'recurring_invoice' => RecurringInvoiceInvitation::withTrashed(),
+            default => null,
         };
 
+        if (! $query) {
+            return response('', 404);
+        }
+
+        $invitation = $query
+            ->where('key', $invitation_key)
+            ->where('company_id', $contact->company_id)
+            ->whereHas('contact', function ($query) use ($contact) {
+                $query->where('client_id', $contact->client_id);
+            })
+            ->first();
+
         if (! $invitation) {
-            return redirect('/');
+            return response('', 404);
         }
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
-        $headers = ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline'];
-        return response()->make($file, 200, $headers);
+        return response()->make($file, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline',
+        ]);
 
     }
 
@@ -227,7 +223,6 @@ class InvoiceController extends Controller
         $invoices->each(function ($invoice) {
             $invoice->service()
                     ->markSent()
-                    ->removeUnpaidGatewayFees()
                     ->save();
         });
 
@@ -353,7 +348,7 @@ class InvoiceController extends Controller
             }
 
 
-            $filename = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
+            $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
             $filepath = sys_get_temp_dir() . '/' . $filename;
 
             $zipFile->saveAsFile($filepath) // save the archive to a file

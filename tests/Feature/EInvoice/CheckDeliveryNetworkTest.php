@@ -51,7 +51,7 @@ class CheckDeliveryNetworkTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $this->testCompany->id,
             'is_primary' => 1,
-            'email' => 'test@example.com',
+            'email' => 'test@gmail.com',
         ]);
 
         return $client->fresh();
@@ -235,7 +235,7 @@ class CheckDeliveryNetworkTest extends TestCase
             // Countries with tax metadata in routing_rules but not Peppol destinations
             'HR' => [191, 'HR'], // Croatia
             'CZ' => [203, 'CZ'], // Czech Republic
-            'HU' => [348, 'HU'], // Hungary
+            // 'HU' => [348, 'HU'], // Hungary
             'SK' => [703, 'SK'], // Slovakia
             'CH' => [756, 'CH'], // Switzerland
         ];

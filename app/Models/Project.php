@@ -26,11 +26,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property int $user_id
+ * @property string|null $hash
+ * @property object|null $meta
  * @property int|null $assigned_user_id
  * @property int $company_id
  * @property int|null $client_id
  * @property string $name
  * @property float $task_rate
+ * @property float $budgeted_amount
  * @property string|null $due_date
  * @property string|null $private_notes
  * @property float $budgeted_hours
@@ -50,6 +53,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\Company $company
  * @property-read int|null $documents_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read int|null $tags_count
  * @property-read mixed $hashed_id
  * @property-read Project|null $project
@@ -57,7 +61,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\User $user
  * @property-read \App\Models\User $assigned_user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\ProjectFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Project filter(\App\Filters\QueryFilters $filters)
@@ -101,6 +105,7 @@ class Project extends BaseModel
         'public_notes',
         'due_date',
         'budgeted_hours',
+        'budgeted_amount',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -108,6 +113,7 @@ class Project extends BaseModel
         'assigned_user_id',
         'color',
         'number',
+        'hash',
     ];
 
     protected $with = [
@@ -139,6 +145,7 @@ class Project extends BaseModel
             'is_deleted' => (bool) $this->is_deleted,
             'task_rate' => (float) $this->task_rate,
             'budgeted_hours' => (float) $this->budgeted_hours,
+            'budgeted_amount' => (float) $this->budgeted_amount,
             'due_date' => $this->due_date,
             'custom_value1' => (string) $this->custom_value1,
             'custom_value2' => (string) $this->custom_value2,
@@ -177,7 +184,7 @@ class Project extends BaseModel
         return $this->belongsTo(self::class)->withTrashed();
     }
 
-    public function documents()
+    public function documents(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
@@ -209,7 +216,7 @@ class Project extends BaseModel
 
     public function quotes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Quote::class);
+        return $this->hasMany(Quote::class)->withTrashed();
     }
 
     /**

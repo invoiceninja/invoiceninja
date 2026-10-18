@@ -526,6 +526,48 @@ class CashFlowForecastTest extends TestCase
 
     // ─── API Endpoint ───────────────────────────────────────────────
 
+    public function testAllTimeForecastStartsAtTheFirstRelevantRecord(): void
+    {
+        $firstDate = now()->subYears(2)->startOfMonth()->format('Y-m-d');
+
+        Expense::factory()->create([
+            'company_id' => $this->test_company->id,
+            'user_id' => $this->user->id,
+            'amount' => 50,
+            'date' => $firstDate,
+            'is_deleted' => false,
+        ]);
+
+        $result = $this->getService()->cashflow_forecast(
+            '2000-01-01',
+            now()->format('Y-m-d'),
+            'monthly',
+            true,
+        );
+
+        $this->assertSame($firstDate, $result['start_date']);
+    }
+
+    public function testAllTimeForecastEndpointResolvesTheFirstRelevantDate(): void
+    {
+        Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 50,
+            'date' => '1900-01-01',
+            'is_deleted' => false,
+        ]);
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/charts/cashflow_forecast', [
+            'date_range' => 'all_time',
+            'bucket_type' => 'monthly',
+        ])->assertStatus(200)
+            ->assertJsonPath('start_date', '1900-01-01');
+    }
+
     public function testForecastEndpoint(): void
     {
         $data = [

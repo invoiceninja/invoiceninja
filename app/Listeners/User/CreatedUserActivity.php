@@ -40,6 +40,11 @@ class CreatedUserActivity implements ShouldQueue
      */
     public function handle($event)
     {
+        // Prevents the initial user creation activity from being recorded
+        if ($event->user->is($event->creating_user)) {
+            return;
+        }
+
         MultiDB::setDb($event->company->db);
 
         $fields = new stdClass();
@@ -50,6 +55,7 @@ class CreatedUserActivity implements ShouldQueue
         $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::CREATE_USER;
         $fields->account_id = $event->company->account_id;
+        $fields->notes = $event->user->present()->name();
 
         $this->activityRepo->save($fields, $event->user, $event->event_vars);
     }

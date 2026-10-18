@@ -38,7 +38,7 @@ class ReportDataCast implements CastsAttributes
             throw new InvalidArgumentException('Report data JSON must decode to an object.');
         }
 
-        return ReportData::fromTransactionEventPayload($data, $this->eventIdFromAttributes($attributes));
+        return ReportData::fromArray($data);
     }
 
     /**
@@ -57,10 +57,10 @@ class ReportDataCast implements CastsAttributes
         } elseif ($value instanceof FRReportEntryData) {
             $reportData = ReportData::fromFRReportEntry($value);
         } elseif (is_array($value)) {
-            $reportData = ReportData::fromTransactionEventPayload($value, $this->eventIdFromAttributes($attributes));
+            $reportData = ReportData::fromArray($value);
         } elseif (is_string($value)) {
             try {
-                $reportData = ReportData::fromTransactionEventPayload(json_decode($value, true, 512, JSON_THROW_ON_ERROR), $this->eventIdFromAttributes($attributes));
+                $reportData = ReportData::fromArray(json_decode($value, true, 512, JSON_THROW_ON_ERROR));
             } catch (JsonException $exception) {
                 throw new InvalidArgumentException("Invalid report data JSON: {$exception->getMessage()}", 0, $exception);
             }
@@ -73,15 +73,4 @@ class ReportDataCast implements CastsAttributes
         ];
     }
 
-    /**
-     * @param array<string, mixed> $attributes
-     */
-    private function eventIdFromAttributes(array $attributes): ?int
-    {
-        if (! array_key_exists('event_id', $attributes) || is_null($attributes['event_id'])) {
-            return null;
-        }
-
-        return (int) $attributes['event_id'];
-    }
 }

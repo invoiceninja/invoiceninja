@@ -13,16 +13,21 @@
 namespace App\Http\Requests\Quote;
 
 use App\Http\Requests\Request;
+use App\Models\Quote;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class UpdateQuoteRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Quote::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -71,7 +76,28 @@ class UpdateQuoteRequest extends Request
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->quote->client_id)];
 
-        return $rules;
+        return $this->globalRules($rules);
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+
+        $validator->after(function (Validator $validator): void {
+        
+            if (($this->boolean('mark_sent') || $this->boolean('send_email') || $this->boolean('email')) && $this->quote->hasLapsedValidUntil($this->input('due_date', $this->quote->due_date))) {
+                $validator->errors()->add(
+                    'due_date',
+                    ctrans('texts.expired_quote_validation_error'),
+                );
+            }
+
+            if ($this->filled('due_date') && $this->input('due_date') != $this->quote->due_date?->format('Y-m-d') && $this->quote->hasLapsedValidUntil($this->input('due_date'))) {
+                $validator->errors()->add('due_date', ctrans('texts.quote_due_date_expired'));
+            }
+        });
     }
 
     public function prepareForValidation()
@@ -115,7 +141,6 @@ class UpdateQuoteRequest extends Request
         if (isset($input['terms']) && $this->hasHeader('X-REACT')) {
             $input['terms'] = str_replace("\n", "", $input['terms']);
         }
-
 
         $this->replace($input);
     }

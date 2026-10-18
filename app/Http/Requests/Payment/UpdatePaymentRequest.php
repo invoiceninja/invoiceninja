@@ -14,6 +14,7 @@ namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\PaymentAppliedValidAmount;
+use App\Models\Payment;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -22,6 +23,9 @@ class UpdatePaymentRequest extends Request
 {
     use ChecksEntityStatus;
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Payment::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -45,6 +49,7 @@ class UpdatePaymentRequest extends Request
         $rules = [
             'client_id' => ['sometimes', 'bail', Rule::in([$this->payment->client_id])],
             'number' => ['sometimes', 'bail', Rule::unique('payments')->where('company_id', $user->company()->id)->ignore($this->payment->id)],
+            'date' => ['sometimes', 'bail', 'nullable', 'date'],
             'invoices' => ['sometimes', 'bail', 'nullable', 'array', new PaymentAppliedValidAmount($this->all())],
             'invoices.*.invoice_id' => ['sometimes','distinct',Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->payment->client_id)],
             'invoices.*.amount' => ['sometimes','numeric','min:0'],
@@ -57,7 +62,7 @@ class UpdatePaymentRequest extends Request
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()

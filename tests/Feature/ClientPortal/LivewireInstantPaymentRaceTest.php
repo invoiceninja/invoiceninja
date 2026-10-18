@@ -13,10 +13,15 @@
 namespace Tests\Feature\ClientPortal;
 
 use App\Exceptions\PaymentFailed;
+use App\Livewire\Flow2\InvoicePay;
+use App\Livewire\Flow2\ProcessPayment;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
+use App\Services\ClientPortal\InstantPayment;
 use App\Services\ClientPortal\LivewireInstantPayment;
+use App\Utils\Number;
+use Livewire\Livewire;
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
@@ -28,11 +33,19 @@ use Tests\TestCase;
  * Regression tests for the gateway-fee duplicate-application race.
  *
  * Production incident 2026-05-27: two requests for the same invoice landed
- * ~4ms apart, each calling addGatewayFee and creating a PaymentHash —
+ * ~4ms apart, each calling addGatewayFee and creating a PaymentHash -
  * resulting in a doubled gateway-fee line item and doubled client balance.
  *
- * The fix wraps the fee-add + PaymentHash creation in a Cache::lock and has
- * the loser adopt the winner's PaymentHash row instead of creating its own.
+ * That class of race is no longer reachable: gateway fees are quoted at
+ * initiation and written only when a payment confirms, so concurrent
+ * initialisations touch nothing on the invoice. The tests covering the old
+ * Cache::lock arbitration have been removed with the mechanism; the invariants
+ * they protected are covered by GatewayFeeConcurrencyTest.
+ *
+ * What remains here is Livewire component lifecycle - repeated mounts and
+ * context events must not create additional PaymentHash rows.
+ *
+ * @see \Tests\Feature\GatewayFeeConcurrencyTest
  */
 class LivewireInstantPaymentRaceTest extends TestCase
 {
@@ -117,150 +130,158 @@ class LivewireInstantPaymentRaceTest extends TestCase
             ->andReturn($lock);
     }
 
-    public function testWinnerPathCreatesSingleFeeAndSingleHash(): void
+    public function testInvoicePayDuplicatePaymentMethodSelectionDoesNotCreateAnotherPaymentHash(): void
     {
+        $this->actingAs($this->contact, 'contact');
+
         $cg = $this->makeCompanyGateway();
+        $cg->require_billing_address = false;
+        $cg->require_shipping_address = false;
+        $cg->save();
 
-        $starting_balance = $this->invoice->balance;
-        $starting_client_balance = $this->client->balance;
+        $invitation = $this->invoice->invitations()->first();
 
-        $response = (new LivewireInstantPayment($this->makePayload($cg)))->run();
+        Livewire::test(InvoicePay::class, [
+            'invoices' => [$this->invoice->hashed_id],
+            'invitation_id' => $invitation->id,
+            'db' => $this->company->db,
+            'variables' => [],
+        ])
+            ->set('terms_accepted', true)
+            ->set('signature_accepted', true)
+            ->set('under_over_payment', false)
+            ->set('required_fields', false)
+            ->call('paymentMethodSelected', $cg->id, GatewayType::CREDIT_CARD, (string) $this->invoice->balance)
+            ->set('required_fields', false)
+            ->call('paymentMethodSelected', $cg->id, GatewayType::CREDIT_CARD, (string) $this->invoice->balance);
 
-        $this->assertTrue($response['success']);
+        $hashes = PaymentHash::query()
+            ->where('fee_invoice_id', $this->invoice->id)
+            ->whereNull('payment_id')
+            ->get();
 
-        $invoice = $this->invoice->fresh();
-        $fee_items = collect($invoice->line_items)->where('type_id', '3');
-
-        $this->assertCount(1, $fee_items, 'expected exactly one gateway-fee line item');
-        $this->assertEquals($starting_balance + 1.0, (float) $invoice->balance);
-
-        $hashes = PaymentHash::where('fee_invoice_id', $invoice->id)->get();
-        $this->assertCount(1, $hashes, 'expected exactly one PaymentHash row');
-        $this->assertEquals(1.0, (float) $hashes->first()->fee_total);
-
-        $client = $this->client->fresh();
-        $this->assertEquals($starting_client_balance + 1.0, (float) $client->balance);
+        $this->assertCount(1, $hashes, 'duplicate payment-method-selected events must not create another payment hash');
     }
 
-    public function testLoserAdoptsExistingWinnerHash(): void
+    public function testInvoicePayParentRefreshAfterPaymentSelectionDoesNotCreateAnotherPaymentHash(): void
     {
+        $this->actingAs($this->contact, 'contact');
+
         $cg = $this->makeCompanyGateway();
+        $cg->require_billing_address = false;
+        $cg->require_shipping_address = false;
+        $cg->save();
 
-        // Simulate a winner having just finished: fee is on the invoice and
-        // a PaymentHash row exists.
-        $this->invoice = $this->invoice
-            ->service()
-            ->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance, 'winner-hash-string')
-            ->save();
+        $invitation = $this->invoice->invitations()->first();
 
-        $balance_after_winner = $this->invoice->balance;
-        $client_balance_after_winner = $this->client->fresh()->balance;
+        Livewire::test(InvoicePay::class, [
+            'invoices' => [$this->invoice->hashed_id],
+            'invitation_id' => $invitation->id,
+            'db' => $this->company->db,
+            'variables' => [],
+        ])
+            ->set('terms_accepted', true)
+            ->set('signature_accepted', true)
+            ->set('under_over_payment', false)
+            ->set('required_fields', false)
+            ->call('paymentMethodSelected', $cg->id, GatewayType::CREDIT_CARD, (string) $this->invoice->balance)
+            ->set('required_fields', false)
+            ->refresh();
 
-        $winner = new PaymentHash();
-        $winner->hash = 'winner-hash-string';
-        $winner->data = [
-            'invoices' => [],
-            'credits' => 0,
-            'amount_with_fee' => 0,
-            'pre_payment' => false,
-            'frequency_id' => false,
-            'remaining_cycles' => false,
-            'is_recurring' => false,
-        ];
-        $winner->fee_total = 1.0;
-        $winner->fee_invoice_id = $this->invoice->id;
-        $winner->save();
+        $hashes = PaymentHash::query()
+            ->where('fee_invoice_id', $this->invoice->id)
+            ->whereNull('payment_id')
+            ->get();
 
-        // Force the loser branch
-        $this->bindFakeLock(getResult: false, blockResult: true);
-
-        $response = (new LivewireInstantPayment($this->makePayload($cg)))->run();
-
-        $this->assertTrue($response['success']);
-        $this->assertEquals('winner-hash-string', $response['payload']['payment_hash']);
-
-        // The critical invariant: still exactly ONE PaymentHash row, ONE fee line, ONE balance bump.
-        $hashes = PaymentHash::where('fee_invoice_id', $this->invoice->id)->get();
-        $this->assertCount(1, $hashes, 'loser must adopt winner hash, not insert a second row');
-        $this->assertEquals('winner-hash-string', $hashes->first()->hash);
-
-        $invoice = $this->invoice->fresh();
-        $fee_items = collect($invoice->line_items)->where('type_id', '3');
-        $this->assertCount(1, $fee_items, 'loser must not append a second fee line');
-        $this->assertEquals((float) $balance_after_winner, (float) $invoice->balance);
-
-        $this->assertEquals((float) $client_balance_after_winner, (float) $this->client->fresh()->balance);
+        $this->assertCount(1, $hashes, 'parent refresh after selecting a payment method must not remount ProcessPayment and create another hash');
     }
 
-    public function testLoserThrowsWhenNoRecentWinnerHashExists(): void
+    public function testProcessPaymentUsesCurrentPayableInvoicesContextWhenItMounts(): void
     {
+        $this->actingAs($this->contact, 'contact');
+
         $cg = $this->makeCompanyGateway();
+        $cg->require_billing_address = false;
+        $cg->require_shipping_address = false;
+        $cg->save();
 
-        $this->bindFakeLock(getResult: false, blockResult: true);
+        $invitation = $this->invoice->invitations()->first();
+        $payable_amount = Number::roundValue($this->invoice->balance / 2, $this->client->currency()->precision);
 
-        $this->expectException(PaymentFailed::class);
-        $this->expectExceptionMessage(ctrans('texts.processing_request'));
-
-        (new LivewireInstantPayment($this->makePayload($cg)))->run();
-    }
-
-    public function testLoserIgnoresStaleHashOutsideAdoptionWindow(): void
-    {
-        $cg = $this->makeCompanyGateway();
-
-        // A PaymentHash exists but is older than the 2-second adoption window;
-        // the loser must treat it as not-a-winner and throw.
-        $stale = new PaymentHash();
-        $stale->hash = 'stale-hash';
-        $stale->data = [
-            'invoices' => [], 'credits' => 0, 'amount_with_fee' => 0,
-            'pre_payment' => false, 'frequency_id' => false,
-            'remaining_cycles' => false, 'is_recurring' => false,
-        ];
-        $stale->fee_total = 0;
-        $stale->fee_invoice_id = $this->invoice->id;
-        $stale->save();
-
-        // Backdate it past the adoption window
-        PaymentHash::where('id', $stale->id)->update(['created_at' => now()->subSeconds(10)]);
-
-        $this->bindFakeLock(getResult: false, blockResult: true);
-
-        $this->expectException(PaymentFailed::class);
-
-        (new LivewireInstantPayment($this->makePayload($cg)))->run();
-    }
-
-    public function testNonGatewayPathSkipsLockAndCreatesHash(): void
-    {
-        // GATEWAY_CREDIT sentinel: CompanyGateway::find() returns null, lock block is skipped.
-        $payload = [
-            'company_gateway_id' => CompanyGateway::GATEWAY_CREDIT,
-            'payment_method_id' => GatewayType::CREDIT,
-            'payable_invoices' => [
-                ['invoice_id' => $this->invoice->hashed_id, 'amount' => $this->invoice->balance],
-            ],
+        Cache::put($invitation->key, [
+            'db' => $this->company->db,
+            'contact' => $this->contact,
+            'company_gateway_id' => $cg->id,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'payable_invoices' => [[
+                'invoice_id' => $this->invoice->hashed_id,
+                'amount' => $payable_amount,
+            ]],
             'signature' => false,
             'signature_ip' => false,
-            'pre_payment' => false,
-            'frequency_id' => false,
-            'remaining_cycles' => false,
-            'is_recurring' => false,
-        ];
+        ], now()->addHour());
 
-        $starting_balance = $this->invoice->balance;
+        Livewire::test(ProcessPayment::class, [
+            '_key' => $invitation->key,
+        ]);
 
-        $response = (new LivewireInstantPayment($payload))->run();
+        $hash = PaymentHash::query()
+            ->where('fee_invoice_id', $this->invoice->id)
+            ->whereNull('payment_id')
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($hash);
+        $this->assertEquals($payable_amount, (float) data_get($hash->data, 'invoices.0.amount'));
+    }
+
+    public function testInvoiceSummaryContextEventsDoNotDisturbTheInvoiceOrPaymentHash(): void
+    {
+        $cg = $this->makeCompanyGateway();
+        $response = (new LivewireInstantPayment($this->makePayload($cg)))->run();
 
         $this->assertTrue($response['success']);
 
         $invoice = $this->invoice->fresh();
         $fee_items = collect($invoice->line_items)->where('type_id', '3');
-        $this->assertCount(0, $fee_items, 'credit payment must not add a gateway fee');
-        $this->assertEquals((float) $starting_balance, (float) $invoice->balance);
+        $hashes = PaymentHash::query()
+            ->where('fee_invoice_id', $invoice->id)
+            ->whereNull('payment_id')
+            ->get();
 
-        $hashes = PaymentHash::where('fee_invoice_id', $invoice->id)->get();
-        $this->assertCount(1, $hashes, 'credit payment still creates one PaymentHash row');
-        $this->assertEquals(0.0, (float) $hashes->first()->fee_total);
+        /** The fee is quoted, not written - the invoice carries no pending fee line. */
+        $this->assertCount(0, $fee_items);
+        $this->assertCount(1, $hashes);
+
+        $context_key = 'invoice-summary-propagation-' . $invoice->id;
+
+        Cache::put($context_key, [
+            'contact' => $this->contact,
+            'payable_invoices' => [[
+                'invoice_id' => $invoice->hashed_id,
+                'number' => $invoice->number,
+                'date' => $invoice->translateDate($invoice->date, $this->client->date_format(), $this->client->locale()),
+                'due_date' => $invoice->due_date ? $invoice->translateDate($invoice->due_date, $this->client->date_format(), $this->client->locale()) : '',
+                'formatted_currency' => Number::formatMoney($invoice->balance, $this->client),
+            ]],
+            'amount' => data_get($response, 'payload.total.amount_with_fee'),
+            'gateway_fee' => data_get($response, 'payload.total.fee_total'),
+            'db' => $this->company->db,
+            'invitation_id' => $invoice->invitations()->first()?->id,
+        ], now()->addHour());
+
+        Livewire::test(\App\Livewire\Flow2\InvoiceSummary::class, ['_key' => $context_key])
+            ->dispatch('payment-view-rendered')
+            ->dispatch('secureContext.updated');
+
+        $invoice = $this->invoice->fresh();
+        $fee_items = collect($invoice->line_items)->where('type_id', '3');
+        $hashes = PaymentHash::query()
+            ->where('fee_invoice_id', $invoice->id)
+            ->whereNull('payment_id')
+            ->get();
+
+        $this->assertCount(0, $fee_items, 'summary context events must not write a fee to the invoice');
+        $this->assertCount(1, $hashes, 'summary context events must not create or remove PaymentHash rows');
     }
 }

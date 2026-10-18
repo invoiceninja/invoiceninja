@@ -32,7 +32,7 @@ class UnderOverPayment extends Component
 
     public $_key;
 
-    public function mount()
+    public function mount(): void
     {
 
         $_context = $this->getContext($this->_key);
@@ -44,42 +44,89 @@ class UnderOverPayment extends Component
         $this->payableInvoices = $_context['payable_invoices'];
     }
 
-    public function checkValue(array $payableInvoices)
+    public function checkValue(array $payable_invoices): void
     {
+        /** Ensure the checkValue is comparing against the same list of invoices as the context */
         $this->errors = '';
         $_context = $this->getContext($this->_key);
         $settings = $_context['settings'];
 
         $contact = $_context['contact'] ?? auth()->guard('contact')->user();
+        $currency = $contact->client->currency();
 
-        foreach ($payableInvoices as $key => $invoice) {
-            $payableInvoices[$key]['amount'] = Number::parseFloat($invoice['formatted_amount']);
-            $payableInvoices[$key]['formatted_currency'] = Number::FormatMoney($payableInvoices[$key]['amount'], $contact->client);
+        $context_payable_invoices = collect($_context['payable_invoices'] ?? [])->keyBy('invoice_id');
+        $submitted_payable_invoices = collect($payable_invoices);
+        $submitted_invoice_ids = $submitted_payable_invoices->pluck('invoice_id');
+
+        $has_invalid_invoice_id = $submitted_invoice_ids->contains(function ($invoice_id) use ($context_payable_invoices): bool {
+            return ! is_string($invoice_id) || $invoice_id === '' || ! $context_payable_invoices->has($invoice_id);
+        });
+
+        if ($context_payable_invoices->isEmpty() || $has_invalid_invoice_id) {
+            $this->setError(ctrans('texts.no_payable_invoices_selected'));
+
+            return;
         }
+        /** Ensure the checkValue is comparing against the same list of invoices as the context */
 
-        $input_amount = collect($payableInvoices)->sum('amount');
+        $submitted_payable_invoices = $submitted_payable_invoices->keyBy('invoice_id');
+        $payable_invoices = [];
 
-        if ($settings->client_portal_allow_under_payment) {
-            if ($input_amount <= $settings->client_portal_under_payment_minimum || $input_amount <= 0) {
-                // return error message under payment too low.
-                $this->errors = ctrans('texts.minimum_required_payment', ['amount' => max($settings->client_portal_under_payment_minimum, 1)]);
-                $this->dispatch('errorMessageUpdate', errors: $this->errors);
+        foreach ($context_payable_invoices as $invoice_id => $context_payable_invoice) {
+            $submitted_payable_invoice = $submitted_payable_invoices->get($invoice_id, []);
+            $amount = Number::parseFloat($submitted_payable_invoice['formatted_amount'] ?? $context_payable_invoice['formatted_amount']);
+            $input_amount = Number::roundValue($amount, $currency->precision);
+            $invoice_amount = Number::roundValue((float) $context_payable_invoice['amount'], $currency->precision);
+
+            if (! $settings->client_portal_allow_under_payment && $input_amount < $invoice_amount) {
+                $this->setError(ctrans('texts.minimum_required_payment', ['amount' => $invoice_amount]));
+
+                return;
             }
+
+            if ($settings->client_portal_allow_under_payment) {
+                if ($invoice_amount < $settings->client_portal_under_payment_minimum && $input_amount < $invoice_amount) {
+                    $this->setError(ctrans('texts.minimum_required_payment', ['amount' => $invoice_amount]));
+
+                    return;
+                } elseif ($invoice_amount >= $settings->client_portal_under_payment_minimum && $input_amount < $settings->client_portal_under_payment_minimum) {
+                    $this->setError(ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]));
+
+                    return;
+                }
+            }
+
+            if (! $settings->client_portal_allow_over_payment && $input_amount > $invoice_amount) {
+                $this->setError(ctrans('texts.over_payments_disabled'));
+
+                return;
+            }
+
+            $payable_invoices[] = array_merge($context_payable_invoice, [
+                'amount' => $amount,
+                'formatted_amount' => Number::formatValue($amount, $currency),
+                'formatted_currency' => Number::formatMoney($amount, $contact->client),
+            ]);
         }
 
-        if (!$settings->client_portal_allow_over_payment && ($input_amount > $this->invoice_amount)) {
-            $this->errors = ctrans('texts.over_payments_disabled');
-            $this->dispatch('errorMessageUpdate', errors: $this->errors);
-        }
+        $input_amount = Number::roundValue(collect($payable_invoices)->sum('amount'), $currency->precision);
 
-        if (!$this->errors) {
-            $this->setContext($this->_key, 'payable_invoices', $payableInvoices);
-            $this->dispatch('payable-amount', payable_amount: $input_amount);
-        }
+        $this->setContext($this->_key, 'payable_invoices', $payable_invoices);
+        $this->dispatch('payable-amount', payable_amount: $input_amount);
     }
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
-        return render('flow2.under-over-payments');
+        $_context = $this->getContext($this->_key);
+
+        return render('flow2.under-over-payments', [
+            'settings' => $_context['settings'],
+        ]);
+    }
+
+    private function setError(string $error): void
+    {
+        $this->errors = $error;
+        $this->dispatch('errorMessageUpdate', errors: $this->errors);
     }
 }

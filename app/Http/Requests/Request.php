@@ -12,8 +12,9 @@
 
 namespace App\Http\Requests;
 
-use App\Http\ValidationRules\User\RelatedUserRule;
+use App\Models\Tag;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -31,6 +32,8 @@ class Request extends FormRequest
 
     /** @var class-string|null */
     protected ?string $tag_entity_type = null;
+
+    protected ?string $timeLogValidationError = null;
 
     protected $file_validation = 'sometimes|file|max:100000|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp,txt';
     /**
@@ -63,12 +66,21 @@ class Request extends FormRequest
                 continue;
             }
 
-            if (isset(self::GLOBAL_RULE_METHODS[$key])) {
+            if (isset(self::GLOBAL_RULE_METHODS[$key]) && ! $this->hasExistingGlobalRule($key, $merge_rules)) {
                 $merge_rules = $this->{$key}($merge_rules);
             }
         }
 
         return $merge_rules;
+    }
+
+    private function hasExistingGlobalRule(string $key, array $rules): bool
+    {
+        if ($key === 'tags') {
+            return array_key_exists('tags', $rules) || array_key_exists('tags.*', $rules);
+        }
+
+        return array_key_exists($key, $rules);
     }
 
     private function assigned_user_id($rules)
@@ -77,7 +89,7 @@ class Request extends FormRequest
             'bail',
             'sometimes',
             'nullable',
-            new RelatedUserRule($this->all()),
+            Rule::exists('users', 'id')->where('account_id', auth()->user()->account_id),
         ];
 
         return $rules;
@@ -126,7 +138,8 @@ class Request extends FormRequest
             'vendor_id', 
             'location_id', 
             'client_id', 
-            'invoice_id', 
+            'invoice_id',
+            'quote_id', 
             'expense_id', 
             'design_id', 
             'project_id', 
@@ -203,7 +216,7 @@ class Request extends FormRequest
             }
         }
 
-        $input = $this->normalizeTagPayload($input);
+        $input = $this->normalizeTagPayloadForValidation($input);
 
         return $input;
     }
@@ -212,7 +225,7 @@ class Request extends FormRequest
      * @param  array<string, mixed> $input
      * @return array<string, mixed>
      */
-    private function normalizeTagPayload(array $input): array
+    protected function normalizeTagPayloadForValidation(array $input): array
     {
         if (! array_key_exists('tags', $input) || ! is_array($input['tags'])) {
             return $input;
@@ -248,7 +261,7 @@ class Request extends FormRequest
                 'integer',
                 Rule::exists('tags', 'id')
                     ->where('company_id', $company_id)
-                    ->where('entity_type', $entity_type)
+                    ->whereIn('entity_type', [$entity_type, Tag::GLOBAL_ENTITY_TYPE])
                     ->where('is_deleted', false),
             ],
         ];
@@ -300,6 +313,71 @@ class Request extends FormRequest
     }
 
     public function checkTimeLog(array $log): bool
+    {
+        $this->timeLogValidationError = null;
+
+        if ($log === []) {
+            return true;
+        }
+
+        usort(
+            $log,
+            static fn (array $left, array $right): int => $left[0] <=> $right[0]
+        );
+
+        foreach ($log as $index => $entry) {
+            $startTime = $entry[0];
+            $endTime = $entry[1];
+            $nextEntry = $log[$index + 1] ?? null;
+
+            if ($endTime !== 0 && $startTime > $endTime) {
+                return false;
+            }
+
+            if ($nextEntry === null) {
+                continue;
+            }
+
+            if ($endTime === 0) {
+                return false;
+            }
+
+            if ($nextEntry[0] < $endTime) {
+                $overlapStartTime = max($startTime, $nextEntry[0]);
+                $overlapEndTime = $nextEntry[1] === 0
+                    ? $endTime
+                    : min($endTime, $nextEntry[1]);
+
+                $this->timeLogValidationError = sprintf(
+                    'Overlap detected: %s - %s.',
+                    $this->formatTimeLogTimestamp($overlapStartTime),
+                    $this->formatTimeLogTimestamp($overlapEndTime)
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function formatTimeLogTimestamp(int $timestamp): string
+    {
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        $company = $user?->company();
+        $timezone = $company?->timezone()?->name ?: config('app.timezone', 'UTC');
+        $dateFormat = $company?->date_format() ?: 'Y-m-d';
+        $timeFormat = $company?->getSetting('military_time') ? 'H:i:s' : 'h:i:s A';
+        $locale = $company?->locale() ?: app()->getLocale();
+
+        return Carbon::createFromTimestampUTC($timestamp)
+            ->setTimezone($timezone)
+            ->locale($locale)
+            ->translatedFormat("{$dateFormat} {$timeFormat}");
+    }
+
+    public function checkTimeLogOld(array $log): bool
     {
         if (count($log) == 0) {
             return true;

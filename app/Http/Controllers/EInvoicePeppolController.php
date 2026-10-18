@@ -190,6 +190,7 @@ class EInvoicePeppolController extends BaseController
 
         $settings = $company->settings;
         $settings->e_invoice_type = 'EN16931';
+        $settings->france_reporting_enabled = false;
 
         $company->settings = $settings;
 

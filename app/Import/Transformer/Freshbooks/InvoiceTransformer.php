@@ -47,7 +47,7 @@ class InvoiceTransformer extends BaseTransformer
         $transformed = [
             'company_id'  => $this->company->id,
             'client_id'   => $this->getClient($this->getString($invoice_data, 'Client Name'), null),
-            'number'      => $this->getString($invoice_data, 'Invoice #'),
+            'number'      => $this->getString($invoice_data, 'Invoice #', null),
             'date'        => isset($invoice_data['Date Issued']) ? $this->parseDate($invoice_data['Date Issued']) : null,
             'amount'      => 0,
             'is_amount_discount' => false,

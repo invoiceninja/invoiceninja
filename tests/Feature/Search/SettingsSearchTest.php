@@ -62,7 +62,7 @@ class SettingsSearchTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => uniqid('code', true),
-            'email' => uniqid('user', true) . '@example.com',
+            'email' => uniqid('user', true) . '@gmail.com',
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);

@@ -56,6 +56,8 @@ class ChargePaymentProfile
         $invoiceTotal = 0;
         $invoiceTaxes = 0;
 
+        $amount = round($amount, 2);
+        
         if ($this->authorize->payment_hash->data) {
             $invoice_numbers = collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
             $invObj = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();

@@ -43,6 +43,10 @@ class StorecoveRequiredClientFields
             $required['routing_id'] = 'IT:CUUO';
         }
 
+        if ($country === 'FI' && in_array($classification, ['business', 'government'], true)) {
+            $required['routing_id'] = 'FI:OPID';
+        }
+
         return $required;
     }
 

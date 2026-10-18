@@ -200,4 +200,27 @@
           description: 'The unique identifier of the vendor associated with this expense'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        expense_currency_id:
+          description: 'The currency id of the expense (alias of currency_id)'
+          type: string
+          example: '2'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+          example: expense
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
       type: object

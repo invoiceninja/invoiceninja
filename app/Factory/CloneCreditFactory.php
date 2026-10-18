@@ -28,6 +28,9 @@ class CloneCreditFactory
         //$clone_credit->balance = $credit->amount;
         $clone_credit->line_items = $credit->line_items;
 
+
+        $clone_credit->sync = null;
+        $clone_credit->backup = null; // @phpstan-ignore-line
         return $clone_credit;
     }
 }

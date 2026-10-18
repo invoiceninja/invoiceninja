@@ -44,7 +44,7 @@ class RecurringExpenseCloneTest extends TestCase
     public function testBadBase64String()
     {
         $account = Account::factory()->create();
-        $user = User::factory()->create(['account_id' => $account->id, 'email' => \Illuminate\Support\Str::random(32)."@example.com"]);
+        $user = User::factory()->create(['account_id' => $account->id, 'email' => \Illuminate\Support\Str::random(32)."@gmail.com"]);
         $company = Company::factory()->create(['account_id' => $account->id]);
 
         $client = Client::factory()->create([

@@ -50,7 +50,7 @@ final readonly class TransactionReportData implements Arrayable, JsonSerializabl
      */
     public function toArray(): array
     {
-        return [
+        return array_filter([
             'period' => $this->period,
             'b2biInvoices' => array_values(array_map(
                 static fn (B2BIInvoiceData $invoice): array => $invoice->toArray(),
@@ -60,7 +60,7 @@ final readonly class TransactionReportData implements Arrayable, JsonSerializabl
                 static fn (B2CTransactionData $transaction): array => $transaction->toArray(),
                 $this->b2cTransactions,
             )),
-        ];
+        ], static fn (mixed $value): bool => $value !== []);
     }
 
     /**
@@ -73,7 +73,7 @@ final readonly class TransactionReportData implements Arrayable, JsonSerializabl
 
     private function validate(): void
     {
-        ReportDataValidator::assertNonEmptyString($this->period, 'transactionReport.period');
+        ReportDataValidator::assertPeriod($this->period, 'transactionReport.period');
 
         if ($this->b2biInvoices === [] && $this->b2cTransactions === []) {
             throw new InvalidArgumentException('transactionReport requires at least one b2biInvoices or b2cTransactions item.');

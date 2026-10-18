@@ -19,6 +19,7 @@ use Stripe\Account;
 use Stripe\Customer;
 use App\Models\Client;
 use App\Models\Payment;
+use Stripe\Mandate;
 use Stripe\SetupIntent;
 use Stripe\StripeClient;
 use App\Models\SystemLog;
@@ -43,18 +44,20 @@ use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\Klarna;
 use App\PaymentDrivers\Stripe\SOFORT;
-use Illuminate\Http\RedirectResponse;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentMethodDomain;
 use App\Exceptions\StripeConnectFailure;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\PRZELEWY24;
+use App\PaymentDrivers\Stripe\PromptPay;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\PaymentMethodSyncService;
 use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Laracasts\Presenter\Exceptions\PresenterException;
@@ -103,6 +106,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         GatewayType::KLARNA => Klarna::class,
         GatewayType::BACS => BACS::class,
         GatewayType::DIRECT_DEBIT => BankTransfer::class,
+        GatewayType::PROMPTPAY => PromptPay::class,
     ];
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -128,12 +132,16 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
-            // Stripe::setAPiVersion('2023-10-16');
-            // Stripe::setApiVersion('2024-04-10');
-            Stripe::setApiVersion('2025-03-31.basil');
         }
 
+        Stripe::setApiVersion($this->apiVersion());
+
         return $this;
+    }
+
+    public function apiVersion(): string
+    {
+        return '2025-03-31.basil';
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -267,6 +275,13 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
            && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
             $types[] = GatewayType::KLARNA;
         }
+        if ($this->client
+           && $this->client->currency()
+           && ($this->client->currency()->code == 'THB')
+           && isset($this->client->country)
+           && in_array($this->client->country->iso_3166_3, ['THA'])) {
+            $types[] = GatewayType::PROMPTPAY;
+        }
 
         if (
             $this->client
@@ -320,6 +335,8 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 return 'gateways.stripe.acss';
             case GatewayType::FPX:
                 return 'gateways.stripe.fpx';
+            case GatewayType::PROMPTPAY:
+                return 'gateways.stripe.promptpay';
             default:
                 break;
         }
@@ -328,6 +345,9 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     public function getClientRequiredFields(): array
     {
         $fields = [];
+
+        /** Nacha requires a complete billing address on the us_bank_account payment method. */
+        $requires_billing_address = $this->payment_method instanceof ACH;
 
         if ($this->company_gateway->require_client_name) {
             $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
@@ -346,15 +366,15 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_billing_address) {
+        if ($requires_billing_address || $this->company_gateway->require_billing_address) {
             $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
-            //            $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'nullable'];
+            // $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'nullable'];
             $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_postal_code) {
+        if ($requires_billing_address || $this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         }
 
@@ -489,12 +509,20 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      */
     public function getSetupIntent(): SetupIntent
     {
+        return $this->createSetupIntent([
+            'usage' => 'off_session',
+            'payment_method_types' => ['card'],
+        ]);
+    }
+
+    public function createSetupIntent(array $params): SetupIntent
+    {
         $this->init();
 
-        $params = ['usage' => 'off_session'];
-        $meta = $this->stripe_connect_auth;
-
-        return SetupIntent::create($params, array_merge($meta, ['idempotency_key' => uniqid("st", true)]));
+        return SetupIntent::create(
+            $params,
+            array_merge($this->stripe_connect_auth, ['idempotency_key' => uniqid('st', true)])
+        );
     }
 
     public function getSetupIntentId(string $id): SetupIntent
@@ -502,6 +530,16 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         $this->init();
 
         return SetupIntent::retrieve(
+            $id,
+            $this->stripe_connect_auth
+        );
+    }
+
+    public function getMandate(string $id): Mandate
+    {
+        $this->init();
+
+        return Mandate::retrieve(
             $id,
             $this->stripe_connect_auth
         );
@@ -587,6 +625,68 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         return $customer;
     }
 
+    /**
+     * Maps a client record onto a Stripe address object.
+     *
+     * Nacha requires a complete billing address on the us_bank_account payment
+     * method, so this is shared by the ACH views, the token backfill and the
+     * customer sync to guarantee they all send an identical address.
+     *
+     * @return array{line1: string, line2: string, city: string, state: string, postal_code: string, country: string}
+     */
+    public function stripeBillingAddress(?Client $client = null): array
+    {
+        $client = $client ?: $this->client;
+
+        return [
+            'line1' => (string) $client->address1,
+            'line2' => (string) $client->address2,
+            'city' => (string) $client->city,
+            'state' => (string) $client->state,
+            'postal_code' => (string) $client->postal_code,
+            'country' => (string) ($client->country->iso_3166_2 ?? ''),
+        ];
+    }
+
+    /**
+     * Determines whether a client carries every address component Nacha requires.
+     *
+     * Line 2 is intentionally excluded, it is optional at Stripe.
+     */
+    public function hasCompleteBillingAddress(?Client $client = null): bool
+    {
+        $address = $this->stripeBillingAddress($client);
+
+        unset($address['line2']);
+
+        foreach ($address as $value) {
+            if (strlen(trim($value)) === 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function syncAchPaymentMethodBillingAddress(ClientGatewayToken $token): void
+    {
+        // if (! str_starts_with($token->token, 'pm_')) {
+        //     return;
+        // }
+
+        if (! $this->hasCompleteBillingAddress()) {
+            throw new PaymentFailed('A complete billing address is required to use this bank account.', 400);
+        }
+
+        $this->init();
+
+        PaymentMethod::update(
+            $token->token,
+            ['billing_details' => ['address' => $this->stripeBillingAddress()]],
+            $this->stripe_connect_auth
+        );
+    }
+
     public function updateStripeCustomer($customer)
     {
         //Else create a new record
@@ -646,12 +746,18 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         /** Response from Stripe SDK/API. */
         $response = null;
+        $refund_data = [];
+
+        if (str_starts_with($payment->transaction_reference ?? '', 'pi_')) {
+            $refund_data['payment_intent'] = $payment->transaction_reference;
+        } else {
+            $refund_data['charge'] = $payment->transaction_reference;
+        }
+
+        $refund_data['amount'] = $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency());
 
         try {
-            $response = \Stripe\Refund::create([
-                'charge' => $payment->transaction_reference,
-                'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency()),
-            ], $meta);
+            $response = \Stripe\Refund::create($refund_data, $meta);
 
             if (in_array($response->status, ['succeeded', 'pending'])) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all()], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
@@ -703,6 +809,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     {
         // nlog($request->all());
         $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+        $event = null;
 
         if ($webhook_secret) {
             $sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? $request->header('Stripe-Signature');
@@ -711,7 +818,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 return response()->json(['error' => 'No signature header'], 403);
             }
             try {
-                \Stripe\Webhook::constructEvent(
+                $event = \Stripe\Webhook::constructEvent(
                     $request->getContent(),
                     $sig_header,
                     $webhook_secret
@@ -720,6 +827,34 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 nlog("Stripe webhook signature verification failed: " . $e->getMessage());
                 return response()->json(['error' => 'Invalid signature'], 403);
             }
+        }
+
+        $event ??= \Stripe\Event::constructFrom($request->all());
+
+        if (in_array($event->type, [
+            'payment_method.detached',
+            'payment_method.updated',
+            'payment_method.automatically_updated',
+            'customer.deleted',
+        ], true)) {
+            $paymentMethod = $event->data->object;
+            $objectId = data_get($paymentMethod, 'id');
+
+            if (!is_string($objectId) || $objectId === '') {
+                return response()->json([], 200);
+            }
+
+            $paymentMethodSyncService = app(PaymentMethodSyncService::class);
+            $companyGateways = $this->company_gateway->newCollection([$this->company_gateway]);
+
+            match ($event->type) {
+                'payment_method.detached' => $paymentMethodSyncService->removePaymentMethod($companyGateways, $objectId),
+                'customer.deleted' => $paymentMethodSyncService->removeCustomerPaymentMethods($companyGateways, $objectId),
+                'payment_method.updated' => $paymentMethodSyncService->updatePaymentMethod($companyGateways, $paymentMethod),
+                'payment_method.automatically_updated' => $paymentMethodSyncService->updatePaymentMethod($companyGateways, $paymentMethod, true),
+            };
+
+            return response()->json([], 200);
         }
 
         if ($request->type === 'customer.source.updated') {
@@ -731,6 +866,11 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         if ($request->type === 'setup_intent.succeeded') {
             $ach = new ACH($this);
             $ach->handleSetupIntentSucceeded($request->all());
+        }
+
+        if ($request->type === 'setup_intent.setup_failed') {
+            $ach = new ACH($this);
+            $ach->handleSetupIntentFailed($request->all());
         }
 
         if ($request->type === 'payment_intent.processing') {
@@ -772,12 +912,14 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
                     if (isset($transaction['payment_method_details']['au_becs_debit'])) {
                         $payment->transaction_reference = $transaction['id'];
+                        $payment->saveQuietly();
                     }
 
-                    $payment->status_id = Payment::STATUS_COMPLETED;
-                    $payment->save();
+                    $payment = $payment->service()->completePendingPayment();
+
                 }
             }
+
         } elseif ($request->type === 'source.chargeable') {
             $this->init();
 
@@ -797,8 +939,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                     $payment = self::findPaymentByStripeReference($this->company_gateway->company_id, $transaction);
 
                     if ($payment) {
-                        $payment->status_id = Payment::STATUS_COMPLETED;
-                        $payment->save();
+                        $payment = $payment->service()->completePendingPayment();
                     }
                 }
             }
@@ -806,40 +947,10 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             // Will notify customer on updated information
             return response()->json([], 200);
         } elseif ($request->type === "mandate.updated") {
-            if ($request->data['object']['status'] == "active") {
-                // Check if payment method existsn
-                $payment_method = (string) $request->data['object']['payment_method'];
+            $ach = new ACH($this);
+            $ach->handleMandateUpdated($request->all());
 
-                $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $payment_method)
-                    ->first();
-
-                if ($clientgateway) {
-                    $meta = $clientgateway->meta;
-                    $meta->state = 'authorized';
-                    $clientgateway->meta = $meta;
-                    $clientgateway->save();
-                }
-
-                return response()->json([], 200);
-            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
-                $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $request->data['object']['payment_method'])
-                    ->first();
-
-                if ($clientgateway && !str_starts_with($clientgateway->token, 'ba_')) { //ba_ tokens should not be deleted
-                    
-                    $meta = $clientgateway->meta;
-                    $meta->state = 'inactive';
-                    $clientgateway->meta = $meta;
-                    $clientgateway->save();
-                    // $clientgateway->delete();
-                }
-
-                return response()->json([], 200);
-            } elseif ($request->data['object']['status'] == "pending") {
-                return response()->json([], 200);
-            }
+            return response()->json([], 200);
         }
 
         return response()->json([], 200);
@@ -980,11 +1091,59 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function setApplePayDomain($domain)
     {
+        $this->ensurePaymentMethodDomainRegistered($domain);
+    }
+
+    /**
+     * Register and validate a payment method domain for Apple Pay / wallet buttons.
+     *
+     * @throws ApiErrorException
+     */
+    public function ensurePaymentMethodDomainRegistered(string $domain): PaymentMethodDomain
+    {
         $this->init();
 
-        \Stripe\ApplePayDomain::create([
-            'domain_name' => $domain,
-        ], $this->stripe_connect_auth);
+        $opts = $this->stripe_connect_auth;
+
+        $payment_method_domain = $this->findPaymentMethodDomain($domain, $opts);
+
+        if (! $payment_method_domain) {
+            $payment_method_domain = PaymentMethodDomain::create(
+                ['domain_name' => $domain],
+                $opts
+            );
+        }
+
+        if (($payment_method_domain->apple_pay->status ?? '') !== 'active') {
+            $payment_method_domain->validate(null, $opts);
+            $payment_method_domain = PaymentMethodDomain::retrieve($payment_method_domain->id, $opts);
+        }
+
+        return $payment_method_domain;
+    }
+
+    private function findPaymentMethodDomain(string $domain, array $opts): ?PaymentMethodDomain
+    {
+        $config = $this->company_gateway->getConfig();
+        $stored_id = $config->apple_pay_domain_id ?? null;
+
+        if (is_string($stored_id) && str_starts_with($stored_id, 'pmd_')) {
+            try {
+                $payment_method_domain = PaymentMethodDomain::retrieve($stored_id, $opts);
+
+                if ($payment_method_domain->domain_name === $domain) {
+                    return $payment_method_domain;
+                }
+            } catch (ApiErrorException) {
+            }
+        }
+
+        $domains = PaymentMethodDomain::all(
+            ['domain_name' => $domain, 'limit' => 1],
+            $opts
+        );
+
+        return $domains->data[0] ?? null;
     }
 
     public function disconnect()
@@ -1063,7 +1222,6 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             nlog("Stripe auth error: " . $th->getMessage());
             return 'error';
         }
-
 
     }
 

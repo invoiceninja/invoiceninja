@@ -45,44 +45,44 @@ class PostUpdate extends Command
     {
         set_time_limit(0);
 
-        info('running post update');
+        nlog('running post update');
 
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (\Exception $e) {
-            info("I wasn't able to migrate the data.");
+            nlog("I wasn't able to migrate the data.");
         }
 
-        info('finished migrating');
+        nlog('finished migrating');
 
         try {
             // Artisan::call('optimize');
             Artisan::call('config:clear');
         } catch (\Exception $e) {
-            info("I wasn't able to clear config.");
+            nlog("I wasn't able to clear config.");
         }
 
-        info('cleared config');
+        nlog('cleared config');
 
         try {
             Artisan::call('view:clear');
         } catch (\Exception $e) {
-            info("I wasn't able to clear the views.");
+            nlog("I wasn't able to clear the views.");
         }
 
-        info('view cleared');
+        nlog('view cleared');
 
         try {
             Artisan::call('queue:restart');
         } catch (\Exception $e) {
-            info("I wasn't able to restart the queue.");
+            nlog("I wasn't able to restart the queue.");
         }
 
-        info('queue restarted');
+        nlog('queue restarted');
 
         Artisan::call('cache:clear');
         VersionCheck::dispatch();
 
-        info('Sent for version check');
+        nlog('Sent for version check');
     }
 }

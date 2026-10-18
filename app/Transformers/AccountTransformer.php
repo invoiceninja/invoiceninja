@@ -98,6 +98,7 @@ class AccountTransformer extends EntityTransformer
             'e_invoice_quota' => (int) $account->e_invoice_quota,
             'can_trial' => (bool) $account->canTrial(),
             'docuninja_num_users' => (int) $account->docuninja_num_users,
+            'is_premium' => (bool) $account->isPremium(),
         ];
     }
 

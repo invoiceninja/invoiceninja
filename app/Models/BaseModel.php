@@ -12,7 +12,6 @@
 
 namespace App\Models;
 
-use App\Jobs\EDocument\RecordFranceEReportingTransaction;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
@@ -43,8 +42,8 @@ use Illuminate\Support\Str;
  * @property \App\Models\Company $company
  * @method static BaseModel find($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel<static> company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\HasMany|BaseModel orderBy()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Eloquent\Relations\HasMany<BaseModel> orderBy()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel on(?string $connection = null)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel with($value)
@@ -65,7 +64,7 @@ use Illuminate\Support\Str;
  * @property-read int|null $invitations_count
  * @method int companyId()
  * @method createInvitations()
- * @method \Builder scopeCompany(\Builder $builder)
+ * @method \Illuminate\Database\Eloquent\Builder scopeCompany(\Illuminate\Database\Eloquent\Builder $builder)
  * @method static \Illuminate\Database\Eloquent\Builder<static> company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Query\Builder onlyTrashed()
@@ -246,6 +245,8 @@ class BaseModel extends Model
     {
         $subscriptions = Webhook::where('company_id', $this->company_id)
                                  ->where('event_id', $event_id)
+                                 ->where('is_deleted', false)
+                                 ->whereNull('deleted_at')
                                  ->exists();
 
         if ($subscriptions) {
@@ -258,10 +259,6 @@ class BaseModel extends Model
                 \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
             }
 
-            if($this->client->reportableFrTransaction()){
-                RecordFranceEReportingTransaction::dispatch(get_class($this), $this->id, $this->company->db);
-            }
-            
         } //Special Catch Here For Verifactu.
         elseif (in_array($event_id, [Webhook::EVENT_SENT_INVOICE]) && $this->company->verifactuEnabled() && ($this instanceof Invoice) && $this->backup->guid == "") {
             $this->service()->sendVerifactu();

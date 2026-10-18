@@ -76,6 +76,30 @@ class JsonDesignCellStyleTest extends TestCase
         return $sections[$id]['elements'][0]['elements'][0]['elements'];
     }
 
+    /* -------------------- table-layout insulation -------------------- */
+
+    public function testInvoiceDetailsTableUsesAutoLayout(): void
+    {
+        $sections = $this->adapt([$this->detailsBlock([
+            'items' => [['variable' => '$invoice.number', 'label' => 'Invoice #:', 'show' => true]],
+        ])]);
+
+        $style = $sections['inv-details']['elements'][0]['properties']['style'];
+        $this->assertStringContainsString('table-layout: auto', $style);
+        $this->assertStringNotContainsString('table-layout: fixed', $style);
+    }
+
+    public function testTotalsTableUsesAutoLayout(): void
+    {
+        $sections = $this->adapt([$this->totalBlock([
+            'items' => [['label' => 'Total', 'field' => '$total', 'isTotal' => true]],
+        ])]);
+
+        $style = $sections['totals']['elements'][0]['properties']['style'];
+        $this->assertStringContainsString('table-layout: auto', $style);
+        $this->assertStringNotContainsString('table-layout: fixed', $style);
+    }
+
     /* -------------------- invoice-details: column-level props -------------------- */
 
     public function testInvoiceDetailsLabelAlignAndValueAlign(): void

@@ -64,6 +64,7 @@ class TaskRepositoryBulkUpdateTest extends TestCase
 
         $this->testUser = User::factory()->create([
             'account_id' => $this->account->id,
+            'email' => \Illuminate\Support\Str::random(10) . '@gmail.com',
         ]);
     }
 

@@ -58,7 +58,10 @@ class ZugferdEDocument extends AbstractService
         /** @var \App\Models\User $user */
         $user = $this->company->owner();
 
-        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->file->get());
+        $documentContent = $this->file->get();
+        $extractor = new FacturXXmlExtractor();
+        $xml = $extractor->extract($documentContent);
+        $this->document = $extractor->read($xml);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
 
@@ -81,9 +84,13 @@ class ZugferdEDocument extends AbstractService
             $expense->save();
 
             $documents = [$this->file];
-            if ($this->file->getExtension() == "xml") {
+
+            if ($extractor->isPdf($documentContent)) {
+                $documents[] = TempFile::UploadedFileFromRaw($xml, $documentno . '.xml', 'application/xml');
+            } else {
                 array_push($documents, TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno . "_visualiser.pdf", "application/pdf"));
             }
+
             $this->saveDocuments($documents, $expense);
 
             $expense->save();
@@ -97,9 +104,9 @@ class ZugferdEDocument extends AbstractService
             if ($this->document->firstDocumentTax()) {
                 do {
                     $this->document->getDocumentTax($categoryCode, $typeCode, $basisAmount, $calculatedAmount, $rateApplicablePercent, $exemptionReason, $exemptionReasonCode, $lineTotalBasisAmount, $allowanceChargeBasisAmount, $taxPointDate, $dueDateTypeCode);
-                    $expense->{"tax_amount$counter"} = $calculatedAmount;
-                    $expense->{"tax_rate$counter"} = $rateApplicablePercent;
-                    $expense->{"tax_name$counter"} = $typeCode;
+                    $expense->{"tax_amount$counter"} = $calculatedAmount ?? 0;
+                    $expense->{"tax_rate$counter"} = $rateApplicablePercent ?? 0;
+                    $expense->{"tax_name$counter"} = $typeCode ?? '';
                     $counter++;
                 } while ($this->document->nextDocumentTax());
             }

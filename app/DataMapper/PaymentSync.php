@@ -24,6 +24,8 @@ class PaymentSync implements Castable
 
     public string $qb_sync_token;
 
+    public string $qb_status_message;
+
     public bool $qb_immutable;
 
     public bool $qb_void_failed;
@@ -36,6 +38,7 @@ class PaymentSync implements Castable
     {
         $this->qb_id = $attributes['qb_id'] ?? '';
         $this->qb_sync_token = $attributes['qb_sync_token'] ?? '';
+        $this->qb_status_message = $attributes['qb_status_message'] ?? '';
         $this->qb_immutable = $attributes['qb_immutable'] ?? false;
         $this->qb_void_failed = $attributes['qb_void_failed'] ?? false;
         $this->qb_void_error = $attributes['qb_void_error'] ?? '';

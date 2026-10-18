@@ -18,18 +18,22 @@
             <input type="hidden" name="installments" value="1">
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+            <ul class="payment-method-list">
             @if (count($tokens) > 0)
                 @foreach ($tokens as $token)
-                    <label class="mr-4">
-                        <input type="radio" data-token="{{ $token->token }}" name="payment-type"
+                <li class="payment-method-item">
+                <label class="payment-method-label">
+                <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token" />
-                        <span class="ml-1 cursor-pointer">
+                        <span class="ml-1">
                             {{ App\Models\GatewayType::getAlias($token->gateway_type_id) }} ({{ $token->meta->brand ?? 'Bank Transfer' }})
                              &nbsp; {{ ctrans('texts.account_number') }}#: {{ $token->meta?->last4 ?? '' }}
                         </span>
-                    </label><br/>
+                    </label>
+                </li>
                 @endforeach
             @endisset
+                        </ul>
             <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
                 {{ ctrans('texts.process_date') }}
             </dt>

@@ -69,6 +69,8 @@ class PurchaseOrderMap
             49 => 'item.custom_value3',
             50 => 'item.custom_value4',
             51 => 'item.type_id',
+            52 => 'item.tax_id',
+            53 => 'item.product_cost',
         ];
     }
 
@@ -127,6 +129,8 @@ class PurchaseOrderMap
             49 => 'texts.custom_value',
             50 => 'texts.custom_value',
             51 => 'texts.type',
+            52 => 'texts.tax_category',
+            53 => 'texts.product_cost',
         ];
     }
 }

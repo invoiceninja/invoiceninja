@@ -498,7 +498,7 @@ class EInvoiceValidationTest extends TestCase
     // //         'company_id' => $company->id,
     // //         'first_name' => 'Bob',
     // //         'last_name' => 'Doe',
-    // //         'email' => 'bob@example.com',
+    // //         'email' => 'bob@gmail.com',
     // //     ]);
 
     // //     $el = new EntityLevel();
@@ -532,7 +532,7 @@ class EInvoiceValidationTest extends TestCase
     // //         'company_id' => $company->id,
     // //         'first_name' => 'Bob',
     // //         'last_name' => 'Doe',
-    // //         'email' => 'bob@example.com',
+    // //         'email' => 'bob@gmail.com',
     // //     ]);
 
     // //     $el = new EntityLevel();
@@ -567,7 +567,7 @@ class EInvoiceValidationTest extends TestCase
     // //         'company_id' => $company->id,
     // //         'first_name' => 'Bob',
     // //         'last_name' => 'Doe',
-    // //         'email' => 'bob@example.com',
+    // //         'email' => 'bob@gmail.com',
     // //     ]);
 
     // //     $el = new EntityLevel();
@@ -601,7 +601,7 @@ class EInvoiceValidationTest extends TestCase
     // //         'company_id' => $company->id,
     // //         'first_name' => 'Bob',
     // //         'last_name' => 'Doe',
-    // //         'email' => 'bob@example.com',
+    // //         'email' => 'bob@gmail.com',
     // //     ]);
 
     // //     $el = new EntityLevel();
@@ -636,7 +636,7 @@ class EInvoiceValidationTest extends TestCase
     // //         'company_id' => $company->id,
     // //         'first_name' => 'Bob',
     // //         'last_name' => 'Doe',
-    // //         'email' => 'bob@example.com',
+    // //         'email' => 'bob@gmail.com',
     // //     ]);
 
     // //     $el = new EntityLevel();
@@ -672,7 +672,7 @@ class EInvoiceValidationTest extends TestCase
     // //         'company_id' => $company->id,
     // //         'first_name' => 'Bob',
     // //         'last_name' => 'Doe',
-    // //         'email' => 'bob@example.com',
+    // //         'email' => 'bob@gmail.com',
     // //     ]);
 
     // //     $el = new EntityLevel();
@@ -707,7 +707,7 @@ class EInvoiceValidationTest extends TestCase
     //         'company_id' => $company->id,
     //         'first_name' => 'Bob',
     //         'last_name' => 'Doe',
-    //         'email' => 'bob@example.com',
+    //         'email' => 'bob@gmail.com',
     //     ]);
 
     //     $el = new EntityLevel();
@@ -742,7 +742,7 @@ class EInvoiceValidationTest extends TestCase
     //         'company_id' => $company->id,
     //         'first_name' => 'Bob',
     //         'last_name' => 'Doe',
-    //         'email' => 'bob@example.com',
+    //         'email' => 'bob@gmail.com',
     //     ]);
 
     //     $el = new EntityLevel();
@@ -777,7 +777,7 @@ class EInvoiceValidationTest extends TestCase
     //         'company_id' => $company->id,
     //         'first_name' => 'Bob',
     //         'last_name' => 'Doe',
-    //         'email' => 'bob@example.com',
+    //         'email' => 'bob@gmail.com',
     //     ]);
 
     //     $el = new EntityLevel();
@@ -812,7 +812,7 @@ class EInvoiceValidationTest extends TestCase
     //         'company_id' => $company->id,
     //         'first_name' => 'Bob',
     //         'last_name' => 'Doe',
-    //         'email' => 'bob@example.com',
+    //         'email' => 'bob@gmail.com',
     //     ]);
 
     //     $el = new EntityLevel();
@@ -848,7 +848,7 @@ class EInvoiceValidationTest extends TestCase
             'company_id' => $company->id,
             'first_name' => 'Bob',
             'last_name' => 'Doe',
-            'email' => 'bob@example.com',
+            'email' => 'bob@gmail.com',
         ]);
 
         $el = new EntityLevel();
@@ -884,7 +884,7 @@ class EInvoiceValidationTest extends TestCase
             'company_id' => $company->id,
             'first_name' => 'Bob',
             'last_name' => 'Doe',
-            'email' => 'bob@example.com',
+            'email' => 'bob@gmail.com',
         ]);
 
         $el = new EntityLevel();
@@ -919,7 +919,7 @@ class EInvoiceValidationTest extends TestCase
     //         'company_id' => $company->id,
     //         'first_name' => 'Bob',
     //         'last_name' => 'Doe',
-    //         'email' => 'bob@example.com',
+    //         'email' => 'bob@gmail.com',
     //     ]);
 
     //     $el = new EntityLevel();
@@ -954,7 +954,7 @@ class EInvoiceValidationTest extends TestCase
     //         'company_id' => $company->id,
     //         'first_name' => 'Bob',
     //         'last_name' => 'Doe',
-    //         'email' => 'bob@example.com',
+    //         'email' => 'bob@gmail.com',
     //     ]);
 
     //     $el = new EntityLevel();

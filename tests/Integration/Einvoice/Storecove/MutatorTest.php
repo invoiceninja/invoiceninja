@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Product;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
@@ -63,7 +64,7 @@ class MutatorTest extends TestCase
         $settings->id_number = $params['company_id_number'] ?? '01234567890';
         $settings->classification = $params['company_classification'] ?? 'business';
         $settings->country_id = (string) Country::where('iso_3166_2', $companyCountry)->first()->id;
-        $settings->email = 'test@example.com';
+        $settings->email = 'test@gmail.com';
         $settings->currency_id = '3';
         $settings->e_invoice_type = 'PEPPOL';
         $settings->address1 = $params['company_address1'] ?? 'Test Street 1';
@@ -145,7 +146,7 @@ class MutatorTest extends TestCase
             'user_id' => $this->user->id,
             'first_name' => 'Test',
             'last_name' => 'Contact',
-            'email' => 'testcontact@example.com',
+            'email' => 'testcontact@gmail.com',
         ]);
 
         $item = new InvoiceItem();
@@ -155,6 +156,7 @@ class MutatorTest extends TestCase
         $item->quantity = 1;
         $item->tax_rate1 = $params['tax_rate'] ?? 19;
         $item->tax_name1 = $params['tax_name'] ?? 'VAT';
+        $item->tax_id = (string) ($params['tax_id'] ?? Product::PRODUCT_TYPE_PHYSICAL);
 
         $invoice = Invoice::factory()->create([
             'client_id' => $client->id,
@@ -180,6 +182,8 @@ class MutatorTest extends TestCase
     {
         $p = new Peppol($invoice->fresh());
         $p->run();
+
+        $this->assertEmpty($p->getErrors(), implode('; ', $p->getErrors()));
 
         $peppol = $p->getDocument();
 
@@ -504,6 +508,7 @@ class MutatorTest extends TestCase
             'client_vat' => 'DE173755434',
             'client_classification' => 'business',
             'has_valid_vat' => true,
+            'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
         ]);
 
         $storecove = new Storecove();
@@ -524,6 +529,7 @@ class MutatorTest extends TestCase
             'client_classification' => 'business',
             'has_valid_vat' => true,
             'client_routing_id' => 'SCSCSCS',
+            'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
         ]);
 
         $storecove = new Storecove();
@@ -545,6 +551,7 @@ class MutatorTest extends TestCase
             'client_city' => 'SECTOR1',
             'tax_rate' => 19,
             'tax_name' => 'TVA',
+            'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
         ]);
 
         $storecove = new Storecove();

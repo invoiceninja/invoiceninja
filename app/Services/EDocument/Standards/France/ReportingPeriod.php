@@ -16,6 +16,7 @@ use Carbon\CarbonImmutable;
 final readonly class ReportingPeriod
 {
     public function __construct(
+        public ReportingProfile $profile,
         public CarbonImmutable $start,
         public CarbonImmutable $end,
         public CarbonImmutable $dueDate,

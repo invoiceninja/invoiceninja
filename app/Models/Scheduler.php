@@ -27,15 +27,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $company_id
  * @property bool $is_paused
  * @property int|null $frequency_id
- * @property \Carbon\Carbon|\Illuminate\Support\Carbon|null $next_run_client
- * @property \Carbon\Carbon|\Illuminate\Support\Carbon|null $next_run
+ * @property \Carbon\Carbon|\Illuminate\Support\Carbon|string|null $next_run_client
+ * @property \Carbon\Carbon|\Illuminate\Support\Carbon|string|null $next_run
  * @property int $user_id
  * @property string $name
  * @property string $template
  * @property int|null $remaining_cycles
  * @property-read \App\Models\Company $company
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\SchedulerFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler filter(\App\Filters\QueryFilters $filters)

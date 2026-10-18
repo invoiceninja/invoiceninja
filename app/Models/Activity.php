@@ -316,6 +316,12 @@ class Activity extends StaticModel
 
     public const EINVOICE_STATUS_UPDATED = 167;
 
+    public const PAYMENT_METHOD_UPDATED = 168;
+
+    public const PAYMENT_METHOD_REMOVED = 169;
+
+    public const CANCELLED_QUOTE = 170;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

@@ -33,7 +33,7 @@ class GoCardlessOAuthController extends Controller
             'redirect_uri' => config('services.gocardless.redirect_uri'),
             'scope' => 'read_write',
             'response_type' => 'code',
-            'state' => $company->company_key,
+            'state' => $request->token,
             'prefill[email]' => $company->settings->email,
             'prefill[organisation_name]' => $company->settings->name,
             'prefill[country_code]' => $company->country()->iso_3166_2,

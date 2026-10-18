@@ -14,6 +14,10 @@
           type: string
           example: 'Product key'
           description: 'The product key of the product offered for this line item (Referred to as Product in the product tab)'
+        tags:
+          type: string
+          example: 'Retail,Priority Customer'
+          description: 'A comma-separated snapshot of the product tag names for this line item'
         product_cost:
           type: number
           format: float

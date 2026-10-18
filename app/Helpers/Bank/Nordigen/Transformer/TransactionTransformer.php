@@ -123,7 +123,7 @@ class TransactionTransformer implements BankRevenueInterface
         } elseif (array_key_exists('remittanceInformationUnstructuredArray', $transaction)) {
             $description = implode('\n', $transaction["remittanceInformationUnstructuredArray"]);
         } else {
-            Log::warning("Missing description for the following transaction: " . json_encode($transaction));
+            nlog('Missing description for the following transaction: ' . json_encode($transaction));
         }
 
         // enrich description with currencyExchange informations
@@ -134,15 +134,13 @@ class TransactionTransformer implements BankRevenueInterface
             }
         }
 
-        // participant data
-        $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"])
-            ? $transaction['debtorAccount']['iban']
-            : (array_key_exists('creditorAccount', $transaction) && array_key_exists('iban', $transaction["creditorAccount"])
-                ? $transaction['creditorAccount']['iban'] : null);
-        $participant_name = array_key_exists('debtorName', $transaction)
-            ? $transaction['debtorName']
-            : (array_key_exists('creditorName', $transaction)
-                ? $transaction['creditorName'] : null);
+        // CREDIT: counterparty is the debtor (payer). DEBIT: counterparty is the creditor (payee).
+        // Banks often include both sides; never prefer debtor on outgoing payments.
+        $prefer_debtor = $base_type === 'CREDIT';
+        $participant = $this->ibanFromAccount($transaction, $prefer_debtor ? 'debtorAccount' : 'creditorAccount')
+            ?? $this->ibanFromAccount($transaction, $prefer_debtor ? 'creditorAccount' : 'debtorAccount');
+        $participant_name = $this->nameFromTransaction($transaction, $prefer_debtor ? 'debtorName' : 'creditorName')
+            ?? $this->nameFromTransaction($transaction, $prefer_debtor ? 'creditorName' : 'debtorName');
 
         $data = [
             'transaction_id' => 0,
@@ -167,6 +165,24 @@ class TransactionTransformer implements BankRevenueInterface
     // {
     //     return hash('sha1', $data['amount'].$data['date'].$data['description'].$data['participant'].$data['participant_name'].$data['base_type']);
     // }
+
+    private function ibanFromAccount(array $transaction, string $account_key): ?string
+    {
+        if (! array_key_exists($account_key, $transaction) || ! is_array($transaction[$account_key]) || ! array_key_exists('iban', $transaction[$account_key])) {
+            return null;
+        }
+
+        return $transaction[$account_key]['iban'];
+    }
+
+    private function nameFromTransaction(array $transaction, string $name_key): ?string
+    {
+        if (! array_key_exists($name_key, $transaction)) {
+            return null;
+        }
+
+        return $transaction[$name_key];
+    }
 
     private function convertCurrency(string $code)
     {

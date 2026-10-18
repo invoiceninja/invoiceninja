@@ -10,6 +10,7 @@
  */
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\SerializedPath;
 
@@ -49,7 +50,7 @@ class CreditLines
     #[SerializedPath('[cbc:LineExtensionAmount][#]')]
     public ?float $amount_excluding_vat;
 
-    #[SerializedPath('[cac:Price][cbc:PriceAmount][value]')]
+    /** Set by UblToStorecoveCreditLineMapper — not a UBL deserialize path. */
     public ?float $amount_excluding_tax;
 
     #[SerializedPath('[cbc:TaxInclusiveAmount][#]')]
@@ -88,6 +89,9 @@ class CreditLines
     #[SerializedPath('[cbc:Note]')]
     public ?string $note;
 
+    #[Ignore]
+    private bool $storecoveCreditMapped = false;
+
     /**
      * @param AllowanceCharges[] $allowance_charges
      * @param TaxesDutiesFees[] $taxes_duties_fees
@@ -125,11 +129,11 @@ class CreditLines
         $this->order_line_reference_line_id = $order_line_reference_line_id;
         $this->invoice_period = $invoice_period;
         $this->item_price = $item_price;
-        $this->quantity = $quantity * -1;
+        $this->quantity = $quantity;
         $this->base_quantity = $base_quantity;
         $this->quantity_unit_code = $quantity_unit_code;
         $this->allowance_charges = $allowance_charges;
-        $this->amount_excluding_vat = $amount_excluding_vat * -1;
+        $this->amount_excluding_vat = $amount_excluding_vat;
         $this->amount_excluding_tax = $amount_excluding_tax;
         $this->amount_including_tax = $amount_including_tax;
         $this->taxes_duties_fees = $taxes_duties_fees;
@@ -142,6 +146,20 @@ class CreditLines
         $this->standard_item_identification_scheme_id = $standard_item_identification_scheme_id;
         $this->standard_item_identification_scheme_agency_id = $standard_item_identification_scheme_agency_id;
         $this->note = $note;
+
+        // Storecove represents a credit as a negative invoice; sign mapping is centralized here.
+        (new \App\Services\EDocument\Gateway\Storecove\UblToStorecoveCreditLineMapper())->applyMappingOnce($this);
+    }
+
+    #[Ignore]
+    public function isStorecoveCreditMapped(): bool
+    {
+        return $this->storecoveCreditMapped;
+    }
+
+    public function markStorecoveCreditMapped(): void
+    {
+        $this->storecoveCreditMapped = true;
     }
 
     public function getLineId(): ?string
@@ -176,7 +194,7 @@ class CreditLines
 
     public function getQuantity(): ?float
     {
-        return $this->quantity * -1;
+        return $this->quantity;
     }
 
     public function getBaseQuantity(): ?float

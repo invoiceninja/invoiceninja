@@ -22,7 +22,6 @@ use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Http\Controllers\Controller;
 use App\Jobs\Invoice\InjectSignature;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\View\Factory;
 use App\Models\PurchaseOrderInvitation;
 use App\Events\Misc\InvitationWasViewed;
@@ -89,10 +88,10 @@ class PurchaseOrderController extends Controller
     {
         set_time_limit(0);
 
-        /** @var PurchaseOrderInvitation $invitation */
+        /** @var ?PurchaseOrderInvitation $invitation */
         $invitation = $purchase_order->invitations()->where('vendor_contact_id', auth()->guard('vendor')->user()->id)->first();
 
-        if ($invitation && auth()->guard('vendor') && ! session()->get('is_silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('vendor')->check() && ! session()->get('is_silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($purchase_order, $invitation, $purchase_order->company, Ninja::eventVars()));
@@ -124,19 +123,32 @@ class PurchaseOrderController extends Controller
         return $this->render('purchase_orders.show', $data);
     }
 
-    public function showBlob($hash)
+    public function showBlob(string $entity_type, string $invitation_key)
     {
-        $data = Cache::pull($hash);
+        $vendorContact = auth()->guard('vendor')->user();
 
-        $invitation = PurchaseOrderInvitation::withTrashed()->find($data['invitation_id']);
+        if ($entity_type !== 'purchase_order') {
+            return response('', 404);
+        }
+
+        $invitation = PurchaseOrderInvitation::withTrashed()
+            ->where('key', $invitation_key)
+            ->where('company_id', $vendorContact->company_id)
+            ->whereHas('contact', function ($query) use ($vendorContact) {
+                $query->where('vendor_id', $vendorContact->vendor_id);
+            })
+            ->first();
+
+        if (! $invitation) {
+            return response('', 404);
+        }
 
         $file = $invitation->purchase_order->service()->getPurchaseOrderPdf();
 
-        // $headers = ['Content-Type' => 'application/pdf'];
-        $headers = ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline'];
-
-        return response()->make($file, 200, $headers);
-
+        return response()->make($file, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 
 
@@ -251,7 +263,7 @@ class PurchaseOrderController extends Controller
                 $zipFile->addFromString($invitation->purchase_order->numberFormatter() . ".pdf", $file);
             }
 
-            $filename = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';
+            $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';
             $filepath = sys_get_temp_dir() . '/' . $filename;
 
             $zipFile->saveAsFile($filepath) // save the archive to a file

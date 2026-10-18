@@ -47,7 +47,7 @@ class ActivityRepository extends BaseRepository
     {
         $activity = new Activity();
 
-        foreach ($fields as $key => $value) {
+        foreach (get_object_vars($fields) as $key => $value) {
             $activity->{$key} = $value;
         }
 
@@ -61,6 +61,7 @@ class ActivityRepository extends BaseRepository
 
         $activity->ip = $event_vars['ip'] ?: ' ';
         $activity->is_system = $event_vars['is_system'];
+        $activity->notes = $activity->notes ?? '';
 
         $activity->save();
 

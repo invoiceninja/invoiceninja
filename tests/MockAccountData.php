@@ -252,7 +252,7 @@ trait MockAccountData
         });
 
         $this->faker = \Faker\Factory::create();
-        $fake_email = $this->faker->email();
+        $fake_email = uniqid('testuser') . '@gmail.com';
 
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000000,

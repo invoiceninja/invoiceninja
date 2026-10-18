@@ -29,20 +29,16 @@ use App\Models\Product;
 use App\Models\Document;
 use League\Csv\Writer;
 use League\Fractal\Manager;
-use App\Jobs\Quote\ZipQuotes;
 use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Carbon;
-use App\Jobs\Credit\ZipCredits;
+use App\Jobs\Entity\ZipEntity;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Jobs\Invoice\ZipInvoices;
-use App\Jobs\Document\ZipDocuments;
 use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use League\Fractal\Serializer\ArraySerializer;
 
 class BaseExport
@@ -68,6 +64,8 @@ class BaseExport
     protected array $raw_rows = [];
 
     protected array $spreadsheet_headers = [];
+
+    protected const GROUPING_IDENTITIES = '__grouping_identities';
 
     protected array $non_summable_patterns = [
         'tax_rate',
@@ -110,6 +108,7 @@ class BaseExport
         'email' => 'vendor_contact.email',
         'status' => 'vendor.status',
         'classification' => 'vendor.classification',
+        'tags' => 'vendor.tags',
     ];
 
     protected array $client_report_keys = [
@@ -156,6 +155,7 @@ class BaseExport
         'payment_balance' => 'client.payment_balance',
         'credit_balance' => 'client.credit_balance',
         'classification' => 'client.classification',
+        'tags' => 'client.tags',
     ];
 
     protected array $location_report_keys = [
@@ -215,6 +215,7 @@ class BaseExport
         'recurring_invoice' => 'invoice.recurring_id',
         'auto_bill' => 'invoice.auto_bill_enabled',
         'project' => 'invoice.project',
+        'tags' => 'invoice.tags',
     ];
 
     protected array $recurring_invoice_report_keys = [
@@ -260,7 +261,7 @@ class BaseExport
         'tax_rate3' => 'recurring_invoice.tax_rate3',
         'auto_bill' => 'recurring_invoice.auto_bill',
         'auto_bill_enabled' => 'recurring_invoice.auto_bill_enabled',
-
+        'tags' => 'recurring_invoice.tags',
     ];
 
     protected array $purchase_order_report_keys = [
@@ -294,6 +295,7 @@ class BaseExport
         'total_taxes' => 'purchase_order.total_taxes',
         'currency_id' => 'purchase_order.currency_id',
         'subtotal' => 'purchase_order.subtotal',
+        'tags' => 'purchase_order.tags',
     ];
 
     protected array $product_report_keys  = [
@@ -318,6 +320,7 @@ class BaseExport
         'tax_category' => 'tax_id',
         'max_quantity' => 'max_quantity',
         'in_stock_quantity' => 'in_stock_quantity',
+        'tags' => 'product.tags',
     ];
 
     protected array $item_report_keys = [
@@ -384,6 +387,7 @@ class BaseExport
         'tax_rate2' => 'quote.tax_rate2',
         'tax_rate3' => 'quote.tax_rate3',
         'subtotal' => 'quote.subtotal',
+        'tags' => 'quote.tags',
     ];
 
     protected array $credit_report_keys = [
@@ -419,6 +423,7 @@ class BaseExport
         "assigned_user" => "credit.assigned_user_id",
         "user" => "credit.user_id",
         'subtotal' => 'credit.subtotal',
+        'tags' => 'credit.tags',
     ];
 
     protected array $payment_report_keys = [
@@ -443,6 +448,7 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
+        'tags' => 'payment.tags',
     ];
 
     protected array $expense_report_keys = [
@@ -480,6 +486,7 @@ class BaseExport
         'invoice' => 'expense.invoice_id',
         'user' => 'expense.user',
         'assigned_user' => 'expense.assigned_user',
+        'tags' => 'expense.tags',
     ];
 
     protected array $task_report_keys = [
@@ -489,6 +496,8 @@ class BaseExport
         'end_time' => 'task.end_time',
         'duration' => 'task.duration',
         'duration_words' => 'task.duration_words',
+        'due_date' => 'task.due_date',
+        'estimated_duration' => 'task.estimated_duration',
         'rate' => 'task.rate',
         'number' => 'task.number',
         'description' => 'task.description',
@@ -540,6 +549,27 @@ class BaseExport
         return $query;
     }
 
+    protected function addTagFilter(Builder $query): Builder
+    {
+        $tag_ids = $this->input['tag_ids'] ?? null;
+
+        if (! $tag_ids || ! method_exists($query->getModel(), 'tags')) {
+            return $query;
+        }
+
+        $transformed_tag_ids = is_string($tag_ids)
+            ? $this->transformKeys(explode(',', $tag_ids))
+            : $this->transformKeys((array) $tag_ids);
+
+        if (count($transformed_tag_ids) === 0) {
+            return $query;
+        }
+
+        return $query->whereHas('tags', function (Builder $q) use ($transformed_tag_ids) {
+            $q->whereIn('tags.id', $transformed_tag_ids);
+        });
+    }
+
     protected function resolveKey($key, $entity, $transformer): string
     {
         $parts = explode(".", $key ?? '');
@@ -577,8 +607,7 @@ class BaseExport
 
         $primary_contact = $entity->client->primary_contact()->first() ?? $entity->client->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
-
+        return $primary_contact->{$column} ?? '';
     }
 
     private function resolveVendorContactKey($column, $entity, $transformer)
@@ -589,7 +618,7 @@ class BaseExport
 
         $primary_contact = $entity->vendor->primary_contact()->first() ?? $entity->vendor->contacts()->first();
 
-        return $primary_contact ? $primary_contact?->{$column} ?? '' : '';
+        return $primary_contact->{$column} ?? '';
 
     }
 
@@ -606,7 +635,7 @@ class BaseExport
         }
 
         if ($column == 'category' && $entity->expense) {
-            return $entity->expense->category?->name ?? ' ';
+            return $entity->expense->category->name ?? ' ';
         }
 
         if ($entity instanceof Expense) {
@@ -623,13 +652,7 @@ class BaseExport
             return $transformed_entity[$column];
         }
 
-        if (property_exists($entity, $column)) {
-            return $entity?->{$column} ?? '';
-        }
-
-        nlog("export: Could not resolve expense key: {$column}");
-
-        return '';
+        return $entity->{$column} ?? '';
 
     }
 
@@ -727,11 +750,11 @@ class BaseExport
         }
 
         if (in_array($column, ['client.size_id', 'size_id'])) {
-            return $entity->client->size?->name ?? '';
+            return $entity->client->size->name ?? '';
         }
 
         if (in_array($column, ['client.industry_id', 'industry_id'])) {
-            return $entity->client->industry?->name ?? '';
+            return $entity->client->industry->name ?? '';
         }
 
         if (in_array($column, ['client.currency_id', 'currency_id'])) {
@@ -877,7 +900,7 @@ class BaseExport
         }
 
         if ($column == 'currency') {
-            return $payment?->currency?->code ?? '';
+            return $payment->currency->code ?? '';
         }
 
         $payment_transformer = new PaymentTransformer();
@@ -1142,13 +1165,7 @@ class BaseExport
         }
 
         $query->where(function ($query) use ($status_parameters) {
-            if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', Quote::STATUS_SENT)
-                    ->whereNull('due_date')
-                    ->orWhere('due_date', '>=', now()->toDateString());
-                });
-            }
+            
 
             $quote_filters = [];
 
@@ -1160,8 +1177,26 @@ class BaseExport
                 $quote_filters[] = Quote::STATUS_APPROVED;
             }
 
+            if (in_array('cancelled', $status_parameters)) {
+                $quote_filters[] = Quote::STATUS_CANCELLED;
+            }
+
+            if (in_array('rejected', $status_parameters)) {
+                $quote_filters[] = Quote::STATUS_REJECTED;
+            }
+
             if (count($quote_filters) > 0) {
-                $query->orWhereIn('status_id', $quote_filters);
+                $query->whereIn('status_id', $quote_filters);
+            }
+
+            if (in_array('sent', $status_parameters)) {
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                        ->where(function ($q) {
+                            $q->whereNull('due_date')
+                                ->orWhere('due_date', '>=', now()->toDateString());
+                        });
+                });
             }
 
             if (in_array('expired', $status_parameters)) {
@@ -1215,11 +1250,7 @@ class BaseExport
             }
 
             if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', PurchaseOrder::STATUS_SENT)
-                    ->whereNull('due_date')
-                    ->orWhere('due_date', '>=', now()->toDateString());
-                });
+                $po_status[] = PurchaseOrder::STATUS_SENT;
             }
 
             if (in_array('accepted', $status_parameters)) {
@@ -1321,6 +1352,13 @@ class BaseExport
             $this->date_key = $this->input['date_key'];
         }
 
+        if (in_array($date_range, ['all', 'all_time'], true)) {
+            $this->start_date = 'All available data';
+            $this->end_date = 'All available data';
+
+            return $query;
+        }
+
         try {
             $custom_start_date = Carbon::parse($this->input['start_date']);
             $custom_end_date = Carbon::parse($this->input['end_date']);
@@ -1330,10 +1368,6 @@ class BaseExport
         }
 
         switch ($date_range) {
-            case 'all':
-                $this->start_date = 'All available data';
-                $this->end_date = 'All available data';
-                return $query;
             case 'last7':
             case 'last_7_days':
             case 'last7_days':
@@ -1677,7 +1711,9 @@ class BaseExport
     public function queuePdfs(Builder $query)
     {
 
-        if (in_array(get_class($query->getModel()), [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
+        $entity_class = get_class($query->getModel());
+
+        if (in_array($entity_class, [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
 
             $user = $this->company->owner();
 
@@ -1685,24 +1721,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            switch (get_class($query->getModel())) {
-                case Invoice::class:
-                    nlog("zipping invoices");
-                    ZipInvoices::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Quote::class:
-                    ZipQuotes::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Credit::class:
-                    ZipCredits::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case PurchaseOrder::class:
-                    ZipPurchaseOrders::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                default:
-                    # code...
-                    break;
-            }
+            ZipEntity::dispatch($query->pluck('id'), $this->company, $user, $entity_class);
         }
     }
 
@@ -1731,7 +1750,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            ZipDocuments::dispatch($documents, $this->company, $user);
+            ZipEntity::dispatch($documents, $this->company, $user, Document::class);
         }
     }
 
@@ -1772,10 +1791,19 @@ class BaseExport
         return $this->spreadsheet_headers;
     }
 
-    public function convertFloats(iterable $entity): iterable
+    /**
+     * @param array<string, int|string> $grouping_identities
+     */
+    public function convertFloats(iterable $entity, array $grouping_identities = []): iterable
     {
+        $raw_entity = (array) $entity;
+
+        if ($this->skip_float_conversion && $grouping_identities !== []) {
+            $raw_entity[self::GROUPING_IDENTITIES] = $grouping_identities;
+        }
+
         if ($this->capture_raw_rows || $this->skip_float_conversion) {
-            $this->raw_rows[] = (array) $entity;
+            $this->raw_rows[] = $raw_entity;
         }
 
         if ($this->skip_float_conversion) {
@@ -1837,7 +1865,7 @@ class BaseExport
         $model_string = $this->getModelString($query);
 
         $data = [
-            "{$model_string}s" => $query->get(),
+            "{$model_string}s" => $this->templateEntities($query),
             // "start_date" => $this->start_date,
             // "end_date" => $this->end_date,
         ];
@@ -1851,6 +1879,15 @@ class BaseExport
 
         return $ts->getPdf();
 
+    }
+
+    protected function templateEntities(Builder $query): \Illuminate\Database\Eloquent\Collection
+    {
+        if (method_exists($query->getModel(), 'tags')) {
+            $query->with('tags');
+        }
+
+        return $query->get();
     }
 
     private function getModelString(Builder $query): ?string
@@ -1886,7 +1923,9 @@ class BaseExport
 
     protected function streamQuery(Builder $query): \Illuminate\Support\LazyCollection
     {
-        return (clone $query)->lazy(self::EXPORT_CHUNK_SIZE);
+        return (clone $query)
+        ->orderBy($query->getModel()->getQualifiedKeyName())
+        ->lazy(self::EXPORT_CHUNK_SIZE);
     }
 
     /**
@@ -2007,21 +2046,34 @@ class BaseExport
 
         foreach ($grouped as $group_value => $group_rows) {
             $summary_row = [];
-        
+            $identity_rows = [];
+
             foreach (array_keys($rows[0]) as $column) {
+                if ($column === self::GROUPING_IDENTITIES) {
+                    continue;
+                }
+
                 if ($column === $group_by) {
                     $summary_row[$column] = $group_value;
                     continue;
                 }
-        
+
                 if ($this->isNonSummable($column)) {
                     $summary_row[$column] = '';
                     continue;
                 }
-        
-                $values = array_column($group_rows, $column);
+
+                $aggregation_rows = $group_rows;
+                $grouping_identity = $this->groupingIdentityForColumn($column);
+
+                if ($grouping_identity !== null) {
+                    $identity_rows[$grouping_identity] ??= $this->uniqueGroupingIdentityRows($group_rows, $grouping_identity);
+                    $aggregation_rows = $identity_rows[$grouping_identity];
+                }
+
+                $values = array_column($aggregation_rows, $column);
                 $numeric = array_filter($values, 'is_numeric');
-        
+
                 if ($numeric !== [] && count($numeric) === count($values)) {
                     // All values numeric → aggregate.
                     $summary_row[$column] = array_sum($numeric);
@@ -2031,11 +2083,11 @@ class BaseExport
                     $summary_row[$column] = count($distinct) === 1 ? reset($values) : '';
                 }
             }
-        
+
             $summary_row['group.count'] = count($group_rows);
             $summary[] = $summary_row;
         }
-        
+
         // foreach ($grouped as $group_value => $group_rows) {
         //     $summary_row = [];
 
@@ -2058,6 +2110,41 @@ class BaseExport
         // }
 
         return $summary;
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, array<string, mixed>>
+     */
+    protected function uniqueGroupingIdentityRows(array $rows, string $grouping_identity): array
+    {
+        $unique_rows = [];
+        $seen_identity_values = [];
+
+        foreach ($rows as $row) {
+            $grouping_identities = $row[self::GROUPING_IDENTITIES] ?? null;
+
+            if (! is_array($grouping_identities) || ! array_key_exists($grouping_identity, $grouping_identities)) {
+                $unique_rows[] = $row;
+                continue;
+            }
+
+            $identity_value = (string) $grouping_identities[$grouping_identity];
+
+            if (isset($seen_identity_values[$identity_value])) {
+                continue;
+            }
+
+            $seen_identity_values[$identity_value] = true;
+            $unique_rows[] = $row;
+        }
+
+        return $unique_rows;
     }
 
     /**

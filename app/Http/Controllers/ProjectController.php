@@ -20,7 +20,6 @@ use App\Factory\ProjectFactory;
 use App\Filters\ProjectFilters;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use App\Utils\Traits\GeneratesCounter;
 use App\Repositories\ProjectRepository;
 use App\Transformers\ProjectTransformer;
 use App\Services\Template\TemplateAction;
@@ -42,7 +41,6 @@ class ProjectController extends BaseController
 {
     use MakesHash;
     use SavesDocuments;
-    use GeneratesCounter;
 
     protected $entity_type = Project::class;
 
@@ -282,22 +280,7 @@ class ProjectController extends BaseController
             return $request->disallowUpdate();
         }
 
-        $tag_ids = null;
-        if ($request->has('tags') && is_array($request->input('tags'))) {
-            $tag_ids = Project::resolveTagIds($request->input('tags'), (int) $project->company_id);
-        }
-
-        $project->fill($request->all());
-        $project->number = empty($project->number) ? $this->getNextProjectNumber($project) : $project->number;
-        $project->saveQuietly();
-
-        if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $project, $request->input('is_public', true));
-        }
-
-        if ($tag_ids !== null) {
-            $project->tags()->sync($tag_ids);
-        }
+        $project = $this->project_repo->save($request->all(), $project);
 
         event('eloquent.updated: App\Models\Project', $project);
 
@@ -396,27 +379,10 @@ class ProjectController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $tag_ids = null;
-        if ($request->has('tags') && is_array($request->input('tags'))) {
-            $tag_ids = Project::resolveTagIds($request->input('tags'), (int) $user->company()->id);
-        }
-
-        $project = ProjectFactory::create($user->company()->id, $user->id);
-        $project->fill($request->all());
-        $project->saveQuietly();
-
-        if (empty($project->number)) {
-            $project->number = $this->getNextProjectNumber($project);
-            $project->saveQuietly();
-        }
-
-        if ($request->has('documents')) {
-            $this->saveDocuments($request->input('documents'), $project, $request->input('is_public', true));
-        }
-
-        if ($tag_ids !== null) {
-            $project->tags()->sync($tag_ids);
-        }
+        $project = $this->project_repo->save(
+            $request->all(),
+            ProjectFactory::create($user->company()->id, $user->id)
+        );
 
         event('eloquent.created: App\Models\Project', $project);
 
@@ -632,7 +598,7 @@ class ProjectController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $project, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $project, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($project->fresh());

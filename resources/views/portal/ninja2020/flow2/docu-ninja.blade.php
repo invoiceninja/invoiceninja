@@ -17,10 +17,10 @@
         @endphp
 
     </div>
-        
+
     <div id="sign"></div>
 </div>
-    
+
 @assets
 <script src="{{ asset('build/assets/builder.iife.js') }}"></script>
 @endassets
@@ -33,10 +33,20 @@
     const company = '{{ $company_key }}';
 
     const translations = @json(trans('texts'));
-    
+
     const mount = document.getElementById("sign");
 
     new DocuNinjaSign({ document: doc, invitation, sig, endpoint: '{{ config('ninja.docuninja_api_url') }}', company, translations }).mount(mount);
+
+    // builder's standalone hardcodes the consent screen and attaches its
+    // listener in a useEffect after mount, so auto-grant it (retry until attached).
+
+    // remove once updating builder to latest version (next release).
+
+    const grantConsent = () => window.dispatchEvent(new Event('builder:consent:granted'));
+    const consentTimer = setInterval(grantConsent, 50);
+
+    setTimeout(() => clearInterval(consentTimer), 3000);
 
     window.addEventListener('builder:sign.submit.success', function () {
         Livewire.dispatch('docuninja-signature-captured');

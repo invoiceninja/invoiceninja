@@ -36,8 +36,10 @@ class QuoteApprovedWebhook implements ShouldQueue
         $quote = $event->quote;
 
         $subscriptions = Webhook::where('company_id', $quote->company_id)
-                        ->where('event_id', Webhook::EVENT_APPROVE_QUOTE)
-                        ->exists();
+                                ->where('is_deleted', false)
+                                ->whereNull('deleted_at')
+                                ->where('event_id', Webhook::EVENT_APPROVE_QUOTE)
+                                ->exists();
 
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_APPROVE_QUOTE, $quote, $quote->company);

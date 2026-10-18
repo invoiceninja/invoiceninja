@@ -31,7 +31,7 @@ class EntityPaidObject
 
     public $settings;
 
-    public function __construct(public Payment $payment, protected bool $use_react_url)
+    public function __construct(public Payment $payment)
     {
         $this->payment = $payment;
         $this->company = $payment->company;
@@ -99,7 +99,7 @@ class EntityPaidObject
                 ['client' => $this->payment->client->present()->name()]
             ),
             'content' => $content,
-            'url' => $this->payment->portalUrl($this->use_react_url),
+            'url' => $this->payment->portalUrl(),
             'button' => ctrans('texts.view_payment'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

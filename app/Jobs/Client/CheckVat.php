@@ -23,6 +23,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class CheckVat implements ShouldQueue
 {
@@ -32,7 +33,10 @@ class CheckVat implements ShouldQueue
     use SerializesModels;
     use MakesHash;
 
-    public $tries = 1;
+    public $tries = 4;
+
+    /** Retried when VIES gives no verdict: a member state's system is down, or the caller is rate limited */
+    public array $backoff = [60, 600, 3600];
 
     /**
      * Create a new job instance.
@@ -51,7 +55,13 @@ class CheckVat implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         $tax_service = new TaxService($this->client);
-        $tax_service->validateVat();
+
+        try{
+            $tax_service->validateVat();
+        } catch(\Throwable $e){
+            Cache::put('vat_status_'.$this->client->client_hash, 'unavailable', 3600);
+            throw $e;
+        }
 
     }
 

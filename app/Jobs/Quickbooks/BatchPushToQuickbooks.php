@@ -15,6 +15,7 @@ namespace App\Jobs\Quickbooks;
 use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Company;
+use App\Services\Quickbooks\QuickbooksFaultParser;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\QuickbooksRateLimiter;
 use Illuminate\Bus\Queueable;
@@ -298,12 +299,7 @@ class BatchPushToQuickbooks implements ShouldQueue
      */
     private function isRateLimitException(ServiceException $e): bool
     {
-        $statusCode = $e->getCode();
-        $errorMessage = $e->getMessage();
-
-        return $statusCode === 429
-            || str_contains(strtolower($errorMessage), 'throttle')
-            || str_contains(strtolower($errorMessage), 'rate limit');
+        return QuickbooksRateLimiter::isRateLimitException($e);
     }
 
     /**
@@ -332,32 +328,7 @@ class BatchPushToQuickbooks implements ShouldQueue
      */
     private function extractReadableError(string $rawMessage): string
     {
-        // Try to extract the XML body from the SDK message
-        if (preg_match('/with body:\s*\[(.+)\]/s', $rawMessage, $matches)) {
-            $body = trim($matches[1]);
-
-            try {
-                $xml = @simplexml_load_string($body);
-                if ($xml !== false && isset($xml->Fault->Error)) {
-                    $error = $xml->Fault->Error;
-                    $message = (string) ($error->Message ?? '');
-                    $detail = (string) ($error->Detail ?? '');
-
-                    if ($message && $detail) {
-                        return "{$message} - {$detail}";
-                    }
-
-                    return $message ?: $detail;
-                }
-            } catch (\Throwable $e) {
-                // XML parsing failed, fall through to truncation
-            }
-        }
-
-        // Fallback: return a cleaned/truncated version of the raw message
-        $cleaned = str_replace('Request is not made successful. ', '', $rawMessage);
-
-        return mb_substr($cleaned, 0, 500);
+        return (new QuickbooksFaultParser())->humanMessage($rawMessage);
     }
 
     /**

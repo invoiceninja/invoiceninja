@@ -38,7 +38,7 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if ($company_user->company->is_disabled
+        if ($invitation->company->is_disabled
            && is_array($notifications->email)
             || $company_user->trashed()
             || ! $company_user->user

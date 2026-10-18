@@ -60,7 +60,7 @@ class CompanyLedgerTest extends TestCase
         $this->artisan('db:seed --force');
 
         $this->faker = \Faker\Factory::create();
-        $fake_email = $this->faker->email();
+        $fake_email = uniqid('testuser') . '@gmail.com';
 
         $this->account = Account::factory()->create();
         $this->company = Company::factory()->create([

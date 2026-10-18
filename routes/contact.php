@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api_secret_check')->group(function () {
-    Route::post('api/v1/contact/login', [Contact\LoginController::class, 'apiLogin']);
+    Route::post('api/v1/contact/login', [Contact\LoginController::class, 'apiLogin'])->middleware('throttle:contact-login');
 });
 
 Route::middleware('contact_db', 'api_secret_check', 'contact_token_auth')->prefix('api/v1/contact')->name('api.contact.')->group(function () {

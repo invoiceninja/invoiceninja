@@ -56,6 +56,7 @@ class StoreDesignRequest extends Request
             'design.body' => 'sometimes|string',
             'design.footer' => 'sometimes|string',
             'design.includes' => 'sometimes|string',
+            'design.customCss' => 'sometimes|string|nullable',
             'is_template' => 'sometimes|boolean',
             'entities' => 'sometimes|string|nullable',
         ];

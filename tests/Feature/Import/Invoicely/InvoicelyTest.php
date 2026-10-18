@@ -14,6 +14,8 @@ namespace Tests\Feature\Import\Invoicely;
 
 use App\Import\Providers\Invoicely;
 use App\Import\Transformer\BaseTransformer;
+use App\DataMapper\ClientSettings;
+use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
@@ -85,6 +87,63 @@ class InvoicelyTest extends TestCase
 
         $this->assertInstanceOf(Client::class, $client);
         $this->assertEquals('5558675309', $client->phone);
+    }
+
+    public function testClientInvoicelyImportWithUserVarNumberPattern()
+    {
+        $this->user->custom_value1 = '';
+        $this->user->save();
+
+        $settings = $this->company->settings;
+        $settings->client_number_pattern = '{$user_custom1}';
+
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $poisoned = ClientFactory::create($this->company->id, $this->user->id);
+        $poisoned->settings = ClientSettings::defaults();
+        $poisoned->number = '';
+        $poisoned->save();
+
+        $csv = file_get_contents(
+            base_path().'/tests/Feature/Import/invoicely_clients.csv'
+        );
+        $hash = Str::random(32);
+
+        $column_map = [
+            0 => 'Client Name',
+            1 => 'Email',
+            2 => 'Phone',
+            3 => 'Country',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['client' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'invoicely',
+        ];
+
+        Cache::put($hash.'-client', base64_encode($csv), 360);
+
+        $csv_importer = new Invoicely($data, $this->company);
+
+        $csv_importer->import('client');
+
+        foreach ($csv_importer->getErrors() as $entity_errors) {
+            foreach ($entity_errors as $error) {
+                $this->assertNotEquals('system_error', $error['code'] ?? null);
+            }
+        }
+
+        foreach (['Alexander Hamilton', 'Bruce Wayne'] as $name) {
+            $client = Client::where('company_id', $this->company->id)
+                            ->where('name', $name)
+                            ->first();
+
+            $this->assertInstanceOf(Client::class, $client);
+            $this->assertNotEmpty($client->number);
+        }
     }
 
     public function testInvoiceInvoicelyImport()

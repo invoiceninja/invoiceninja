@@ -526,6 +526,40 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
     }
 
     /**
+     * FI: buyer EndpointID is OVT from id_number; routing_id (FI:OPID) must not be used as Peppol endpoint.
+     */
+    public function testFinlandEndpointSchemeUsesOvtFromIdNumberWhenRoutingIdIsOpid(): void
+    {
+        $this->makeTestData();
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $fi = Country::where('iso_3166_2', 'FI')->first();
+        $this->assertNotNull($fi);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'country_id' => $fi->id,
+            'classification' => 'business',
+            'vat_number' => 'FI09824102',
+            'id_number' => '003709824102',
+            'routing_id' => '003708599126',
+        ]);
+
+        $client->load('country');
+
+        $router = new StorecoveRouter();
+
+        $resolved = CountryFactory::make('FI')->resolveClientEndpointScheme($client, $router);
+
+        $this->assertSame('0037', $resolved['scheme']);
+        $this->assertSame('003709824102', $resolved['id']);
+    }
+
+    /**
      * Belgium: first routing discovery candidate (getCandidates) matches primary Storecove document pair.
      */
     public function testBelgiumFirstRoutingCandidateMatchesPrimaryDocumentPublicIdentifier(): void

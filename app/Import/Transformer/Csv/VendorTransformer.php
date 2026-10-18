@@ -49,10 +49,13 @@ class VendorTransformer extends BaseTransformer
             'city' => $this->getString($data, 'vendor.city'),
             'state' => $this->getString($data, 'vendor.state'),
             'postal_code' => $this->getString($data, 'vendor.postal_code'),
-            'custom_value1' => $this->getString($data, 'vendor.custom_value1'),
-            'custom_value2' => $this->getString($data, 'vendor.custom_value2'),
-            'custom_value3' => $this->getString($data, 'vendor.custom_value3'),
-            'custom_value4' => $this->getString($data, 'vendor.custom_value4'),
+            'custom_value1' => $this->getCustomFieldValue('vendor1', $this->getString($data, 'vendor.custom_value1')),
+            'custom_value2' => $this->getCustomFieldValue('vendor2', $this->getString($data, 'vendor.custom_value2')),
+            'custom_value3' => $this->getCustomFieldValue('vendor3', $this->getString($data, 'vendor.custom_value3')),
+            'custom_value4' => $this->getCustomFieldValue('vendor4', $this->getString($data, 'vendor.custom_value4')),
+            'language_id' => $this->getString($data, 'vendor.language_id'),
+            'classification' => $this->getString($data, 'vendor.classification'),
+            'is_tax_exempt' => $this->toBoolean($this->getString($data, 'vendor.is_tax_exempt')),
             'contacts' => [
                 [
                     'first_name' => $this->getString(
@@ -62,22 +65,22 @@ class VendorTransformer extends BaseTransformer
                     'last_name' => $this->getString($data, 'contact.last_name'),
                     'email' => strlen($this->getString($data, 'contact.email')) > 1 ? $this->getString($data, 'contact.email') : $this->getString($data, 'vendor.email'),
                     'phone' => $this->getString($data, 'contact.phone'),
-                    'custom_value1' => $this->getString(
+                    'custom_value1' => $this->getCustomFieldValue('vendor_contact1', $this->getString(
                         $data,
                         'contact.custom_value1'
-                    ),
-                    'custom_value2' => $this->getString(
+                    )),
+                    'custom_value2' => $this->getCustomFieldValue('vendor_contact2', $this->getString(
                         $data,
                         'contact.custom_value2'
-                    ),
-                    'custom_value3' => $this->getString(
+                    )),
+                    'custom_value3' => $this->getCustomFieldValue('vendor_contact3', $this->getString(
                         $data,
                         'contact.custom_value3'
-                    ),
-                    'custom_value4' => $this->getString(
+                    )),
+                    'custom_value4' => $this->getCustomFieldValue('vendor_contact4', $this->getString(
                         $data,
                         'contact.custom_value4'
-                    ),
+                    )),
                 ],
             ],
             'country_id' => isset($data['vendor.country_id'])

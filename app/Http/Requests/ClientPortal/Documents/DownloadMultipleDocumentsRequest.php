@@ -33,7 +33,9 @@ class DownloadMultipleDocumentsRequest extends FormRequest
 
         $document_ids = $this->transformKeys($this->file_hash ?? []);
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents */
         $documents = Document::query()
+            ->with('documentable')
             ->whereIn('id', $document_ids)
             ->where('company_id', $contact->company_id)
             ->get();
@@ -54,8 +56,12 @@ class DownloadMultipleDocumentsRequest extends FormRequest
 
     private function contactCanAccessDocument(ClientContact $contact, Document $document): bool
     {
+        if (! $document->is_public) {
+            return false;
+        }
+
         // Public company-level documents
-        if ($document->is_public && $document->documentable_type == 'App\Models\Company') {
+        if ($document->documentable_type == 'App\Models\Company') {
             return $document->company_id == $contact->company_id;
         }
 
@@ -67,18 +73,18 @@ class DownloadMultipleDocumentsRequest extends FormRequest
                                 ->exists();
         }
 
-        // Public documents on entities (Invoice, Quote, etc.) belonging to a client
-        // this contact has access to
-        if ($document->is_public
-           && ($entity = $document->documentable)
-           && isset($entity->client_id)) {
-            return ClientContact::where('client_id', $entity->client_id)
-                                ->where('email', $contact->email)
-                                ->where('company_id', $contact->company_id)
-                                ->exists();
+        $entity = $document->documentable;
+
+        if ($entity === null || ! isset($entity->client_id)) {
+            return false;
         }
 
-        return false;
+        // Public documents on entities (Invoice, Quote, etc.) belonging to a client
+        // this contact has access to
+        return ClientContact::where('client_id', $entity->client_id)
+                            ->where('email', $contact->email)
+                            ->where('company_id', $contact->company_id)
+                            ->exists();
     }
 
     /**

@@ -12,9 +12,11 @@
 
 namespace Tests\Feature\Import\CSV;
 
+use App\Import\Definitions\ExpenseMap;
 use App\Import\Providers\Csv;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
@@ -169,6 +171,59 @@ class CsvImportTest extends TestCase
         $base_transformer = new BaseTransformer($this->company);
 
         $this->assertTrue($base_transformer->hasProject('officiis'));
+    }
+
+    public function testExpenseTaxAmountsCsvImport(): void
+    {
+        $this->assertContains('expense.tax_amount1', ExpenseMap::importable());
+        $this->assertContains('expense.tax_amount2', ExpenseMap::importable());
+        $this->assertContains('expense.tax_amount3', ExpenseMap::importable());
+
+        $csv = <<<'CSV'
+Amount,Tax Rate 1,Tax Amount 1,Tax Amount 2,Tax Amount 3,Public Notes
+100.00,0,5.55,3.33,1.12,Expense with exact tax amounts
+100.00,10,0,0,0,Expense with zero tax amounts
+CSV;
+        $hash = Str::random(32);
+        $column_map = [
+            0 => 'expense.amount',
+            1 => 'expense.tax_rate1',
+            2 => 'expense.tax_amount1',
+            3 => 'expense.tax_amount2',
+            4 => 'expense.tax_amount3',
+            5 => 'expense.public_notes',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['expense' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put($hash.'-expense', base64_encode($csv), 360);
+
+        $csv_importer = new Csv($data, $this->company);
+        $csv_importer->import('expense');
+
+        $expense = Expense::query()
+            ->where('company_id', $this->company->id)
+            ->where('public_notes', 'Expense with exact tax amounts')
+            ->firstOrFail();
+
+        $this->assertEquals(5.55, $expense->tax_amount1);
+        $this->assertEquals(3.33, $expense->tax_amount2);
+        $this->assertEquals(1.12, $expense->tax_amount3);
+        $this->assertTrue((bool) $expense->calculate_tax_by_amount);
+        $this->assertEquals(10.0, $expense->getTaxAmount());
+
+        $expenseWithZeroTaxAmounts = Expense::query()
+            ->where('company_id', $this->company->id)
+            ->where('public_notes', 'Expense with zero tax amounts')
+            ->firstOrFail();
+
+        $this->assertFalse((bool) $expenseWithZeroTaxAmounts->calculate_tax_by_amount);
+        $this->assertEquals(10.0, $expenseWithZeroTaxAmounts->getTaxAmount());
     }
 
     public function testVendorCsvImport()

@@ -47,7 +47,7 @@ class ValidInvoiceCreditRule implements Rule
      */
     private function checkIfCreditInvoiceValid($value): bool
     {
-        $invoice = Invoice::withTrashed()->find($value);
+        $invoice = Invoice::withTrashed()->where('id', $value)->company()->first();
 
         if (!$invoice) {
 

@@ -30,7 +30,8 @@ class ExpenseSyncCast implements CastsAttributes
         }
 
         $es = new ExpenseSync();
-        $es->qb_id = $data['qb_id'];
+        $es->qb_id = $data['qb_id'] ?? '';
+        $es->qb_status_message = $data['qb_status_message'] ?? '';
 
         return $es;
     }
@@ -43,6 +44,7 @@ class ExpenseSyncCast implements CastsAttributes
 
         $data = [
             'qb_id' => $value->qb_id,
+            'qb_status_message' => $value->qb_status_message ?? '',
         ];
 
         return [

@@ -26,6 +26,7 @@ class ProcessPurchaseOrdersInBulkRequest extends FormRequest
     {
         return [
             'purchase_orders' => ['array'],
+            'action' => ['required', 'in:download,accept'],
         ];
     }
 }

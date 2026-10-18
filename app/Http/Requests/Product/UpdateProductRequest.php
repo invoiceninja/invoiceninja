@@ -13,11 +13,15 @@
 namespace App\Http\Requests\Product;
 
 use App\Http\Requests\Request;
+use App\Models\Product;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateProductRequest extends Request
 {
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Product::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -49,7 +53,7 @@ class UpdateProductRequest extends Request
         $rules['stock_notification'] = 'sometimes|bool';
         $rules['income_account_id'] = 'bail|sometimes|nullable|string|max:64';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -68,9 +72,7 @@ class UpdateProductRequest extends Request
             unset($input['documents']);
         }
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         if (array_key_exists('in_stock_quantity', $input) && request()->has('update_in_stock_quantity') && request()->input('update_in_stock_quantity') == 'true') {
         } elseif (array_key_exists('in_stock_quantity', $input)) {

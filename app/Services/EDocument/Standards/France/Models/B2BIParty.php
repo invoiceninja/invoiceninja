@@ -104,9 +104,16 @@ class B2BIParty
         $identifiers = [];
 
         if (! is_null($this->legal_identifier)) {
+            $identifier = $this->legal_identifier;
+
+            if ($this->country === 'FR') {
+                $digits = preg_replace('/\D+/', '', $identifier) ?: '';
+                $identifier = strlen($digits) === 14 ? substr($digits, 0, 9) : $digits;
+            }
+
             $identifiers[] = [
                 'scheme' => $this->legalIdentifierScheme(),
-                'id' => $this->legal_identifier,
+                'id' => $identifier,
             ];
         }
 

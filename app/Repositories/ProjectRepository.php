@@ -16,12 +16,75 @@ use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Product;
 use App\Models\Invoice;
+use App\Models\Project;
+use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
 
 /**
  * Class for project repository.
  */
 class ProjectRepository extends BaseRepository
 {
+    use GeneratesCounter;
+
+    public function save(array $data, Project $project): ?Project
+    {
+        $tag_ids = $this->resolveTagIdsForSync($data, $project);
+        $is_new_project = ! $project->exists;
+
+        $project->fill($data);
+
+        if (! $is_new_project && empty($project->number)) {
+            $project = $this->saveProjectNumber($project);
+        } else {
+            $project->saveQuietly();
+        }
+
+        if ($is_new_project && empty($project->number)) {
+            $project = $this->saveProjectNumber($project);
+        }
+
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $project, array_key_exists('is_public', $data) ? (bool) $data['is_public'] : null);
+        }
+
+        $this->syncResolvedTags($project, $tag_ids);
+
+        return $project;
+    }
+
+    private function saveProjectNumber(Project $project): Project
+    {
+        for ($attempt = 1; $attempt <= 50; $attempt++) {
+            try {
+                $project->number = $this->getNextProjectNumber($project);
+                $project->saveQuietly();
+
+                return $project;
+            } catch (QueryException $e) {
+                if (! $this->isDuplicateNumberException($e) || $attempt === 50) {
+                    throw $e;
+                }
+            }
+        }
+
+        return $project;
+    }
+
+    private function isDuplicateNumberException(QueryException $e): bool
+    {
+        $sql_state = (string) ($e->errorInfo[0] ?? $e->getCode());
+        $driver_code = (string) ($e->errorInfo[1] ?? '');
+        $message = strtolower($e->getMessage());
+
+        return $sql_state === '23505'
+            || $driver_code === '1062'
+            || $driver_code === '2067'
+            || str_contains($message, 'duplicate')
+            || str_contains($message, 'unique constraint')
+            || str_contains($message, 'unique violation');
+    }
+
     /**
      * Invoices a collection of projects into a single invoice.
      *
@@ -38,6 +101,15 @@ class ProjectRepository extends BaseRepository
 
         if (count($projects) == 1) {
             $invoice->project_id = $_project->id;
+
+            /** If invoicing a project with an attached PO Number - place the PO number */
+            if($_project->quotes->count() == 1){
+                $quote = $_project->quotes->first();
+                
+                if(strlen($quote->po_number ?? '') >= 1){
+                    $invoice->po_number = $quote->po_number;
+                }
+            }
         }
         // $invoice->project_id = $project->id;
 
@@ -81,7 +153,8 @@ class ProjectRepository extends BaseRepository
             $project->expenses()
                 ->withTrashed()
                 ->where('should_be_invoiced', true)
-                ->whereNull('payment_date')
+                ->whereNull('invoice_id')
+                ->where('is_deleted', 0)
                 ->cursor()
                 ->each(function ($expense) use (&$lines) {
 
@@ -91,11 +164,11 @@ class ProjectRepository extends BaseRepository
                     $item->product_key = $expense->category()->exists() ? $expense->category->name : '';
                     $item->notes = $expense->public_notes ?? '';
                     $item->line_total = round($item->cost * $item->quantity, 2);
-                    $item->tax_name1 = $expense->tax_name1;
+                    $item->tax_name1 = $expense->tax_name1 ?? '';
                     $item->tax_rate1 = $expense->calculatedTaxRate($expense->tax_amount1, $expense->tax_rate1);
-                    $item->tax_name2 = $expense->tax_name2;
+                    $item->tax_name2 = $expense->tax_name2 ?? '';
                     $item->tax_rate2 = $expense->calculatedTaxRate($expense->tax_amount2, $expense->tax_rate2);
-                    $item->tax_name3 = $expense->tax_name3;
+                    $item->tax_name3 = $expense->tax_name3 ?? '';
                     $item->tax_rate3 = $expense->calculatedTaxRate($expense->tax_amount3, $expense->tax_rate3);
                     $item->tax_id = (string) Product::PRODUCT_TYPE_PHYSICAL;
                     $item->expense_id = $expense->hashed_id;

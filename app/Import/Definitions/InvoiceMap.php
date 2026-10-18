@@ -72,6 +72,8 @@ class InvoiceMap
             52 => 'item.custom_value4',
             53 => 'item.type_id',
             54 => 'client.email',
+            55 => 'item.tax_id',
+            56 => 'item.product_cost',
         ];
     }
 
@@ -133,6 +135,8 @@ class InvoiceMap
             52 => 'texts.custom_value',
             53 => 'texts.type',
             54 => 'texts.email',
+            55 => 'texts.tax_category',
+            56 => 'texts.product_cost',
         ];
     }
 }

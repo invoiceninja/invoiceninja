@@ -12,8 +12,9 @@
 
 namespace App\DataMapper\FranceEReporting;
 
-use Illuminate\Contracts\Support\Arrayable;
 use App\Services\EDocument\Standards\France\FranceEReportTaxCategory;
+use App\Utils\BcMath;
+use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
 /**
@@ -37,12 +38,62 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
         public array $invoiceLines = [],
     ) {
         ReportDataValidator::assertNonEmptyString($this->invoiceNumber, 'b2biInvoices.invoiceNumber');
+        if (mb_strlen($this->invoiceNumber) > 35) {
+            throw new \InvalidArgumentException('b2biInvoices.invoiceNumber must not exceed 35 characters.');
+        }
+
         ReportDataValidator::assertDate($this->issueDate, 'b2biInvoices.issueDate');
         ReportDataValidator::assertNonEmptyString($this->documentCurrency, 'b2biInvoices.documentCurrency');
-        ReportDataValidator::assertNumeric($this->amountIncludingVat, 'b2biInvoices.amountIncludingVat');
+        if ($this->documentCurrency !== 'EUR') {
+            throw new \InvalidArgumentException('Only EUR B2Bi transaction reports are currently supported.');
+        }
+
+        ReportDataValidator::assertCurrencyAmount($this->amountIncludingVat, 'b2biInvoices.amountIncludingVat');
 
         if (! is_null($this->dueDate)) {
             ReportDataValidator::assertDate($this->dueDate, 'b2biInvoices.dueDate');
+        }
+
+        if ($this->taxSubtotals === []) {
+            throw new \InvalidArgumentException('b2biInvoices.taxSubtotals requires at least one item.');
+        }
+
+        if ($this->invoiceLines === []) {
+            throw new \InvalidArgumentException('b2biInvoices.invoiceLines requires at least one item.');
+        }
+
+        if (is_null($this->accountingSupplierParty) || is_null($this->accountingCustomerParty)) {
+            throw new \InvalidArgumentException('b2biInvoices requires accountingSupplierParty and accountingCustomerParty.');
+        }
+
+        $this->accountingSupplierParty->toB2BIAccountingPartyArray();
+        $this->accountingCustomerParty->toB2BIAccountingPartyArray();
+
+        $gross = '0';
+
+        foreach ($this->taxSubtotals as $subtotal) {
+            $subtotal->toB2BITransactionArray();
+            $gross = BcMath::add($gross, BcMath::add($subtotal->taxableAmount, $subtotal->taxAmount, 4), 4);
+        }
+
+        if (BcMath::greaterThan(BcMath::abs(BcMath::sub($gross, $this->amountIncludingVat, 4), 4), '0.01', 4)) {
+            throw new \InvalidArgumentException('b2biInvoices.amountIncludingVat must reconcile with taxSubtotals within 0.01 EUR.');
+        }
+
+        $lineNet = '0';
+        $subtotalNet = '0';
+
+        foreach ($this->invoiceLines as $line) {
+            $projected = self::storecoveInvoiceLine($line);
+            $lineNet = BcMath::add($lineNet, $projected['amountExcludingVat'], 4);
+        }
+
+        foreach ($this->taxSubtotals as $subtotal) {
+            $subtotalNet = BcMath::add($subtotalNet, $subtotal->taxableAmount, 4);
+        }
+
+        if (BcMath::greaterThan(BcMath::abs(BcMath::sub($lineNet, $subtotalNet, 4), 4), '0.01', 4)) {
+            throw new \InvalidArgumentException('b2biInvoices invoiceLines must reconcile with taxable taxSubtotals within 0.01 EUR.');
         }
     }
 
@@ -55,7 +106,7 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
             invoiceNumber: ReportDataValidator::assertNonEmptyString($data['invoiceNumber'] ?? null, 'b2biInvoices.invoiceNumber'),
             issueDate: ReportDataValidator::assertDate($data['issueDate'] ?? null, 'b2biInvoices.issueDate'),
             documentCurrency: ReportDataValidator::assertNonEmptyString($data['documentCurrency'] ?? null, 'b2biInvoices.documentCurrency'),
-            amountIncludingVat: ReportDataValidator::assertNumeric($data['amountIncludingVat'] ?? null, 'b2biInvoices.amountIncludingVat'),
+            amountIncludingVat: ReportDataValidator::assertCurrencyAmount($data['amountIncludingVat'] ?? null, 'b2biInvoices.amountIncludingVat'),
             dueDate: array_key_exists('dueDate', $data) && ! is_null($data['dueDate'])
                 ? ReportDataValidator::assertDate($data['dueDate'], 'b2biInvoices.dueDate')
                 : null,
@@ -81,10 +132,10 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
             'dueDate' => $this->dueDate,
             'documentCurrency' => $this->documentCurrency,
             'amountIncludingVat' => ReportDataValidator::numericValue($this->amountIncludingVat, 'b2biInvoices.amountIncludingVat'),
-            'accountingSupplierParty' => $this->accountingSupplierParty?->toArray(),
-            'accountingCustomerParty' => $this->accountingCustomerParty?->toArray(),
+            'accountingSupplierParty' => $this->accountingSupplierParty->toB2BIAccountingPartyArray(),
+            'accountingCustomerParty' => $this->accountingCustomerParty->toB2BIAccountingPartyArray(),
             'taxSubtotals' => array_values(array_map(
-                static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toArray(),
+                static fn (TaxSubtotalData $taxSubtotal): array => $taxSubtotal->toB2BITransactionArray(),
                 $this->taxSubtotals,
             )),
             'invoiceLines' => array_values(array_map([self::class, 'storecoveInvoiceLine'], $this->invoiceLines)),
@@ -97,21 +148,40 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
      */
     private static function storecoveInvoiceLine(array $line): array
     {
-        if (array_key_exists('amountExcludingVat', $line) && ! is_null($line['amountExcludingVat'])) {
-            $line['amountExcludingVat'] = ReportDataValidator::numericValue($line['amountExcludingVat'], 'b2biInvoices.invoiceLines.amountExcludingVat');
+        $unknownKeys = array_diff(array_keys($line), ['description', 'amountExcludingVat', 'tax']);
+
+        if ($unknownKeys !== []) {
+            throw new \InvalidArgumentException('B2Bi invoice line contains unsupported fields: '.implode(', ', $unknownKeys).'.');
         }
 
-        if (array_key_exists('tax', $line) && is_array($line['tax'])) {
-            if (array_key_exists('percentage', $line['tax']) && ! is_null($line['tax']['percentage'])) {
-                $line['tax']['percentage'] = ReportDataValidator::numericValue($line['tax']['percentage'], 'b2biInvoices.invoiceLines.tax.percentage');
-            }
+        $tax = ReportDataValidator::assertArray($line['tax'] ?? null, 'b2biInvoices.invoiceLines.tax');
+        $unknownTaxKeys = array_diff(array_keys($tax), ['percentage', 'category', 'country']);
 
-            if (array_key_exists('category', $line['tax'])) {
-                $line['tax']['category'] = FranceEReportTaxCategory::normalize($line['tax']['category']);
-            }
+        if ($unknownTaxKeys !== []) {
+            throw new \InvalidArgumentException('B2Bi invoice line tax contains unsupported fields: '.implode(', ', $unknownTaxKeys).'.');
         }
 
-        return array_filter($line, static fn (mixed $value): bool => ! is_null($value) && $value !== []);
+        $category = ReportDataValidator::assertNonEmptyString($tax['category'] ?? null, 'b2biInvoices.invoiceLines.tax.category');
+
+        if (! FranceEReportTaxCategory::isSupported($category)) {
+            throw new \InvalidArgumentException('b2biInvoices.invoiceLines.tax.category is not supported for France e-reporting.');
+        }
+
+        return [
+            'description' => ReportDataValidator::assertNonEmptyString($line['description'] ?? null, 'b2biInvoices.invoiceLines.description'),
+            'amountExcludingVat' => ReportDataValidator::numericValue(
+                ReportDataValidator::assertCurrencyAmount($line['amountExcludingVat'] ?? null, 'b2biInvoices.invoiceLines.amountExcludingVat'),
+                'b2biInvoices.invoiceLines.amountExcludingVat',
+            ),
+            'tax' => [
+                'percentage' => ReportDataValidator::numericValue(
+                    ReportDataValidator::assertPercentage($tax['percentage'] ?? null, 'b2biInvoices.invoiceLines.tax.percentage'),
+                    'b2biInvoices.invoiceLines.tax.percentage',
+                ),
+                'category' => FranceEReportTaxCategory::normalize($category),
+                'country' => ReportDataValidator::assertCountryCode($tax['country'] ?? null, 'b2biInvoices.invoiceLines.tax.country'),
+            ],
+        ];
     }
 
     /**
@@ -145,7 +215,7 @@ final readonly class B2BIInvoiceData implements Arrayable, JsonSerializable
                 $line = ReportDataValidator::assertArray($line, 'b2biInvoices.invoiceLines.*');
 
                 ReportDataValidator::assertNonEmptyString($line['description'] ?? null, 'b2biInvoices.invoiceLines.description');
-                ReportDataValidator::assertNumeric($line['amountExcludingVat'] ?? null, 'b2biInvoices.invoiceLines.amountExcludingVat');
+                ReportDataValidator::assertCurrencyAmount($line['amountExcludingVat'] ?? null, 'b2biInvoices.invoiceLines.amountExcludingVat');
 
                 if (array_key_exists('tax', $line) && ! is_null($line['tax'])) {
                     $tax = ReportDataValidator::assertArray($line['tax'], 'b2biInvoices.invoiceLines.tax');

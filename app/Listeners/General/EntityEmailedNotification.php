@@ -82,7 +82,7 @@ class EntityEmailedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject();
-                $sent_object = (new EntitySentObject($event->invitation, $this->entity_string, $event->template, $company_user->portalType()))->build();
+                $sent_object = (new EntitySentObject($event->invitation, $this->entity_string, $event->template))->build();
                 $nmo->mailable = new NinjaMailer($sent_object);
                 $nmo->company = $event->invitation->company;
                 $nmo->settings = $event->invitation->company->settings;

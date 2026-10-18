@@ -5,26 +5,35 @@ namespace Tests\Feature\Quickbooks;
 use App\DataMapper\QuickbooksSettings;
 use App\Exceptions\QuickbooksMissingTaxCode;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Location;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\SdkWrapper;
 use App\Services\Quickbooks\TaxCodeComponentKey;
-use App\Services\Quickbooks\Transformers\InvoiceTransformer;
+use App\Services\Quickbooks\Mapping\InvoiceTaxCodeResolver;
+use App\Services\Quickbooks\Mapping\QuickbooksInvoiceMapper;
+use App\Services\Quickbooks\Mapping\TxnTaxDetailBuilder;
 use Mockery;
 use QuickBooksOnline\API\Data\IPPTaxService;
-use QuickBooksOnline\API\DataService\DataService;
-use ReflectionMethod;
 use Tests\TestCase;
 
 class InvoiceTransformerCompositeTaxTest extends TestCase
 {
-    private InvoiceTransformer $transformer;
+    private InvoiceTaxCodeResolver $resolver;
+
+    private TxnTaxDetailBuilder $txn_tax_detail_builder;
+
+    private QuickbooksInvoiceMapper $mapper;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->transformer = new InvoiceTransformer(new Company());
+        $this->resolver = new InvoiceTaxCodeResolver();
+        $this->txn_tax_detail_builder = new TxnTaxDetailBuilder($this->resolver);
+        $this->mapper = new QuickbooksInvoiceMapper($this->resolver, $this->txn_tax_detail_builder);
     }
 
     public function test_invoice_level_two_component_tax_resolves_to_composite_tax_code(): void
@@ -147,6 +156,191 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $this->assertSame('EXEMPT_CODE', $tax_code_id);
     }
 
+    public function test_invoice_gst_merges_with_line_pst_on_same_slot(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            (object) [
+                'tax_name1' => 'PST',
+                'tax_rate1' => 7,
+                'tax_name2' => '',
+                'tax_rate2' => 0,
+                'tax_name3' => '',
+                'tax_rate3' => 0,
+            ],
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'PST', 'rate' => 7.0],
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_invoice_gst_does_not_duplicate_matching_line_gst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'GST', 'rate' => 5],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_header_gst_and_line_pst_resolves_to_composite_not_single_rate(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame('GST_PST_BC', $this->resolveLineTaxCode($merged, [
+            $this->gstPstComponentKey() => [
+                ['tax_code_id' => 'GST_PST_BC', 'name' => 'GST/PST BC'],
+            ],
+        ]));
+    }
+
+    public function test_header_gst_and_line_pst_requests_composite_tax_code_not_gst_only(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+            $this->lineItem(),
+        ]);
+
+        $unresolved = $this->unresolvedTaxCodeComponents($invoice, []);
+
+        $this->assertArrayHasKey($this->gstPstComponentKey(), $unresolved);
+        $this->assertSame([
+            ['name' => 'PST', 'rate' => 7.0],
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $unresolved[$this->gstPstComponentKey()]);
+        $this->assertArrayNotHasKey(
+            TaxCodeComponentKey::fromComponents([
+                ['name' => 'GST', 'rate' => 5],
+            ]),
+            $unresolved
+        );
+    }
+
+    public function test_header_gst_and_line_pst_is_resolved_when_composite_exists(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+            $this->lineItem(),
+        ]);
+
+        $this->assertSame([], $this->unresolvedTaxCodeComponents($invoice, [
+            $this->gstPstComponentKey() => [
+                ['tax_code_id' => 'GST_PST_BC', 'name' => 'GST/PST BC'],
+            ],
+        ]));
+    }
+
+    public function test_merge_does_not_mutate_source_line_item(): void
+    {
+        $line = $this->taxedLineItem([
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [$line]);
+
+        $this->resolver->mergeInvoiceLevelTaxes(
+            $line,
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame('PST', $line->tax_name1);
+        $this->assertSame(7.0, (float) $line->tax_rate1);
+        $this->assertSame('', $line->tax_name2);
+        $this->assertSame(0.0, (float) $line->tax_rate2);
+    }
+
+    public function test_header_gst_does_not_duplicate_when_line_already_has_gst_and_pst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'GST', 'rate' => 5],
+                ['name' => 'PST', 'rate' => 7],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'GST', 'rate' => 5.0],
+            ['name' => 'PST', 'rate' => 7.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_header_gst_percent_suffix_does_not_duplicate_line_gst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST 5%', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([
+                ['name' => 'GST', 'rate' => 5],
+            ]),
+        ]);
+
+        $merged = $this->resolver->mergeInvoiceLevelTaxes(
+            $invoice->line_items[0],
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
+
+        $this->assertSame([
+            ['name' => 'GST', 'rate' => 5.0],
+        ], $this->resolver->taxComponentsFromLineItem($merged));
+    }
+
+    public function test_exempt_line_is_not_unresolved_when_invoice_has_gst(): void
+    {
+        $invoice = $this->invoiceWithTaxes([
+            ['name' => 'GST', 'rate' => 5],
+        ], [
+            $this->taxedLineItem([], '5'),
+        ]);
+
+        $this->assertSame([], $this->unresolvedTaxCodeComponents($invoice, []));
+    }
+
     public function test_unresolved_composite_tax_key_requests_lazy_tax_code_refresh(): void
     {
         $components = [
@@ -223,10 +417,39 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ['name' => 'PST', 'rate' => 7],
         ]);
 
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'resolveLineTaxCodeUS');
-        $method->setAccessible(true);
+        $this->assertSame('TAX', $this->resolver->resolveLineTaxCodeUS($line_item, 'TAX', 'NON'));
+    }
 
-        $this->assertSame('TAX', $method->invoke($this->transformer, $line_item, 'TAX', 'NON'));
+    public function test_location_ship_address_is_formatted_for_qb_invoice_payload(): void
+    {
+        $country = new Country();
+        $country->iso_3166_3 = 'USA';
+
+        $location = new Location();
+        $location->address1 = '123456789012345678901234567890123456789012345';
+        $location->address2 = 'Suite 9876543210987654321098765432109876543210';
+        $location->city = 'Very Long Customer Location City Name';
+        $location->state = 'STATE-CODE-THAT-IS-LONG';
+        $location->postal_code = '12345678901234567890';
+        $location->setRelation('country', $country);
+
+        $invoice = new Invoice();
+        $invoice->location_id = 10;
+        $invoice->setRelation('location', $location);
+
+        $this->assertSame([
+            'Line1' => '12345678901234567890123456789012345678901',
+            'Line2' => 'Suite 98765432109876543210987654321098765',
+            'City' => 'Very Long Customer Location Cit',
+            'CountrySubDivisionCode' => 'STATE-CODE-THAT-IS-LO',
+            'PostalCode' => '1234567890123',
+            'Country' => 'USA',
+        ], $this->formatLocationShipAddress($invoice));
+    }
+
+    public function test_location_ship_address_is_null_without_invoice_location(): void
+    {
+        $this->assertNull($this->formatLocationShipAddress(new Invoice()));
     }
 
     public function test_qb_tax_rate_creates_tax_service_for_missing_components(): void
@@ -242,11 +465,11 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $tax_service_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -254,7 +477,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
                 $tax_service_payload = $payload;
@@ -293,24 +516,24 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $tax_service_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
                 (object) ['Id' => '10', 'DisplayName' => 'Receiver General'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(fn (mixed $payload): bool => data_get($payload, 'DisplayName') === 'Revenu Quebec'))
             ->andReturn((object) ['Id' => '20'])
             ->ordered();
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$tax_service_payload): bool {
                 $tax_service_payload = $payload;
@@ -357,11 +580,11 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $first_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->once()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -369,7 +592,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
                 $first_payload = $payload;
@@ -429,12 +652,12 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $service = Mockery::mock(QuickbooksService::class);
         $service->company = $company;
 
-        $sdk = Mockery::mock(DataService::class);
-        $service->sdk = $sdk;
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $service->shouldReceive('sdk')->andReturn($sdk);
         $first_payload = null;
         $retry_payload = null;
 
-        $sdk->shouldReceive('Query')
+        $sdk->shouldReceive('query')
             ->twice()
             ->with('SELECT * FROM TaxAgency')
             ->andReturn([
@@ -442,7 +665,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
                 (object) ['Id' => '20', 'DisplayName' => 'Revenu Quebec'],
             ]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$first_payload): bool {
                 $first_payload = $payload;
@@ -463,7 +686,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
             ->once()
             ->andReturn([]);
 
-        $sdk->shouldReceive('Add')
+        $sdk->shouldReceive('add')
             ->once()
             ->with(Mockery::on(function (mixed $payload) use (&$retry_payload): bool {
                 $retry_payload = $payload;
@@ -513,6 +736,61 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
         $this->assertSame($map, $round_trip->settings->composite_tax_code_map);
     }
 
+    public function test_manual_tax_detail_uses_tax_map_rate_when_name_has_no_percentage(): void
+    {
+        $company = new Company();
+        $company->quickbooks = new QuickbooksSettings([
+            'settings' => [
+                'tax_rate_map' => [
+                    ['id' => 'qb-rate-6', 'name' => 'Arbitrary tax name', 'rate' => 6],
+                ],
+            ],
+        ]);
+
+        $result = $this->txn_tax_detail_builder->build(
+            [
+                [
+                    'name' => 'Arbitrary tax name',
+                    'tax_rate' => 6,
+                    'total' => 0.06,
+                    'base_amount' => 1.00,
+                ],
+            ],
+            0.06,
+            $company->quickbooks->settings->tax_rate_map
+        );
+
+        $this->assertSame(0.06, $result['TotalTax']);
+        $this->assertSame('qb-rate-6', $result['TaxLine'][0]['TaxLineDetail']['TaxRateRef']['value']);
+        $this->assertSame(0.06, $result['TaxLine'][0]['Amount']);
+        $this->assertSame(1.0, $result['TaxLine'][0]['TaxLineDetail']['NetAmountTaxable']);
+    }
+
+    /**
+     * @param  array<int, array{name: string, rate: float|int}>  $taxes
+     */
+    private function taxedLineItem(array $taxes, string $tax_id = '1'): object
+    {
+        $item = $this->lineItem();
+        $item->tax_id = $tax_id;
+
+        foreach ($taxes as $index => $tax) {
+            $slot = $index + 1;
+            $item->{"tax_name{$slot}"} = $tax['name'];
+            $item->{"tax_rate{$slot}"} = $tax['rate'];
+        }
+
+        return $item;
+    }
+
+    private function gstPstComponentKey(): string
+    {
+        return TaxCodeComponentKey::fromComponents([
+            ['name' => 'GST', 'rate' => 5],
+            ['name' => 'PST', 'rate' => 7],
+        ]);
+    }
+
     /**
      * @param  array<int, array{name: string, rate: float|int}>  $invoice_taxes
      */
@@ -520,14 +798,10 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
     {
         $invoice = $this->invoiceWithTaxes($invoice_taxes);
 
-        $extract_method = new ReflectionMethod(InvoiceTransformer::class, 'extractInvoiceLevelTaxes');
-        $extract_method->setAccessible(true);
-        $invoice_level_taxes = $extract_method->invoke($this->transformer, $invoice);
-
-        $merge_method = new ReflectionMethod(InvoiceTransformer::class, 'mergeInvoiceLevelTaxes');
-        $merge_method->setAccessible(true);
-
-        return $merge_method->invoke($this->transformer, $this->lineItem(), $invoice_level_taxes);
+        return $this->resolver->mergeInvoiceLevelTaxes(
+            $this->lineItem(),
+            $this->resolver->extractInvoiceLevelTaxes($invoice)
+        );
     }
 
     /**
@@ -563,11 +837,7 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
 
     private function resolveLineTaxCode(object $line_item, array $composite_tax_code_map = []): string
     {
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'resolveLineTaxCode');
-        $method->setAccessible(true);
-
-        return $method->invoke(
-            $this->transformer,
+        return $this->resolver->resolveLineTaxCode(
             $line_item,
             $this->taxRateMap(),
             $composite_tax_code_map,
@@ -581,14 +851,17 @@ class InvoiceTransformerCompositeTaxTest extends TestCase
      */
     private function unresolvedTaxCodeComponents(Invoice $invoice, array $composite_tax_code_map): array
     {
-        $extract_method = new ReflectionMethod(InvoiceTransformer::class, 'extractInvoiceLevelTaxes');
-        $extract_method->setAccessible(true);
-        $invoice_level_taxes = $extract_method->invoke($this->transformer, $invoice);
+        return $this->resolver->unresolvedTaxCodeComponents(
+            $invoice,
+            $this->resolver->extractInvoiceLevelTaxes($invoice),
+            $this->taxRateMap(),
+            $composite_tax_code_map
+        );
+    }
 
-        $method = new ReflectionMethod(InvoiceTransformer::class, 'unresolvedTaxCodeComponents');
-        $method->setAccessible(true);
-
-        return $method->invoke($this->transformer, $invoice, $invoice_level_taxes, $this->taxRateMap(), $composite_tax_code_map);
+    private function formatLocationShipAddress(Invoice $invoice): ?array
+    {
+        return $this->mapper->formatLocationShipAddress($invoice);
     }
 
     private function taxRateMap(): array

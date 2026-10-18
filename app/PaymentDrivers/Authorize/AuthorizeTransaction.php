@@ -49,7 +49,7 @@ class AuthorizeTransaction
         $op->setDataValue($data['dataValue']);
         $paymentOne = new PaymentType();
         $paymentOne->setOpaqueData($op);
-        $amount = $data['amount_with_fee'];
+        $amount = round($data['amount_with_fee'], 2);
 
         $invoice_numbers = '';
         $po_numbers = '';
@@ -96,6 +96,8 @@ class AuthorizeTransaction
 
         $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
 
+        $billto = null;
+        
         if ($contact) {
             $billto = new \net\authorize\api\contract\v1\CustomerAddressType();
             $billto->setFirstName(substr($contact->present()->first_name(), 0, 50));

@@ -46,7 +46,7 @@ class InvoiceReversedActivity implements ShouldQueue
 
         $fields = new stdClass();
 
-        $user_id = $event->event_vars['user_id'] ?? $event->invitation->invoice->user_id;
+        $user_id = $event->event_vars['user_id'] ?? $event->invoice->user_id;
 
         $fields->user_id = $user_id;
         $fields->invoice_id = $event->invoice->id;

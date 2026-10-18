@@ -32,6 +32,7 @@
                 <div class="pt-4 py-6">
                     @includeWhen(session()->has('success'), 'portal.ninja2020.components.general.messages.success')
                     
+                    @include('portal.ninja2020.components.analytics-consent', ['analyticsGuard' => 'vendor'])
                     {{ $slot }}
                 </div>
             </div>

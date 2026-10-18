@@ -43,6 +43,7 @@ class EmailReport
     public const THIS_YEAR = "this_year";
     public const LAST_YEAR = "last_year";
     public const CUSTOM_RANGE = "custom";
+    public const ALL_TIME = "all_time";
 
 
     /**

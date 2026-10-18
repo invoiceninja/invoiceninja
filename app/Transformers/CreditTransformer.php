@@ -149,6 +149,7 @@ class CreditTransformer extends EntityTransformer
             'e_invoice' => $credit->e_invoice ?: new \stdClass(),
             'location_id' => $this->encodePrimaryKey($credit->location_id),
             'backup' => $credit->backup,
+            'tags' => $this->transformTags($credit),
             'sync' => $credit->sync,
         ];
     }
