@@ -124,7 +124,7 @@ class QuoteController extends BaseController
      */
     public function index(QuoteFilters $filters)
     {
-        $quotes = Quote::filter($filters)->with('tags');
+        $quotes = Quote::filter($filters)->with(['tags', 'client.locations']);
 
         return $this->listResponse($quotes);
     }
@@ -577,7 +577,6 @@ class QuoteController extends BaseController
 
             $quotes->each(function ($quote, $key) use ($user) {
                 if ($user->can('edit', $quote) && $quote->service()->isConvertable()) {
-                    // $quote->service()->convertToInvoice();
                     $quote->service()->convert()->save();
                 }
             });
@@ -686,7 +685,8 @@ class QuoteController extends BaseController
      *  - delete
      *  - convert
      *  - convert_to_invoice
-     *  - email",
+     *  - email
+     *  - cancel",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -789,6 +789,14 @@ class QuoteController extends BaseController
                 }
 
                 return $this->itemResponse($quote->service()->approveWithNoCoversion()->save());
+
+            case 'cancel':
+                $quote->service()->cancel();
+
+                if (! $bulk) {
+                    return $this->itemResponse($quote);
+                }
+                break;
 
             case 'history':
                 // code...

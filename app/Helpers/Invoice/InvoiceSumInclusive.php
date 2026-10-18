@@ -405,8 +405,6 @@ class InvoiceSumInclusive
                 return $value['key'] == $key;
             })->sum('base_amount');
 
-            $tax_id = $values->first()['tax_id'] ?? '';
-
             $this->tax_map[] = ['name' => $tax_name, 'total' => $total_line_tax, 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => round($base_amount, 2)];
 
             $this->total_taxes += $total_line_tax;

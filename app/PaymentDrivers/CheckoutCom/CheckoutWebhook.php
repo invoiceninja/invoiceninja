@@ -90,8 +90,7 @@ class CheckoutWebhook implements ShouldQueue
         }
 
         if ($payment) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+            $payment = $payment->service()->completePendingPayment();
             return;
         }
 

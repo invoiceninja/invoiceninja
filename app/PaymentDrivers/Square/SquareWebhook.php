@@ -132,9 +132,8 @@ class SquareWebhook implements ShouldQueue
                 $error
             );
 
-        } elseif ($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_COMPLETED, Payment::STATUS_COMPLETED])) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+        } elseif ($payment->status_id === Payment::STATUS_PENDING && $payment_status === Payment::STATUS_COMPLETED) {
+            $payment = $payment->service()->completePendingPayment();
         }
 
     }

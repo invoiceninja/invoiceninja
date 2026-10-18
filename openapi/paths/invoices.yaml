@@ -846,14 +846,14 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/invoice/{invitation_key}/download":
+  "/api/v1/invoices/{invitation_key}/download":
     get:
       operationId: downloadInvoiceByInvitation
       tags:
         - invoices
       summary: "Download invoice PDF"
       description: |
-        ## GET /api/v1/invoice/{invitation_key}/download
+        ## GET /api/v1/invoices/{invitation_key}/download
 
         Downloads a specific invoice
 
@@ -867,7 +867,7 @@
         label: curl
         source: |
           curl --request GET \
-            --url 'https://invoicing.co/api/v1/invoice/D2J234DFA/download' \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA/download' \
             --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
             --header 'Accept: application/json'
       parameters:

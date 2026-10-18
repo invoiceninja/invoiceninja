@@ -45,6 +45,10 @@ class QuoteTransformer extends BaseTransformer
         $quoteStatusMap = [
             'sent' => Quote::STATUS_SENT,
             'draft' => Quote::STATUS_DRAFT,
+            'approved' => Quote::STATUS_APPROVED,
+            'converted' => Quote::STATUS_CONVERTED,
+            'rejected' => Quote::STATUS_REJECTED,
+            'cancelled' => Quote::STATUS_CANCELLED,
         ];
 
         $status = strtolower($this->getString($quote_data, 'quote.status'));
@@ -148,57 +152,6 @@ class QuoteTransformer extends BaseTransformer
             $transformed['client'] = $client_transformer->transform(
                 $quote_data
             );
-        }
-
-        if (isset($quote_data['payment.amount'])) {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($quote_data['payment.date'])
-                        ? $this->parseDate($quote_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $quote_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $this->getFloat(
-                        $quote_data,
-                        'payment.amount'
-                    ),
-                ],
-            ];
-        } elseif ($status === 'paid') {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($quote_data['payment.date'])
-                        ? $this->parseDate($quote_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $quote_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $this->getFloat(
-                        $quote_data,
-                        'quote.amount'
-                    ),
-                ],
-            ];
-        } elseif (
-            isset($transformed['amount'])
-           && isset($transformed['balance'])
-           && $transformed['amount'] != $transformed['balance']
-        ) {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($quote_data['payment.date'])
-                        ? $this->parseDate($quote_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $quote_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $transformed['amount'] - $transformed['balance'],
-                ],
-            ];
         }
 
         $line_items = [];

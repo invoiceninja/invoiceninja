@@ -165,18 +165,31 @@ class SendEmailRequest extends Request
                 $validator->errors()->add('error', ctrans('texts.email_quota_exceeded_subject'));
             }
 
+            /** prevent users from sending emails if they have the disable_emails permission */
             if ($user->hasExactPermission('disable_emails')) {
                 $validator->errors()->add('error', ctrans('texts.disable_emails_error'));
             }
 
             $input = $this->all();
 
+            /** Authorization guards */
             if (isset($input['entity']) && array_key_exists('entity_id', $input) && in_array($input['entity'], self::ENTITY_CLASSES, true)) {
                 $entity_obj = $input['entity']::whereId($input['entity_id'])->withTrashed()->company()->first();
 
                 if (!$entity_obj || !$user->can('edit', $entity_obj)) {
                     $validator->errors()->add('error', ctrans('texts.not_authorized'));
                 }
+            }
+
+            /** Ensure you do not email expired quotes */
+            if (isset($input['entity']) && $input['entity'] === 'App\Models\Quote') {
+
+                $quote = Quote::withTrashed()->find($input['entity_id']);
+
+                if ($quote->hasLapsedValidUntil()) {
+                    $validator->errors()->add('error', ctrans('texts.quote_has_expired'));
+                }
+
             }
         });
     }

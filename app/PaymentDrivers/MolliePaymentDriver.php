@@ -407,9 +407,12 @@ class MolliePaymentDriver extends BaseDriver
                     $response = SystemLog::EVENT_GATEWAY_SUCCESS;
                 }
 
-                $record->status_id = $status_id;
-                $record->save();
-
+                if ($status_id === Payment::STATUS_COMPLETED) {
+                    $record = $record->service()->completePendingPayment();
+                } else {
+                    $record->status_id = $status_id;
+                    $record->save();
+                }
             }
 
             SystemLogger::dispatch(

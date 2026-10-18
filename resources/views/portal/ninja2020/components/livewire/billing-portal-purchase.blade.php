@@ -55,7 +55,7 @@
             @if($subscription->per_seat_enabled && $subscription->max_seats_limit > 1)
                 <div class="flex mt-4 space-x-4 items-center">
                     <span class="text-sm mx-2">{{ ctrans('texts.qty') }}:</span>
-                    <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
+                    <button wire:click="updateQuantity('decrement')" class="button button-secondary border p-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="feather feather-minus">
@@ -63,7 +63,7 @@
                         </svg>
                     </button>
                     <div class="px-2">{{ $quantity }}</div>
-                    <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
+                    <button wire:click="updateQuantity('increment')" class="button button-secondary border p-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="feather feather-plus">
@@ -235,7 +235,7 @@
 
                         <button 
                             type="submit"
-                            class="button button-block bg-primary text-white mt-4">
+                            class="button button-primary button-block bg-primary mt-4">
                             {{ ctrans('texts.next') }}
                         </button>
                     </form>
@@ -267,7 +267,7 @@
                             </label>
 
                             <button wire:loading.attr="disabled" type="button" wire:click="passwordlessLogin"
-                                    class="mt-4 text-sm active:outline-none focus:outline-none">
+                                    class="button-link mt-4 text-sm">
                                 {{ ctrans('texts.login_without_password') }}
                             </button>
 
@@ -278,7 +278,7 @@
                         @endif
 
                         <button type="submit"
-                                class="button button-block bg-primary text-white mt-4">{{ ctrans('texts.next') }}</button>
+                                class="button button-primary button-block bg-primary mt-4">{{ ctrans('texts.next') }}</button>
                     </form>
                 @endif
 

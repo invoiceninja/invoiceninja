@@ -83,7 +83,7 @@ class PromptPay implements LivewireMethodInterface
                 'description' => $this->stripe->getDescription(false),
                 'metadata' => [
                     'payment_hash' => $this->stripe->payment_hash->hash,
-                    'gateway_type_id' => GatewayType::PROMPTPAY,
+                    'gateway_type_id' => (string) GatewayType::PROMPTPAY,
                 ],
             ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
         } catch (\Throwable $e) {

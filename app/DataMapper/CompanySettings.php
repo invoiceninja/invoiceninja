@@ -547,6 +547,7 @@ class CompanySettings extends BaseSettings
 
     public bool $global_tag_inheritance = false;
     public bool $documents_public_by_default = true;
+    
 
     public static $casts = [
         'documents_public_by_default' => 'bool',

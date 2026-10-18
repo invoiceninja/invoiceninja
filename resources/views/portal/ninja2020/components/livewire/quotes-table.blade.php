@@ -7,7 +7,7 @@
             @endforeach
             <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="download">{{ ctrans('texts.download') }}</button>
             <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="approve">{{ ctrans('texts.approve') }}</button>
-            <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-secondary bg-red-500 text-white hover:bg-red-600 disabled:opacity-50" name="action" value="reject">{{ ctrans('texts.reject') }}</button>
+            <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-danger disabled:opacity-50" name="action" value="reject">{{ ctrans('texts.reject') }}</button>
         </form>
     </div>
     <div class="flex items-center justify-between">
@@ -37,11 +37,15 @@
                 <input wire:key="quote-status-rejected-{{ in_array(App\Models\Quote::STATUS_REJECTED, $status) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('{{ App\Models\Quote::STATUS_REJECTED }}')" @checked(in_array(App\Models\Quote::STATUS_REJECTED, $status)) value="{{ App\Models\Quote::STATUS_REJECTED }}" type="checkbox" class="cursor-pointer form-checkbox" id="rejected-checkbox">
                 <label for="rejected-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.rejected') }}</label>
             </div>
+            <div class="mr-3">
+                <input wire:key="quote-status-cancelled-{{ in_array(App\Models\Quote::STATUS_CANCELLED, $status) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('{{ App\Models\Quote::STATUS_CANCELLED }}')" @checked(in_array(App\Models\Quote::STATUS_CANCELLED, $status)) value="{{ App\Models\Quote::STATUS_CANCELLED }}" type="checkbox" class="cursor-pointer form-checkbox" id="cancelled-checkbox">
+                <label for="cancelled-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.cancelled') }}</label>
+            </div>
         </div>
     </div>
     <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle rounded">
-            <table class="min-w-full mt-4 border border-gray-200 rounded shadow quotes-table">
+            <table data-portal-target="table" data-portal-table="quotes" class="min-w-full mt-4 border border-gray-200 rounded shadow quotes-table">
                 <thead>
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">

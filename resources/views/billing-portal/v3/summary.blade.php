@@ -36,6 +36,13 @@
             </div>
             @endif
 
+            @if($this->quote->getTotalTaxes())
+            <div class="flex justify-between text-sm uppercase">
+                <span>{{ ctrans('texts.tax') }}</span>
+                <span>{{ \App\Utils\Number::formatMoney($this->quote->getTotalTaxes(), auth()->guard('contact')->user()?->client ?? $this->subscription->company) }}</span>
+            </div>
+            @endif
+
             <div class="flex justify-between text-sm uppercase border-t pt-2">
                 <span>{{ ctrans('texts.total') }}</span>
                 <span class="font-semibold">{{ $this->total() }}</span>

@@ -34,7 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $entities
  * @property-read \App\Models\Company|null $company
  * @property-read string $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|Design filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|Design newModelQuery()

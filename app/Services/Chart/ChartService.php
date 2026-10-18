@@ -33,6 +33,13 @@ class ChartService
 
     public function __construct(public Company $company, private User $user, private bool $is_admin, private bool $include_drafts = false) {}
 
+    private function companyToday(): string
+    {
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+
+        return now($timezone)->toDateString();
+    }
+
     /**
      * Returns an array of currencies that have
      * transacted with a company
@@ -122,7 +129,7 @@ class ChartService
     /**
      * chart_summary_batched
      *
-     * Reduces N+1 queries @todo additional testing prior to replacing chart_summary
+     * Batches per-currency queries for the chart summary endpoints.
      *
      * @successor-for chart-summary-batched
      * @see chart_summary()
@@ -302,13 +309,14 @@ class ChartService
     private function distributeChartRows(array &$data, string $metric, array $rows): void
     {
         foreach ($rows as $row) {
-            $currency_id = (int) $row->currency_id;
+            // Batched queries use a distinct alias to avoid grouping by a raw currency_id column.
+            $currency_id = (int) $row->effective_currency_id;
 
             if (! array_key_exists($currency_id, $data)) {
                 continue;
             }
 
-            unset($row->currency_id);
+            unset($row->effective_currency_id);
 
             $data[$currency_id][$metric][] = $row;
         }
@@ -555,15 +563,16 @@ class ChartService
                 ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
                 ->min('date'),
             Quote::query()
-                ->withTrashed()
                 ->where('company_id', $this->company->id)
                 ->where('is_deleted', false)
                 ->whereIn('status_id', [Quote::STATUS_SENT, Quote::STATUS_APPROVED])
                 ->whereNull('invoice_id')
-                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', now()->format('Y-m-d')))
+                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', $this->companyToday()))
                 ->where('date', '!=', '0000-00-00')
                 ->where('date', '<=', $end_date)
-                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->whereHas('client', fn ($query) => $query
+                    ->whereNull('clients.deleted_at')
+                    ->where('clients.is_deleted', false))
                 ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
                 ->min('date'),
             RecurringInvoice::query()
@@ -603,14 +612,16 @@ class ChartService
                 ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
                 ->min('date'),
             Quote::query()
-                ->withTrashed()
                 ->where('company_id', $this->company->id)
                 ->where('is_deleted', false)
                 ->whereIn('status_id', [Quote::STATUS_SENT, Quote::STATUS_APPROVED])
                 ->whereNull('invoice_id')
+                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', $this->companyToday()))
                 ->where('date', '!=', '0000-00-00')
                 ->where('date', '<=', $end_date)
-                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->whereHas('client', fn ($query) => $query
+                    ->whereNull('clients.deleted_at')
+                    ->where('clients.is_deleted', false))
                 ->when(! $this->is_admin, fn ($query) => $query->where('user_id', $this->user->id))
                 ->min('date'),
             RecurringInvoice::query()

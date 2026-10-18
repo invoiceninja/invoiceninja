@@ -320,6 +320,8 @@ class Activity extends StaticModel
 
     public const PAYMENT_METHOD_REMOVED = 169;
 
+    public const CANCELLED_QUOTE = 170;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

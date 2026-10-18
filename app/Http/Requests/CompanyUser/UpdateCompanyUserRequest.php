@@ -27,9 +27,17 @@ class UpdateCompanyUserRequest extends Request
     public function authorize(): bool
     {
         /** @var \App\Models\User $auth_user */
+        
         $auth_user = auth()->user();
+        
+        if ($auth_user->id == $this->user->id) {
+            return true;
+        }
+    
+        return $auth_user->isAdmin()
+            && $this->user->company_users()->where('company_id', $auth_user->companyId())->exists()
+            && (!$this->user->hasOwnerFlag() || $auth_user->isOwner());
 
-        return $auth_user->isAdmin() || ($auth_user->id == $this->user->id);
     }
 
     public function rules()

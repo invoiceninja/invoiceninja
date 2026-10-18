@@ -83,6 +83,16 @@
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        current_hours:
+          description: 'Logged hours currently recorded against the project'
+          type: integer
+          example: 12
+          readOnly: true
+        budgeted_amount:
+          description: 'The budgeted monetary amount for the project'
+          type: number
+          format: float
+          example: 5000.00
       required:
         - id
         - user_id

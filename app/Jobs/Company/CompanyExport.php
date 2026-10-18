@@ -751,6 +751,8 @@ class CompanyExport implements ShouldQueue
         $this->company->backups()->chunk(100, function ($backups) use ($zip) {
 
             foreach ($backups as $backup) {
+
+            /** @var \App\Models\Backup $backup */
                 try {
                     $content = $backup->getFile();
 

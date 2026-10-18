@@ -13,6 +13,7 @@
 namespace Tests\Pdf;
 
 use Beganovich\Snappdf\Snappdf;
+use Tests\Concerns\UsesRealPdfGeneration;
 use Tests\TestCase;
 
 /**
@@ -21,14 +22,13 @@ use Tests\TestCase;
  */
 class PdfGenerationTest extends TestCase
 {
+    use UsesRealPdfGeneration;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        if (config('ninja.testvars.travis') !== false) {
-            $this->markTestSkipped('Skip test for GH Actions');
-        }
-
+        $this->useRealPdfGeneration();
     }
 
     public function testPdfGeneration()

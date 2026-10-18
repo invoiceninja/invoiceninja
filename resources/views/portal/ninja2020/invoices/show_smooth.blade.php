@@ -3,23 +3,28 @@
 
 @section('body')
     @if(Route::is('client.invoice.show'))
-        <dialog class="w-full bg-white rounded-lg px-4 pt-5 pb-4 shadow-xl transform transition-all sm:p-6" id="dialogPdf">
-            @livewire('pdf-slot', ['entity_type' => 'invoice', 'entity_key' => $invoice->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $invoice->company->db, 'with_close_button' => 'dialog#dialogPdf'])
+        <div x-data="portalDialog">
+            <template x-teleport="body">
+                <dialog x-ref="dialog" class="portal-dialog portal-dialog-pdf" id="dialogPdf" aria-modal="true" aria-label="{{ ctrans('texts.view_pdf') }}" data-error-message="{{ ctrans('texts.an_error_occurred_try_again') }}">
+                    <div class="portal-dialog-body">
+                        @livewire('pdf-slot', ['entity_type' => 'invoice', 'entity_key' => $invoice->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $invoice->company->db, 'with_close_button' => 'dialog#dialogPdf'])
+                    </div>
+                </dialog>
+            </template>
 
-        </dialog>
-
-        <div class="px-2">
-            <div class="bg-white shadow rounded-lg mb-4" translate>
-                <div class="px-4 py-5 sm:p-6">
-                    <div class="sm:flex sm:items-start sm:justify-between">
-                        <div>
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
-                            </h3>
-                        </div>
-                        <div class="sm:mt-0 sm:ml-6 flex justify-end">
-                            <button @click="document.getElementById('dialogPdf').showModal()" type="button"
-                                class="button button-primary bg-primary">{{ ctrans('texts.view_pdf') }}</button>
+            <div class="px-2">
+                <div class="bg-white shadow rounded-lg mb-4" translate>
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="sm:flex sm:items-start sm:justify-between">
+                            <div>
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                    {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
+                                </h3>
+                            </div>
+                            <div class="sm:mt-0 sm:ml-6 flex justify-end">
+                                <button @click="open($event)" type="button"
+                                    class="button button-primary bg-primary">{{ ctrans('texts.view_pdf') }}</button>
+                            </div>
                         </div>
                     </div>
                 </div>

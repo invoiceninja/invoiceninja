@@ -40,6 +40,14 @@ class DocumentFilters extends QueryFilters
     }
 
     /**
+     * Documents do not support the shared active/archived/deleted lifecycle.
+     */
+    public function status(string $filter = ''): Builder
+    {
+        return $this->builder;
+    }
+
+    /**
      * Overriding method as client_id does
      * not exist on this model, just pass
      * back the builder

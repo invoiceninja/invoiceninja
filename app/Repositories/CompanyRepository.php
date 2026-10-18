@@ -12,6 +12,7 @@
 
 namespace App\Repositories;
 
+use App\Services\ClientPortal\PortalHtmlSanitizer;
 use App\Models\Company;
 use App\Repositories\BaseRepository;
 
@@ -34,6 +35,10 @@ class CompanyRepository extends BaseRepository
 
         if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
             $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
+        }
+
+        if (isset($data['settings'])) {
+            $data['settings'] = (new PortalHtmlSanitizer())->cleanSettings((array) $data['settings']);
         }
 
         $company->fill($data);

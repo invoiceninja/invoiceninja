@@ -59,8 +59,13 @@ class Paymentable extends Pivot
         'deleted_at' => 'timestamp',
         'settings' => 'object',
     ];
-
-    public function paymentable()
+    
+    /**
+     * paymentable
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function paymentable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
     }
@@ -70,7 +75,7 @@ class Paymentable extends Pivot
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function payment()
+    public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Payment::class);
     }

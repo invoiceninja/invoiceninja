@@ -187,11 +187,11 @@ class CreateRawPdf
             $pdf = $this->entity->documentMerge($pdf);
         }
 
-        if ($this->entity instanceof Invoice && ZugferdPdfMerger::shouldMerge($this->entity, $ps->config->settings)) {
+        if (($this->entity instanceof Invoice || $this->entity instanceof Credit) && ZugferdPdfMerger::shouldMerge($this->entity, $ps->config->settings)) {
             try {
                 $pdf = (new ZugferdPdfMerger($this->entity, $pdf, $ps->config->settings->e_invoice_type ?? null))->handle();
             } catch (\Throwable $e) {
-                nlog("ERROR MERGING E-INVOICE TO PDF [invoice {$this->entity->id}]: " . $e->getMessage());
+                nlog("ERROR MERGING E-DOCUMENT TO PDF [{$this->entity_string} {$this->entity->id}]: " . $e->getMessage());
             }
         }
 

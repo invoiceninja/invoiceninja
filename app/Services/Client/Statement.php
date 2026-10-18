@@ -20,6 +20,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Pdf\Purify;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
@@ -184,6 +185,8 @@ class Statement
             $pdf = (new Phantom())->convertHtmlToPdf($html);
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($html);
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($html);
         } else {
             $pdf = $this->makePdf(null, null, $html);
         }

@@ -103,6 +103,9 @@ class Email implements ShouldQueue
     /** The mailable */
     public Mailable $mailable;
 
+    /** Prevents a second in-process fallback if the hosted mailer also throws */
+    private bool $used_hosted_fallback = false;
+
     public function __construct(public EmailObject $email_object, public Company $company) {}
 
     /**
@@ -318,13 +321,6 @@ class Email implements ShouldQueue
         } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
             nlog("Mailer failed with a Transport Exception {$e->getMessage()}");
 
-            if (Ninja::isHosted() && $this->mailer == 'smtp') {
-                $settings = $this->email_object->settings;
-                $settings->email_sending_method = 'default';
-                $this->company->settings = $settings;
-                $this->company->save();
-            }
-
             if (stripos($e->getMessage(), 'code 406') !== false) {
 
                 $address_object = reset($this->email_object->to);
@@ -333,7 +329,7 @@ class Email implements ShouldQueue
 
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
@@ -341,20 +337,32 @@ class Email implements ShouldQueue
                 return;
             }
 
+            if (Ninja::isHosted() && $this->mailer === 'smtp') {
+                match ((new SmtpFailure())->action($e, $this->attempts(), $this->tries)) {
+                    SmtpFailure::RETRY => $this->release($this->backoff()[$this->attempts() - 1]),
+                    SmtpFailure::FALLBACK => $this->fallbackSmtp($e->getMessage()),
+                    SmtpFailure::FAIL => $this->failSmtp($e->getMessage()),
+                    default => $this->logMailError($e->getMessage()),
+                };
+
+                $this->cleanUpMailers();
+                return;
+            }
+
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             return;
             
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
             
             return;
         } catch (\Google\Service\Exception $e) {
@@ -362,7 +370,7 @@ class Email implements ShouldQueue
             if ($e->getCode() == '429') {
 
                 $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 sleep(rand(1, 2));
                 $this->release(900);
                 $message = null;
@@ -371,7 +379,7 @@ class Email implements ShouldQueue
         } catch (\ErrorException $e) { //@todo - remove after symfony/mailer is updated with bug fix
 
             $message = "Attachment size is too large.";
-            $this->logMailError($message, $this->company->clients()->first());
+            $this->logMailError($message);
             $this->cleanUpMailers();
 
             $this->entityEmailFailed($message);
@@ -385,7 +393,7 @@ class Email implements ShouldQueue
             if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->logMailError($e->getMessage());
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
@@ -395,8 +403,8 @@ class Email implements ShouldQueue
             if (stripos($e->getMessage(), 'Dsn') !== false) {
 
                 nlog("Incorrectly configured mail server - setting to default mail driver.");
-                $this->email_object->settings->email_sending_method = 'default';
-                return $this->setMailDriver();
+                $this->retryWithDefaultMailer();
+                return;
 
             }
 
@@ -444,6 +452,31 @@ class Email implements ShouldQueue
         }
 
         $this->cleanUpMailers();
+    }
+
+    private function retryWithDefaultMailer(): void
+    {
+        if ($this->used_hosted_fallback) {
+            return;
+        }
+
+        $this->used_hosted_fallback = true;
+        $this->cleanUpMailers();
+        $this->email_object->settings->email_sending_method = 'default';
+        $this->setMailDriver();
+        $this->email();
+    }
+
+    private function fallbackSmtp(string $message): void
+    {
+        $this->logMailError($message);
+        $this->retryWithDefaultMailer();
+    }
+
+    private function failSmtp(string $message): void
+    {
+        $this->logMailError($message);
+        $this->entityEmailFailed($message);
     }
 
     /**
@@ -870,7 +903,7 @@ class Email implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
         } catch (\Exception $e) {
-            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->logMailError('Gmail Token Invalid');
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -913,7 +946,7 @@ class Email implements ShouldQueue
      * @param  null | \App\Models\Client $recipient_object
      * @return void
      */
-    private function logMailError($errors, $recipient_object): void
+    private function logMailError($errors, $recipient_object = null): void
     {
         (
             new SystemLogger(

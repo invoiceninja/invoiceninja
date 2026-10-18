@@ -15,9 +15,7 @@ namespace App\Mail\Ninja;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Support\Facades\App;
 
 class StripeConnectFailed extends Mailable
 {
@@ -29,58 +27,34 @@ class StripeConnectFailed extends Mailable
     public function __construct(public User $user, public Company $company) {}
 
     /**
-     * Get the message envelope.
+     * Build the message.
      *
-     * @return \Illuminate\Mail\Mailables\Envelope
+     * @return $this
      */
-    public function envelope()
+    public function build()
     {
-        return new Envelope(
-            subject: "Stripe Connect not configured, please login and connect.",
-            from: config('ninja.contact.email'),
-            to: $this->user->email, //@phpstan-ignore-line
-        );
-    }
+        App::setLocale($this->company->getLocale());
 
-    /**
-     * Get the message content definition.
-     *
-     * @return \Illuminate\Mail\Mailables\Content
-     */
-    public function content()
-    {
+        $title = ctrans('texts.stripe_connect_migration_title');
+        $content = ctrans('texts.stripe_connect_migration_desc');
+        $whitelabel = $this->company->account->isPaid();
 
-        return new Content(
-            view: 'email.einvoice.peppol_purchase_allocation_failed',
-            text: 'email.einvoice.peppol_purchase_allocation_failed_text',
-            with: [
-
-            ]
-        );
-    }
-
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array
-     */
-    public function attachments()
-    {
-        return [];
-    }
-
-    /**
-     * Get the message headers.
-     *
-     * @return \Illuminate\Mail\Mailables\Headers
-     */
-    public function headers()
-    {
-        return new Headers(
-            messageId: null,
-            references: [],
-            text: ['' => ''],
-        );
+        return $this->from(config('ninja.contact.email'))
+            ->subject($title)
+            ->text('email.admin.generic_text', [
+                'title' => $title,
+                'content' => $content,
+                'whitelabel' => $whitelabel,
+            ])
+            ->view('email.admin.generic')
+            ->with([
+                'settings' => $this->company->settings,
+                'logo' => $this->company->present()->logo(),
+                'title' => $title,
+                'content' => $content,
+                'whitelabel' => $whitelabel,
+                'url' => false,
+                'button' => false,
+            ]);
     }
 }

@@ -43,7 +43,7 @@ class StripeBrowserPay {
         try {
             this.paymentRequest = this.stripe.paymentRequest(
                 JSON.parse(
-                    document.querySelector('meta[name=payment-request-data').content
+                    document.querySelector('meta[name=payment-request-data]')?.content
                 )
             );
         } catch (e) {

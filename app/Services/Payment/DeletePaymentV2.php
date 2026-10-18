@@ -110,7 +110,7 @@ class DeletePaymentV2
         if ($this->payment->credits()->exists()) {
             $this->payment->credits()->each(function ($paymentable_credit) {
                 $multiplier = 1;
-
+                /** @var \App\Models\Credit $paymentable_credit */
                 //balance remaining on the credit that can offset the paid to date.
                 $net_credit_amount = BcMath::sub($paymentable_credit->pivot->amount, $paymentable_credit->pivot->refunded, 2);
 
@@ -167,6 +167,7 @@ class DeletePaymentV2
                     return;
                 }
 
+                /** @var \App\Models\Invoice $paymentable_invoice */
                 $net_deletable = BcMath::sub($paymentable_invoice->pivot->amount, $paymentable_invoice->pivot->refunded, 2);
 
                 $this->_paid_to_date_deleted = BcMath::add($this->_paid_to_date_deleted, $net_deletable, 2);

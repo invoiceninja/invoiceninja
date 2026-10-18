@@ -1,6 +1,6 @@
     TagAssignment:
       type: object
-      description: 'A tag assigned to a task or project.'
+      description: 'A tag assigned to an entity.'
       properties:
         id:
           description: 'The hashed tag id'
@@ -30,8 +30,21 @@
           description: 'The fully qualified class name this tag may be assigned to'
           type: string
           enum:
-            - 'App\Models\Task'
+            - 'App\Models\Company'
+            - 'App\Models\BankTransaction'
+            - 'App\Models\Client'
+            - 'App\Models\Credit'
+            - 'App\Models\Expense'
+            - 'App\Models\Invoice'
+            - 'App\Models\Payment'
+            - 'App\Models\Product'
             - 'App\Models\Project'
+            - 'App\Models\PurchaseOrder'
+            - 'App\Models\Quote'
+            - 'App\Models\RecurringExpense'
+            - 'App\Models\RecurringInvoice'
+            - 'App\Models\Task'
+            - 'App\Models\Vendor'
           example: 'App\Models\Task'
         name:
           description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'
@@ -81,8 +94,21 @@
           description: 'Required on create. Immutable after creation.'
           type: string
           enum:
-            - 'App\Models\Task'
+            - 'App\Models\Company'
+            - 'App\Models\BankTransaction'
+            - 'App\Models\Client'
+            - 'App\Models\Credit'
+            - 'App\Models\Expense'
+            - 'App\Models\Invoice'
+            - 'App\Models\Payment'
+            - 'App\Models\Product'
             - 'App\Models\Project'
+            - 'App\Models\PurchaseOrder'
+            - 'App\Models\Quote'
+            - 'App\Models\RecurringExpense'
+            - 'App\Models\RecurringInvoice'
+            - 'App\Models\Task'
+            - 'App\Models\Vendor'
           example: 'App\Models\Task'
         name:
           description: 'The tag name. Commas are not allowed. Unique per company and entity type, including archived tags.'

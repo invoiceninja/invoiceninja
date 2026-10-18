@@ -20,6 +20,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+use App\Models\Company;
 
 class ImportStripeCustomers implements ShouldQueue
 {
@@ -28,21 +30,14 @@ class ImportStripeCustomers implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $company;
-
     private $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
 
     public $tries = 1;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param $event_id
-     * @param $entity
-     */
-    public function __construct($company)
+    public $timeout = 3600;
+    
+    public function __construct(public Company $company)
     {
-        $this->company = $company;
     }
 
     /**
@@ -62,6 +57,15 @@ class ImportStripeCustomers implements ShouldQueue
         $cgs->each(function ($company_gateway) {
             $company_gateway->driver(new Client())->importCustomers();
         });
+    }
+
+    public function middleware(): array
+    {
+        return [
+            (new WithoutOverlapping("import_stripe_customers:{$this->company->company_key}"))
+            ->expireAfter($this->timeout + 60)
+            ->dontRelease()
+        ];
     }
 
     public function failed($exception)

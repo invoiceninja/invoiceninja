@@ -34,9 +34,7 @@ class UpdateCompanyRequest extends Request
     private array $protected_input = [
         'client_portal_privacy_policy',
         'client_portal_terms',
-        'portal_custom_footer',
         'portal_custom_css',
-        'portal_custom_head',
     ];
 
     /**

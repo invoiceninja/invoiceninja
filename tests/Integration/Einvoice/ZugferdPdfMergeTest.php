@@ -12,6 +12,7 @@
 
 namespace Tests\Integration\Einvoice;
 
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Services\EDocument\ZugferdPdfMerger;
 use DateTimeImmutable;
@@ -65,6 +66,26 @@ class ZugferdPdfMergeTest extends TestCase
         $this->assertSame('Data', ZugferdPdfMerger::attachmentRelationshipType('XInvoice-BasicWL'));
     }
 
+    public function testMergedFacturXPdfSupportsCreditNotes(): void
+    {
+        $document = $this->makeDocument();
+        $document->setDocumentInformation(
+            'CR-2026-0001',
+            ZugferdInvoiceType::CREDITNOTE,
+            new DateTimeImmutable('2026-05-05'),
+            ZugferdCurrencyCodes::EURO
+        );
+
+        $pdf = $this->makeMerger('EN16931', $document, new Credit())->handle();
+        $xml = ZugferdDocumentPdfReader::getXmlFromContent($pdf);
+        $credit = ZugferdDocumentPdfReader::readAndGuessFromContent($pdf);
+        $credit->getDocumentInformation($documentno, $documenttypecode, $documentdate, $documentcurrency, $taxcurrency, $taxname, $documentlanguage, $rest);
+
+        $this->assertSame('CR-2026-0001', $documentno);
+        $this->assertSame(ZugferdInvoiceType::CREDITNOTE, $documenttypecode);
+        $this->assertXmlStringEqualsXmlString($document->getContent(), $xml);
+    }
+
     private function makeVisualPdf(): string
     {
         $pdf = new \FPDF();
@@ -75,12 +96,12 @@ class ZugferdPdfMergeTest extends TestCase
         return $pdf->Output('S');
     }
 
-    private function makeMerger(string $profile, ?ZugferdDocumentBuilder $document = null): ZugferdPdfMerger
+    private function makeMerger(string $profile, ?ZugferdDocumentBuilder $document = null, Invoice|Credit|null $entity = null): ZugferdPdfMerger
     {
-        return new class (new Invoice(), $this->makeVisualPdf(), $profile, $document ?? $this->makeDocument()) extends ZugferdPdfMerger {
-            public function __construct(Invoice $invoice, string $pdf, ?string $profile, private ZugferdDocumentBuilder $document)
+        return new class ($entity ?? new Invoice(), $this->makeVisualPdf(), $profile, $document ?? $this->makeDocument()) extends ZugferdPdfMerger {
+            public function __construct(Invoice|Credit $entity, string $pdf, ?string $profile, private ZugferdDocumentBuilder $document)
             {
-                parent::__construct($invoice, $pdf, $profile);
+                parent::__construct($entity, $pdf, $profile);
             }
 
             protected function createDocument(): ZugferdDocumentBuilder
@@ -127,7 +148,7 @@ class ZugferdPdfMergeTest extends TestCase
             app_path('Services/EDocument/Standards/Validation/Zugferd/Schema/XSD/CrossIndustryInvoice_100pD22B.xsd')
         );
         $errors = array_map(
-            static fn (\LibXMLError $error): string => trim($error->message),
+            static fn(\LibXMLError $error): string => trim($error->message),
             libxml_get_errors()
         );
 

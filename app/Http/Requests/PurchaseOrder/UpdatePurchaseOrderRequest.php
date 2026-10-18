@@ -98,6 +98,7 @@ class UpdatePurchaseOrderRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['id'] = $this->purchase_order->id;
+        unset($input['balance']);
 
         if (isset($input['documents'])) {
             unset($input['documents']);

@@ -53,6 +53,7 @@ class InvoiceCheckOverdue implements ShouldQueue
     public function handle()
     {
         if (! config('ninja.db.multi_db_enabled')) {
+            config(['database.default' => config('ninja.db.default')]);
             $this->processOverdueInvoices();
         } else {
             foreach (MultiDB::$dbs as $db) {
@@ -217,7 +218,7 @@ class InvoiceCheckOverdue implements ShouldQueue
 
             }
 
-            $nmo->mailable = new NinjaMailer((new InvoiceOverdueSummaryObject($overdue_invoices_collection, $table_headers, $company, $company_user->portalType()))->build());
+            $nmo->mailable = new NinjaMailer((new InvoiceOverdueSummaryObject($overdue_invoices_collection, $table_headers, $company))->build());
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes(
@@ -260,7 +261,7 @@ class InvoiceCheckOverdue implements ShouldQueue
                 continue;
             }
 
-            $nmo->mailable = new NinjaMailer((new InvoiceOverdueObject($invoice, $invoice->company, $company_user->portalType()))->build());
+            $nmo->mailable = new NinjaMailer((new InvoiceOverdueObject($invoice, $invoice->company))->build());
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes(

@@ -21,7 +21,7 @@ namespace App\Models;
  * @property string|null $name
  * @property bool $visible
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentLibrary newQuery()

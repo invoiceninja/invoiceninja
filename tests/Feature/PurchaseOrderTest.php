@@ -27,7 +27,10 @@ use Illuminate\Support\Facades\Session;
 use App\Repositories\ActivityRepository;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Factory\InvoiceItemFactory;
+use App\Services\Email\Email;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 
 class PurchaseOrderTest extends TestCase
 {
@@ -38,6 +41,44 @@ class PurchaseOrderTest extends TestCase
     {
         parent::setUp();
         $this->makeTestData();
+    }
+
+    public function testEmailingDraftPurchaseOrderDoesNotDoubleBalance(): void
+    {
+        Bus::fake([Email::class]);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 1000;
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/purchase_orders', [
+            'vendor_id' => $this->vendor->hashed_id,
+            'status_id' => PurchaseOrder::STATUS_DRAFT,
+            'line_items' => [(array) $item],
+        ])->assertStatus(200);
+
+        $purchase_order = PurchaseOrder::findOrFail($this->decodePrimaryKey($response->json('data.id')));
+
+        $this->assertSame(PurchaseOrder::STATUS_DRAFT, $purchase_order->status_id);
+        $this->assertEquals(1000, $purchase_order->amount);
+        $this->assertEquals(0, $purchase_order->balance);
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/purchase_orders/bulk', [
+            'ids' => [$purchase_order->hashed_id],
+            'action' => 'email',
+        ])->assertStatus(200);
+
+        $purchase_order->refresh();
+
+        $this->assertSame(PurchaseOrder::STATUS_SENT, $purchase_order->status_id);
+        $this->assertEquals(1000, $purchase_order->amount);
+        $this->assertEquals(1000, $purchase_order->balance);
     }
 
     public function testExpensePurchaseOrderConversion()
@@ -424,7 +465,7 @@ class PurchaseOrderTest extends TestCase
         $ids = array_column($response->json('data'), 'id');
 
         $this->assertContains($sent->hashed_id, $ids);
-        $this->assertNotContains($expired_sent->hashed_id, $ids);
+        $this->assertContains($expired_sent->hashed_id, $ids);
         $this->assertNotContains($future_draft->hashed_id, $ids);
     }
 

@@ -32,6 +32,7 @@
     <env name="MAIL_MAILER" value="array"/>
     <env name="DB_CONNECTION" value="db-ninja-03"/>
     <env name="DB_DATABASE" value=":memory:"/>
+    <env name="PDF_GENERATOR" value="simulator"/>
     <env name="DB_STRICT" value="false"/>
     <env name="SCOUT_DRIVER" value="null"/>
     <env name="SENTRY_SAMPLE_RATE" value="0"/>

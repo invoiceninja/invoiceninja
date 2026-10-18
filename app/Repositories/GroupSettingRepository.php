@@ -12,6 +12,7 @@
 
 namespace App\Repositories;
 
+use App\Services\ClientPortal\PortalHtmlSanitizer;
 use App\Models\Client;
 use App\Models\GroupSetting;
 
@@ -26,6 +27,10 @@ class GroupSettingRepository extends BaseRepository
 
         if (isset($data['settings']['pdf_variables'])) {
             unset($data['settings']['pdf_variables']);
+        }
+
+        if (isset($data['settings'])) {
+            $data['settings'] = (new PortalHtmlSanitizer())->cleanSettings((array) $data['settings']);
         }
 
         $group_setting->fill($data);

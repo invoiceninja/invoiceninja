@@ -260,6 +260,26 @@ abstract class QueryFilters
         });
     }
 
+
+    public function project_id(string $project_id = ''): Builder
+    {
+
+        if (strlen($project_id) == 0 || !in_array('project_id', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        $decoded = $this->decodePrimaryKey($project_id);
+
+        return $this->builder
+            ->where('project_id', $decoded)
+            ->whereExists(function ($query) use ($decoded) {
+                $query->selectRaw('1')
+                    ->from('projects')
+                    ->where('projects.id', $decoded)
+                    ->where('projects.company_id', auth()->user()->companyId());
+            });
+    }
+
     /**
      * String to operator convertor.
      *
@@ -638,6 +658,17 @@ abstract class QueryFilters
             return $this->builder;
         }
 
+    }
+
+    public function user_ids(string $user_ids = ''): Builder
+    {
+        if (strlen($user_ids) == 0 || !in_array('user_id', $this->tableColumns())) {
+            return $this->builder;
+        }
+
+        return $this->builder->where(function ($q) use ($user_ids) {
+            $q->whereIn('user_id', $this->transformKeys(explode(',', $user_ids)));
+        });
     }
 
     public function assigned_user_ids(string $assigned_user_ids = ''): Builder

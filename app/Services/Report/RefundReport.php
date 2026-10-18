@@ -139,7 +139,7 @@ class RefundReport extends BaseExport
                 $this->csv->insertOne([
                     $this->translateDate(\Carbon\Carbon::parse($activity->created_at)->format('Y-m-d'), $this->company->date_format(), $this->company->locale()),
                     Number::formatMoney($refundAmount, $this->company),
-                    $payment ? $payment->number : '',
+                    $payment->number ?? '',
                     $invoice['number'],
                     Number::formatMoney($invoice['amount'], $this->company),
                     $gatewayRefund ? 'Yes' : 'No',

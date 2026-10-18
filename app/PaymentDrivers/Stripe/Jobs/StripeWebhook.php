@@ -93,6 +93,7 @@ class StripeWebhook implements ShouldQueue
             \Stripe\WebhookEndpoint::create([
                 'url' => $webhook_url,
                 'enabled_events' => $this->events,
+                'api_version' => $stripe->apiVersion()
             ], $stripe->stripe_connect_auth);
         }
     }

@@ -1,63 +1,42 @@
 <?php
 
 /**
- * Quote Ninja (https://quoteninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/quoteninja/quoteninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Quote Ninja LLC (https://quoteninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\ValidationRules\Quote;
 
-use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use App\Models\Quote;
 
-/**
- * Class ConvertableQuoteRule.
- */
-class ConvertableQuoteRule implements Rule
+class ConvertableQuoteRule implements ValidationRule
 {
     use MakesHash;
 
-    public function __construct() {}
-
-    /**
-     * @param string $attribute
-     * @param mixed $value
-     * @return bool
-     */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return $this->checkQuoteIsConvertable(); //if it exists, return false!
-    }
 
-    /**
-     * @return string
-     */
-    public function message()
-    {
-        return ctrans('texts.quote_has_expired');
-    }
-
-    /**
-     * @return bool
-     */
-    private function checkQuoteIsConvertable(): bool
-    {
         $ids = request()->input('ids');
 
-        $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $quotes = Quote::withTrashed()
+                        ->whereIn('id', $this->transformKeys($ids))
+                        ->company()
+                        ->get();
 
         foreach ($quotes as $quote) {
             if (! $quote->service()->isConvertable()) {
-                return false;
+                $fail(ctrans('texts.quote_has_expired'));
             }
         }
 
-        return true;
     }
+
 }

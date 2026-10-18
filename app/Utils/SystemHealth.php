@@ -203,6 +203,8 @@ class SystemHealth
             return 'Invoice Ninja Hosted PDF Generator';
         } elseif (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return 'Phantom JS Web Generator';
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            return 'Simulator (blank PDF)';
         } else {
             return 'SnapPDF PDF Generator';
         }
@@ -267,7 +269,7 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found php cli, but no version information' : $foo[0];
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }

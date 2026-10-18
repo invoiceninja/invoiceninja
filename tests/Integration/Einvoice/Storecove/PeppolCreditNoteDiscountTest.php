@@ -75,6 +75,10 @@ class PeppolCreditNoteDiscountTest extends TestCase
         $settings->country_id = Country::where('iso_3166_2', 'DE')->first()->id;
         $settings->email = uniqid('peppol-discount') . '@example.com';
         $settings->currency_id = '3';
+        $settings->address1 = 'Test Street 1';
+        $settings->city = 'Berlin';
+        $settings->postal_code = '10115';
+        $settings->phone = '+49301234567';
 
         $tax_data = new TaxModel();
         $tax_data->regions->EU->has_sales_above_threshold = false;

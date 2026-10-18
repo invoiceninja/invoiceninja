@@ -1,47 +1,9 @@
-<div class="">
-    <div class="bg-white p-6 rounded-lg shadow-lg">
-        <h2 class="text-xl text-center py-0 px-4">{{ ctrans('texts.sign_here_ux_tip') }}</h2>
-        <canvas id="signature-pad" class="border border-gray-300 w-full h-64"></canvas>
-        <div class="flex justify-between items-center px-4 py-4">
-            <button id="clear-signature" class="px-4 py-2 mr-6 bg-red-500 text-white rounded">{{ ctrans('texts.clear') }}</button>
-            <button id="save-button" class="button button-primary bg-primary hover:bg-primary-darken">{{ ctrans('texts.next') }}</button>
-        </div>
+<div x-data="portalSignature" class="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+    <h2 class="text-xl mb-4">{{ ctrans('texts.sign_here') }}</h2>
+    <canvas wire:ignore x-ref="canvas" id="signature-pad" class="portal-signature border border-gray-300" aria-label="{{ ctrans('texts.sign_here') }}"></canvas>
+    <p class="mt-3 text-sm">{{ ctrans('texts.sign_here_ux_tip') }}</p>
+    <div class="flex flex-col sm:flex-row-reverse gap-3 mt-4">
+        <button type="button" id="save-button" class="button button-primary bg-primary w-full sm:w-auto min-h-11" :disabled="!signed" wire:loading.attr="disabled" @click="save()">{{ ctrans('texts.next') }}</button>
+        <button type="button" id="clear-signature" class="button button-secondary w-full sm:w-auto min-h-11" @click="clear()">{{ ctrans('texts.clear') }}</button>
     </div>
-    
-    @assets
-    <script src="{{ asset('vendor/signature_pad@5/signature_pad.umd.min.js') }}"></script>
-    @endassets
-    @script
-    <script>
-            
-            const canvas = document.getElementById('signature-pad');
-            const signaturePad = new SignaturePad(canvas);
-
-            // Resize canvas to fit the parent container
-            function resizeCanvas() {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-            }
-
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            document.getElementById('save-button').addEventListener('click', function() {
-                if (!signaturePad.isEmpty()) {                    
-                    $wire.dispatch('signature-captured', {base64: signaturePad.toDataURL()});
-
-                } else {
-                    alert('Please provide a signature first.');
-                }
-            });
- 
-            document.getElementById('clear-signature').addEventListener('click', function() {
-                signaturePad.clear();
-            });
-           
-
-    </script>
-    @endscript
 </div>

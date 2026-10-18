@@ -23,7 +23,6 @@ class ClientUnsubscribedObject
     public function __construct(
         public ClientContact|VendorContact$contact,
         public Company $company,
-        private bool $use_react_link = false
     ) {}
 
     public function build()
@@ -39,7 +38,7 @@ class ClientUnsubscribedObject
         $data = [
             'title' => ctrans('texts.client_unsubscribed'),
             'content' => ctrans('texts.client_unsubscribed_help', ['client' => $this->contact->present()->name()]),
-            'url' => $this->contact->getAdminLink($this->use_react_link),
+            'url' => $this->contact->getAdminLink(),
             'button' => ctrans('texts.view_client'),
             'signature' => $this->company->settings->email_signature,
             'settings' => $this->company->settings,

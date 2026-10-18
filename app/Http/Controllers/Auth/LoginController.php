@@ -484,7 +484,7 @@ class LoginController extends BaseController
         ];
 
         if ($existing_user = MultiDB::hasUser($query)) {
-            if (!$existing_user->account) {
+            if (!$existing_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -504,7 +504,7 @@ class LoginController extends BaseController
         }
         //If this is a result user/email combo - lets add their OAuth details details
         if ($existing_login_user = MultiDB::hasUser(['email' => $user->email])) {
-            if (!$existing_login_user->account) {
+            if (!$existing_login_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -522,7 +522,7 @@ class LoginController extends BaseController
                 'oauth_provider_id' => $provider,
             ]);
 
-            
+
             $cu = $this->hydrateCompanyUser($existing_login_user);
 
             if ($cu->count() == 0) {
@@ -569,7 +569,7 @@ class LoginController extends BaseController
         // $account_user->email_verified_at = now();
         // $account_user->save();
 
-        
+
         $cu = $this->hydrateCompanyUser($account_user);
 
         if ($cu->count() == 0) {
@@ -613,7 +613,7 @@ class LoginController extends BaseController
 
         //21-03-2024
         $cu->each(function ($cu) {
-            
+
             if (CompanyToken::query()->where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) { //@phpstan-ignore-line
                 (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle(); //@phpstan-ignore-line
             }
@@ -714,7 +714,7 @@ class LoginController extends BaseController
     {
         Auth::login($existing_user, false);
 
-        
+
         $cu = $this->hydrateCompanyUser($existing_user);
 
         if ($cu->count() == 0) {
@@ -732,9 +732,6 @@ class LoginController extends BaseController
 
     private function existingLoginUser($user)
     {
-
-
-        
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
@@ -846,7 +843,7 @@ class LoginController extends BaseController
 
         Auth::login($user, false);
 
-        
+
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
@@ -877,7 +874,7 @@ class LoginController extends BaseController
         }
 
         if ($provider == 'oidc') {
-            if (!config('services.oidc.well_known')) {
+            if (!config('services.oidc.issuer')) {
                 return abort(404, 'OIDC provider is not configured');
             }
 
@@ -976,7 +973,7 @@ class LoginController extends BaseController
     public function oidcConfig()
     {
         return response()->json([
-            'oidc_enabled' => !empty(config('services.oidc.client_id')) && !empty(config('services.oidc.well_known')),
+            'oidc_enabled' => !empty(config('services.oidc.client_id')) && !empty(config('services.oidc.issuer')),
             'oidc_provider_label' => config('services.oidc.provider_label', 'OIDC'),
         ]);
     }
@@ -1001,7 +998,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'OIDC sign-in failed.'], 400);
         }
 
-        if (!$socialite_user || !$socialite_user->getId()) {
+        if (!$socialite_user || !$socialite_user->getId()) { //@phpstan-ignore-line
             return response()->json(['message' => 'OIDC sign-in failed: missing subject identifier.'], 400);
         }
 
@@ -1143,7 +1140,7 @@ class LoginController extends BaseController
         catch(\Throwable $e){
             nlog("Error in handleMicrosoftProviderCallback: " . $e->getMessage());
         }
-        
+
         $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);

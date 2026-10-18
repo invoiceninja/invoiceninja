@@ -16,6 +16,7 @@ use DOMDocument;
 use DOMXPath;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Product;
 use ReflectionMethod;
 use ReflectionProperty;
 use Tests\TestCase;
@@ -169,17 +170,194 @@ class ZugferdDocumentAllowanceAllocationTest extends TestCase
         );
     }
 
+    #[DataProvider('mixedVatScenarios')]
+    public function testMixedVatBreakdownKeepsZeroRatedLinesInTheirOwnCategory(
+        bool $usesInclusiveTaxes,
+        string $zeroTaxId,
+        string $zeroTaxName,
+        string $expectedCategory,
+        bool $expectsExemptionReason
+    ): void {
+        $taxMap = [
+            ['tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL, 'tax_rate' => 7.0, 'base_amount' => 200.0, 'total' => 14.0],
+            ['tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL, 'tax_rate' => 19.0, 'base_amount' => 100.0, 'total' => 19.0],
+        ];
+
+        if ($zeroTaxName !== '') {
+            $taxMap[] = ['tax_id' => $zeroTaxId, 'tax_rate' => 0.0, 'base_amount' => 50.0, 'total' => 0.0];
+        }
+
+        $lineItems = [
+            $this->lineItem(100, 7, Product::PRODUCT_TYPE_PHYSICAL, 'VAT', $usesInclusiveTaxes),
+            $this->lineItem(100, 7, Product::PRODUCT_TYPE_PHYSICAL, 'VAT', $usesInclusiveTaxes),
+            $this->lineItem(100, 19, Product::PRODUCT_TYPE_PHYSICAL, 'VAT', $usesInclusiveTaxes),
+            $this->lineItem(50, 0, (int) $zeroTaxId, $zeroTaxName, $usesInclusiveTaxes),
+        ];
+
+        $exporter = $this->makeExporter(
+            $taxMap,
+            0.0,
+            33.0,
+            383.0,
+            $usesInclusiveTaxes,
+            $lineItems
+        );
+
+        $this->invoke($exporter, 'setDocumentTaxes');
+
+        $xpath = $this->xpath($exporter->getXml());
+        $taxes = '//ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax';
+
+        $this->assertSame(3, $xpath->query($taxes)?->length);
+        $this->assertTaxBreakdown($xpath, 'S', '7.00', '200.00', '14.00');
+        $this->assertTaxBreakdown($xpath, 'S', '19.00', '100.00', '19.00');
+        $this->assertTaxBreakdown($xpath, $expectedCategory, '0.00', '50.00', '0.00');
+        $this->assertSame(
+            0,
+            $xpath->query(
+                $taxes . '[ram:CategoryCode="S"]/ram:ExemptionReason'
+                . ' | ' . $taxes . '[ram:CategoryCode="S"]/ram:ExemptionReasonCode'
+            )?->length
+        );
+
+        $zeroTax = $taxes . '[ram:CategoryCode="' . $expectedCategory . '"]';
+        $reasonCount = $xpath->query(
+            $zeroTax . '/ram:ExemptionReason | ' . $zeroTax . '/ram:ExemptionReasonCode'
+        )?->length;
+
+        $expectsExemptionReason
+            ? $this->assertGreaterThan(0, $reasonCount)
+            : $this->assertSame(0, $reasonCount);
+    }
+
+    public static function mixedVatScenarios(): iterable
+    {
+        yield 'exclusive exempt line without tax name' => [
+            false,
+            (string) Product::PRODUCT_TYPE_EXEMPT,
+            '',
+            'E',
+            true,
+        ];
+
+        yield 'inclusive exempt line without tax name' => [
+            true,
+            (string) Product::PRODUCT_TYPE_EXEMPT,
+            '',
+            'E',
+            true,
+        ];
+
+        yield 'exclusive explicit zero-rated line' => [
+            false,
+            (string) Product::PRODUCT_TYPE_ZERO_RATED,
+            'VAT',
+            'Z',
+            false,
+        ];
+
+        yield 'inclusive explicit zero-rated line' => [
+            true,
+            (string) Product::PRODUCT_TYPE_ZERO_RATED,
+            'VAT',
+            'Z',
+            false,
+        ];
+
+        yield 'exclusive zero-rated line without tax name' => [
+            false,
+            (string) Product::PRODUCT_TYPE_ZERO_RATED,
+            '',
+            'Z',
+            false,
+        ];
+    }
+
+    public function testMixedVatBreakdownDoesNotMergeExemptAndZeroRatedGroupsAtZeroPercent(): void
+    {
+        $taxMap = [
+            ['tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL, 'tax_rate' => 19.0, 'base_amount' => 100.0, 'total' => 19.0],
+            ['tax_id' => (string) Product::PRODUCT_TYPE_EXEMPT, 'tax_rate' => 0.0, 'base_amount' => 40.0, 'total' => 0.0],
+            ['tax_id' => (string) Product::PRODUCT_TYPE_ZERO_RATED, 'tax_rate' => 0.0, 'base_amount' => 60.0, 'total' => 0.0],
+        ];
+        $lineItems = [
+            $this->lineItem(100, 19, Product::PRODUCT_TYPE_PHYSICAL, 'VAT'),
+            $this->lineItem(40, 0, Product::PRODUCT_TYPE_EXEMPT, 'VAT'),
+            $this->lineItem(60, 0, Product::PRODUCT_TYPE_ZERO_RATED, 'VAT'),
+        ];
+        $exporter = $this->makeExporter($taxMap, 0.0, 19.0, 219.0, false, $lineItems);
+
+        $this->invoke($exporter, 'setDocumentTaxes');
+
+        $xpath = $this->xpath($exporter->getXml());
+        $taxes = '//ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax';
+
+        $this->assertSame(3, $xpath->query($taxes)?->length);
+        $this->assertTaxBreakdown($xpath, 'E', '0.00', '40.00', '0.00');
+        $this->assertTaxBreakdown($xpath, 'Z', '0.00', '60.00', '0.00');
+    }
+
+    public function testUntaxedDocumentSurchargeUsesItsOwnExemptVatBreakdown(): void
+    {
+        $taxMap = [
+            ['tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL, 'tax_rate' => 7.0, 'base_amount' => 200.0, 'total' => 14.0],
+            ['tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL, 'tax_rate' => 19.0, 'base_amount' => 100.0, 'total' => 19.0],
+        ];
+        $lineItems = [
+            $this->lineItem(100, 7, Product::PRODUCT_TYPE_PHYSICAL, 'VAT'),
+            $this->lineItem(100, 7, Product::PRODUCT_TYPE_PHYSICAL, 'VAT'),
+            $this->lineItem(100, 19, Product::PRODUCT_TYPE_PHYSICAL, 'VAT'),
+        ];
+        $exporter = $this->makeExporter(
+            $taxMap,
+            0.0,
+            33.0,
+            383.0,
+            false,
+            $lineItems,
+            [
+                'custom_surcharge1' => 50.0,
+                'custom_surcharge_tax1' => false,
+            ]
+        );
+
+        $this->invoke($exporter, 'setDocumentTaxes');
+        $this->invoke($exporter, 'setCustomSurcharges');
+
+        $xpath = $this->xpath($exporter->getXml());
+        $settlement = '//ram:ApplicableHeaderTradeSettlement';
+
+        $this->assertTaxBreakdown($xpath, 'S', '7.00', '200.00', '14.00');
+        $this->assertTaxBreakdown($xpath, 'S', '19.00', '100.00', '19.00');
+        $this->assertTaxBreakdown($xpath, 'E', '0.00', '50.00', '0.00');
+        $this->assertSame(
+            '50.00',
+            $this->singleValue(
+                $xpath,
+                $settlement . '/ram:SpecifiedTradeAllowanceCharge'
+                    . '[ram:ChargeIndicator/udt:Indicator="true"]'
+                    . '[ram:CategoryTradeTax/ram:CategoryCode="E"]'
+                    . '[ram:CategoryTradeTax/ram:RateApplicablePercent="0.00"]'
+                    . '/ram:ActualAmount'
+            )
+        );
+    }
+
     /**
      * @param array<int, array{tax_id: string, tax_rate: float, base_amount: float, total: float}> $taxMap
+     * @param array<int, InvoiceItem>|null $lineItems
+     * @param array<string, mixed> $documentAttributes
      */
     private function makeExporter(
         array $taxMap,
         float $documentDiscount,
         float $taxTotal,
         float $documentTotal,
-        bool $usesInclusiveTaxes
+        bool $usesInclusiveTaxes,
+        ?array $lineItems = null,
+        array $documentAttributes = []
     ): ZugferdEDocument {
-        $lineItems = array_map(function (array $tax) use ($usesInclusiveTaxes): InvoiceItem {
+        $lineItems ??= array_map(function (array $tax) use ($usesInclusiveTaxes): InvoiceItem {
             $item = new InvoiceItem();
             $item->quantity = 1;
             $item->cost = $usesInclusiveTaxes
@@ -196,13 +374,13 @@ class ZugferdDocumentAllowanceAllocationTest extends TestCase
         }, $taxMap);
 
         $invoice = new Invoice();
-        $invoice->setRawAttributes([
+        $invoice->setRawAttributes(array_merge([
             'uses_inclusive_taxes' => $usesInclusiveTaxes,
             'line_items' => json_encode($lineItems, JSON_THROW_ON_ERROR),
             'total_taxes' => $taxTotal,
             'amount' => $documentTotal,
             'balance' => $documentTotal,
-        ]);
+        ], $documentAttributes));
 
         $taxCollection = collect($taxMap);
         $calculator = $usesInclusiveTaxes
@@ -211,8 +389,7 @@ class ZugferdDocumentAllowanceAllocationTest extends TestCase
                     private readonly Collection $taxCollection,
                     private readonly float $documentDiscount,
                     private readonly float $taxTotal
-                ) {
-                }
+                ) {}
 
                 public function getTaxMap(): Collection
                 {
@@ -239,8 +416,7 @@ class ZugferdDocumentAllowanceAllocationTest extends TestCase
                 private readonly Collection $taxCollection,
                 private readonly float $documentDiscount,
                 private readonly float $taxTotal
-            ) {
-            }
+            ) {}
 
             public function getTaxMap(): Collection
             {
@@ -275,7 +451,46 @@ class ZugferdDocumentAllowanceAllocationTest extends TestCase
         $clientProperty = new ReflectionProperty($exporter, 'client');
         $clientProperty->setValue($exporter, $client);
 
+        $exemptionReasonProperty = new ReflectionProperty($exporter, 'exemption_reason_code');
+        $exemptionReasonProperty->setValue($exporter, 'VATEX-EU-O');
+
         return $exporter;
+    }
+
+    private function lineItem(
+        float $netAmount,
+        float $taxRate,
+        int $taxId,
+        string $taxName,
+        bool $usesInclusiveTaxes = false
+    ): InvoiceItem {
+        $item = new InvoiceItem();
+        $item->quantity = 1;
+        $item->cost = $usesInclusiveTaxes
+            ? round($netAmount * (1 + ($taxRate / 100)), 2)
+            : $netAmount;
+        $item->line_total = $item->cost;
+        $item->discount = 0;
+        $item->tax_name1 = $taxName;
+        $item->tax_rate1 = $taxRate;
+        $item->tax_id = (string) $taxId;
+        $item->type_id = 1;
+
+        return $item;
+    }
+
+    private function assertTaxBreakdown(
+        DOMXPath $xpath,
+        string $category,
+        string $rate,
+        string $basis,
+        string $tax
+    ): void {
+        $path = '//ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax'
+            . '[ram:CategoryCode="' . $category . '" and ram:RateApplicablePercent="' . $rate . '"]';
+
+        $this->assertSame($basis, $this->singleValue($xpath, $path . '/ram:BasisAmount'));
+        $this->assertSame($tax, $this->singleValue($xpath, $path . '/ram:CalculatedAmount'));
     }
 
     private function invoke(ZugferdEDocument $exporter, string $method): void

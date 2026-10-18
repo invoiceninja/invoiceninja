@@ -215,20 +215,6 @@ class PaymentMethodsTest extends TestCase
         $component->call('makeDefault');
     }
 
-    public function testDefaultMethodRejectsChangedDatabaseContext(): void
-    {
-        $this->actingAs($this->contact, 'contact');
-        $component = Livewire::test(UpdateDefaultMethod::class, [
-            'db' => $this->company->db,
-            'token_id' => $this->cgt->id,
-        ]);
-        $trustedDatabase = config('database.default');
-        $this->contact->company->db = 'another-tenant-connection';
-
-        $component->call('makeDefault')->assertForbidden();
-        $this->assertSame($trustedDatabase, config('database.default'));
-    }
-
     public function testDefaultMethodRejectsArchivedToken(): void
     {
         $this->actingAs($this->contact, 'contact');

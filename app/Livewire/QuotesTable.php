@@ -112,6 +112,10 @@ class QuotesTable extends Component
             if (in_array('5', $this->status)) {
                 $query->where('status_id', Quote::STATUS_REJECTED);
             }
+
+            if (in_array('6', $this->status)) {
+                $query->where('status_id', Quote::STATUS_CANCELLED);
+            }
         }
 
         return $query

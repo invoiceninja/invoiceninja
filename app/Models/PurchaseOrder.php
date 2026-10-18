@@ -133,7 +133,7 @@ use App\Models\Traits\IndexableItems;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel
@@ -208,9 +208,9 @@ class PurchaseOrder extends BaseModel
         'quote_id',
         'assigned_user_id',
         'exchange_rate',
-        'balance',
+        // 'balance',
         'partial',
-        'paid_to_date',
+        // 'paid_to_date',
         'vendor_id',
         'last_viewed',
         'currency_id',
@@ -244,7 +244,7 @@ class PurchaseOrder extends BaseModel
 
         return [
             'id' => $this->company->db . ":" . $this->id,
-            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $vendorName . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $vendorName . ' | ' . Number::formatMoney($this->amount, $this->vendor) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'user_id' => (string) $this->user_id,
             'assigned_user_id' => (string) $this->assigned_user_id,

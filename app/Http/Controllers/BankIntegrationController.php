@@ -396,7 +396,7 @@ class BankIntegrationController extends BaseController
 
         if (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise') {
             $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account) {
-                (new ProcessBankTransactionsYodlee($account->bank_integration_account_id, $bank_integration))->handle();
+                ProcessBankTransactionsYodlee::dispatch($account->bank_integration_account_id, $bank_integration);
             });
         }
 

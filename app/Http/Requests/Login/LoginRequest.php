@@ -56,6 +56,13 @@ class LoginRequest extends Request
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'password.required_without' => ctrans('texts.password') . ' ' . ctrans('texts.required'),
+        ];
+    }
+
     public function isPasskeyLogin(): bool
     {
         return !$this->filled('password') && $this->filled('passkey_challenge_token');

@@ -19,6 +19,7 @@ use App\Utils\Traits\MakesHash;
 use App\Exceptions\QuoteConversion;
 use App\Repositories\QuoteRepository;
 use App\Events\Quote\QuoteWasApproved;
+use App\Events\Quote\QuoteWasCancelled;
 use App\Events\Quote\QuoteWasRejected;
 use App\Services\Invoice\LocationData;
 use App\Services\Quote\UpdateReminder;
@@ -167,6 +168,19 @@ class QuoteService
         return $this;
     }
 
+    public function cancel(): self
+    {
+        if ($this->quote->status_id !== Quote::STATUS_SENT) {
+            return $this;
+        }
+
+        $this->setStatus(Quote::STATUS_CANCELLED)->save();
+
+        event(new QuoteWasCancelled($this->quote, $this->quote->company, Ninja::eventVars(auth()->id())));
+
+        return $this;
+    }
+
 
     public function approveWithNoCoversion($contact = null): self
     {
@@ -203,7 +217,7 @@ class QuoteService
             return false;
         }
 
-        if ($this->quote->status_id == Quote::STATUS_EXPIRED) {
+        if (in_array($this->quote->status_id, [Quote::STATUS_EXPIRED, Quote::STATUS_CANCELLED])) {
             return false;
         }
 

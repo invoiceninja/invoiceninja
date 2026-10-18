@@ -29,6 +29,7 @@ use Illuminate\Support\Str;
 use League\Csv\Writer;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Services\Payment\PaymentApplicationDateResolver;
+use App\Services\Report\ReconcilePaymentApplicationTransactionEventsRunner;
 use App\Services\Report\TaxPeriod\CashTaxEventProjector;
 
 class ProfitLoss
@@ -300,6 +301,8 @@ class ProfitLoss
                 }
             });
 
+        $this->attemptLegacyZeroPaymentIdBackfill($start_date, $end_date);
+
         $reportable_payment_ids = Payment::query()
             ->withTrashed()
             ->where('company_id', $this->company->id)
@@ -345,6 +348,24 @@ class ProfitLoss
         ]];
 
         return $this;
+    }
+
+    private function attemptLegacyZeroPaymentIdBackfill(string $start_date, string $end_date): void
+    {
+        $runner = app(ReconcilePaymentApplicationTransactionEventsRunner::class);
+
+        TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('payment_id', 0)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->whereHas('invoice.client', fn ($query) => $query->where('is_deleted', false))
+            ->whereBetween('period', [
+                Carbon::parse($start_date)->startOfMonth()->toDateString(),
+                Carbon::parse($end_date)->endOfMonth()->toDateString(),
+            ])
+            ->orderBy('id')
+            ->lazyById(200)
+            ->each(fn (TransactionEvent $event): bool => $runner->attemptLegacyPaymentIdBackfillForEvent($this->company, $event));
     }
 
     /**

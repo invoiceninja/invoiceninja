@@ -20,7 +20,7 @@ use stdClass;
 
 class InventoryNotificationObject
 {
-    public function __construct(protected Product $product, public string $notification_level, protected bool $use_react_url) {}
+    public function __construct(protected Product $product, public string $notification_level) {}
 
     public function build()
     {
@@ -68,7 +68,7 @@ class InventoryNotificationObject
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->product->portalUrl($this->use_react_url),
+            'url' => $this->product->portalUrl(),
             'button' => ctrans('texts.view'),
             'signature' => $this->product->company->settings->email_signature,
             'logo' => $this->product->company->present()->logo(),

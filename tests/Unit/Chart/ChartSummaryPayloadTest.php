@@ -195,7 +195,8 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame($emptyCurrencyPayload, $payload[2]);
         $this->assertSame($emptyCurrencyPayload, $payload[999]);
 
-        $allTimePayload = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $allTimePayload = $chartService->chart_summary_batched('2000-01-01', '2026-01-31', true);
+        $this->assertEquals($chartService->chart_summary('2000-01-01', '2026-01-31', true), $allTimePayload);
         $this->assertSame('2000-01-01', $allTimePayload['start_date']);
     }
 
@@ -206,7 +207,8 @@ class ChartSummaryPayloadTest extends TestCase
         $this->createChartExpense(['date' => '1997-01-01']);
 
         $chartService = new ChartService($this->chartCompany, $this->user, true);
-        $summary = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $summary = $chartService->chart_summary_batched('2000-01-01', '2026-01-31', true);
+        $this->assertEquals($chartService->chart_summary('2000-01-01', '2026-01-31', true), $summary);
         $totals = $chartService->totals('2000-01-01', '2026-01-31', true);
 
         $this->assertSame('1997-01-01', $summary['start_date']);
@@ -511,6 +513,20 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame(['2026-01-10', '2026-01-11'], array_column($payload[999]['invoices'], 'date'));
         $this->assertSame(['2026-01-13', '2026-01-14'], array_column($payload[999]['expenses'], 'date'));
         $this->assertSame([['total' => '50.000000000000', 'date' => '2026-01-12']], $payload[999]['payments']);
+    }
+
+    public function testBatchedSummaryCombinesFallbackAndExplicitCurrencyOnTheSameDate(): void
+    {
+        $fallbackExpense = $this->createChartExpense(['date' => '2026-01-13', 'amount' => 30, 'currency_id' => null, 'uses_inclusive_taxes' => true]);
+        $this->createChartExpense(['date' => '2026-01-13', 'amount' => 40, 'currency_id' => 1, 'uses_inclusive_taxes' => true]);
+
+        $this->assertNull(DB::table('expenses')->where('id', $fallbackExpense->id)->value('currency_id'));
+
+        $this->assertBatchedSummaryMatchesLegacy(
+            new ChartService($this->chartCompany, $this->user, true),
+            '2026-01-01',
+            '2026-01-31'
+        );
     }
 
     public function testMysqlAndPhpShimsPreserveSoftDeletedRowsWhenIsDeletedIsFalse(): void

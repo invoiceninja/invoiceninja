@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Expense|null $expense
  * @property-read mixed $hashed_id
  * @property \App\DataMapper\ExpenseSync|null $sync
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\ExpenseCategoryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|ExpenseCategory filter(\App\Filters\QueryFilters $filters)

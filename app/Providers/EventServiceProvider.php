@@ -75,6 +75,7 @@ use App\Events\Credit\CreditWasViewed;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
+use App\Events\Quote\QuoteWasCancelled;
 use App\Events\Quote\QuoteWasRejected;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Vendor\VendorWasMerged;
@@ -166,6 +167,7 @@ use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteArchivedActivity;
+use App\Listeners\Quote\QuoteCancelledActivity;
 use App\Listeners\Quote\QuoteRejectedActivity;
 use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
@@ -578,6 +580,9 @@ class EventServiceProvider extends ServiceProvider
             QuoteApprovedActivity::class,
             QuoteApprovedWebhook::class,
             QuoteApprovedNotification::class,
+        ],
+        QuoteWasCancelled::class => [
+            QuoteCancelledActivity::class,
         ],
         QuoteWasCreated::class => [
             CreatedQuoteActivity::class,

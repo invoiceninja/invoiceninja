@@ -229,7 +229,6 @@ class BTCPayPaymentDriver extends BaseDriver
 
                 if (!$payment) {
 
-
                     $dataPayment = [
                         'payment_method' => $this->payment_method,
                         'payment_type' => PaymentType::CRYPTO,
@@ -241,7 +240,7 @@ class BTCPayPaymentDriver extends BaseDriver
                     $payment = $this->createPayment($dataPayment, $StatusId);
 
                 } else {
-                    $payment->save();
+                    $payment = $payment->service()->completePendingPayment();
                 }
 
                 break;

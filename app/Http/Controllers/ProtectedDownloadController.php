@@ -56,7 +56,7 @@ class ProtectedDownloadController extends BaseController
             throw new SystemError('File no longer available', 404);
         }
 
-        if (! is_string($disk) || $disk === '') {
+        if ($disk === '') {
             throw new SystemError('File no longer available', 404);
         }
 

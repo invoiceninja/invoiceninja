@@ -211,7 +211,7 @@ class AstTaxResponseProcessor
      */
     private function calculateAggregatedTaxRate(array $tax_items, bool $handle_nested = false): float
     {
-        $total_tax_percent = 0;
+        $total_tax_percent = '0';
         $total_tax_amount = 0;
 
         foreach ($tax_items as $tax_item) {
@@ -219,11 +219,11 @@ class AstTaxResponseProcessor
                 ? (data_get($tax_item, 'TaxLineDetail') ?? $tax_item)
                 : data_get($tax_item, 'TaxLineDetail');
 
-            $tax_percent = (float) data_get($tax_line_detail, 'TaxPercent', 0);
+            $tax_percent = (string) data_get($tax_line_detail, 'TaxPercent', '0');
             $tax_amount = (float) data_get($tax_item, 'Amount', 0);
 
             if ($tax_percent > 0) {
-                $total_tax_percent += $tax_percent;
+                $total_tax_percent = BcMath::add($total_tax_percent, $tax_percent, 6);
                 $total_tax_amount += $tax_amount;
             }
         }
@@ -240,7 +240,7 @@ class AstTaxResponseProcessor
             }
         }
 
-        return $aggregated_rate;
+        return (float) $aggregated_rate;
     }
 
     private function formatTaxName(float $rate, ?Invoice $invoice = null): string
@@ -258,7 +258,7 @@ class AstTaxResponseProcessor
     private function assignTaxToEntity($entity, string $tax_name, float $tax_rate): void
     {
         $entity->tax_name1 = $tax_name;
-        $entity->tax_rate1 = round($tax_rate, 2);
+        $entity->tax_rate1 = $tax_rate;
         $entity->tax_name2 = '';
         $entity->tax_rate2 = 0;
         $entity->tax_name3 = '';
