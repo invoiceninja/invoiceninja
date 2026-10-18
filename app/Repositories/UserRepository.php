@@ -286,12 +286,11 @@ class UserRepository extends BaseRepository
 
         \DB::transaction(function () use ($user, $new_owner_user) {
 
-        $purged_user_company_ids = $user->company_users()
-                                    ->pluck('company_id')
-                                    ->unique()
-                                    ->values()
-                                    ->all();
-
+            $purged_user_company_ids = $user->account
+                ->companies()
+                ->pluck('id')
+                ->all();
+                
             /* Remove all of the system tokens for the user */
             $user->tokens()->where('is_system', true)->forceDelete();
 
