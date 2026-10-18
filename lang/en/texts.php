@@ -6553,6 +6553,8 @@ $lang = array(
     'shortcut_conflict' => 'This keybinding is already in use by another action.',
     'decimal_hours' => 'Decimal Hours',
     'locked_task' => 'This task is locked and cannot be edited.',
+    'map_signatories_description' => 'Select who you would like to send this document to, then continue.',
+
 );
 
 return $lang;
