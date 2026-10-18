@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Product;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
@@ -155,6 +156,9 @@ class MutatorTest extends TestCase
         $item->quantity = 1;
         $item->tax_rate1 = $params['tax_rate'] ?? 19;
         $item->tax_name1 = $params['tax_name'] ?? 'VAT';
+        if (isset($params['tax_id'])) {
+            $item->tax_id = (string) $params['tax_id'];
+        }
 
         $invoice = Invoice::factory()->create([
             'client_id' => $client->id,
@@ -504,6 +508,7 @@ class MutatorTest extends TestCase
             'client_vat' => 'DE173755434',
             'client_classification' => 'business',
             'has_valid_vat' => true,
+            'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
         ]);
 
         $storecove = new Storecove();
