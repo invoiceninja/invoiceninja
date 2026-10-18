@@ -19,6 +19,7 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Product;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
@@ -1573,13 +1574,13 @@ class PeppolTest extends TestCase
         $client = Client::factory()->create([
             'company_id' => $company->id,
             'user_id' => $this->user->id,
-            'name' => 'German Client Name',
+            'name' => 'French Client Name',
             'address1' => 'Kinderhausen 96b',
             'address2' => 'Apt. 842',
             'city' => 'Süd Jessestadt',
             'state' => 'Bayern',
             'postal_code' => '33323',
-            'country_id' => 276,
+            'country_id' => Country::where('iso_3166_2', 'FR')->first()->id,
             'routing_id' => 'ABC1234',
             'settings' => $client_settings,
         ]);
@@ -1626,6 +1627,7 @@ class PeppolTest extends TestCase
         $peppol = new Peppol($invoice);
         $peppol->setInvoiceDefaults();
         $peppol->run();
+        $this->assertEmpty($peppol->getErrors(), implode('; ', $peppol->getErrors()));
 
 
         // nlog($peppol->toXml());
@@ -1635,6 +1637,7 @@ class PeppolTest extends TestCase
         $de_invoice = $peppol->getDocument();
 
         $this->assertNotNull($de_invoice);
+        $this->assertSame('K', $de_invoice->InvoiceLine[0]->Item->ClassifiedTaxCategory[0]->ID->value);
 
         $e = new EInvoice();
         $xml = $e->encode($de_invoice, 'xml');
@@ -1697,6 +1700,7 @@ class PeppolTest extends TestCase
             'calculate_taxes' => true,
             'tax_data' => $tax_data,
             'legal_entity_id' => 290868,
+            'custom_surcharge_taxes1' => true,
         ]);
 
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
@@ -3041,7 +3045,8 @@ class PeppolTest extends TestCase
     /**
      * Integration: a billable row with a non-zero cost but missing
      * tax_name1 must NOT be silently dropped — that would change the
-     * invoice total. The schematron should surface the real error.
+     * invoice total. An explicit exempt category makes the zero-tax
+     * row valid without requiring a tax name.
      */
     public function testBillableRowMissingTaxNameIsKept(): void
     {
@@ -3051,12 +3056,14 @@ class PeppolTest extends TestCase
         $untaxed->product_key = 'Untaxed';
         $untaxed->cost        = 50;
         $untaxed->quantity    = 1;
+        $untaxed->tax_id      = (string) Product::PRODUCT_TYPE_EXEMPT;
         // deliberately no tax_name1 / tax_rate1
 
         $invoice = $this->buildAndSave([$tagged, $untaxed]);
 
         $peppol = new Peppol($invoice);
         $peppol->run();
+        $this->assertEmpty($peppol->getErrors(), implode('; ', $peppol->getErrors()));
         $xml = $peppol->toXml();
 
         $dom = new \DOMDocument();
@@ -3086,11 +3093,10 @@ class PeppolTest extends TestCase
     }
 
     /**
-     * A negative price on a negative invoice (emitted as a credit note) must
-     * surface a clear, actionable message rather than falling through to an
-     * opaque schematron failure.
+     * Negative internal cost on a negative invoice is projected into CreditedQuantity
+     * sign (PriceAmount stays ≥ 0) and must not trip the negative-price guard.
      */
-    public function testNegativeLinePriceOnNegativeInvoiceIsRejected(): void
+    public function testNegativeLinePriceOnNegativeInvoiceIsProjected(): void
     {
         $client = $this->setupValidatedClient();
 
@@ -3101,8 +3107,11 @@ class PeppolTest extends TestCase
 
         $result = (new EntityLevel())->checkInvoice($invoice);
 
-        $this->assertFalse($result['passes'], 'Negative line price must fail Peppol validation');
-        $this->assertContains(ctrans('texts.peppol_negative_line_price'), $result['invoice']);
+        $this->assertNotContains(
+            ctrans('texts.peppol_negative_line_price'),
+            $result['invoice'],
+            'Negative cost on credit-note route is projected — not rejected as a negative price'
+        );
     }
 
     /**

@@ -204,6 +204,50 @@ class ClientSalesReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testAllTimeIncludesInvoicesAndPaymentApplicationsBeforeTheFallbackDate(): void
+    {
+        $this->buildData();
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 500,
+            'balance' => 0,
+            'total_taxes' => 0,
+            'status_id' => Invoice::STATUS_PAID,
+            'date' => '1999-01-01',
+            'is_deleted' => false,
+        ]);
+
+        $payment = Payment::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 500,
+            'applied' => 500,
+            'refunded' => 0,
+            'status_id' => Payment::STATUS_COMPLETED,
+            'date' => '1999-01-02',
+            'is_deleted' => false,
+        ]);
+        $this->attachPaymentApplication($payment, $invoice, 500, '1999-01-02');
+
+        $output = (new ClientSalesReport($this->company, [
+            'date_range' => 'all_time',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]))->run();
+        $data_row = $this->findClientSummaryRow($output, $this->client);
+
+        $this->assertSame('1', (string) $data_row[3]);
+        $this->assertStringContainsString('500.00', $data_row[4]);
+        $this->assertStringContainsString('500.00', $data_row[7]);
+
+        $this->account->delete();
+    }
+
     /**
      * Exercises the GROUP BY aggregate path with multiple clients × multiple
      * statuses. Asserts the report runs end-to-end and that draft invoices

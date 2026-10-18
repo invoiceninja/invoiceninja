@@ -41,7 +41,7 @@ class DownloadAvailable implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("user-{$this->user->account->key}-{$this->user->id}"),
+            new PrivateChannel("user-{$this->user->account->key}-{$this->user->hashed_id}"),
         ];
     }
 

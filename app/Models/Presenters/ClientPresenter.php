@@ -56,6 +56,13 @@ class ClientPresenter extends EntityPresenter
         return $this->entity?->primary_contact()?->first() ? $this->entity->primary_contact()->first()->first_name . ' ' . $this->entity->primary_contact()->first()->last_name : 'No primary contact set';
     }
 
+    public function primary_contact_name_or_null()
+    {
+        $contact = $this->entity?->primary_contact()?->first();
+
+        return strlen($contact->first_name ?? '') > 1 ? $this->primary_contact_name() : null;
+    }
+
     public function email()
     {
         $primary_contact = $this->entity->primary_contact->first();

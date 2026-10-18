@@ -32,7 +32,7 @@ class RecurringQuoteFactory
         $quote->due_date = null;
         $quote->partial_due_date = null;
         $quote->is_deleted = false;
-        $quote->line_items = json_encode([]);
+        $quote->line_items = [];
         $quote->tax_name1 = '';
         $quote->tax_rate1 = 0;
         $quote->tax_name2 = '';

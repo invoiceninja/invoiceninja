@@ -40,7 +40,6 @@ class BankTransactionTransformer extends EntityTransformer
         // 'expense',
         'payment',
         'vendor',
-        'bank_account',
     ];
 
     /**
@@ -99,12 +98,20 @@ class BankTransactionTransformer extends EntityTransformer
     {
         $transformer = new VendorTransformer($this->serializer);
 
+        if (!$bank_transaction->vendor) {
+            return null;
+        }
+
         return $this->includeItem($bank_transaction->vendor, $transformer, Vendor::class);
     }
 
     public function includePayment(BankTransaction $bank_transaction)
     {
         $transformer = new PaymentTransformer($this->serializer);
+
+        if (!$bank_transaction->payment) {
+            return null;
+        }
 
         return $this->includeItem($bank_transaction->payment, $transformer, Payment::class);
     }

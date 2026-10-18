@@ -229,20 +229,17 @@ class BaseImport
             return $grouped;
         }
 
-        $grouped = [];
-
         // Group by client name / id.
         $grouped = [];
 
+        /** if clients have the same name, group them together to combine multiple contacts into a single client */
         foreach ($csvData as $source_row => $contact_item) {
             if (empty($contact_item[$key])) {
-                $this->error_array['client'][] = [
-                    'client' => $contact_item,
-                    'error' => 'No client identifier',
-                ];
-            } else {
-                $grouped[$contact_item[$key]][$source_row] = $contact_item;
+                $grouped[$source_row] = [$source_row => $contact_item];
+                continue;
             }
+
+            $grouped[$contact_item[$key]][$source_row] = $contact_item;
         }
 
         return $grouped;

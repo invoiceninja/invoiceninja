@@ -90,4 +90,5 @@ class TaskMetaCastTest extends TestCase
 
         $this->assertNull($task->getAttributes()['meta']);
     }
+
 }

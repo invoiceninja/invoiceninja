@@ -191,6 +191,27 @@ class TaxPeriodReportTest extends TestCase
         return $report->boot()->getData();
     }
 
+    public function testAllTimeStartsAtTheFirstTaxRecord(): void
+    {
+        $this->buildData();
+        $this->payload['date_range'] = 'all_time';
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '1999-01-01',
+            'is_deleted' => false,
+        ]);
+
+        $report = new TaxPeriodReport($this->company, $this->payload, true);
+        $report->boot();
+
+        $this->assertSame('1999-01-01', $report->start_date);
+        $this->assertSame(now()->format('Y-m-d'), $report->end_date);
+    }
+
     public function testSingleInvoiceTaxReportStructure()
     {
         $this->buildData();

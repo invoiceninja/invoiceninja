@@ -52,7 +52,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::post('ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('trial.response')->middleware('throttle:10,1');
     Route::get('plan', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'plan'])->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
 
-    Route::get('showBlob/{hash}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'showBlob'])->name('invoices.showBlob');
+    Route::get('showBlob/{entity_type}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvoiceController::class,'showBlob'])->whereIn('entity_type', ['invoice', 'quote', 'credit', 'recurring_invoice'])->name('invoices.showBlob');
     Route::get('invoices', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'index'])->name('invoices.index')->middleware('portal_enabled');
     Route::post('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'bulk'])->name('invoices.bulk');
     Route::get('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'catch_bulk'])->name('invoices.catch_bulk');
@@ -86,7 +86,10 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
     Route::resource('payment_methods', PaymentMethodController::class)->except(['edit', 'update']);
 
-    Route::match(['GET', 'POST'], 'quotes/approve', [App\Http\Controllers\ClientPortal\QuoteController::class, 'bulk'])->name('quotes.bulk');
+    Route::post('quotes/approve', [App\Http\Controllers\ClientPortal\QuoteController::class, 'bulk'])->name('quotes.bulk');
+    Route::get('quotes/approve/continue/{request_hash}', [App\Http\Controllers\ClientPortal\QuoteController::class, 'continueApproval'])
+        ->where('request_hash', '[A-Za-z0-9]{64}')
+        ->name('quotes.approval.continue');
     Route::get('quotes', [App\Http\Controllers\ClientPortal\QuoteController::class, 'index'])->name('quotes.index')->middleware('portal_enabled');
     Route::get('quotes/{quote}', [App\Http\Controllers\ClientPortal\QuoteController::class, 'show'])->name('quote.show');
     Route::get('quotes/{quote_invitation}', [App\Http\Controllers\ClientPortal\QuoteController::class, 'show'])->name('quote.show_invitation');

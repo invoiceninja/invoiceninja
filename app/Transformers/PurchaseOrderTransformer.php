@@ -14,8 +14,11 @@ namespace App\Transformers;
 
 use App\Models\Activity;
 use App\Models\Backup;
+use App\Models\Client;
 use App\Models\Document;
 use App\Models\Expense;
+use App\Models\Quote;
+use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\Vendor;
@@ -34,6 +37,9 @@ class PurchaseOrderTransformer extends EntityTransformer
         'expense',
         'vendor',
         'activities',
+        'invoice',
+        'quote',
+        'client',
     ];
 
     public function includeActivities(PurchaseOrder $purchase_order)
@@ -62,6 +68,39 @@ class PurchaseOrderTransformer extends EntityTransformer
         $transformer = new DocumentTransformer($this->serializer);
 
         return $this->includeCollection($purchase_order->documents, $transformer, Document::class);
+    }
+
+    public function includeClient(PurchaseOrder $purchase_order)
+    {
+        $transformer = new ClientTransformer($this->serializer);
+
+        if (!$purchase_order->client) {
+            return null;
+        }
+
+        return $this->includeItem($purchase_order->client, $transformer, Client::class);
+    }
+
+    public function includeInvoice(PurchaseOrder $purchase_order)
+    {
+        $transformer = new InvoiceTransformer($this->serializer);
+
+        if (!$purchase_order->invoice) {
+            return null;
+        }
+
+        return $this->includeItem($purchase_order->invoice, $transformer, Invoice::class);
+    }
+
+    public function includeQuote(PurchaseOrder $purchase_order)
+    {
+        $transformer = new QuoteTransformer($this->serializer);
+
+        if (!$purchase_order->quote) {
+            return null;
+        }
+
+        return $this->includeItem($purchase_order->quote, $transformer, Quote::class);
     }
 
     public function includeExpense(PurchaseOrder $purchase_order)
@@ -97,6 +136,8 @@ class PurchaseOrderTransformer extends EntityTransformer
             'amount' => (float) $purchase_order->amount,
             'balance' => (float) $purchase_order->balance,
             'client_id' => (string) $this->encodePrimaryKey($purchase_order->client_id),
+            'invoice_id' => (string) $this->encodePrimaryKey($purchase_order->invoice_id),
+            'quote_id' => (string) $this->encodePrimaryKey($purchase_order->quote_id),
             'status_id' => (string) ($purchase_order->status_id ?: 1),
             'design_id' => (string) $this->encodePrimaryKey($purchase_order->design_id),
             'created_at' => (int) $purchase_order->created_at,

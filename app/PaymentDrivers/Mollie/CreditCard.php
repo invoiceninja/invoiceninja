@@ -104,15 +104,29 @@ class CreditCard implements LivewireMethodInterface
                     return $this->processSuccessfulPayment($payment);
                 }
 
-                if ($payment->status === 'open') {
-                    $this->mollie->payment_hash->withData('payment_id', $payment->id);
+                // if ($payment->status === 'open') {
+                //     $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
-                    if (!$payment->getCheckoutUrl()) {
-                        return render('gateways.mollie.mollie_placeholder');
-                    } else {
-                        return redirect()->away($payment->getCheckoutUrl());
+                //     if (!$payment->getCheckoutUrl()) {
+                //         return render('gateways.mollie.mollie_placeholder');
+                //     } else {
+                //         return redirect()->away($payment->getCheckoutUrl());
+                //     }
+                // }
+
+
+                if (in_array($payment->status, ['open', 'pending'], true)) {
+                    if ($checkout = $payment->getCheckoutUrl()) {
+                        $this->mollie->payment_hash->withData('payment_id', $payment->id);
+                        return redirect()->away($checkout);
                     }
+                    return $this->processSuccessfulPayment($payment);
                 }
+                return $this->processUnsuccessfulPayment(
+                    new PaymentFailed($payment->details->failureMessage ?? ctrans('texts.status_failed'), 400)
+                );
+
+
             } catch (\Throwable $e) {
                 return $this->processUnsuccessfulPayment($e);
             }

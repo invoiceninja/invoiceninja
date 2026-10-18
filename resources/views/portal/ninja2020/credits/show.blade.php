@@ -15,7 +15,7 @@
     </div>
 
 @include('portal.ninja2020.components.entity-documents', ['entity' => $credit])
-@livewire('pdf-slot', ['class' => get_class($credit), 'entity_id' => $credit->id, 'invitation_id' => $invitation->id ?? false, 'db' => $credit->company->db])
+@livewire('pdf-slot', ['entity_type' => 'credit', 'entity_key' => $credit->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $credit->company->db])
 
 @endsection
 

@@ -33,11 +33,19 @@ class StoreTagRequest extends Request
                 'required',
                 'string',
                 'max:191',
+                'not_regex:/,/',
                 Rule::unique('tags', 'name')
                     ->where('company_id', $company_id)
                     ->where('entity_type', $this->input('entity_type')),
             ],
             'color' => ['nullable', 'string', 'regex:/^#(?:[0-9a-fA-F]{3}){1,2}$/'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.not_regex' => 'Tag names may not contain commas.',
         ];
     }
 

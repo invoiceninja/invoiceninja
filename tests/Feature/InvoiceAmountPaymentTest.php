@@ -120,100 +120,6 @@ class InvoiceAmountPaymentTest extends TestCase
         $this->assertEquals(10, $payment->applied);
         $this->assertEquals(10, $payment->amount);
     }
-
-    public function testMarkPaidRemovesUnpaidGatewayFees()
-    {
-        $data = [
-            'name' => 'A Nice Client',
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients', $data);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-
-        $client_hash_id = $arr['data']['id'];
-        $client = Client::find($this->decodePrimaryKey($client_hash_id));
-
-        $this->assertEquals($client->balance, 0);
-        $this->assertEquals($client->paid_to_date, 0);
-        //create new invoice.
-
-        $line_items = [];
-
-        $item = InvoiceItemFactory::create();
-        $item->quantity = 1;
-        $item->cost = 10;
-
-        $line_items[] = (array) $item;
-
-        $item = InvoiceItemFactory::create();
-        $item->quantity = 1;
-        $item->cost = 10;
-
-        $line_items[] = (array) $item;
-
-        $item = InvoiceItemFactory::create();
-        $item->quantity = 1;
-        $item->cost = 5;
-        $item->type_id = '3';
-
-        $line_items[] = (array) $item;
-
-        $invoice = [
-            'status_id' => 1,
-            'number' => '',
-            'discount' => 0,
-            'is_amount_discount' => 1,
-            'po_number' => '3434343',
-            'public_notes' => 'notes',
-            'is_deleted' => 0,
-            'custom_value1' => 0,
-            'custom_value2' => 0,
-            'custom_value3' => 0,
-            'custom_value4' => 0,
-            'client_id' => $client_hash_id,
-            'line_items' => (array) $line_items,
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/invoices?mark_sent=true', $invoice)
-            ->assertStatus(200);
-
-        $arr = $response->json();
-
-        $invoice_one_hashed_id = $arr['data']['id'];
-
-        $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
-
-        $line_items = (array)$invoice->line_items;
-        $item = InvoiceItemFactory::create();
-        $item->quantity = 1;
-        $item->cost = 5;
-        $item->type_id = '3';
-
-        $line_items[] = $item;
-
-        $invoice->line_items = $line_items;
-        $invoice->calc()->getInvoice();
-
-        $this->assertEquals(25, $invoice->balance);
-        $this->assertEquals(25, $invoice->amount);
-
-        $invoice = $invoice->service()->markPaid()->save();
-
-        $invoice->fresh();
-
-        $this->assertEquals(20, $invoice->amount);
-        $this->assertEquals(0, $invoice->balance);
-    }
-
     public function testGatewayPaymentWithFeeAppliesToPartiallyPaidInvoice(): void
     {
         $line_item = InvoiceItemFactory::create();
@@ -280,22 +186,21 @@ class InvoiceAmountPaymentTest extends TestCase
 
         $payment_hash_string = Str::random(32);
 
-        $invoice->service()
-            ->addGatewayFee($company_gateway, GatewayType::CREDIT_CARD, 60, $payment_hash_string)
-            ->save();
+        /** The fee is quoted, not written - the invoice is untouched until the payment confirms. */
+        $quote = $invoice->service()->quoteGatewayFee($company_gateway, GatewayType::CREDIT_CARD, 60);
+
+        $this->assertSame(5.0, $this->roundAmount($quote['gross']));
 
         $invoice = $invoice->fresh();
-        $unpaid_gateway_fee = collect($invoice->line_items)->firstWhere('unit_code', $payment_hash_string);
 
-        $this->assertNotNull($unpaid_gateway_fee);
-        $this->assertSame('3', (string) $unpaid_gateway_fee->type_id);
-        $this->assertSame(105.0, $this->roundAmount($invoice->amount));
-        $this->assertSame(65.0, $this->roundAmount($invoice->balance));
+        $this->assertNull(collect($invoice->line_items)->firstWhere('unit_code', $payment_hash_string));
+        $this->assertSame(100.0, $this->roundAmount($invoice->amount));
+        $this->assertSame(60.0, $this->roundAmount($invoice->balance));
         $this->assertSame(40.0, $this->roundAmount($invoice->paid_to_date));
 
         $payment_hash = PaymentHash::create([
             'hash' => $payment_hash_string,
-            'fee_total' => 5,
+            'fee_total' => $quote['gross'],
             'fee_invoice_id' => $invoice->id,
             'data' => [
                 'invoices' => [
@@ -308,6 +213,7 @@ class InvoiceAmountPaymentTest extends TestCase
                     ],
                 ],
                 'credits' => 0,
+                'fee_net' => $quote['net'],
                 'amount_with_fee' => 65,
             ],
         ]);

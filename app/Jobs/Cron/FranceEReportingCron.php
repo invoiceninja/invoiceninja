@@ -50,6 +50,7 @@ class FranceEReportingCron implements ShouldQueue
     private const UNMATCHED_CALLBACK_RETENTION_DAYS = 30;
     private const SOURCE_RECONCILIATION_OVERLAP_MINUTES = 1;
 
+    /** why are we passing in the companyId and db? */
     public function __construct(
         private ?int $companyId = null,
         private ?string $db = null,

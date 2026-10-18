@@ -183,8 +183,7 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
                     ->first();
 
         if ($p) {
-            $p->status_id = Payment::STATUS_COMPLETED;
-            $p->save();
+            $p = $p->service()->completePendingPayment();
 
             return redirect()->route('client.payments.show', ['payment' => $p->hashed_id]);
         }

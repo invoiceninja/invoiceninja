@@ -318,6 +318,144 @@ class TemplateTest extends TestCase
 
     }
 
+    public function testProjectTemplateBuildsWhenClientHasNoDocuments()
+    {
+        $client = \App\Models\Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+            'name' => 'Uninvoiced Project',
+        ]);
+
+        $ts = $this->projectTemplate()->setEntity($project)->build([
+            'projects' => collect([$project->fresh()]),
+        ]);
+
+        $html = $ts->getHtml();
+
+        $this->assertStringContainsString('Uninvoiced Project', $html);
+        $this->assertStringContainsString('$client.name', $html);
+    }
+
+    public function testProjectTemplateUsesClientInvoiceInvitation()
+    {
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'name' => 'Invoiced Project',
+        ]);
+
+        $ts = $this->projectTemplate()->setEntity($project)->build([
+            'projects' => collect([$project->fresh()]),
+        ]);
+
+        $html = $ts->getHtml();
+
+        $this->assertStringContainsString('Invoiced Project', $html);
+        $this->assertStringContainsString($this->client->present()->name(), $html);
+        $this->assertStringNotContainsString('$client.name', $html);
+    }
+
+    public function testClientInvitationCascadePrefersInvoiceThenQuoteThenCredit()
+    {
+        $client = \App\Models\Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $contact = \App\Models\ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+        ]);
+
+        $resolve = new \ReflectionMethod(TemplateService::class, 'resolveClientInvitation');
+
+        $this->assertNull($resolve->invoke(new TemplateService(), $client));
+
+        $credit = Credit::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+        ]);
+
+        $credit_invitation = \App\Models\CreditInvitation::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact->id,
+            'credit_id' => $credit->id,
+        ]);
+
+        $invitation = $resolve->invoke(new TemplateService(), $client);
+        $this->assertInstanceOf(\App\Models\CreditInvitation::class, $invitation);
+        $this->assertSame($credit_invitation->id, $invitation->id);
+
+        $quote = Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+        ]);
+
+        $quote_invitation = \App\Models\QuoteInvitation::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact->id,
+            'quote_id' => $quote->id,
+        ]);
+
+        $invitation = $resolve->invoke(new TemplateService(), $client);
+        $this->assertInstanceOf(\App\Models\QuoteInvitation::class, $invitation);
+        $this->assertSame($quote_invitation->id, $invitation->id);
+
+        Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+        ]);
+
+        $invitation = $resolve->invoke(new TemplateService(), $client);
+        $this->assertInstanceOf(\App\Models\QuoteInvitation::class, $invitation);
+
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+        ]);
+
+        $invoice_invitation = \App\Models\InvoiceInvitation::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact->id,
+            'invoice_id' => $invoice->id,
+        ]);
+
+        $invitation = $resolve->invoke(new TemplateService(), $client);
+        $this->assertInstanceOf(\App\Models\InvoiceInvitation::class, $invitation);
+        $this->assertSame($invoice_invitation->id, $invitation->id);
+    }
+
+    private function projectTemplate(): TemplateService
+    {
+        $design_model = Design::find(2);
+
+        $replicated_design = $design_model->replicate();
+        $replicated_design->company_id = $this->company->id;
+        $replicated_design->user_id = $this->user->id;
+        $design = $replicated_design->design;
+        $design->body .= 'Token: $client.name <ninja>Project: {{ projects[0].name }}</ninja>';
+        $replicated_design->design = $design;
+        $replicated_design->is_custom = true;
+        $replicated_design->save();
+
+        return $replicated_design->service();
+    }
+
     public function testExpenseWithoutClientDateParse()
     {
         $e = \App\Models\Expense::factory()->create([

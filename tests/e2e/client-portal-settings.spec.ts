@@ -762,10 +762,9 @@ test.describe('Client portal registration settings', () => {
         });
     });
 
-    // The register form always renders; `client_can_register` is enforced when
-    // the form is submitted. This assertion is API-only so it never depends on
-    // the (possibly wedged) worker browser context fixture.
-    test('rejects a registration submission when self-registration is disabled', async ({
+    // ContactRegister middleware blocks both GET and POST when self-registration
+    // is disabled. API-only so it never depends on the worker browser fixture.
+    test('rejects registration when self-registration is disabled', async ({
         companyGuard,
         request,
     }) => {
@@ -775,16 +774,11 @@ test.describe('Client portal registration settings', () => {
         const marker = uniqueName('blocked-register');
         const registerPath = `/client/register/${company.company_key}`;
 
-        const formPage = await request.get(registerPath);
-        expect(formPage.ok()).toBeTruthy();
+        const getResponse = await request.get(registerPath);
+        expect(getResponse.status()).toBe(400);
 
-        const html = await formPage.text();
-        const token = html.match(/name="_token"\s+value="([^"]+)"/)?.[1];
-        expect(token).toBeTruthy();
-
-        const response = await request.post(registerPath, {
+        const postResponse = await request.post(registerPath, {
             form: {
-                _token: token as string,
                 company_key: company.company_key,
                 first_name: 'Blocked',
                 last_name: 'Register',
@@ -792,7 +786,6 @@ test.describe('Client portal registration settings', () => {
                 password: 'PortalRegister123!',
             },
         });
-
-        expect(response.status()).toBe(403);
+        expect(postResponse.status()).toBe(400);
     });
 });

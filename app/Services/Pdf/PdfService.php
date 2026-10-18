@@ -13,6 +13,7 @@
 namespace App\Services\Pdf;
 
 use App\Models\Company;
+use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Utils\Gotenberg\GotenbergPdf;
 use App\Models\Invoice;
@@ -22,6 +23,7 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\EDocument\ZugferdPdfMerger;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PageNumbering;
@@ -136,7 +138,7 @@ class PdfService
 
             if ($this->shouldMergeEInvoiceToPdf()) {
 
-                try{
+                try {
                     $pdf = $this->mergeEInvoiceToPdf($pdf);
                 } catch (\Throwable $e) {
                     nlog("ERROR MERGING E-INVOICE TO PDF: " . $e->getMessage());
@@ -286,9 +288,9 @@ class PdfService
     {
         $designData = $this->config->decodedDesign();
 
-        nlog("Attempting to build PDF with JSON Design Service");
-        nlog("Design data keys: " . json_encode(array_keys($designData)));
-        nlog("Blocks count: " . count($designData['blocks'] ?? []));
+        // nlog("Attempting to build PDF with JSON Design Service");
+        // nlog("Design data keys: " . json_encode(array_keys($designData)));
+        // nlog("Blocks count: " . count($designData['blocks'] ?? []));
 
         // Create JSON design service
         $jsonService = new JsonDesignService($this, $designData);
@@ -308,26 +310,26 @@ class PdfService
 
         // Build the HTML using JSON design service
         try {
-            nlog("Building HTML with JSON Design Service");
-            nlog("HTML variables count: " . count($this->html_variables['values'] ?? []));
-            nlog("Sample variables: " . json_encode(array_slice($this->html_variables['values'] ?? [], 0, 5)));
+            // nlog("Building HTML with JSON Design Service");
+            // nlog("HTML variables count: " . count($this->html_variables['values'] ?? []));
+            // nlog("Sample variables: " . json_encode(array_slice($this->html_variables['values'] ?? [], 0, 5)));
 
             $this->json_design_html = $jsonService->build();
 
-            nlog("JSON Design Service build completed successfully");
-            nlog("HTML length: " . strlen($this->json_design_html));
+            // nlog("JSON Design Service build completed successfully");
+            // nlog("HTML length: " . strlen($this->json_design_html));
 
             // Check if variables were replaced
             $hasUnreplacedVars = preg_match('/\$company\.|invoice\.|client\./', $this->json_design_html);
-            nlog("Has unreplaced variables: " . ($hasUnreplacedVars ? 'YES ⚠️' : 'NO ✓'));
+            // nlog("Has unreplaced variables: " . ($hasUnreplacedVars ? 'YES ⚠️' : 'NO ✓'));
 
             if ($hasUnreplacedVars) {
                 nlog("WARNING: Variables were not replaced! Checking first 500 chars:");
                 nlog(substr($this->json_design_html, 0, 500));
             }
         } catch (\Exception $e) {
-            nlog("JSON Design Service failed: " . $e->getMessage());
-            nlog("Stack trace: " . $e->getTraceAsString());
+            // nlog("JSON Design Service failed: " . $e->getMessage());
+            // nlog("Stack trace: " . $e->getTraceAsString());
             throw $e; // Re-throw instead of falling back since traditional flow won't work with JSON structure
         }
 
@@ -354,6 +356,8 @@ class PdfService
         } elseif (config('ninja.pdf_generator') == 'gotenberg') {
             $pdfa = $this->shouldCreatePdfA3VisualPdf() ? GotenbergPdf::PDF_A_3B : null;
             $pdf = (new GotenbergPdf())->convertHtmlToPdf($html, $pdfa);
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($html);
         } else {
             $pdf = $this->makePdf(null, null, $html);
         }
@@ -370,7 +374,7 @@ class PdfService
 
     private function shouldCreatePdfA3VisualPdf(): bool
     {
-        return $this->config->entity instanceof Invoice
+        return ($this->config->entity instanceof Invoice || $this->config->entity instanceof Credit)
             && ZugferdPdfMerger::shouldMerge($this->config->entity, $this->config->settings);
 
     }

@@ -31,7 +31,7 @@ class UserSalesReport extends BaseExport
     //Amount with Tax
     public Writer $csv;
 
-    public string $date_key = 'created_at';
+    public string $date_key = 'date';
 
     public array $report_keys = [
         'name',
@@ -72,7 +72,7 @@ class UserSalesReport extends BaseExport
 
         $query = $this->filterByClients($query);
 
-        $query = $this->filterByUserPermissions($query);
+        // $query = $this->filterByUserPermissions($query);
 
         $this->csv->insertOne([ctrans('texts.user_sales_report_header', ['client' => $this->client_description, 'start_date' => $this->start_date, 'end_date' => $this->end_date])]);
 
@@ -86,8 +86,7 @@ class UserSalesReport extends BaseExport
 
         $report = $users->map(function ($user) use ($query) {
 
-            $new_query = $query;
-            $new_query->where('user_id', $user->id);
+            $new_query = $query->clone()->where('user_id', $user->id);
 
             return [
                 $user->present()->name(),

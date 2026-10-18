@@ -31,7 +31,18 @@ class UpdateUserRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->id == $this->user->id || auth()->user()->isAdmin();
+
+        $user = auth()->user();
+        
+        if ($user->id == $this->user->id) {
+            return true;
+        }
+    
+        return $user->isAdmin()
+            && $this->user->company_users()->where('company_id', $user->companyId())->exists()
+            && (!$this->user->hasOwnerFlag() || $user->isOwner());
+
+        // return auth()->user()->id == $this->user->id || auth()->user()->isAdmin();
     }
 
     public function rules()

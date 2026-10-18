@@ -101,8 +101,7 @@ class LawPayWebhook implements ShouldQueue
 
         // Handle charge completion (important for ACH which starts as PENDING)
         if (in_array($status, ['completed', 'settled']) && $payment->status_id === Payment::STATUS_PENDING) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+            $payment = $payment->service()->completePendingPayment();
 
             SystemLogger::dispatch(
                 ['action' => 'webhook_completed', 'transaction' => $payment->transaction_reference],
@@ -123,6 +122,16 @@ class LawPayWebhook implements ShouldQueue
             if ($payment->status_id === Payment::STATUS_FAILED) {
                 return;
             }
+
+            /**
+             * A debit reported as returned, declined or voided has to come off the invoice
+             * - it was applied when LawPay reported it pending or settled, and an ACH
+             * return routinely arrives days after settlement. The unwind is what releases
+             * the gateway fee.
+             *
+             * @see \App\Services\Invoice\ReverseGatewayFee
+             */
+            $payment->service()->deletePayment();
 
             $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();

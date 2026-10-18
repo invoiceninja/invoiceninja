@@ -13,11 +13,12 @@
 namespace App\DataMapper\Billing;
 
 use App\Casts\BillingContextCast;
+use App\Enum\BillingState;
 use Illuminate\Contracts\Database\Eloquent\Castable;
 
 class BillingContext implements Castable
 {
-    public const VERSION = 1;
+    public const VERSION = 2;
 
     /**
      * @param array{plan_price?: float|int|string|null, docuninja_price?: float|int|string|null} $pricing
@@ -31,6 +32,7 @@ class BillingContext implements Castable
             'docuninja_price' => 0,
         ],
         public bool $docuninja_pending_prune = false,
+        public BillingState $billing_state = BillingState::Free,
     ) {}
 
     /**
@@ -55,6 +57,7 @@ class BillingContext implements Castable
                 'docuninja_price' => round((float) ($data['pricing']['docuninja_price'] ?? 0), 2),
             ],
             docuninja_pending_prune: (bool) ($data['docuninja_pending_prune'] ?? false),
+            billing_state: BillingState::tryFrom((string) ($data['billing_state'] ?? '')) ?? BillingState::Free,
         );
     }
 }

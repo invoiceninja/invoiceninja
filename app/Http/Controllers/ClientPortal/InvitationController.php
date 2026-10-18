@@ -355,7 +355,7 @@ class InvitationController extends Controller
         request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
-        $invoice = $invitation->invoice->service()->removeUnpaidGatewayFees()->save();
+        $invoice = $invitation->invoice;
 
         if (! $invitation->viewed_date) {
             $invitation->markViewed();
@@ -407,7 +407,7 @@ class InvitationController extends Controller
 
         $entity = 'invoice';
 
-        if ($invoice && is_array($gateways) && count($gateways) == 0) {
+        if (is_array($gateways) && count($gateways) == 0) {
             return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
         }
 

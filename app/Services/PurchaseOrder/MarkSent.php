@@ -33,7 +33,7 @@ class MarkSent
             ->service()
             ->setStatus(PurchaseOrder::STATUS_SENT)
             ->applyNumber()
-            ->adjustBalance($this->purchase_order->amount) //why was this commented out previously?
+            ->adjustBalance($this->purchase_order->amount - $this->purchase_order->balance)
             ->save();
 
         $this->purchase_order->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");

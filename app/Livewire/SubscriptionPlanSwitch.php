@@ -30,6 +30,7 @@ class SubscriptionPlanSwitch extends Component
     #[Locked]
     public $subscription_id;
 
+    #[Locked]
     public $amount;
 
     #[Locked]
@@ -67,6 +68,7 @@ class SubscriptionPlanSwitch extends Component
     /**
      * @var mixed|string
      */
+    #[Locked]
     public $hash;
 
     public ?string $first_name;

@@ -64,9 +64,10 @@ class Merge extends AbstractService
 
     private function applyMerge()
     {
-        $this->mergable_client->activities()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->contacts()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->gateway_tokens()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->purgeable_activities()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->contacts()->withTrashed()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->locations()->withTrashed()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->gateway_tokens()->withTrashed()->update(['client_id' => $this->client->id]);
         $this->mergable_client->credits()->update(['client_id' => $this->client->id]);
         $this->mergable_client->expenses()->update(['client_id' => $this->client->id]);
         /** Payments are reassigned before invoices to match the payment -> invoice
@@ -77,8 +78,9 @@ class Merge extends AbstractService
         $this->mergable_client->quotes()->update(['client_id' => $this->client->id]);
         $this->mergable_client->recurring_invoices()->update(['client_id' => $this->client->id]);
         $this->mergable_client->recurring_expenses()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->purchase_orders()->update(['client_id' => $this->client->id]);
         $this->mergable_client->tasks()->update(['client_id' => $this->client->id]);
-        $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
+        $this->mergable_client->documents()->withTrashed()->update(['documentable_id' => $this->client->id]);
         $this->mergable_client->transaction_events()->update(['client_id' => $this->client->id]);
         
 

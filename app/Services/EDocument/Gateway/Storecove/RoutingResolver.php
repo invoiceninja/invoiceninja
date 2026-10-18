@@ -16,6 +16,7 @@ use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierVali
 use App\Services\EDocument\Support\GlnIdentifier;
 use App\Services\EDocument\Standards\Peppol\CountryFactory;
 use App\Services\EDocument\Standards\Peppol\CountryHandler;
+use App\Services\EDocument\Standards\Peppol\FI as FinlandCountryHandler;
 use App\Services\EDocument\Standards\Peppol\IT as ItalyCountryHandler;
 
 /**
@@ -23,13 +24,14 @@ use App\Services\EDocument\Standards\Peppol\IT as ItalyCountryHandler;
  *
  * Single cascading pipeline:
  *  1. GLN in routing_id (bare or 0088:) → return
- *  2. Italy B2B/B2G bare CUUO + Partita IVA (IT:IVA) → IT:CUUO + IT:IVA eIdentifiers
- *  3. Italy domestic consumer (sender IT) bare CUUO + CF → IT:CUUO + IT:CF
- *  4. Explicit routing_id in "scheme:id" format → discover → return
- *  5. Foreign sender → IT consumer: IT:CF + optional non-PEC email
- *  6. Handler getCandidates() → for each: discover → return first hit
- *  7. Email fallback (individuals or Email-routed countries)
- *  8. None
+ *  2. Finland B2B/B2G bare OPID + OVT → FI:OPID + FI:OVT eIdentifiers
+ *  3. Italy B2B/B2G bare CUUO + Partita IVA (IT:IVA) → IT:CUUO + IT:IVA eIdentifiers
+ *  4. Italy domestic consumer (sender IT) bare CUUO + CF → IT:CUUO + IT:CF
+ *  5. Explicit routing_id in "scheme:id" format → discover → return
+ *  6. Foreign sender → IT consumer: IT:CF + optional non-PEC email
+ *  7. Handler getCandidates() → for each: discover → return first hit
+ *  8. Email fallback (individuals or Email-routed countries)
+ *  9. None
  */
 class RoutingResolver
 {
@@ -66,27 +68,32 @@ class RoutingResolver
             return $gln;
         }
 
-        // 2. Italy B2B/B2G: IT:CUUO + IT:IVA (Partita IVA / VAT ID).
+        // 2. Finland B2B/B2G: Finvoice FI:OPID + FI:OVT.
+        if ($finlandBg = $this->resolveFinlandBusinessGovernmentDualIdentifiers()) {
+            return $finlandBg;
+        }
+
+        // 3. Italy B2B/B2G: IT:CUUO + IT:IVA (Partita IVA / VAT ID).
         if ($italyBg = $this->resolveItalyBusinessGovernmentDualIdentifiers()) {
             return $italyBg;
         }
 
-        // 3. Italy domestic consumer: IT:CUUO + IT:CF (sender must be IT — checked inside).
+        // 4. Italy domestic consumer: IT:CUUO + IT:CF (sender must be IT — checked inside).
         if ($italyConsumer = $this->resolveItalyDomesticIndividualDualIdentifiers()) {
             return $italyConsumer;
         }
 
-        // 4. Explicit scheme:id routing_id override (non-GLN schemes)
+        // 5. Explicit scheme:id routing_id override (non-GLN schemes)
         if ($explicit = $this->resolveExplicitRoutingId()) {
             return $explicit;
         }
 
-        // 5. Foreign sender → IT consumer: IT:CF + optional email (not PEC).
+        // 6. Foreign sender → IT consumer: IT:CF + optional email (not PEC).
         if ($italyForeign = $this->resolveItalyForeignConsumerCombinedRouting()) {
             return $italyForeign;
         }
 
-        // 6. Handler-provided candidates — try discovery, first hit wins.
+        // 7. Handler-provided candidates — try discovery, first hit wins.
         //    If no discovery succeeds, use the first valid candidate (config-based).
         $candidates = $this->handler->getCandidates(
             $this->invoice->client,
@@ -122,18 +129,92 @@ class RoutingResolver
             return $this->eIdentifierResult($firstValid['scheme'], $firstValid['id']);
         }
 
-        // 7. Email fallback for individuals
+        // 8. Email fallback for individuals
         if ($this->classification === 'individual') {
             return $this->emailResult($this->invoice->client->present()->email());
         }
 
-        // 8. Check config for Email routing (IN, SA, IT B2C)
+        // 9. Check config for Email routing (IN, SA, IT B2C)
         $code = $this->router->resolveRouting($this->countryCode, $this->classification);
         if ($code === 'Email') {
             return $this->emailResult($this->invoice->client->present()->email());
         }
 
         return $result;
+    }
+
+    /**
+     * Whether the recipient is discoverable on the Peppol SMP (Storecove discovery API).
+     *
+     * Same cascade as {@see resolve()}, but requires a successful discovery call and
+     * never falls back to config-only routing (step 7).
+     *
+     */
+    public function discoverOnPeppol(): bool
+    {
+        if ($gln = $this->resolveGlnRoutingId()) {
+            return $this->discoveredFromRoutingResult($gln);
+        }
+
+        if ($finlandBg = $this->resolveFinlandBusinessGovernmentDualIdentifiers()) {
+            return $this->discoveredFromRoutingResult($finlandBg);
+        }
+
+        if ($italyBg = $this->resolveItalyBusinessGovernmentDualIdentifiers()) {
+            return $this->discoveredFromRoutingResult($italyBg);
+        }
+
+        if ($italyConsumer = $this->resolveItalyDomesticIndividualDualIdentifiers()) {
+            return $this->discoveredFromRoutingResult($italyConsumer);
+        }
+
+        if ($explicit = $this->resolveExplicitRoutingId()) {
+            return $this->discoveredFromRoutingResult($explicit);
+        }
+
+        if ($italyForeign = $this->resolveItalyForeignConsumerCombinedRouting()) {
+            return $this->discoveredFromRoutingResult($italyForeign);
+        }
+
+        $candidates = $this->handler->getCandidates(
+            $this->invoice->client,
+            $this->classification,
+            $this->router,
+        );
+
+        foreach ($candidates as $candidate) {
+            $id = StorecoveIdentifierValidator::dashSignificantScheme($candidate['scheme'])
+                ? preg_replace('/\s+/', '', $candidate['id'])
+                : preg_replace("/[^a-zA-Z0-9]/", "", $candidate['id']);
+
+            if (strlen($id) < 1) {
+                continue;
+            }
+
+            if ($this->proxyDiscovery($id, $candidate['scheme'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function discoveredFromRoutingResult(array $routingResult): bool
+    {
+        foreach ($routingResult['meta']['routing']['eIdentifiers'] ?? [] as $pair) {
+            $scheme = (string) ($pair['scheme'] ?? '');
+            $id = (string) ($pair['id'] ?? '');
+
+            if ($scheme === '' || $id === '') {
+                continue;
+            }
+
+            if ($this->proxyDiscovery($id, $scheme)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -155,6 +236,42 @@ class RoutingResolver
         $this->proxyDiscovery($gln, '0088');
 
         return $this->eIdentifierResult('0088', $gln);
+    }
+
+    /**
+     * Finland business/government: Storecove Finvoice routing expects operator id (OPID) with OVT.
+     */
+    private function resolveFinlandBusinessGovernmentDualIdentifiers(): ?array
+    {
+        if ($this->countryCode !== 'FI' || !in_array($this->classification, ['business', 'government'], true)) {
+            return null;
+        }
+
+        $client = $this->invoice->client;
+        $routingRaw = trim($client->routing_id ?? '');
+
+        if ($routingRaw === '' || GlnIdentifier::isValid($routingRaw) || str_contains($routingRaw, ':')) {
+            return null;
+        }
+
+        $ovtClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
+        $opidClean = preg_replace("/[^a-zA-Z0-9]/", "", $routingRaw);
+
+        if (strlen($ovtClean) < 2 || strlen($opidClean) < 2) {
+            return null;
+        }
+
+        if (!$this->identifierValidator->validFormat('FI:OVT', $ovtClean)
+            || !$this->identifierValidator->validFormat('FI:OPID', $opidClean)) {
+            return null;
+        }
+
+        $this->proxyDiscovery($ovtClean, 'FI:OVT');
+
+        return $this->eIdentifiersBundle([
+            ['scheme' => 'FI:OPID', 'id' => $opidClean],
+            ['scheme' => 'FI:OVT', 'id' => $ovtClean],
+        ]);
     }
 
     /**
@@ -282,6 +399,12 @@ class RoutingResolver
         $routingId = $this->invoice->client->routing_id ?? '';
 
         if (stripos($routingId, ':') === false) {
+            return null;
+        }
+
+        if ($this->countryCode === 'FI'
+            && in_array($this->classification, ['business', 'government'], true)
+            && FinlandCountryHandler::isOvtEndpointRoutingId($routingId)) {
             return null;
         }
 

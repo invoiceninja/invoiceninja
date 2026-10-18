@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\Utils\AppLink;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\DataMapper\PaymentSync;
@@ -230,7 +231,7 @@ class Payment extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<\App\Models\Invoice, $this>
      */
     public function invoices(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
@@ -319,10 +320,12 @@ class Payment extends BaseModel
         if (! $this->date) {
             return '';
         }
-
+     
         $date_format = DateFormat::find($this->client->getSetting('date_format_id'));
 
-        return $this->createClientDate($this->date, $this->client->timezone()->name)->format($date_format->format);
+        return $this->translateDate($this->date, $date_format->format, $this->client->locale());
+
+        // return $this->createClientDate($this->date, $this->client->timezone()->name)->format($date_format->format);
     }
 
     public function badgeForStatus(): string
@@ -490,9 +493,9 @@ class Payment extends BaseModel
         return ctrans('texts.payment');
     }
 
-    public function portalUrl($use_react_url): string
+    public function portalUrl(): string
     {
-        return $use_react_url ? config('ninja.react_url') . "/#/payments/{$this->hashed_id}/edit" : config('ninja.app_url');
+        return AppLink::forRecord('payments', $this);
     }
 
     public function setRefundMeta(array $data)

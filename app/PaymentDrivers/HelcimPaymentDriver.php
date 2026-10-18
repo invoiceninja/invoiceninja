@@ -63,7 +63,7 @@ class HelcimPaymentDriver extends BaseDriver
      */
     public function getApiToken(): string
     {
-        return $this->company_gateway->getConfigField('apiToken');
+        return (string) $this->company_gateway->getConfigField('apiToken');
     }
 
     /**
@@ -546,9 +546,7 @@ class HelcimPaymentDriver extends BaseDriver
 
             if ($transaction->isCompleted()) {
                 if ($lockedPayment->status_id === Payment::STATUS_PENDING && ! $lockedPayment->is_deleted) {
-                    $lockedPayment->status_id = Payment::STATUS_COMPLETED;
-                    $lockedPayment->saveQuietly();
-
+                    $lockedPayment->service()->completePendingPayment();
                     return 'completed';
                 }
 
@@ -635,19 +633,24 @@ class HelcimPaymentDriver extends BaseDriver
      */
     public function auth(): string
     {
+        if (trim($this->getApiToken()) === '') {
+            return 'error';
+        }
+
         try {
             $response = Http::withOptions(['verify' => true, 'allow_redirects' => false])
                 ->withHeaders(['api-token' => $this->getApiToken()])
-                ->get($this->getApiUrl() . '/customers', ['search-value' => 'ping', 'limit' => 1]);
+                ->get($this->getApiUrl() . '/customers', ['search' => 'ping', 'limit' => 1]);
 
-            if ($response->status() === 401 || $response->status() === 403) {
-                $error = $response->json('errors') ?? $response->json('message') ?? 'Invalid API token';
-                return is_array($error) ? json_encode($error) : (string) $error;
+            if ($response->successful()) {
+                return 'ok';
             }
 
-            return 'ok';
-        } catch (\Exception $e) {
-            return $e->getMessage();
+            $error = $response->json('errors') ?? $response->json('message') ?? 'Helcim credential check failed';
+
+            return is_array($error) ? json_encode($error) : (string) $error;
+        } catch (\Throwable $e) {
+            return $e->getMessage() ?: 'error';
         }
     }
 

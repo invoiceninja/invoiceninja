@@ -49,7 +49,7 @@ class InvoiceLines
     #[SerializedPath('[cbc:LineExtensionAmount][#]')]
     public ?float $amount_excluding_vat;
 
-    #[SerializedPath('[cac:Price][cbc:PriceAmount][value]')]
+    /** Optional line-amount alias; populated by mapper when applicable. */
     public ?float $amount_excluding_tax;
 
     #[SerializedPath('[cbc:TaxInclusiveAmount][#]')]

@@ -12,6 +12,7 @@
 
 namespace App\Utils\Traits;
 
+use App\DataMapper\InvoiceItem;
 use App\Models\Invoice;
 use App\Utils\Helpers;
 use App\Utils\Number;
@@ -34,6 +35,7 @@ trait MakesInvoiceValues
         'date',
         'discount',
         'product_key',
+        'tags',
         'notes',
         'cost',
         'quantity',
@@ -257,7 +259,6 @@ trait MakesInvoiceValues
      *
      * @param mixed $items
      * @param string $table_type
-     * @param mixed|null $custom_fields
      *
      * @return array
      */
@@ -288,6 +289,7 @@ trait MakesInvoiceValues
             $helpers = new Helpers();
             $_table_type = ltrim($table_type, '$'); // From $product -> product.
 
+            $data[$key][$table_type . '.tags'] = InvoiceItem::formatTagsForDisplay($item->tags ?? '');
             $data[$key][$table_type . '.product_key'] = is_null(optional($item)->product_key) ? $item->item : $item->product_key;
             $data[$key][$table_type . '.item'] = is_null(optional($item)->item) ? $item->product_key : $item->item;
             $data[$key][$table_type . '.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;

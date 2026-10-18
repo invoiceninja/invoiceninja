@@ -1210,7 +1210,7 @@ class CompanyImport implements ShouldQueue
     {
         $this->genericImport(
             PurchaseOrder::class,
-            ['user_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status', 'vendor_id', 'subscription_id','client_id', 'location_id'],
+            ['user_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status', 'vendor_id', 'subscription_id','client_id', 'location_id', 'invoice_id', 'quote_id'],
             [
                 ['users' => 'user_id'],
                 ['users' => 'assigned_user_id'],
@@ -1218,9 +1218,12 @@ class CompanyImport implements ShouldQueue
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['locations' => 'location_id'],
+                ['invoices' => 'invoice_id'],
+                ['quotes' => 'quote_id'],
             ],
             'purchase_orders',
-            'number'
+            'number',
+            ['invoice_id', 'quote_id']
         );
 
         return $this;
@@ -1629,8 +1632,12 @@ class CompanyImport implements ShouldQueue
         return in_array($extension, $allowed, true);
     }
 
-    private function isValidFilePath(string $filename): bool
+    private function isValidFilePath(?string $filename): bool
     {
+        if ($filename === null) {
+            return false;
+        }
+
         if (str_contains($filename, "\0")) {
             return false;
         }

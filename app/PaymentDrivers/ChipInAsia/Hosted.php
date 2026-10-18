@@ -595,8 +595,7 @@ class Hosted implements MethodInterface, LivewireMethodInterface
             $payment->save();
         }
         else {
-            $payment->status_id = $newStatus;
-            $payment->save();
+            $payment = $payment->service()->completePendingPayment();   
         }
         
         SystemLogger::dispatch(

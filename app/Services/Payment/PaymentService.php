@@ -193,7 +193,25 @@ class PaymentService
 
         return $this;
     }
+    
+    /**
+     * completePendingPayment
+     * 
+     * Transition a pending payment to completed, allows for completed payment functionality to be applied.
+     *
+     * @return Payment
+     */
+    public function completePendingPayment(): Payment
+    {
+        if($this->payment->status_id !== Payment::STATUS_PENDING) {
+            return $this->payment;
+        }
 
+        $this->payment->status_id = Payment::STATUS_COMPLETED;
+        $this->payment->save();
+
+        return $this->payment;
+    }
 
     public function save()
     {

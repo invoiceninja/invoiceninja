@@ -11,7 +11,14 @@
 import axios from 'axios';
 import cardValidator from 'card-validator';
 import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
+import { initAnalyticsConsent } from './clients/analytics-consent';
+import { signatureComponent } from './clients/signature';
+import { openDialog, closeDialog, dialogComponent } from './clients/dialog';
 
+Alpine.data('portalSignature', signatureComponent);
+Alpine.data('portalDialog', dialogComponent);
+Alpine.magic('portalDialog', () => ({ open: openDialog, close: closeDialog }));
+initAnalyticsConsent();
 Livewire.start()
 window.axios = axios;
 window.valid = cardValidator;

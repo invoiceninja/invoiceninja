@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\Utils\AppLink;
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
 use Elastic\ScoutDriverPlus\Searchable;
@@ -384,14 +385,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         }
     }
 
-    public function getAdminLink($use_react_link = false): string
+    public function getAdminLink(): string
     {
-        return $use_react_link ? $this->getReactLink() : config('ninja.app_url');
-    }
-
-    private function getReactLink(): string
-    {
-        return config('ninja.react_url') . "/#/clients/{$this->client->hashed_id}";
+        return AppLink::forRecord('clients', $this->client);
     }
 
     public function showRff(): bool

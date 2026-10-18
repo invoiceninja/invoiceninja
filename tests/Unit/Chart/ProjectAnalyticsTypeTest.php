@@ -383,6 +383,108 @@ class ProjectAnalyticsTypeTest extends TestCase
         $this->assertSame(-3, $projectHealth->indicators['schedule_variance_days']);
     }
 
+    public function testProjectAnalyticsIncludesTaskEstimateMetrics(): void
+    {
+        $doneStatus = TaskStatus::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'name' => 'Done',
+            'status_order' => 4,
+            'is_deleted' => false,
+        ]);
+
+        $project = Project::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'name' => 'Estimated Project',
+            'budgeted_hours' => 10,
+            'current_hours' => 5,
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'status_id' => $doneStatus->id,
+            'estimated_duration' => 7200,
+            'duration' => 7200,
+            'time_log' => json_encode([]),
+            'calculated_start_date' => '2026-01-01',
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 14400,
+            'duration' => 3600,
+            'time_log' => json_encode([]),
+            'calculated_start_date' => '2026-01-02',
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 3600,
+            'duration' => 7200,
+            'time_log' => json_encode([]),
+            'calculated_start_date' => '2026-01-03',
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => null,
+            'duration' => 0,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 0,
+            'duration' => 0,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'client_id' => $this->test_client->id,
+            'project_id' => $project->id,
+            'status_id' => $doneStatus->id,
+            'estimated_duration' => null,
+            'duration' => 0,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
+        $result = (new ChartService($this->test_company, $this->user, true))->project_analytics($project);
+        $effort = collect($result['estimated_vs_logged_hours'])->firstWhere('project_id', $project->hashed_id);
+
+        $this->assertNotNull($effort);
+        $this->assertEqualsWithDelta(10.0, $effort->estimated_hours, 0.01);
+        $this->assertEqualsWithDelta(7.0, $effort->task_estimated_hours, 0.01);
+        $this->assertEqualsWithDelta(3.0, $effort->remaining_estimated_hours, 0.01);
+        $this->assertSame(1, $effort->unestimated_active_task_count);
+        $this->assertSame(1, $effort->active_tasks_over_estimate_count);
+    }
+
     public function testProjectAnalyticsPrefersBudgetedAmountColumn(): void
     {
         $project = Project::factory()->create([
@@ -675,6 +777,29 @@ class ProjectAnalyticsTypeTest extends TestCase
             'is_deleted' => false,
         ]);
 
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => 7200,
+            'duration' => 3600,
+            'time_log' => json_encode([]),
+            'calculated_start_date' => '2026-01-03',
+            'is_deleted' => false,
+        ]);
+
+        Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'project_id' => $project->id,
+            'estimated_duration' => null,
+            'duration' => 0,
+            'time_log' => json_encode([]),
+            'is_deleted' => false,
+        ]);
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -694,6 +819,10 @@ class ProjectAnalyticsTypeTest extends TestCase
             ]);
 
         $this->assertTrue($response->json('metadata.include_drafts'));
+        $this->assertEqualsWithDelta(2.0, $response->json('estimated_vs_logged_hours.0.task_estimated_hours'), 0.01);
+        $this->assertEqualsWithDelta(1.0, $response->json('estimated_vs_logged_hours.0.remaining_estimated_hours'), 0.01);
+        $this->assertSame(1, $response->json('estimated_vs_logged_hours.0.unestimated_active_task_count'));
+        $this->assertSame(0, $response->json('estimated_vs_logged_hours.0.active_tasks_over_estimate_count'));
 
         $invoiceProgress = collect($response->json('invoice_progress'))->firstWhere('project_id', $project->hashed_id);
         $this->assertEqualsWithDelta(99.0, $invoiceProgress['invoiced_amount'], 0.01);

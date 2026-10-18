@@ -86,8 +86,6 @@ class SettingsData
 
     public string $quote_footer = ''; //@implemented
 
-    public object $translations;
-
     public string $counter_number_applied = 'when_saved'; // when_saved, when_sent //@implemented
 
     public string $quote_number_applied = 'when_saved'; // when_saved, when_sent //@implemented

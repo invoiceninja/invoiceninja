@@ -13,17 +13,19 @@
 namespace Tests\Feature\ClientPortal;
 
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Jobs\Mail\NinjaMailerJob;
 use App\Models\Account;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\AppSetup;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -53,7 +55,9 @@ class ContactPasswordResetTest extends TestCase
             VerifyCsrfToken::class,
             ThrottleRequests::class,
         ]);
+
         Notification::fake();
+        Queue::fake();
 
         $this->account = Account::factory()->create();
 
@@ -65,8 +69,15 @@ class ContactPasswordResetTest extends TestCase
         $this->company = Company::factory()->create([
             'account_id' => $this->account->id,
         ]);
+
         $this->company->settings->language_id = '1';
         $this->company->save();
+
+        $cu = \App\Factory\CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
 
         $this->client = Client::factory()->create([
             'company_id' => $this->company->id,
@@ -134,6 +145,7 @@ class ContactPasswordResetTest extends TestCase
 
         $this->assertNotEquals($originalToken, $this->contact->token);
         $this->assertEquals(60, strlen($this->contact->token));
+        $this->assertMatchesRegularExpression('/^\d{10}\.[A-Za-z0-9]{49}$/D', $this->contact->token);
     }
 
     /**
@@ -156,6 +168,27 @@ class ContactPasswordResetTest extends TestCase
 
         $this->contact->refresh();
         $this->assertTrue(Hash::check('new-secure-password', $this->contact->password));
+    }
+
+    public function testPasswordResetTokenExpiresAfterConfiguredLifetime(): void
+    {
+        $this->requestPasswordReset($this->contact->email);
+
+        $this->contact->refresh();
+        $resetToken = $this->contact->token;
+        $this->travel(config('auth.passwords.contacts.expire') + 1)->minutes();
+
+        $this->completePasswordReset(
+            $this->contact->email,
+            $resetToken,
+            'expired-token-password'
+        );
+
+        $this->contact->refresh();
+        $this->assertTrue(
+            Hash::check('original-password', $this->contact->password),
+            'A reset token must not change the password after its configured lifetime.',
+        );
     }
 
     /**
@@ -226,6 +259,37 @@ class ContactPasswordResetTest extends TestCase
             'completely-invalid-token-value',
             'new-password-123'
         );
+
+        $this->contact->refresh();
+        $this->assertTrue(Hash::check('original-password', $this->contact->password));
+    }
+
+    public function testPasswordResetFailsWithTokenWithoutExpiry(): void
+    {
+        $tokenWithoutExpiry = $this->contact->token;
+
+        $this->completePasswordReset(
+            $this->contact->email,
+            $tokenWithoutExpiry,
+            'new-password-123'
+        );
+
+        $this->contact->refresh();
+        $this->assertTrue(Hash::check('original-password', $this->contact->password));
+    }
+
+    public function testPasswordResetRejectsNonStringToken(): void
+    {
+        $response = $this->withSession([
+            'company_key' => $this->company->company_key,
+        ])->post(route('client.password.update'), [
+            'email' => $this->contact->email,
+            'token' => ['invalid-token'],
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ]);
+
+        $response->assertSessionHasErrors('token');
 
         $this->contact->refresh();
         $this->assertTrue(Hash::check('original-password', $this->contact->password));

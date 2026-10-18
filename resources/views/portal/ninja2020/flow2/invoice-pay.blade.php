@@ -20,11 +20,12 @@
 @else
     {{-- Two column layout for other components --}}
     <div class="grid grid-cols-1 md:grid-cols-2">
-        <div class="p-2">
+        <div class="p-2 min-w-0">
             @livewire('flow2.invoice-summary', ['_key' => $_key], key($this->componentUniqueId('invoice-summary')))
         </div>
 
-        <div class="p-2">
+        <div class="p-2 min-w-0 focus:outline-none" wire:key="step-{{ $this->componentUniqueId() }}" tabindex="-1"
+             x-data x-init="$nextTick(() => { $el.focus({ preventScroll: true }); if (window.matchMedia('(max-width: 767px)').matches) { $el.scrollIntoView({ block: 'nearest' }); } })">
             @if($errors->any())
             <div class="alert alert-error">
                 <ul>

@@ -84,6 +84,8 @@ class UpdatePurchaseOrderRequest extends Request
 
         /** Some rules cannot be overriden by the globalRules method */
         $rules['vendor_id'] = ['bail', 'sometimes', Rule::in([$this->purchase_order->vendor_id])];
+        $rules['invoice_id'] = ['nullable', 'sometimes', 'bail', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
+        $rules['quote_id'] = ['nullable', 'sometimes', 'bail', Rule::exists('quotes', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
         return $rules;
     
@@ -96,6 +98,7 @@ class UpdatePurchaseOrderRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['id'] = $this->purchase_order->id;
+        unset($input['balance']);
 
         if (isset($input['documents'])) {
             unset($input['documents']);

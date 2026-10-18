@@ -230,8 +230,16 @@ test.describe('White label license purchase', () => {
         await stripe.completePayment(page);
         await stripe.assertPaymentSucceeded(page);
 
-        const paidInvoice = await latestClientInvoice(api.context, client.id);
-        expect(paidInvoice.footer ?? '').toMatch(/v5_[0-9a-f-]{36}/i);
+        await expect
+            .poll(async () => {
+                const invoice = await latestClientInvoice(
+                    api.context,
+                    client.id,
+                );
+
+                return invoice.footer ?? '';
+            }, { timeout: 30_000 })
+            .toMatch(/v5_[0-9a-f-]{36}/i);
     });
 
     test('v2 purchase page loads for a white label subscription', async ({

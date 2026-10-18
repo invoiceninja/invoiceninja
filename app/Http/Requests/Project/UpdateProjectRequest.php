@@ -57,6 +57,7 @@ class UpdateProjectRequest extends Request
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
+        $rules['color'] = 'sometimes|bail|string|max:7';
 
         return $this->globalRules($rules);
     }

@@ -63,17 +63,6 @@ class AccountStatusTest extends TestCase
         Notification::assertNothingSent();
     }
 
-    public function testTrialHookDoesNotRequireTheAdminJobAtLoadTime(): void
-    {
-        $controller = (string) file_get_contents(base_path('app/Http/Controllers/ClientPortal/NinjaPlanController.php'));
-
-        $this->assertStringContainsString('class_exists(\\Modules\\Admin\\Jobs\\Account\\AccountStatus::class)', $controller);
-        $this->assertStringContainsString('$account_created_at', $controller);
-        $this->assertStringNotContainsString('use Modules\\Admin\\Jobs\\Account\\AccountStatus;', $controller);
-        $this->assertStringNotContainsString('$billing_database', $controller);
-        $this->assertStringNotContainsString('$trial_started_timestamp', $controller);
-    }
-
     private function handle(Account $account, int $account_created_at): void
     {
         if (! class_exists(self::ACCOUNT_STATUS_JOB)) {

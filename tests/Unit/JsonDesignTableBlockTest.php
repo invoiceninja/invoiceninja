@@ -93,6 +93,15 @@ class JsonDesignTableBlockTest extends TestCase
         $this->assertStringContainsString('width: 40%', $headerCells[1]['properties']['style']);
     }
 
+    public function testTagColumnUsesMiddleDotForPresentation(): void
+    {
+        $sections = $this->adaptColumns([
+            ['id' => 'tags', 'header' => 'Tags', 'field' => 'item.tags'],
+        ]);
+
+        $this->assertSame('Retail · Priority Customer', $this->bodyRows($sections)[0]['elements'][0]['content']);
+    }
+
     private function adaptColumns(array $columns): array
     {
         $service = $this->pdfService(false);
@@ -138,7 +147,11 @@ class JsonDesignTableBlockTest extends TestCase
 
         $invoice = new Invoice();
         $invoice->line_items = [
-            (object) ['type_id' => '1', 'product_key' => 'A-1'],
+            (object) [
+                'type_id' => '1',
+                'product_key' => 'A-1',
+                'tags' => 'Retail,Priority Customer',
+            ],
         ];
 
         $config = new PdfConfiguration($service);

@@ -38,6 +38,8 @@ class QuoteFilterTest extends TestCase
 
     private Quote $rejectedQuote;
 
+    private Quote $cancelledQuote;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -52,6 +54,7 @@ class QuoteFilterTest extends TestCase
         $this->draftQuote = $this->createQuoteForFilter(Quote::STATUS_DRAFT, 'draft');
         $this->approvedQuote = $this->createQuoteForFilter(Quote::STATUS_APPROVED, 'approved');
         $this->rejectedQuote = $this->createQuoteForFilter(Quote::STATUS_REJECTED, 'rejected');
+        $this->cancelledQuote = $this->createQuoteForFilter(Quote::STATUS_CANCELLED, 'cancelled');
     }
 
     private function headers(): array
@@ -143,5 +146,35 @@ class QuoteFilterTest extends TestCase
         $this->assertNotContains($this->quote->id, $ids);
         $this->assertNotContains($this->draftQuote->id, $ids);
         $this->assertNotContains($this->rejectedQuote->id, $ids);
+    }
+
+    public function testClientStatusCancelledReturnsOnlyCancelledQuotes(): void
+    {
+        $response = $this->withHeaders($this->headers())
+            ->get('/api/v1/quotes?client_status=cancelled&per_page=500')
+            ->assertStatus(200);
+
+        $ids = $this->quoteIdsFromResponse($response->json());
+
+        $this->assertContains($this->cancelledQuote->hashed_id, $ids);
+        $this->assertNotContains($this->quote->hashed_id, $ids);
+        $this->assertNotContains($this->draftQuote->hashed_id, $ids);
+        $this->assertNotContains($this->approvedQuote->hashed_id, $ids);
+        $this->assertNotContains($this->rejectedQuote->hashed_id, $ids);
+    }
+
+    public function testClientStatusRejectedReturnsOnlyRejectedQuotes(): void
+    {
+        $response = $this->withHeaders($this->headers())
+            ->get('/api/v1/quotes?client_status=rejected&per_page=500')
+            ->assertStatus(200);
+
+        $ids = $this->quoteIdsFromResponse($response->json());
+
+        $this->assertContains($this->rejectedQuote->hashed_id, $ids);
+        $this->assertNotContains($this->quote->hashed_id, $ids);
+        $this->assertNotContains($this->draftQuote->hashed_id, $ids);
+        $this->assertNotContains($this->approvedQuote->hashed_id, $ids);
+        $this->assertNotContains($this->cancelledQuote->hashed_id, $ids);
     }
 }

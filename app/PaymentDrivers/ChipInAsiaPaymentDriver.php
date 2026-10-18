@@ -302,27 +302,28 @@ class ChipInAsiaPaymentDriver extends BaseDriver
         return response()->json([], 200);
     }
 
-    /**
-     * Perform a health check by fetching the public key from CHIP.
-     * This verifies that the API Key is valid and the server is reachable.
-     */
+    /** Validate both the API key and brand used by purchase requests. */
     public function auth(): string
     {
+        $apiKey = trim((string) $this->company_gateway->getConfigField('apiKey'));
+        $brandId = trim((string) $this->company_gateway->getConfigField('brandId'));
+
+        if ($apiKey === '' || $brandId === '') {
+            return 'error';
+        }
+
         try {
-            $response = Http::withToken($this->company_gateway->getConfigField('apiKey'))
+            $response = Http::withToken($apiKey)
                 ->acceptJson()
                 ->timeout(15)
-                ->get('https://gate.chip-in.asia/api/v1/public_key/');
+                ->get('https://gate.chip-in.asia/api/v1/payment_methods/', [
+                    'brand_id' => $brandId,
+                    'currency' => 'MYR',
+                ]);
 
-            if ($response->successful()) {
-                return 'Connection Successful';
-            }
-
-            $error = $response->json();
-
-            return 'Connection Failed: ' . ($error['message'] ?? $error['error'] ?? 'Check your API Key');
-        } catch (\Exception $e) {
-            return 'Connection Error: ' . $e->getMessage();
+            return $response->successful() ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
         }
     }
 }

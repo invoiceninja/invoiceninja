@@ -64,14 +64,19 @@ class ShowProjectBurnUpRequest extends Request
 
         $input['include_drafts'] = filter_var($input['include_drafts'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $input['bucket_type'] = $input['bucket_type'] ?? 'daily';
+        $project = $this->project();
 
         if ($user && isset($input['date_range'])) {
             $dates = $this->calculateStartAndEndDates($input, $user->company());
             $input['start_date'] = $dates[0];
             $input['end_date'] = $dates[1];
-        }
 
-        $project = $this->project();
+            if ($input['date_range'] === 'all_time') {
+                $input['start_date'] = $project?->created_at
+                    ? \Carbon\Carbon::parse($project->created_at)->format('Y-m-d')
+                    : '2000-01-01';
+            }
+        }
 
         if (! isset($input['start_date'])) {
             $input['start_date'] = $project && $project->created_at

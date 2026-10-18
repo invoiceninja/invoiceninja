@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\PaymentFailed;
 use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
@@ -23,9 +24,10 @@ use App\Models\Country;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\GoCardless\HostedPaymentPage;
 use App\PaymentDrivers\GoCardless\Jobs\GoCardlessWebhook;
+use App\Utils\BcMath;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\QueryException;
@@ -35,7 +37,7 @@ class GoCardlessPaymentDriver extends BaseDriver
     use MakesHash;
     use GeneratesCounter;
 
-    public $refundable = true;
+    public $refundable = false;
 
     public $token_billing = true;
 
@@ -65,31 +67,80 @@ class GoCardlessPaymentDriver extends BaseDriver
         return $this;
     }
 
+    public function ensurePaymentMethodAvailable(int $gateway_type_id, float $amount = -1): self
+    {
+        $is_available = collect($this->client->service()->getPaymentMethods($amount))
+            ->contains(fn(array $method): bool
+                => (int) $method['company_gateway_id'] === (int) $this->company_gateway->id
+                && (int) $method['gateway_type_id'] === $gateway_type_id);
+
+        if (! $is_available) {
+            throw new PaymentFailed(ctrans('texts.gateway_temporarily_unavailable'), 403);
+        }
+
+        return $this;
+    }
+
+    public function resolveClientGatewayToken(string $mandate_id, int $gateway_type_id): ClientGatewayToken
+    {
+        $token = $this->resolveOwnedClientGatewayToken($mandate_id);
+
+        if ((int) $token->gateway_type_id !== $gateway_type_id) {
+            throw new PaymentFailed(ctrans('texts.gateway_temporarily_unavailable'), 403);
+        }
+
+        return $token;
+    }
+
+    public function resolveOwnedClientGatewayToken(string $mandate_id): ClientGatewayToken
+    {
+        $token = ClientGatewayToken::query()
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->where('client_id', $this->client->id)
+            ->where('token', $mandate_id)
+            ->first();
+
+        if (! $token) {
+            throw new PaymentFailed(ctrans('texts.gateway_temporarily_unavailable'), 403);
+        }
+
+        return $token;
+    }
+
     public function gatewayTypes(): array
     {
-        $types = [];
+        if (! $this->client || ! isset($this->client->country)) {
+            return [];
+        }
 
-        if (
-            $this->client
-           && isset($this->client->country)
-           && in_array($this->client->country->iso_3166_3, ['USA'])
-        ) {
+        $types = [];
+        $country = $this->client->country->iso_3166_2;
+        $currency = $this->client->currency()->code;
+
+        if ($country === 'US' && $currency === 'USD') {
             $types[] = GatewayType::BANK_TRANSFER;
         }
 
-        if (
-            $this->client
-           && isset($this->client->country)
-           && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','CAD'])
-        ) {
+        $direct_debit_countries = [
+            'AUD' => 'AU',
+            'CAD' => 'CA',
+            'DKK' => 'DK',
+            'GBP' => 'GB',
+            'NZD' => 'NZ',
+            'SEK' => 'SE',
+        ];
+        $supports_sepa = $currency === 'EUR' && in_array($country, HostedPaymentPage::SEPA_COUNTRIES, true);
+
+        if (($direct_debit_countries[$currency] ?? null) === $country) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
 
-        if ($this->client && in_array($this->client->currency()->code, ['EUR', 'GBP'])) {
+        if ($supports_sepa) {
             $types[] = GatewayType::SEPA;
         }
 
-        if ($this->client && (($this->client->currency()->code === 'GBP' && $this->client->country->iso_3166_2 === 'GB') || ($this->client->currency()->code === 'EUR' && in_array($this->client->country->iso_3166_2, ['IE','FR','DE'])))) {
+        if (($currency === 'GBP' && $country === 'GB')
+            || ($currency === 'EUR' && in_array($country, ['IE', 'FR', 'DE'], true))) {
             $types[] = GatewayType::INSTANT_BANK_PAY;
         }
 
@@ -146,6 +197,7 @@ class GoCardlessPaymentDriver extends BaseDriver
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $cgt = $this->resolveOwnedClientGatewayToken($cgt->token);
         $converted_amount = $this->convertToGoCardlessAmount($amount, $this->client->currency()->precision);
 
         $this->init();
@@ -163,7 +215,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                     'currency' => $this->client->getCurrencyCode(),
                     'description' => $description,
                     'metadata' => [
-                        'payment_hash' => $this->payment_hash->hash,
+                        'payment_hash' => $payment_hash->hash,
                     ],
                     'links' => [
                         'mandate' => $cgt->token,
@@ -171,19 +223,26 @@ class GoCardlessPaymentDriver extends BaseDriver
                 ],
             ]);
 
-            if (in_array($payment->status, ['submitted', 'pending_submission'])) {
+            if (in_array($payment->status, ['submitted', 'pending_submission', 'confirmed', 'paid_out'], true)) {
 
                 $data = [
                     'payment_method' => $cgt->hashed_id,
-                    'payment_type' => PaymentType::ACH,
+                    'payment_type' => HostedPaymentPage::paymentTypeForStoredMandate(
+                        $cgt->gateway_type_id,
+                        $this->client->getCurrencyCode(),
+                        data_get($cgt->meta, 'scheme'),
+                    ),
                     'amount' => $amount,
                     'transaction_reference' => $payment->id,
-                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                    'gateway_type_id' => $cgt->gateway_type_id,
                 ];
 
                 $this->confirmGatewayFee($data);
 
-                $_payment = $this->createPayment($data, Payment::STATUS_PENDING);
+                $status = in_array($payment->status, ['confirmed', 'paid_out'], true)
+                    ? Payment::STATUS_COMPLETED
+                    : Payment::STATUS_PENDING;
+                $_payment = $this->createPayment($data, $status);
 
                 SystemLogger::dispatch(
                     ['response' => $payment, 'data' => $data],
@@ -215,7 +274,6 @@ class GoCardlessPaymentDriver extends BaseDriver
 
             return false;
         } catch (\Exception $exception) {
-            $this->unWindGatewayFees($this->payment_hash);
 
             $data = [
                 'status' => '',
@@ -229,9 +287,9 @@ class GoCardlessPaymentDriver extends BaseDriver
         }
     }
 
-    public function convertToGoCardlessAmount($amount, $precision)
+    public function convertToGoCardlessAmount($amount, $precision): int
     {
-        return \round(($amount * pow(10, $precision)), 0);
+        return BcMath::toMinorUnits($amount, (int) $precision);
     }
 
     public function detach(ClientGatewayToken $token)
@@ -294,89 +352,9 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         GoCardlessWebhook::dispatch($request->events, $request->company_key, $this->decodePrimaryKey($request->company_gateway_id))->delay(2);
 
-        //billing_request fulfilled
-        //
-
-        //i need to build more context here, i need the client , the payment hash resolved and update the class properties.
-        //after i resolve the payment hash, ensure the invoice has not been marked as paid and the payment does not already exist.
-        //if it does exist, ensure it is completed and not pending.
-
-        // if ($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
-        //     $hash = PaymentHash::whereJsonContains('data->billing_request', $event['links']['billing_request'])->first();
-
-        //     if (!$hash) {
-        //         nlog("GoCardless: couldn't find a hash, need to abort => Billing Request => " . $event['links']['billing_request']);
-        //         return response()->json([], 200);
-        //     }
-
-        //     $this->setPaymentHash($hash);
-
-        //     $billing_request = $this->gateway->billingRequests()->get(
-        //         $event['links']['billing_request']
-        //     );
-
-        //     $payment = $this->gateway->payments()->get(
-        //         $billing_request->payment_request->links->payment
-        //     );
-
-        //     if ($billing_request->status === 'fulfilled') {
-        //         $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
-
-        //         $this->client = $invoices->first()->client;
-
-        //         $invoices->each(function ($invoice) {
-        //             //if payments exist already, they just need to be confirmed.
-        //             if ($invoice->payments()->exists()) {
-        //                 $invoice->payments()->where('status_id', 1)->cursor()->each(function ($payment) {
-        //                     $payment->status_id = 4;
-        //                     $payment->save();
-        //                 });
-        //             }
-        //         });
-
-        //         // remove all paid invoices
-        //         $invoices->filter(function ($invoice) {
-        //             return $invoice->isPayable();
-        //         });
-
-        //         //return early if nothing to do
-        //         if ($invoices->count() == 0) {
-        //             nlog("GoCardless: Could not harvest any invoices - probably all paid!!");
-        //             return response()->json([], 200);
-        //         }
-
-        //         $this->processSuccessfulPayment($payment);
-        //     }
-        // }
-
-
         return response()->json([], 200);
     }
 
-
-    public function processSuccessfulPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
-    {
-        $data = [
-            'payment_method' => $payment->links->mandate,
-            'payment_type' => PaymentType::INSTANT_BANK_PAY,
-            'amount' => $this->payment_hash->data->amount_with_fee,
-            'transaction_reference' => $payment->id,
-            'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
-        ];
-
-        $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
-        $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->save();
-
-        SystemLogger::dispatch(
-            ['response' => $payment, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_GOCARDLESS,
-            $this->client,
-            $this->client->company,
-        );
-    }
 
     public function ensureMandateIsReady($token)
     {
@@ -448,14 +426,15 @@ class GoCardlessPaymentDriver extends BaseDriver
             }
 
             $payment_meta->state = 'authorized';
+            $payment_meta->scheme = $mandate->scheme;
 
             $data = [
                 'payment_meta' => $payment_meta,
                 'token' => $mandate->id,
-                'payment_method_id' => GatewayType::DIRECT_DEBIT,
+                'payment_method_id' => $payment_meta->type,
             ];
 
-            $payment_method = $this->storeGatewayToken($data, ['gateway_customer_reference' => $mandate->links->customer]);
+            $this->storeGatewayToken($data, ['gateway_customer_reference' => $mandate->links->customer]);
         }
     }
 

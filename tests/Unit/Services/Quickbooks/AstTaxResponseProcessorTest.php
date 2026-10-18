@@ -16,6 +16,7 @@ use App\DataMapper\QuickbooksSettings;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Invoice;
 use App\Models\TaxRate;
+use App\Services\Quickbooks\Invoice\AstTaxResponseProcessor;
 use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\QuickbooksService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -25,8 +26,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * Fixture-based guards for AST tax write-back (future AstTaxResponseProcessor extraction).
- * Independent of live QBUS — invokes processQuickbooksTaxResponse via reflection.
+ * Fixture-based guards for AST tax write-back.
+ * Independent of live QBUS — invokes QbInvoice::processQuickbooksTaxResponse via reflection.
  */
 class AstTaxResponseProcessorTest extends TestCase
 {
@@ -91,6 +92,61 @@ class AstTaxResponseProcessorTest extends TestCase
         $this->assertNotEmpty($line->tax_name1);
         $this->assertSame('', $invoice->tax_name1);
         $this->assertEquals(0.0, (float) $invoice->tax_rate1);
+    }
+
+    public function test_ast_preserves_fractional_tax_rates_after_save(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('Widget', 1000, tax_rate: 0),
+        ]);
+        $sales_line = $this->salesLine('TAX');
+        $sales_line['Amount'] = 1000;
+
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 88.75,
+            tax_lines: [
+                $this->taxLine(41, 4.1, 1000),
+                $this->taxLine(47.75, 4.775, 1000),
+            ],
+            lines: [$sales_line],
+            total_amt: 1088.75,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+        $line = $invoice->line_items[0];
+
+        $this->assertSame(8.875, $line->tax_rate1);
+        $this->assertMatchesRegularExpression('/"tax_rate1"\s*:\s*8\.875\s*[,}]/', $invoice->getRawOriginal('line_items'));
+        $this->assertTrue(TaxRate::query()
+            ->where('company_id', $this->company->id)
+            ->where('name', $line->tax_name1)
+            ->where('rate', 8.875)
+            ->exists());
+
+        $invoice = $invoice->calc()->getInvoice();
+        $this->assertSame(88.75, (float) $invoice->total_taxes);
+        $this->assertSame(1088.75, (float) $invoice->amount);
+    }
+
+    public function test_ast_aggregates_decimal_rates_without_float_artifacts(): void
+    {
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $processor = new AstTaxResponseProcessor($qb_invoice->service);
+        $method = (new ReflectionClass($processor))->getMethod('calculateAggregatedTaxRate');
+        $method->setAccessible(true);
+
+        $tax_lines = [
+            $this->taxLine(0.1, 0.1, 100),
+            $this->taxLine(0.2, 0.2, 100),
+        ];
+        $tax_lines[0]['TaxLineDetail']['TaxPercent'] = '0.100000';
+        $tax_lines[1]['TaxLineDetail']['TaxPercent'] = '0.200000';
+
+        $rate = $method->invoke($processor, $tax_lines, true);
+
+        $this->assertSame(0.3, $rate);
+        $this->assertSame('0.3', json_encode($rate));
     }
 
     public function test_ast_mixed_taxable_and_exempt_lines(): void
@@ -330,9 +386,10 @@ class AstTaxResponseProcessorTest extends TestCase
         $original_tax = (float) $invoice->total_taxes;
 
         $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
-        $method = (new ReflectionClass($qb_invoice))->getMethod('validateAndSyncAmounts');
+        $processor = new AstTaxResponseProcessor($qb_invoice->service);
+        $method = (new ReflectionClass($processor))->getMethod('validateAndSyncAmounts');
         $method->setAccessible(true);
-        $method->invoke($qb_invoice, [
+        $method->invoke($processor, [
             'TotalAmt' => $original_amount,
             'TxnTaxDetail' => ['TotalTax' => $original_tax],
         ], $invoice);

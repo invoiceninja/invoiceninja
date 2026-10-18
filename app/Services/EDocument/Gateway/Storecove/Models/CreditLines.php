@@ -10,6 +10,7 @@
  */
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\SerializedPath;
 
@@ -49,7 +50,7 @@ class CreditLines
     #[SerializedPath('[cbc:LineExtensionAmount][#]')]
     public ?float $amount_excluding_vat;
 
-    #[SerializedPath('[cac:Price][cbc:PriceAmount][value]')]
+    /** Set by UblToStorecoveCreditLineMapper — not a UBL deserialize path. */
     public ?float $amount_excluding_tax;
 
     #[SerializedPath('[cbc:TaxInclusiveAmount][#]')]
@@ -88,6 +89,9 @@ class CreditLines
     #[SerializedPath('[cbc:Note]')]
     public ?string $note;
 
+    #[Ignore]
+    private bool $storecoveCreditMapped = false;
+
     /**
      * @param AllowanceCharges[] $allowance_charges
      * @param TaxesDutiesFees[] $taxes_duties_fees
@@ -124,19 +128,14 @@ class CreditLines
         $this->name = $name;
         $this->order_line_reference_line_id = $order_line_reference_line_id;
         $this->invoice_period = $invoice_period;
-        // Storecove represents a credit as a NEGATIVE INVOICE: quantity stays
-        // POSITIVE and every monetary/price field is NEGATIVE. Enforced with
-        // abs()/-abs() so both real Credits and negative Invoices — whose signs
-        // arrive differently from the Peppol layer (normalizeAmount flips a
-        // negative invoice's quantity) — serialise to an identical payload.
-        $this->item_price = is_null($item_price) ? null : -abs($item_price);
-        $this->quantity = is_null($quantity) ? null : abs($quantity);
+        $this->item_price = $item_price;
+        $this->quantity = $quantity;
         $this->base_quantity = $base_quantity;
         $this->quantity_unit_code = $quantity_unit_code;
         $this->allowance_charges = $allowance_charges;
-        $this->amount_excluding_vat = is_null($amount_excluding_vat) ? null : -abs($amount_excluding_vat);
-        $this->amount_excluding_tax = is_null($amount_excluding_tax) ? null : -abs($amount_excluding_tax);
-        $this->amount_including_tax = is_null($amount_including_tax) ? null : -abs($amount_including_tax);
+        $this->amount_excluding_vat = $amount_excluding_vat;
+        $this->amount_excluding_tax = $amount_excluding_tax;
+        $this->amount_including_tax = $amount_including_tax;
         $this->taxes_duties_fees = $taxes_duties_fees;
         $this->accounting_cost = $accounting_cost;
         $this->references = $references;
@@ -147,6 +146,20 @@ class CreditLines
         $this->standard_item_identification_scheme_id = $standard_item_identification_scheme_id;
         $this->standard_item_identification_scheme_agency_id = $standard_item_identification_scheme_agency_id;
         $this->note = $note;
+
+        // Storecove represents a credit as a negative invoice; sign mapping is centralized here.
+        (new \App\Services\EDocument\Gateway\Storecove\UblToStorecoveCreditLineMapper())->applyMappingOnce($this);
+    }
+
+    #[Ignore]
+    public function isStorecoveCreditMapped(): bool
+    {
+        return $this->storecoveCreditMapped;
+    }
+
+    public function markStorecoveCreditMapped(): void
+    {
+        $this->storecoveCreditMapped = true;
     }
 
     public function getLineId(): ?string

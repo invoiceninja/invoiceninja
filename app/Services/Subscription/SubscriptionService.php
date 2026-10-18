@@ -485,7 +485,7 @@ class SubscriptionService
      * transformed for direct injection into
      * the invoice
      *
-     * @param  Invoice $invoice
+     * @param  ?Invoice $invoice
      * @return array
      */
     private function calculateProRataRefundItems($invoice, $is_credit = false): array
@@ -854,7 +854,7 @@ class SubscriptionService
             'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
             'client' => $recurring_invoice->client->hashed_id,
             'subscription' => $this->subscription->hashed_id,
-            'contact' => auth()->guard('contact')->user()?->hashed_id ?? $recurring_invoice->client->contacts()->first()->hashed_id,
+            'contact' => auth()->guard('contact')->user()->hashed_id ?? $recurring_invoice->client->contacts()->first()->hashed_id,
             'account_key' => $recurring_invoice->client->custom_value2,
         ];
 
@@ -1009,17 +1009,7 @@ class SubscriptionService
         $invoice->client_id = $client_id;
         $invoice->is_proforma = true;
         $invoice->number = "####" . ctrans('texts.subscription') . "_" . now()->format('Y-m-d') . "_" . rand(0, 100000);
-        $line_items = $bundle->map(function ($item) {
-            $line_item = new InvoiceItem();
-            $line_item->product_key = $item['product_key'];
-            $line_item->quantity = (float) $item['qty'];
-            $line_item->cost = (float) $item['unit_cost'];
-            $line_item->notes = $item['description'];
-
-            return $line_item;
-        })->toArray();
-
-        $invoice->line_items = $line_items;
+        $invoice->line_items = $this->subscription->calc()->buildV2Items($bundle);
 
         if ($valid_coupon) {
             $invoice->discount = $this->subscription->promo_discount;
@@ -1107,6 +1097,7 @@ class SubscriptionService
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $recurring_invoice->client_id = $client_id;
+        $recurring_invoice->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
         $recurring_invoice->line_items = $subscription_repo->generateBundleLineItems($bundle, true, false);
         $recurring_invoice->subscription_id = $this->subscription->id;
         $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
@@ -1198,9 +1189,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 
@@ -1218,9 +1209,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->recurring_product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 
@@ -1239,9 +1230,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->optional_product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 
@@ -1259,9 +1250,9 @@ class SubscriptionService
         $keys = $this->transformKeys(explode(",", $this->subscription->optional_recurring_product_ids));
 
         if (is_array($keys)) {
-            return Product::query()->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->whereIn('id', $keys)->get();
         } else {
-            return Product::query()->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
+            return Product::query()->with('tags')->where('company_id', $this->subscription->company_id)->where('id', $keys)->get();
         }
     }
 

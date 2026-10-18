@@ -20,7 +20,7 @@
                     @foreach($subscription->service()->products() as $product)
                         <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
                             <div>
-                                <p class="text-sm text-gray-800">{!! \App\Services\Pdf\Purify::clean(nl2br($product->notes), true) !!}</p>
+                                <p class="text-sm text-gray-800">{!! $product->markdownNotes(auth()->guard('contact')->user()?->client ?? $subscription->company) !!}</p>
                             </div>
                             <div data-ref="price-and-quantity-container">
                                 <span
@@ -40,7 +40,7 @@
 
                     @foreach($subscription->service()->recurring_products() as $product)
                         <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                            <div class="text-sm">{!! \App\Services\Pdf\Purify::clean(nl2br($product->notes), true) !!}</div>
+                            <div class="text-sm">{!! $product->markdownNotes(auth()->guard('contact')->user()?->client ?? $subscription->company) !!}</div>
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
@@ -55,7 +55,7 @@
             @if($subscription->per_seat_enabled && $subscription->max_seats_limit > 1)
                 <div class="flex mt-4 space-x-4 items-center">
                     <span class="text-sm mx-2">{{ ctrans('texts.qty') }}:</span>
-                    <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
+                    <button wire:click="updateQuantity('decrement')" class="button button-secondary border p-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="feather feather-minus">
@@ -63,7 +63,7 @@
                         </svg>
                     </button>
                     <div class="px-2">{{ $quantity }}</div>
-                    <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
+                    <button wire:click="updateQuantity('increment')" class="button button-secondary border p-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="feather feather-plus">
@@ -119,6 +119,12 @@
                         {{ session('message') }}
                     @endcomponent
                 @endif
+
+                @error('payment')
+                    <div class="alert alert-failure mt-4" data-testid="payment-required-error" role="alert">
+                        {{ $message }}
+                    </div>
+                @enderror
 
                 @if($steps['fetched_payment_methods'])
                     <div class="flex items-center mt-4 text-sm">
@@ -229,7 +235,7 @@
 
                         <button 
                             type="submit"
-                            class="button button-block bg-primary text-white mt-4">
+                            class="button button-primary button-block bg-primary mt-4">
                             {{ ctrans('texts.next') }}
                         </button>
                     </form>
@@ -261,7 +267,7 @@
                             </label>
 
                             <button wire:loading.attr="disabled" type="button" wire:click="passwordlessLogin"
-                                    class="mt-4 text-sm active:outline-none focus:outline-none">
+                                    class="button-link mt-4 text-sm">
                                 {{ ctrans('texts.login_without_password') }}
                             </button>
 
@@ -272,7 +278,7 @@
                         @endif
 
                         <button type="submit"
-                                class="button button-block bg-primary text-white mt-4">{{ ctrans('texts.next') }}</button>
+                                class="button button-primary button-block bg-primary mt-4">{{ ctrans('texts.next') }}</button>
                     </form>
                 @endif
 

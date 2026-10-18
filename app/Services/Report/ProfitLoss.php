@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\TransactionEvent;
 use App\Utils\Ninja;
@@ -28,6 +29,7 @@ use Illuminate\Support\Str;
 use League\Csv\Writer;
 use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Services\Payment\PaymentApplicationDateResolver;
+use App\Services\Report\ReconcilePaymentApplicationTransactionEventsRunner;
 use App\Services\Report\TaxPeriod\CashTaxEventProjector;
 
 class ProfitLoss
@@ -299,12 +301,20 @@ class ProfitLoss
                 }
             });
 
+        $this->attemptLegacyZeroPaymentIdBackfill($start_date, $end_date);
+
+        $reportable_payment_ids = Payment::query()
+            ->withTrashed()
+            ->where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->select('id');
+
         $events = TransactionEvent::query()
             ->where('company_id', $this->company->id)
+            ->whereIn('payment_id', $reportable_payment_ids)
             ->whereIn('event_id', [
                 TransactionEvent::PAYMENT_CASH,
                 TransactionEvent::PAYMENT_REFUNDED,
-                TransactionEvent::PAYMENT_DELETED,
             ])
             ->whereHas('invoice.client', fn ($query) => $query->where('is_deleted', false))
             ->whereBetween('period', [
@@ -338,6 +348,24 @@ class ProfitLoss
         ]];
 
         return $this;
+    }
+
+    private function attemptLegacyZeroPaymentIdBackfill(string $start_date, string $end_date): void
+    {
+        $runner = app(ReconcilePaymentApplicationTransactionEventsRunner::class);
+
+        TransactionEvent::query()
+            ->where('company_id', $this->company->id)
+            ->where('payment_id', 0)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->whereHas('invoice.client', fn ($query) => $query->where('is_deleted', false))
+            ->whereBetween('period', [
+                Carbon::parse($start_date)->startOfMonth()->toDateString(),
+                Carbon::parse($end_date)->endOfMonth()->toDateString(),
+            ])
+            ->orderBy('id')
+            ->lazyById(200)
+            ->each(fn (TransactionEvent $event): bool => $runner->attemptLegacyPaymentIdBackfillForEvent($this->company, $event));
     }
 
     /**
@@ -572,12 +600,19 @@ class ProfitLoss
         return $this;
     }
 
-    private function addDateRange()
+    private function addDateRange(): self
     {
         $date_range = 'this_year';
 
         if (array_key_exists('date_range', $this->payload)) {
             $date_range = $this->payload['date_range'];
+        }
+
+        if ($date_range === 'all_time') {
+            $this->start_date = $this->firstRecordDate();
+            $this->end_date = now()->format('Y-m-d');
+
+            return $this;
         }
 
         try {
@@ -663,5 +698,52 @@ class ProfitLoss
         }
 
         return $this;
+    }
+
+    private function firstRecordDate(): string
+    {
+        $dates = [
+            Expense::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', now()->format('Y-m-d'))
+                ->where(fn ($query) => $query
+                    ->whereNull('client_id')
+                    ->orWhereHas('client', fn ($client_query) => $client_query->where('is_deleted', false)))
+                ->min('date'),
+        ];
+
+        if ($this->is_income_billed) {
+            $dates[] = Invoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false)
+                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                ->where('date', '!=', '0000-00-00')
+                ->where('date', '<=', now()->format('Y-m-d'))
+                ->whereHas('client', fn ($query) => $query->where('is_deleted', false))
+                ->min('date');
+        } else {
+            $first_payment_application = Paymentable::query()
+                ->where('paymentable_type', 'invoices')
+                ->whereNull('deleted_at')
+                ->where('created_at', '>', 0)
+                ->whereHas('payment', fn ($query) => $query
+                    ->withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->where('is_deleted', false))
+                ->min('created_at');
+
+            $dates[] = app(PaymentApplicationDateResolver::class)->resolveTimestamp(
+                $first_payment_application,
+                $this->company->timezone()?->name ?: config('app.timezone'),
+            );
+        }
+
+        $dates = array_values(array_filter($dates));
+
+        return $dates === [] ? '2000-01-01' : min($dates);
     }
 }

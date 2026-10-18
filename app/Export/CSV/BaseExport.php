@@ -29,20 +29,16 @@ use App\Models\Product;
 use App\Models\Document;
 use League\Csv\Writer;
 use League\Fractal\Manager;
-use App\Jobs\Quote\ZipQuotes;
 use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Carbon;
-use App\Jobs\Credit\ZipCredits;
+use App\Jobs\Entity\ZipEntity;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Jobs\Invoice\ZipInvoices;
-use App\Jobs\Document\ZipDocuments;
 use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use App\Services\Template\TemplateService;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use League\Fractal\Serializer\ArraySerializer;
 
 class BaseExport
@@ -500,6 +496,8 @@ class BaseExport
         'end_time' => 'task.end_time',
         'duration' => 'task.duration',
         'duration_words' => 'task.duration_words',
+        'due_date' => 'task.due_date',
+        'estimated_duration' => 'task.estimated_duration',
         'rate' => 'task.rate',
         'number' => 'task.number',
         'description' => 'task.description',
@@ -1167,13 +1165,7 @@ class BaseExport
         }
 
         $query->where(function ($query) use ($status_parameters) {
-            if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', Quote::STATUS_SENT)
-                    ->whereNull('due_date')
-                    ->orWhere('due_date', '>=', now()->toDateString());
-                });
-            }
+            
 
             $quote_filters = [];
 
@@ -1185,8 +1177,26 @@ class BaseExport
                 $quote_filters[] = Quote::STATUS_APPROVED;
             }
 
+            if (in_array('cancelled', $status_parameters)) {
+                $quote_filters[] = Quote::STATUS_CANCELLED;
+            }
+
+            if (in_array('rejected', $status_parameters)) {
+                $quote_filters[] = Quote::STATUS_REJECTED;
+            }
+
             if (count($quote_filters) > 0) {
-                $query->orWhereIn('status_id', $quote_filters);
+                $query->whereIn('status_id', $quote_filters);
+            }
+
+            if (in_array('sent', $status_parameters)) {
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                        ->where(function ($q) {
+                            $q->whereNull('due_date')
+                                ->orWhere('due_date', '>=', now()->toDateString());
+                        });
+                });
             }
 
             if (in_array('expired', $status_parameters)) {
@@ -1240,11 +1250,7 @@ class BaseExport
             }
 
             if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', PurchaseOrder::STATUS_SENT)
-                    ->whereNull('due_date')
-                    ->orWhere('due_date', '>=', now()->toDateString());
-                });
+                $po_status[] = PurchaseOrder::STATUS_SENT;
             }
 
             if (in_array('accepted', $status_parameters)) {
@@ -1346,6 +1352,13 @@ class BaseExport
             $this->date_key = $this->input['date_key'];
         }
 
+        if (in_array($date_range, ['all', 'all_time'], true)) {
+            $this->start_date = 'All available data';
+            $this->end_date = 'All available data';
+
+            return $query;
+        }
+
         try {
             $custom_start_date = Carbon::parse($this->input['start_date']);
             $custom_end_date = Carbon::parse($this->input['end_date']);
@@ -1355,10 +1368,6 @@ class BaseExport
         }
 
         switch ($date_range) {
-            case 'all':
-                $this->start_date = 'All available data';
-                $this->end_date = 'All available data';
-                return $query;
             case 'last7':
             case 'last_7_days':
             case 'last7_days':
@@ -1702,7 +1711,9 @@ class BaseExport
     public function queuePdfs(Builder $query)
     {
 
-        if (in_array(get_class($query->getModel()), [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
+        $entity_class = get_class($query->getModel());
+
+        if (in_array($entity_class, [Invoice::class, Quote::class, Credit::class, PurchaseOrder::class]) && $query->count() > 0) {
 
             $user = $this->company->owner();
 
@@ -1710,24 +1721,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            switch (get_class($query->getModel())) {
-                case Invoice::class:
-                    nlog("zipping invoices");
-                    ZipInvoices::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Quote::class:
-                    ZipQuotes::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case Credit::class:
-                    ZipCredits::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                case PurchaseOrder::class:
-                    ZipPurchaseOrders::dispatch($query->pluck('id'), $this->company, $user);
-                    break;
-                default:
-                    # code...
-                    break;
-            }
+            ZipEntity::dispatch($query->pluck('id'), $this->company, $user, $entity_class);
         }
     }
 
@@ -1756,7 +1750,7 @@ class BaseExport
                 $user = User::where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
             }
 
-            ZipDocuments::dispatch($documents, $this->company, $user);
+            ZipEntity::dispatch($documents, $this->company, $user, Document::class);
         }
     }
 
@@ -1929,7 +1923,9 @@ class BaseExport
 
     protected function streamQuery(Builder $query): \Illuminate\Support\LazyCollection
     {
-        return (clone $query)->lazy(self::EXPORT_CHUNK_SIZE);
+        return (clone $query)
+        ->orderBy($query->getModel()->getQualifiedKeyName())
+        ->lazy(self::EXPORT_CHUNK_SIZE);
     }
 
     /**

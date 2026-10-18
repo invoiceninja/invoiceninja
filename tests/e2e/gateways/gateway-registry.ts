@@ -2,17 +2,17 @@ import { AuthorizePaymentGateway } from './authorize-payment-gateway';
 import { BasePaymentGateway } from './base-payment-gateway';
 import { BraintreePaymentGateway } from './braintree-payment-gateway';
 import { CheckoutPaymentGateway } from './checkout-payment-gateway';
+import { FortePaymentGateway } from './forte-payment-gateway';
 import { GoCardlessPaymentGateway } from './gocardless-payment-gateway';
-import { PayPalPaymentGateway } from './paypal-payment-gateway';
 import { StripePaymentGateway } from './stripe-payment-gateway';
 
 export const paymentGateways: BasePaymentGateway[] = [
     new StripePaymentGateway(),
-    new PayPalPaymentGateway(),
     new AuthorizePaymentGateway(),
     new CheckoutPaymentGateway(),
     new BraintreePaymentGateway(),
     new GoCardlessPaymentGateway(),
+    new FortePaymentGateway(),
 ];
 
 export function gatewayBySlug(slug: string): BasePaymentGateway | undefined {

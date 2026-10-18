@@ -93,7 +93,7 @@ class QbClientDuplicateNameTest extends TestCase
         [$service, $mockSdk] = $this->makeServiceWithMockSdk();
 
         $nameWithQuote = "O'Brien Construction";
-        $expectedQuery = "SELECT Id FROM Customer WHERE DisplayName = 'O\\'Brien Construction'";
+        $expectedQuery = "SELECT Id FROM Customer WHERE DisplayName = 'OBrien Construction'";
 
         $mockSdk->shouldReceive('Query')
             ->once()
@@ -121,7 +121,7 @@ class QbClientDuplicateNameTest extends TestCase
         [$service, $mockSdk] = $this->makeServiceWithMockSdk();
 
         $nameWithQuotes = "Smith's & O'Malley's LLC";
-        $expectedQuery = "SELECT Id FROM Customer WHERE DisplayName = 'Smith\\'s & O\\'Malley\\'s LLC'";
+        $expectedQuery = "SELECT Id FROM Customer WHERE DisplayName = 'Smiths and OMalleys LLC'";
 
         $mockSdk->shouldReceive('Query')
             ->once()
@@ -189,7 +189,7 @@ class QbClientDuplicateNameTest extends TestCase
         [$service, $mockSdk] = $this->makeServiceWithMockSdk();
 
         $clientName = "O'Brien LLC";
-        $escapedQuery = "SELECT Id FROM Customer WHERE DisplayName = 'O\\'Brien LLC'";
+        $escapedQuery = "SELECT Id FROM Customer WHERE DisplayName = 'OBrien LLC'";
 
         // First call: findClientIdByName returns nothing
         // Second call (in catch recovery): finds the customer
@@ -314,5 +314,125 @@ class QbClientDuplicateNameTest extends TestCase
 
         $client->refresh();
         $this->assertEquals('123', $client->sync->qb_id);
+    }
+
+    public function test_colon_in_name_is_sanitized_before_create(): void
+    {
+        [$service, $mockSdk] = $this->makeServiceWithMockSdk();
+
+        $clientName = 'Regencium: Physical Therapy and Performance - West Greater Houston';
+        $sanitized = 'Regencium- Physical Therapy and Performance - West Greater Houston';
+
+        $mockSdk->shouldReceive('Query')
+            ->with("SELECT Id FROM Customer WHERE DisplayName = '{$sanitized}'", 1, 1)
+            ->once()
+            ->andReturn(null);
+
+        $display_names = [];
+        $mockSdk->shouldReceive('Add')
+            ->once()
+            ->andReturnUsing(function ($customer) use (&$display_names) {
+                $display_names[] = $customer->DisplayName ?? '';
+
+                return (object) ['Id' => '2040-ok'];
+            });
+
+        $client = $this->makeClient($clientName);
+
+        $qbClient = new QbClient($service);
+        $qb_id = $qbClient->createQbClient($client);
+
+        $this->assertEquals('2040-ok', $qb_id);
+        $this->assertSame([$sanitized], $display_names);
+        $this->assertEquals($clientName, $client->fresh()->name);
+    }
+
+    public function test_vendor_collision_retries_with_sanitized_unique_name(): void
+    {
+        [$service, $mockSdk] = $this->makeServiceWithMockSdk();
+
+        $clientName = 'Regencium: Physical Therapy and Performance - West Greater Houston';
+        $sanitized = 'Regencium- Physical Therapy and Performance - West Greater Houston';
+        $unique = $sanitized . ' (C)';
+
+        $mockSdk->shouldReceive('Query')
+            ->with("SELECT Id FROM Customer WHERE DisplayName = '{$sanitized}'", 1, 1)
+            ->twice()
+            ->andReturn(null, null);
+
+        $display_names = [];
+        $mockSdk->shouldReceive('Add')
+            ->twice()
+            ->andReturnUsing(function ($customer) use (&$display_names) {
+                $display_names[] = $customer->DisplayName ?? '';
+
+                if (count($display_names) === 1) {
+                    throw new \Exception(
+                        'Request is not made successful. Response Code:[400] with body: [' .
+                        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                        '<IntuitResponse xmlns="http://schema.intuit.com/finance/v3">' .
+                        '<Fault type="ValidationFault"><Error code="6240">' .
+                        '<Message>Duplicate Name Exists Error</Message>' .
+                        '<Detail>The name supplied already exists. : null</Detail>' .
+                        '</Error></Fault></IntuitResponse>].'
+                    );
+                }
+
+                return (object) ['Id' => '456-unique'];
+            });
+
+        $client = $this->makeClient($clientName);
+
+        $qbClient = new QbClient($service);
+        $qb_id = $qbClient->createQbClient($client);
+
+        $this->assertEquals('456-unique', $qb_id);
+        $this->assertSame([$sanitized, $unique], $display_names);
+        $this->assertEquals('456-unique', $client->fresh()->sync->qb_id);
+    }
+
+    public function test_display_name_2040_retries_with_conservative_name(): void
+    {
+        [$service, $mockSdk] = $this->makeServiceWithMockSdk();
+
+        $clientName = 'Regencium: Physical Therapy and Performance - West Greater Houston';
+        $sanitized = 'Regencium- Physical Therapy and Performance - West Greater Houston';
+        $conservative = 'Regencium Physical Therapy and Performance West Greater Houston';
+
+        $mockSdk->shouldReceive('Query')
+            ->with("SELECT Id FROM Customer WHERE DisplayName = '{$sanitized}'", 1, 1)
+            ->once()
+            ->andReturn(null);
+
+        $display_names = [];
+        $mockSdk->shouldReceive('Add')
+            ->twice()
+            ->andReturnUsing(function ($customer) use (&$display_names) {
+                $display_names[] = $customer->DisplayName ?? '';
+
+                if (count($display_names) === 1) {
+                    throw new \Exception(
+                        'Request is not made successful. Response Code:[400] with body: [' .
+                        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                        '<IntuitResponse xmlns="http://schema.intuit.com/finance/v3">' .
+                        '<Fault type="ValidationFault"><Error code="2040" element="DisplayName">' .
+                        '<Message>Invalid String. The String may contain unsupported or illegal chars</Message>' .
+                        '<Detail>Element contains invalid characters. ' . $display_names[0] . '</Detail>' .
+                        '</Error></Fault></IntuitResponse>].'
+                    );
+                }
+
+                return (object) ['Id' => '2040-retry'];
+            });
+
+        $client = $this->makeClient($clientName);
+
+        $qbClient = new QbClient($service);
+        $qb_id = $qbClient->createQbClient($client);
+
+        $this->assertEquals('2040-retry', $qb_id);
+        $this->assertSame([$sanitized, $conservative], $display_names);
+        $this->assertEquals('2040-retry', $client->fresh()->sync->qb_id);
+        $this->assertEquals($clientName, $client->fresh()->name);
     }
 }

@@ -24,6 +24,10 @@ class Helpers
 {
     use MakesDates;
 
+    private const RESERVED_KEYWORD_MAX_LENGTH = 16384;
+
+    private const RESERVED_KEYWORD_MAX_MATCHES = 32;
+
     public static function sharedEmailVariables(?Client $client, ?array $settings = null): array
     {
         if (! $client) {
@@ -169,6 +173,10 @@ class Helpers
             return $value;
         }
 
+        if (strlen($value) > self::RESERVED_KEYWORD_MAX_LENGTH) {
+            return $value;
+        }
+
         // 04-10-2022 Return Early if no reserved keywords are present, this is a very expensive process
         Carbon::setLocale($entity->locale());
 
@@ -176,56 +184,59 @@ class Helpers
             $currentDateTime = Carbon::now()->timezone($entity->timezone()->name);
         }
 
+        $monthStart = $currentDateTime->copy()->startOfMonth();
+        $rangeSeparator = '-';
+
         $replacements = [
             'literal' => [
                 ':MONTH_BEFORE' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->copy()->subMonth()->translatedFormat($entity->date_format()),
-                    ctrans('texts.to'),
+                    $rangeSeparator,
                     $currentDateTime->copy()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':YEAR_BEFORE' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->copy()->subYear()->translatedFormat($entity->date_format()),
-                    ctrans('texts.to'),
+                    $rangeSeparator,
                     $currentDateTime->copy()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':MONTH_AFTER' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->translatedFormat($entity->date_format()),
-                    ctrans('texts.to'),
+                    $rangeSeparator,
                     $currentDateTime->copy()->addMonth()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':YEAR_AFTER' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->translatedFormat($entity->date_format()),
-                    ctrans('texts.to'),
+                    $rangeSeparator,
                     $currentDateTime->copy()->addYear()->subDay()->translatedFormat($entity->date_format()),
                 ),
                 ':MONTHYEAR' => \sprintf(
                     '%s %s',
-                    Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F'),
+                    $monthStart->translatedFormat('F'),
                     $currentDateTime->year,
                 ),
-                ':MONTH' => Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F'),
+                ':MONTH' => $monthStart->translatedFormat('F'),
                 ':YEAR' => $currentDateTime->year,
                 ':QUARTER' => 'Q' . $currentDateTime->quarter,
                 ':WEEK_BEFORE' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->copy()->subDays(7)->translatedFormat($entity->date_format()),
-                    ctrans('texts.to'),
+                    $rangeSeparator,
                     $currentDateTime->copy()->subDays(1)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK_AHEAD' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->copy()->addDays(7)->translatedFormat($entity->date_format()),
-                    ctrans('texts.to'),
+                    $rangeSeparator,
                     $currentDateTime->copy()->addDays(13)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK' => \sprintf(
                     '%s %s %s',
                     $currentDateTime->translatedFormat($entity->date_format()),
-                    ctrans('texts.to'),
+                    $rangeSeparator,
                     $currentDateTime->copy()->addDays(6)->translatedFormat($entity->date_format())
                 ),
             ],
@@ -236,7 +247,7 @@ class Helpers
                 ':QUARTER' => $currentDateTime->quarter,
             ],
             'ranges' => [
-                'MONTHYEAR' => Carbon::createFromDate($currentDateTime->year, $currentDateTime->month),
+                'MONTHYEAR' => $monthStart,
             ],
             'ranges_raw' => [
                 'MONTH' => $currentDateTime->month,
@@ -247,15 +258,14 @@ class Helpers
         // First case, with ranges.
         preg_match_all('/\[(.*?)]/', $value, $ranges);
 
-        $matches = array_shift($ranges);
+        $matches = array_slice(array_shift($ranges), 0, self::RESERVED_KEYWORD_MAX_MATCHES);
 
         foreach ($matches as $match) {
             if (! Str::contains($match, '|')) {
                 continue;
             }
 
-            // if (Str::contains($match, '|')) {
-            $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
+            $parts = explode('|', $match, 2); // [ '[MONTH', 'MONTH+2]' ]
 
             $left = substr($parts[0], 1); // 'MONTH'
             $right = substr($parts[1], 0, -1); // MONTH+2
@@ -265,42 +275,34 @@ class Helpers
                 continue;
             }
 
-            $_left = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
-            $_right = '';
+            $monthOffset = 0;
 
-            // If right side doesn't have any calculations, replace with raw ranges keyword.
-            if (! Str::contains(str_replace("</", "", $right), ['-', '+', '/', '*'])) {
-                $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
-            }
-
-            // If right side contains one of math operations, calculate.
-            if (Str::contains(str_replace("</", "", $right), ['+'])) {
-                if (preg_match('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches) !== 1) {
+            if ($right !== 'MONTHYEAR') {
+                if (preg_match('/^MONTHYEAR(?<operator>[+-])(?<months>\d+)$/', $right, $rangeCalculation) !== 1) {
                     continue;
                 }
 
-                $_operation = $_matches[0]; // + -
+                $monthOffset = (int) $rangeCalculation['months'];
 
-                $_value = explode($_operation, $right); // [MONTHYEAR, 4]
-
-                $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->addMonths((int) $_value[1])->translatedFormat('F Y'); //@phpstan-ignore-line
+                if ($rangeCalculation['operator'] === '-') {
+                    $monthOffset *= -1;
+                }
             }
 
-            $replacement = sprintf('%s to %s', $_left, $_right);
-
-            $value = preg_replace(
-                sprintf('/%s/', preg_quote($match)),
-                $replacement,
-                $value,
-                1
+            $replacement = sprintf(
+                '%s %s %s',
+                $monthStart->translatedFormat('F Y'),
+                $rangeSeparator,
+                $monthStart->copy()->addMonths($monthOffset)->translatedFormat('F Y'),
             );
-            // }
+
+            $value = Str::replaceFirst($match, $replacement, $value);
         }
 
         // Second case with more common calculations.
         preg_match_all('/:([^:\s]+)/', $value, $common);
 
-        $matches = array_shift($common);
+        $matches = array_slice(array_shift($common), 0, self::RESERVED_KEYWORD_MAX_MATCHES);
 
         foreach ($matches as $match) {
             $matches = collect($replacements['literal'])->filter(function ($value, $key) use ($match) {
@@ -358,7 +360,7 @@ class Helpers
                 }
 
                 if ($matches->keys()->first() == ':MONTHYEAR') {
-                    $final_date = $currentDateTime->copy()->addMonths($output - $currentDateTime->month);
+                    $final_date = $monthStart->copy()->addMonths($output - $currentDateTime->month);
 
                     $output = \sprintf(
                         '%s %s',
@@ -384,7 +386,7 @@ class Helpers
                                 : $final_date->subQuarters(abs($quarters_to_add));
                         }
                     }
-                    $output = $final_date->quarter;
+                    $output = 'Q' . $final_date->quarter;
                 }
 
                 $value = preg_replace(

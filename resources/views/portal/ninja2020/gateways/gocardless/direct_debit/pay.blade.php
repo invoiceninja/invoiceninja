@@ -1,7 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Direct Debit', 'card_title' => 'Direct Debit'])
 
 @section('gateway_content')
-    @if (count($tokens) > 0)
+    <div id="gocardless-direct-debit-payment">
         <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
         @include('portal.ninja2020.gateways.includes.payment_details')
@@ -17,57 +17,61 @@
         </form>
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-        <ul class="payment-method-list">
-            @if (count($tokens) > 0)
+            <ul class="payment-method-list">
                 @foreach ($tokens as $token)
+                    <li class="payment-method-item">
+                        <label class="payment-method-label">
+                            <input type="radio" data-token="{{ $token->token }}" name="payment-type" class="form-radio cursor-pointer toggle-payment-with-token">
+                            <span class="ml-1">{{ App\Models\GatewayType::getAlias($token->gateway_type_id) }} {{ $token->getGatewayAccountName() }}</span>
+                        </label>
+                    </li>
+                @endforeach
+
                 <li class="payment-method-item">
-                <label class="payment-method-label">
-                <input type="radio" data-token="{{ $token->token }}" name="payment-type"
-                            class="form-radio cursor-pointer toggle-payment-with-token" />
-                        <span class="ml-1">{{ App\Models\GatewayType::getAlias($token->gateway_type_id) }} {{ $token->getGatewayAccountName() }}</span>
+                    <label class="payment-method-label">
+                        <input type="radio" id="toggle-payment-with-new-gocardless-account" class="form-radio cursor-pointer" name="payment-type" @checked(count($tokens) === 0)>
+                        <span class="ml-1">{{ ctrans('texts.new_bank_account') }}</span>
                     </label>
                 </li>
-                @endforeach
-            @endisset
-                </ul>
-    @endcomponent
-
-    @else
-        @component('portal.ninja2020.components.general.card-element-single', ['title' => 'Direct Debit', 'show_title' => false])
-            <span>{{ ctrans('texts.bank_account_not_linked') }}</span>
-
-            <a class="button button-link text-primary"
-                href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method') }}</a>
+            </ul>
         @endcomponent
-    @endif
 
-    @if (count($tokens) > 0)
-        @include('portal.ninja2020.gateways.includes.pay_now')
-    @endif
+        <div id="gocardless-payment-action">
+            @include('portal.ninja2020.gateways.includes.pay_now')
+        </div>
+    </div>
 @endsection
 
 @push('footer')
     <script>
-        Array
-            .from(document.getElementsByClassName('toggle-payment-with-token'))
-            .forEach((element) => element.addEventListener('click', (element) => {
-                document.querySelector('input[name=source]').value = element.target.dataset.token;
-            }));
+        const root = document.getElementById('gocardless-direct-debit-payment');
+        const source = root.querySelector('input[name=source]');
 
-        document.getElementById('pay-now').addEventListener('click', function() {
-            this.disabled = true;
-            this.querySelector('svg').classList.remove('hidden');
-            this.querySelector('span').classList.add('hidden');
-
-            document.getElementById('server-response').submit();
+        Array.from(root.getElementsByClassName('toggle-payment-with-token')).forEach((element) => {
+            element.addEventListener('click', (event) => {
+                source.value = event.target.dataset.token;
+            });
         });
 
+        root.querySelector('#toggle-payment-with-new-gocardless-account').addEventListener('click', () => {
+            if (source) {
+                source.value = '';
+            }
 
-const first = document.querySelector('input[name="payment-type"]');
+        });
 
-if (first) {
-    first.click();
-}
+        const payNowButton = root.querySelector('#pay-now');
 
+        if (payNowButton) {
+            payNowButton.addEventListener('click', (event) => {
+                const button = event.currentTarget;
+                button.disabled = true;
+                button.querySelector('svg').classList.remove('hidden');
+                button.querySelector('span').classList.add('hidden');
+                root.querySelector('#server-response').submit();
+            });
+        }
+
+        root.querySelector('input[name="payment-type"]')?.click();
     </script>
 @endpush

@@ -15,12 +15,15 @@ namespace App\Services\Template;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
@@ -28,6 +31,7 @@ use App\Models\Vendor;
 use App\Services\Template\TemplateMock;
 use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\PaymentHtmlEngine;
@@ -302,6 +306,8 @@ class TemplateService
 
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($this->compiled_html);
         } else {
             $pdf = $this->makePdf(null, null, $this->compiled_html);
         }
@@ -541,13 +547,14 @@ class TemplateService
 
             match ($key) {
                 'variables' => $processed = $value->first() ?? [], //@phpstan-ignore-line
-                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
+                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
+                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
                 'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], //@phpstan-ignore-line
-                'tasks' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'projects' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'purchase_orders' => $processed = (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'tasks', 'projects' => $processed = ($invitation = $this->resolveClientInvitation($value->first()->client)) // @phpstan-ignore-line
+                    ? (new HtmlEngine($invitation))->setSettings($this->getSettings())->generateLabelsAndValues()
+                    : [],
+                'purchase_orders' => $processed = (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], // @phpstan-ignore-line
                 'aging' => $processed = [],
                 default => $processed = [],
             };
@@ -556,6 +563,29 @@ class TemplateService
 
         })->toArray();
 
+    }
+
+    /**
+     * Projects and tasks have no invitations. Borrow the client's first
+     * invoice invitation, then a quote, then a credit, so design labels
+     * can still be resolved. Returns null when the client has none.
+     */
+    private function resolveClientInvitation(Client $client): InvoiceInvitation|QuoteInvitation|CreditInvitation|null
+    {
+        foreach ([$client->invoices(), $client->quotes(), $client->credits()] as $documents) {
+            $invitation = $documents //@phpstan-ignore-line
+                ->whereHas('invitations')
+                ->with('invitations')
+                ->first()
+                ?->invitations
+                ?->first();
+
+            if ($invitation instanceof InvoiceInvitation || $invitation instanceof QuoteInvitation || $invitation instanceof CreditInvitation) {
+                return $invitation;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -682,6 +712,8 @@ class TemplateService
                         'project' => $invoice->project ? $this->transformProject($invoice->project, true) : [],
                         'actual_delivery_date' => $this->translateDate(data_get($invoice, 'e_invoice.Invoice.Delivery.0.ActualDeliveryDate', $invoice->date), $invoice->client->date_format(), $invoice->client->locale()),
                         'invoice_period' => $invoice_period,
+                        'user' => $this->userInfo($invoice->user),
+                        'assigned_user' => $invoice->assigned_user ? $this->userInfo($invoice->assigned_user) : [],
                         'tags' => $invoice->tags->pluck('name')->values()->all(),
                     ];
 
@@ -824,6 +856,8 @@ class TemplateService
             'client' => $this->getClient($payment),
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
+            'user' => $this->userInfo($payment->user),
+            'assigned_user' => $payment->assigned_user ? $this->userInfo($payment->assigned_user) : [],
             'tags' => $payment->tags->pluck('name')->values()->all(),
         ];
 
@@ -946,6 +980,8 @@ class TemplateService
                 'total_tax_map' => $quote->calc()->getTotalTaxMap(),
                 'line_tax_map' => $quote->calc()->getTaxMap()->toArray(),
                 'project' => $quote->project ? $this->transformProject($quote->project, true) : [],
+                'user' => $this->userInfo($quote->user),
+                'assigned_user' => $quote->assigned_user ? $this->userInfo($quote->assigned_user) : [],
                 'tags' => $quote->tags->pluck('name')->values()->all(),
             ];
         })->toArray();
@@ -1030,6 +1066,8 @@ class TemplateService
                         'payments' => $payments,
                         'total_tax_map' => $credit->calc()->getTotalTaxMap(),
                         'line_tax_map' => $credit->calc()->getTaxMap()->toArray(),
+                        'user' => $this->userInfo($credit->user),
+                        'assigned_user' => $credit->assigned_user ? $this->userInfo($credit->assigned_user) : [],
                         'tags' => $credit->tags->pluck('name')->values()->all(),
                     ];
 
@@ -1086,7 +1124,9 @@ class TemplateService
             'address' => $entity->client->present()->address(),
             'shipping_address' => $entity->client->present()->shipping_address(),
             'locale' => substr($entity->client->locale(), 0, 2),
-            'location' => $entity->location ? $entity->service()->location(false) : [],
+            'location' => (method_exists($entity, 'service') && method_exists($entity->service(), 'location'))
+                                        ? $entity->service()->location(false)
+                                        : [],
         ] : [];
     }
 
@@ -1179,6 +1219,8 @@ class TemplateService
                 'vendor' => $this->getVendor($expense),
                 'project' => ($expense->project && !$nested) ? $this->transformProject($expense->project, true) : [],
                 'invoice' => $expense->invoice ? $this->processInvoices([$expense->invoice]) : [],
+                'user' => $this->userInfo($expense->user),
+                'assigned_user' => $expense->assigned_user ? $this->userInfo($expense->assigned_user) : [],
                 'tags' => $expense->tags->pluck('name')->values()->all(),
             ];
         })->toArray();
@@ -1204,6 +1246,8 @@ class TemplateService
                 'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
                 'updated_at' => $this->translateDate($task->updated_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
                 'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
+                'due_date' => $task->due_date ? $this->translateDate($task->due_date, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
+                'estimated_duration' => is_null($task->estimated_duration) ? null : (int) $task->estimated_duration,
                 // 'invoice_id' => $this->encodePrimaryKey($task->invoice_id) ?: '',
                 'project' => ($task->project && !$nested) ? $this->transformProject($task->project, true) : [],
                 'time_log' => $task->processLogsExpandedNotation(),
@@ -1354,6 +1398,8 @@ class TemplateService
                 'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
                 'total_tax_map' => $purchase_order->calc()->getTotalTaxMap(),
                 'line_tax_map' => $purchase_order->calc()->getTaxMap()->toArray(),
+                'user' => $this->userInfo($purchase_order->user),
+                'assigned_user' => $purchase_order->assigned_user ? $this->userInfo($purchase_order->assigned_user) : [],
                 'tags' => $purchase_order->tags->pluck('name')->values()->all(),
             ];
 

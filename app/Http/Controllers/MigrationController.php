@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Models\Company;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -67,11 +68,12 @@ class MigrationController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param DefaultCompanyRequest $request
      * @param Company $company
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      * @throws \Exception
      */
-    public function purgeCompany(Company $company)
+    public function purgeCompany(DefaultCompanyRequest $request, Company $company)
     {
         if (Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id) {
             return response()->json(['message' => 'Cannot purge this company'], 400);
@@ -135,12 +137,12 @@ class MigrationController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param Request $request
+     * @param DefaultCompanyRequest $request
      * @param Company $company
      * @return JsonResponse
      */
     public function purgeCompanySaveSettings(
-        Request $request,
+        DefaultCompanyRequest $request,
         Company $company,
     ): JsonResponse {
         

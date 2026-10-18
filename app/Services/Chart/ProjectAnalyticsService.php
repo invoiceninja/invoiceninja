@@ -240,6 +240,9 @@ class ProjectAnalyticsService
             $taskValue = array_sum(array_column($logs, 'value'));
             $isCompleted = $this->isCompletedTask($task);
             $isInvoiced = $task->invoice_id !== null;
+            $taskEstimatedHours = is_null($task->estimated_duration)
+                ? null
+                : (int) $task->estimated_duration / 3600;
 
             $metrics[$projectId]['total_tasks']++;
             $metrics[$projectId]['completed_tasks'] += $isCompleted ? 1 : 0;
@@ -249,6 +252,19 @@ class ProjectAnalyticsService
             $metrics[$projectId]['logged_hours'] += $taskLoggedHours;
             $metrics[$projectId]['billable_hours'] += $taskBillableHours;
             $metrics[$projectId]['billable_value'] += $taskValue;
+
+            if ($taskEstimatedHours !== null) {
+                $metrics[$projectId]['task_estimated_hours'] += $taskEstimatedHours;
+            }
+
+            if (! $isCompleted) {
+                if ($taskEstimatedHours === null) {
+                    $metrics[$projectId]['unestimated_active_task_count']++;
+                } else {
+                    $metrics[$projectId]['remaining_estimated_hours'] += max($taskEstimatedHours - $taskLoggedHours, 0.0);
+                    $metrics[$projectId]['active_tasks_over_estimate_count'] += $taskLoggedHours > $taskEstimatedHours ? 1 : 0;
+                }
+            }
 
             if (! $isInvoiced) {
                 $metrics[$projectId]['unbilled_hours'] += $taskBillableHours;
@@ -521,6 +537,10 @@ class ProjectAnalyticsService
             'logged_hours' => $loggedHours,
             'billable_hours' => (float) $taskMetrics['billable_hours'],
             'hours_remaining' => $hoursRemaining,
+            'task_estimated_hours' => (float) $taskMetrics['task_estimated_hours'],
+            'remaining_estimated_hours' => (float) $taskMetrics['remaining_estimated_hours'],
+            'unestimated_active_task_count' => (int) $taskMetrics['unestimated_active_task_count'],
+            'active_tasks_over_estimate_count' => (int) $taskMetrics['active_tasks_over_estimate_count'],
             'task_rate' => $taskRate,
             'budgeted_amount' => $budgetedAmount,
             'labor_value' => $laborValue,
@@ -631,6 +651,10 @@ class ProjectAnalyticsService
                 'logged_hours' => round($row['logged_hours'], 2),
                 'billable_hours' => round($row['billable_hours'], 2),
                 'remaining_hours' => round($row['hours_remaining'], 2),
+                'task_estimated_hours' => round($row['task_estimated_hours'], 2),
+                'remaining_estimated_hours' => round($row['remaining_estimated_hours'], 2),
+                'unestimated_active_task_count' => $row['unestimated_active_task_count'],
+                'active_tasks_over_estimate_count' => $row['active_tasks_over_estimate_count'],
                 'utilization' => round($row['utilization'], 4),
             ])
             ->values()
@@ -836,6 +860,10 @@ class ProjectAnalyticsService
             'logged_hours' => 0.0,
             'billable_hours' => 0.0,
             'billable_value' => 0.0,
+            'task_estimated_hours' => 0.0,
+            'remaining_estimated_hours' => 0.0,
+            'unestimated_active_task_count' => 0,
+            'active_tasks_over_estimate_count' => 0,
             'unbilled_hours' => 0.0,
             'unbilled_value' => 0.0,
             'team' => [],

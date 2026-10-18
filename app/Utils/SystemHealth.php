@@ -185,13 +185,16 @@ class SystemHealth
     {
         $connectionName = config('database.default');
 
-        $run_count = DB::connection($connectionName)->table('migrations')->count();
+        $ran = DB::connection($connectionName)->table('migrations')->pluck('migration');
 
         $directory = base_path('database/migrations');
-        $iterator = new \FilesystemIterator($directory);
-        $total_count = iterator_count($iterator) - 1;
 
-        return $run_count != $total_count;
+        $pending = collect(new \FilesystemIterator($directory))
+            ->filter(fn ($file) => $file->getExtension() === 'php')
+            ->map(fn ($file) => $file->getBasename('.php'))
+            ->diff($ran);
+
+        return $pending->isNotEmpty();
     }
 
     public static function getPdfEngine()
@@ -200,6 +203,8 @@ class SystemHealth
             return 'Invoice Ninja Hosted PDF Generator';
         } elseif (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return 'Phantom JS Web Generator';
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            return 'Simulator (blank PDF)';
         } else {
             return 'SnapPDF PDF Generator';
         }
@@ -264,7 +269,7 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found php cli, but no version information' : $foo[0];
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -379,7 +384,7 @@ class SystemHealth
 
         foreach ($lines as $line) {
             // Match the main error, ie. [2024-07-10 12:23:07] production.ERROR: ...
-            if (substr($line, 0, 2) === '.ERROR') {
+            if (preg_match('/^\[[^\]]+\]\s+\S+\.(?:ERROR|CRITICAL|ALERT|EMERGENCY):/', $line) === 1) {
                 $last_error = $line;
             }
         }

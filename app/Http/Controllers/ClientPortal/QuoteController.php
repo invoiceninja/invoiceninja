@@ -87,8 +87,16 @@ class QuoteController extends Controller
     {
         if ($request->has('request_hash')) {
             $request_hash = $request->input('request_hash');
-            $request_array = Cache::get($request_hash);
-            $request->merge($request_array);
+            $cached_request = Cache::pull($request_hash);
+
+            abort_unless(
+                is_array($cached_request)
+                && ($cached_request['client_contact_id'] ?? null) === auth()->guard('contact')->id()
+                && is_array($cached_request['request'] ?? null),
+                404
+            );
+
+            $request->merge($cached_request['request']);
         }
 
         $transformed_ids = $this->transformKeys($request->quotes);
@@ -99,7 +107,8 @@ class QuoteController extends Controller
 
         if ($request->action == 'approve') {
 
-            if (auth()->guard('contact')->user()->company->docuninjaActive()) {
+            if (auth()->guard('contact')->user()->company->docuninjaActive()
+            && auth()->guard('contact')->user()->client->getSetting('require_quote_signature')) {
                 $invitations = \App\Models\QuoteInvitation::with('quote')
                                         ->whereIn('quote_id', $transformed_ids)
                                         ->where('client_contact_id', auth()->guard('contact')->user()->id)
@@ -112,7 +121,10 @@ class QuoteController extends Controller
                     $request_hash = \Illuminate\Support\Str::random(64);
                     $request->merge(['entity_type' => 'invoice', 'db' => auth()->guard('contact')->user()->company->db, 'request_hash' => $request_hash]);
 
-                    Cache::put($request_hash, $request->all(), 60 * 60 * 24);
+                    Cache::put($request_hash, [
+                        'client_contact_id' => auth()->guard('contact')->id(),
+                        'request' => $request->except(['_token', 'request_hash']),
+                    ], 60 * 60 * 24);
                     $invitation = $invitations->first();
 
                     return $this->render('components.docuninja', [
@@ -134,6 +146,22 @@ class QuoteController extends Controller
         }
 
         return back();
+    }
+
+    public function continueApproval(string $request_hash)
+    {
+        $cached_request = Cache::get($request_hash);
+
+        abort_unless(
+            is_array($cached_request)
+            && ($cached_request['client_contact_id'] ?? null) === auth()->guard('contact')->id()
+            && is_array($cached_request['request'] ?? null),
+            404
+        );
+
+        return $this->render('quotes.continue-approval', [
+            'request_hash' => $request_hash,
+        ]);
     }
 
     public function downloadQuotes($ids)
@@ -168,7 +196,7 @@ class QuoteController extends Controller
         $client_contact = auth()->user();
 
         $quote_invitations = QuoteInvitation::query()
-            ->with('quote', 'company')
+            ->with('quote')
             ->whereIn('quote_id', $ids)
             ->where('client_contact_id', $client_contact->id)
             ->withTrashed()

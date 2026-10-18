@@ -24,8 +24,10 @@ use Illuminate\Support\Facades\Cache;
 use App\Services\Quickbooks\SdkWrapper;
 use App\Services\Quickbooks\Models\QbClient;
 use App\Services\Quickbooks\Models\QbInvoice;
+use App\Services\Quickbooks\Models\QbProduct;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Jobs\QuickbooksImport;
+use Illuminate\Contracts\Queue\Job as QueueJob;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 
@@ -120,6 +122,64 @@ class QuickbooksImportResumeTest extends TestCase
         $this->invokePrivate($job, 'processEntitySync', ['SalesReceipt', $records]);
 
         $this->addToAssertionCount(1);
+    }
+
+    public function test_process_entity_sync_routes_supported_entities_to_their_models(): void
+    {
+        $customer_records = [(object) ['Id' => '21']];
+        $product_records = [(object) ['Id' => '22']];
+        $invoice_records = [(object) ['Id' => '23']];
+        $job = $this->makeJob();
+
+        $service = Mockery::mock(QuickbooksService::class);
+        $client = Mockery::mock(QbClient::class);
+        $product = Mockery::mock(QbProduct::class);
+        $invoice = Mockery::mock(QbInvoice::class);
+
+        $client->shouldReceive('syncToNinja')->once()->with($customer_records);
+        $product->shouldReceive('syncToNinja')->once()->with($product_records);
+        $invoice->shouldReceive('syncToNinja')->once()->with($invoice_records);
+
+        $service->client = $client;
+        $service->product = $product;
+        $service->invoice = $invoice;
+        $this->setPrivate($job, 'qbs', $service);
+
+        $this->invokePrivate($job, 'processEntitySync', ['Customer', $customer_records]);
+        $this->invokePrivate($job, 'processEntitySync', ['Item', $product_records]);
+        $this->invokePrivate($job, 'processEntitySync', ['Invoice', $invoice_records]);
+        $this->invokePrivate($job, 'processEntitySync', ['Unsupported', [(object) ['Id' => '24']]]);
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function test_filter_already_imported_preserves_records_without_ids_and_unknown_entities(): void
+    {
+        $job = $this->makeJob();
+        $records = [
+            (object) ['DisplayName' => 'No QuickBooks ID'],
+            (object) ['Id' => '31'],
+        ];
+
+        $filtered = $this->invokePrivate($job, 'filterAlreadyImported', ['Unsupported', $records]);
+
+        $this->assertSame($records, $filtered);
+    }
+
+    public function test_handle_releases_without_fetching_when_realm_is_rate_limited(): void
+    {
+        Cache::put('qb_backoff:test-realm', time() + 120, 120);
+
+        $queue_job = Mockery::mock(QueueJob::class);
+        $queue_job->shouldReceive('release')
+            ->once()
+            ->with(Mockery::on(fn (int $delay): bool => $delay >= 100 && $delay <= 120));
+
+        $job = new QuickbooksImport($this->company->id, $this->company->db);
+        $job->setJob($queue_job);
+        $job->handle();
+
+        $this->assertArrayNotHasKey($this->company->id, QuickbooksService::$importing);
     }
 
     public function test_initial_sync_page_filters_existing_records_and_marks_entity_completed(): void

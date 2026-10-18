@@ -250,7 +250,7 @@ class Purify
 
         $css = preg_replace('/\/\*.*?\*\//s', '', $css);
 
-        $css = preg_replace('/[^{}]*invoiceninja[\-_]whitelabel[^{}]*\{[^}]*\}/i', '', $css);
+        $css = self::stripWhitelabelCssRules($css);
 
         // Normalize CSS unicode escapes before filtering
         $css = preg_replace_callback(
@@ -263,7 +263,46 @@ class Purify
         $css = preg_replace('/http\s*:\s*\/\//i', '', $css);
         $css = preg_replace('/file\s*:\s*\/\//i', '', $css);
 
-        return $css;
+        // Escape closing style tags after normalization without changing other CSS syntax.
+        return preg_replace_callback(
+            '~</style~i',
+            static fn(array $match): string => '\\3C ' . substr($match[0], 1),
+            $css
+        );
+    }
+
+    /**
+     * Drop CSS rules that mention the Invoice Ninja whitelabel logo.
+     *
+     * Tokenises on '}' so each rule is examined once (O(n)). The previous
+     * unanchored `[^{}]*invoiceninja[\-_]whitelabel` regex restarts at every
+     * offset and is quadratic on brace-free input that repeats the needle.
+     */
+    private static function stripWhitelabelCssRules(string $css): string
+    {
+        if (stripos($css, 'invoiceninja-whitelabel') === false
+            && stripos($css, 'invoiceninja_whitelabel') === false) {
+            return $css;
+        }
+
+        $parts = explode('}', $css);
+        $count = count($parts);
+        $kept = [];
+
+        foreach ($parts as $i => $part) {
+            $rule = ($i === $count - 1) ? $part : $part . '}';
+
+            if ($rule === '') {
+                continue;
+            }
+
+            if (stripos($rule, 'invoiceninja-whitelabel') === false
+                && stripos($rule, 'invoiceninja_whitelabel') === false) {
+                $kept[] = $rule;
+            }
+        }
+
+        return implode('', $kept);
     }
 
     private static array $dangerous_svg_elements = [
@@ -445,12 +484,6 @@ class Purify
                     return;
                 }
 
-                // Sanitize <style> block content to protect whitelabel logo
-                if (strtolower($node->tagName) === 'style') {
-                    $node->textContent = self::sanitizeStyleBlockContent($node->textContent);
-                    return;
-                }
-
                 // Store current attributes before removing them
                 $current_attributes = [];
                 foreach ($node->attributes as $attr) {
@@ -466,9 +499,21 @@ class Purify
                     $node->removeAttribute($attr_name);
                 }
 
+                // Style blocks must also pass through the attribute allowlist below.
+                if (strtolower($node->tagName) === 'style') {
+                    $node->textContent = self::sanitizeStyleBlockContent($node->textContent);
+                }
+
                 // Then add back only the allowed attributes
                 foreach ($current_attributes as $name => $value) {
                     $attr_name = strtolower($name);
+
+                    // Preserve stylesheet scope for PDF designs; portal styles use a stricter second pass.
+                    if (strtolower($node->tagName) === 'style'
+                        && ($attr_name === 'media' || ($attr_name === 'type' && strtolower($value) === 'text/css'))) {
+                        $node->setAttribute($name, $value);
+                        continue;
+                    }
 
                     // Add special handling for style attributes
                     if ($attr_name === 'style') {
@@ -522,7 +567,7 @@ class Purify
                                 // nlog("data:image/* regex");
                                 $regex = '^data\:image\/[a-zA-Z0-9\+]+;base64,.*$';
                             } else {
-                                $regex = preg_quote($pattern, '/');
+                                $regex = '^' . preg_quote($pattern, '/') . '$';
                                 $regex = str_replace('\*', '.*', $regex);
                             }
 
@@ -570,8 +615,13 @@ class Purify
                 if ($body) {
                     $wrapper = $body->firstChild;
                     if ($wrapper && $wrapper->nodeName === 'div') {
-                        foreach ($wrapper->childNodes as $child) {
-                            $html .= $document->saveHTML($child);
+                        // Malformed fragments can close the wrapper early. Preserve
+                        // the sanitized siblings as well as the wrapper's children.
+                        foreach ($body->childNodes as $child) {
+                            $nodes = $child === $wrapper ? $wrapper->childNodes : [$child];
+                            foreach ($nodes as $node) {
+                                $html .= $document->saveHTML($node);
+                            }
                         }
                     } else {
                         foreach ($body->childNodes as $child) {

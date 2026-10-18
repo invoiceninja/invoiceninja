@@ -64,7 +64,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject();
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order', $company_user->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order'))->build());
                 $nmo->company = $purchase_order->company;
                 $nmo->settings = $purchase_order->company->settings;
 

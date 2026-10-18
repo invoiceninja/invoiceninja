@@ -51,6 +51,10 @@
           type: string
           format: date
           example: '2024-01-31'
+        estimated_duration:
+          description: 'Estimated duration for the task in seconds'
+          type: integer
+          example: 7200
         priority:
           description: 'Priority level of the task'
           type: integer

@@ -1,5 +1,5 @@
 <div class="relative z-10 flex-shrink-0 flex h-16 bg-white shadow" xmlns:x-transition="http://www.w3.org/1999/xhtml">
-    <button @click.stop="sidebarOpen = true" class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:bg-gray-100 focus:text-gray-600 md:hidden">
+    <button @click.stop="sidebarOpen = true" class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none hover:bg-gray-100 hover:text-gray-600 focus:bg-gray-100 focus:text-gray-600 md:hidden">
         <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
         </svg>
@@ -10,7 +10,7 @@
             <div @click.outside="open = false" class="ml-3 relative" x-data="{ open: false }">
                 <div>
                     <button data-ref="client-profile-dropdown" @click="open = !open"
-                            class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:ring">
+                            class="max-w-xs flex items-center text-sm rounded-full hover:bg-gray-100 focus:outline-none focus:ring">
                         <img class="h-8 w-8 rounded-full" src="{{ auth()->guard('vendor')->user()->avatarUrl() }}" alt=""/>
                         <span class="ml-2 hidden sm:block">{{ auth()->guard('vendor')->user()->present()->name() }}</span>
                     </button>

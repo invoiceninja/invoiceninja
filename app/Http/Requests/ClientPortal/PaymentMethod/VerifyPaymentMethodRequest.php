@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -8,9 +9,9 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\Http\Requests\ClientPortal\PaymentMethod;
 
-use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VerifyPaymentMethodRequest extends FormRequest
@@ -30,10 +31,34 @@ class VerifyPaymentMethodRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
+    {
+        if (! $this->isMethod('POST')) {
+            return [];
+        }
+
+        $state = $this->payment_method->meta->state ?? null;
+
+        if ($state === 'inactive') {
+            return [
+                'setup_intent_id' => ['required', 'string', 'starts_with:seti_'],
+            ];
+        }
+
+        if ($state === 'authorized') {
+            return [];
+        }
+
+        return [
+            'transactions.*' => ['integer', 'min:1'],
+        ];
+    }
+
+    public function messages(): array
     {
         return [
-            'transactions.*' => 'integer',
+            'setup_intent_id.required' => ctrans('texts.unable_to_verify_payment_method'),
+            'setup_intent_id.starts_with' => ctrans('texts.unable_to_verify_payment_method'),
         ];
     }
 }

@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\WebhookFactory;
 use App\Filters\WebhookFilters;
+use App\Http\Requests\Webhook\BulkWebhookRequest;
 use App\Http\Requests\Webhook\CreateWebhookRequest;
 use App\Http\Requests\Webhook\DestroyWebhookRequest;
 use App\Http\Requests\Webhook\EditWebhookRequest;
@@ -479,13 +480,13 @@ class WebhookController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkWebhookRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $webhooks = Webhook::withTrashed()->company()->find($this->transformKeys($ids));
+        $webhooks = Webhook::withTrashed()->company()->find($ids);
 
         $webhooks->each(function ($webhook, $key) use ($action) {
             /** @var \App\Models\User $user */
@@ -496,7 +497,7 @@ class WebhookController extends BaseController
             }
         });
 
-        return $this->listResponse(Webhook::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Webhook::withTrashed()->company()->whereIn('id', $ids));
     }
 
     public function retry(RetryWebhookRequest $request, Webhook $webhook)

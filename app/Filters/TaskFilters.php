@@ -91,6 +91,10 @@ class TaskFilters extends QueryFilters
             $this->builder->where('is_running', true);
         }
 
+        if (in_array('overdue', $status_parameters)) {
+            $this->builder->where('due_date', '<', now()->setTimezone(auth()->user()->company()->timezone()->name ?? 'UTC')->toDateString());
+        }
+
         return $this->builder;
     }
 
@@ -120,6 +124,15 @@ class TaskFilters extends QueryFilters
         }
 
         return $this->builder->whereIn('project_id', $this->transformKeys(explode(',', $project_ids)));
+    }
+
+    public function overdue(?string $overdue = ''): Builder
+    {
+        if($overdue !== 'true') {
+            return $this->builder;
+        }
+
+        return $this->builder->where('due_date', '<', now()->setTimezone(auth()->user()->company()->timezone()->name ?? 'UTC')->toDateString());
     }
 
     public function number(string $number = ''): Builder
@@ -282,6 +295,48 @@ class TaskFilters extends QueryFilters
         return $this->builder;
     }
 
+
+    /**
+     * Tasks whose coarse activity span overlaps a calendar window (e.g. one month).
+     *
+     * Pass the window bounds as Y-m-d,Y-m-d — typically first and last day of month X.
+     * Task span: calculated_start_date .. today (running) or DATE(updated_at).
+     * Intersection: task_start <= window_end AND task_end >= window_start.
+     */
+    public function activity_dates(string $activity_dates = ''): Builder
+    {
+        if (strlen($activity_dates) === 0) {
+            return $this->builder;
+        }
+
+        $date_parts = explode(',', $activity_dates);
+
+        if (count($date_parts) !== 2) {
+            return $this->builder;
+        }
+
+        try {
+            $window_start = \Illuminate\Support\Carbon::parse(trim($date_parts[0]))->toDateString();
+            $window_end = \Illuminate\Support\Carbon::parse(trim($date_parts[1]))->toDateString();
+        } catch (\Exception) {
+            return $this->builder;
+        }
+
+        if ($window_start > $window_end) {
+            return $this->builder;
+        }
+
+        $today = now()->setTimezone(auth()->user()->company()->timezone()->name ?? 'UTC')->toDateString();
+
+        return $this->builder
+            ->whereNotNull('calculated_start_date')
+            ->where('calculated_start_date', '!=', '0000-00-00')
+            ->where('calculated_start_date', '<=', $window_end)
+            ->whereRaw(
+                '(CASE WHEN tasks.is_running = 1 THEN ? ELSE DATE(tasks.updated_at) END) >= ?',
+                [$today, $window_start]
+            );
+    }
 
     /**
      * Filters the query by the users company ID.

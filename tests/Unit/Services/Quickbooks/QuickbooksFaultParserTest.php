@@ -47,6 +47,8 @@ ERROR;
             'Customer DisplayName contains characters QuickBooks does not support (QB 2040). Edit the name and retry.',
             $fault->statusMessage('creating the customer')
         );
+        $this->assertTrue($fault->isInvalidDisplayName());
+        $this->assertFalse($fault->isDuplicateName());
     }
 
     public function testParsesMultipleIntuitErrors(): void

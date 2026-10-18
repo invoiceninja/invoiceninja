@@ -696,6 +696,10 @@ class InvoiceTest extends TestCase
         $invoice->tax_rate1 = 0;
         $invoice->custom_surcharge1 = 100;
         $invoice->custom_surcharge_tax1 = true;
+        $invoice->tax_name2 = '';
+        $invoice->tax_rate2 = 0;
+        $invoice->tax_name3 = '';
+        $invoice->tax_rate3 = 0;
 
         $line_items = [];
 
@@ -720,10 +724,42 @@ class InvoiceTest extends TestCase
         $this->assertEquals(200, $invoice->amount);
         $this->assertEquals(200, $invoice->balance);
         $this->assertEquals(0, $invoice->paid_to_date);
-        $this->assertEquals(9.09, $calc->getTotalTaxes());
+        $this->assertEquals(18.18, $calc->getTotalTaxes());
 
     }
 
+
+    public function testSurchargesAndTaxesExclusiveLineItemTax()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->discount = 0;
+        $invoice->is_amount_discount = false;
+        $invoice->status_id = 2;
+        $invoice->tax_name1 = '';
+        $invoice->tax_rate1 = 0;
+        $invoice->custom_surcharge1 = 10;
+        $invoice->custom_surcharge_tax1 = true;
+
+        $line_item = new InvoiceItem();
+        $line_item->quantity = 10;
+        $line_item->cost = 10;
+        $line_item->product_key = 'line1';
+        $line_item->notes = 'Test';
+        $line_item->tax_id = 1;
+        $line_item->tax_name1 = 'mwst';
+        $line_item->tax_rate1 = 19;
+
+        $invoice->line_items = [$line_item];
+        $invoice->save();
+
+        $calc = $invoice->calc();
+        $invoice = $calc->getInvoice();
+
+        $this->assertEquals(130.90, $invoice->amount);
+        $this->assertEquals(20.90, $calc->getTotalTaxes());
+    }
 
     public function testSurchargesAndTaxesExclusive()
     {

@@ -158,6 +158,42 @@ class TaxSummaryReportTest extends TestCase
         $this->account->delete();
     }
 
+    public function testAllTimeIncludesTaxRecordsBeforeTheFallbackDate(): void
+    {
+        $this->buildData();
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'number' => 'ALL-TIME-TAX',
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => '1999-01-01',
+            'discount' => 0,
+            'tax_name1' => 'GST',
+            'tax_rate1' => 10,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'uses_inclusive_taxes' => false,
+            'line_items' => $this->buildLineItems(),
+            'is_deleted' => false,
+        ]);
+        $invoice->calc()->getInvoice()->save();
+
+        $output = (new TaxSummaryReport($this->company, [
+            'date_range' => 'all_time',
+            'client_id' => $this->client->id,
+            'report_keys' => [],
+            'user_id' => $this->user->id,
+        ]))->run();
+
+        $this->assertStringContainsString('Invoice ALL-TIME-TAX', $output);
+
+        $this->account->delete();
+    }
+
     public function testCashTaxReport()
     {
         $this->buildData();
@@ -1080,6 +1116,7 @@ class TaxSummaryReportTest extends TestCase
 
     public function testMixedTaxableAndExemptLinesAreSplitWithoutInflatingGrossSales(): void
     {
+        $this->travelTo(\Carbon\Carbon::create(2026, 8, 15, 12, 0, 0, 'UTC'));
         $this->buildData();
 
         $taxable_item = InvoiceItemFactory::create();
@@ -1149,10 +1186,11 @@ class TaxSummaryReportTest extends TestCase
         $this->assertSame(110.0, $amount('cash_taxable_sales'));
         $this->assertSame(50.0, $amount('cash_exempt_sales'));
 
+        $this->travelBack();
         $this->account->delete();
     }
 
-    public function testInvoiceReversalIsReportedInCashSummaryAndProfitLoss(): void
+    public function testInvoiceReversalAdjustsCashSummaryWithoutRefundingProfitLossIncome(): void
     {
         $this->buildData();
         $this->travelTo(\Carbon\Carbon::create(2026, 1, 10, 12));
@@ -1213,8 +1251,21 @@ class TaxSummaryReportTest extends TestCase
         ]);
         $profit_loss->build();
 
-        $this->assertSame(-100.0, $profit_loss->getIncome());
-        $this->assertSame(-10.0, $profit_loss->getIncomeTaxes());
+        // Reversing the invoice unapplies the payment without refunding it.
+        $this->assertSame(0.0, $profit_loss->getIncome());
+        $this->assertSame(0.0, $profit_loss->getIncomeTaxes());
+
+        $january_profit_loss = new ProfitLoss($this->company, [
+            ...$payload,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'is_income_billed' => false,
+            'include_tax' => false,
+        ]);
+        $january_profit_loss->build();
+
+        $this->assertSame(100.0, $january_profit_loss->getIncome());
+        $this->assertSame(10.0, $january_profit_loss->getIncomeTaxes());
 
         $this->travelBack();
         $this->account->delete();

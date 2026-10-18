@@ -13,8 +13,8 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\DataMapper\Analytics\TrialStarted;
-use App\DataMapper\Billing\BillingContext;
 use App\Factory\RecurringInvoiceFactory;
+use App\Enum\BillingState;
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
 use App\Models\Account;
@@ -492,14 +492,15 @@ class NinjaPlanController extends Controller
         $account = Account::query()->where('key', $client->custom_value2)->firstOrFail();
         $this->assertTrialAccountPending($account);
 
-        $existingCheckpointId = $account->billing_context?->recurring_invoice_id;
+        $existingCheckpointId = $this->billingContextService()
+            ->context($account)
+            ->recurring_invoice_id;
 
         if ($existingCheckpointId && $existingCheckpointId !== $recurringInvoice->id) {
             throw new \RuntimeException('The trial checkpoint changed during provisioning.');
         }
 
         $this->setTrialBillingContext($account, $client->id, $recurringInvoice->id);
-        $account->save();
 
         $account = Account::query()->where('key', $client->custom_value2)->firstOrFail();
 
@@ -509,7 +510,7 @@ class NinjaPlanController extends Controller
             ]);
         }
 
-        if ($account->billing_context?->recurring_invoice_id !== $recurringInvoice->id) {
+        if ($this->billingContextService()->context($account)->recurring_invoice_id !== $recurringInvoice->id) {
             throw new \RuntimeException('Unable to persist the trial checkpoint.');
         }
 
@@ -561,10 +562,18 @@ class NinjaPlanController extends Controller
         int $clientId,
         int $recurringInvoiceId
     ): void {
-        $billingContext = $account->billing_context ?? new BillingContext();
-        $billingContext->client_id = $clientId;
-        $billingContext->recurring_invoice_id = $recurringInvoiceId;
-        $account->billing_context = $billingContext;
+        $service = $this->billingContextService();
+        $context = $service->context($account);
+        $context->billing_state = BillingState::Trial;
+        $context->client_id = $clientId;
+        $context->recurring_invoice_id = $recurringInvoiceId;
+
+        $service->set($account, $context);
+    }
+
+    private function billingContextService(): object
+    {
+        return app('InvoiceNinja\\AdminApi\\Services\\Accounting\\BillingContextService');
     }
 
     /**
@@ -625,7 +634,7 @@ class NinjaPlanController extends Controller
         Client $client,
         Subscription $subscription
     ): ?RecurringInvoice {
-        $billingContext = $account->billing_context;
+        $billingContext = $this->billingContextService()->context($account);
 
         if (! $billingContext || ! $billingContext->recurring_invoice_id) {
             return null;

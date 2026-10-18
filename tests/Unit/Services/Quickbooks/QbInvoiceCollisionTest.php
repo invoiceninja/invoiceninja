@@ -12,6 +12,7 @@
 
 namespace Tests\Unit\Services\Quickbooks;
 
+use App\DataMapper\ClientSync;
 use App\DataMapper\InvoiceSync;
 use App\DataMapper\QuickbooksSettings;
 use App\Enum\InvoiceQbStatus;
@@ -90,8 +91,19 @@ class QbInvoiceCollisionTest extends TestCase
         $reflected_property->setValue($qb_invoice, $value);
     }
 
+    private function linkClientToQuickbooks(string $qb_id): void
+    {
+        $sync = $this->client->sync ?? new ClientSync();
+        $sync->qb_id = $qb_id;
+        $this->client->sync = $sync;
+        $this->client->saveQuietly();
+        $this->client->refresh();
+    }
+
     public function testFlagNumberCollisionSetsLinkableWhenAmountsMatch(): void
     {
+        $this->linkClientToQuickbooks('QB-CUSTOMER-1');
+
         $invoice = Invoice::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -107,6 +119,7 @@ class QbInvoiceCollisionTest extends TestCase
             'DocNumber' => 'INV-COLLIDE-1',
             'TotalAmt' => 250.00,
             'SyncToken' => '3',
+            'CustomerRef' => 'QB-CUSTOMER-1',
         ];
 
         $this->invoke($qb_invoice, 'flagNumberCollision', [$invoice, $qb_record]);
@@ -148,6 +161,150 @@ class QbInvoiceCollisionTest extends TestCase
         $this->assertStringContainsString('200', $invoice->sync->qb_status_message);
     }
 
+    public function testFlagNumberCollisionSetsDataMismatchWhenCustomerDiffers(): void
+    {
+        $this->linkClientToQuickbooks('QB-CUSTOMER-A');
+
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-COLLIDE-CUSTOMER',
+            'amount' => 250.00,
+            'balance' => 250.00,
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $qb_record = (object) [
+            'Id' => '777',
+            'DocNumber' => 'INV-COLLIDE-CUSTOMER',
+            'TotalAmt' => 250.00,
+            'CustomerRef' => 'QB-CUSTOMER-B',
+        ];
+
+        $this->invoke($qb_invoice, 'flagNumberCollision', [$invoice, $qb_record]);
+
+        $invoice = $invoice->fresh();
+        $this->assertSame('', $invoice->sync->qb_id);
+        $this->assertSame(InvoiceQbStatus::DataMismatch->value, $invoice->sync->qb_status);
+        $this->assertStringContainsString('customer does not match', $invoice->sync->qb_status_message);
+    }
+
+    public function testFlagNumberCollisionSetsDataMismatchWhenClientHasNoQbId(): void
+    {
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-COLLIDE-UNLINKED-CLIENT',
+            'amount' => 250.00,
+            'balance' => 250.00,
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $qb_record = (object) [
+            'Id' => '776',
+            'DocNumber' => 'INV-COLLIDE-UNLINKED-CLIENT',
+            'TotalAmt' => 250.00,
+            'CustomerRef' => 'QB-CUSTOMER-A',
+        ];
+
+        $this->invoke($qb_invoice, 'flagNumberCollision', [$invoice, $qb_record]);
+
+        $invoice = $invoice->fresh();
+        $this->assertSame(InvoiceQbStatus::DataMismatch->value, $invoice->sync->qb_status);
+        $this->assertStringContainsString('customer does not match', $invoice->sync->qb_status_message);
+    }
+
+    public function testForceLinkRefusesWhenCustomerDiffers(): void
+    {
+        $this->linkClientToQuickbooks('QB-CUSTOMER-A');
+
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-FORCE-LINK-CUSTOMER',
+            'amount' => 100.00,
+            'balance' => 100.00,
+        ]);
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('query')
+            ->once()
+            ->with("select * from Invoice where DocNumber = 'INV-FORCE-LINK-CUSTOMER'")
+            ->andReturn((object) [
+                'Id' => 'QB-OTHER-CUSTOMER',
+                'DocNumber' => 'INV-FORCE-LINK-CUSTOMER',
+                'TotalAmt' => 100.00,
+                'CustomerRef' => (object) ['value' => 'QB-CUSTOMER-B'],
+            ]);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        try {
+            $qb_invoice->forceLink($invoice);
+            $this->fail('Expected force-link to refuse a different QuickBooks customer.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('QuickBooks invoice belongs to a different customer; cannot force-link.', $e->getMessage());
+        }
+
+        $invoice = $invoice->fresh();
+        $this->assertSame($this->client->id, $invoice->client_id);
+        $this->assertSame('', (string) ($invoice->sync->qb_id ?? ''));
+        $this->assertSame(InvoiceQbStatus::DataMismatch->value, $invoice->sync->qb_status);
+    }
+
+    public function testForceLinkSucceedsWhenCustomerMatches(): void
+    {
+        $this->linkClientToQuickbooks('QB-CUSTOMER-A');
+
+        $invoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'number' => 'INV-FORCE-LINK-MATCH',
+            'amount' => 100.00,
+            'balance' => 100.00,
+            'status_id' => Invoice::STATUS_SENT,
+        ]);
+
+        $qb_record = (object) [
+            'Id' => 'QB-SAME-CUSTOMER',
+            'DocNumber' => 'INV-FORCE-LINK-MATCH',
+            'TotalAmt' => 100.00,
+            'SyncToken' => '2',
+            'CustomerRef' => 'QB-CUSTOMER-A',
+        ];
+
+        $qb_invoice = $this->makeQbInvoice();
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('query')
+            ->once()
+            ->with("select * from Invoice where DocNumber = 'INV-FORCE-LINK-MATCH'")
+            ->andReturn($qb_record);
+        $this->setSdkWrapper($qb_invoice, $sdk);
+
+        $transformer = Mockery::mock(InvoiceTransformer::class);
+        $transformer->shouldReceive('qbToNinja')
+            ->once()
+            ->with($qb_record, $qb_invoice->service)
+            ->andReturn([
+                'id' => 'QB-SAME-CUSTOMER',
+                'client_id' => $this->client->id,
+                'number' => 'INV-FORCE-LINK-MATCH',
+                'balance' => 100.00,
+                'payment_ids' => [],
+            ]);
+        $this->setQbInvoiceProperty($qb_invoice, 'invoice_transformer', $transformer);
+
+        $linked = $qb_invoice->forceLink($invoice);
+
+        $this->assertSame($this->client->id, $linked->client_id);
+        $this->assertSame('QB-SAME-CUSTOMER', $linked->sync->qb_id);
+        $this->assertSame(InvoiceQbStatus::Synced->value, $linked->sync->qb_status);
+    }
+
     public function testFlagNumberCollisionIsNoOpWhenQbIdAlreadySet(): void
     {
         $invoice = Invoice::factory()->create([
@@ -181,6 +338,8 @@ class QbInvoiceCollisionTest extends TestCase
 
     public function testHandlePullNumberCollisionSkipsCreateAndFlagsExisting(): void
     {
+        $this->linkClientToQuickbooks('QB-CUSTOMER-1');
+
         $existing = Invoice::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -200,6 +359,7 @@ class QbInvoiceCollisionTest extends TestCase
             'Id' => '555',
             'DocNumber' => 'INV-PULL-1',
             'TotalAmt' => 75.50,
+            'CustomerRef' => 'QB-CUSTOMER-1',
         ];
 
         $skipped = $this->invoke($qb_invoice, 'handlePullNumberCollision', [

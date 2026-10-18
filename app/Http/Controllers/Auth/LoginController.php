@@ -28,6 +28,7 @@ use Illuminate\Http\JsonResponse;
 use PragmaRX\Google2FA\Google2FA;
 use App\Jobs\Account\CreateAccount;
 use App\Events\User\UserLoginFailed;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\Traits\User\LoginCache;
 use Illuminate\Support\Facades\Cache;
@@ -46,7 +47,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
 use App\Utils\Traits\UserSessionAttributes;
-use App\Transformers\CompanyUserTransformer;
+use App\Transformers\AuthenticatedCompanyUserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends BaseController
@@ -57,11 +58,10 @@ class LoginController extends BaseController
 
     protected $entity_type = CompanyUser::class;
 
-    protected $entity_transformer = CompanyUserTransformer::class;
+    protected $entity_transformer = AuthenticatedCompanyUserTransformer::class;
 
     /**
-     * Constant response-time floor (milliseconds) for the precheck endpoint,
-     * used to prevent account existence leaking through lookup timing.
+     * Prevents account existence leaking through lookup timing.
      */
     private const PRECHECK_TIME_FLOOR_MS = 250;
 
@@ -83,34 +83,6 @@ class LoginController extends BaseController
     }
 
     /**
-     * validateLogin
-     *
-     * @param  LoginRequest $request
-     * @return void
-     */
-    protected function validateLogin(LoginRequest $request)
-    {
-        $request->validate([
-            $this->username() => 'required|string',
-            'password' => 'required_without:passkey_challenge_token|string',
-        ]);
-    }
-
-    /**
-     * Once the user is authenticated, we need to set
-     * the default company into a session variable.
-     *
-     * @param Request $request
-     * @param User $user
-     * @return void
-     * @deprecated .1 API ONLY we don't need to set any session variables
-     */
-    public function authenticated(Request $request, User $user): void
-    {
-        //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
-    }
-
-    /**
      * Login via API.
      *
      * @param LoginRequest $request The request
@@ -120,18 +92,17 @@ class LoginController extends BaseController
     {
         $this->forced_includes = ['company_users'];
 
-        $this->validateLogin($request);
-
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
             return $this->loginErrorResponse('Too many login attempts, you are being throttled', 401);
         }
 
-        /** Granular control - if we use passkeys and 2fa is also enabled - need to bypass 2fa */
-        $passkeyResult = $this->attemptPasskeyLogin($request);
-        $viaPasskey    = $passkeyResult === true;
-        $authenticated = $passkeyResult ?? $this->attemptLogin($request);
+        $via_passkey = $request->isPasskeyLogin();
+
+        $authenticated = $via_passkey
+            ? $this->attemptPasskeyLogin($request)
+            : $this->attemptLogin($request);
 
         if (!$authenticated) {
             return $this->handleFailedLogin($request);
@@ -142,8 +113,8 @@ class LoginController extends BaseController
         /** @var \App\Models\User $user */
         $user = $this->guard()->user();
 
-        if (!$viaPasskey && $errorResponse = $this->verifyTwoFactor($user, $request)) {
-            return $errorResponse;
+        if (!$via_passkey && $error_response = $this->verifyTwoFactor($user, $request)) {
+            return $error_response;
         }
 
         return $this->finalizeLogin($user, $request);
@@ -155,15 +126,6 @@ class LoginController extends BaseController
      * This unauthenticated endpoint lets the client render the correct login UI
      * (e.g. reveal the one-time-password field) before the user submits a
      * password, so credentials only need to be transmitted once.
-     *
-     * It is deliberately enumeration-resistant: a non-existent account and an
-     * existing account without two-factor authentication return a byte-for-byte
-     * identical payload ({"methods":["password"]}). The presence of "totp" is the
-     * only distinguishable signal, and disclosing that an account is protected by
-     * 2FA does not meaningfully help an attacker, since a 2FA-protected account
-     * cannot be breached by a password alone. Accounts that lack 2FA are therefore
-     * indistinguishable from unknown emails and cannot be harvested as a
-     * credential-stuffing target list.
      *
      * Passkeys and OAuth/SSO are intentionally omitted from this payload; passkeys
      * are surfaced out-of-band through the WebAuthn conditional-UI ceremony so they
@@ -194,73 +156,47 @@ class LoginController extends BaseController
         ], 200);
     }
 
-    /**
-     * Pad the precheck response to a constant time floor.
-     *
-     * The multi-database lookup short-circuits as soon as the account is found,
-     * so a hit (early database) and a miss (every database scanned) would
-     * otherwise be distinguishable by response timing — re-leaking the account
-     * existence the uniform payload is designed to conceal. Sleeping out the
-     * remainder of the floor collapses that timing difference.
-     *
-     * @param  float  $started_at  The microtime(true) captured at handler entry.
-     * @return void
-     */
-    private function equalizePrecheckResponseTime(float $started_at): void
-    {
-        $elapsed_ms = (microtime(true) - $started_at) * 1000;
-        $remaining_ms = self::PRECHECK_TIME_FLOOR_MS - $elapsed_ms;
-
-        if ($remaining_ms > 0) {
-            usleep((int) ($remaining_ms * 1000));
-        }
-    }
 
     /**
      * Attempt to authenticate the user via WebAuthn passkey credentials.
      *
-     * Uses a tri-state return to signal the outcome:
-     *  - null  – the request is not a passkey attempt (password present or no challenge token),
-     *            so the caller should fall through to password-based authentication.
-     *  - true  – passkey authentication succeeded and the user has been logged in via Auth::login().
-     *  - false – passkey authentication was attempted but failed (bad credential, expired challenge, etc.).
-     *
-     * The method resolves the user through MultiDB::hasUser() to support multi-tenant lookups
-     * and delegates cryptographic verification to PasskeyService::authenticate().
+     * The request is already classified as a passkey login by LoginRequest.
+     * This method resolves the user through MultiDB::hasUser() and delegates
+     * cryptographic verification to PasskeyService::authenticate().
      *
      * @param  LoginRequest  $request
-     * @return bool|null
+     * @return bool
      */
-    private function attemptPasskeyLogin(LoginRequest $request): ?bool
+    private function attemptPasskeyLogin(LoginRequest $request): bool
     {
-        if ($request->filled('password') || !$request->filled('passkey_challenge_token')) {
-            return null;
-        }
-
-        $passkeyPayload = $request->input('passkey_authentication');
-
-        if (!is_array($passkeyPayload)) {
-            return null;
-        }
-
-        $user = MultiDB::hasUser(['email' => $request->input('email'), 'is_deleted' => 0, 'deleted_at' => null]);
+        $user = MultiDB::hasUser([
+            'email' => $request->input('email'),
+            'is_deleted' => 0,
+            'deleted_at' => null,
+        ]);
 
         if (!$user) {
             return false;
         }
 
         try {
-            $passkeyService = app(PasskeyService::class);
-            $passkeyUser = $passkeyService->authenticate($user, (string) $request->input('passkey_challenge_token'), $passkeyPayload);
-            Auth::login($passkeyUser, false);
+            /** @var array $passkey_authentication */
+            $passkey_authentication = $request->input('passkey_authentication');
+
+            $passkey_user = app(PasskeyService::class)->authenticate(
+                $user,
+                (string) $request->input('passkey_challenge_token'),
+                $passkey_authentication,
+            );
+
+            Auth::login($passkey_user, false);
 
             return true;
         } catch (\Throwable $e) {
+            nlog('Passkey login failed: '.$e->getMessage());
 
             return false;
         }
-
-
     }
 
     /**
@@ -289,7 +225,7 @@ class LoginController extends BaseController
 
         $google2fa = new Google2FA();
 
-        if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
+        if (!$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
             return $this->loginErrorResponse(ctrans('texts.invalid_one_time_password'), 422);
         }
 
@@ -319,8 +255,6 @@ class LoginController extends BaseController
             $user = $user->fresh();
         }
 
-        nlog("LOGIN:: {$request->email} - {$user->account_id}");
-
         /** @var \Illuminate\Database\Eloquent\Builder $cu */
         $cu = $this->hydrateCompanyUser($user);
 
@@ -329,7 +263,7 @@ class LoginController extends BaseController
         }
 
         if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
-            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 401);
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade.'], 401);
         }
 
         event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
@@ -339,10 +273,6 @@ class LoginController extends BaseController
 
     /**
      * Handle a failed login attempt by recording analytics, firing events, and throttling.
-     *
-     * Logs a LoginFailure metric, records a LoginMeta entry with the client IP,
-     * dispatches the UserLoginFailed event for listeners (e.g. lockout notifications),
-     * increments the throttle counter, and returns a 401 JSON error response.
      *
      * @param  LoginRequest  $request  The failed login request.
      * @return JsonResponse            A 401 error response with invalid credentials message.
@@ -426,13 +356,8 @@ class LoginController extends BaseController
 
     public function refreshReact(Request $request)
     {
-        $truth = app()->make(TruthSource::class);
-
-        if ($truth->getCompanyToken()) {
-            $company_token = $truth->getCompanyToken();
-        } else {
-            $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
-        }
+        $company_token = app(TruthSource::class)->getCompanyToken()
+            ?? CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
             ->where('user_id', $company_token->user_id);
@@ -441,9 +366,9 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu->each(function ($company_user) use ($request) {
+            if ($company_user->tokens()->where('company_id', $company_user->company_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
 
@@ -466,13 +391,8 @@ class LoginController extends BaseController
      */
     public function refresh(Request $request)
     {
-        $truth = app()->make(TruthSource::class);
-
-        if ($truth->getCompanyToken()) {
-            $company_token = $truth->getCompanyToken();
-        } else {
-            $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
-        }
+        $company_token = app(TruthSource::class)->getCompanyToken()
+            ?? CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
             ->where('user_id', $company_token->user_id);
@@ -481,9 +401,9 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu->each(function ($company_user) use ($request) {
+            if ($company_user->tokens()->where('company_id', $company_user->company_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
 
@@ -564,7 +484,7 @@ class LoginController extends BaseController
         ];
 
         if ($existing_user = MultiDB::hasUser($query)) {
-            if (!$existing_user->account) {
+            if (!$existing_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -584,7 +504,7 @@ class LoginController extends BaseController
         }
         //If this is a result user/email combo - lets add their OAuth details details
         if ($existing_login_user = MultiDB::hasUser(['email' => $user->email])) {
-            if (!$existing_login_user->account) {
+            if (!$existing_login_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -602,7 +522,7 @@ class LoginController extends BaseController
                 'oauth_provider_id' => $provider,
             ]);
 
-            
+
             $cu = $this->hydrateCompanyUser($existing_login_user);
 
             if ($cu->count() == 0) {
@@ -649,7 +569,7 @@ class LoginController extends BaseController
         // $account_user->email_verified_at = now();
         // $account_user->save();
 
-        
+
         $cu = $this->hydrateCompanyUser($account_user);
 
         if ($cu->count() == 0) {
@@ -693,7 +613,7 @@ class LoginController extends BaseController
 
         //21-03-2024
         $cu->each(function ($cu) {
-            
+
             if (CompanyToken::query()->where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) { //@phpstan-ignore-line
                 (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle(); //@phpstan-ignore-line
             }
@@ -709,29 +629,29 @@ class LoginController extends BaseController
     private function handleMicrosoftOauth()
     {
         if (request()->has('accessToken')) {
-            $accessToken = request()->input('accessToken');
+            $access_token = request()->input('accessToken');
         } elseif (request()->has('access_token')) {
-            $accessToken = request()->input('access_token');
+            $access_token = request()->input('access_token');
         } else {
             return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
         }
 
-        $expectedClientId = config('services.microsoft.client_id');
+        $expected_client_id = config('services.microsoft.client_id');
 
-        if ($expectedClientId) {
-            $parts = explode('.', $accessToken);
+        if ($expected_client_id) {
+            $parts = explode('.', $access_token);
             if (count($parts) === 3) {
                 $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
-                $tokenClientId = $payload['appid'] ?? $payload['azp'] ?? null;
+                $token_client_id = $payload['appid'] ?? $payload['azp'] ?? null;
 
-                if ($tokenClientId !== $expectedClientId) {
+                if ($token_client_id !== $expected_client_id) {
                     return response()->json(['message' => 'Invalid Microsoft token: audience mismatch.'], 403);
                 }
             }
         }
 
         $graph = new \Microsoft\Graph\Graph();
-        $graph->setAccessToken($accessToken);
+        $graph->setAccessToken($access_token);
 
         $user = $graph->createRequest('GET', '/me')
             ->setReturnType(Model\User::class)
@@ -794,7 +714,7 @@ class LoginController extends BaseController
     {
         Auth::login($existing_user, false);
 
-        
+
         $cu = $this->hydrateCompanyUser($existing_user);
 
         if ($cu->count() == 0) {
@@ -812,9 +732,6 @@ class LoginController extends BaseController
 
     private function existingLoginUser($user)
     {
-
-
-        
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
@@ -926,7 +843,7 @@ class LoginController extends BaseController
 
         Auth::login($user, false);
 
-        
+
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
@@ -956,16 +873,34 @@ class LoginController extends BaseController
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
         }
 
+        if ($provider == 'oidc') {
+            if (!config('services.oidc.issuer')) {
+                return abort(404, 'OIDC provider is not configured');
+            }
+
+            $scopes = array_values(array_filter(explode(' ', (string) config('services.oidc.scopes', 'openid profile email'))));
+            $parameters = ['response_type' => 'code', 'redirect_uri' => config('services.oidc.redirect')];
+        }
+
         if (request()->hasHeader('X-REACT') || request()->query('react')) {
             /**@var \App\Models\User $user */
             $user = auth()->user();
             Cache::put("react_redir:" . $user?->account->key, 'true', 300);
         }
 
+        // The IdP redirects back with `?error=...` when the user cancels or
+        // consent fails. Short-circuit here so we never fall through to
+        // Socialite::redirect() again, which would bounce the browser
+        // straight back to the IdP and loop.
+        if (request()->has('error')) {
+            nlog('OAuth provider returned error: ' . request()->query('error'));
+            return response()->json(['message' => 'OAuth sign-in was cancelled or failed.'], 400);
+        }
+
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            if (!in_array($provider, ['google', 'microsoft'])) {
+            if (!in_array($provider, ['google', 'microsoft', 'oidc'])) {
                 return abort(400, 'Invalid provider');
             }
 
@@ -977,6 +912,10 @@ class LoginController extends BaseController
     {
         if ($provider == 'microsoft') {
             return $this->handleMicrosoftProviderCallback();
+        }
+
+        if ($provider == 'oidc') {
+            return $this->handleOidcProviderCallback();
         }
 
         $socialite_user = Socialite::driver($provider)->user();
@@ -1022,6 +961,151 @@ class LoginController extends BaseController
         return redirect($redirect_url);
     }
 
+    /**
+     * Publicly report whether generic OIDC SSO is configured on this
+     * self-hosted instance so the React login page can conditionally
+     * show a "Sign in with <label>" button.
+     *
+     * Returns { oidc_enabled: bool, oidc_provider_label: string }.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oidcConfig()
+    {
+        return response()->json([
+            'oidc_enabled' => !empty(config('services.oidc.client_id')) && !empty(config('services.oidc.issuer')),
+            'oidc_provider_label' => config('services.oidc.provider_label', 'OIDC'),
+        ]);
+    }
+
+    /**
+     * Handle the browser callback from a generic OIDC identity provider.
+     *
+     * Signs in an existing user matched by (sub, provider) or by a
+     * one-time email link. Never provisions a new account — OIDC on
+     * self-hosted is treated as a sign-in path for accounts that already
+     * exist, not a self-service signup path.
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function handleOidcProviderCallback()
+    {
+        try {
+            /** @var \Laravel\Socialite\Two\User $socialite_user */
+            $socialite_user = Socialite::driver('oidc')->user();
+        } catch (\Throwable $e) {
+            nlog('OIDC callback failed: ' . $e->getMessage());
+            return response()->json(['message' => 'OIDC sign-in failed.'], 400);
+        }
+
+        if (!$socialite_user || !$socialite_user->getId()) { //@phpstan-ignore-line
+            return response()->json(['message' => 'OIDC sign-in failed: missing subject identifier.'], 400);
+        }
+
+        $user = MultiDB::hasUser([
+            'oauth_user_id' => $socialite_user->getId(),
+            'oauth_provider_id' => 'oidc',
+        ]);
+
+        // Fall back to a one-time email link for accounts provisioned
+        // outside of OIDC. Only link when:
+        //  * the IdP asserts email_verified: true — otherwise an attacker
+        //    who can register an unverified account at the IdP under a
+        //    victim's address could take over the matching local account;
+        //  * the local account has no other OAuth provider attached, to
+        //    avoid silently hijacking a google/microsoft linkage.
+        $raw = $socialite_user->getRaw();
+        $email_verified = ($raw['email_verified'] ?? false) === true;
+
+        if (!$user && $email_verified && $socialite_user->getEmail()) {
+            $email_user = MultiDB::hasUser(['email' => $socialite_user->getEmail()]);
+
+            if ($email_user && (!$email_user->oauth_provider_id || $email_user->oauth_provider_id === 'oidc')) {
+                $email_user->update([
+                    'oauth_user_id' => $socialite_user->getId(),
+                    'oauth_provider_id' => 'oidc',
+                ]);
+                $user = $email_user;
+            }
+        }
+
+        if (!$user) {
+            return response()->json(['message' => 'No Invoice Ninja account is linked to this OIDC identity. Ask an administrator to invite you first.'], 400);
+        }
+
+        if (!$user->account) {
+            return response()->json(['message' => 'User exists but is not attached to any company.'], 400);
+        }
+
+        Auth::login($user, false);
+
+        $cu = $this->hydrateCompanyUser($user);
+
+        if ($cu->count() == 0) {
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+        }
+
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+        }
+
+        $name = OAuth::splitName($socialite_user->getName() ?? '');
+        $user->update([
+            'first_name' => $user->first_name ?: $name[0],
+            'last_name' => $user->last_name ?: $name[1],
+        ]);
+
+        $company_token = app(TruthSource::class)->getCompanyToken();
+
+        if (!$company_token) {
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+        }
+
+        event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars($user->id)));
+
+        // Never place the CompanyToken in the redirect URL — it would land
+        // in browser history, Referer headers, and any HTTP access log
+        // between the IdP and the SPA. Instead stash the token behind a
+        // one-shot random exchange code with a 60s TTL, and hand the SPA
+        // only the code; the SPA calls POST /api/v1/oidc/exchange to swap
+        // it for the real token exactly once.
+        $exchange_code = Str::random(64);
+        Cache::put('oidc.exchange.' . $exchange_code, $company_token->token, now()->addSeconds(60));
+
+        return redirect(config('ninja.react_url') . '/oauth-callback?code=' . $exchange_code);
+    }
+
+    /**
+     * One-shot exchange of a short-lived OIDC callback code for the real
+     * CompanyToken issued during `handleOidcProviderCallback`.
+     *
+     * The React SPA POSTs the `code` query-string value it received on the
+     * `/oauth-callback` landing page; we `Cache::pull` the value so the
+     * code cannot be replayed. Codes are 64-char random strings and expire
+     * in 60 seconds, so an attacker with a leaked code has a tiny window
+     * that closes on first legitimate use.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oidcExchange(Request $request)
+    {
+        $code = (string) $request->input('code', '');
+
+        // Fixed-length guard rejects trivially short guesses without giving
+        // any information about which specific codes are live.
+        if (strlen($code) !== 64) {
+            return response()->json(['message' => 'Invalid OIDC exchange code.'], 400);
+        }
+
+        $token = Cache::pull('oidc.exchange.' . $code);
+
+        if (!$token) {
+            return response()->json(['message' => 'OIDC exchange code is expired or already used.'], 400);
+        }
+
+        return response()->json(['token' => $token]);
+    }
+
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
     {
         try{
@@ -1056,11 +1140,29 @@ class LoginController extends BaseController
         catch(\Throwable $e){
             nlog("Error in handleMicrosoftProviderCallback: " . $e->getMessage());
         }
-        
+
         $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);
 
         // return redirect('/#/');
     }
+
+    /**
+     * Pad the precheck response to a constant time floor.
+     *
+     * @param  float  $started_at  The microtime(true) captured at handler entry.
+     * @return void
+     */
+    private function equalizePrecheckResponseTime(float $started_at): void
+    {
+        $elapsed_ms = (microtime(true) - $started_at) * 1000;
+        $remaining_ms = self::PRECHECK_TIME_FLOOR_MS - $elapsed_ms;
+
+        if ($remaining_ms > 0) {
+            usleep((int) ($remaining_ms * 1000));
+        }
+    }
+
+
 }

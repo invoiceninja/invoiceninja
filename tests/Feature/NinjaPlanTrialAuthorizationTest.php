@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\DataMapper\Billing\BillingContext;
+use App\Enum\BillingState;
 use App\Http\Controllers\ClientPortal\NinjaPlanController;
 use App\Models\Account;
 use App\Models\Client;
@@ -18,6 +19,7 @@ use Illuminate\Session\Store;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
+use InvoiceNinja\AdminApi\Services\Accounting\BillingContextService;
 use ReflectionMethod;
 use Stripe\Exception\ApiConnectionException;
 use Stripe\PaymentIntent;
@@ -26,6 +28,13 @@ use Tests\TestCase;
 
 class NinjaPlanTrialAuthorizationTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->app->instance(BillingContextService::class, new AuthorizationBillingContextService());
+    }
+
     public function test_exact_one_dollar_credit_card_authorization_is_valid(): void
     {
         $this->assertTrue($this->validateAuthorization(
@@ -300,6 +309,7 @@ class NinjaPlanTrialAuthorizationTest extends TestCase
 
         $this->assertSame(30, $account->billing_context->client_id);
         $this->assertSame(40, $account->billing_context->recurring_invoice_id);
+        $this->assertSame(BillingState::Trial, $account->billing_context->billing_state);
         $this->assertSame(
             ['plan_price' => 14, 'docuninja_price' => 8],
             $account->billing_context->pricing
@@ -552,6 +562,19 @@ class NinjaPlanTrialAuthorizationTest extends TestCase
                 'funding' => $funding,
             ],
         ], $overrides));
+    }
+}
+
+class AuthorizationBillingContextService
+{
+    public function context(Account $account): BillingContext
+    {
+        return $account->billing_context ?? new BillingContext();
+    }
+
+    public function set(Account $account, BillingContext $context): void
+    {
+        $account->billing_context = $context;
     }
 }
 

@@ -262,5 +262,29 @@
           description: 'The unique identifier of the vendor associated with this recurring invoice'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
       type: object
       

@@ -21,6 +21,7 @@ use App\Utils\Traits\MakesHash;
 use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\PayFast\Token;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use App\PaymentDrivers\PayFast\CreditCard;
 use App\PaymentDrivers\PayFast\PaymentCompletedWebhook;
 use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
@@ -72,6 +73,47 @@ class PayFastPaymentDriver extends BaseDriver
     public function init()
     {
         return $this;
+    }
+
+    /**
+     * Validate the merchant ID and passphrase against PayFast's API PING endpoint.
+     *
+     * PayFast does not include the checkout merchant key in API signatures, so it
+     * can only be checked for presence here. The signed PING validates the API
+     * credentials without creating or changing any payment data.
+     */
+    public function auth(): string
+    {
+        $merchantId = trim((string) $this->company_gateway->getConfigField('merchantId'));
+        $merchantKey = trim((string) $this->company_gateway->getConfigField('merchantKey'));
+        $passphrase = trim((string) $this->company_gateway->getConfigField('passphrase'));
+
+        if ($merchantId === '' || $merchantKey === '' || $passphrase === '') {
+            return 'error';
+        }
+
+        $headers = [
+            'merchant-id' => $merchantId,
+            'version' => 'v1',
+            'timestamp' => now()->format('Y-m-d\TH:i:sO'),
+        ];
+
+        $headers['signature'] = \PayFast\Auth::generateApiSignature($headers, $passphrase);
+
+        try {
+            $response = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders($headers)
+                ->acceptJson()
+                ->timeout(15)
+                ->get(
+                    'https://api.payfast.co.za/ping',
+                    $this->company_gateway->getConfigField('testMode') ? ['testing' => 'true'] : []
+                );
+
+            return $response->successful() ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     public function setPaymentMethod($payment_method_id)

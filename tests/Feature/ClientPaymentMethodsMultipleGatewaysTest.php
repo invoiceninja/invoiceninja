@@ -21,10 +21,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * Regression: PaymentMethod::getMethods() previously collapsed every CREDIT_CARD
- * gateway to the first entry via intersectByKeys(flatten(1)->unique()), so
- * Authorize/Checkout never appeared in the portal Pay Now dropdown when Stripe
- * was also configured.
+ * Regression coverage for companies with multiple credit card gateways.
  */
 class ClientPaymentMethodsMultipleGatewaysTest extends TestCase
 {
@@ -48,48 +45,44 @@ class ClientPaymentMethodsMultipleGatewaysTest extends TestCase
             fn (CompanyGateway $cg) => $cg->forceDelete()
         );
 
-        $this->createGateway(self::STRIPE_KEY, config('ninja.testvars.stripe'));
-        $this->createGateway(self::CHECKOUT_KEY, [
+        $stripe = $this->createGateway(self::STRIPE_KEY, config('ninja.testvars.stripe'));
+        $checkout = $this->createGateway(self::CHECKOUT_KEY, [
             'publicApiKey' => 'pk_test_checkout',
             'secretApiKey' => 'sk_test_checkout',
             'testMode' => true,
         ]);
-        $this->createGateway(self::AUTHORIZE_KEY, [
+        $authorize = $this->createGateway(self::AUTHORIZE_KEY, [
             'apiLoginId' => 'login',
             'transactionKey' => 'trans',
             'testMode' => true,
             'developerMode' => true,
         ]);
+
+        $settings = $this->client->settings;
+        $settings->company_gateway_ids = implode(',', [
+            $stripe->hashed_id,
+            $checkout->hashed_id,
+            $authorize->hashed_id,
+        ]);
+        $this->client->settings = $settings;
+        $this->client->save();
     }
 
-    public function testPayNowOffersEveryEnabledCreditCardGateway(): void
+    public function testPayNowOffersOnlyTheFirstEnabledCreditCardGateway(): void
     {
         $methods = collect($this->client->fresh()->service()->getPaymentMethods(42.0));
+        $credit_card_methods = $methods
+            ->where('gateway_type_id', GatewayType::CREDIT_CARD)
+            ->values();
 
-        $this->assertTrue(
-            $methods->contains(
-                fn (array $method) => $method['gateway_key'] === self::STRIPE_KEY
-                    && (int) $method['gateway_type_id'] === GatewayType::CREDIT_CARD
-            )
-        );
-        $this->assertTrue(
-            $methods->contains(
-                fn (array $method) => $method['gateway_key'] === self::CHECKOUT_KEY
-                    && (int) $method['gateway_type_id'] === GatewayType::CREDIT_CARD
-            )
-        );
-        $this->assertTrue(
-            $methods->contains(
-                fn (array $method) => $method['gateway_key'] === self::AUTHORIZE_KEY
-                    && (int) $method['gateway_type_id'] === GatewayType::CREDIT_CARD
-            )
-        );
+        $this->assertCount(1, $credit_card_methods);
+        $this->assertSame(self::STRIPE_KEY, $credit_card_methods->first()['gateway_key']);
     }
 
     /**
      * @param  array<string, mixed>|string  $config
      */
-    private function createGateway(string $gatewayKey, array|string $config): void
+    private function createGateway(string $gatewayKey, array|string $config): CompanyGateway
     {
         $fees = new FeesAndLimits();
         $fees->is_enabled = true;
@@ -107,5 +100,7 @@ class ClientPaymentMethodsMultipleGatewaysTest extends TestCase
             GatewayType::CREDIT_CARD => $fees,
         ];
         $cg->save();
+
+        return $cg;
     }
 }

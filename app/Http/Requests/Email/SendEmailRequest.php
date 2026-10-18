@@ -12,15 +12,30 @@
 
 namespace App\Http\Requests\Email;
 
-use App\Utils\Ninja;
-use Illuminate\Support\Str;
 use App\Http\Requests\Request;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
 class SendEmailRequest extends Request
 {
     use MakesHash;
+
+    private const ENTITY_CLASSES = [
+        'invoice' => Invoice::class,
+        'quote' => Quote::class,
+        'credit' => Credit::class,
+        'recurring_invoice' => RecurringInvoice::class,
+        'purchase_order' => PurchaseOrder::class,
+        'purchaseOrder' => PurchaseOrder::class,
+        'payment' => Payment::class,
+    ];
 
     private string $entity_plural = 'invoices';
 
@@ -57,21 +72,21 @@ class SendEmailRequest extends Request
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
         return [
             'template' => 'bail|required|string|in:' . implode(',', $this->templates),
-            'entity' => 'bail|required|in:App\Models\Invoice,App\Models\Quote,App\Models\Credit,App\Models\RecurringInvoice,App\Models\PurchaseOrder,App\Models\Payment',
+            'entity' => ['bail', 'required', Rule::in(self::ENTITY_CLASSES)],
             'entity_id' => ['bail', 'required', Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
             'cc_email.*' => 'bail|sometimes|email',
         ];
 
     }
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
         $input = $this->all();
 
@@ -92,17 +107,17 @@ class SendEmailRequest extends Request
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
         }
 
-        if (isset($input['entity']) && in_array($input['entity'], ['invoice','quote','credit','recurring_invoice','purchase_order','payment','purchaseOrder'])) {
-            $this->entity_plural = Str::plural($input['entity']) ?? '';
-            $input['entity'] = "App\Models\\" . ucfirst(Str::camel($input['entity']));
-        }
+        if (isset($input['entity'])) {
+            $entity_class = self::ENTITY_CLASSES[$input['entity']] ?? $input['entity'];
 
-        if (isset($input['entity']) && $input['entity'] == 'purchaseOrder') {
-            $this->entity_plural = "purchase_orders";
+            if (in_array($entity_class, self::ENTITY_CLASSES, true)) {
+                $input['entity'] = $entity_class;
+                $this->entity_plural = (new $entity_class())->getTable();
+            }
         }
 
         /** just in case an array is passed back from the fronted, gracefully handle it. */
-        if(isset($input['cc_email']) && is_array($input['cc_email'])) {
+        if (isset($input['cc_email']) && is_array($input['cc_email'])) {
             $input['cc_email'] = implode(',', $input['cc_email']);
         }
 
@@ -133,7 +148,7 @@ class SendEmailRequest extends Request
         if ($validator->errors()->isNotEmpty()) {
             return;
         }
-        
+
         $validator->after(function (\Illuminate\Validation\Validator $validator) {
             /** @var \App\Models\User $user */
             $user = auth()->user();
@@ -150,18 +165,31 @@ class SendEmailRequest extends Request
                 $validator->errors()->add('error', ctrans('texts.email_quota_exceeded_subject'));
             }
 
+            /** prevent users from sending emails if they have the disable_emails permission */
             if ($user->hasExactPermission('disable_emails')) {
                 $validator->errors()->add('error', ctrans('texts.disable_emails_error'));
             }
 
             $input = $this->all();
 
-            if (isset($input['entity']) && array_key_exists('entity_id', $input) && in_array($input['entity'], ['invoice','quote','credit','recurring_invoice','purchase_order','payment','purchaseOrder'])) {
+            /** Authorization guards */
+            if (isset($input['entity']) && array_key_exists('entity_id', $input) && in_array($input['entity'], self::ENTITY_CLASSES, true)) {
                 $entity_obj = $input['entity']::whereId($input['entity_id'])->withTrashed()->company()->first();
 
                 if (!$entity_obj || !$user->can('edit', $entity_obj)) {
                     $validator->errors()->add('error', ctrans('texts.not_authorized'));
                 }
+            }
+
+            /** Ensure you do not email expired quotes */
+            if (isset($input['entity']) && $input['entity'] === 'App\Models\Quote') {
+
+                $quote = Quote::withTrashed()->find($input['entity_id']);
+
+                if ($quote->hasLapsedValidUntil()) {
+                    $validator->errors()->add('error', ctrans('texts.quote_has_expired'));
+                }
+
             }
         });
     }

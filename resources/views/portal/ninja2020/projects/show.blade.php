@@ -87,13 +87,13 @@
                             @if(strlen($project->public_notes) > 200)
                                 <span x-show="!notesExpanded">
                                     {!! nl2br(e(\Illuminate\Support\Str::limit($project->public_notes ?? '', 200, ''))) !!}
-                                    <button @click="notesExpanded = true" class="text-primary hover:text-primary-dark font-semibold ml-1">
+                                    <button @click="notesExpanded = true" class="text-primary hover:underline font-semibold ml-1">
                                         {{ ctrans('texts.more') }}...
                                     </button>
                                 </span>
                                 <span x-show="notesExpanded" x-cloak>
                                     {!! nl2br(e($project->public_notes ?? '')) !!}
-                                    <button @click="notesExpanded = false" class="text-primary hover:text-primary-dark font-semibold ml-1">
+                                    <button @click="notesExpanded = false" class="text-primary hover:underline font-semibold ml-1">
                                         {{ ctrans('texts.less') }}
                                     </button>
                                 </span>
@@ -156,13 +156,13 @@
                                                 @if(strlen($task->description) > 100)
                                                     <span x-show="!expanded">
                                                         {{ \Illuminate\Support\Str::limit($task->description ?? '', 100, '') }}
-                                                        <button @click="expanded = true" class="text-primary hover:text-primary-dark font-semibold ml-1">
+                                                        <button @click="expanded = true" class="text-primary hover:underline font-semibold ml-1">
                                                             {{ ctrans('texts.more') }}...
                                                         </button>
                                                     </span>
                                                     <span x-show="expanded" x-cloak>
                                                         {{ $task->description ?? '' }}
-                                                        <button @click="expanded = false" class="text-primary hover:text-primary-dark font-semibold ml-1">
+                                                        <button @click="expanded = false" class="text-primary hover:underline font-semibold ml-1">
                                                             {{ ctrans('texts.less') }}
                                                         </button>
                                                     </span>
@@ -176,7 +176,7 @@
                                                 {!! $task->stringStatus() !!}
                                                 @if($task->invoice_id)
                                                     <a href="{{ route('client.invoice.show', $task->invoice->hashed_id) }}" 
-                                                       class="text-primary hover:text-primary-dark"
+                                                       class="text-primary hover:underline"
                                                        title="{{ ctrans('texts.view_invoice') }}">
                                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                             <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
@@ -208,13 +208,13 @@
                                                                 @if(strlen($log['description']) > 150)
                                                                     <span x-show="!expandedLogs['{{ $logId }}']">
                                                                         {!! nl2br(e(\Illuminate\Support\Str::limit($log['description'] ?? '', 150, ''))) !!}
-                                                                        <button @click="expandedLogs['{{ $logId }}'] = true" class="text-primary hover:text-primary-dark font-semibold ml-1">
+                                                                        <button @click="expandedLogs['{{ $logId }}'] = true" class="text-primary hover:underline font-semibold ml-1">
                                                                             {{ ctrans('texts.more') }}...
                                                                         </button>
                                                                     </span>
                                                                     <span x-show="expandedLogs['{{ $logId }}']" x-cloak>
                                                                         {!! nl2br(e($log['description'])) !!}
-                                                                        <button @click="expandedLogs['{{ $logId }}'] = false" class="text-primary hover:text-primary-dark font-semibold ml-1">
+                                                                        <button @click="expandedLogs['{{ $logId }}'] = false" class="text-primary hover:underline font-semibold ml-1">
                                                                             {{ ctrans('texts.less') }}
                                                                         </button>
                                                                     </span>

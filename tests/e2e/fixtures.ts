@@ -1,4 +1,5 @@
 import { test as base } from '@playwright/test';
+import { loadPlaywrightEnvironment } from './environment';
 import {
     bulkAction,
     createApiContext,
@@ -6,6 +7,7 @@ import {
     createEntityViaApi,
     getCompany,
     getUsers,
+    listCompanyGateways,
     updateCompany,
     updateUser,
     type ApiContext,
@@ -15,6 +17,8 @@ import {
     type EntityType,
 } from './api-helpers';
 import { accountForParallelIndex, type TestAccount } from './accounts';
+
+loadPlaywrightEnvironment();
 
 interface TrackedEntity {
     type: EntityType;
@@ -48,6 +52,7 @@ export const test = base.extend<
     {
         api: ApiFixture;
         companyGuard: CompanyGuardFixture;
+        gatewayGuard: void;
         notificationGuard: NotificationGuardFixture;
     },
     { account: TestAccount; workerApi: ApiContext }
@@ -113,6 +118,41 @@ export const test = base.extend<
 
         await cleanupTrackedEntities(workerApi, tracked);
     },
+
+    /**
+     * Puts back any company gateway a test archived.
+     *
+     * Isolating the gateway under test - archiving every other one so the portal offers
+     * a single option - is the pattern here. Without this, the archive outlives the test
+     * and every later spec finds nothing to pay with.
+     */
+    gatewayGuard: [
+        async ({ workerApi }, use) => {
+            const before = (await listCompanyGateways(workerApi))
+                .filter((gateway) => !gateway.archived_at && !gateway.is_deleted)
+                .map((gateway) => gateway.id);
+
+            await use();
+
+            const archived = (await listCompanyGateways(workerApi))
+                .filter(
+                    (gateway) =>
+                        Boolean(gateway.archived_at) &&
+                        before.includes(gateway.id),
+                )
+                .map((gateway) => gateway.id);
+
+            if (archived.length > 0) {
+                await bulkAction(
+                    workerApi,
+                    'company_gateways',
+                    archived,
+                    'restore',
+                );
+            }
+        },
+        { auto: true },
+    ],
 
     companyGuard: async ({ api }, use) => {
         let original: CompanyEntity | undefined;

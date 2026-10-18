@@ -36,7 +36,6 @@ class DocumentSettingsResolver
         'secondaryFont'        => 'secondary_font',
         'showPaidStamp'        => 'show_paid_stamp',
         'showShippingAddress'  => 'show_shipping_address',
-        'embedDocuments'       => 'embed_documents',
         'hideEmptyColumns'     => 'hide_empty_columns_on_pdf',
         'pageNumbering'        => 'page_numbering',
     ];

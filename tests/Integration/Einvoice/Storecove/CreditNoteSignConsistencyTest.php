@@ -119,16 +119,16 @@ class CreditNoteSignConsistencyTest extends TestCase
         return $client;
     }
 
-    private function lineItem(float $cost, float $quantity = 1, float $discount = 0): InvoiceItem
+    private function lineItem(float $cost, float $quantity = 1, float $discount = 0, float $taxRate = 19, string $productKey = 'Widget'): InvoiceItem
     {
         $item = new InvoiceItem();
-        $item->product_key = 'Widget';
+        $item->product_key = $productKey;
         $item->notes = 'A nice widget';
         $item->quantity = $quantity;
         $item->cost = $cost;
         $item->tax_id = (string) Product::PRODUCT_TYPE_PHYSICAL;
         $item->tax_name1 = 'VAT';
-        $item->tax_rate1 = 19;
+        $item->tax_rate1 = $taxRate;
         $item->tax_name2 = '';
         $item->tax_rate2 = 0;
         $item->tax_name3 = '';
@@ -196,7 +196,7 @@ class CreditNoteSignConsistencyTest extends TestCase
 
         $storecove = new Storecove();
         $storecove->adapter
-            ->transformFromPeppol($model, $peppol->getDocument(), $peppol->isCreditNote())
+            ->transformFromPeppol($model, $peppol->getDocument(), $peppol->getDocumentKind(), $peppol->toXml())
             ->decorate();
 
         $result = $storecove->adapter->getDocument();
@@ -263,7 +263,7 @@ class CreditNoteSignConsistencyTest extends TestCase
     }
 
     /**
-     * A discounted NEGATIVE INVOICE must reconcile identically.
+     * A discounted NEGATIVE INVOICE must reconcile once UBL and wire mapping align.
      */
     public function testDiscountedNegativeInvoiceLineReconciles(): void
     {
@@ -297,6 +297,54 @@ class CreditNoteSignConsistencyTest extends TestCase
             abs($this->lineResidual($doc)),
             'Storecove line equation must reconcile for a positive invoice. Residual: ' . $this->lineResidual($doc)
         );
+    }
+
+    /**
+     * A credit with an internal clawback (negative qty) must not have that
+     * line forced through -abs(). The offset stays the opposite sign of the
+     * credit lines so the wire total still matches the header / tax breakdown.
+     */
+    public function testMixedSignCreditOffsetLineIsClawbackNotAnotherCredit(): void
+    {
+        $client = $this->createClient();
+        $credit = $this->createCredit($client, [
+            $this->lineItem(9490.0, 1, 0, 21, 'Item A'),
+            $this->lineItem(4590.0, -1, 0, 21, 'Item B'),
+            $this->lineItem(400.0, 1, 0, 21, 'Item C'),
+            $this->lineItem(100.0, 1, 0, 21, 'Item D'),
+        ]);
+
+        $this->assertEqualsWithDelta(6426.0, (float) $credit->amount, 0.05, 'Fixture sanity: net 5400 + auto VAT');
+
+        $peppol = (new Peppol($credit))->run();
+        $creditLines = $peppol->getDocument()->CreditNoteLine;
+        $this->assertCount(4, $creditLines);
+        $this->assertEqualsWithDelta(-1.0, (float) $creditLines[1]->CreditedQuantity->amount, 0.001);
+        $this->assertEqualsWithDelta(-4590.0, (float) $creditLines[1]->LineExtensionAmount->amount, 0.01);
+        $this->assertEqualsWithDelta(4590.0, (float) $creditLines[1]->Price->PriceAmount->amount, 0.01);
+
+        $doc = $this->wireDocument($credit);
+        $lines = $doc['invoice_lines'];
+
+        $this->assertCount(4, $lines);
+
+        $this->assertSame(-9490.0, $lines[0]['amount_excluding_vat']);
+        $this->assertSame(4590.0, $lines[1]['amount_excluding_vat'], 'Offset line must reduce the credit, not add another credit');
+        $this->assertSame(-400.0, $lines[2]['amount_excluding_vat']);
+        $this->assertSame(-100.0, $lines[3]['amount_excluding_vat']);
+
+        $this->assertGreaterThan(0, $lines[1]['quantity']);
+        $this->assertGreaterThan(0, $lines[1]['item_price']);
+        $this->assertEqualsWithDelta(
+            $lines[1]['item_price'] * $lines[1]['quantity'],
+            $lines[1]['amount_excluding_vat'],
+            0.01
+        );
+
+        $lineSum = array_sum(array_column($lines, 'amount_excluding_vat'));
+        $this->assertEqualsWithDelta(-5400.0, $lineSum, 0.01, 'Wire lines must sum to the net credit, not 14580');
+
+        $this->assertEqualsWithDelta(-6426.0, $doc['amount_including_vat'], 0.05);
     }
 
     // ───────────────────────────── Equivalence ───────────────────────────────

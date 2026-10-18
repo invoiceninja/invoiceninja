@@ -38,14 +38,15 @@ class Merge extends AbstractService
         $event_vars['vendor_hash'] = $this->mergable_vendor->vendor_hash;
 
         $this->mergable_vendor->activities()->update(['vendor_id' => $this->vendor->id]);
-        $this->mergable_vendor->contacts()->update(['vendor_id' => $this->vendor->id]);
+        $this->mergable_vendor->locations()->withTrashed()->update(['vendor_id' => $this->vendor->id]);
+        $this->mergable_vendor->contacts()->withTrashed()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->credits()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->expenses()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->invoices()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->payments()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->quotes()->update(['vendor_id' => $this->vendor->id]);
         $this->mergable_vendor->purchase_orders()->update(['vendor_id' => $this->vendor->id]);
-        $this->mergable_vendor->documents()->update(['documentable_id' => $this->vendor->id]);
+        $this->mergable_vendor->documents()->withTrashed()->update(['documentable_id' => $this->vendor->id]);
         $this->mergable_vendor->recurring_expenses()->update(['vendor_id' => $this->vendor->id]);
 
         /* Loop through contacts an only merge distinct contacts by email */

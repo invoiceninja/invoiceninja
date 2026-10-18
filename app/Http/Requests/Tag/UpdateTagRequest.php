@@ -32,12 +32,20 @@ class UpdateTagRequest extends Request
                 'sometimes',
                 'string',
                 'max:191',
+                'not_regex:/,/',
                 Rule::unique('tags', 'name')
                     ->where('company_id', $tag->company_id)
                     ->where('entity_type', $tag->entity_type)
                     ->ignore($tag->id),
             ],
             'color' => ['nullable', 'string', 'regex:/^#(?:[0-9a-fA-F]{3}){1,2}$/'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.not_regex' => 'Tag names may not contain commas.',
         ];
     }
 

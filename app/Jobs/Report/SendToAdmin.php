@@ -120,7 +120,7 @@ class SendToAdmin implements ShouldQueue
             $datetime = now()->setTimezone($this->company->timezone()->name)->format($dateformat.'-H:i:s');
             $archive_name = str_replace(".csv", "", $this->file_name).'_'.$datetime.'.zip';
 
-            (new ProtectedZipDownloadStore())->store($files, $archive_name, $this->company, $user);
+            app(ProtectedZipDownloadStore::class)->store($files, $archive_name, $this->company, $user);
         } catch (\Throwable $th) {
             nlog('EXCEPTION:: SendToAdmin:: could not store protected download for '.$th->getMessage());
         }

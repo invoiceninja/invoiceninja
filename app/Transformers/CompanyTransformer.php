@@ -236,7 +236,7 @@ class CompanyTransformer extends EntityTransformer
      */
     private function transformQuickbooks(Company $company): ?array
     {
-        if (!$company->getRawOriginal('quickbooks')) {
+        if ($company->quickbooks->isEmpty() || !$company->getRawOriginal('quickbooks')) {
             return null;
         }
 
@@ -290,9 +290,10 @@ class CompanyTransformer extends EntityTransformer
 
     public function includeTokens(Company $company)
     {
-        $transformer = new CompanyTokenTransformer($this->serializer);
+        // $transformer = new CompanyTokenTransformer($this->serializer);
+        $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
-        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+        return $this->includeCollection($company->tokens_hashed, $transformer, CompanyToken::class);
     }
 
 
@@ -344,7 +345,7 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
-        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+        return $this->includeCollection($company->tokens_hashed, $transformer, CompanyToken::class);
     }
 
     public function includeWebhooks(Company $company)

@@ -12,7 +12,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\SystemLog;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
@@ -168,5 +172,76 @@ class SystemLogApiTest extends TestCase
         $this->assertContains($this->encodePrimaryKey($matchA->id), $ids);
         $this->assertContains($this->encodePrimaryKey($matchB->id), $ids);
         $this->assertNotContains($this->encodePrimaryKey($other->id), $ids);
+    }
+
+    public function testAdminCanShowSystemLogInTheirCompany(): void
+    {
+        $system_log = $this->createSystemLog($this->company->id, $this->user->id);
+
+        $this->withHeaders($this->apiHeaders())
+            ->getJson('/api/v1/system_logs/'.$this->encodePrimaryKey($system_log->id))
+            ->assertOk()
+            ->assertJsonPath('data.id', $this->encodePrimaryKey($system_log->id));
+    }
+
+    public function testNonAdminCannotShowSystemLog(): void
+    {
+        $system_log = $this->createSystemLog($this->company->id, $this->user->id);
+        $this->demoteCurrentUser();
+
+        $this->withHeaders($this->apiHeaders())
+            ->getJson('/api/v1/system_logs/'.$this->encodePrimaryKey($system_log->id))
+            ->assertUnauthorized()
+            ->assertJsonPath('message', 'This action is unauthorized.');
+    }
+
+    public function testCannotShowSystemLogFromAnotherCompany(): void
+    {
+        $foreign_account = Account::factory()->create();
+        $foreign_company = Company::factory()->create([
+            'account_id' => $foreign_account->id,
+        ]);
+        $foreign_user = User::factory()->create([
+            'account_id' => $foreign_account->id,
+            'email' => uniqid('foreign').'@example.test',
+        ]);
+        $system_log = $this->createSystemLog($foreign_company->id, $foreign_user->id);
+
+        $this->withHeaders($this->apiHeaders())
+            ->getJson('/api/v1/system_logs/'.$this->encodePrimaryKey($system_log->id))
+            ->assertStatus(400);
+    }
+
+    /** @return array<string, string> */
+    private function apiHeaders(): array
+    {
+        return [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+    }
+
+    private function createSystemLog(int $company_id, int $user_id): SystemLog
+    {
+        return SystemLog::create([
+            'client_id' => $this->client->id,
+            'company_id' => $company_id,
+            'user_id' => $user_id,
+            'log' => 'thelog',
+            'category_id' => 1,
+            'event_id' => 1,
+            'type_id' => 1,
+        ]);
+    }
+
+    private function demoteCurrentUser(): void
+    {
+        CompanyUser::query()
+            ->where('user_id', $this->user->id)
+            ->where('company_id', $this->company->id)
+            ->update([
+                'is_owner' => false,
+                'is_admin' => false,
+            ]);
     }
 }

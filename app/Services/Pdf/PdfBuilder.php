@@ -13,6 +13,7 @@
 namespace App\Services\Pdf;
 
 use DOMDocument;
+use App\DataMapper\InvoiceItem;
 use App\Models\Quote;
 use App\Models\Credit;
 use App\Utils\Helpers;
@@ -282,16 +283,14 @@ class PdfBuilder
             $template = $twig->createTemplate(html_entity_decode($template));
             $template = $template->render($data);
 
-            $f = $this->document->createDocumentFragment();
-
-            // $template = str_ireplace(['<br>', '<br />'], "<br/>", $template);
-            // $f->appendXML($template);
-
             $decoded_template = str_ireplace("<br>", "<br/>", html_entity_decode($template));
-            $f->appendXML('<![CDATA[' . $decoded_template . ']]>');
+            $decoded_template = preg_replace('/^\s*<ninja\b[^>]*>/i', '', $decoded_template) ?? $decoded_template;
+            $decoded_template = preg_replace('/<\/ninja>\s*$/i', '', $decoded_template) ?? $decoded_template;
 
-
-            $replacements[] = $f;
+            // Import the inner HTML into the parent (the widget placeholder).
+            // Leaving a <ninja> wrapper in the final tree lets libxml/Purify
+            // hoist tables and other block elements out of the widget.
+            $replacements[] = $this->fragmentFromHtml($decoded_template);
 
         }
 
@@ -977,6 +976,8 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$product.discount'], 'properties' => ['data-ref' => 'product_table-product.discount-td', 'style' => 'display: none;']];
                     } elseif ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity'], 'properties' => ['data-ref' => 'task_table-task.hours-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
+                    } elseif ($cell == '$product.tags') {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tags-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } elseif ($cell == '$product.tax_rate1') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax1-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } elseif ($cell == '$product.tax_rate2') {
@@ -991,7 +992,7 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax2-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } elseif ($cell == '$task.tax_rate3') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax3-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
-                    } elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
+                    } elseif ($cell == '$product.unit_cost' || $cell == '$task.rate' || $cell == '$task.tags') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } elseif ($cell == '$product.net_cost') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
@@ -1054,6 +1055,7 @@ class PdfBuilder
             $data[$key][$table_type . '.notes'] = Helpers::processReservedKeywords($item->notes, $this->service->config->currency_entity, $currentDateTime);
             $data[$key][$table_type . '.description'] = &$data[$key][$table_type . '.notes'];
 
+            $data[$key][$table_type . '.tags'] = InvoiceItem::formatTagsForDisplay($item->tags ?? '');
             $data[$key][$table_type . ".{$_table_type}1"] = strlen($item->custom_value1) >= 1 ? $helpers->formatCustomFieldValue($this->service->company->custom_fields, "{$_table_type}1", $item->custom_value1, $this->service->config->currency_entity) : '';
             $data[$key][$table_type . ".{$_table_type}2"] = strlen($item->custom_value2) >= 1 ? $helpers->formatCustomFieldValue($this->service->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->service->config->currency_entity) : '';
             $data[$key][$table_type . ".{$_table_type}3"] = strlen($item->custom_value3) >= 1 ? $helpers->formatCustomFieldValue($this->service->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->service->config->currency_entity) : '';
@@ -2246,8 +2248,12 @@ class PdfBuilder
      */
     private function updateJsonDesignVariables(): self
     {
-        $this->replaceVariablesInTextNodes();
-        $this->replaceVariablesInAttributes();
+        // Two passes mirror updateVariables() label/value substitution so nested
+        // $variables inside substituted entity text are expanded.
+        for ($pass = 0; $pass < 2; $pass++) {
+            $this->replaceVariablesInTextNodes();
+            $this->replaceVariablesInAttributes();
+        }
 
         return $this;
     }
@@ -2316,6 +2322,44 @@ class PdfBuilder
         }
 
         return false;
+    }
+
+    private function fragmentFromHtml(string $html): \DOMDocumentFragment
+    {
+        $fragment = $this->document->createDocumentFragment();
+
+        if (trim($html) === '') {
+            $fragment->appendChild($this->document->createTextNode(''));
+
+            return $fragment;
+        }
+
+        $temp = new \DOMDocument();
+        $wrappedHtml = '<?xml encoding="UTF-8"><div>' . $html . '</div>';
+
+        if (@$temp->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            $wrapper = $temp->getElementsByTagName('div')->item(0);
+
+            if ($wrapper) {
+                foreach (iterator_to_array($wrapper->childNodes) as $child) {
+                    $fragment->appendChild($this->document->importNode($child, true));
+                }
+            }
+        }
+
+        if ($fragment->hasChildNodes()) {
+            return $fragment;
+        }
+
+        $fallback = $this->document->createDocumentFragment();
+
+        if (@$fallback->appendXML('<![CDATA[' . $html . ']]>')) {
+            return $fallback;
+        }
+
+        $fragment->appendChild($this->document->createTextNode($html));
+
+        return $fragment;
     }
 
     private function replaceTextNodeWithHtml(\DOMNode $node, string $html): void

@@ -72,6 +72,20 @@ return [
         'redirect' => env('APPLE_REDIRECT_URI'),
     ],
 
+    'oidc' => [
+        // URL to the identity provider without `/.well-known/openid-configuration` suffix
+        // https://sso.example.com/application/o/invoiceninja
+        'issuer'     => env('OIDC_ISSUER', substr(env('OIDC_WELL_KNOWN', ''), 0, -1 * strlen('/.well-known/openid-configuration'))),
+        'client_id'      => env('OIDC_CLIENT_ID', ''),
+        'client_secret'  => env('OIDC_CLIENT_SECRET', ''),
+        // Fixed callback URL. Must be registered at the IdP.
+        'redirect'       => rtrim((string) env('APP_URL', ''), '/') . '/auth/oidc',
+        // Space-separated scopes.
+        'scopes'         => env('OIDC_SCOPES', 'openid profile email'),
+        // Human-readable label used on the Blade login page button.
+        'provider_label' => env('OIDC_PROVIDER_LABEL', 'OIDC'),
+    ],
+
     'ses' => [
         'key' => env('SES_AWS_ACCESS_KEY_ID'),
         'secret' => env('SES_AWS_SECRET_ACCESS_KEY'),

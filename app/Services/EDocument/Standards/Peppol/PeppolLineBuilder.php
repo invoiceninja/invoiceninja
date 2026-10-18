@@ -16,7 +16,6 @@ use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
 use InvoiceNinja\EInvoice\Models\Peppol\CreditNoteLineType\CreditNoteLine;
@@ -57,7 +56,7 @@ class PeppolLineBuilder
      * Credit notes differ from invoices in:
      *  - Line type: CreditNoteLine vs InvoiceLine
      *  - Quantity type: CreditedQuantity vs InvoicedQuantity
-     *  - Amounts wrapped in abs() to ensure positive values
+     *  - Signs from Peppol::normalizeCreditNoteLine() (price unsigned, qty carries leftover sign)
      *
      * @param  bool $isCreditNote
      * @return array
@@ -65,6 +64,7 @@ class PeppolLineBuilder
     private function buildLines(bool $isCreditNote): array
     {
         $lines = [];
+        $this->peppol->setGlobalTaxCategories([]);
         $invoice = $this->peppol->getInvoiceModel();
         $taxCalculator = $this->peppol->getTaxCalculator();
         $currencyCode = $invoice->client->currency()->code;
@@ -88,32 +88,46 @@ class PeppolLineBuilder
             $id->value = (string) ($key + 1);
             $line->ID = $id;
 
-            // Quantity
+            $rawLineTotal = $invoice->uses_inclusive_taxes
+                ? round($item->line_total - $this->peppol->calcInclusiveLineTax($item->tax_rate1, $item->line_total), 2)
+                : round($item->line_total, 2);
+
             if ($isCreditNote) {
+                $hasLineAllowance = (float) ($item->discount ?? 0) > 0;
+
+                $signed = $this->peppol->normalizeCreditNoteLine(
+                    (float) $item->quantity,
+                    (float) $item->cost,
+                    (float) $rawLineTotal,
+                    $hasLineAllowance,
+                );
+
                 $qty = new \InvoiceNinja\EInvoice\Models\Peppol\QuantityType\CreditedQuantity();
-                $qty->amount = (string) $this->peppol->normalizeAmount($item->quantity);
+                $qty->amount = (string) $signed['quantity'];
                 $qty->unitCode = $item->unit_code ?? 'C62';
                 $line->CreditedQuantity = $qty;
+
+                $lea = new LineExtensionAmount();
+                $lea->currencyID = $currencyCode;
+                $lea->amount = (string) $signed['line_total'];
+                $line->LineExtensionAmount = $lea;
+                $line->Item = $_item;
+
+                $this->buildPriceAndDiscounts($line, $item, $invoice, $currencyCode, true, $signed['price'], $signed['quantity']);
             } else {
                 $qty = new \InvoiceNinja\EInvoice\Models\Peppol\QuantityType\InvoicedQuantity();
                 $qty->amount = $item->quantity;
                 $qty->unitCode = $item->unit_code ?? 'C62';
                 $line->InvoicedQuantity = $qty;
+
+                $lea = new LineExtensionAmount();
+                $lea->currencyID = $currencyCode;
+                $lea->amount = (string) $rawLineTotal;
+                $line->LineExtensionAmount = $lea;
+                $line->Item = $_item;
+
+                $this->buildPriceAndDiscounts($line, $item, $invoice, $currencyCode, false);
             }
-
-            // Line Extension Amount
-            $lineTotal = $invoice->uses_inclusive_taxes
-                ? round($item->line_total - $this->peppol->calcInclusiveLineTax($item->tax_rate1, $item->line_total), 2)
-                : round($item->line_total, 2);
-
-            $lea = new LineExtensionAmount();
-            $lea->currencyID = $currencyCode;
-            $lea->amount = (string) $this->peppol->normalizeAmount($lineTotal);
-            $line->LineExtensionAmount = $lea;
-            $line->Item = $_item;
-
-            // Price and Discounts
-            $this->buildPriceAndDiscounts($line, $item, $invoice, $currencyCode, $isCreditNote);
 
             $lines[] = $line;
         }
@@ -134,64 +148,41 @@ class PeppolLineBuilder
         $_item->Name = strlen($item->product_key ?? '') >= 1 ? $item->product_key : ctrans('texts.item');
         $_item->Description = $item->notes ?? '';
 
-        $ctc = new ClassifiedTaxCategory();
-        $ctc->ID = new ID();
-        $ctc->ID->value = $taxCalculator->getTaxType($item->tax_id);
-
-        if ($item->tax_rate1 > 0) {
-            $ctc->Percent = (string) $item->tax_rate1;
-        }
-
-        $ts = new TaxScheme();
-        $id = new ID();
-        $id->value = $taxCalculator->standardizeTaxSchemeId($item->tax_name1);
-        $ts->ID = $id;
-        $ctc->TaxScheme = $ts;
-
-        if (floatval($item->tax_rate1) === 0.0) {
-            $ctc = $taxCalculator->resolveTaxExemptReason($item, $ctc);
-
-            if ($this->peppol->getTaxCategoryId() == 'O') {
-                unset($ctc->Percent);
-            }
-        }
-
-        $_item->ClassifiedTaxCategory[] = $ctc;
+        $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory(
+            $taxCalculator, $item, (float) $item->tax_rate1, (string) $item->tax_name1,
+        );
 
         if ($item->tax_rate2 > 0) {
-            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item->tax_id, $item->tax_rate2, $item->tax_name2);
+            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item, $item->tax_rate2, $item->tax_name2);
         }
 
         if ($item->tax_rate3 > 0) {
-            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item->tax_id, $item->tax_rate3, $item->tax_name3);
+            $_item->ClassifiedTaxCategory[] = $this->buildTaxCategory($taxCalculator, $item, $item->tax_rate3, $item->tax_name3);
         }
 
         return $_item;
     }
 
     /**
-     * Builds a ClassifiedTaxCategory for secondary/tertiary tax rates.
+     * Builds the line representation of a resolved tax category.
      *
      * @param  PeppolTaxCalculator $taxCalculator
-     * @param  string $taxId
+     * @param  object $item
      * @param  float $taxRate
      * @param  string $taxName
      * @return ClassifiedTaxCategory
      */
-    private function buildTaxCategory(PeppolTaxCalculator $taxCalculator, string $taxId, float $taxRate, string $taxName): ClassifiedTaxCategory
+    private function buildTaxCategory(PeppolTaxCalculator $taxCalculator, object $item, float $taxRate, string $taxName): ClassifiedTaxCategory
     {
-        $ctc = new ClassifiedTaxCategory();
-        $ctc->ID = new ID();
-        $ctc->ID->value = $taxCalculator->getTaxType($taxId);
-        $ctc->Percent = (string) $taxRate;
+        $resolved = $taxCalculator->resolveLineTaxCategory($item, $taxRate, $taxName);
+        $category = new ClassifiedTaxCategory();
+        $category->ID = clone $resolved->ID;
+        if (isset($resolved->Percent)) {
+            $category->Percent = $resolved->Percent;
+        }
+        $category->TaxScheme = clone $resolved->TaxScheme;
 
-        $ts = new TaxScheme();
-        $id = new ID();
-        $id->value = $taxCalculator->standardizeTaxSchemeId($taxName);
-        $ts->ID = $id;
-        $ctc->TaxScheme = $ts;
-
-        return $ctc;
+        return $category;
     }
 
     /**
@@ -202,11 +193,20 @@ class PeppolLineBuilder
      * @param  object $invoice
      * @param  string $currencyCode
      * @param  bool $isCreditNote
+     * @param  float|null $creditNoteUnitPrice Unsigned unit price from normalizeCreditNoteLine()
+     * @param  float|null $normalizedCreditQuantity CreditedQuantity after normalizeCreditNoteLine()
      * @return void
      */
-    private function buildPriceAndDiscounts(InvoiceLine|CreditNoteLine $line, object $item, object $invoice, string $currencyCode, bool $isCreditNote): void
-    {
-        $cost = $isCreditNote ? abs($item->cost) : $item->cost;
+    private function buildPriceAndDiscounts(
+        InvoiceLine|CreditNoteLine $line,
+        object $item,
+        object $invoice,
+        string $currencyCode,
+        bool $isCreditNote,
+        ?float $creditNoteUnitPrice = null,
+        ?float $normalizedCreditQuantity = null,
+    ): void {
+        $cost = $isCreditNote ? ($creditNoteUnitPrice ?? abs($item->cost)) : $item->cost;
 
         if ($item->discount > 0) {
 
@@ -216,18 +216,41 @@ class PeppolLineBuilder
             $basePriceAmount->amount = (string) $cost;
             $basePrice->PriceAmount = $basePriceAmount;
 
+            $creditedQty = $isCreditNote
+                ? (float) ($normalizedCreditQuantity ?? $item->quantity)
+                : (float) $item->quantity;
+            $discountAmount = $this->calculateTotalItemDiscountAmount($item);
+
+            // Credit notes: charge iff the discount increases LineExtensionAmount
+            // magnitude relative to qty × price (PEPPOL-EN16931-R120). Flat vs
+            // percentage discounts diverge on signed rows; one delta rule covers both.
+            if ($isCreditNote) {
+                $lea = (float) $line->LineExtensionAmount->amount;
+                $delta = $lea - ($creditedQty * $cost);
+                $useLineCharge = $delta > 0.005;
+                $discountAmount = abs($delta);
+            } else {
+                $useLineCharge = false;
+            }
+
             $allowanceCharge = new \InvoiceNinja\EInvoice\Models\Peppol\AllowanceChargeType\AllowanceCharge();
-            $allowanceCharge->ChargeIndicator = 'false';
+            $allowanceCharge->ChargeIndicator = $useLineCharge ? 'true' : 'false';
             $allowanceCharge->Amount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\Amount();
             $allowanceCharge->Amount->currencyID = $currencyCode;
-            $allowanceCharge->Amount->amount = number_format($this->calculateTotalItemDiscountAmount($item), 2, '.', '');
-            $this->peppol->addToAllowanceTotal($this->calculateTotalItemDiscountAmount($item));
+            $allowanceCharge->Amount->amount = number_format($discountAmount, 2, '.', '');
+
+            if (!$useLineCharge) {
+                $this->peppol->addToAllowanceTotal($discountAmount);
+            }
 
             if ($item->discount > 0 && !$item->is_amount_discount) {
 
                 $allowanceCharge->BaseAmount = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\BaseAmount();
                 $allowanceCharge->BaseAmount->currencyID = $currencyCode;
-                $allowanceCharge->BaseAmount->amount = (string) round($isCreditNote ? abs($item->cost * $item->quantity) : ($item->cost * $item->quantity), 2);
+                $allowanceCharge->BaseAmount->amount = (string) round(
+                    $isCreditNote ? abs($creditedQty * $cost) : ($item->cost * $item->quantity),
+                    2
+                );
 
                 $mfn = new \InvoiceNinja\EInvoice\Models\Peppol\NumericType\MultiplierFactorNumeric();
                 $mfn->value = (string) round($item->discount, 2);
@@ -245,9 +268,8 @@ class PeppolLineBuilder
             $price = new Price();
             $pa = new PriceAmount();
             $pa->currencyID = $currencyCode;
-            // Credit notes use abs(cost); invoices use net_cost for inclusive taxes
             $pa->amount = $isCreditNote
-                ? (string) abs($item->cost)
+                ? (string) $cost
                 : ($invoice->uses_inclusive_taxes ? (string) $item->net_cost : (string) $item->cost);
             $price->PriceAmount = $pa;
             $line->Price = $price;
@@ -271,16 +293,9 @@ class PeppolLineBuilder
      * cannot produce a valid Peppol line and contribute nothing to totals,
      * so dropping them is loss-less.
      *
-     * Why both conditions: missing tax_name1 means the line gets a
-     * synthesised category code on the line (PeppolTaxCalculator::getTaxType)
-     * but no matching VAT breakdown entry (PeppolTaxCalculator::getAllUsedTaxes
-     * filters by `strlen(tax_name1) > 1`), so BR-S-01 / BR-Z-01 / BR-E-01 /
-     * BR-AE-01 / BR-K-01 / BR-G-01 / BR-O-01 fail. Combined with cost==0,
-     * dropping the row is loss-less.
-     *
-     * A row with non-zero cost is never dropped, even if tax_name1 is empty —
-     * that row is a real Peppol-validity failure and the schematron will
-     * surface it; silently dropping would change the invoice total.
+     * A row with non-zero cost is never dropped, even if tax_name1 is empty.
+     * Its category is resolved from the product and transaction context, and
+     * its amount must remain in the VAT breakdown and document totals.
      *
      * Half-cent epsilon for the cost comparison matches the rounding regime
      * used elsewhere in the builder (round($..., 2)).

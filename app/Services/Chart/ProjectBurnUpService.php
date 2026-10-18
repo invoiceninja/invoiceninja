@@ -42,6 +42,10 @@ class ProjectBurnUpService
 
     private Carbon $end_date;
 
+    private float $task_estimated_hours = 0.0;
+
+    private int $unestimated_task_count = 0;
+
     public function __construct(
         private Company $company,
         private User $user,
@@ -57,6 +61,8 @@ class ProjectBurnUpService
         $this->start_date = Carbon::parse($start_date)->startOfDay();
         $this->end_date = Carbon::parse($end_date)->endOfDay();
         $this->buckets = [];
+        $this->task_estimated_hours = 0.0;
+        $this->unestimated_task_count = 0;
 
         $project->loadMissing('client');
 
@@ -123,6 +129,12 @@ class ProjectBurnUpService
             ->orderBy('calculated_start_date')
             ->cursor()
             ->each(function (Task $task) use ($project): void {
+                if (is_null($task->estimated_duration)) {
+                    $this->unestimated_task_count++;
+                } else {
+                    $this->task_estimated_hours += (int) $task->estimated_duration / 3600;
+                }
+
                 $time_log = json_decode($task->time_log ?? '[]', true);
 
                 if (! is_array($time_log)) {
@@ -353,6 +365,7 @@ class ProjectBurnUpService
             }
 
             $bucket['budgeted_hours'] = $budgeted_hours;
+            $bucket['task_estimated_hours'] = $this->task_estimated_hours;
             $bucket['budgeted_amount'] = $budgeted_amount;
             $bucket['ideal_hours'] = $this->idealHours($project_start, $project_due, Carbon::parse($bucket['period_end']), $budgeted_hours);
             $bucket['ideal_amount'] = $this->idealAmount($bucket['ideal_hours'], $budgeted_hours, $budgeted_amount);
@@ -373,11 +386,13 @@ class ProjectBurnUpService
             'start_date' => $project_start->format('Y-m-d'),
             'due_date' => $project_due?->format('Y-m-d'),
             'budgeted_hours' => round($budgeted_hours, 2),
+            'task_estimated_hours' => round($this->task_estimated_hours, 2),
         ];
 
         $markers = [
             'due_date' => $project_due?->format('Y-m-d'),
             'budgeted_hours' => round($budgeted_hours, 2),
+            'task_estimated_hours' => round($this->task_estimated_hours, 2),
         ];
 
         if ($this->is_admin) {
@@ -406,6 +421,7 @@ class ProjectBurnUpService
             'totals' => $rounded_totals,
             'metadata' => [
                 'can_view_financials' => $this->is_admin,
+                'unestimated_task_count' => $this->unestimated_task_count,
             ],
         ];
     }

@@ -80,6 +80,11 @@ class StoreExpenseRequest extends Request
             unset($input['invoice_id']);
         }
 
+        if (!isset($input['date'])) {
+            $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
+        }
+        
+
         if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
             $this->files->set('documents', [$this->file('documents')]);
         }
@@ -92,7 +97,7 @@ class StoreExpenseRequest extends Request
             $input['amount'] = 0;
         }
 
-        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
+        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id'] ?? '') == 0) {
             $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 

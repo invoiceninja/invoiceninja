@@ -16,6 +16,8 @@ use Tests\TestCase;
 use App\Models\GatewayType;
 use Tests\MockAccountData;
 use App\Models\CompanyGateway;
+use App\Models\Invoice;
+use App\Models\PaymentHash;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -26,7 +28,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
  * as the invoice balance, otherwise the client ledger diverges from the invoices
  * that produced it.
  *
- * @see \App\Services\Invoice\AddGatewayFee::processGatewayDiscount()
+ * @see \App\Services\Invoice\ConfirmGatewayFee
  */
 class GatewayFeeDiscountSignTest extends TestCase
 {
@@ -73,6 +75,28 @@ class GatewayFeeDiscountSignTest extends TestCase
     }
 
     /**
+     * Quotes the fee and confirms it, the way a completed payment does.
+     */
+    private function quoteAndConfirm(CompanyGateway $cg, Invoice $invoice, float $amount): void
+    {
+        $quote = $invoice->service()->quoteGatewayFee($cg, GatewayType::CREDIT_CARD, $amount);
+
+        $payment_hash = PaymentHash::create([
+            'hash' => Str::random(32),
+            'fee_total' => $quote['gross'],
+            'fee_invoice_id' => $invoice->id,
+            'data' => [
+                'invoices' => [],
+                'credits' => 0,
+                'fee_net' => $quote['net'],
+                'amount_with_fee' => round($amount + $quote['gross'], 2),
+            ],
+        ]);
+
+        (new \App\Services\Invoice\ConfirmGatewayFee($payment_hash, $cg, ['gateway_type_id' => GatewayType::CREDIT_CARD]))->run();
+    }
+
+    /**
      * A negative fee_amount is reachable: calcGatewayFee() applies fee_amount with
      * no floor at zero, and fee_cap only clamps upward.
      */
@@ -95,9 +119,7 @@ class GatewayFeeDiscountSignTest extends TestCase
         $invoice_before = (float) $invoice->fresh()->balance;
         $client_before = (float) $invoice->client->fresh()->balance;
 
-        $invoice->service()
-                ->addGatewayFee($cg, GatewayType::CREDIT_CARD, $invoice_before, Str::random(32))
-                ->save();
+        $this->quoteAndConfirm($cg, $invoice, $invoice_before);
 
         $invoice_delta = (float) $invoice->fresh()->balance - $invoice_before;
         $client_delta = (float) $invoice->client->fresh()->balance - $client_before;
@@ -107,8 +129,9 @@ class GatewayFeeDiscountSignTest extends TestCase
     }
 
     /**
-     * The bug: processGatewayDiscount() applies $adjustment * -1 where $adjustment
-     * is already negative, so the client balance moves OPPOSITE to the invoice.
+     * The old processGatewayDiscount() applied $adjustment * -1 to the ledger where
+     * $adjustment was already negative, so the client balance moved OPPOSITE to the
+     * invoice. ConfirmGatewayFee posts one adjustment with one sign to both.
      */
     public function testGatewayDiscountMovesInvoiceAndClientTogether(): void
     {
@@ -119,9 +142,7 @@ class GatewayFeeDiscountSignTest extends TestCase
         $invoice_before = (float) $invoice->fresh()->balance;
         $client_before = (float) $invoice->client->fresh()->balance;
 
-        $invoice->service()
-                ->addGatewayFee($cg, GatewayType::CREDIT_CARD, $invoice_before, Str::random(32))
-                ->save();
+        $this->quoteAndConfirm($cg, $invoice, $invoice_before);
 
         $invoice_delta = (float) $invoice->fresh()->balance - $invoice_before;
         $client_delta = (float) $invoice->client->fresh()->balance - $client_before;

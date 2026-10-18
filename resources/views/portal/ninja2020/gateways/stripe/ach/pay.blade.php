@@ -9,6 +9,7 @@
     @endif
 
         <meta name="client_secret" content="{{ $client_secret }}">
+        <meta name="mandate_client_secret" content="{{ $mandate_client_secret }}">
         <meta name="viewport" content="width=device-width, minimum-scale=1" />
         <meta name="address-1" content="{{ $gateway->client->address1 }}">
         <meta name="address-2" content="{{ $gateway->client->address2 }}">
@@ -34,9 +35,12 @@
         <input type="hidden" name="client_secret" value="{{ $client_secret }}">
         <input type="hidden" name="gateway_response" id="gateway_response" value="">
         <input type="hidden" name="bank_account_response" id="bank_account_response" value="">
+        <input type="hidden" name="setup_intent_id" id="setup_intent_id" value="">
     </form>
     
     @if(count($tokens) > 0)
+
+        @php($hasSelectableToken = collect($tokens)->contains(fn ($token) => ($token->meta->state ?? null) !== 'pending'))
 
         @include('portal.ninja2020.gateways.includes.payment_details')
 
@@ -44,14 +48,23 @@
             @if(count($tokens) > 0)
             <ul class="payment-method-list">
                 @foreach($tokens as $token)
+                    @php($tokenState = $token->meta->state ?? null)
                     <li class="payment-method-item">
-                    <label class="payment-method-label">
-                    <input
+                        <label class="payment-method-label {{ $tokenState === 'pending' ? 'cursor-not-allowed opacity-60' : '' }}">
+                            <input
                                 type="radio"
                                 data-token="{{ $token->hashed_id }}"
+                                data-payment-method="{{ $token->token }}"
+                                data-state="{{ $tokenState }}"
                                 name="payment-type"
-                                class="form-radio cursor-pointer toggle-payment-with-token"/>
+                                class="form-radio cursor-pointer disabled:cursor-not-allowed toggle-payment-with-token"
+                                @disabled($tokenState === 'pending') />
                             <span class="ml-1">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
+                            @if($tokenState === 'pending')
+                                <span class="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 ach-token-status">
+                                    {{ ctrans('texts.stripe_ach_verifiation_pending') }}
+                                </span>
+                            @endif
                         </label>
                     </li>
                 @endforeach
@@ -59,7 +72,16 @@
             @endif
         @endcomponent
 
-    @include('portal.ninja2020.gateways.includes.pay_now')
+        @if($mandate_client_secret)
+            <div id="mandate-authorization" hidden>
+                @component('portal.ninja2020.components.general.card-element-single')
+                    <input type="checkbox" class="form-checkbox mr-1" id="accept-mandate" required>
+                    <label for="accept-mandate" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->guard('contact')->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
+                @endcomponent
+            </div>
+        @endif
+
+        @include('portal.ninja2020.gateways.includes.pay_now', ['disabled' => ! $hasSelectableToken])
 
     @else
 
@@ -98,6 +120,7 @@
 <script>
 
     let payNow = document.getElementById('pay-now');
+    const errors = document.getElementById('errors');
 
     if(payNow)
     {
@@ -106,18 +129,45 @@
             .from(document.getElementsByClassName('toggle-payment-with-token'))
             .forEach((element) => element.addEventListener('click', (element) => {
                 document.querySelector('input[name=source]').value = element.target.dataset.token;
+
+                const mandateAuthorization = document.getElementById('mandate-authorization');
+
+                if (mandateAuthorization) {
+                    mandateAuthorization.hidden = element.target.dataset.state !== 'inactive';
+                }
             }));
-        payNow.addEventListener('click', function () {
-                let payNowButton = document.getElementById('pay-now');
-                payNowButton.disabled = true;
-                payNowButton.querySelector('svg').classList.remove('hidden');
-                payNowButton.querySelector('span').classList.add('hidden');
-        document.getElementById('server-response').submit();
+        payNow.addEventListener('click', function (event) {
+            const selectedToken = document.querySelector('input[name="payment-type"]:checked:not(:disabled)');
+
+            if (!selectedToken) {
+                event.preventDefault();
+                return;
+            }
+
+            if (selectedToken?.dataset.state === 'inactive') {
+                event.preventDefault();
+                renewMandate(selectedToken, payNow);
+                return;
+            }
+
+            setButtonLoading(payNow, true);
+            document.getElementById('server-response').submit();
         });
         
     }
 
-    document.getElementById('new-bank').addEventListener('click', (ev) => {
+    const first = document.querySelector('input[name="payment-type"]:not(:disabled)');
+
+    if (first) {
+        first.click();
+    } else if (payNow) {
+        payNow.disabled = true;
+    }
+
+    const newBank = document.getElementById('new-bank');
+
+    if (newBank) {
+        newBank.addEventListener('click', (ev) => {
 
         if (!document.getElementById('accept-terms').checked) {
                 errors.textContent = "You must accept the mandate terms prior to making payment.";
@@ -125,31 +175,34 @@
                 return;
         }
 
+        ev.preventDefault();
+
         errors.hidden = true;
 
-        let stripe;
-
-        let publishableKey = document.querySelector('meta[name="stripe-publishable-key"]').content
-        
-        let stripeConnect = document.querySelector('meta[name="stripe-account-id"]')?.content
-       
-        if(stripeConnect){
-           stripe = Stripe(publishableKey, { stripeAccount: stripeConnect}); 
-        }
-        else {
-            stripe = Stripe(publishableKey);
-        }
-
-        let newBankButton = document.getElementById('new-bank');
-        newBankButton.disabled = true;
-        newBankButton.querySelector('svg').classList.remove('hidden');
-        newBankButton.querySelector('span').classList.add('hidden');
-    
-        ev.preventDefault();
         const accountHolderNameField = document.getElementById('account-holder-name-field');
         const emailField = document.getElementById('email-field');
         const clientSecret = document.querySelector('meta[name="client_secret"]')?.content;
         const address = billingAddress();
+
+        if (!address) {
+            errors.textContent = 'A complete billing address is required to pay by bank account.';
+            errors.hidden = false;
+            return;
+        }
+
+        let newBankButton = document.getElementById('new-bank');
+        setButtonLoading(newBankButton, true);
+
+        let stripe;
+
+        try {
+            stripe = stripeClient();
+        } catch (error) {
+            showError(error.message || 'An unexpected error occurred.');
+            resetButtons();
+            return;
+        }
+
         // Calling this method will open the instant verification dialog.
         stripe.collectBankAccountForPayment({
         clientSecret: clientSecret,
@@ -159,7 +212,7 @@
             billing_details: {
               name: accountHolderNameField.value,
               email: emailField.value,
-              ...(address && { address }),
+              address,
             },
           },
         },
@@ -167,76 +220,167 @@
         })
         .then(({paymentIntent, error}) => {
             if (error) {
+                console.error(error.message);
+                showError(error.message);
+                resetButtons();
+                return;
+            }
 
-              console.error(error.message);
-              errors.textContent = error.message;
-              errors.hidden = false;
-              resetButtons();
+            if (!paymentIntent) {
+                showError('An unexpected error occurred.');
+                resetButtons();
+                return;
+            }
 
-              // PaymentMethod collection failed for some reason.
-            } else if (paymentIntent.status === 'requires_payment_method') {
-              // Customer canceled the hosted verification modal. Present them with other
-              // payment method type options.
+            if (paymentIntent.status === 'requires_payment_method') {
+                showError('We were unable to process the payment with this account, please try another one.');
+                resetButtons();
+                return;
+            }
 
-                  errors.textContent = "We were unable to process the payment with this account, please try another one.";
-                  errors.hidden = false;
-                  resetButtons();
-                  return;
-
-            } else if (paymentIntent.status === 'requires_confirmation') {
-
+            if (paymentIntent.status === 'requires_confirmation') {
                 let bank_account_response = document.getElementById('bank_account_response');
                 bank_account_response.value = JSON.stringify(paymentIntent);
 
-                confirmPayment(stripe, clientSecret);
+                return confirmPayment(stripe, clientSecret);
             }
 
-                  resetButtons();
-                  return;
+            showError('We were unable to process this payment.');
+            resetButtons();
+        })
+        .catch((error) => {
+            showError(error.message || 'An unexpected error occurred.');
+            resetButtons();
         });
-    });
+        });
+    }
+
+    function renewMandate(selectedToken, payNowButton)
+    {
+        const acceptance = document.getElementById('accept-mandate');
+
+        if (!acceptance?.checked) {
+            errors.textContent = 'You must accept the mandate terms prior to making payment.';
+            errors.hidden = false;
+            return;
+        }
+
+        const clientSecret = document.querySelector('meta[name="mandate_client_secret"]')?.content;
+
+        if (!clientSecret) {
+            errors.textContent = 'We were unable to renew the bank account authorization.';
+            errors.hidden = false;
+            return;
+        }
+
+        errors.hidden = true;
+        setButtonLoading(payNowButton, true);
+
+        let stripe;
+
+        try {
+            stripe = stripeClient();
+        } catch (error) {
+            showError(error.message || 'An unexpected error occurred.');
+            setButtonLoading(payNowButton, false);
+            return;
+        }
+
+        stripe
+            .confirmUsBankAccountSetup(clientSecret, {
+                payment_method: selectedToken.dataset.paymentMethod,
+            })
+            .then(({setupIntent, error}) => {
+                if (error || setupIntent?.status !== 'succeeded') {
+                    errors.textContent = error?.message || 'We were unable to renew the bank account authorization.';
+                    errors.hidden = false;
+                    setButtonLoading(payNowButton, false);
+                    return;
+                }
+
+                document.getElementById('setup_intent_id').value = setupIntent.id;
+                document.getElementById('server-response').submit();
+            })
+            .catch((error) => {
+                showError(error.message || 'An unexpected error occurred.');
+                setButtonLoading(payNowButton, false);
+            });
+    }
+
+    function stripeClient()
+    {
+        const publishableKey = document.querySelector('meta[name="stripe-publishable-key"]').content;
+        const stripeConnect = document.querySelector('meta[name="stripe-account-id"]')?.content;
+
+        return stripeConnect
+            ? Stripe(publishableKey, {stripeAccount: stripeConnect})
+            : Stripe(publishableKey);
+    }
 
     function confirmPayment(stripe, clientSecret){
-        stripe.confirmUsBankAccountPayment(clientSecret)
+        return stripe.confirmUsBankAccountPayment(clientSecret)
           .then(({paymentIntent, error}) => {
             console.log(paymentIntent);
             if (error) {
-              console.error(error.message);
-              // The payment failed for some reason.
-            } else if (paymentIntent.status === "requires_payment_method") {
-              // Confirmation failed. Attempt again with a different payment method.
-                  
-                  errors.textContent = "We were unable to process the payment with this account, please try another one.";
-                  errors.hidden = false;
-                  resetButtons();
+                console.error(error.message);
+                showError(error.message);
+                resetButtons();
+                return;
+            }
 
-            } else if (paymentIntent.status === "processing") {
-              // Confirmation succeeded! The account will be debited.
+            if (!paymentIntent) {
+                showError('An unexpected error occurred.');
+                resetButtons();
+                return;
+            }
+
+            if (paymentIntent.status === "requires_payment_method") {
+                showError("We were unable to process the payment with this account, please try another one.");
+                resetButtons();
+                return;
+            }
+
+            if (paymentIntent.status === "processing") {
 
                 let gateway_response = document.getElementById('gateway_response');
                 gateway_response.value = JSON.stringify(paymentIntent);
                 document.getElementById('server-response').submit();
-
-            } else if (paymentIntent.next_action?.type === "verify_with_microdeposits" || paymentIntent.next_action?.type === "requires_source_action") {
-                  errors.textContent = "You will receive an email with details on how to verify your bank account and process payment.";
-                  errors.hidden = false;
-                  document.getElementById('new-bank').style.visibility = 'hidden'
-
-                    let gateway_response = document.getElementById('gateway_response');
-                    gateway_response.value = JSON.stringify(paymentIntent);
-                    document.getElementById('server-response').submit();
+                return;
             }
+
+            if (paymentIntent.next_action?.type === "verify_with_microdeposits" || paymentIntent.next_action?.type === "requires_source_action") {
+                errors.textContent = "You will receive an email with details on how to verify your bank account and process payment.";
+                errors.hidden = false;
+                document.getElementById('new-bank').style.visibility = 'hidden'
+
+                let gateway_response = document.getElementById('gateway_response');
+                gateway_response.value = JSON.stringify(paymentIntent);
+                document.getElementById('server-response').submit();
+                return;
+            }
+
+            showError('We were unable to process this payment.');
+            resetButtons();
+          })
+          .catch((error) => {
+              showError(error.message || 'An unexpected error occurred.');
+              resetButtons();
           });
-    
+    }
+
+    function showError(message)
+    {
+        errors.textContent = message;
+        errors.hidden = false;
     }
 
     /**
      * Nacha requires a complete billing address on the bank account payment method.
-     * A partial address is rejected outright, so send nothing unless we have a street.
+     * Line 2 is optional; every other address field must be present.
      */
     function billingAddress()
     {
-        const meta = (name) => document.querySelector(`meta[name="${name}"]`)?.content || '';
+        const meta = (name) => document.querySelector(`meta[name="${name}"]`)?.content.trim() || '';
 
         const address = {
             line1: meta('address-1'),
@@ -244,10 +388,12 @@
             city: meta('city'),
             state: meta('state'),
             postal_code: meta('postal_code'),
-            country: meta('country'),
+            country: meta('country').toUpperCase(),
         };
 
-        if (address.line1.length === 0) {
+        const requiredFields = ['line1', 'city', 'state', 'postal_code', 'country'];
+
+        if (requiredFields.some((field) => address[field].length === 0) || address.country.length !== 2) {
             return null;
         }
 
@@ -256,12 +402,15 @@
 
     function resetButtons()
     {
-        
         let newBankButton = document.getElementById('new-bank');
-        newBankButton.disabled = false;
-        newBankButton.querySelector('svg').classList.add('hidden');
-        newBankButton.querySelector('span').classList.remove('hidden');
+        setButtonLoading(newBankButton, false);
+    }
 
+    function setButtonLoading(button, loading)
+    {
+        button.disabled = loading;
+        button.querySelector('svg').classList.toggle('hidden', !loading);
+        button.querySelector('span').classList.toggle('hidden', loading);
     }
 </script>
 @endpush

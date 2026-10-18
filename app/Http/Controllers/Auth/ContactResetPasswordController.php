@@ -105,15 +105,20 @@ class ContactResetPasswordController extends Controller
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
         }
 
-        $request->validate($this->rules(), $this->validationErrorMessages());
+        $rules = $this->rules();
+        $rules['token'] = ['required', 'string'];
+
+        $request->validate($rules, $this->validationErrorMessages());
+
+        $token = $request->input('token');
 
         $user = ClientContact::where([
             'email' => $request->input('email'),
-            'token' => $request->input('token'),
+            'token' => $token,
         ])->first();
 
-        if (! $user) {
-            return $this->sendResetFailedResponse($request, PASSWORD::INVALID_USER);
+        if (! $user || ! $this->resetTokenIsValid($token)) {
+            return $this->sendResetFailedResponse($request, Password::INVALID_TOKEN);
         }
 
         $hashed_password = Hash::make($request->input('password'));
@@ -152,5 +157,14 @@ class ContactResetPasswordController extends Controller
     public function broker()
     {
         return Password::broker('contacts');
+    }
+
+    private function resetTokenIsValid(string $token): bool
+    {
+        if (! preg_match('/^(\d{10})\.[A-Za-z0-9]{49}$/D', $token, $matches)) {
+            return false;
+        }
+
+        return now()->timestamp <= (int) $matches[1];
     }
 }

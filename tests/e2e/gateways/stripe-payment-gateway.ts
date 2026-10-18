@@ -1,6 +1,10 @@
 import { expect, type Page } from '@playwright/test';
+import { dismissCookieConsent } from '../client-portal-helpers';
 import { BasePaymentGateway } from './base-payment-gateway';
-import { fillStripeTestCard } from './payment-flow-helpers';
+import {
+    fillStripeTestCard,
+    submitRequiredClientInfoIfPresent,
+} from './payment-flow-helpers';
 import { GatewayType } from './types';
 
 export class StripePaymentGateway extends BasePaymentGateway {
@@ -20,12 +24,12 @@ export class StripePaymentGateway extends BasePaymentGateway {
     }
 
     async completePayment(page: Page): Promise<void> {
-        const consent = page.getByRole('button', { name: 'Got it!' });
-        if (await consent.isVisible().catch(() => false)) {
-            await consent.click();
-        }
-
+        await dismissCookieConsent(page);
+        await submitRequiredClientInfoIfPresent(page);
         await fillStripeTestCard(page);
-        await page.locator('#pay-now').click({ force: true });
+
+        const payNow = page.locator('#pay-now');
+        await expect(payNow).toBeEnabled({ timeout: 30_000 });
+        await payNow.click();
     }
 }

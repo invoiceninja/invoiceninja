@@ -60,7 +60,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $portal_domain
  * @property bool $enable_modules //alias for DocuNinja is active / available
  * @property object $custom_fields
- * @property \App\DataMapper\CompanySettings|\stdClass $settings
+ * @property \App\DataMapper\CompanySettings|\stdClass|array $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -823,7 +823,7 @@ class Company extends BaseModel
 
     public function tokens_hashed(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(CompanyToken::class);
+        return $this->hasMany(CompanyToken::class)->where('is_system', false);
     }
 
     public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -1073,7 +1073,7 @@ class Company extends BaseModel
     public function shouldPushToQuickbooks(string $entity): bool
     {
         
-        if (is_null($this->getRawOriginal('quickbooks')) && $this->account->isFreeHostedClient()) {
+        if (is_null($this->getRawOriginal('quickbooks')) || $this->account->isFreeHostedClient()) {
             return false;
         }
 
@@ -1101,6 +1101,5 @@ class Company extends BaseModel
     public function docuninjaActive(): bool
     {
         return (app()->environment('local') || Ninja::isHosted()) && $this->enable_modules && $this->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS);
-        // return $this->enable_modules && Ninja::isHosted();
     }
 }

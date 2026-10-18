@@ -12,6 +12,8 @@
 
 namespace App\Services\Pdf;
 
+use App\DataMapper\InvoiceItem;
+
 /**
  * Converts JSON-based visual designer output to PdfBuilder sections format
  *
@@ -142,6 +144,18 @@ class JsonToSectionsAdapter
     }
 
     /**
+     * Sort and group an arbitrary block subset without touching the
+     * all-blocks caches used by toSections() / getRowGroupedBlocks().
+     *
+     * @param array<int, array<string, mixed>> $blocks
+     * @return array<int, array<int, array<string, mixed>>>
+     */
+    public function getRowGroupedBlocksFor(array $blocks): array
+    {
+        return $this->groupBlocksIntoRows($this->sortBlocksByPosition($blocks));
+    }
+
+    /**
      * Return blocks sorted by grid position, computing the order once for the
      * adapter lifetime.
      */
@@ -234,6 +248,7 @@ class JsonToSectionsAdapter
             // Preset text blocks from the visual designer (same JSON shape as `text`).
             'terms', 'footer', 'public-notes' => $this->convertTextBlock($block),
             'text' => $this->convertTextBlock($block),
+            'twig' => $this->convertTwigBlock($block),
             'divider' => $this->convertDividerBlock($block),
             'spacer' => $this->convertSpacerBlock($block),
             'qrcode' => $this->convertQRCodeBlock($block),
@@ -1069,6 +1084,9 @@ class JsonToSectionsAdapter
 
         // Format based on field type
         switch ($fieldName) {
+            case 'tags':
+                return InvoiceItem::formatTagsForDisplay($value);
+
             case 'quantity':
                 return $this->service->config->formatValueNoTrailingZeroes($value);
 
@@ -1248,6 +1266,55 @@ class JsonToSectionsAdapter
         }
 
         return ['label' => $label, 'value' => $value];
+    }
+
+    /**
+     * Convert a visual-designer Twig widget.
+     *
+     * PdfBuilder::parseTwigElements() compiles every `<ninja>` DOM node.
+     * The widget must emit a real ninja element — not escaped text inside a
+     * div — or Twig never runs. Outer `<ninja>` tags in the saved source are
+     * stripped so a pasted classic snippet is not nested.
+     */
+    private function convertTwigBlock(array $block): array
+    {
+        return [
+            'id' => $block['id'],
+            'elements' => [
+                [
+                    'element' => 'div',
+                    'properties' => [
+                        'class' => 'invoice-twig-content',
+                        'style' => 'width:100%;max-width:100%;min-width:0;box-sizing:border-box;position:relative;',
+                    ],
+                    'elements' => [
+                        [
+                            'element' => 'ninja',
+                            'content' => $this->twigSource($block),
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $block
+     */
+    private function twigSource(array $block): string
+    {
+        $properties = is_array($block['properties'] ?? null) ? $block['properties'] : [];
+        $content = $properties['content'] ?? '';
+
+        if (!is_string($content)) {
+            return '';
+        }
+
+        if (preg_match('/^\s*<ninja\b[^>]*>(.*)<\/ninja>\s*$/is', $content, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return $content;
     }
 
     /**

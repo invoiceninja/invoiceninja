@@ -20,7 +20,7 @@ use Illuminate\Http\Response;
 use App\Helpers\Encrypt\Secure;
 use App\Jobs\Account\CreateAccount;
 use App\Transformers\AccountTransformer;
-use App\Transformers\CompanyUserTransformer;
+use App\Transformers\AuthenticatedCompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Requests\Account\CreateAccountRequest;
 use App\Http\Requests\Account\UpdateAccountRequest;
@@ -31,7 +31,7 @@ class AccountController extends BaseController
 
     protected $entity_type = CompanyUser::class;
 
-    protected $entity_transformer = CompanyUserTransformer::class;
+    protected $entity_transformer = AuthenticatedCompanyUserTransformer::class;
 
     public function __construct()
     {

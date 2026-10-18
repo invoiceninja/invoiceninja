@@ -99,7 +99,7 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne([ctrans('texts.tax_summary')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
 
-        if ($this->input['date_range'] != 'all') {
+        if (! in_array($this->input['date_range'], ['all', 'all_time'], true)) {
             $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->start_date, $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->end_date, $this->company->date_format(), $this->company->locale())]);
         }
 
@@ -177,7 +177,7 @@ class TaxSummaryReport extends BaseExport
         $exempt_sales_formatted = Number::formatValue($exempt_sales, $this->company->currency());
 
         // Cash activity is initialized from paymentables, then projected from immutable events.
-        $is_all = $this->input['date_range'] == 'all';
+        $is_all = in_array($this->input['date_range'], ['all', 'all_time'], true);
         $timezone = $this->company->timezone()?->name ?: config('app.timezone');
         $paymentable_query = Paymentable::query()
             ->with(['payment' => fn ($query) => $query->withTrashed()])

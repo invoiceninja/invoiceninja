@@ -59,7 +59,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $date_format_default = $date_format->format;
         }
 
-        if (is_array($logs)) {
+        if (is_array($logs) && count($logs) > 0) {
             $item = $logs[0];
             return Carbon::createFromTimeStamp((int) $item[0])->setTimezone($timezone_name)->format($date_format_default);
         }
@@ -88,8 +88,13 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $date_format_default = $date_format->format;
         }
 
-        if (is_array($logs)) {
-            $item = $logs[1];
+        if (is_array($logs) && count($logs) > 0) {
+            $item = $logs[array_key_last($logs)];
+
+            if (! isset($item[1]) || $item[1] == 0) {
+                return ctrans('texts.is_running');
+            }
+
             return Carbon::createFromTimeStamp((int) $item[1])->setTimezone($timezone_name)->format($date_format_default);
         }
 
@@ -119,6 +124,28 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     public function duration(Task $task)
     {
         return $task->calcDuration();
+    }
+
+    public function due_date(Task $task)
+    {
+        if (!$task->due_date) {
+            return '';
+        }
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($task->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        return Carbon::parse($task->due_date)->format($date_format_default);
+    }
+
+    public function estimated_duration(Task $task)
+    {
+        return is_null($task->estimated_duration) ? '' : (int) $task->estimated_duration;
     }
 
     public function status_id(Task $task)

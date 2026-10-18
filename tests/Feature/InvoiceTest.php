@@ -122,6 +122,28 @@ class InvoiceTest extends TestCase
             ->assertJsonValidationErrors(['client_id']);
     }
 
+    public function testLineItemTagsArePersistedAsNormalizedCommaSeparatedNames(): void
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tags = ' Retail,Priority Customer, Retail,Wholesale ';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => [$item],
+        ])->assertStatus(200);
+
+        $response->assertJsonPath('data.line_items.0.tags', 'Retail,Priority Customer,Wholesale');
+
+        $invoice = Invoice::findOrFail($this->decodePrimaryKey($response->json('data.id')));
+
+        $this->assertSame('Retail,Priority Customer,Wholesale', $invoice->line_items[0]->tags);
+    }
+
     public function testLineItemValidation()
     {
 

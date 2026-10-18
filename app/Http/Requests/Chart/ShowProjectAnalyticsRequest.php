@@ -55,12 +55,19 @@ class ShowProjectAnalyticsRequest extends Request
         $user = auth()->user();
 
         $input = $this->all();
+        $project = $this->project();
         $input['include_drafts'] = filter_var($input['include_drafts'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         if ($user && isset($input['date_range'])) {
             $dates = $this->calculateStartAndEndDates($input, $user->company());
             $input['start_date'] = $dates[0];
             $input['end_date'] = $dates[1];
+
+            if ($input['date_range'] === 'all_time') {
+                $input['start_date'] = $project?->created_at
+                    ? \Carbon\Carbon::parse($project->created_at)->format('Y-m-d')
+                    : '2000-01-01';
+            }
         }
 
         $this->replace($input);

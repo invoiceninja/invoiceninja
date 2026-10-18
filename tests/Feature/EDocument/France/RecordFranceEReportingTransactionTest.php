@@ -93,6 +93,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
 
     public function test_scope_invalidation_discovers_untouched_documents_when_reporting_is_enabled(): void
     {
+        $this->travelTo(CarbonImmutable::parse('2026-09-16 12:00:00', 'Europe/Paris'));
         $invoice = $this->makeInvoice('FR', 'individual');
         Bus::fake();
 
@@ -434,7 +435,7 @@ class RecordFranceEReportingTransactionTest extends TestCase
 
     public function test_schedule_changes_do_not_move_an_accepted_document_into_a_duplicate_scope(): void
     {
-        $invoice = $this->makeInvoice('FR', 'individual');
+        $invoice = $this->makeInvoice('FR', 'individual', '2026-09-15');
         TransactionEvent::create([
             'company_id' => $this->company->id,
             'client_id' => $invoice->client_id,
@@ -724,10 +725,10 @@ class RecordFranceEReportingTransactionTest extends TestCase
 
     public function test_runtime_projection_excludes_domestic_business_documents_from_f10(): void
     {
-        $this->makeInvoice('FR', 'business');
+        $invoice = $this->makeInvoice('FR', 'business');
         $period = ReportingCalendar::currentPeriod(
             ReportingProfile::TenDay,
-            CarbonImmutable::parse('2026-09-15', 'Europe/Paris'),
+            CarbonImmutable::parse($invoice->date, 'Europe/Paris'),
         );
 
         $this->assertSame([], app(FranceRuntimeProjection::class)->current(
@@ -786,8 +787,12 @@ class RecordFranceEReportingTransactionTest extends TestCase
         $this->company = $this->company->fresh();
     }
 
-    private function makeInvoice(string $countryCode, string $classification): Invoice
+    private function makeInvoice(string $countryCode, string $classification, ?string $date = null): Invoice
     {
+        $date ??= ReportingCalendar::currentPeriod(
+            ReportingProfile::TenDay,
+            CarbonImmutable::now('Europe/Paris'),
+        )->start->toDateString();
         $country = Country::query()->where('iso_3166_2', $countryCode)->firstOrFail();
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
@@ -814,8 +819,8 @@ class RecordFranceEReportingTransactionTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'number' => 'FR-RUNTIME-' . $client->id,
-            'date' => '2026-09-15',
-            'due_date' => '2026-10-15',
+            'date' => $date,
+            'due_date' => CarbonImmutable::parse($date, 'Europe/Paris')->addMonth()->toDateString(),
             'status_id' => Invoice::STATUS_SENT,
             'line_items' => [$item],
         ]);

@@ -1,4 +1,8 @@
 import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
 export interface PlaywrightUrls {
     apiUrl: string;
@@ -6,10 +10,12 @@ export interface PlaywrightUrls {
 }
 
 export function loadPlaywrightEnvironment(): void {
-    const envFile = '.env';
+    for (const envFile of ['.env', '.env.testing', '.env.playwright']) {
+        const path = resolve(projectRoot, envFile);
 
-    if (existsSync(envFile)) {
-        process.loadEnvFile(envFile);
+        if (existsSync(path)) {
+            process.loadEnvFile(path);
+        }
     }
 }
 

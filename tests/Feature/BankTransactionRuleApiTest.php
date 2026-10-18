@@ -158,6 +158,46 @@ class BankTransactionRuleApiTest extends TestCase
         $this->assertEquals('A New Name For The First Rule', $arr['data']['name']);
     }
 
+    public function testBankRuleCanBeStoredWithTheIsEmptyOperator(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transaction_rules/', $this->isEmptyRulePayload());
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.rules.0.operator', 'is_empty');
+    }
+
+    public function testBankRuleCanBeUpdatedToUseTheIsEmptyOperator(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson(
+            '/api/v1/bank_transaction_rules/' . $this->bank_transaction_rule->hashed_id,
+            $this->isEmptyRulePayload(),
+        );
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.rules.0.operator', 'is_empty');
+    }
+
+    public function testBankRuleStillRequiresAValueForOperatorsThatCompareValues(): void
+    {
+        $payload = $this->isEmptyRulePayload();
+        $payload['rules'][0]['operator'] = 'contains';
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transaction_rules/', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['rules.0.value']);
+    }
+
     public function testBankTransactionRuleGet()
     {
         $response = $this->withHeaders([
@@ -214,5 +254,23 @@ class BankTransactionRuleApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function isEmptyRulePayload(): array
+    {
+        return [
+            'name' => 'Empty description rule',
+            'rules' => [[
+                'operator' => 'is_empty',
+                'search_key' => 'description',
+                'value' => '',
+            ]],
+            'auto_convert' => false,
+            'matches_on_all' => true,
+            'applies_to' => 'DEBIT',
+        ];
     }
 }

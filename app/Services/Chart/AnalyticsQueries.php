@@ -468,6 +468,7 @@ trait AnalyticsQueries
             JOIN clients
                 ON clients.id = quotes.client_id
                 AND clients.is_deleted = 0
+                AND clients.deleted_at IS NULL
             LEFT JOIN (
                 SELECT
                     q.client_id,
@@ -495,13 +496,16 @@ trait AnalyticsQueries
                 ON client_conv.client_id = quotes.client_id
             WHERE quotes.company_id = :company_id
             AND quotes.is_deleted = 0
+            AND quotes.deleted_at IS NULL
             AND quotes.status_id IN (2, 3)
             AND quotes.invoice_id IS NULL
+            AND (quotes.due_date IS NULL OR quotes.due_date >= :today)
             {$user_filter}
             ORDER BY quotes.date ASC
         ", [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
+            'today' => $this->companyToday(),
             'company_id_conv' => $this->company->id,
         ]);
     }
@@ -960,11 +964,13 @@ trait AnalyticsQueries
             JOIN clients
                 ON clients.id = quotes.client_id
                 AND clients.is_deleted = 0
+                AND clients.deleted_at IS NULL
             WHERE quotes.company_id = :company_id
             AND quotes.is_deleted = 0
+            AND quotes.deleted_at IS NULL
             AND quotes.status_id IN (2, 3)
             AND quotes.invoice_id IS NULL
-            AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
+            AND (quotes.due_date IS NULL OR quotes.due_date >= :today)
             AND (quotes.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             {$user_filter}
@@ -974,6 +980,7 @@ trait AnalyticsQueries
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
+            'today' => $this->companyToday(),
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
@@ -1003,17 +1010,20 @@ trait AnalyticsQueries
             JOIN clients
                 ON clients.id = quotes.client_id
                 AND clients.is_deleted = 0
+                AND clients.deleted_at IS NULL
             WHERE quotes.company_id = :company_id
             AND quotes.is_deleted = 0
+            AND quotes.deleted_at IS NULL
             AND quotes.status_id IN (2, 3)
             AND quotes.invoice_id IS NULL
-            AND (quotes.due_date IS NULL OR quotes.due_date >= CURDATE())
+            AND (quotes.due_date IS NULL OR quotes.due_date >= :today)
             AND (quotes.date BETWEEN :start_date AND :end_date)
             {$user_filter}
             GROUP BY DATE_FORMAT(quotes.date, '%Y-%m-01')
             ORDER BY DATE_FORMAT(quotes.date, '%Y-%m-01') ASC
         ", [
             'company_id' => $this->company->id,
+            'today' => $this->companyToday(),
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);

@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $remaining_cycles
  * @property-read \App\Models\Company $company
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\SchedulerFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler filter(\App\Filters\QueryFilters $filters)

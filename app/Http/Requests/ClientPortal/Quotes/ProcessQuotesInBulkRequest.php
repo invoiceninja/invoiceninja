@@ -28,8 +28,9 @@ class ProcessQuotesInBulkRequest extends FormRequest
     public function rules()
     {
         return [
-            'quotes' => ['array'],
-            'action' => 'sometimes',
+            'quotes' => ['required_without:request_hash', 'array'],
+            'action' => ['required_without:request_hash', 'in:download,approve,reject'],
+            'request_hash' => ['sometimes', 'string', 'regex:/^[A-Za-z0-9]{64}$/'],
         ];
     }
 }

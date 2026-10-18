@@ -116,6 +116,76 @@ test.describe('Client portal quotes', () => {
         expect(Number(updated.status_id)).toBe(QUOTE_STATUS.APPROVED);
     });
 
+    test('completes quote approval after a DocuNinja signature event when available', async ({
+        api,
+        page,
+    }) => {
+        const client = await createAndLogInClient(api, page, {
+            settings: { require_quote_signature: true },
+        });
+        const quote = await createSentQuote(api, client, {
+            label: uniqueName('quote-docuninja-signature'),
+            cost: 71,
+        });
+
+        await page.goto(`/client/quotes/${quote.id}`);
+        await dismissCookieConsent(page);
+        await page.locator('#approve-button').click();
+
+        const docuNinjaSurface = page.locator('#sign');
+        const signingMode = await Promise.race([
+            docuNinjaSurface
+                .waitFor({ state: 'visible', timeout: 20_000 })
+                .then(() => 'docuninja' as const),
+            page
+                .locator('#displaySignatureModal')
+                .waitFor({ state: 'visible', timeout: 20_000 })
+                .then(() => 'canvas' as const),
+        ]).catch(() => 'unavailable' as const);
+
+        test.skip(
+            signingMode !== 'docuninja',
+            'DocuNinja is not active or its signing service is unavailable',
+        );
+
+        const approvalRequests: string[] = [];
+        page.on('request', (request) => {
+            if (new URL(request.url()).pathname === '/client/quotes/approve') {
+                approvalRequests.push(request.method());
+            }
+        });
+
+        await waitForLivewire(page, async () => {
+            await page.evaluate(() => {
+                const livewire = (
+                    window as typeof window & {
+                        Livewire?: { dispatch: (event: string) => void };
+                    }
+                ).Livewire;
+
+                if (!livewire) {
+                    throw new Error('Livewire is unavailable');
+                }
+
+                livewire.dispatch('docuninja-signature-captured');
+            });
+        });
+
+        await expect(page.getByRole('heading', { name: 'Approved' })).toBeVisible({
+            timeout: 30_000,
+        });
+
+        expect(approvalRequests).toContain('POST');
+        expect(approvalRequests).not.toContain('GET');
+
+        const updated = await getEntity<PortalEntity>(
+            api.context,
+            'quotes',
+            quote.id,
+        );
+        expect(Number(updated.status_id)).toBe(QUOTE_STATUS.APPROVED);
+    });
+
     test('rejects a quote from the detail page', async ({ api, page }) => {
         const client = await createAndLogInClient(api, page);
         const quote = await createSentQuote(api, client, {

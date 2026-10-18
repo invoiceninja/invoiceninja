@@ -132,6 +132,7 @@ class UpdateCompanyUserTest extends TestCase
         CompanyUser::whereUserId($this->user->id)
             ->whereCompanyId($this->company->id)
             ->update([
+                'is_owner' => false,
                 'is_admin' => false,
                 'permissions' => 'view_client',
             ]);

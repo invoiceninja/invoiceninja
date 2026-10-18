@@ -38,6 +38,9 @@ class UpdateRecurringExpenseRequest extends Request
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [];
 
@@ -56,6 +59,10 @@ class UpdateRecurringExpenseRequest extends Request
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
+
+        if ($this->client_id) {
+            $rules['client_id'] = 'bail|sometimes|integer|exists:clients,id,company_id,' . $user->company()->id;
+        }
 
         return $this->globalRules($rules);
     }

@@ -75,7 +75,7 @@ class DocumentSettingsResolverTest extends TestCase
         $this->assertSame('Lato', $resolved->secondary_font);
         $this->assertFalse($resolved->show_paid_stamp);
         $this->assertFalse($resolved->show_shipping_address);
-        $this->assertFalse($resolved->embed_documents);
+        $this->assertTrue($resolved->embed_documents);
         $this->assertFalse($resolved->hide_empty_columns_on_pdf);
         $this->assertFalse($resolved->page_numbering);
     }
@@ -122,5 +122,15 @@ class DocumentSettingsResolverTest extends TestCase
         $resolved = (new DocumentSettingsResolver($design, $this->baseSettings()))->resolve();
 
         $this->assertSame('untouched', $resolved->unrelated);
+    }
+
+    public function testEmbedDocumentsStaysOnTheCompanySetting(): void
+    {
+        $design = ['documentSettings' => ['embedDocuments' => false, 'pageSize' => 'legal']];
+
+        $resolved = (new DocumentSettingsResolver($design, $this->baseSettings()))->resolve();
+
+        $this->assertTrue($resolved->embed_documents);
+        $this->assertSame('legal', $resolved->page_size);
     }
 }

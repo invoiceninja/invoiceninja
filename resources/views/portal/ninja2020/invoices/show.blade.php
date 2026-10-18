@@ -5,7 +5,6 @@
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $requires_signature }}">
     @include('portal.ninja2020.components.no-cache')
-    <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 
 @endpush
 
@@ -93,7 +92,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $invoice])
-    @livewire('pdf-slot', ['class' => get_class($invoice), 'entity_id' => $invoice->id, 'invitation_id' => $invitation->id ?? false, 'db' => $invoice->company->db])
+    @livewire('pdf-slot', ['entity_type' => 'invoice', 'entity_key' => $invoice->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $invoice->company->db])
 
 @endsection
 

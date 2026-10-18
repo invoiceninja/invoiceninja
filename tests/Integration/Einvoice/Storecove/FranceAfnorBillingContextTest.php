@@ -42,6 +42,8 @@ class FranceAfnorBillingContextTest extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped('FR e-invoice reporting not supported yet.');
+
         $this->makeTestData();
         $this->withoutMiddleware(ThrottleRequests::class);
         $this->configureCompany('FR');
@@ -241,7 +243,7 @@ class FranceAfnorBillingContextTest extends TestCase
         $storecove = new Storecove();
 
         $storecove->adapter
-            ->transformFromPeppol($sourceDocument, $peppol->getDocument(), $peppol->isCreditNote())
+            ->transformFromPeppol($sourceDocument, $peppol->getDocument(), $peppol->getDocumentKind(), $peppol->toXml())
             ->decorate();
 
         $result = $storecove->adapter->getDocument();

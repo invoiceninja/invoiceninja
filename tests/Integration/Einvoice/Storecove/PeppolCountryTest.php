@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Product;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
@@ -120,6 +121,7 @@ class PeppolCountryTest extends TestCase
                 'vat' => 'FI12345678', 'id_number' => '003712345678', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
+                'routing_id' => '003721291126',
             ],
             'FR' => [
                 'vat' => 'FRAA123456789', 'id_number' => '12345678901234', 'tax_rate' => 20, 'tax_name' => 'TVA',
@@ -293,6 +295,7 @@ class PeppolCountryTest extends TestCase
         $item->notes = 'Test Description';
         $item->cost = 100;
         $item->quantity = 2;
+        $item->tax_id = (string) Product::PRODUCT_TYPE_PHYSICAL;
         $item->tax_rate1 = $params['tax_rate'] ?? $sd['tax_rate'];
         $item->tax_name1 = $params['tax_name'] ?? $sd['tax_name'];
 
@@ -364,7 +367,7 @@ class PeppolCountryTest extends TestCase
         // ── Storecove adapter (transform + decorate) ──
         $storecove = new Storecove();
         $storecove->adapter
-            ->transformFromPeppol($fresh, $peppol, $p->isCreditNote())
+            ->transformFromPeppol($fresh, $peppol, $p->getDocumentKind(), $xml)
             ->decorate();
         $storecoveInvoice = $storecove->adapter->getInvoice();
 
@@ -437,7 +440,11 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'AT', 'client_country' => 'AT',
             'client_classification' => 'business',
         ]);
-        $this->runAndValidate($data['invoice'], 'AT => AT (business)');
+        $this->assertEquals(20, $data['invoice']->line_items[0]->tax_rate1);
+        $result = $this->runAndValidate($data['invoice'], 'AT => AT (business)');
+        $category = $result['peppol']->InvoiceLine[0]->Item->ClassifiedTaxCategory[0];
+        $this->assertSame('S', $category->ID->value);
+        $this->assertEquals(20, $category->Percent);
     }
 
     public function testAT_Domestic_Government(): void
@@ -546,7 +553,12 @@ class PeppolCountryTest extends TestCase
         $data = $this->buildScenario([
             'company_country' => 'FI', 'client_country' => 'FI',
         ]);
-        $this->runAndValidate($data['invoice'], 'FI => FI (business)');
+        $result = $this->runAndValidate($data['invoice'], 'FI => FI (business)');
+
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT)');
+        $this->assertSame('0037', $customerEndpoint->schemeID);
+        $this->assertSame('003712345678', $customerEndpoint->value);
     }
 
     // ── FR (France) ──
@@ -608,7 +620,7 @@ class PeppolCountryTest extends TestCase
 
         $storecove = new Storecove();
         $storecove->adapter
-            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->getDocumentKind(), $p->toXml())
             ->decorate();
 
         $document = $storecove->adapter->getDocument();
@@ -647,7 +659,7 @@ class PeppolCountryTest extends TestCase
 
         $storecove = new Storecove();
         $storecove->adapter
-            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->getDocumentKind(), $p->toXml())
             ->decorate();
 
         $document = $storecove->adapter->getDocument();
@@ -680,7 +692,7 @@ class PeppolCountryTest extends TestCase
 
         $storecove = new Storecove();
         $storecove->adapter
-            ->transformFromPeppol($invoice, $p->getDocument(), $p->isCreditNote())
+            ->transformFromPeppol($invoice, $p->getDocument(), $p->getDocumentKind(), $p->toXml())
             ->decorate();
 
         $document = $storecove->adapter->getDocument();
@@ -1008,6 +1020,11 @@ class PeppolCountryTest extends TestCase
 
         $this->assertContains('FI:OVT', $schemes, 'FI receiver must have FI:OVT (routing) in publicIdentifiers');
         $this->assertContains('FI:VAT', $schemes, 'FI receiver must have FI:VAT in publicIdentifiers when invoice has VAT');
+
+        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT) when routing_id is OPID');
+        $this->assertSame('0037', $customerEndpoint->schemeID);
+        $this->assertSame('003712345678', $customerEndpoint->value);
     }
 
     public function testSE_to_DK_Business(): void

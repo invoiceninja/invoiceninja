@@ -101,6 +101,15 @@ class ProjectRepository extends BaseRepository
 
         if (count($projects) == 1) {
             $invoice->project_id = $_project->id;
+
+            /** If invoicing a project with an attached PO Number - place the PO number */
+            if($_project->quotes->count() == 1){
+                $quote = $_project->quotes->first();
+                
+                if(strlen($quote->po_number ?? '') >= 1){
+                    $invoice->po_number = $quote->po_number;
+                }
+            }
         }
         // $invoice->project_id = $project->id;
 
@@ -144,7 +153,8 @@ class ProjectRepository extends BaseRepository
             $project->expenses()
                 ->withTrashed()
                 ->where('should_be_invoiced', true)
-                ->whereNull('payment_date')
+                ->whereNull('invoice_id')
+                ->where('is_deleted', 0)
                 ->cursor()
                 ->each(function ($expense) use (&$lines) {
 
@@ -154,11 +164,11 @@ class ProjectRepository extends BaseRepository
                     $item->product_key = $expense->category()->exists() ? $expense->category->name : '';
                     $item->notes = $expense->public_notes ?? '';
                     $item->line_total = round($item->cost * $item->quantity, 2);
-                    $item->tax_name1 = $expense->tax_name1;
+                    $item->tax_name1 = $expense->tax_name1 ?? '';
                     $item->tax_rate1 = $expense->calculatedTaxRate($expense->tax_amount1, $expense->tax_rate1);
-                    $item->tax_name2 = $expense->tax_name2;
+                    $item->tax_name2 = $expense->tax_name2 ?? '';
                     $item->tax_rate2 = $expense->calculatedTaxRate($expense->tax_amount2, $expense->tax_rate2);
-                    $item->tax_name3 = $expense->tax_name3;
+                    $item->tax_name3 = $expense->tax_name3 ?? '';
                     $item->tax_rate3 = $expense->calculatedTaxRate($expense->tax_amount3, $expense->tax_rate3);
                     $item->tax_id = (string) Product::PRODUCT_TYPE_PHYSICAL;
                     $item->expense_id = $expense->hashed_id;

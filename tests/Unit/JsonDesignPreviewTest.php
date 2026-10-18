@@ -63,6 +63,7 @@ class JsonDesignPreviewTest extends TestCase
         $this->assertStringContainsString('Invoice', $result->template);
         $this->assertStringContainsString('Body content', $result->template);
         $this->assertStringContainsString('Footer content', $result->template);
+        $this->assertStringNotContainsString('invoice-pagination', $result->template);
     }
 
     // -----------------------------------------------------------------------
@@ -409,6 +410,33 @@ class JsonDesignPreviewTest extends TestCase
             'JSON design HTML should contain invoice-container class from JsonDesignService template');
     }
 
+    public function testPdfMockUsesJsonDesignFromSettingsWhenRequestOmitsDesign(): void
+    {
+        $design = new Design();
+        $design->company_id = $this->company->id;
+        $design->user_id = $this->user->id;
+        $design->is_custom = true;
+        $design->is_active = true;
+        $design->name = 'JSON Live Design Preview';
+        $design->design = $this->jsonDesign;
+        $design->save();
+
+        $settings = (array) $this->company->settings;
+        $settings['invoice_design_id'] = $this->encodePrimaryKey($design->id);
+
+        $request = [
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => $settings,
+        ];
+
+        $html = (new PdfMock($request, $this->company))->build()->getHtml();
+
+        $this->assertStringContainsString('invoice-container', $html);
+        $this->assertStringContainsString($this->jsonDesign['blocks'][0]['id'], $html);
+        $this->assertStringNotContainsString('<p></p></body>', $html);
+    }
+
     // -----------------------------------------------------------------------
     // 17. PdfMock JSON design: json_design_html is set (not null)
     // -----------------------------------------------------------------------
@@ -637,5 +665,36 @@ class JsonDesignPreviewTest extends TestCase
         // No `padding:` shorthand on the table when the prop is unset.
         $this->assertDoesNotMatchRegularExpression('/(^|\W)padding: /', $table_style,
             'Outer table must not emit padding shorthand when prop unset');
+    }
+
+    public function testPdfMockJsonDesignInjectsEntityImagesWhenEmbedEnabled(): void
+    {
+        $settings = (array) $this->company->settings;
+        $settings['embed_documents'] = true;
+
+        $html = (new PdfMock([
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => $settings,
+            'design' => $this->jsonDesign,
+        ], $this->company))->build()->getHtml();
+
+        $this->assertStringContainsString('id="entity-images"', $html);
+        $this->assertStringContainsString('data:image/svg+xml;base64,', $html);
+    }
+
+    public function testPdfMockJsonDesignOmitsEntityImagesWhenEmbedDisabled(): void
+    {
+        $settings = (array) $this->company->settings;
+        $settings['embed_documents'] = false;
+
+        $html = (new PdfMock([
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => $settings,
+            'design' => $this->jsonDesign,
+        ], $this->company))->build()->getHtml();
+
+        $this->assertStringNotContainsString('id="entity-images"', $html);
     }
 }

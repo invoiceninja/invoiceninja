@@ -33,7 +33,7 @@ class RecurringInvoiceFactory
         $invoice->due_date_days = 'terms';
         $invoice->partial_due_date = null;
         $invoice->is_deleted = false;
-        $invoice->line_items = json_encode([]);
+        $invoice->line_items = [];
         $invoice->tax_name1 = '';
         $invoice->tax_rate1 = 0;
         $invoice->tax_name2 = '';

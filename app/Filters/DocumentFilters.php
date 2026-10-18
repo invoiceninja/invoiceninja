@@ -40,6 +40,14 @@ class DocumentFilters extends QueryFilters
     }
 
     /**
+     * Documents do not support the shared active/archived/deleted lifecycle.
+     */
+    public function status(string $filter = ''): Builder
+    {
+        return $this->builder;
+    }
+
+    /**
      * Overriding method as client_id does
      * not exist on this model, just pass
      * back the builder
@@ -117,7 +125,20 @@ class DocumentFilters extends QueryFilters
 
         return $this->builder;
     }
-
+    
+    /**
+     * is_deleted
+     *
+     * There is no is_deleted prop, so just return the builder.
+     * 
+     * @param  string $value
+     * @return Builder
+     */
+    public function is_deleted($value = 'true')
+    {
+        return $this->builder;
+    }
+    
     /**
      * Filters the query by the users company ID.
      *

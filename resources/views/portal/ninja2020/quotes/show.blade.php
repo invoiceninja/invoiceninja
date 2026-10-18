@@ -6,12 +6,11 @@
     <meta name="require-quote-signature" content="{{ $requires_signature }}">
     <meta name="docuninja-active" content="{{ $docuninja_active }}">
     <meta name="accept-user-input" content="{{ $client->getSetting('accept_client_input_quote_approval') }}">
-    <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
 @section('body')
 
-    @if(!$quote->isApproved() && !$quote->isRejected() && $client->getSetting('custom_message_unapproved_quote'))
+    @if(!$quote->isApproved() && !$quote->isRejected() && !$quote->isCancelled() && $client->getSetting('custom_message_unapproved_quote'))
         @component('portal.ninja2020.components.message')
             <pre>{{ $client->getSetting('custom_message_unapproved_quote') }}</pre>
         @endcomponent
@@ -69,6 +68,19 @@
                 </div>
             </div>
         </div>
+    @elseif($quote->status_id == \App\Models\Quote::STATUS_CANCELLED)
+
+        <div class="bg-white shadow sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.cancelled') }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
     @else
 
         <div class="bg-white shadow sm:rounded-lg mb-4">
@@ -93,7 +105,7 @@
     @endif
     
     <div id="pdf-slot-container" class="">
-        @livewire('pdf-slot', ['class' => get_class($quote), 'entity_id' => $quote->id, 'invitation_id' => $invitation->id ?? false, 'db' => $quote->company->db])
+        @livewire('pdf-slot', ['entity_type' => 'quote', 'entity_key' => $quote->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $quote->company->db])
     </div>
 
 @endsection

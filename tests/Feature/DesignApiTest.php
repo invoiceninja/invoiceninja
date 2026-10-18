@@ -75,6 +75,28 @@ class DesignApiTest extends TestCase
         // $dsd = Design::all()->pluck('name')->toArray();
     }
 
+    public function testBulkRejectsMutatingSystemDesign(): void
+    {
+        $design = Design::query()->whereNull('company_id')->first();
+
+        $this->assertNotNull($design);
+
+        foreach (['archive', 'restore', 'delete'] as $action) {
+            $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/designs/bulk', [
+                'ids' => [$design->hashed_id],
+                'action' => $action,
+            ])->assertStatus(422)
+                ->assertJsonValidationErrors(['ids']);
+
+            $design->refresh();
+            $this->assertNull($design->deleted_at);
+            $this->assertFalse((bool) $design->is_deleted);
+        }
+    }
+
     public function testSelectiveDefaultDesignUpdatesInvoice()
     {
         $settings = ClientSettings::defaults();

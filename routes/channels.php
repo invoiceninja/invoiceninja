@@ -16,6 +16,6 @@ Broadcast::channel('company-{company_key}', function (\App\Models\User $user, st
 });
 
 Broadcast::channel('user-{account_key}-{user_id}', function (\App\Models\User $user, string $account_key, string $user_id) {
-    return $user->account->key === $account_key && $user->id === (int)$user_id;
+    return $user->account->key === $account_key && $user->hashed_id === $user_id;
 });
 

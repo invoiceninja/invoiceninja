@@ -15,6 +15,8 @@ const accountCount = positiveInt(
 // seeded account lanes; 8 headed Chromiums is what wedges `context` setup.
 const workerCount = positiveInt(process.env.PLAYWRIGHT_WORKERS, 1);
 const includeFirefox = Boolean(process.env.PLAYWRIGHT_FIREFOX);
+const includeWebKit = Boolean(process.env.PLAYWRIGHT_WEBKIT);
+const includeMobile = Boolean(process.env.PLAYWRIGHT_MOBILE);
 
 function positiveInt(value: string | undefined, fallback: number): number {
     const parsed = Number.parseInt(value ?? '', 10);
@@ -27,9 +29,8 @@ export default defineConfig({
     outputDir: './tests/e2e/test-results',
     fullyParallel: false,
     forbidOnly: Boolean(process.env.CI),
-    retries: process.env.CI ? 2 : 1,
+    retries: process.env.CI ? 2 : 0,
     workers: Math.min(workerCount, accountCount),
-    // Worker-scoped API login + browser boot count toward the first test.
     timeout: 60_000,
     reporter: [
         [process.env.CI ? 'line' : 'list'],
@@ -37,7 +38,13 @@ export default defineConfig({
     ],
     use: {
         baseURL,
-        trace: 'on-first-retry',
+        // PayPal's SDK blocks headless wallet checkout. Default to headed locally
+        // (CLI and VS Code); set PLAYWRIGHT_HEADLESS=1 to force headless.
+        headless: true,
+        // headless:
+        //     process.env.PLAYWRIGHT_HEADLESS === '1' ||
+        //     process.env.CI === 'true',
+        trace: process.env.CI ? 'on-first-retry' : 'off',
         screenshot: 'only-on-failure',
         // Video starts when the browser context is created and can push slow
         // boots over the fixture budget. Keep it for CI / opt-in.
@@ -47,6 +54,20 @@ export default defineConfig({
                 : 'off',
     },
     projects: [
+        ...(includeMobile
+            ? [
+                  {
+                      name: 'mobile-chromium',
+                      testMatch: /client-portal-mobile-.*\.spec\.ts/,
+                      use: { ...devices['Pixel 5'], bypassCSP: true },
+                  },
+                  {
+                      name: 'mobile-webkit',
+                      testMatch: /client-portal-mobile-.*\.spec\.ts/,
+                      use: { ...devices['iPhone 13'], bypassCSP: true },
+                  },
+              ]
+            : []),
         {
             name: 'chromium',
             use: {
@@ -67,6 +88,14 @@ export default defineConfig({
                   {
                       name: 'firefox',
                       use: { ...devices['Desktop Firefox'] },
+                  },
+              ]
+            : []),
+        ...(includeWebKit
+            ? [
+                  {
+                      name: 'webkit',
+                      use: { ...devices['Desktop Safari'], bypassCSP: true },
                   },
               ]
             : []),

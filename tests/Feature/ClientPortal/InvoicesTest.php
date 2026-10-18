@@ -43,7 +43,7 @@ class InvoicesTest extends TestCase
         $this->faker = Factory::create();
     }
 
-    public function testDefaultInvoiceViewRemovesStaleGatewayFeeBeforeRenderingPaymentAmount(): void
+    public function testDefaultInvoiceViewDoesNotMutateTheInvoice(): void
     {
         $this->withoutVite();
 
@@ -82,14 +82,16 @@ class InvoicesTest extends TestCase
         $line_item->quantity = 1;
         $line_item->cost = 100;
 
-        $stale_gateway_fee = InvoiceItemFactory::create();
-        $stale_gateway_fee->quantity = 1;
-        $stale_gateway_fee->cost = 5;
-        $stale_gateway_fee->type_id = '3';
+        /** A confirmed gateway fee from a completed payment. It must survive being viewed. */
+        $confirmed_gateway_fee = InvoiceItemFactory::create();
+        $confirmed_gateway_fee->quantity = 1;
+        $confirmed_gateway_fee->cost = 5;
+        $confirmed_gateway_fee->type_id = '4';
+        $confirmed_gateway_fee->unit_code = 'confirmed-fee-hash';
 
         $invoice = InvoiceFactory::create($company->id, $user->id);
         $invoice->client_id = $client->id;
-        $invoice->line_items = [$line_item, $stale_gateway_fee];
+        $invoice->line_items = [$line_item, $confirmed_gateway_fee];
         $invoice->uses_inclusive_taxes = false;
         $invoice->save();
 
@@ -103,7 +105,9 @@ class InvoicesTest extends TestCase
         ]);
 
         $this->assertSame(105.0, (float) $invoice->fresh()->balance);
-        $this->assertTrue(collect($invoice->fresh()->line_items)->contains('type_id', '3'));
+        $this->assertTrue(collect($invoice->fresh()->line_items)->contains('type_id', '4'));
+
+        $line_items = json_encode($invoice->fresh()->line_items);
 
         $this->actingAs($contact, 'contact');
 
@@ -113,8 +117,9 @@ class InvoicesTest extends TestCase
 
         $invoice = $invoice->fresh();
 
-        $this->assertSame(100.0, (float) $invoice->balance);
-        $this->assertFalse(collect($invoice->line_items)->contains('type_id', '3'));
+        $this->assertSame(105.0, (float) $invoice->balance);
+        $this->assertTrue(collect($invoice->line_items)->contains('type_id', '4'), 'viewing an invoice removed a confirmed gateway fee');
+        $this->assertSame($line_items, json_encode($invoice->line_items), 'viewing an invoice altered its line items');
         $response->assertSee(
             'name="payable_invoices[0][amount]" value="'.Number::formatValue($invoice->balance, $client->currency()).'"',
             false

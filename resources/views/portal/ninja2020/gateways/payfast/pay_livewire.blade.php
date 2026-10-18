@@ -103,7 +103,15 @@
                 form.action = "{{ route('client.payments.response') }}";
                 document.querySelector('input[name=token]').value = selectedToken.value;
             } else {
-                const storeCard = form.querySelector('input[name="token-billing-checkbox"]:checked')?.value === 'true';
+                    const tokenBillingAllowed =
+                        @json($gateway->company_gateway->token_billing !== 'off');
+
+                    const storeCard =
+                        tokenBillingAllowed &&
+                        form.querySelector(
+                            'input[name="token-billing-checkbox"]:checked'
+                        )?.value === 'true';
+
 
                 ['custom_int1', 'payment_method', 'subscription_type'].forEach((name) => {
                     form.querySelector(`input[name="${name}"]`).disabled = !storeCard;
