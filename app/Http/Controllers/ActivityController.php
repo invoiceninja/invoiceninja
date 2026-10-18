@@ -92,6 +92,11 @@ class ActivityController extends BaseController
         $activities = $this->activityFeedQuery($default_activities)
                                 ->where("{$request->entity}_id", $request->entity_id);
 
+        // Filtered in SQL, so `rows` counts only the requested types (141 = notes).
+        if ($request->filled('activity_type_id')) {
+            $activities->whereIn('activity_type_id', array_map('intval', explode(',', (string) $request->input('activity_type_id'))));
+        }
+
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
 
