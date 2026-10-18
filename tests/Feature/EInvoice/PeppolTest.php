@@ -74,6 +74,9 @@ class PeppolTest extends TestCase
 
         $settings = CompanySettings::defaults();
         $settings->vat_number = $params['company_vat'] ?? 'DE123456789';
+        $settings->address1 = 'Teststrasse 1';
+        $settings->city = 'Berlin';
+        $settings->postal_code = '10115';
         $settings->country_id = Country::where('iso_3166_2', 'DE')->first()->id;
         $settings->email = uniqid('testuser') . '@gmail.com';
         $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
@@ -1935,6 +1938,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
@@ -2090,6 +2094,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
@@ -2244,6 +2249,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
@@ -2396,6 +2402,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
