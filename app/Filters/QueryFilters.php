@@ -572,10 +572,7 @@ abstract class QueryFilters
 
         try {
 
-            $start_date = Carbon::parse($parts[0]);
-            $end_date = Carbon::parse($parts[1]);
-
-            return $this->builder->whereBetween('created_at', [$start_date, $end_date]);
+            return $this->datetimeBetween('created_at', $parts[0], $parts[1]);
         } catch (\Exception $e) {
             return $this->builder;
         }
@@ -598,14 +595,31 @@ abstract class QueryFilters
 
         try {
 
-            $start_date = Carbon::parse($parts[0]);
-            $end_date = Carbon::parse($parts[1]);
-
-            return $this->builder->whereBetween('updated_at', [$start_date, $end_date]);
+            return $this->datetimeBetween('updated_at', $parts[0], $parts[1]);
         } catch (\Exception $e) {
             return $this->builder;
         }
 
+    }
+
+    /**
+     * Inclusive start,end window on a DATETIME column. A bare end date
+     * (YYYY-MM-DD) covers that whole calendar day, through the same
+     * half-open upper bound comparableDatetime() uses; an end with a time
+     * component is compared exactly, as before.
+     */
+    private function datetimeBetween(string $column, string $start, string $end): Builder
+    {
+        $start_date = Carbon::parse($start);
+        $end_date = Carbon::parse($end);
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($end))) {
+            return $this->builder
+                ->where($column, '>=', $start_date)
+                ->where($column, '<', $end_date->copy()->startOfDay()->addDay());
+        }
+
+        return $this->builder->whereBetween($column, [$start_date, $end_date]);
     }
 
     /**

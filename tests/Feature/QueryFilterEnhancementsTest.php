@@ -429,6 +429,31 @@ class QueryFilterEnhancementsTest extends TestCase
         $this->assertNotContains($hash, $this->ids($miss));
     }
 
+    public function testCreatedAndUpdatedBetweenIncludeTheWholeEndDay()
+    {
+        $this->client->created_at = '2015-06-15 14:00:00';
+        $this->client->updated_at = '2015-06-15 14:00:00';
+        $this->client->saveQuietly();
+
+        $hash = $this->encodePrimaryKey($this->client->id);
+
+        foreach (['created_between', 'updated_between'] as $param) {
+            // A bare end date is the whole of that day, as created_at=eq: already treats it.
+            $match = $this->withHeaders($this->headers())
+                ->get("/api/v1/clients?{$param}=2015-06-15,2015-06-15")
+                ->assertStatus(200)
+                ->json();
+            $this->assertContains($hash, $this->ids($match), $param);
+
+            // An end with a time component is still exact.
+            $miss = $this->withHeaders($this->headers())
+                ->get("/api/v1/clients?{$param}=2015-06-15,2015-06-15%2012:00:00")
+                ->assertStatus(200)
+                ->json();
+            $this->assertNotContains($hash, $this->ids($miss), $param);
+        }
+    }
+
     public function testCreatedAtPlainDateStillAppliesGte()
     {
         // Backward compat: a bare date (no op prefix) keeps the historical
