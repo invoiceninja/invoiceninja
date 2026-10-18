@@ -515,6 +515,20 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame([['total' => '50.000000000000', 'date' => '2026-01-12']], $payload[999]['payments']);
     }
 
+    public function testBatchedSummaryCombinesFallbackAndExplicitCurrencyOnTheSameDate(): void
+    {
+        $fallbackExpense = $this->createChartExpense(['date' => '2026-01-13', 'amount' => 30, 'currency_id' => null, 'uses_inclusive_taxes' => true]);
+        $this->createChartExpense(['date' => '2026-01-13', 'amount' => 40, 'currency_id' => 1, 'uses_inclusive_taxes' => true]);
+
+        $this->assertNull(DB::table('expenses')->where('id', $fallbackExpense->id)->value('currency_id'));
+
+        $this->assertBatchedSummaryMatchesLegacy(
+            new ChartService($this->chartCompany, $this->user, true),
+            '2026-01-01',
+            '2026-01-31'
+        );
+    }
+
     public function testMysqlAndPhpShimsPreserveSoftDeletedRowsWhenIsDeletedIsFalse(): void
     {
         $softDeletedClient = $this->createChartClient(3, $this->user);

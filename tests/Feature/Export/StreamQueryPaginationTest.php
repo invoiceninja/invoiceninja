@@ -88,6 +88,9 @@ class StreamQueryPaginationTest extends TestCase
     public function test_every_export_streams_each_record_once_in_date_then_id_order(string $name, string $fixture, array $keys): void
     {
         $this->makeTestData();
+        // Keep the factory's random date outside the pagination fixture window.
+        $this->recurring_invoice->updateQuietly(['date' => '2019-12-01']);
+
         $class = 'App\\Export\\CSV\\' . $name;
         $dateKey = (new $class($this->company, $this->payload($keys)))->date_key;
         [$model, $ids] = $this->seedPages($fixture, $dateKey);

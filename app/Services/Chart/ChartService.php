@@ -309,13 +309,14 @@ class ChartService
     private function distributeChartRows(array &$data, string $metric, array $rows): void
     {
         foreach ($rows as $row) {
-            $currency_id = (int) $row->currency_id;
+            // Batched queries use a distinct alias to avoid grouping by a raw currency_id column.
+            $currency_id = (int) $row->effective_currency_id;
 
             if (! array_key_exists($currency_id, $data)) {
                 continue;
             }
 
-            unset($row->currency_id);
+            unset($row->effective_currency_id);
 
             $data[$currency_id][$metric][] = $row;
         }
