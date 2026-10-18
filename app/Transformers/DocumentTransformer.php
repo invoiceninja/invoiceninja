@@ -14,6 +14,8 @@ namespace App\Transformers;
 
 use App\Models\Document;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Str;
 
 class DocumentTransformer extends EntityTransformer
 {
@@ -54,6 +56,20 @@ class DocumentTransformer extends EntityTransformer
             'is_deleted' => (bool) false,
             'is_public' => (bool) $document->is_public,
             'link' => (string) $document->link(),
+            'documentable_id' => $this->encodePrimaryKey($document->documentable_id),
+            'documentable_type' => $this->documentableType($document),
         ];
+    }
+
+    /**
+     * The parent record's type as a snake_case entity name, e.g. invoice,
+     * recurring_invoice, client. Morph-mapped types (invoices, proposals) are
+     * stored under their alias, so it is resolved to the class first.
+     */
+    private function documentableType(Document $document): string
+    {
+        $type = (string) $document->documentable_type;
+
+        return Str::snake(class_basename(Relation::getMorphedModel($type) ?? $type));
     }
 }
