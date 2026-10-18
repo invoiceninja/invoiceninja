@@ -210,7 +210,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            IFNULL(expenses.currency_id, :company_currency) as currency_id,
+            IFNULL(expenses.currency_id, :company_currency) as effective_currency_id,
             SUM(
                 CASE
                     WHEN expenses.uses_inclusive_taxes = 0 THEN
@@ -236,8 +236,8 @@ trait ChartQueries
             {$user_filter}
             AND (clients.id IS NULL OR clients.is_deleted = 0)
             AND (vendors.id IS NULL OR vendors.is_deleted = 0)
-            GROUP BY currency_id, expenses.date
-            ORDER BY currency_id, expenses.date
+            GROUP BY effective_currency_id, expenses.date
+            ORDER BY effective_currency_id, expenses.date
         ", [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
@@ -363,7 +363,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            IFNULL(payments.currency_id, :company_currency) as currency_id,
+            IFNULL(payments.currency_id, :company_currency) as effective_currency_id,
             sum(payments.amount - payments.refunded) as total,
             payments.date
             FROM payments
@@ -375,8 +375,8 @@ trait ChartQueries
             {$user_filter}
             AND payments.status_id IN (4,5,6)
             AND (payments.date BETWEEN :start_date AND :end_date)
-            GROUP BY currency_id, payments.date
-            ORDER BY currency_id, payments.date
+            GROUP BY effective_currency_id, payments.date
+            ORDER BY effective_currency_id, payments.date
         ", [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
@@ -610,16 +610,16 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-                currency_id,
+                effective_currency_id,
                 SUM(monthly_total) OVER (
-                    PARTITION BY currency_id
+                    PARTITION BY effective_currency_id
                     ORDER BY date
                     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
                 ) as total,
                 date
             FROM (
                 SELECT
-                    IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as currency_id,
+                    IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as effective_currency_id,
                     sum(invoices.balance) as monthly_total,
                     LAST_DAY(invoices.date) as date
                 FROM clients
@@ -631,9 +631,9 @@ trait ChartQueries
                 AND invoices.is_deleted = 0
                 {$user_filter}
                 AND (invoices.date BETWEEN :start_date AND :end_date)
-                GROUP BY currency_id, LAST_DAY(invoices.date)
+                GROUP BY effective_currency_id, LAST_DAY(invoices.date)
             ) monthly_totals
-            ORDER BY currency_id, date
+            ORDER BY effective_currency_id, date
         ", [
             'company_currency' => (int) $this->company->settings->currency_id,
             'company_id' => $this->company->id,
@@ -711,7 +711,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as currency_id,
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as effective_currency_id,
             sum(invoices.amount) as total,
             invoices.date
             FROM clients
@@ -723,8 +723,8 @@ trait ChartQueries
             {$user_filter}
             {$status_filter}
             AND (invoices.date BETWEEN :start_date AND :end_date)
-            GROUP BY currency_id, invoices.date
-            ORDER BY currency_id, invoices.date
+            GROUP BY effective_currency_id, invoices.date
+            ORDER BY effective_currency_id, invoices.date
         ", [
             'company_currency' => (int) $this->company->settings->currency_id,
             'company_id' => $this->company->id,

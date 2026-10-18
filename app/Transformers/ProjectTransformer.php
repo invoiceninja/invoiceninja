@@ -95,6 +95,13 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeTasks(Project $project): \League\Fractal\Resource\Collection
     {
+        $project->loadMissing([
+            'tasks.tags',
+            'tasks.documents',
+            'tasks.project.tags',
+            'tasks.project.documents',
+        ]);
+        
         $transformer = new TaskTransformer($this->serializer);
 
         return $this->includeCollection($project->tasks, $transformer, Task::class);
@@ -102,6 +109,7 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeInvoices(Project $project): \League\Fractal\Resource\Collection
     {
+       
         $transformer = new InvoiceTransformer($this->serializer);
 
         return $this->includeCollection($project->invoices, $transformer, Invoice::class);

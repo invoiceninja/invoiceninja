@@ -50,14 +50,22 @@ class EmailHistoryController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $data = SystemLog::where('company_id', $user->company()->id)
+        $entity = $request->getEntity();
+
+        $data = SystemLog::query()
+        ->where('company_id', $user->company()->id)
+        ->when($entity, function ($query) use ($entity) {
+            $query->where('client_id', $entity->client_id);
+        })
         ->where('category_id', SystemLog::CATEGORY_MAIL)
         ->whereJsonContains('log->history->entity', $request->entity)
         ->whereJsonContains('log->history->entity_id', $this->encodePrimaryKey($request->entity_id))
         ->orderBy('id', 'DESC')
         ->cursor()
         ->filter(function ($system_log) {
-            return ($system_log->log['history'] && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >= 1) !== false;
+            $events = $system_log->log['history']['events'] ?? null;
+            return is_array($events) && count($events) >= 1;
+            // return ($system_log->log['history'] && isset($system_log->log['history']['events']) && count($system_log->log['history']['events']) >= 1) !== false;
         })->map(function ($system_log) {
             return $system_log->log['history'];
         })->values()->all();

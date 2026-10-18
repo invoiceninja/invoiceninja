@@ -1923,7 +1923,9 @@ class BaseExport
 
     protected function streamQuery(Builder $query): \Illuminate\Support\LazyCollection
     {
-        return (clone $query)->lazy(self::EXPORT_CHUNK_SIZE);
+        return (clone $query)
+        ->orderBy($query->getModel()->getQualifiedKeyName())
+        ->lazy(self::EXPORT_CHUNK_SIZE);
     }
 
     /**

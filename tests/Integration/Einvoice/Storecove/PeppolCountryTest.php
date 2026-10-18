@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Product;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
@@ -294,6 +295,7 @@ class PeppolCountryTest extends TestCase
         $item->notes = 'Test Description';
         $item->cost = 100;
         $item->quantity = 2;
+        $item->tax_id = (string) Product::PRODUCT_TYPE_PHYSICAL;
         $item->tax_rate1 = $params['tax_rate'] ?? $sd['tax_rate'];
         $item->tax_name1 = $params['tax_name'] ?? $sd['tax_name'];
 
@@ -438,7 +440,11 @@ class PeppolCountryTest extends TestCase
             'company_country' => 'AT', 'client_country' => 'AT',
             'client_classification' => 'business',
         ]);
-        $this->runAndValidate($data['invoice'], 'AT => AT (business)');
+        $this->assertEquals(20, $data['invoice']->line_items[0]->tax_rate1);
+        $result = $this->runAndValidate($data['invoice'], 'AT => AT (business)');
+        $category = $result['peppol']->InvoiceLine[0]->Item->ClassifiedTaxCategory[0];
+        $this->assertSame('S', $category->ID->value);
+        $this->assertEquals(20, $category->Percent);
     }
 
     public function testAT_Domestic_Government(): void

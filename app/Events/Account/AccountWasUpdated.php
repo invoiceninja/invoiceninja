@@ -49,10 +49,15 @@ class AccountWasUpdated implements ShouldBroadcast
 
     public function broadcastOn(): array
     {
-
+nlog("in broadcast on");
         return $this->account->companies->map(function($company){
             return new PrivateChannel("company-{$company->company_key}");
         })->toArray();
         
+    }
+
+    public function broadcastIncludes(): array
+    {
+        return [];
     }
 }

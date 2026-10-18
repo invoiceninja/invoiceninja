@@ -201,14 +201,14 @@ class MultiDB
     public static function hasUser(array $data): ?User
     {
         if (!config('ninja.db.multi_db_enabled')) {
-            return User::where($data)->withTrashed()->first(); //@phpstan-ignore-line
+            return User::query()->where($data)->withTrashed()->first(); //@phpstan-ignore-line
         }
 
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {
             self::setDB($db);
-            if ($user = User::where($data)->withTrashed()->first()) { //@phpstan-ignore-line
+            if ($user = User::query()->where($data)->withTrashed()->first()) { //@phpstan-ignore-line
                 return $user;
             }
         }
@@ -628,7 +628,9 @@ class MultiDB
 
         foreach (self::getDbs() as $db) {
             $payment = Payment::on($db)
+                ->withTrashed()
                 ->where('is_manual', false)
+                ->where('is_deleted', false)
                 ->whereIn('transaction_reference', $references)
                 ->whereHas('company_gateway', function ($query) {
                     $query->whereIn('gateway_key', [

@@ -129,7 +129,7 @@ class ChartService
     /**
      * chart_summary_batched
      *
-     * Reduces N+1 queries @todo additional testing prior to replacing chart_summary
+     * Batches per-currency queries for the chart summary endpoints.
      *
      * @successor-for chart-summary-batched
      * @see chart_summary()
@@ -309,13 +309,14 @@ class ChartService
     private function distributeChartRows(array &$data, string $metric, array $rows): void
     {
         foreach ($rows as $row) {
-            $currency_id = (int) $row->currency_id;
+            // Batched queries use a distinct alias to avoid grouping by a raw currency_id column.
+            $currency_id = (int) $row->effective_currency_id;
 
             if (! array_key_exists($currency_id, $data)) {
                 continue;
             }
 
-            unset($row->currency_id);
+            unset($row->effective_currency_id);
 
             $data[$currency_id][$metric][] = $row;
         }

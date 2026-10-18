@@ -214,6 +214,15 @@ class UblToStorecoveRegressionGapTest extends TestCase
             'tax_name3' => '',
         ])->calc()->getCredit();
 
+        // This is a zero-rated sign/discount fixture, not an unclassified
+        // domestic supply. Keep the tax treatment explicit.
+        $items = $credit->line_items;
+        foreach ($items as $item) {
+            $item->tax_id = (string) \App\Models\Product::PRODUCT_TYPE_ZERO_RATED;
+        }
+        $credit->line_items = $items;
+        $credit->save();
+
         CreditInvitation::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,

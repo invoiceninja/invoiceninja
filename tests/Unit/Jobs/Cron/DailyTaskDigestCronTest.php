@@ -91,15 +91,13 @@ class DailyTaskDigestCronTest extends TestCase
         );
     }
 
-    public function testItIsScheduledEveryFourHours(): void
+    public function testItIsNotScheduledWhileDeliveryIsDisabled(): void
     {
         $schedule = app(ConsoleKernel::class)->resolveConsoleSchedule();
         $event = collect($schedule->events())
             ->first(fn ($event): bool => $event->description === 'daily-task-digest-job');
 
-        $this->assertNotNull($event);
-        $this->assertSame('0 */4 * * *', $event->expression);
-        $this->assertSame('UTC', $event->timezone);
+        $this->assertNull($event);
     }
 
     /**
