@@ -156,9 +156,7 @@ class MutatorTest extends TestCase
         $item->quantity = 1;
         $item->tax_rate1 = $params['tax_rate'] ?? 19;
         $item->tax_name1 = $params['tax_name'] ?? 'VAT';
-        if (isset($params['tax_id'])) {
-            $item->tax_id = (string) $params['tax_id'];
-        }
+        $item->tax_id = (string) ($params['tax_id'] ?? Product::PRODUCT_TYPE_PHYSICAL);
 
         $invoice = Invoice::factory()->create([
             'client_id' => $client->id,
@@ -184,6 +182,8 @@ class MutatorTest extends TestCase
     {
         $p = new Peppol($invoice->fresh());
         $p->run();
+
+        $this->assertEmpty($p->getErrors(), implode('; ', $p->getErrors()));
 
         $peppol = $p->getDocument();
 
