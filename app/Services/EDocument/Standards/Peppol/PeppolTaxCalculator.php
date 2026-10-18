@@ -125,7 +125,10 @@ class PeppolTaxCalculator
             return ['tax_type' => 'O', 'reason_code' => 'vatex-eu-o', 'reason' => 'Not subject to VAT'];
         }
 
-        if ($company_country === $client_country && $tax_id === (string) Product::PRODUCT_TYPE_ZERO_RATED) {
+        if ($company_country === $client_country && in_array($tax_id, [
+            (string) Product::PRODUCT_TYPE_ZERO_RATED,
+            (string) Product::PRODUCT_TYPE_OVERRIDE_TAX,
+        ], true)) {
             return ['tax_type' => 'Z', 'reason_code' => null, 'reason' => null];
         }
 
