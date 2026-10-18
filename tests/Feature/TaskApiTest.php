@@ -14,6 +14,7 @@ namespace Tests\Feature;
 
 use App\DataMapper\ClientSettings;
 use App\Export\CSV\TaskExport;
+use App\Jobs\Task\TaskAssigned;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
@@ -21,6 +22,7 @@ use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use League\Csv\Reader;
@@ -1838,6 +1840,91 @@ class TaskApiTest extends TestCase
         $values = iterator_to_array(ResultSet::from($reader)->fetchColumn($column), true);
 
         return $values[1];
+    }
+
+    public function testTaskAssignedDispatchedWhenAssigneeChanges(): void
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        Bus::fake([TaskAssigned::class]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'assigned_user_id' => $this->user->hashed_id,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.assigned_user_id', $this->user->hashed_id);
+
+        Bus::assertDispatched(TaskAssigned::class, 1);
+    }
+
+    public function testTaskAssignedDispatchedOnCreateWithAssignee(): void
+    {
+        Bus::fake([TaskAssigned::class]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tasks', [
+            'description' => 'Assigned task',
+            'assigned_user_id' => $this->user->hashed_id,
+        ]);
+
+        $response->assertOk();
+
+        Bus::assertDispatched(TaskAssigned::class, 1);
+    }
+
+    public function testTaskAssignedNotDispatchedWhenAssigneeUnchanged(): void
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'assigned_user_id' => $this->user->id,
+        ]);
+
+        Bus::fake([TaskAssigned::class]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'assigned_user_id' => $this->user->hashed_id,
+            'description' => 'Updated description',
+        ]);
+
+        $response->assertOk();
+
+        Bus::assertNotDispatched(TaskAssigned::class);
+    }
+
+    public function testTaskAssignedNotDispatchedWhenUnassigned(): void
+    {
+        $task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'assigned_user_id' => $this->user->id,
+        ]);
+
+        Bus::fake([TaskAssigned::class]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tasks/' . $task->hashed_id, [
+            'assigned_user_id' => null,
+        ]);
+
+        $response->assertOk();
+        $this->assertNull($task->fresh()->assigned_user_id);
+
+        Bus::assertNotDispatched(TaskAssigned::class);
     }
 
     private function traverseExportJson(array $array, string $keys): mixed
