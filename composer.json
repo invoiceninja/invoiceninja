@@ -227,8 +227,8 @@
             "url": "https://github.com/turbo124/snappdf"
         },
         {
-            "type": "path",
-            "url": "../admin-api"
+            "type": "vcs",
+            "url": "https://github.com/invoiceninja/admin-api"
         }
     ],
     "minimum-stability": "dev",
