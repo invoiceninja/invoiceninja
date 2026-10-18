@@ -206,6 +206,7 @@ return [
     'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', ''),
     'ninja_hosted_header' => env('NINJA_HEADER', ''),
     'ninja_connect_secret' => env('NINJA_CONNECT_SECRET', ''),
+    'ninja_connect_secret_v2' => env('NINJA_CONNECT_SECRET_V2', ''),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
     'ninja_apple_api_key' => env('APPLE_API_KEY', false),
     'ninja_apple_private_key' => env('APPLE_PRIVATE_KEY', false),
