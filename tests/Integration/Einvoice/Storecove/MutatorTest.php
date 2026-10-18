@@ -529,6 +529,7 @@ class MutatorTest extends TestCase
             'client_classification' => 'business',
             'has_valid_vat' => true,
             'client_routing_id' => 'SCSCSCS',
+            'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
         ]);
 
         $storecove = new Storecove();
@@ -550,6 +551,7 @@ class MutatorTest extends TestCase
             'client_city' => 'SECTOR1',
             'tax_rate' => 19,
             'tax_name' => 'TVA',
+            'tax_id' => Product::PRODUCT_TYPE_PHYSICAL,
         ]);
 
         $storecove = new Storecove();

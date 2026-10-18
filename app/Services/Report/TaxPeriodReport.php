@@ -181,7 +181,7 @@ class TaxPeriodReport extends BaseExport
                     ->where('period', $this->end_date);
             });
 
-        $this->streamQuery($q)
+        $this->streamQueryById($q)
         ->each(function ($invoice) {
 
             (new InvoiceTransactionEventEntry())->run($invoice, $this->end_date);
@@ -223,7 +223,7 @@ class TaxPeriodReport extends BaseExport
                         ->whereIn('metadata->tax_report->tax_summary->status', ['cancelled', 'deleted']);
                 });
 
-        $this->streamQuery($ii)
+        $this->streamQueryById($ii)
         ->each(function ($invoice) {
 
             // Iterate through each month between start_date and end_date
@@ -247,6 +247,22 @@ class TaxPeriodReport extends BaseExport
     }
 
     /**
+     * Initialization and backfills can remove processed rows from their own
+     * result sets. Advance by primary key so those writes cannot shift an offset
+     * past unprocessed rows. Report output retains streamQuery() and its sort.
+     */
+    protected function streamQueryById(Builder $query): \Illuminate\Support\LazyCollection
+    {
+        return (clone $query)
+            ->reorder()
+            ->lazyById(
+                self::EXPORT_CHUNK_SIZE,
+                $query->getModel()->getQualifiedKeyName(),
+                $query->getModel()->getKeyName(),
+            );
+    }
+
+    /**
      * Lazy backfill: any TransactionEvent within the report's window whose
      * metadata lacks tax_details_by_classification has the breakdown
      * recomputed in-place from the persisted aggregate tax_details and the
@@ -259,7 +275,7 @@ class TaxPeriodReport extends BaseExport
      */
     private function backfillClassificationBreakdown(): void
     {
-        $this->streamQuery(TransactionEvent::query()
+        $this->streamQueryById(TransactionEvent::query()
             ->where('company_id', $this->company->id)
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->whereIn('event_id', TransactionEvent::TAX_REPORTING_EVENTS)
@@ -306,7 +322,7 @@ class TaxPeriodReport extends BaseExport
      */
     private function backfillSalesBreakdown(): void
     {
-        $this->streamQuery(TransactionEvent::query()
+        $this->streamQueryById(TransactionEvent::query()
             ->where('company_id', $this->company->id)
             ->whereBetween('period', [$this->start_date, $this->end_date])
             ->whereIn('event_id', [TransactionEvent::INVOICE_UPDATED, TransactionEvent::PAYMENT_CASH])
