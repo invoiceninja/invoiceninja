@@ -178,6 +178,8 @@ class TaskRepository extends BaseRepository
 
         $lockKey = $this->new_task ? $this->calendarEventLockKey($data, $task) : null;
 
+        $original_assigned_user_id = $task->assigned_user_id;
+
         if ($lockKey) {
             try {
                 $data = Cache::lock($lockKey, self::CALENDAR_EVENT_LOCK_SECONDS)
@@ -199,10 +201,6 @@ class TaskRepository extends BaseRepository
 
             $task->fill($data);
             $task->saveQuietly();
-        }
-
-        if (isset($data['assigned_user_id']) && $data['assigned_user_id'] != $task->assigned_user_id) {
-            TaskAssigned::dispatch($task, $task->company->db)->delay(2);
         }
 
         $this->init($task);
@@ -307,6 +305,11 @@ class TaskRepository extends BaseRepository
         $task->time_log = json_encode($time_log);
 
         $task->saveQuietly();
+
+        // Compare with the assignee from before fill(), and dispatch after the final save so a new task has its number.
+        if (isset($data['assigned_user_id']) && $data['assigned_user_id'] != $original_assigned_user_id) {
+            TaskAssigned::dispatch($task, $task->company->db)->delay(2);
+        }
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $task);
