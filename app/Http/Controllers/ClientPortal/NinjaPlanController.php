@@ -547,7 +547,7 @@ class NinjaPlanController extends Controller
 
     private function assertTrialAccountPending(Account $account): void
     {
-        if ($account->trial_started || $account->plan || $account->is_trial) {
+        if (!$account->canStartTrial()) {
             throw new LogicException('The account is not eligible for a trial.');
         }
     }
@@ -905,9 +905,7 @@ class NinjaPlanController extends Controller
 
     private function isTrialEligible(Account $account): bool
     {
-        return ! $account->plan
-            && ! $account->is_trial
-            && empty($account->trial_started);
+        return $account->canStartTrial();
     }
 
     public function plan()
