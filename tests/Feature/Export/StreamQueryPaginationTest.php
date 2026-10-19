@@ -90,6 +90,7 @@ class StreamQueryPaginationTest extends TestCase
         $this->makeTestData();
         // Keep the factory's random date outside the pagination fixture window.
         $this->recurring_invoice->updateQuietly(['date' => '2019-12-01']);
+        $this->expense->updateQuietly(['date' => '2019-12-01']);
 
         $class = 'App\\Export\\CSV\\' . $name;
         $dateKey = (new $class($this->company, $this->payload($keys)))->date_key;
