@@ -12,10 +12,14 @@
 
 namespace Tests\Feature;
 
+use App\Factory\CompanyUserFactory;
 use App\Models\Activity;
+use App\Models\CompanyToken;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -499,6 +503,78 @@ class ActivityApiTest extends TestCase
             $this->assertArrayHasKey('hashed_id', $activity);
             $this->assertArrayHasKey('created_at', $activity);
         }
+    }
+
+    public function testActivityListScopesAUserWithoutViewActivityToTheirOwnRows()
+    {
+        $this->createCompanyActivityNote();
+
+        [$user, $token] = $this->restrictedUserToken();
+
+        $own = $this->createActivityBy($user);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token,
+        ])->get('/api/v1/activities');
+
+        $response->assertStatus(200);
+        $this->assertEquals([$own->hashed_id], array_column($response->json('data'), 'id'));
+    }
+
+    private function createActivityBy(User $user, ?\DateTimeInterface $created_at = null): Activity
+    {
+        $activity = new Activity();
+        $activity->account_id = $this->account->id;
+        $activity->company_id = $this->company->id;
+        $activity->user_id = $user->id;
+        $activity->client_id = $this->invoice->client_id;
+        $activity->invoice_id = $this->invoice->id;
+        $activity->activity_type_id = Activity::UPDATE_INVOICE;
+        $activity->ip = '127.0.0.1';
+        $activity->notes = '';
+
+        if ($created_at) {
+            $activity->created_at = $created_at;
+        }
+
+        $activity->save();
+
+        return $activity;
+    }
+
+    /**
+     * A user of this company who is neither owner nor admin and may only view invoices, with an API token.
+     *
+     * @return array{0: User, 1: string}
+     */
+    private function restrictedUserToken(): array
+    {
+        $user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => $this->createDbHash(config('database.default')),
+            'email' => uniqid('restricted') . '@gmail.com',
+        ]);
+
+        $company_user = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
+        $company_user->is_owner = false;
+        $company_user->is_admin = false;
+        $company_user->is_locked = false;
+        $company_user->permissions = '["view_invoice"]';
+        $company_user->save();
+
+        $token = Str::random(64);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'restricted token';
+        $company_token->token = $token;
+        $company_token->is_system = true;
+        $company_token->save();
+
+        return [$user, $token];
     }
 
     private function createCompanyActivityNote(): void
