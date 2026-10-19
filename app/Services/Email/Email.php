@@ -213,7 +213,6 @@ class Email implements ShouldQueue
             "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
-            "RecurringInvoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "PurchaseOrder" => $this->email_object->variables = (new VendorHtmlEngine($this->email_object->invitation))->makeValues(),
             "Payment" => $this->email_object->variables = (new PaymentEmailEngine($this->email_object->entity, $this->email_object->contact))->makePaymentVariables(),
             default => $this->email_object->variables = []

@@ -64,7 +64,7 @@ class EmailController extends BaseController
         $mo->body = strlen($body) > 3 ? $body : null;
         $mo->entity_id = $request->input('entity_id');
         $mo->template = $request->input('template'); //full template name in use
-        $mo->entity_class = get_class($entity_obj);
+        $mo->entity_class = $this->resolveClass($entity);
         $mo->email_template_body = $request->input('template');
         $mo->email_template_subject = str_replace("template", "subject", $request->input('template'));
 
@@ -87,9 +87,6 @@ class EmailController extends BaseController
 
         }
 
-        /** A recurring invoice has no sent status or emailed event - only the email itself is sent */
-        $is_recurring = $entity_obj instanceof RecurringInvoice;
-
         $entity_obj->invitations()
             ->whereHas('contact', function ($query) {
                 $query->where(function ($sq) {
@@ -98,11 +95,9 @@ class EmailController extends BaseController
                 })->where('is_locked', false)
                 ->withoutTrashed();
             })
-            ->each(function ($invitation) use ($entity_obj, $mo, $template, $is_recurring) {
+            ->each(function ($invitation) use ($entity_obj, $mo, $template) {
 
-                if (!$is_recurring) {
-                    $entity_obj->service()->markSent()->save();
-                }
+                $entity_obj->service()->markSent()->save();
 
                 $mo->invitation_id = $invitation->id;
                 $mo->client_id = $invitation->contact->client_id ?? null;
@@ -110,19 +105,13 @@ class EmailController extends BaseController
 
                 Email::dispatch($mo, $invitation->company);
 
-                if (!$is_recurring) {
-                    $entity_obj->entityEmailEvent($invitation, $template, $template);
-                }
+                $entity_obj->entityEmailEvent($invitation, $template, $template);
 
             });
 
         $entity_obj = $entity_obj->fresh();
-
-        /** On a recurring invoice last_sent_date tracks the last generated invoice, not a manual email */
-        if (!$is_recurring) {
-            $entity_obj->last_sent_date = now();
-            $entity_obj->saveQuietly();
-        }
+        $entity_obj->last_sent_date = now();
+        $entity_obj->saveQuietly();
 
         /*Only notify the admin ONCE, not once per contact/invite*/
         if ($entity_obj instanceof Invoice) {
@@ -173,5 +162,25 @@ class EmailController extends BaseController
         }
 
         return $this->itemResponse($entity_obj->fresh());
+    }
+
+    private function resolveClass(string $entity): string
+    {
+        $class = '';
+
+        match ($entity) {
+            'invoice' => $class = Invoice::class,
+            'App\Models\Invoice' => $class = Invoice::class,
+            'credit' => $class = Credit::class,
+            'App\Models\Credit' => $class = Credit::class,
+            'quote' => $class = Quote::class,
+            'App\Models\Quote' => $class = Quote::class,
+            'purchase_order' => $class = PurchaseOrder::class,
+            'purchaseOrder' => $class = PurchaseOrder::class,
+            'App\Models\PurchaseOrder' => $class = PurchaseOrder::class,
+            default => $class = Invoice::class,
+        };
+
+        return $class;
     }
 }

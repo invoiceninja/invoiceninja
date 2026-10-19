@@ -24,8 +24,6 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoice;
-use App\Models\RecurringInvoiceInvitation;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -74,11 +72,11 @@ class EmailObject
 
     public ?int $invitation_id = null;
 
-    public InvoiceInvitation|QuoteInvitation|CreditInvitation|PurchaseOrderInvitation|RecurringInvoiceInvitation|null $invitation;
+    public InvoiceInvitation|QuoteInvitation|CreditInvitation|PurchaseOrderInvitation|null $invitation;
 
     public ?int $entity_id = null;
 
-    public Invoice|Quote|Credit|PurchaseOrder|Payment|RecurringInvoice|null $entity;
+    public Invoice|Quote|Credit|PurchaseOrder|Payment|null $entity;
 
     public ?int $client_id = null;
 
