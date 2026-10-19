@@ -18,11 +18,13 @@ use App\Jobs\Task\TaskAssigned;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
+use App\Services\Email\EmailMailable;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use League\Csv\Reader;
@@ -1879,6 +1881,55 @@ class TaskApiTest extends TestCase
         $response->assertOk();
 
         Bus::assertDispatched(TaskAssigned::class, 1);
+    }
+
+    public function testTaskAssignmentSendsEmailWithTheSavedTaskNumber(): void
+    {
+        config(['ninja.environment' => 'selfhost', 'queue.default' => 'sync']);
+        $this->user->companies()->updateExistingPivot($this->company->id, [
+            'notifications' => ['email' => ['task_assigned']],
+        ]);
+        Mail::fake();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tasks', [
+            'description' => 'Prepare the assignment regression report',
+            'assigned_user_id' => $this->user->hashed_id,
+        ])->assertOk();
+
+        $number = $response->json('data.number');
+        $this->assertNotEmpty($number);
+
+        Mail::assertSent(EmailMailable::class, function (EmailMailable $mail) use ($number): bool {
+            $email = $mail->email_object;
+            $this->assertSame($this->user->email, $email->to[0]->address);
+            $this->assertStringContainsString($number, $email->subject);
+            $this->assertStringContainsString('Prepare the assignment regression report', $email->body);
+
+            return true;
+        });
+        Mail::assertSentCount(1);
+    }
+
+    public function testTaskAssignmentRespectsDisabledEmailNotifications(): void
+    {
+        config(['ninja.environment' => 'selfhost', 'queue.default' => 'sync']);
+        $this->user->companies()->updateExistingPivot($this->company->id, [
+            'notifications' => ['email' => []],
+        ]);
+        Mail::fake();
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tasks', [
+            'description' => 'Assignment with notifications disabled',
+            'assigned_user_id' => $this->user->hashed_id,
+        ])->assertOk();
+
+        Mail::assertNothingSent();
     }
 
     public function testTaskAssignedNotDispatchedWhenAssigneeUnchanged(): void
