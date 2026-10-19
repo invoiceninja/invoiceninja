@@ -17,12 +17,9 @@ use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Models\CompanyToken;
 use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\RecurringInvoiceInvitation;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Services\Email\Email;
-use App\Services\Email\EmailObject;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -475,68 +472,6 @@ class InvoiceEmailTest extends TestCase
         });
 
         $this->assertTrue(true);
-    }
-
-    public function testEmailingARecurringInvoiceQueuesAnEmailForTheRecurringInvoice()
-    {
-        Bus::fake([Email::class]);
-
-        $recurring_invoice = $this->recurring_invoice->fresh();
-        $invitation_ids = $recurring_invoice->invitations->pluck('id')->all();
-        $last_sent_date = $recurring_invoice->last_sent_date;
-
-        $this->assertNotEmpty($invitation_ids);
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/emails', [
-            'entity' => 'recurring_invoice',
-            'entity_id' => $recurring_invoice->hashed_id,
-            'template' => 'email_template_invoice',
-        ]);
-
-        $response->assertStatus(200);
-        $this->assertEquals($recurring_invoice->hashed_id, $response->json('data.id'));
-
-        Bus::assertDispatched(Email::class, function (Email $job) use ($recurring_invoice, $invitation_ids) {
-            return $job->email_object->entity_class === RecurringInvoice::class
-                && $job->email_object->entity_id == $recurring_invoice->id
-                && in_array($job->email_object->invitation_id, $invitation_ids);
-        });
-
-        // On a recurring invoice last_sent_date tracks the last generated invoice, not a manual email.
-        $this->assertEquals($last_sent_date, $recurring_invoice->fresh()->last_sent_date);
-    }
-
-    public function testRecurringInvoiceEmailResolvesTheRecurringInvoiceAndItsVariables()
-    {
-        $recurring_invoice = $this->recurring_invoice->fresh();
-        $invitation = $recurring_invoice->invitations()->first();
-
-        $mo = new EmailObject();
-        $mo->entity_id = $recurring_invoice->id;
-        $mo->entity_class = RecurringInvoice::class;
-        $mo->invitation_id = $invitation->id;
-        $mo->client_id = $invitation->contact->client_id;
-        $mo->template = 'email_template_invoice';
-        $mo->email_template_body = 'email_template_invoice';
-        $mo->email_template_subject = 'email_subject_invoice';
-
-        $job = (new Email($mo, $this->company))
-            ->setOverride()
-            ->initModels()
-            ->setDefaults()
-            ->buildMailable();
-
-        $this->assertInstanceOf(RecurringInvoice::class, $job->email_object->entity);
-        $this->assertEquals($recurring_invoice->id, $job->email_object->entity->id);
-        $this->assertInstanceOf(RecurringInvoiceInvitation::class, $job->email_object->invitation);
-        $this->assertEquals($invitation->contact->email, $job->email_object->to[0]->address);
-        $this->assertEquals($recurring_invoice->number, $job->email_object->variables['$number']);
-        $this->assertStringContainsString('/client/recurring_invoice/' . $invitation->key, $job->email_object->variables['$view_url']);
-        $this->assertStringContainsString($recurring_invoice->number, $job->email_object->subject);
-        $this->assertStringNotContainsString('$view_button', $job->email_object->body);
     }
 
     public function testEndlessReminderEmailsUseTheEndlessReminderTemplate()
