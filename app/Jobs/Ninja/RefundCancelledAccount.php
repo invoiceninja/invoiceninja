@@ -57,7 +57,7 @@ class RefundCancelledAccount implements ShouldQueue
         }
 
         /* Trial user cancelling early.... */
-        if ($plan_details['trial_plan']) {
+        if ($plan_details['trial']) {
             return;
         }
 

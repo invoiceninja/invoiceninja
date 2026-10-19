@@ -12,43 +12,44 @@
 
 namespace App\Transformers;
 
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Design;
-use App\Models\Vendor;
 use App\Models\Account;
-use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\TaxRate;
-use App\Models\Webhook;
 use App\Models\Activity;
-use App\Models\Document;
-use App\Models\Location;
-use App\Models\Scheduler;
-use App\Models\SystemLog;
-use App\Models\TaskStatus;
-use App\Models\CompanyUser;
-use App\Models\PaymentTerm;
-use App\Models\CompanyToken;
-use App\Models\GroupSetting;
-use App\Models\Subscription;
-use App\Models\CompanyLedger;
-use App\Models\PurchaseOrder;
-use App\Models\CompanyGateway;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
+use App\Models\Credit;
+use App\Models\Design;
+use App\Models\Document;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
-use App\Utils\Traits\MakesHash;
+use App\Models\GroupSetting;
+use App\Models\Invoice;
+use App\Models\Location;
+use App\Models\Payment;
+use App\Models\PaymentTerm;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Models\BankTransactionRule;
+use App\Models\Scheduler;
+use App\Models\Subscription;
+use App\Models\SystemLog;
+use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\Webhook;
+use App\Utils\Traits\MakesHash;
 
 /**
  * Class CompanyTransformer.
@@ -78,9 +79,6 @@ class CompanyTransformer extends EntityTransformer
         'recurring_invoices',
         'tax_rates',
         'products',
-        'country',
-        'timezone',
-        'language',
         'expenses',
         'vendors',
         'payments',
@@ -272,6 +270,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new TaskStatusTransformer($this->serializer);
 
         return $this->includeCollection($company->task_statuses, $transformer, TaskStatus::class);
+    }
+
+    public function includeContacts(Company $company)
+    {
+        $transformer = new ClientContactTransformer($this->serializer);
+
+        return $this->includeCollection($company->contacts, $transformer, ClientContact::class);
     }
 
     public function includeDocuments(Company $company)
