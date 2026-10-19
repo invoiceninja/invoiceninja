@@ -72,6 +72,8 @@ class ActivityController extends BaseController
                 $activities->where('user_id', auth()->user()->id);
             }
 
+            $this->filterByUser($activities, $request);
+
             return response()->json(['data' => $this->activityStringPayload($activities)], 200);
         }
 
@@ -81,7 +83,30 @@ class ActivityController extends BaseController
                                 ->company()
                                 ->take($default_activities);
 
+        $this->filterByUser($activities, $request);
+
         return $this->listResponse($activities);
+    }
+
+    /**
+     * Narrows to the activities of the users in `user_id` (hashed ids, comma separated).
+     * An id that doesn't decode matches nothing; it can only narrow, never widen, the user's scope.
+     */
+    private function filterByUser(Builder $activities, Request $request): void
+    {
+        $user_id = $request->input('user_id');
+
+        if (!is_string($user_id) || strlen(trim($user_id)) == 0) {
+            return;
+        }
+
+        $user_ids = collect(explode(',', $user_id))
+                        ->map(fn ($id) => $this->decodePrimaryKey(trim($id), true))
+                        ->filter(fn ($id) => is_int($id))
+                        ->values()
+                        ->all();
+
+        $activities->whereIn('user_id', $user_ids);
     }
 
     public function entityActivity(ShowActivityRequest $request)
