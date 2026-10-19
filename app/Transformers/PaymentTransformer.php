@@ -62,9 +62,18 @@ class PaymentTransformer extends EntityTransformer
 
     public function includeInvoices(Payment $payment)
     {
+        $invoices = $payment->invoices;
+
+        $invoices->loadMissing([
+            'tags',
+            'documents',
+            'invitations.company',
+            'invitations.contact',
+        ]);
+        
         $transformer = new InvoiceTransformer($this->serializer);
 
-        return $this->includeCollection($payment->invoices, $transformer, Invoice::class);
+        return $this->includeCollection($invoices, $transformer, Invoice::class);
     }
 
     public function includeCredits(Payment $payment)

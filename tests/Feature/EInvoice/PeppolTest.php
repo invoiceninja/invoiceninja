@@ -19,6 +19,7 @@ use App\Models\Company;
 use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Product;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
@@ -73,8 +74,12 @@ class PeppolTest extends TestCase
 
         $settings = CompanySettings::defaults();
         $settings->vat_number = $params['company_vat'] ?? 'DE123456789';
+        $settings->address1 = 'Teststrasse 1';
+        $settings->city = 'Berlin';
+        $settings->postal_code = '10115';
         $settings->country_id = Country::where('iso_3166_2', 'DE')->first()->id;
         $settings->email = uniqid('testuser') . '@gmail.com';
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->currency_id = '3';
         $settings->e_invoice_type = 'PEPPOL'; // Required for validation endpoint to run EntityLevel validation
 
@@ -257,7 +262,7 @@ class PeppolTest extends TestCase
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
         $settings->postal_code = '98060';
-        $settings->vat_number = 'BE923356489';
+        $settings->vat_number = 'BE0923356460'; // 10-digit enterprise number with a valid mod-97 checksum.
         $settings->id_number = '991-00110-12';
         $settings->country_id = '56';
         $settings->currency_id = '3';
@@ -316,7 +321,7 @@ class PeppolTest extends TestCase
             'country_id' => 56,
             'routing_id' => 'ABC1234',
             'settings' => $client_settings,
-            'vat_number' => 'BE173655434',
+            'vat_number' => 'BE0173655437', // 10-digit enterprise number with a valid mod-97 checksum.
         ]);
 
             $item = new InvoiceItem();
@@ -1573,13 +1578,13 @@ class PeppolTest extends TestCase
         $client = Client::factory()->create([
             'company_id' => $company->id,
             'user_id' => $this->user->id,
-            'name' => 'German Client Name',
+            'name' => 'French Client Name',
             'address1' => 'Kinderhausen 96b',
             'address2' => 'Apt. 842',
             'city' => 'Süd Jessestadt',
             'state' => 'Bayern',
             'postal_code' => '33323',
-            'country_id' => 276,
+            'country_id' => Country::where('iso_3166_2', 'FR')->first()->id,
             'routing_id' => 'ABC1234',
             'settings' => $client_settings,
         ]);
@@ -1626,6 +1631,7 @@ class PeppolTest extends TestCase
         $peppol = new Peppol($invoice);
         $peppol->setInvoiceDefaults();
         $peppol->run();
+        $this->assertEmpty($peppol->getErrors(), implode('; ', $peppol->getErrors()));
 
 
         // nlog($peppol->toXml());
@@ -1635,6 +1641,7 @@ class PeppolTest extends TestCase
         $de_invoice = $peppol->getDocument();
 
         $this->assertNotNull($de_invoice);
+        $this->assertSame('K', $de_invoice->InvoiceLine[0]->Item->ClassifiedTaxCategory[0]->ID->value);
 
         $e = new EInvoice();
         $xml = $e->encode($de_invoice, 'xml');
@@ -1931,6 +1938,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
@@ -2086,6 +2094,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
@@ -2240,6 +2249,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
@@ -2392,6 +2402,7 @@ class PeppolTest extends TestCase
     {
 
         $settings = CompanySettings::defaults();
+        $settings->phone = '+49 30 12345678'; // Required seller contact telephone for German invoices (BT-42).
         $settings->address1 = 'Dudweilerstr. 34b';
         $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
@@ -3042,7 +3053,8 @@ class PeppolTest extends TestCase
     /**
      * Integration: a billable row with a non-zero cost but missing
      * tax_name1 must NOT be silently dropped — that would change the
-     * invoice total. The schematron should surface the real error.
+     * invoice total. An explicit exempt category makes the zero-tax
+     * row valid without requiring a tax name.
      */
     public function testBillableRowMissingTaxNameIsKept(): void
     {
@@ -3052,12 +3064,14 @@ class PeppolTest extends TestCase
         $untaxed->product_key = 'Untaxed';
         $untaxed->cost        = 50;
         $untaxed->quantity    = 1;
+        $untaxed->tax_id      = (string) Product::PRODUCT_TYPE_EXEMPT;
         // deliberately no tax_name1 / tax_rate1
 
         $invoice = $this->buildAndSave([$tagged, $untaxed]);
 
         $peppol = new Peppol($invoice);
         $peppol->run();
+        $this->assertEmpty($peppol->getErrors(), implode('; ', $peppol->getErrors()));
         $xml = $peppol->toXml();
 
         $dom = new \DOMDocument();

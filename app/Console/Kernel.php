@@ -75,13 +75,13 @@ class Kernel extends ConsoleKernel
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
-        /* Finds company users eligible for the daily task digest */
-        $schedule->job(new DailyTaskDigestCron())
-            ->everyFourHours()
-            ->timezone('UTC')
-            ->withoutOverlapping()
-            ->name('daily-task-digest-job')
-            ->onOneServer();
+        // Disabled until daily task digest delivery is implemented.
+        // $schedule->job(new DailyTaskDigestCron())
+        //     ->everyFourHours()
+        //     ->timezone('UTC')
+        //     ->withoutOverlapping()
+        //     ->name('daily-task-digest-job')
+        //     ->onOneServer();
 
         // Run hourly - timezone-aware processing ensures each company
         // is only processed once, at its local month-end midnight

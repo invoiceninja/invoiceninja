@@ -44,6 +44,10 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public Company $company;
 
+    public $maxExceptions = 1;
+
+    public $tries = 6;
+
     /**
      * Create a new job instance.
      */
@@ -51,6 +55,11 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     {
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
+    }
+
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHour();
     }
 
     /**
@@ -61,11 +70,9 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE) {
-            throw new \Exception("Invalid BankIntegration Type");
-        }
+        set_time_limit(600);
 
-        set_time_limit(0);
+        sleep(rand(1,5));
 
         //Loop through everything until we are up to date - improve handling of delayed accounts
         $this->from_date = $this->from_date ? Carbon::parse($this->from_date)->subWeeks(2)->format('Y-m-d') : '2021-01-01';
@@ -117,6 +124,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                 ];
 
                 $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+                BankMatchingService::dispatch($this->company->id, $this->company->db);
                 return;
             }
         } while ($this->stop_loop);

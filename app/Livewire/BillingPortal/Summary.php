@@ -24,11 +24,13 @@ use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\App;
+use Livewire\Attributes\Locked;
 
 class Summary extends Component
 {
     use MakesHash;
 
+    #[Locked]
     public string $subscription_id;
 
     public array $context;

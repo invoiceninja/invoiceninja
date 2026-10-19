@@ -124,7 +124,7 @@ class QuoteController extends BaseController
      */
     public function index(QuoteFilters $filters)
     {
-        $quotes = Quote::filter($filters)->with('tags');
+        $quotes = Quote::filter($filters)->with(['tags', 'client.locations']);
 
         return $this->listResponse($quotes);
     }

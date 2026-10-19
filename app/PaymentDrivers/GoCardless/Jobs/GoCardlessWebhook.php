@@ -160,8 +160,7 @@ class GoCardlessWebhook implements ShouldQueue
                         if (in_array($payment->status_id, [Payment::STATUS_COMPLETED, Payment::STATUS_REFUNDED, Payment::STATUS_PARTIALLY_REFUNDED], true)) {
                             nlog('GoCardless: payment already settled, skipping');
                         } else {
-                            $payment->status_id = Payment::STATUS_COMPLETED;
-                            $payment->save();
+                            $payment = $payment->service()->completePendingPayment();
                             nlog('GoCardless completed');
                         }
                     } else {

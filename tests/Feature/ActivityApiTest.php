@@ -12,6 +12,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Activity;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\DB;
@@ -178,6 +179,37 @@ class ActivityApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals('These are notes', $arr['data']['notes']);
+        $this->assertEquals($this->recurring_expense->hashed_id, $arr['data']['recurring_expense_id']);
+        $this->assertEquals('', $arr['data']['expense_id']);
+    }
+
+    public function testActivityEntityRecurringExpense()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/activities/notes', [
+                'entity' => 'recurring_expenses',
+                'entity_id' => $this->recurring_expense->hashed_id,
+                'notes' => 'Recurring expense note',
+            ]);
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/activities/entity', [
+                'entity' => 'recurring_expense',
+                'entity_id' => $this->recurring_expense->hashed_id,
+            ]);
+
+        $response->assertStatus(200);
+
+        $notes = collect($response->json('data'))->where('activity_type_id', Activity::USER_NOTE);
+
+        $this->assertCount(1, $notes);
+        $this->assertEquals('Recurring expense note', $notes->first()['notes']);
     }
 
 
@@ -219,6 +251,8 @@ class ActivityApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals('These are notes', $arr['data']['notes']);
+        $this->assertEquals($this->purchase_order->hashed_id, $arr['data']['purchase_order_id']);
+        $this->assertEquals('', $arr['data']['expense_id']);
     }
 
     public function testActivityTaskNotes()
@@ -303,6 +337,81 @@ class ActivityApiTest extends TestCase
         $response->assertStatus(200);
 
 
+    }
+
+    public function testActivityEntityFiltersByActivityTypeId()
+    {
+        $this->createCompanyActivityNote();
+
+        $activity = new Activity();
+        $activity->account_id = $this->account->id;
+        $activity->company_id = $this->company->id;
+        $activity->user_id = $this->user->id;
+        $activity->client_id = $this->invoice->client_id;
+        $activity->invoice_id = $this->invoice->id;
+        $activity->activity_type_id = Activity::UPDATE_INVOICE;
+        $activity->ip = '127.0.0.1';
+        $activity->notes = '';
+        $activity->created_at = now()->addMinute();
+        $activity->save();
+
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        // Unfiltered, the newer system row fills the window and the note falls out of it.
+        $response = $this->withHeaders($headers)->postJson('/api/v1/activities/entity', [
+            'entity' => 'invoice',
+            'entity_id' => $this->invoice->hashed_id,
+            'rows' => 1,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals(Activity::UPDATE_INVOICE, $response->json('data.0.activity_type_id'));
+
+        $response = $this->withHeaders($headers)->postJson('/api/v1/activities/entity', [
+            'entity' => 'invoice',
+            'entity_id' => $this->invoice->hashed_id,
+            'activity_type_id' => (string) Activity::USER_NOTE,
+            'rows' => 1,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertCount(1, $response->json('data'));
+        $this->assertEquals(Activity::USER_NOTE, $response->json('data.0.activity_type_id'));
+        $this->assertEquals('Seeded activity for feed tests', $response->json('data.0.notes'));
+
+        $response = $this->withHeaders($headers)->postJson('/api/v1/activities/entity', [
+            'entity' => 'invoice',
+            'entity_id' => $this->invoice->hashed_id,
+            'activity_type_id' => Activity::USER_NOTE . ',' . Activity::UPDATE_INVOICE,
+        ]);
+
+        $response->assertStatus(200);
+
+        $types = array_map('intval', array_column($response->json('data'), 'activity_type_id'));
+
+        $this->assertContains(Activity::USER_NOTE, $types);
+        $this->assertContains(Activity::UPDATE_INVOICE, $types);
+        $this->assertEmpty(array_diff($types, [Activity::USER_NOTE, Activity::UPDATE_INVOICE]));
+    }
+
+    public function testActivityEntityRejectsAMalformedActivityTypeId()
+    {
+        $this->withExceptionHandling();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/activities/entity', [
+            'entity' => 'invoice',
+            'entity_id' => $this->invoice->hashed_id,
+            'activity_type_id' => 'note',
+        ]);
+
+        $response->assertStatus(422);
     }
 
     public function testActivityGet()

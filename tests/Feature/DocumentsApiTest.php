@@ -66,6 +66,39 @@ class DocumentsApiTest extends TestCase
     }
 
 
+    public function testDocumentNamesItsParentRecord()
+    {
+        $parents = [
+            'invoice' => $this->invoice,
+            'recurring_invoice' => $this->recurring_invoice,
+            'client' => $this->client,
+        ];
+
+        $documents = [];
+
+        foreach ($parents as $type => $parent) {
+            $document = Document::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+            ]);
+
+            $parent->documents()->save($document);
+            $documents[$type] = $document;
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get("/api/v1/documents/{$document->hashed_id}");
+
+            $response->assertStatus(200);
+            $response->assertJsonPath('data.documentable_type', $type);
+            $response->assertJsonPath('data.documentable_id', $parent->hashed_id);
+        }
+
+        // Invoices are stored under their morph alias, so the alias path above really ran.
+        $this->assertSame('invoices', $documents['invoice']->fresh()->documentable_type);
+    }
+
     public function testDocumentFilters2()
     {
         Document::query()->withTrashed()->cursor()->each(function ($d) {

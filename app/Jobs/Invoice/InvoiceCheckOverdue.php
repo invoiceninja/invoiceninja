@@ -53,6 +53,7 @@ class InvoiceCheckOverdue implements ShouldQueue
     public function handle()
     {
         if (! config('ninja.db.multi_db_enabled')) {
+            config(['database.default' => config('ninja.db.default')]);
             $this->processOverdueInvoices();
         } else {
             foreach (MultiDB::$dbs as $db) {
