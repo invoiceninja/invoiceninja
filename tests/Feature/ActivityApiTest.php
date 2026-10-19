@@ -522,6 +522,44 @@ class ActivityApiTest extends TestCase
         $this->assertEquals([$own->hashed_id], array_column($response->json('data'), 'id'));
     }
 
+    public function testActivityFeedFiltersByUserId()
+    {
+        $this->createCompanyActivityNote();
+
+        [$user, $token] = $this->restrictedUserToken();
+
+        $theirs = $this->createActivityBy($user);
+
+        $admin = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        $response = $this->withHeaders($admin)->get('/api/v1/activities?reactv2&user_id=' . $user->hashed_id);
+
+        $response->assertStatus(200);
+        $this->assertEquals([$theirs->id], array_column($response->json('data'), 'id'));
+
+        $response = $this->withHeaders($admin)->get('/api/v1/activities?user_id=' . $user->hashed_id);
+
+        $response->assertStatus(200);
+        $this->assertEquals([$theirs->hashed_id], array_column($response->json('data'), 'id'));
+
+        $response = $this->withHeaders($admin)->get('/api/v1/activities?reactv2&user_id=not-a-hashed-id');
+
+        $response->assertStatus(200);
+        $this->assertEmpty($response->json('data'));
+
+        // Applied inside the non-admin clamp: asking for another user's rows can't widen it.
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token,
+        ])->get('/api/v1/activities?reactv2&user_id=' . $this->user->hashed_id);
+
+        $response->assertStatus(200);
+        $this->assertEmpty($response->json('data'));
+    }
+
     private function createActivityBy(User $user, ?\DateTimeInterface $created_at = null): Activity
     {
         $activity = new Activity();
