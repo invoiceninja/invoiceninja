@@ -106,7 +106,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['vat.businesspress.io/*' => Http::response([
+        Http::fake(['https://vat.businesspress.io' => Http::response([
             'success' => true,
             'data' => ['valid' => false],
         ])]);
@@ -120,7 +120,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['vat.businesspress.io/*' => Http::response([
+        Http::fake(['https://vat.businesspress.io' => Http::response([
             'success' => true,
             'data' => ['valid' => true, 'name' => 'Example GmbH', 'address' => 'Example Street 1'],
         ])]);
@@ -136,7 +136,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['vat.businesspress.io/*' => Http::response([
+        Http::fake(['https://vat.businesspress.io' => Http::response([
             'success' => true,
             'data' => ['valid' => false],
         ])]);
@@ -148,7 +148,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['vat.businesspress.io/*' => Http::response('unavailable', 500)]);
+        Http::fake(['https://vat.businesspress.io' => Http::response('unavailable', 500)]);
 
         $this->expectException(\RuntimeException::class);
 
@@ -159,7 +159,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['vat.businesspress.io/*' => Http::response(['success' => false])]);
+        Http::fake(['https://vat.businesspress.io' => Http::response(['success' => false])]);
 
         $this->expectException(\RuntimeException::class);
 
