@@ -101,6 +101,71 @@ class VatNumberTest extends TestCase
         (new VatNumberCheck("1234567L", "IE"))->run();
     }
 
+    #[DataProvider('vatCountryProvider')]
+    public function testHostedApiUsesTheSamePreparation(string $vat_number, string $fallback_country, string $expected_country, string $expected_number)
+    {
+        config(['ninja.environment' => 'hosted']);
+
+        Http::fake(['vat.businesspress.io/*' => Http::response([
+            'success' => true,
+            'data' => ['valid' => false],
+        ])]);
+
+        (new VatNumberCheck($vat_number, $fallback_country))->run();
+
+        Http::assertSent(fn ($request) => $request['country_code'] == $expected_country && $request['vat_number'] == $expected_number);
+    }
+
+    public function testHostedValidNumberSetsNameAndAddress()
+    {
+        config(['ninja.environment' => 'hosted']);
+
+        Http::fake(['vat.businesspress.io/*' => Http::response([
+            'success' => true,
+            'data' => ['valid' => true, 'name' => 'Example GmbH', 'address' => 'Example Street 1'],
+        ])]);
+
+        $result = (new VatNumberCheck('ATU12345678', 'AT'))->run();
+
+        $this->assertTrue($result->isValid());
+        $this->assertEquals('Example GmbH', $result->getName());
+        $this->assertEquals('Example Street 1', $result->getAddress());
+    }
+
+    public function testHostedExplicitInvalidNumber()
+    {
+        config(['ninja.environment' => 'hosted']);
+
+        Http::fake(['vat.businesspress.io/*' => Http::response([
+            'success' => true,
+            'data' => ['valid' => false],
+        ])]);
+
+        $this->assertFalse((new VatNumberCheck('1234567L', 'IE'))->run()->isValid());
+    }
+
+    public function testHostedHttpFailureIsNotAnInvalidNumber()
+    {
+        config(['ninja.environment' => 'hosted']);
+
+        Http::fake(['vat.businesspress.io/*' => Http::response('unavailable', 500)]);
+
+        $this->expectException(\RuntimeException::class);
+
+        (new VatNumberCheck('1234567L', 'IE'))->run();
+    }
+
+    public function testHostedBodyWithoutValidIsNotAnInvalidNumber()
+    {
+        config(['ninja.environment' => 'hosted']);
+
+        Http::fake(['vat.businesspress.io/*' => Http::response(['success' => false])]);
+
+        $this->expectException(\RuntimeException::class);
+
+        (new VatNumberCheck('1234567L', 'IE'))->run();
+    }
+
     public function testEmptyVatNumberIsNotSent()
     {
         Http::fake();

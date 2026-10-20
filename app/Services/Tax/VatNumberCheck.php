@@ -12,6 +12,7 @@
 
 namespace App\Services\Tax;
 
+use App\Utils\Ninja;
 use Illuminate\Support\Facades\Http;
 
 class VatNumberCheck
@@ -29,23 +30,78 @@ class VatNumberCheck
             $this->response = ['valid' => false, 'error' => 'No VAT number provided'];
             return $this;
         } else {
-            return $this->checkvat_number();
+
+            if(Ninja::isHosted()) {
+                return $this->checkVatNumberWithApi();
+            }
+            else{
+                return $this->checkvat_number();
+            }
         }
     }
 
-    private function checkvat_number(): self
+
+    /**
+     * Prefer the VAT registration prefix, falling back to the supplied country.
+     * VIES files Greece as EL.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function prepareVatNumber(): array
     {
-        // Prefer the VAT registration prefix, falling back to the supplied country.
         $country_code = strtoupper($this->country_code);
-        $vat_number = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $this->vat_number));
+        $vat_number = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', (string) $this->vat_number));
 
         if (preg_match('/^(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|GR|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK|XI)/', $vat_number, $matches)) {
             $country_code = $matches[1];
             $vat_number = substr($vat_number, 2);
         }
 
-        // VIES files Greece as EL.
         $country_code = $country_code == 'GR' ? 'EL' : $country_code;
+
+        return [$country_code, $vat_number];
+    }
+
+    private function checkVatNumberWithApi(): self
+    {
+        [$country_code, $vat_number] = $this->prepareVatNumber();
+
+        if (!$country_code || !$vat_number) {
+            $this->response = ['valid' => false];
+
+            return $this;
+        }
+
+        $response = Http::timeout(20)->post('https://vat.businesspress.io', [
+            'country_code' => $country_code,
+            'vat_number' => $vat_number,
+        ]);
+
+        $response_data = $response->json();
+        $data = is_array($response_data) ? ($response_data['data'] ?? null) : null;
+        $valid = is_array($data) ? ($data['valid'] ?? null) : null;
+        $success = is_array($response_data) ? ($response_data['success'] ?? null) : null;
+
+        if (!$response->successful() || $success !== true || !is_bool($valid)) {
+            throw new \RuntimeException('VAT proxy returned no verdict: HTTP '.$response->status());
+        }
+
+        if ($valid) {
+            $this->response = [
+                'valid' => true,
+                'name' => $data['name'] ?? '',
+                'address' => $data['address'] ?? '',
+            ];
+        } else {
+            $this->response = ['valid' => false];
+        }
+
+        return $this;
+    }
+
+    private function checkvat_number(): self
+    {
+        [$country_code, $vat_number] = $this->prepareVatNumber();
 
         $response = Http::timeout(20)->post('https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number', [
             'countryCode' => $country_code,
