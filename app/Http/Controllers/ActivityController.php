@@ -40,6 +40,7 @@ use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use stdClass;
 
 class ActivityController extends BaseController
@@ -72,6 +73,10 @@ class ActivityController extends BaseController
                 $activities->where('user_id', auth()->user()->id);
             }
 
+            $this->filterByUser($activities, $request);
+
+            $this->olderThanCursor($activities, $request);
+
             return response()->json(['data' => $this->activityStringPayload($activities)], 200);
         }
 
@@ -81,7 +86,62 @@ class ActivityController extends BaseController
                                 ->company()
                                 ->take($default_activities);
 
+        $this->filterByUser($activities, $request);
+
         return $this->listResponse($activities);
+    }
+
+    /**
+     * Narrows to the activities of the users in `user_id` (hashed ids, comma separated).
+     * An id that doesn't decode matches nothing; it can only narrow, never widen, the user's scope.
+     */
+    private function filterByUser(Builder $activities, Request $request): void
+    {
+        $user_id = $request->input('user_id');
+
+        if (!is_string($user_id) || strlen(trim($user_id)) == 0) {
+            return;
+        }
+
+        $user_ids = collect(explode(',', $user_id))
+                        ->map(fn ($id) => $this->decodePrimaryKey(trim($id), true))
+                        ->filter(fn ($id) => is_int($id))
+                        ->values()
+                        ->all();
+
+        $activities->whereIn('user_id', $user_ids);
+    }
+
+    /**
+     * Keyset cursor for paging the feed: `before` names an activity (hashed id) of this company,
+     * and only the activities after it in feed order - created_at, then id, descending - are returned.
+     * The stored timestamp is compared as is, so the cut is exact to the microsecond.
+     */
+    private function olderThanCursor(Builder $activities, Request $request): void
+    {
+        if (!$request->has('before')) {
+            return;
+        }
+
+        $request->validate(['before' => ['bail', 'required', 'string']]);
+
+        $id = $this->decodePrimaryKey($request->input('before'), true);
+
+        $boundary = is_int($id) ? Activity::query()->without('backup')->company()->find($id) : null;
+
+        if (!$boundary) {
+            throw ValidationException::withMessages(['before' => ctrans('texts.record_not_found')]);
+        }
+
+        $created_at = $boundary->getRawOriginal('created_at');
+
+        $activities->where(function ($query) use ($created_at, $boundary) {
+            $query->where('created_at', '<', $created_at)
+                  ->orWhere(function ($query) use ($created_at, $boundary) {
+                      $query->where('created_at', $created_at)
+                            ->where('id', '<', $boundary->id);
+                  });
+        });
     }
 
     public function entityActivity(ShowActivityRequest $request)
@@ -132,6 +192,7 @@ class ActivityController extends BaseController
             ->without('backup')
             ->with($this->activityStringRelations())
             ->orderBy('created_at', 'DESC')
+            ->orderBy('id', 'DESC')
             ->company()
             ->take($limit);
     }

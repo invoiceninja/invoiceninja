@@ -19,6 +19,7 @@ use App\Models\Design;
 use App\Models\Tag;
 use App\Utils\Statics;
 use App\Models\Account;
+use App\Models\Activity;
 use App\Models\TaxRate;
 use App\Models\Webhook;
 use App\Models\Scheduler;
@@ -1018,7 +1019,7 @@ class BaseController extends Controller
         if ($user && ! $user->hasPermission('view_' . Str::snake(class_basename($this->entity_type)))) {
             if (in_array($this->entity_type, [User::class])) {
                 $query->where('id', $user->id);
-            } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
+            } elseif (in_array($this->entity_type, [Activity::class, BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
                 if ($this->entity_type == BankIntegration::class && !$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                     $query->exclude(["balance"]);
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
