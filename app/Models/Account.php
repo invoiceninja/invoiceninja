@@ -145,7 +145,6 @@ class Account extends BaseModel
         'onboarding' => 'object',
         'billing_context' => BillingContext::class,
         'set_react_as_default_ap' => 'bool',
-        'is_trial' => 'bool',
         'promo_expires' => 'date',
         'discount_expires' => 'date',
     ];
@@ -392,7 +391,7 @@ class Account extends BaseModel
             return false;
         }
 
-        return (bool) $this->is_trial;
+        return !$this->plan_paid && $this->trial_started && Carbon::parse($this->trial_started)->addDays(14)->gte(now()->subHours(12));
 
     }
 
@@ -402,11 +401,10 @@ class Account extends BaseModel
             return;
         }
 
-        if (!$this->canStartTrial()) {
+        if ($this->trial_started && $this->trial_started != '0000-00-00') {
             return;
         }
 
-        $this->is_trial = true;
         $this->trial_plan = $plan;
         $this->trial_started = now();
         $this->save();
@@ -416,7 +414,7 @@ class Account extends BaseModel
     {
         $plan = $this->plan;
         $price = $this->plan_price;
-        $trial_plan = $this->is_trial ? $this->trial_plan : null;
+        $trial_plan = $this->trial_plan;
 
         if ((!$plan || $plan == self::PLAN_FREE) && (!$trial_plan || !$include_trial)) {
             return null;
@@ -655,35 +653,8 @@ class Account extends BaseModel
         return 0;
     }
 
-    /** Trial history survives payment, expiry, cancellation, and refunds. */
-    public function hasStartedTrial(): bool
-    {
-        return !empty($this->trial_started);
-    }
-
-    /** Shared eligibility; the in-app entry point additionally limits account age. */
-    public function canStartTrial(): bool
-    {
-        return !$this->is_trial
-            && empty($this->plan)
-            && !$this->hasStartedTrial()
-            && !$this->plan_started
-            && !$this->plan_paid
-            && !$this->payment_id;
-    }
-
-    /** Never erase established trial history through model/admin form writes. */
-    public function setTrialStartedAttribute($value): void
-    {
-        if (empty($value) && !empty($this->attributes['trial_started'])) {
-            return;
-        }
-
-        $this->attributes['trial_started'] = $value;
-    }
-
     public function canTrial(): bool
     {
-        return $this->canStartTrial() && $this->created_at > time() - (60 * 60 * 24 * 14); //@phpstan-ignore-line
+        return !$this->is_trial && empty($this->plan) && $this->created_at > time() - (60 * 60 * 24 * 14) && !$this->plan_started && !$this->trial_started; //@phpstan-ignore-line
     }
 }
