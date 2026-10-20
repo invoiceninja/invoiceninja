@@ -459,7 +459,7 @@ class CountryDefaults
             'currency_id' => '6',
             'timezone_id' => '58',
             'tax_rates' => [
-                ['name' => 'מע"מ', 'rate' => 17],
+                ['name' => 'מע"מ', 'rate' => 18],
             ],
         ],
 
