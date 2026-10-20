@@ -48,7 +48,6 @@ class PlanTest extends TestCase
 
         $this->assertFalse($this->account->hasFeature(Account::FEATURE_USERS));
 
-        $this->account->is_trial = true;
         $this->account->trial_plan = 'enterprise';
         $this->account->trial_started = now();
         $this->account->trial_duration = 60 * 60 * 24 * 31;
