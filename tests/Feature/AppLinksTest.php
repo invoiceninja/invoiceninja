@@ -13,6 +13,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Env;
 use Tests\TestCase;
 
 /**
@@ -52,6 +53,41 @@ class AppLinksTest extends TestCase
             $statement['target']['package_name']
         );
         $this->assertIsArray($statement['target']['sha256_cert_fingerprints']);
+    }
+
+    public function testDefaultAssetLinksTrustsPlayAndFdroidSigningCertificates(): void
+    {
+        // Load the real defaults even when this installation overrides the keys.
+        $environment = Env::getRepository();
+        $original = $environment->get('APP_LINKS_ANDROID_FINGERPRINTS');
+        $environment->clear('APP_LINKS_ANDROID_FINGERPRINTS');
+
+        try {
+            $defaults = require config_path('ninja.php');
+        } finally {
+            if ($original !== null) {
+                $environment->set('APP_LINKS_ANDROID_FINGERPRINTS', $original);
+            }
+        }
+
+        config(['ninja.app_links.android_fingerprints' => $defaults['app_links']['android_fingerprints']]);
+
+        $fingerprints = $this->get('.well-known/assetlinks.json')
+            ->assertOk()
+            ->json('0.target.sha256_cert_fingerprints');
+
+        $this->assertContains('BB:BC:8B:FB:72:4E:F2:56:77:30:31:B1:C9:22:C0:51:D3:5D:EE:3F:CE:BD:59:3A:F7:11:2F:AB:46:7D:E8:88', $fingerprints);
+        $this->assertContains('D1:7F:AC:8D:58:95:99:23:1C:31:CE:52:A5:E6:FD:E7:2B:BA:9B:7D:DC:8B:18:03:07:E2:5C:C6:88:03:C1:7D', $fingerprints);
+    }
+
+    public function testAssetLinksHonoursAnExplicitFingerprintOverride(): void
+    {
+        $fingerprint = implode(':', array_fill(0, 32, 'AA'));
+        config(['ninja.app_links.android_fingerprints' => $fingerprint]);
+
+        $this->get('.well-known/assetlinks.json')
+            ->assertOk()
+            ->assertJsonPath('0.target.sha256_cert_fingerprints', [$fingerprint]);
     }
 
     public function testAppleAssociationIsJsonAndScopedToSharedLinks()
