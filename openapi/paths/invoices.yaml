@@ -1041,3 +1041,106 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
+  '/api/v1/invoices/{invoice}/payment_schedule':
+    post:
+      tags:
+        - invoices
+      summary: 'Create an invoice payment schedule'
+      description: 'Requires edit access to the invoice. Creates a payment scheduler using the existing scheduler repository.'
+      operationId: setInvoicePaymentSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: invoice
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentScheduleRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+    delete:
+      tags:
+        - invoices
+      summary: 'Delete an invoice payment schedule'
+      description: 'Requires edit access to the invoice. Deletes its payment scheduler and resets partial payment fields.'
+      operationId: deleteInvoicePaymentSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: invoice
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/invoices/update_reminders:
+    post:
+      tags:
+        - invoices
+      summary: 'Recalculate company invoice reminders'
+      description: 'Administrator only. Dispatches the existing reminder update job for the authenticated company.'
+      operationId: updateInvoiceReminders
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'

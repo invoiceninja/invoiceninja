@@ -1,0 +1,20 @@
+    ChartForecastRequest:
+      type: object
+      properties:
+        date_range:
+          $ref: '#/components/schemas/ChartDateRequest/properties/date_range'
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        include_drafts:
+          type: boolean
+        bucket_type:
+          type: string
+          enum:
+            - daily
+            - weekly
+            - monthly
+          default: monthly
