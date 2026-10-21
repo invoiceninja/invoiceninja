@@ -22,9 +22,16 @@ use Tests\TestCase;
  */
 class VatNumberTest extends TestCase
 {
+    /**
+     * GitHub Actions sets NINJA_ENVIRONMENT=hosted. These cases exercise the
+     * VIES client unless a test opts into the hosted proxy.
+     */
     protected function setUp(): void
     {
         parent::setUp();
+
+        config(['ninja.environment' => 'selfhost']);
+        Http::preventStrayRequests();
     }
 
     public function testVatNumber()
@@ -106,21 +113,23 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['https://vat.businesspress.io' => Http::response([
+        Http::fake(['https://vat.businesspress.io/api/vat/validation/validate' => Http::response([
             'success' => true,
             'data' => ['valid' => false],
         ])]);
 
         (new VatNumberCheck($vat_number, $fallback_country))->run();
 
-        Http::assertSent(fn ($request) => $request['country_code'] == $expected_country && $request['vat_number'] == $expected_number);
+        Http::assertSent(fn ($request) => $request->url() === 'https://vat.businesspress.io/api/vat/validation/validate'
+            && $request['country_code'] == $expected_country
+            && $request['vat_number'] == $expected_number);
     }
 
     public function testHostedValidNumberSetsNameAndAddress()
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['https://vat.businesspress.io' => Http::response([
+        Http::fake(['https://vat.businesspress.io/api/vat/validation/validate' => Http::response([
             'success' => true,
             'data' => ['valid' => true, 'name' => 'Example GmbH', 'address' => 'Example Street 1'],
         ])]);
@@ -136,7 +145,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['https://vat.businesspress.io' => Http::response([
+        Http::fake(['https://vat.businesspress.io/api/vat/validation/validate' => Http::response([
             'success' => true,
             'data' => ['valid' => false],
         ])]);
@@ -148,7 +157,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['https://vat.businesspress.io' => Http::response('unavailable', 500)]);
+        Http::fake(['https://vat.businesspress.io/api/vat/validation/validate' => Http::response('unavailable', 500)]);
 
         $this->expectException(\RuntimeException::class);
 
@@ -159,7 +168,7 @@ class VatNumberTest extends TestCase
     {
         config(['ninja.environment' => 'hosted']);
 
-        Http::fake(['https://vat.businesspress.io' => Http::response(['success' => false])]);
+        Http::fake(['https://vat.businesspress.io/api/vat/validation/validate' => Http::response(['success' => false])]);
 
         $this->expectException(\RuntimeException::class);
 
