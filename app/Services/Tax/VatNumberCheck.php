@@ -72,7 +72,7 @@ class VatNumberCheck
             return $this;
         }
 
-        $response = Http::timeout(20)->post('https://vat.businesspress.io', [
+        $response = Http::timeout(20)->post('https://vat.businesspress.io/api/vat/validation/validate', [
             'country_code' => $country_code,
             'vat_number' => $vat_number,
         ]);
