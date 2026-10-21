@@ -88,7 +88,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                 $at = new AccountTransformer();
                 $account = $at->transform($account_summary);
 
-                if ($account[0]['current_balance']) {
+                if ($account[0]) {
                     $this->bank_integration->balance = $account[0]['current_balance'];
                     $this->bank_integration->currency = $account[0]['account_currency'];
                     $this->bank_integration->bank_account_status = $account[0]['account_status'];
@@ -117,12 +117,26 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
             } catch (\Exception $e) {
                 nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
 
+                if ($e instanceof \App\Exceptions\YodleeApiException) {
+                    $error = json_decode($e->getMessage(), true);
+            
+                    if (
+                        ($error['errorCode'] ?? '') === 'Y800'
+                        && ($error['errorMessage'] ?? '') === 'Invalid value for accountId'
+                    ) {
+                        $this->bank_integration->disabled_upstream = true;
+                        $this->bank_integration->bank_account_status = 'Bank Account Requires Re-Linking';
+                        $this->bank_integration->save();
+                    }
+                }
+
                 $content = [
                     "Processing transactions for account: {$this->bank_integration->bank_account_id} failed",
                     "Exception Details => ",
                     $e->getMessage(),
                 ];
 
+                
                 $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
                 BankMatchingService::dispatch($this->company->id, $this->company->db);
                 return;
@@ -135,8 +149,6 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     private function processTransactions(Yodlee $yodlee)
     {
-
-
 
         $data = [
             'top' => 500,
