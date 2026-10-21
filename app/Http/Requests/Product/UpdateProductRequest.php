@@ -53,6 +53,12 @@ class UpdateProductRequest extends Request
         $rules['stock_notification'] = 'sometimes|bool';
         $rules['income_account_id'] = 'bail|sometimes|nullable|string|max:64';
 
+        $rules['price_tiers'] = 'bail|sometimes|nullable|array';
+        $rules['price_tiers.*.min_quantity'] = 'required|numeric|min:0';
+        $rules['price_tiers.*.price'] = 'required_without:price_tiers.*.discount|numeric|min:0';
+        $rules['price_tiers.*.discount'] = 'required_without:price_tiers.*.price|numeric|min:0|max:100';
+        $rules['price_tiers_mode'] = 'bail|sometimes|string|in:all_units,progressive';
+
         return $this->globalRules($rules);
     }
 
@@ -73,6 +79,10 @@ class UpdateProductRequest extends Request
         }
 
         $input = $this->decodePrimaryKeys($input);
+
+        if (isset($input['price_tiers']) && is_array($input['price_tiers'])) {
+            $input['price_tiers'] = $this->sortPriceTiers($input['price_tiers']);
+        }
 
         if (array_key_exists('in_stock_quantity', $input) && request()->has('update_in_stock_quantity') && request()->input('update_in_stock_quantity') == 'true') {
         } elseif (array_key_exists('in_stock_quantity', $input)) {

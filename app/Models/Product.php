@@ -58,6 +58,8 @@ use League\CommonMark\CommonMarkConverter;
  * @property string|null $product_image
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Company $company
+ * @property array|null $price_tiers
+ * @property string $price_tiers_mode
  * @property-read int|null $documents_count
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
@@ -109,6 +111,8 @@ class Product extends BaseModel
         'product_image',
         'tax_id',
         'income_account_id',
+        'price_tiers',
+        'price_tiers_mode',
     ];
 
     protected $casts = [
@@ -116,6 +120,7 @@ class Product extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'sync' => ProductSync::class,
+        'price_tiers' => 'array',
     ];
 
     public array $ubl_tax_map = [
@@ -251,6 +256,40 @@ class Product extends BaseModel
     public function portalUrl(): string
     {
         return AppLink::forRecord('products', $this);
+    }
+
+    /**
+     * Returns the price tier applicable for a given quantity.
+     *
+     * Each tier is an array with a `min_quantity` key and either a
+     * `price` (absolute unit price) or `discount` (percentage) key.
+     * The highest matching tier wins.
+     *
+     * @return array{min_quantity: float, price?: float, discount?: float}|null
+     */
+    public function priceTierForQuantity(float $quantity): ?array
+    {
+        return $this->sortedPriceTiers()
+            ->last(function ($tier) use ($quantity) {
+                return $quantity >= (float) $tier['min_quantity'];
+            });
+    }
+
+    /**
+     * Returns all valid price tiers sorted by `min_quantity` ascending.
+     *
+     * @return \Illuminate\Support\Collection<int, array{min_quantity: float, price?: float, discount?: float}>
+     */
+    public function sortedPriceTiers()
+    {
+        return collect($this->price_tiers ?? [])
+            ->filter(function ($tier) {
+                return isset($tier['min_quantity']) && (isset($tier['price']) || isset($tier['discount']));
+            })
+            ->sortBy(function ($tier) {
+                return (float) $tier['min_quantity'];
+            })
+            ->values();
     }
 
     public function getTaxCategoryName($tax_id)

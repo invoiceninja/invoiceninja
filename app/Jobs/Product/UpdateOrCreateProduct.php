@@ -108,7 +108,12 @@ class UpdateOrCreateProduct implements ShouldQueue
 
             $product->product_key = $item->product_key;
             $product->notes = $item->notes ?? '';
-            $product->price = $item->cost ?? 0;
+
+            /* Products with price tiers manage their pricing via the tiers, so
+             * we do not sync the base price back from a tiered line item cost */
+            if (empty($product->price_tiers)) {
+                $product->price = $item->cost ?? 0;
+            }
 
             if (! $product->id) {
                 $product->quantity = $item->quantity ?? 0;

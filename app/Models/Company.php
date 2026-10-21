@@ -83,6 +83,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $is_disabled
  * @property bool $default_task_is_date_based
  * @property bool $enable_product_discount
+ * @property bool $enable_price_tiers
  * @property bool $calculate_expense_tax_by_amount
  * @property bool $expense_inclusive_taxes
  * @property int $session_timeout
@@ -334,6 +335,7 @@ class Company extends BaseModel
         'is_disabled',
         'default_task_is_date_based',
         'enable_product_discount',
+        'enable_price_tiers',
         'expense_inclusive_taxes',
         'session_timeout',
         'oauth_password_required',

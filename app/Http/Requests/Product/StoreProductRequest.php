@@ -53,6 +53,12 @@ class StoreProductRequest extends Request
         $rules['tax_rate3'] = 'bail|sometimes|numeric';
         $rules['income_account_id'] = 'bail|sometimes|nullable|string|max:64';
 
+        $rules['price_tiers'] = 'bail|sometimes|nullable|array';
+        $rules['price_tiers.*.min_quantity'] = 'required|numeric|min:0';
+        $rules['price_tiers.*.price'] = 'required_without:price_tiers.*.discount|numeric|min:0';
+        $rules['price_tiers.*.discount'] = 'required_without:price_tiers.*.price|numeric|min:0|max:100';
+        $rules['price_tiers_mode'] = 'bail|sometimes|string|in:all_units,progressive';
+
         return $this->globalRules($rules);
     }
 
@@ -77,6 +83,10 @@ class StoreProductRequest extends Request
         $input['tax_name1'] ??= '';
         $input['tax_name2'] ??= '';
         $input['tax_name3'] ??= '';
+
+        if (isset($input['price_tiers']) && is_array($input['price_tiers'])) {
+            $input['price_tiers'] = $this->sortPriceTiers($input['price_tiers']);
+        }
 
         foreach (['notes', 'product_key', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'] as $field) {
             if (isset($input[$field]) && is_string($input[$field])) {
