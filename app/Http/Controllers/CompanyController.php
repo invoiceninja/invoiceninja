@@ -237,6 +237,7 @@ class CompanyController extends BaseController
         $company = $this->company_repo->save($request->all(), $company);
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
+        $this->uploadLogoDark($request->file('company_logo_dark'), $company, $company);
 
         $user->companies()->attach($company->id, [
             'account_id' => $company->account->id,
@@ -433,6 +434,12 @@ class CompanyController extends BaseController
         if ($request->hasFile('company_logo') || (is_array($request->input('settings')) && ! array_key_exists('company_logo', $request->input('settings')))) {
             $this->removeLogo($company);
             $this->uploadLogo($request->file('company_logo'), $company, $company);
+            return $this->itemResponse($company->refresh());
+        }
+
+        if ($request->hasFile('company_logo_dark') || (is_array($request->input('settings')) && ! array_key_exists('company_logo_dark', $request->input('settings')))) {
+            $this->removeLogoDark($company);
+            $this->uploadLogoDark($request->file('company_logo_dark'), $company, $company);
             return $this->itemResponse($company->refresh());
         }
 
