@@ -12,6 +12,7 @@
 
 namespace App\Services\Pdf;
 
+use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -310,7 +311,7 @@ class PdfMock
              '$client.billing_address2' => '63993 Aiyana View',
              '$client.billing_address1' => '8447',
              '$client.shipping_country' => 'USA',
-             '$invoiceninja.whitelabel' => config('ninja.app_logo'),
+             '$invoiceninja.whitelabel' => Ninja::whitelabelLogo(),
              '$client.billing_address' => '8447<br/>63993 Aiyana View<br/>Aufderharchester, North Carolina 11243<br/>United States<br/>',
              '$client.billing_country' => 'USA',
              '$client.location_name' => 'Location Name',
@@ -416,7 +417,7 @@ class PdfMock
              '$client.currency' => 'USD',
              '$company.country' => $this->company->country()?->name ?? 'USA',
              '$company.address' => $this->company->present()->address(),
-             '$tech_hero_image' => 'https://invoicing.co/images/pdf-designs/tech-hero-image.jpg',
+             '$tech_hero_image' => config('ninja.app_url') . '/images/pdf-designs/tech-hero-image.jpg',
              '$task.tax_name1' => '',
              '$task.tax_name2' => '',
              '$task.tax_name3' => '',
@@ -1006,7 +1007,7 @@ class PdfMock
             '$purchase_order.due_date' => '02-12-2021',
             '$vendor.billing_address1' => '589',
             '$vendor.billing_address2' => '761 Odessa Centers Suite 673',
-            '$invoiceninja.whitelabel' => config('ninja.app_logo'),
+            '$invoiceninja.whitelabel' => Ninja::whitelabelLogo(),
             '$purchase_order.custom1' => 'Custom 1',
             '$purchase_order.custom2' => 'Custom 2',
             '$purchase_order.custom3' => 'Custom 3',
