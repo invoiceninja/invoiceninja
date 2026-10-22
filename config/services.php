@@ -70,6 +70,7 @@ return [
         'client_id' => env('APPLE_CLIENT_ID'),
         'client_secret' => env('APPLE_CLIENT_SECRET'),
         'redirect' => env('APPLE_REDIRECT_URI'),
+        'client_ids' => explode(',', env('APPLE_CLIENT_IDS', '')),
     ],
 
     'oidc' => [
