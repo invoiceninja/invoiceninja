@@ -81,13 +81,35 @@ class AppLinksWebClientTest extends TestCase
             ->assertSee('/#/settings/subscriptions/Wp1/edit?company=VolejRejNm', false);
     }
 
+    public function testSelfHostReactIgnoresAStaleReactUrl()
+    {
+        // The server serves React at its own root, so REACT_URL is not read:
+        // installs keep .env.example's dev-server value, and nothing listens on it.
+        $this->webClientIsFlutter(false);
+        config([
+            'ninja.react_url' => 'http://localhost:3001',
+            'ninja.app_url' => 'https://portal.example.com',
+        ]);
+
+        $webUrl = 'https://portal.example.com/#/invoices/Wp1/edit?company=VolejRejNm';
+
+        $this->get('app/invoices/Wp1?company=VolejRejNm')
+            ->assertSee($webUrl, false)
+            ->assertSee('S.browser_fallback_url='.rawurlencode($webUrl), false)
+            ->assertDontSee('3001', false);
+    }
+
     public function testHostedAlwaysGetsReact()
     {
         // Hosted serves the two from different hosts and never reads the flag.
         $this->webClientIsFlutter(true);
-        config(['ninja.environment' => 'hosted']);
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.react_url' => 'https://react.example.com',
+            'ninja.app_url' => 'https://api.example.com',
+        ]);
 
         $this->get('app/settings/payment_links/Wp1')
-            ->assertSee('/#/settings/subscriptions/Wp1/edit', false);
+            ->assertSee('https://react.example.com/#/settings/subscriptions/Wp1/edit', false);
     }
 }
