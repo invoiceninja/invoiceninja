@@ -200,6 +200,11 @@ class Payment extends BaseModel
         return $this->belongsTo(CompanyGateway::class)->withTrashed();
     }
 
+    public function payment_hash(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(PaymentHash::class);
+    }
+
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
