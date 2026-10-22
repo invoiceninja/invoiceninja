@@ -167,6 +167,7 @@ class CompanyTransformer extends EntityTransformer
             'use_credits_payment' => 'always', // @deprecate 1-2-2021
             'default_task_is_date_based' => (bool) $company->default_task_is_date_based,
             'enable_product_discount' => (bool) $company->enable_product_discount,
+            'enable_price_tiers' => (bool) $company->enable_price_tiers,
             'calculate_expense_tax_by_amount' => (bool) $company->calculate_expense_tax_by_amount,
             'hide_empty_columns_on_pdf' => false, // @deprecate 1-2-2021
             'expense_inclusive_taxes' => (bool) $company->expense_inclusive_taxes,

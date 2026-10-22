@@ -26,6 +26,7 @@ use App\Models\RecurringInvoice;
 use App\Models\Tag;
 use App\Models\Task;
 use App\Models\Vendor;
+use App\Services\Product\ApplyPriceTiers;
 use App\Utils\BcMath;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
@@ -224,6 +225,11 @@ class BaseRepository
                     return $item;
                 });
             }
+        }
+
+        /* Resolve quantity based product price tiers */
+        if (is_array($model->line_items)) {
+            $model->line_items = (new ApplyPriceTiers())->run($model->line_items, $model->company, $model->client);
         }
 
         $model->saveQuietly();

@@ -218,6 +218,7 @@ class CompanyImport implements ShouldQueue
         "is_disabled",
         "default_task_is_date_based",
         "enable_product_discount",
+        "enable_price_tiers",
         "calculate_expense_tax_by_amount",
         "expense_inclusive_taxes",
         "session_timeout",

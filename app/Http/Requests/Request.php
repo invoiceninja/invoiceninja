@@ -312,6 +312,20 @@ class Request extends FormRequest
         return filter_var($bool, FILTER_VALIDATE_BOOLEAN);
     }
 
+    /**
+     * Sort product price tiers by min_quantity ascending.
+     *
+     * @param  array<int, array<string, mixed>>  $tiers
+     * @return array<int, array<string, mixed>>
+     */
+    protected function sortPriceTiers(array $tiers): array
+    {
+        return collect($tiers)
+            ->sortBy(fn ($tier) => (float) ($tier['min_quantity'] ?? 0))
+            ->values()
+            ->all();
+    }
+
     public function checkTimeLog(array $log): bool
     {
         $this->timeLogValidationError = null;
