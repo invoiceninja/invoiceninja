@@ -459,7 +459,19 @@ class LoginController extends BaseController
 
     private function getSocialiteUser(string $provider, string $token)
     {
-        return Socialite::driver($provider)->userFromToken($token);
+        $driver = Socialite::driver($provider);
+
+        if ($provider == 'apple') {
+            // iOS/macOS tokens are issued for the bundle ID, web/Android tokens for the service ID
+            $payload = json_decode(base64_decode(strtr(explode('.', $token)[1] ?? '', '-_', '+/')), true);
+            $client_id = in_array($payload['aud'] ?? null, config('services.apple.client_ids'), true)
+                ? $payload['aud']
+                : config('services.apple.client_id');
+
+            $driver->setConfig(new \SocialiteProviders\Manager\Config($client_id, config('services.apple.client_secret'), config('services.apple.redirect')));
+        }
+
+        return $driver->userFromToken($token);
     }
 
     private function handleSocialiteLogin($provider, $token)
