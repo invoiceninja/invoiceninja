@@ -459,12 +459,21 @@ class LoginController extends BaseController
 
     private function getSocialiteUser(string $provider, string $token)
     {
+        if ($provider == 'apple') {
+            return OAuth::appleUserFromToken($token);
+        }
+
         return Socialite::driver($provider)->userFromToken($token);
     }
 
     private function handleSocialiteLogin($provider, $token)
     {
-        $user = $this->getSocialiteUser($provider, $token);
+        try {
+            $user = $this->getSocialiteUser($provider, $token);
+        } catch (\Throwable $e) {
+            nlog('Socialite login failed: '.$e->getMessage());
+            $user = null;
+        }
 
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
