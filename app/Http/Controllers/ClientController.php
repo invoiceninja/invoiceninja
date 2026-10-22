@@ -186,6 +186,10 @@ class ClientController extends BaseController
 
         $client = ClientFactory::create($user->company()->id, $user->id);
 
+        $settings = $client->settings;
+        $settings->currency_id = (string) $user->company()->settings->currency_id;
+        $client->settings = $settings;
+
         return $this->itemResponse($client);
     }
 

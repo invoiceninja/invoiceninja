@@ -223,4 +223,9 @@
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
+        documents:
+          description: 'The documents attached to the expense'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object

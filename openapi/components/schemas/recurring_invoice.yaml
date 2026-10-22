@@ -23,8 +23,8 @@
           example: '4'
         frequency_id:
           description: 'The recurring invoice frequency'
-          type: number
-          example: 4
+          type: string
+          example: '4'
         remaining_cycles:
           description: 'The number of invoices left to be generated'
           type: number
@@ -103,8 +103,9 @@
           example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the invoice'
-          type: object
-          example: {}
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         amount:
           description: 'The invoice amount'
           type: number
@@ -143,29 +144,24 @@
           type: boolean
           example: true
         date:
-          description: 'The Invoice Date'
+          description: 'The Invoice Date, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the invoice was sent out'
+          description: 'The last date the invoice was sent out, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent'
+          description: 'The Next date for a reminder to be sent (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the deposit/partial amount'
+          description: 'The due date for the deposit/partial amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the invoice'
+          description: 'The due date of the invoice, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
@@ -237,9 +233,9 @@
           type: string
           example: Opnel5aKBz
         due_date_days:
-          description: 'Number of days until the due date'
-          type: integer
-          example: 30
+          description: "The day of the month the invoices are due, 'terms' to use the payment terms or 'on_receipt'"
+          type: string
+          example: terms
         e_invoice:
           description: 'E-invoice configuration and data'
           type: object
@@ -286,5 +282,26 @@
           format: integer
           example: 1434342123
           readOnly: true
+        documents:
+          description: 'The documents attached to the recurring invoice'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the recurring invoice'
+          type: array
+          items:
+            type: object
+        next_send_datetime:
+          description: 'The next send datetime'
+          type: string
+        recurring_dates:
+          description: 'The recurring dates'
+          type: array
+          items:
+            type: object
+        subscription_id:
+          description: 'The subscription id'
+          type: string
       type: object
       

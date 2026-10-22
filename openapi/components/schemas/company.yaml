@@ -269,8 +269,18 @@
           type: boolean
           example: true
         client_registration_fields:
-          description: "The client registration fields for the company"
-          type: object
+          description: 'The client registration fields for the company'
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: first_name
+              required:
+                type: boolean
+              visible:
+                type: boolean
         stop_on_unpaid_recurring:
           description: "A flag determining whether to stop recurring invoices when they are unpaid"
           type: boolean
@@ -413,12 +423,11 @@
           example: 587
 
         smtp_encryption:
-          description: "The encryption method for SMTP"
+          description: 'The encryption method for SMTP, an empty string when not set'
           type: string
           nullable: true
-          enum: [tls, ssl]
-          example: "tls"
-
+          enum: [tls, ssl, '']
+          example: tls
         smtp_local_domain:
           description: "The local domain for SMTP"
           type: string
@@ -435,8 +444,9 @@
           additionalProperties: true
 
         legal_entity_id:
-          description: "The ID of the legal entity associated with the company"
+          description: 'The ID of the legal entity associated with the company, null when there is none'
           type: integer
+          nullable: true
           example: 1234
         convert_rate_to_client:
           description: 'Flag indicating whether to convert rates to the client currency'
@@ -460,4 +470,206 @@
           example: true
         settings:
           $ref: '#/components/schemas/CompanySettings'
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        documents:
+          description: 'The documents attached to the company'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        enable_modules:
+          description: 'Whether to enable modules'
+          type: boolean
+        expense_amount_is_pretax:
+          description: 'The expense amount is pretax'
+          type: boolean
+        google_analytics_url:
+          description: 'The google analytics url'
+          type: string
+        has_e_invoice_certificate:
+          description: 'Whether the company has e invoice certificate'
+          type: boolean
+        has_e_invoice_certificate_passphrase:
+          description: 'Whether the company has e invoice certificate passphrase'
+          type: boolean
+        hide_empty_columns_on_pdf:
+          description: 'Whether to hide empty columns on pdf'
+          type: boolean
+        quickbooks:
+          description: 'The quickbooks'
+          nullable: true
+        smtp_password:
+          description: 'The smtp password'
+          type: string
+        smtp_username:
+          description: 'The smtp username'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        use_credits_payment:
+          description: 'Whether to use credits payment'
+          type: string
+        activities:
+          description: 'The activities'
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        bank_integrations:
+          description: 'The bank integrations'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankIntegration'
+        bank_transaction_rules:
+          description: 'The bank transaction rules'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransactionRule'
+        bank_transactions:
+          description: 'The bank transactions'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransaction'
+        clients:
+          description: 'The clients'
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        company_gateways:
+          description: 'The company gateways'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyGateway'
+        credits:
+          description: 'The credits'
+          type: array
+          items:
+            $ref: '#/components/schemas/Credit'
+        designs:
+          description: 'The designs'
+          type: array
+          items:
+            $ref: '#/components/schemas/Design'
+        expense_categories:
+          description: 'The expense categories'
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseCategory'
+        expenses:
+          description: 'The expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+        groups:
+          description: 'The groups'
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupSetting'
+        invoices:
+          description: 'The invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        locations:
+          description: 'The locations'
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        payment_terms:
+          description: 'The payment terms'
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentTerm'
+        payments:
+          description: 'The payments'
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        products:
+          description: 'The products'
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        projects:
+          description: 'The projects'
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        purchase_orders:
+          description: 'The purchase orders'
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseOrder'
+        quotes:
+          description: 'The quotes'
+          type: array
+          items:
+            $ref: '#/components/schemas/Quote'
+        recurring_expenses:
+          description: 'The recurring expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringExpense'
+        recurring_invoices:
+          description: 'The recurring invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringInvoice'
+        subscriptions:
+          description: 'The subscriptions'
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        system_logs:
+          description: 'The system logs'
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemLog'
+        task_schedulers:
+          description: 'The task schedulers'
+          type: array
+          items:
+            type: object
+        task_statuses:
+          description: 'The task statuses'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskStatus'
+        tasks:
+          description: 'The tasks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        tax_rates:
+          description: 'The tax rates'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxRate'
+        tokens_hashed:
+          description: 'The tokens hashed'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyToken'
+        users:
+          description: 'The users'
+          type: array
+          items:
+            type: object
+        vendors:
+          description: 'The vendors'
+          type: array
+          items:
+            $ref: '#/components/schemas/Vendor'
+        webhooks:
+          description: 'The webhooks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
       type: object

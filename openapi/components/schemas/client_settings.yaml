@@ -847,4 +847,13 @@
           description: 'The French reporting schedule. ten_day or monthly'
           type: string
           example: ten_day
+        entity:
+          description: 'The entity'
+          type: string
+        industry_id:
+          description: 'The industry id'
+          type: string
+        size_id:
+          description: 'The size id'
+          type: string
       type: object

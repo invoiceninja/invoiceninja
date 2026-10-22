@@ -131,4 +131,11 @@
           format: integer
           example: 134341234234
           readOnly: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        link:
+          description: 'The link'
+          type: string
       type: object

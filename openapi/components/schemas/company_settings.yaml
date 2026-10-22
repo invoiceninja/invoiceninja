@@ -28,9 +28,9 @@
           type: boolean
           example: true
         payment_terms:
-          description: "-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days"
-          type: integer
-          example: 1
+          description: 'The payment terms in days as a string: -1 sets no payment term, 0 sets payment due immediately. An empty string when not set'
+          type: string
+          example: '30'
         company_gateway_ids:
           description: "A commad separate list of available gateways"
           type: string
@@ -70,9 +70,8 @@
           enum: [plain, light, dark, custom]
           example: "light"
         reply_to_email:
-          description: "The reply to email address"
+          description: "The reply to email address, an empty string when not set"
           type: string
-          format: email
           example: "email@gmail.com"
         bcc_email:
           description: "A comma separate list of BCC emails"
@@ -117,10 +116,10 @@
           type: string
           example: "Please approve quote"
         lock_invoices:
-          description: "Toggles whether invoices are locked once sent and cannot be modified further"
+          description: 'Toggles whether invoices are locked once sent and cannot be modified further'
           type: string
-          enum: [off, when_sent, when_paid, end_of_month]
-          example: "off"
+          enum: ['off', when_sent, when_paid, end_of_month]
+          example: 'off'
         auto_archive_invoice:
           description: "Toggles whether a invoice is archived immediately following payment"
           type: boolean
@@ -222,13 +221,14 @@
           type: string
           example: "R"
         reset_counter_frequency_id:
-          description: "CONSTANT which is used to apply the frequency which the counters are reset"
-          type: integer
+          description: 'CONSTANT which is used to apply the frequency which the counters are reset. The default is returned as the string 0'
+          oneOf:
+            - type: integer
+            - type: string
           example: 1
         reset_counter_date:
-          description: "The explicit date which is used to reset counters"
+          description: "The explicit date which is used to reset counters, an empty string when not set"
           type: string
-          format: date
           example: "2019-01-01"
         counter_padding:
           description: "Pads the counter with leading zeros"
@@ -440,9 +440,8 @@
           type: string
           example: "555-213-3948"
         email:
-          description: "The company email"
+          description: "The company email, an empty string when not set"
           type: string
-          format: email
           example: "joe@acme.co"
         country_id:
           description: "The country ID"
@@ -569,20 +568,20 @@
           type: integer
           example: 9
         schedule_reminder1:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder2:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder3:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'When the reminder is sent, an empty string when not set'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         late_fee_amount1:
           description: "The late fee amount for reminder 1"
           type: number
@@ -653,9 +652,8 @@
           type: boolean
           example: false
         custom_sending_email:
-          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting."
+          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting, an empty string when not set"
           type: string
-          format: email
           example: "bob@gmail.com"
         show_paid_stamp:
           description: "Determines if the PAID stamp is shown on the invoice"
@@ -666,11 +664,9 @@
           type: boolean
           example: false
         company_logo_size:
-          description: "The size of the company logo on the PDF - percentage value between 0 and 100"
-          type: integer
-          minimum: 0
-          maximum: 100
-          example: 100
+          description: 'The size of the company logo on the PDF as a CSS size, an empty string when not set'
+          type: string
+          example: '65%'
         show_email_footer:
           description: "Determines if the email footer is shown on emails"
           type: boolean
@@ -749,10 +745,10 @@
           type: integer
           example: 1
         page_numbering_alignment:
-          description: "The alignment for page numbering: options include left / center / right"
+          description: 'The alignment for page numbering: L (left), C (center) or R (right)'
           type: string
-          enum: [left, center, right]
-          example: "left"
+          enum: [L, C, R]
+          example: C
         page_numbering:
           description: "Determines if page numbering is enabled on Document PDFs"
           type: boolean
@@ -771,9 +767,9 @@
           enum: [all, uninvoiced, invoiced]
           example: "all"
         entity_send_time:
-          description: "The time that emails are sent. The time is localized to the clients locale, integer values from 1 - 24"
+          description: 'The hour emails are sent at, localized to the clients locale. Integer values from 0 - 24'
           type: integer
-          minimum: 1
+          minimum: 0
           maximum: 24
           example: 9
         shared_invoice_credit_counter:
@@ -793,9 +789,10 @@
           type: boolean
           example: false
         use_credits_payment:
-          description: "Determines if credits can be used as a payment method"
-          type: boolean
-          example: false
+          description: 'Determines if credits can be used as a payment method'
+          type: string
+          enum: [always, option, 'off']
+          example: 'off'
         recurring_invoice_number_pattern:
           description: "The pattern for recurring invoice numbers"
           type: string
@@ -833,10 +830,10 @@
           type: boolean
           example: false
         auto_bill:
-          description: "Determines how autobilling is applied for recurring invoices"
+          description: 'Determines how autobilling is applied for recurring invoices'
           type: string
-          enum: [off, always, optin, optout]
-          example: "off"
+          enum: ['off', always, optin, optout]
+          example: 'off'
         client_portal_terms:
           description: "The terms which are displayed on the client portal"
           type: string
@@ -903,3 +900,175 @@
           description: 'The French reporting schedule. ten_day or monthly'
           type: string
           example: ten_day
+        brevo_secret:
+          description: 'The brevo secret'
+          type: string
+        client_portal_enable_uploads:
+          description: 'The client portal enable uploads'
+          type: boolean
+        credit_design_id:
+          description: 'The credit design id'
+          type: string
+        delivery_note_design_id:
+          description: 'The delivery note design id'
+          type: string
+        e_expense_forward_email:
+          description: 'The e expense forward email'
+          type: string
+        e_invoice_forward_email:
+          description: 'The e invoice forward email'
+          type: string
+        e_quote_type:
+          description: 'The e quote type'
+          type: string
+        email_quote_subject_reminder1:
+          description: 'The email quote subject reminder1'
+          type: string
+        email_quote_template_reminder1:
+          description: 'The email quote template reminder1'
+          type: string
+        email_subject_credit:
+          description: 'The email subject credit'
+          type: string
+        email_subject_payment_failed:
+          description: 'The email subject payment failed'
+          type: string
+        email_subject_payment_partial:
+          description: 'The email subject payment partial'
+          type: string
+        email_template_credit:
+          description: 'The email template credit'
+          type: string
+        email_template_payment_failed:
+          description: 'The email template payment failed'
+          type: string
+        email_template_payment_partial:
+          description: 'The email template payment partial'
+          type: string
+        enable_client_profile_update:
+          description: 'Whether to enable client profile update'
+          type: boolean
+        enable_quote_reminder1:
+          description: 'Whether to enable quote reminder1'
+          type: boolean
+        enable_rappen_rounding:
+          description: 'Whether to enable rappen rounding'
+          type: boolean
+        id_number:
+          description: 'The id number'
+          type: string
+        late_fee_percent1:
+          description: 'The late fee percent1'
+          type: integer
+        late_fee_percent2:
+          description: 'The late fee percent2'
+          type: integer
+        late_fee_percent3:
+          description: 'The late fee percent3'
+          type: integer
+        merge_e_invoice_to_pdf:
+          description: 'The merge e invoice to pdf'
+          type: boolean
+        page_layout:
+          description: 'The page layout'
+          type: string
+        payment_email_all_contacts:
+          description: 'The payment email all contacts'
+          type: boolean
+        payment_flow:
+          description: 'The payment flow'
+          type: string
+        payment_receipt_design_id:
+          description: 'The payment receipt design id'
+          type: string
+        payment_refund_design_id:
+          description: 'The payment refund design id'
+          type: string
+        pdf_variables:
+          description: 'The pdf variables'
+          type: object
+          additionalProperties: true
+        portal_custom_css:
+          description: 'The portal custom css'
+          type: string
+        portal_custom_footer:
+          description: 'The portal custom footer'
+          type: string
+        portal_custom_head:
+          description: 'The portal custom head'
+          type: string
+        portal_custom_js:
+          description: 'The portal custom js'
+          type: string
+        preference_product_notes_for_html_view:
+          description: 'The preference product notes for html view'
+          type: boolean
+        project_number_counter:
+          description: 'The project number counter'
+          type: integer
+        project_number_pattern:
+          description: 'The project number pattern'
+          type: string
+        quote_late_fee_amount1:
+          description: 'The quote late fee amount1'
+          type: integer
+        quote_late_fee_percent1:
+          description: 'The quote late fee percent1'
+          type: integer
+        quote_num_days_reminder1:
+          description: 'The quote num days reminder1'
+          type: integer
+        quote_schedule_reminder1:
+          description: 'The quote schedule reminder1'
+          type: string
+        recurring_expense_number_counter:
+          description: 'The recurring expense number counter'
+          type: integer
+        recurring_expense_number_pattern:
+          description: 'The recurring expense number pattern'
+          type: string
+        recurring_number_prefix:
+          description: 'The recurring number prefix'
+          type: string
+        recurring_quote_number_counter:
+          description: 'The recurring quote number counter'
+          type: integer
+        recurring_quote_number_pattern:
+          description: 'The recurring quote number pattern'
+          type: string
+        ses_access_key:
+          description: 'The ses access key'
+          type: string
+        ses_from_address:
+          description: 'The ses from address'
+          type: string
+        ses_region:
+          description: 'The ses region'
+          type: string
+        ses_secret_key:
+          description: 'The ses secret key'
+          type: string
+        ses_topic_arn:
+          description: 'The ses topic arn'
+          type: string
+        show_pdfhtml_on_mobile:
+          description: 'Whether to show pdfhtml on mobile'
+          type: boolean
+        skip_automatic_email_with_peppol:
+          description: 'The skip automatic email with peppol'
+          type: boolean
+        statement_design_id:
+          description: 'The statement design id'
+          type: string
+        task_round_to_nearest:
+          description: 'The task round to nearest'
+          type: integer
+        task_round_up:
+          description: 'The task round up'
+          type: boolean
+        unlock_invoice_documents_after_payment:
+          description: 'The unlock invoice documents after payment'
+          type: boolean
+        use_unapplied_payment:
+          description: 'Whether to use unapplied payment'
+          type: string

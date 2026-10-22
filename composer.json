@@ -128,6 +128,7 @@
         "friendsofphp/php-cs-fixer": "^3.14",
         "larastan/larastan": "^2|^3",
         "laravel/boost": "^2",
+        "league/openapi-psr7-validator": "^0.24.0",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "phpstan/phpstan": "^2.0",

@@ -165,4 +165,9 @@
           format: integer
           example: 1434342123
           readOnly: true
+        documents:
+          description: 'The documents attached to the vendor'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object

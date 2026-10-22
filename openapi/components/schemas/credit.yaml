@@ -150,14 +150,12 @@
           format: date
           example: "1994-07-30"
         last_sent_date:
-          description: "The date the credit was last sent out"
+          description: "The date the credit was last sent out, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
         next_send_date:
-          description: "The next scheduled date for sending a credit reminder"
+          description: "The next scheduled date for sending a credit reminder, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
         partial_due_date:
           description: "The due date for the partial amount of the credit"
@@ -165,9 +163,8 @@
           format: date
           example: "1994-07-30"
         due_date:
-          description: "The due date for the total amount of the credit"
+          description: "The due date for the total amount of the credit, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
         settings:
           $ref: "#/components/schemas/CompanySettings"
@@ -305,4 +302,9 @@
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        documents:
+          description: 'The documents attached to the credit'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object

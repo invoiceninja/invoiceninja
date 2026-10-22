@@ -6,7 +6,141 @@
           example: AS3df3A
           readOnly: true
         account_sms_verified:
-          description: 'Boolean flag if the account has been verified by sms'
+          description: 'Whether the account phone number has been verified by SMS'
+          type: boolean
+          example: true
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        can_trial:
+          description: 'The can trial'
+          type: boolean
+        current_version:
+          description: 'The current version'
           type: string
-          example: "true"
+        debug_enabled:
+          description: 'The debug enabled'
+          type: boolean
+        default_company_id:
+          description: 'The default company id'
+          type: string
+        default_url:
+          description: 'The default url'
+          type: string
+        disable_auto_update:
+          description: 'The disable auto update'
+          type: boolean
+        docuninja_num_users:
+          description: 'The docuninja num users'
+          type: integer
+        e_invoice_quota:
+          description: 'The e invoice quota'
+          type: integer
+        email_quota:
+          description: 'The email quota'
+          type: integer
+        emails_sent:
+          description: 'The emails sent'
+          type: integer
+        has_iap_plan:
+          description: 'Whether the account has iap plan'
+          type: boolean
+        hosted_client_count:
+          description: 'The hosted client count'
+          type: integer
+        hosted_company_count:
+          description: 'The hosted company count'
+          type: integer
+        is_docker:
+          description: 'Whether the account is docker'
+          type: boolean
+        is_hosted:
+          description: 'Whether the account is hosted'
+          type: boolean
+        is_migrated:
+          description: 'Whether the account is migrated'
+          type: boolean
+        is_premium:
+          description: 'Whether the account is premium'
+          type: boolean
+        is_scheduler_running:
+          description: 'Whether the account is scheduler running'
+          type: boolean
+        key:
+          description: 'The key'
+          type: string
+        latest_version:
+          description: 'The latest version'
+          type: string
+        nordigen_enabled:
+          description: 'The nordigen enabled'
+          type: boolean
+        num_users:
+          description: 'The num users'
+          type: integer
+        payment_id:
+          description: 'The payment id'
+          type: string
+        plan:
+          description: 'The plan'
+          type: string
+        plan_expires:
+          description: 'The plan expires'
+          type: string
+        plan_paid:
+          description: 'The plan paid'
+          type: string
+        plan_price:
+          description: 'The plan price'
+          type: integer
+        plan_started:
+          description: 'The plan started'
+          type: string
+        plan_term:
+          description: 'The plan term'
+          type: string
+        referral_code:
+          description: 'The referral code'
+          type: string
+        report_errors:
+          description: 'The report errors'
+          type: boolean
+        set_react_as_default_ap:
+          description: 'The set react as default ap'
+          type: boolean
+        tax_api_enabled:
+          description: 'The tax api enabled'
+          type: boolean
+        trial_days_left:
+          description: 'The trial days left'
+          type: integer
+        trial_plan:
+          description: 'The trial plan'
+          type: string
+        trial_started:
+          description: 'The trial started'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        upload_extensions:
+          description: 'The upload extensions'
+          type: string
+        user_agent:
+          description: 'The user agent'
+          type: string
+        utm_content:
+          description: 'The utm content'
+          type: string
+        utm_medium:
+          description: 'The utm medium'
+          type: string
+        utm_source:
+          description: 'The utm source'
+          type: string
+        utm_term:
+          description: 'The utm term'
+          type: string
       type: object

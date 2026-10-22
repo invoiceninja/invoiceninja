@@ -41,4 +41,43 @@
           description: 'iso_3166_3 code'
           type: string
           example: USD
+        archived_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        auto_sync:
+          description: 'The auto sync'
+          type: boolean
+        created_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
+        disabled_upstream:
+          description: 'The disabled upstream'
+          type: boolean
+        from_date:
+          description: 'The from date'
+          type: string
+        integration_type:
+          description: 'The integration type'
+          type: string
+        is_deleted:
+          description: 'Whether the bank integration has been deleted'
+          type: boolean
+        nickname:
+          description: 'The nickname'
+          type: string
+        nordigen_institution_id:
+          description: 'The nordigen institution id'
+          type: string
+        provider_id:
+          description: 'The provider id'
+          type: integer
+        provider_name:
+          description: 'The provider name'
+          type: string
+        updated_at:
+          description: 'Timestamp'
+          type: number
+          format: integer
       type: object
