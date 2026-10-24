@@ -54,7 +54,6 @@ class OpenApiContractTest extends TestCase
      * A '{name}' body value is replaced by the hashed id of that entity, which is created on demand.
      *
      * Skipped operations are ones the API does not offer, or known API deviations the spec can't express:
-     * - GET /{invoices,quotes,credits,...}/create returns line_items as the string "[]" instead of an array
      * - GET /tags/create returns an empty name and entity_type
      * - users have no edit or delete route, client gateway tokens no bulk route
      * - POST /companies returns the new company users instead of the company, so the
@@ -63,12 +62,12 @@ class OpenApiContractTest extends TestCase
      */
     private const ENTITIES = [
         'client' => ['/api/v1/clients', ['name' => 'Contract Test Client']],
-        'invoice' => ['/api/v1/invoices', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS], ['create']],
-        'quote' => ['/api/v1/quotes', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS], ['create']],
-        'credit' => ['/api/v1/credits', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS], ['create']],
-        'recurring_invoice' => ['/api/v1/recurring_invoices', ['client_id' => '{client}', 'frequency_id' => '5', 'line_items' => self::LINE_ITEMS], ['create']],
-        'recurring_quote' => ['/api/v1/recurring_quotes', ['client_id' => '{client}', 'frequency_id' => '5', 'line_items' => self::LINE_ITEMS], ['create']],
-        'purchase_order' => ['/api/v1/purchase_orders', ['vendor_id' => '{vendor}', 'line_items' => self::LINE_ITEMS], ['create']],
+        'invoice' => ['/api/v1/invoices', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS]],
+        'quote' => ['/api/v1/quotes', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS]],
+        'credit' => ['/api/v1/credits', ['client_id' => '{client}', 'line_items' => self::LINE_ITEMS]],
+        'recurring_invoice' => ['/api/v1/recurring_invoices', ['client_id' => '{client}', 'frequency_id' => '5', 'line_items' => self::LINE_ITEMS]],
+        'recurring_quote' => ['/api/v1/recurring_quotes', ['client_id' => '{client}', 'frequency_id' => '5', 'line_items' => self::LINE_ITEMS]],
+        'purchase_order' => ['/api/v1/purchase_orders', ['vendor_id' => '{vendor}', 'line_items' => self::LINE_ITEMS]],
         'payment' => ['/api/v1/payments', ['client_id' => '{client}', 'amount' => 10, 'date' => '2026-01-01']],
         'product' => ['/api/v1/products', ['product_key' => 'Contract Test Product', 'price' => 10]],
         'vendor' => ['/api/v1/vendors', ['name' => 'Contract Test Vendor']],

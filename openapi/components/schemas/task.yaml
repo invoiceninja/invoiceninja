@@ -98,11 +98,9 @@
           example: 1434342123
           readOnly: true
         meta:
-          description: 'Metadata associated with this task, an empty string when there is none'
-          oneOf:
-            - type: object
-              additionalProperties: true
-            - type: string
+          description: 'Metadata associated with this task, an empty object when there is none'
+          type: object
+          additionalProperties: true
         status_id:
           description: 'The unique identifier of the task status'
           type: string
