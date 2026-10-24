@@ -121,6 +121,21 @@ class OAuth
         }
     }
 
+    /* iOS/macOS tokens are issued for the bundle ID, web/Android tokens for the service ID */
+    public static function appleUserFromToken(string $token)
+    {
+        $payload = json_decode(base64_decode(strtr(explode('.', $token)[1] ?? '', '-_', '+/')), true);
+        $client_id = in_array($payload['aud'] ?? null, config('services.apple.client_ids'), true)
+            ? $payload['aud']
+            : config('services.apple.client_id');
+
+        /** @var \SocialiteProviders\Apple\Provider $driver */
+        $driver = Socialite::driver('apple');
+        $driver->setConfig(new \SocialiteProviders\Manager\Config($client_id, config('services.apple.client_secret'), config('services.apple.redirect')));
+
+        return $driver->userFromToken($token);
+    }
+
     public function getProvider($provider)
     {
         switch ($provider) {

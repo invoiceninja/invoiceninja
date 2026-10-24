@@ -44,6 +44,10 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public Company $company;
 
+    public $maxExceptions = 1;
+
+    public $tries = 6;
+
     /**
      * Create a new job instance.
      */
@@ -51,6 +55,11 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     {
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
+    }
+
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHour();
     }
 
     /**
@@ -61,11 +70,9 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE) {
-            throw new \Exception("Invalid BankIntegration Type");
-        }
+        set_time_limit(600);
 
-        set_time_limit(0);
+        sleep(rand(1,5));
 
         //Loop through everything until we are up to date - improve handling of delayed accounts
         $this->from_date = $this->from_date ? Carbon::parse($this->from_date)->subWeeks(2)->format('Y-m-d') : '2021-01-01';
@@ -81,7 +88,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                 $at = new AccountTransformer();
                 $account = $at->transform($account_summary);
 
-                if ($account[0]['current_balance']) {
+                if ($account[0]) {
                     $this->bank_integration->balance = $account[0]['current_balance'];
                     $this->bank_integration->currency = $account[0]['account_currency'];
                     $this->bank_integration->bank_account_status = $account[0]['account_status'];
@@ -110,13 +117,28 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
             } catch (\Exception $e) {
                 nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
 
+                if ($e instanceof \App\Exceptions\YodleeApiException) {
+                    $error = json_decode($e->getMessage(), true);
+            
+                    if (
+                        ($error['errorCode'] ?? '') === 'Y800'
+                        && ($error['errorMessage'] ?? '') === 'Invalid value for accountId'
+                    ) {
+                        $this->bank_integration->disabled_upstream = true;
+                        $this->bank_integration->bank_account_status = 'Bank Account Requires Re-Linking';
+                        $this->bank_integration->save();
+                    }
+                }
+
                 $content = [
                     "Processing transactions for account: {$this->bank_integration->bank_account_id} failed",
                     "Exception Details => ",
                     $e->getMessage(),
                 ];
 
+                
                 $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+                BankMatchingService::dispatch($this->company->id, $this->company->db);
                 return;
             }
         } while ($this->stop_loop);
@@ -127,8 +149,6 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     private function processTransactions(Yodlee $yodlee)
     {
-
-
 
         $data = [
             'top' => 500,

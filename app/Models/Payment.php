@@ -231,7 +231,7 @@ class Payment extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<\App\Models\Invoice, $this>
      */
     public function invoices(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {

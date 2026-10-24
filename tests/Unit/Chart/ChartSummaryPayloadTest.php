@@ -195,7 +195,8 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame($emptyCurrencyPayload, $payload[2]);
         $this->assertSame($emptyCurrencyPayload, $payload[999]);
 
-        $allTimePayload = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $allTimePayload = $chartService->chart_summary_batched('2000-01-01', '2026-01-31', true);
+        $this->assertEquals($chartService->chart_summary('2000-01-01', '2026-01-31', true), $allTimePayload);
         $this->assertSame('2000-01-01', $allTimePayload['start_date']);
     }
 
@@ -206,7 +207,8 @@ class ChartSummaryPayloadTest extends TestCase
         $this->createChartExpense(['date' => '1997-01-01']);
 
         $chartService = new ChartService($this->chartCompany, $this->user, true);
-        $summary = $chartService->chart_summary('2000-01-01', '2026-01-31', true);
+        $summary = $chartService->chart_summary_batched('2000-01-01', '2026-01-31', true);
+        $this->assertEquals($chartService->chart_summary('2000-01-01', '2026-01-31', true), $summary);
         $totals = $chartService->totals('2000-01-01', '2026-01-31', true);
 
         $this->assertSame('1997-01-01', $summary['start_date']);
@@ -285,6 +287,43 @@ class ChartSummaryPayloadTest extends TestCase
             ->json();
 
         $this->assertEquals(75, (float) $all_time - (float) $bounded);
+    }
+
+    public function testChartSummaryV2HonoursIncludeDrafts(): void
+    {
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'amount' => 75,
+            'balance' => 75,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'exchange_rate' => 1,
+            'date' => '1900-01-03',
+            'due_date' => '1900-02-03',
+            'is_deleted' => false,
+        ]);
+
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ];
+
+        $window = ['start_date' => '1900-01-01', 'end_date' => '1900-01-31'];
+
+        $without_drafts = $this->withHeaders($headers)
+            ->postJson('/api/v1/charts/chart_summary_v2', $window)
+            ->assertStatus(200)
+            ->json('999.invoices');
+
+        $this->assertSame([], $without_drafts);
+
+        $with_drafts = $this->withHeaders($headers)
+            ->postJson('/api/v1/charts/chart_summary_v2', $window + ['include_drafts' => true])
+            ->assertStatus(200)
+            ->json('999.invoices');
+
+        $this->assertSame(['1900-01-03'], array_column($with_drafts, 'date'));
     }
 
     public function testChartSummaryPreservesInclusiveDateBoundaries(): void
@@ -511,6 +550,20 @@ class ChartSummaryPayloadTest extends TestCase
         $this->assertSame(['2026-01-10', '2026-01-11'], array_column($payload[999]['invoices'], 'date'));
         $this->assertSame(['2026-01-13', '2026-01-14'], array_column($payload[999]['expenses'], 'date'));
         $this->assertSame([['total' => '50.000000000000', 'date' => '2026-01-12']], $payload[999]['payments']);
+    }
+
+    public function testBatchedSummaryCombinesFallbackAndExplicitCurrencyOnTheSameDate(): void
+    {
+        $fallbackExpense = $this->createChartExpense(['date' => '2026-01-13', 'amount' => 30, 'currency_id' => null, 'uses_inclusive_taxes' => true]);
+        $this->createChartExpense(['date' => '2026-01-13', 'amount' => 40, 'currency_id' => 1, 'uses_inclusive_taxes' => true]);
+
+        $this->assertNull(DB::table('expenses')->where('id', $fallbackExpense->id)->value('currency_id'));
+
+        $this->assertBatchedSummaryMatchesLegacy(
+            new ChartService($this->chartCompany, $this->user, true),
+            '2026-01-01',
+            '2026-01-31'
+        );
     }
 
     public function testMysqlAndPhpShimsPreserveSoftDeletedRowsWhenIsDeletedIsFalse(): void

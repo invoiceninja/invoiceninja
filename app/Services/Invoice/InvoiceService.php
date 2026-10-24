@@ -577,9 +577,10 @@ class InvoiceService
     public function linkEntities()
     {
         //set all task.invoice_ids = 0
-        $this->invoice->tasks()->update(['invoice_id' => null]);
+        $this->invoice->tasks()->withTrashed()->update(['invoice_id' => null]);
+        $this->invoice->expenses()->withTrashed()->update(['invoice_id' => null]);
 
-        //set all tasks.invoice_ids = x with the current  line_items
+        //set all tasks.invoice_ids = x with the current line_items
         $tasks = collect($this->invoice->line_items)->map(function ($item) {
             if (isset($item->task_id)) {
                 $item->task_id = $this->decodePrimaryKey($item->task_id);

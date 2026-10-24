@@ -76,6 +76,7 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::APPLE_PAY,
             ],
+            'payment_method_types' => ['card'],
         ];
 
         $data['gateway'] = $this->stripe;

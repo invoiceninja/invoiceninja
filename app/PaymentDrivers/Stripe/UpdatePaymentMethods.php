@@ -18,6 +18,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Builder;
 use Stripe\Customer;
 use Stripe\PaymentMethod;
 
@@ -102,99 +103,110 @@ class UpdatePaymentMethods
         $this->importPMBankAccounts($customer, $client);
     }
 
-    /* ACH may also be nested inside Payment Methods.*/
     public function importPMBankAccounts($customer, $client)
     {
-        $bank_methods = \Stripe\PaymentMethod::all(
-            [
-                'customer' => $customer->id,
-                'type' => 'us_bank_account',
-            ],
-            $this->stripe->stripe_connect_auth
+        if ((string) $client->company_id !== (string) $this->stripe->company_gateway->company_id) {
+            throw new \InvalidArgumentException('The bank import client must belong to the gateway company.');
+        }
+
+        $eligibility = new BankAccountEligibility($customer, $this->stripe->stripe_connect_auth);
+        $methods = PaymentMethod::all(
+            ['customer' => $customer->id, 'type' => 'us_bank_account', 'limit' => 100],
+            $this->stripe->stripe_connect_auth,
         );
 
-        foreach ($bank_methods->data as $method) {
-            $token = ClientGatewayToken::query()->where([
-                'gateway_customer_reference' => $customer->id,
-                'token' => $method->id,
-                'client_id' => $client->id,
-                'company_id' => $client->company_id,
-            ])->first();
-
-            /* Already exists return */
-            if ($token) {
-                $meta = $token->meta;
-                $meta->state = 'authorized';
-                $token->meta = $meta;
-                $token->save();
-
+        foreach ($methods->autoPagingIterator() as $method) {
+            // Verification and webhook flows own existing token states.
+            if ($this->bankTokenQuery($method, $customer, $client)->exists()) {
                 continue;
             }
 
-            $bank_account = $method['us_bank_account'];
-
-            $payment_meta = new \stdClass();
-            $payment_meta->brand = (string) \sprintf('%s (%s)', $bank_account->bank_name, ctrans('texts.ach'));
-            $payment_meta->last4 = (string) $bank_account->last4;
-            $payment_meta->type = GatewayType::BANK_TRANSFER;
-            $payment_meta->state = 'authorized';
-
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $method->id,
-                'payment_method_id' => GatewayType::BANK_TRANSFER,
-            ];
-
-            $additional_data = ['gateway_customer_reference' => $customer->id];
-
-            if ($customer->default_source === $method->id) {
-                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 0];
+            if (!$eligibility->resolve($method)) {
+                nlog([
+                    'message' => 'Skipping Stripe bank import: eligibility not established.',
+                    'company_gateway_id' => $this->stripe->company_gateway->id,
+                    'customer_id' => $customer->id,
+                    'payment_method_id' => $method->id,
+                ]);
+                continue;
             }
 
-            $this->stripe->storeGatewayToken($data, $additional_data);
+            $this->storeEligibleBankMethod($method, $customer, $client);
         }
+    }
+
+    private function storeEligibleBankMethod(PaymentMethod $method, Customer $customer, Client $client): void
+    {
+        // Recheck after Stripe lookups in case another flow created the token.
+        /** @var ?ClientGatewayToken $token */
+        $token = $this->bankTokenQuery($method, $customer, $client)->first();
+
+        if ($token) {
+            return;
+        }
+
+        $token = ClientGatewayTokenFactory::create($client->company_id);
+        $token->client_id = $client->id;
+        $token->company_gateway_id = $this->stripe->company_gateway->id;
+        $token->gateway_customer_reference = $customer->id;
+        $token->token = $method->id;
+        $token->gateway_type_id = GatewayType::BANK_TRANSFER;
+        $token->is_default = ClientGatewayToken::query()
+            ->where('company_id', $client->company_id)
+            ->where('client_id', $client->id)
+            ->where('is_default', true)
+            ->doesntExist();
+
+        $meta = is_object($token->meta) ? (array) $token->meta : [];
+        unset($meta['next_action']);
+        $token->meta = (object) array_merge($meta, [
+            'brand' => sprintf('%s (%s)', $method->us_bank_account->bank_name, ctrans('texts.ach')),
+            'last4' => (string) $method->us_bank_account->last4,
+            'type' => GatewayType::BANK_TRANSFER,
+            'state' => 'authorized',
+        ]);
+        $token->save();
+    }
+
+    private function bankTokenQuery(PaymentMethod $method, Customer $customer, Client $client): Builder
+    {
+
+        return ClientGatewayToken::query()->where([
+            'company_id' => $client->company_id,
+            'client_id' => $client->id,
+            'company_gateway_id' => $this->stripe->company_gateway->id,
+            'gateway_customer_reference' => $customer->id,
+            'token' => $method->id,
+        ]);
+
     }
 
     public function importBankAccounts($customer, $client)
     {
-        $sources = $customer->sources ?? false;
-
-        if (!$customer || is_null($sources) || !$sources || !property_exists($sources, 'data')) {
+        if (!$customer) {
             return;
         }
 
-        foreach ($sources->data as $method) {
-            $token_exists = ClientGatewayToken::query()->where([
-                'gateway_customer_reference' => $customer->id,
-                'token' => $method->id,
-                'client_id' => $client->id,
-                'company_id' => $client->company_id,
-            ])->exists();
+        $sources = Customer::allSources(
+            $customer->id,
+            ['object' => 'bank_account', 'limit' => 100],
+            $this->stripe->stripe_connect_auth,
+        );
 
-            /* Already exists return */
-            if ($token_exists) {
-                continue;
-            }
+        // Nested list operations in stripe-php do not retain the initial filters.
+        $sources->setFilters(['object' => 'bank_account', 'limit' => 100]);
 
-            $payment_meta = new \stdClass();
-            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
-            $payment_meta->last4 = (string) $method->last4;
-            $payment_meta->type = GatewayType::BANK_TRANSFER;
-            $payment_meta->state = $method->status;
-
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $method->id,
-                'payment_method_id' => GatewayType::BANK_TRANSFER,
-            ];
-
-            $additional_data = ['gateway_customer_reference' => $customer->id];
-
-            if ($customer->default_source === $method->id) {
-                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 0];
-            }
-
-            $this->stripe->storeGatewayToken($data, $additional_data);
+        foreach ($sources->autoPagingIterator() as $source) {
+            // A legacy verification status does not prove a reusable debit mandate.
+            nlog([
+                'message' => 'Skipping legacy Stripe bank source.',
+                'company_gateway_id' => $this->stripe->company_gateway->id,
+                'customer_id' => $customer->id,
+                'source_id' => $source->id,
+                'reason' => $source->status === 'verified'
+                    ? 'reusable_authorization_not_established'
+                    : 'bank_account_not_verified',
+            ]);
         }
     }
 

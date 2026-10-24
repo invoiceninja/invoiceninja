@@ -87,7 +87,12 @@ class ClientObserver
         }
 
         /** Monitor vat numbers for EU based clients for tax calculations */
-        if ($client->getOriginal('vat_number') != $client->vat_number && in_array($client->country_id, $this->eu_country_ids) && $client->company->calculate_taxes) {
+        // Original attributes have already been synchronized when this observer runs after commit.
+        // Keep the loose comparison so null and an empty VAT number remain equivalent.
+        if ($client->wasChanged('vat_number')
+            && ($client->getPrevious()['vat_number'] ?? null) != $client->vat_number
+            && in_array($client->country_id, $this->eu_country_ids)
+            && $client->company->calculate_taxes) {
             CheckVat::dispatch($client, $client->company);
         }
 

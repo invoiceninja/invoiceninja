@@ -149,7 +149,7 @@ class TaskTransformer extends EntityTransformer
             'date' => $task->calculated_start_date ?: '',
             'due_date' => $task->due_date ?: '',
             'estimated_duration' => is_null($task->estimated_duration) ? null : (int) $task->estimated_duration,
-            'meta' => $task->meta ?: '',
+            'meta' => $task->meta ?: new \stdClass(),
             'tags' => $this->transformTags($task),
         ];
     }

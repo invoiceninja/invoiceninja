@@ -12,8 +12,11 @@
 
 namespace App\Http\Requests\TaskScheduler;
 
+use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Carbon;
@@ -130,7 +133,34 @@ class UpdateSchedulerRequest extends Request
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');
             }
 
+            $this->validateEntity($validator);
         });
+    }
+
+    private function resolveEntity(): ?string
+    {
+        return match ($this->parameters['entity'] ?? null) {
+            'invoice' => Invoice::class,
+            'credit' => Credit::class,
+            'quote' => Quote::class,
+            'purchase_order' => PurchaseOrder::class,
+            default => null,
+        };
+    }
+
+    private function validateEntity(\Illuminate\Validation\Validator $validator): void
+    {
+        $entityClass = $this->resolveEntity();
+
+        if (!$entityClass) {
+            return;
+        }
+
+        $entityId = $this->parameters['entity_id'] ?? null;
+
+        if (empty($entityId) || $entityClass::query()->where('id', $this->decodePrimaryKey($entityId))->company()->doesntExist()) {
+            $validator->errors()->add('entity_id', 'Invalid Entity ID Selected');
+        }
     }
 
     public function prepareForValidation()

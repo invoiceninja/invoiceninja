@@ -33,7 +33,7 @@ class PurchaseOrderFactory
         $purchase_order->due_date = null;
         $purchase_order->partial_due_date = null;
         $purchase_order->is_deleted = false;
-        $purchase_order->line_items = json_encode([]);
+        $purchase_order->line_items = [];
         $purchase_order->tax_name1 = '';
         $purchase_order->tax_rate1 = 0;
         $purchase_order->tax_name2 = '';

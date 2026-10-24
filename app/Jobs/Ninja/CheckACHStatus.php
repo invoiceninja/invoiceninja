@@ -106,7 +106,7 @@ class CheckACHStatus implements ShouldQueue
                             $p->save();
                             return;
                         } elseif ($charge && $charge->status == 'succeeded') {
-                            $this->completePayment($p);
+                            $p->service()->completePendingPayment();
                             return;
                         }
 
@@ -118,7 +118,7 @@ class CheckACHStatus implements ShouldQueue
 
 
                 if ($pi && $pi->status == 'succeeded') {
-                    $this->completePayment($p);
+                    $p->service()->completePendingPayment();
                     return;
                 }
 
@@ -132,7 +132,7 @@ class CheckACHStatus implements ShouldQueue
                         $p->save();
                         return;
                     } elseif ($charge && $charge->status == 'succeeded') {
-                        $this->completePayment($p);
+                        $p->service()->completePendingPayment();
                         return;
                     }
                 }
@@ -208,7 +208,8 @@ class CheckACHStatus implements ShouldQueue
                            $transaction_status = $transaction->getTransactionStatus();
 
                            if (in_array($transaction_status, $this->authnet_success_statuses)) {
-                               $this->completePayment($p);
+                               
+                               $p->service()->completePendingPayment();
                                return;
                            } elseif (in_array($transaction_status, $this->authnet_failure_statuses)) {
                                $p->service()->deletePayment();
@@ -223,16 +224,4 @@ class CheckACHStatus implements ShouldQueue
         }
     }
 
-    private function completePayment(Payment $payment): void
-    {
-        $originalStatus = (int) $payment->status_id;
-        $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->saveQuietly();
-
-        // if (! (bool) $payment->company->getSetting('france_reporting_enabled')) {
-        //     return;
-        // }
-
-        // app(FrancePaymentApplicationRecorder::class)->recordStatusTransition($payment, $originalStatus);
-    }
 }

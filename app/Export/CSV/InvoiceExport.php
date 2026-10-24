@@ -213,7 +213,7 @@ class InvoiceExport extends BaseExport
 
     private function invoiceReportRelations(): array
     {
-        $relations = ['client', 'location', 'tags'];
+        $relations = ['company', 'client.company', 'location', 'tags'];
         $keys = $this->input['report_keys'];
 
         $invoice_relations = [

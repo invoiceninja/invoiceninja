@@ -82,7 +82,7 @@ trait HarvestsSurchargeTaxCategories
     }
 
     /**
-     * @return Collection<int, array{name: string, percentage: float, tax_id: string}>
+     * @return Collection
      */
     private function collectTaxCategoriesFromInvoice(): Collection
     {

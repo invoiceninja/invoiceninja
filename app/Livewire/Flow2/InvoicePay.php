@@ -81,14 +81,6 @@ class InvoicePay extends Component
     
     public array $unsigned_invitation_queue = [];
 
-    // #[On('update.context')]
-    // public function handleContext(string $key, string $property, $value): self
-    // {
-    //     $this->setContext($key, $property, $value);
-
-    //     return $this;
-    // }
-
     #[On('terms-accepted')]
     public function termsAccepted()
     {

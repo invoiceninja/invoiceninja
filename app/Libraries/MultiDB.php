@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Document;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use Illuminate\Support\Str;
 use App\Models\CompanyToken;
@@ -200,14 +201,14 @@ class MultiDB
     public static function hasUser(array $data): ?User
     {
         if (!config('ninja.db.multi_db_enabled')) {
-            return User::where($data)->withTrashed()->first(); //@phpstan-ignore-line
+            return User::query()->where($data)->withTrashed()->first(); //@phpstan-ignore-line
         }
 
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {
             self::setDB($db);
-            if ($user = User::where($data)->withTrashed()->first()) { //@phpstan-ignore-line
+            if ($user = User::query()->where($data)->withTrashed()->first()) { //@phpstan-ignore-line
                 return $user;
             }
         }
@@ -614,6 +615,39 @@ class MultiDB
         self::setDB($current_db);
 
         return false;
+    }
+
+    /**
+     * @param list<non-empty-string> $references
+     */
+    public static function findAndSetByStripePaymentReferences(array $references): ?Payment
+    {
+        if ($references === []) {
+            return null;
+        }
+
+        foreach (self::getDbs() as $db) {
+            $payment = Payment::on($db)
+                ->withTrashed()
+                ->where('is_manual', false)
+                ->where('is_deleted', false)
+                ->whereIn('transaction_reference', $references)
+                ->whereHas('company_gateway', function ($query) {
+                    $query->whereIn('gateway_key', [
+                        'd14dd26a37cecc30fdd65700bfb55b23',
+                        'd14dd26a47cecc30fdd65700bfb67b34',
+                    ]);
+                })
+                ->first();
+
+            if ($payment) {
+                self::setDb($db);
+
+                return $payment;
+            }
+        }
+
+        return null;
     }
 
     public static function findAndSetDbByInvitation($entity, $invitation_key)

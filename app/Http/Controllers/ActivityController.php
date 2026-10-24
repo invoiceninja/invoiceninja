@@ -40,6 +40,7 @@ use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use stdClass;
 
 class ActivityController extends BaseController
@@ -72,6 +73,10 @@ class ActivityController extends BaseController
                 $activities->where('user_id', auth()->user()->id);
             }
 
+            $this->filterByUser($activities, $request);
+
+            $this->olderThanCursor($activities, $request);
+
             return response()->json(['data' => $this->activityStringPayload($activities)], 200);
         }
 
@@ -81,7 +86,62 @@ class ActivityController extends BaseController
                                 ->company()
                                 ->take($default_activities);
 
+        $this->filterByUser($activities, $request);
+
         return $this->listResponse($activities);
+    }
+
+    /**
+     * Narrows to the activities of the users in `user_id` (hashed ids, comma separated).
+     * An id that doesn't decode matches nothing; it can only narrow, never widen, the user's scope.
+     */
+    private function filterByUser(Builder $activities, Request $request): void
+    {
+        $user_id = $request->input('user_id');
+
+        if (!is_string($user_id) || strlen(trim($user_id)) == 0) {
+            return;
+        }
+
+        $user_ids = collect(explode(',', $user_id))
+                        ->map(fn ($id) => $this->decodePrimaryKey(trim($id), true))
+                        ->filter(fn ($id) => is_int($id))
+                        ->values()
+                        ->all();
+
+        $activities->whereIn('user_id', $user_ids);
+    }
+
+    /**
+     * Keyset cursor for paging the feed: `before` names an activity (hashed id) of this company,
+     * and only the activities after it in feed order - created_at, then id, descending - are returned.
+     * The stored timestamp is compared as is, so the cut is exact to the microsecond.
+     */
+    private function olderThanCursor(Builder $activities, Request $request): void
+    {
+        if (!$request->has('before')) {
+            return;
+        }
+
+        $request->validate(['before' => ['bail', 'required', 'string']]);
+
+        $id = $this->decodePrimaryKey($request->input('before'), true);
+
+        $boundary = is_int($id) ? Activity::query()->without('backup')->company()->find($id) : null;
+
+        if (!$boundary) {
+            throw ValidationException::withMessages(['before' => ctrans('texts.record_not_found')]);
+        }
+
+        $created_at = $boundary->getRawOriginal('created_at');
+
+        $activities->where(function ($query) use ($created_at, $boundary) {
+            $query->where('created_at', '<', $created_at)
+                  ->orWhere(function ($query) use ($created_at, $boundary) {
+                      $query->where('created_at', $created_at)
+                            ->where('id', '<', $boundary->id);
+                  });
+        });
     }
 
     public function entityActivity(ShowActivityRequest $request)
@@ -91,6 +151,11 @@ class ActivityController extends BaseController
 
         $activities = $this->activityFeedQuery($default_activities)
                                 ->where("{$request->entity}_id", $request->entity_id);
+
+        // Filtered in SQL, so `rows` counts only the requested types (141 = notes).
+        if ($request->filled('activity_type_id')) {
+            $activities->whereIn('activity_type_id', array_map('intval', explode(',', (string) $request->input('activity_type_id'))));
+        }
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
@@ -127,6 +192,7 @@ class ActivityController extends BaseController
             ->without('backup')
             ->with($this->activityStringRelations())
             ->orderBy('created_at', 'DESC')
+            ->orderBy('id', 'DESC')
             ->company()
             ->take($limit);
     }
@@ -143,7 +209,9 @@ class ActivityController extends BaseController
             'invoice',
             'quote',
             'credit',
-            'payment.client',
+            'payment.client.country',
+            'payment.client.company',
+            'payment.client.group_settings',
             'task',
             'expense',
             'purchase_order',
@@ -300,7 +368,6 @@ class ActivityController extends BaseController
                 return $this->itemResponse($activity);
             case RecurringExpense::class:
                 $activity->recurring_expense_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
@@ -315,7 +382,6 @@ class ActivityController extends BaseController
 
             case PurchaseOrder::class:
                 $activity->purchase_order_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
