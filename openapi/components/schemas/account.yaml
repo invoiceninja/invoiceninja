@@ -11,8 +11,7 @@
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         can_trial:
           description: 'The can trial'
           type: boolean
@@ -93,7 +92,7 @@
           type: string
         plan_price:
           description: 'The plan price'
-          type: integer
+          type: number
         plan_started:
           description: 'The plan started'
           type: string
@@ -123,8 +122,7 @@
           type: string
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         upload_extensions:
           description: 'The upload extensions'
           type: string

@@ -29,16 +29,19 @@
           description: 'The users avatar'
           type: string
           example: 'https://url.to.your/avatar.png'
+          writeOnly: true
         accepted_terms_version:
           description: 'The version of the invoice ninja terms that has been accepted by the user'
           type: string
           example: 1.0.1
           readOnly: true
+          writeOnly: true
         oauth_user_id:
           description: 'The provider id of the oauth entity'
           type: string
           example: jkhasdf789as6f675sdf768sdfs
           readOnly: true
+          writeOnly: true
         oauth_provider_id:
           description: 'The oauth entity id'
           type: string
@@ -53,16 +56,12 @@
           type: boolean
           example: true
           readOnly: true
-        sms_verification_code:
-          description: 'The sms verification code for the user. Required to settings up 2FA'
-          type: string
-          example: '123456'
-          readOnly: true
         oauth_user_token_expiry:
           description: 'The expiry date of the oauth token'
           type: string
           example: '2022-10-10'
           readOnly: true
+          writeOnly: true
         has_password:
           description: 'Boolean flag determining if the user has a password'
           type: boolean
@@ -113,12 +112,10 @@
             $ref: '#/components/schemas/CompanyUserRef'
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         email_verified_at:
           description: 'The email verified at'
           nullable: true
@@ -141,8 +138,7 @@
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         user_logged_in_notification:
           description: 'The user logged in notification'
           type: boolean
@@ -276,20 +272,17 @@
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         company_user:
           description: 'The company user'
           type: object
           additionalProperties: true
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         email_verified_at:
           description: 'The email verified at'
-          type: number
-          format: integer
+          type: integer
         last_login:
           description: 'The last login'
           type: integer
@@ -306,6 +299,5 @@
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object

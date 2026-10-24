@@ -147,20 +147,17 @@
           readOnly: true
         last_login:
           description: "The timestamp of the client's last login"
-          type: number
-          format: integer
+          type: integer
           example: 1628686031
           readOnly: true
         created_at:
           description: 'The timestamp when the client was created'
-          type: number
-          format: integer
+          type: integer
           example: 1617629031
           readOnly: true
         updated_at:
           description: 'The timestamp when the client was last updated'
-          type: number
-          format: integer
+          type: integer
           example: 1628445631
           readOnly: true
         group_settings_id:
@@ -202,8 +199,7 @@
             $ref: '#/components/schemas/TagAssignment'
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         display_name:

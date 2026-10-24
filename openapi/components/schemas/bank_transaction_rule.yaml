@@ -5,10 +5,6 @@
           type: string
           example: AS3df3A
           readOnly: true
-        user_id:
-          description: 'The user hashed id'
-          type: string
-          example: AS3df3A
         name:
           description: 'The name of the transaction'
           type: string
@@ -44,17 +40,14 @@
           example: AS3df3A
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         is_deleted:
           description: 'Whether the bank transaction rule has been deleted'
           type: boolean
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object

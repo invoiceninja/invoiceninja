@@ -23903,10 +23903,6 @@ components:
           description: 'The group setting hashed id'
           type: string
           example: Opnel5aKBz
-        user_id:
-          description: 'The user hashed id'
-          type: string
-          example: Opnel5aKBz
         name:
           description: 'The name of the group'
           type: string
@@ -23917,12 +23913,10 @@ components:
           example: {}
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         documents:
           description: 'The documents attached to the group setting'
           type: array
@@ -23933,8 +23927,7 @@ components:
           type: boolean
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object
     InvoicePaymentable:
       properties:
@@ -23995,20 +23988,17 @@ components:
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
       type: object
@@ -24111,14 +24101,9 @@ components:
           description: 'The task status color - hex value'
           type: string
           example: '#000000'
-        task_status_order:
-          description: 'The order of the task status'
-          type: integer
-          example: 4
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         is_deleted:
@@ -24128,14 +24113,12 @@ components:
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         status_order:
@@ -24165,16 +24148,13 @@ components:
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object
     Template:
       properties:
@@ -24267,15 +24247,13 @@ components:
           example: JSON
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         company_id:
           description: 'The company id'
           type: string
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         headers:
           description: 'The headers'
           type: array
@@ -24289,8 +24267,7 @@ components:
           type: string
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         user_id:
           description: 'The user id'
           type: string
@@ -25043,12 +25020,10 @@ components:
           type: boolean
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         custom_value1:
           description: 'The custom value1'
           type: string
@@ -25118,8 +25093,7 @@ components:
           type: string
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object
     
     
@@ -25348,13 +25322,11 @@ components:
             - type: string
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         company_id:
           description: 'The company id'
@@ -25403,16 +25375,6 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        user_id:
-          description: 'The hashed id of the user id'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
-        vendor_id:
-          description: 'The hashed id of the vendor'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
@@ -25421,16 +25383,6 @@ components:
           description: 'The last name of the contact'
           type: string
           example: Windsor
-        contact_key:
-          description: 'A unique identifier for the contact'
-          type: string
-          example: JD0X52bkfZlJRiroCJ0tcSiAjsJTntZ5uqKdiZ0a
-          readOnly: true
-        confirmation_code:
-          description: 'The confirmation code used to authenticate the contacts email address'
-          type: string
-          example: 333-sdjkh34gbasd
-          readOnly: true
         phone:
           description: 'The contacts phone number'
           type: string
@@ -25455,12 +25407,6 @@ components:
           description: 'The contact email address'
           type: string
           example: harry@windsor.com
-        email_verified_at:
-          description: 'The date which the contact confirmed their email'
-          type: number
-          format: integer
-          example: 134341234234
-          readOnly: true
         password:
           description: 'The hashed password of the contact'
           type: string
@@ -25471,20 +25417,12 @@ components:
           example: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
-          example: 134341234234
-          readOnly: true
-        deleted_at:
-          description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         send_email:
@@ -25501,8 +25439,7 @@ components:
           example: false
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         last_login:
           description: 'The last login'
           type: integer
@@ -25683,10 +25620,6 @@ components:
       type: object
     CompanyLedger:
       properties:
-        entity_id:
-          description: 'This field will reference one of the following entity hashed ID payment_id, invoice_id or credit_id'
-          type: string
-          example: AS3df3A
         notes:
           description: 'The notes which reference this entry of the ledger'
           type: string
@@ -25703,26 +25636,29 @@ components:
           example: 10.00
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         activity_id:
           description: 'The activity id'
           type: integer
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         credit_id:
           description: 'The credit id'
           type: string
         invoice_id:
           description: 'The invoice id'
+          type: string
+        client_id:
+          description: 'The client hashed id, present when the entry belongs to a client'
+          type: string
+        payment_id:
+          description: 'The payment hashed id, present when the entry belongs to a payment'
           type: string
       type: object
     BTRules:
@@ -25849,20 +25785,17 @@ components:
           example: '20220101-abc123'
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
       type: object
@@ -25882,14 +25815,6 @@ components:
         assigned_user_id:
           type: string
           description: 'The hashed ID of the user assigned to this product.'
-          example: pR0j3
-        project_id:
-          type: string
-          description: 'The hashed ID of the project that this product is associated with.'
-          example: pR0j3
-        vendor_id:
-          type: string
-          description: 'The hashed ID of the vendor that this product is associated with.'
           example: pR0j3
         custom_value1:
           type: string
@@ -26044,16 +25969,6 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        user_id:
-          description: 'The hashed id of the user who created the contact'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
-        client_id:
-          description: 'The hashed id of the client'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
@@ -26086,25 +26001,10 @@ components:
           description: 'The email of the contact'
           type: string
           example: ''
-        accepted_terms_version:
-          description: 'The terms of service which the contact has accpeted'
-          type: string
-          example: 'A long set of ToS'
-          readOnly: true
         password:
           description: 'The hashed password of the contact'
           type: string
           example: '*****'
-        confirmation_code:
-          description: 'The confirmation code used to authenticate the contacts email address'
-          type: string
-          example: 333-sdjkh34gbasd
-          readOnly: true
-        token:
-          description: 'A uuid based token.'
-          type: string
-          example: 333-sdjkh34gbasd
-          readOnly: true
         contact_key:
           description: 'A unique identifier for the contact'
           type: string
@@ -26112,10 +26012,6 @@ components:
           readOnly: true
         is_primary:
           description: 'Defines is this contact is the primary contact for the client'
-          type: boolean
-          example: true
-        confirmed:
-          description: 'Boolean value confirms the user has confirmed their account.'
           type: boolean
           example: true
         is_locked:
@@ -26134,46 +26030,24 @@ components:
           description: 'When true this contact is permitted to electronically sign invitations (invoices, quotes, credits, purchase orders, recurring invoices).'
           type: boolean
           example: false
-        failed_logins:
-          description: 'The number of failed logins the contact has had'
-          type: number
-          format: integer
-          example: 3
-          readOnly: true
-        email_verified_at:
-          description: 'The date which the contact confirmed their email'
-          type: number
-          format: integer
-          example: 134341234234
-          readOnly: true
         last_login:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
-          example: 134341234234
-          readOnly: true
-        deleted_at:
-          description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         link:
           description: 'The link'
           type: string
@@ -26245,20 +26119,17 @@ components:
           readOnly: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1710410400
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1710410400
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 0
           readOnly: true
       required:
@@ -26420,8 +26291,7 @@ components:
           $ref: '#/components/schemas/VendorContact'
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         purchase_order_id:
           description: 'The purchase order id'
           type: string
@@ -26454,8 +26324,7 @@ components:
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         can_trial:
           description: 'The can trial'
           type: boolean
@@ -26536,7 +26405,7 @@ components:
           type: string
         plan_price:
           description: 'The plan price'
-          type: integer
+          type: number
         plan_started:
           description: 'The plan started'
           type: string
@@ -26566,8 +26435,7 @@ components:
           type: string
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         upload_extensions:
           description: 'The upload extensions'
           type: string
@@ -26616,7 +26484,7 @@ components:
           example: '4'
         remaining_cycles:
           description: 'The number of quotes left to be generated'
-          type: number
+          type: integer
           example: 4
         number:
           description: 'The recurringquote number - is a unique alpha numeric number per quote per company'
@@ -26754,20 +26622,14 @@ components:
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
+          writeOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
@@ -26813,8 +26675,7 @@ components:
           type: boolean
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         design_id:
           description: 'The design id'
           type: string
@@ -26831,7 +26692,7 @@ components:
           type: string
         exchange_rate:
           description: 'The exchange rate'
-          type: integer
+          type: number
         has_expenses:
           description: 'Whether the recurring quote has expenses'
           type: boolean
@@ -27026,22 +26887,13 @@ components:
           description: "The due date for the total amount of the credit, an empty string when not set"
           type: string
           example: "1994-07-30"
-        settings:
-          $ref: "#/components/schemas/CompanySettings"
-        last_viewed:
-          description: "The timestamp of the last time the credit was viewed"
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: "The timestamp of the last time the credit was updated"
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: "The timestamp of the last time the credit was archived"
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: "First custom surcharge amount"
@@ -27137,8 +26989,7 @@ components:
           additionalProperties: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         backup:
@@ -27181,18 +27032,15 @@ components:
           example: 'NET 1'
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         id:
           description: 'The payment term hashed id'
@@ -27217,12 +27065,10 @@ components:
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         id:
           description: 'The company token hashed id'
           type: string
@@ -27231,8 +27077,7 @@ components:
           type: boolean
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         user_id:
           description: 'The user id'
           type: string
@@ -27334,16 +27179,19 @@ components:
           description: 'The users avatar'
           type: string
           example: 'https://url.to.your/avatar.png'
+          writeOnly: true
         accepted_terms_version:
           description: 'The version of the invoice ninja terms that has been accepted by the user'
           type: string
           example: 1.0.1
           readOnly: true
+          writeOnly: true
         oauth_user_id:
           description: 'The provider id of the oauth entity'
           type: string
           example: jkhasdf789as6f675sdf768sdfs
           readOnly: true
+          writeOnly: true
         oauth_provider_id:
           description: 'The oauth entity id'
           type: string
@@ -27358,16 +27206,12 @@ components:
           type: boolean
           example: true
           readOnly: true
-        sms_verification_code:
-          description: 'The sms verification code for the user. Required to settings up 2FA'
-          type: string
-          example: '123456'
-          readOnly: true
         oauth_user_token_expiry:
           description: 'The expiry date of the oauth token'
           type: string
           example: '2022-10-10'
           readOnly: true
+          writeOnly: true
         has_password:
           description: 'Boolean flag determining if the user has a password'
           type: boolean
@@ -27418,12 +27262,10 @@ components:
             $ref: '#/components/schemas/CompanyUserRef'
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         email_verified_at:
           description: 'The email verified at'
           nullable: true
@@ -27446,8 +27288,7 @@ components:
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         user_logged_in_notification:
           description: 'The user logged in notification'
           type: boolean
@@ -27581,20 +27422,17 @@ components:
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         company_user:
           description: 'The company user'
           type: object
           additionalProperties: true
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         email_verified_at:
           description: 'The email verified at'
-          type: number
-          format: integer
+          type: integer
         last_login:
           description: 'The last login'
           type: integer
@@ -27611,8 +27449,7 @@ components:
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object
 
     QuoteRequest:
@@ -27722,18 +27559,15 @@ components:
           type: string
           description: Custom value field 4
         created_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the project creation
         updated_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the last project update
         archived_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the project deletion
         public_notes:
@@ -27838,13 +27672,11 @@ components:
           example: 10
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         company_gateway_id:
           description: 'The company gateway id'
@@ -27873,6 +27705,7 @@ components:
           description: 'The unique identifier of the payment category'
           type: string
           example: Opnel5aKBz
+          writeOnly: true
         custom_value1:
           description: 'Custom field for storing additional information'
           type: string
@@ -27902,6 +27735,7 @@ components:
           description: 'Unique key to ensure idempotent payment processing'
           type: string
           example: 'key_1234567890abcdef'
+          writeOnly: true
         tags:
           description: 'Tags assigned to this entity'
           type: array
@@ -27919,8 +27753,7 @@ components:
           example: Opnel5aKBz
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         gateway_type_id:
@@ -28180,13 +28013,11 @@ components:
           example: '1994-07-30'
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
@@ -28297,8 +28128,7 @@ components:
           deprecated: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         backup:
@@ -28322,6 +28152,27 @@ components:
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        reminder_schedule:
+          description: 'A description of the reminder schedule, only returned with ?reminder_schedule=true'
+          type: string
+        is_locked:
+          description: 'Whether the invoice is locked by the lock_invoices setting, only returned with ?is_locked=true'
+          type: boolean
+        schedule:
+          description: 'The payment schedule, only returned with ?show_schedule=true'
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                description: 'The payment date, formatted in the client date format'
+                type: string
+              amount:
+                description: 'The formatted amount, or a percentage such as "50 %"'
+                type: string
+              auto_bill:
+                description: 'Whether the scheduled payment is auto billed'
+                type: boolean
       type: object
 
     Quote:
@@ -28482,22 +28333,13 @@ components:
           description: 'The due date for the total amount of the quote, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: 'The timestamp of the last time the quote was viewed'
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: 'The timestamp of the last update to the quote'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: 'The timestamp of when the quote was archived'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First custom surcharge amount for the quote'
@@ -28597,8 +28439,7 @@ components:
           example: Opnel5aKBz
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         reminder1_sent:
@@ -28866,10 +28707,6 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        assigned_user_id:
-          description: 'The assigned user hashed id'
-          type: string
-          example: Opnel5aKBz
         client_id:
           description: 'The client hashed id'
           type: string
@@ -28888,8 +28725,7 @@ components:
           example: 1623456999
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         tax_data:
           description: 'The tax data'
           type: object
@@ -28928,10 +28764,6 @@ components:
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer
           example: 1231232312321
-        deleted_at:
-          description: 'Timestamp when the user was archived, format Unix Timestamp'
-          type: integer
-          example: 12312312321
         account:
           $ref: '#/components/schemas/Account'
         company:
@@ -28942,12 +28774,10 @@ components:
           $ref: '#/components/schemas/CompanyToken'
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         ninja_portal_url:
           description: 'The ninja portal url'
           type: string
@@ -28957,12 +28787,7 @@ components:
           additionalProperties: true
         permissions_updated_at:
           description: 'The permissions updated at'
-          type: number
-          format: integer
-        meta:
-          description: 'The meta'
-          type: object
-          additionalProperties: true
+          type: integer
       type: object
     CompanyUserRef:
       properties:
@@ -29159,20 +28984,17 @@ components:
           readOnly: true
         last_login:
           description: "The timestamp of the client's last login"
-          type: number
-          format: integer
+          type: integer
           example: 1628686031
           readOnly: true
         created_at:
           description: 'The timestamp when the client was created'
-          type: number
-          format: integer
+          type: integer
           example: 1617629031
           readOnly: true
         updated_at:
           description: 'The timestamp when the client was last updated'
-          type: number
-          format: integer
+          type: integer
           example: 1628445631
           readOnly: true
         group_settings_id:
@@ -29214,8 +29036,7 @@ components:
             $ref: '#/components/schemas/TagAssignment'
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         display_name:
@@ -29373,11 +29194,6 @@ components:
           example: true
         custom_surcharge_taxes4:
           description: "A flag determining whether to apply taxes on custom surcharge amounts for the fourth custom"
-        logo:
-          description: "The company logo file in binary format"
-          type: string
-          format: binary
-          example: logo.png
         company_key:
           description: "The static company key hash used to identify the Company"
           readOnly: true
@@ -29410,10 +29226,6 @@ components:
                 The default per_page value is 20.
 
           example: 2048
-        db:
-          readOnly: true
-          type: string
-          example: 'db-ninja-01'
         first_day_of_week:
           description: "The first day of the week for the company"
           type: string
@@ -29430,18 +29242,6 @@ components:
           description: "A flag determining whether the company is considered large"
           type: boolean
           example: true
-        default_auto_bill:
-          type: string
-          example: 'always'
-          description: |
-                A flag determining whether to auto-bill clients by default
-
-                values:
-                
-                - always - Always auto bill
-                - disabled - Never auto bill
-                - optin - Allow the client to select their auto bill status with the default being disabled
-                - optout -Allow the client to select their auto bill status with the default being enabled
         mark_expenses_invoiceable:
           description: "A flag determining whether to mark expenses as invoiceable by default"
           type: boolean
@@ -29602,14 +29402,11 @@ components:
         tax_data:
           description: "The tax data for the company"
           type: object
-        e_invoice_certificate:
-          description: "The e-invoice certificate for the company"
-          type: string
-          example: '-----BEGIN CERTIFICATE-----'
         e_invoice_certificate_passphrase:
           description: "The e-invoice certificate passphrase for the company"
           type: string
           example: 'secret'
+          writeOnly: true
         origin_tax_data:
           description: "The origin tax data for the company"
           type: object
@@ -29706,6 +29503,7 @@ components:
           description: 'Authentication token for e-invoicing services'
           type: string
           example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
+          writeOnly: true
         enable_shop_api:
           description: 'Flag indicating whether the shop API is enabled'
           type: boolean
@@ -29722,12 +29520,10 @@ components:
           $ref: '#/components/schemas/CompanySettings'
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         documents:
           description: 'The documents attached to the company'
           type: array
@@ -29762,8 +29558,7 @@ components:
           type: string
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         use_credits_payment:
           description: 'Whether to use credits payment'
           type: string
@@ -31241,6 +31036,7 @@ components:
           description: 'The hashed_id of the client'
           type: string
           example: '2'
+          writeOnly: true
         token:
           description: 'The payment token'
           type: string
@@ -31249,6 +31045,7 @@ components:
           description: 'THe bank account routing number'
           type: string
           example: '2'
+          writeOnly: true
         company_gateway_id:
           description: 'The hashed id of the company gateway'
           type: string
@@ -31259,12 +31056,10 @@ components:
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         gateway_customer_reference:
           description: 'The gateway customer reference'
           type: string
@@ -31280,8 +31075,7 @@ components:
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object
     ExpenseCategory:
       properties:
@@ -31312,8 +31106,7 @@ components:
           example: 2
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         color:
           description: 'The color'
           type: string
@@ -31345,10 +31138,6 @@ components:
           description: 'The unique alpha-numeric purchase order number per company'
           type: string
           example: PO_101
-        quote_number:
-          description: 'The quote number associated with this purchase order'
-          type: string
-          example: QUOTE_101
         terms:
           description: 'The terms and conditions for the purchase order'
           type: string
@@ -31476,22 +31265,13 @@ components:
           description: 'The due date for the total amount of the purchase order, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First custom surcharge amount for the purchase order'
@@ -31529,10 +31309,6 @@ components:
           description: 'Boolean flag indicating if taxes are charged on the fourth custom surcharge amount'
           type: boolean
           example: true
-        backup:
-          description: 'Backup data or file reference for this purchase order'
-          type: string
-          example: 'backup_data.json'
         client_id:
           description: 'The unique identifier of the client associated with this purchase order'
           type: string
@@ -31568,10 +31344,6 @@ components:
           example: 'PO-2024-001'
         project_id:
           description: 'The unique identifier of the project associated with this purchase order'
-          type: string
-          example: Opnel5aKBz
-        recurring_id:
-          description: 'The unique identifier of the recurring schedule'
           type: string
           example: Opnel5aKBz
         reminder1_sent:
@@ -31623,8 +31395,7 @@ components:
           additionalProperties: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         subscription_id:
@@ -31654,14 +31425,6 @@ components:
           type: string
           example: AS3df3A
           readOnly: true
-        user_id:
-          description: 'The user hashed id'
-          type: string
-          example: AS3df3A
-        provider_bank_name:
-          description: 'The providers bank name'
-          type: string
-          example: 'Chase Bank'
         bank_account_id:
           description: 'The bank account id'
           type: integer
@@ -31692,15 +31455,13 @@ components:
           example: USD
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         auto_sync:
           description: 'The auto sync'
           type: boolean
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         disabled_upstream:
           description: 'The disabled upstream'
           type: boolean
@@ -31727,8 +31488,7 @@ components:
           type: string
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object
     ClientSettings:
       required:
@@ -32788,23 +32548,15 @@ components:
           example: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
-          example: 134341234234
-        deleted_at:
-          description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         height:
           description: 'The height'
           type: integer
@@ -32820,6 +32572,14 @@ components:
         width:
           description: 'The width'
           type: integer
+        documentable_id:
+          description: 'The hashed id of the record the document is attached to'
+          type: string
+          example: AS3df3A
+        documentable_type:
+          description: 'The type of the record the document is attached to, in snake case'
+          type: string
+          example: invoice
       type: object
     CreditInvitation:
       properties:
@@ -32856,14 +32616,12 @@ components:
           readOnly: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         email_error:
@@ -32882,8 +32640,7 @@ components:
           readOnly: true
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         message_id:
           description: 'The message id'
           type: string
@@ -33067,14 +32824,12 @@ components:
           readOnly: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         email_error:
@@ -33116,7 +32871,7 @@ components:
           example: '4'
         remaining_cycles:
           description: 'The number of invoices left to be generated'
-          type: number
+          type: integer
           example: 4
         number:
           description: 'The recurringinvoice number - is a unique alpha numeric number per invoice per company'
@@ -33252,22 +33007,13 @@ components:
           description: 'The due date of the invoice, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
@@ -33334,11 +33080,6 @@ components:
           type: number
           format: float
           example: 1.0
-        next_send_date_client:
-          description: 'The next scheduled send date for the client'
-          type: string
-          format: date
-          example: '2024-12-31'
         project_id:
           description: 'The unique identifier of the project associated with this recurring invoice'
           type: string
@@ -33367,8 +33108,7 @@ components:
           deprecated: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         documents:
@@ -33406,18 +33146,6 @@ components:
           description: Unique identifier for the user associated with the subscription
           type: string
           example: Ua6Rw4pVbS
-        product_id:
-          description: Unique identifier for the product associated with the subscription
-          type: string
-          example: Pr5Ft7yBmC
-        recurring_invoice_id:
-          description: Unique identifier for the recurring invoice associated with the subscription
-          type: string
-          example: Ri2Yt8zJkP
-        is_recurring:
-          description: Indicates whether the subscription is recurring
-          type: boolean
-          example: true
         frequency_id:
           description: 'integer const representation of the frequency'
           type: string
@@ -33484,18 +33212,15 @@ components:
           example: false
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         assigned_user_id:
           description: 'The assigned user id'
@@ -33520,13 +33245,13 @@ components:
           type: string
         price:
           description: 'The price'
-          type: integer
+          type: number
         product_ids:
           description: 'The product ids'
           type: string
         promo_price:
           description: 'The promo price'
-          type: integer
+          type: number
         purchase_page:
           description: 'The purchase page'
           type: string
@@ -33592,23 +33317,15 @@ components:
           example: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
-          example: 134341234234
-        deleted_at:
-          description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         entities:
           description: 'The entities'
           type: string
@@ -33662,10 +33379,6 @@ components:
           description: 'Boolean flag determining if the task has been deleted'
           type: boolean
           example: true
-        task_status_id:
-          description: 'The hashed id of the task status'
-          type: string
-          example: Opnel5aKBz
         description:
           description: 'The task description'
           type: string
@@ -33683,10 +33396,6 @@ components:
           type: integer
           nullable: true
           example: 7200
-        task_status_order:
-          description: 'The order of the task'
-          type: integer
-          example: 4
         rate:
           description: 'The task rate'
           type: number
@@ -33711,37 +33420,21 @@ components:
           description: 'Boolean flag determining if the task is date based'
           type: boolean
           example: true
-        calculated_start_date:
-          description: 'The calculated start date of the task'
-          type: string
-          example: '2022-10-10'
-          readOnly: true
-        invoice_documents:
-          description: "Boolean flags which determines whether to include the task documents on the invoice"
-          type: boolean
-          example: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
-        hash:
-          description: 'Unique hash identifier for this task'
-          type: string
-          example: 'a1b2c3d4e5f6'
         meta:
           description: 'Metadata associated with this task, an empty string when there is none'
           oneOf:
@@ -33775,6 +33468,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Document'
+        project:
+          $ref: '#/components/schemas/Project'
       type: object
 
     Vendor:
@@ -33813,14 +33508,6 @@ components:
           description: 'The private notes of the vendor. These notes are only visible to users with appropriate permissions.'
           type: string
           example: 'Shhh, do not tell the vendor'
-        industry_id:
-          description: 'The industry id of the vendor. This is a unique identifier for the industry.'
-          type: string
-          example: '1'
-        size_id:
-          description: 'The size id of the vendor. This is a unique identifier for the size of the vendor.'
-          type: string
-          example: ''
         address1:
           description: 'The first line of the vendor''s address.'
           type: string
@@ -33889,31 +33576,19 @@ components:
           description: 'The language id of the vendor. This is a unique identifier for the language.'
           type: string
           example: '1'
-        vendor_hash:
-          description: 'The vendor hash of the vendor. This is a unique identifier for the vendor.'
-          type: string
-          example: 'aaa-sss-www'
-          readOnly: true
-        transaction_name:
-          description: 'The transaction name of the vendor.'
-          type: string
-          example: 'aaa-sss-www'
         last_login:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         display_name:
@@ -33940,8 +33615,7 @@ components:
             $ref: '#/components/schemas/TagAssignment'
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         documents:
@@ -33990,10 +33664,6 @@ components:
           description: 'The currency id of the expense'
           type: string
           example: '2'
-        invoice_category_id:
-          description: 'The invoice category id'
-          type: string
-          example: 'Opnel5aKBz'
         payment_type_id:
           description: 'The payment type id'
           type: string
@@ -34014,10 +33684,6 @@ components:
           description: 'The transaction references of the expense'
           type: string
           example: ''
-        transcation_id:
-          description: 'The transaction id of the expense'
-          type: string
-          example: ''
         custom_value1:
           description: 'A custom value'
           type: string
@@ -34034,10 +33700,6 @@ components:
           description: 'A custom value'
           type: string
           example: ''
-        tax_amount:
-          description: 'The tax amount'
-          type: number
-          example: 10.00
         tax_name1:
           description: 'Tax Name 1'
           type: string
@@ -34102,13 +33764,11 @@ components:
           example: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
@@ -34126,6 +33786,7 @@ components:
           description: 'The unique identifier of the associated purchase order'
           type: string
           example: Opnel5aKBz
+          writeOnly: true
         tax_amount1:
           description: 'The amount of the first tax'
           type: number
@@ -34164,8 +33825,7 @@ components:
           example: '2'
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         entity_type:
@@ -34218,20 +33878,17 @@ components:
           readOnly: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         message_id:
@@ -34305,14 +33962,6 @@ components:
           description: 'The currency id of the invoice associated with this recurring expense'
           type: string
           example: "1"
-        expense_currency_id:
-          description: 'The currency id of the expense associated with this recurring expense'
-          type: string
-          example: "1"
-        invoice_category_id:
-          description: 'The category id of the invoice'
-          type: string
-          example: "1"
         payment_type_id:
           description: 'The payment type id'
           type: string
@@ -34329,10 +33978,6 @@ components:
           description: 'The recurring expense transaction reference'
           type: string
           example: EXP-1223-2333
-        transcation_id:
-          description: 'The transaction id of the recurring expense'
-          type: string
-          example: '1233312312'
         custom_value1:
           description: 'Custom value field'
           type: string
@@ -34387,8 +34032,7 @@ components:
           example: '1'
         remaining_cycles:
           description: 'The number of remaining cycles for this recurring expense'
-          type: number
-          format: int
+          type: integer
           example: 1
         foreign_amount:
           description: 'The foreign currency amount of the recurring expense'
@@ -34430,13 +34074,11 @@ components:
           example: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
@@ -34455,6 +34097,7 @@ components:
           type: string
           format: date
           example: '2024-12-31'
+          writeOnly: true
         number:
           description: 'The unique number assigned to this recurring expense'
           type: string
@@ -34497,8 +34140,7 @@ components:
             $ref: '#/components/schemas/TagAssignment'
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         documents:
           description: 'The documents attached to the recurring expense'
           type: array
@@ -34785,8 +34427,7 @@ components:
             The unique identifier of the client's country expressed by the countries ISO number.
 
             Optionally, instead of the country_id you can pass either the iso_3166_2 or iso_3166_3 country code into the country_code property.
-          type: number
-          format: integer
+          type: integer
           $ref: '#/components/schemas/CountryType'
           example: 1
         custom_value1:
@@ -34841,8 +34482,7 @@ components:
             The unique identifier of the client's shipping country expressed by the countries ISO number.
 
             Optionally, instead of the shipping_country_id you can pass either the iso_3166_2 or iso_3166_3 country code into the shipping_country_code property.
-          type: number
-          format: integer
+          type: integer
           example: 4
         is_deleted:
           description: 'A boolean value indicating whether the client has been deleted or not'
@@ -34918,14 +34558,12 @@ components:
           readOnly: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         email_error:
@@ -34945,10 +34583,6 @@ components:
           type: string
           example: AS3df3A
           readOnly: true
-        user_id:
-          description: 'The user hashed id'
-          type: string
-          example: AS3df3A
         name:
           description: 'The name of the transaction'
           type: string
@@ -34984,19 +34618,16 @@ components:
           example: AS3df3A
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         is_deleted:
           description: 'Whether the bank transaction rule has been deleted'
           type: boolean
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object
     ClientContactRequest:
       properties:
@@ -35076,14 +34707,18 @@ components:
           example: 10.00
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
+        payment_id:
+          description: 'The payment hashed id'
+          type: string
+        archived_at:
+          description: 'Timestamp'
+          type: integer
       type: object
 tags:
   - name: auth

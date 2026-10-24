@@ -164,13 +164,11 @@
           example: '1994-07-30'
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
@@ -281,8 +279,7 @@
           deprecated: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         backup:
@@ -306,4 +303,25 @@
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        reminder_schedule:
+          description: 'A description of the reminder schedule, only returned with ?reminder_schedule=true'
+          type: string
+        is_locked:
+          description: 'Whether the invoice is locked by the lock_invoices setting, only returned with ?is_locked=true'
+          type: boolean
+        schedule:
+          description: 'The payment schedule, only returned with ?show_schedule=true'
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                description: 'The payment date, formatted in the client date format'
+                type: string
+              amount:
+                description: 'The formatted amount, or a percentage such as "50 %"'
+                type: string
+              auto_bill:
+                description: 'Whether the scheduled payment is auto billed'
+                type: boolean
       type: object

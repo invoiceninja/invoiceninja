@@ -62,10 +62,6 @@
           type: string
           example: Opnel5aKBz
           readOnly: true
-        assigned_user_id:
-          description: 'The assigned user hashed id'
-          type: string
-          example: Opnel5aKBz
         client_id:
           description: 'The client hashed id'
           type: string
@@ -84,8 +80,7 @@
           example: 1623456999
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         tax_data:
           description: 'The tax data'
           type: object

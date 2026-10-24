@@ -123,11 +123,6 @@
           example: true
         custom_surcharge_taxes4:
           description: "A flag determining whether to apply taxes on custom surcharge amounts for the fourth custom"
-        logo:
-          description: "The company logo file in binary format"
-          type: string
-          format: binary
-          example: logo.png
         company_key:
           description: "The static company key hash used to identify the Company"
           readOnly: true
@@ -160,10 +155,6 @@
                 The default per_page value is 20.
 
           example: 2048
-        db:
-          readOnly: true
-          type: string
-          example: 'db-ninja-01'
         first_day_of_week:
           description: "The first day of the week for the company"
           type: string
@@ -180,18 +171,6 @@
           description: "A flag determining whether the company is considered large"
           type: boolean
           example: true
-        default_auto_bill:
-          type: string
-          example: 'always'
-          description: |
-                A flag determining whether to auto-bill clients by default
-
-                values:
-                
-                - always - Always auto bill
-                - disabled - Never auto bill
-                - optin - Allow the client to select their auto bill status with the default being disabled
-                - optout -Allow the client to select their auto bill status with the default being enabled
         mark_expenses_invoiceable:
           description: "A flag determining whether to mark expenses as invoiceable by default"
           type: boolean
@@ -352,14 +331,11 @@
         tax_data:
           description: "The tax data for the company"
           type: object
-        e_invoice_certificate:
-          description: "The e-invoice certificate for the company"
-          type: string
-          example: '-----BEGIN CERTIFICATE-----'
         e_invoice_certificate_passphrase:
           description: "The e-invoice certificate passphrase for the company"
           type: string
           example: 'secret'
+          writeOnly: true
         origin_tax_data:
           description: "The origin tax data for the company"
           type: object
@@ -456,6 +432,7 @@
           description: 'Authentication token for e-invoicing services'
           type: string
           example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
+          writeOnly: true
         enable_shop_api:
           description: 'Flag indicating whether the shop API is enabled'
           type: boolean
@@ -472,12 +449,10 @@
           $ref: '#/components/schemas/CompanySettings'
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         documents:
           description: 'The documents attached to the company'
           type: array
@@ -512,8 +487,7 @@
           type: string
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         use_credits_payment:
           description: 'Whether to use credits payment'
           type: string

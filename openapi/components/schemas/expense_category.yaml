@@ -27,8 +27,7 @@
           example: 2
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         color:
           description: 'The color'
           type: string

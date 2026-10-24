@@ -15,14 +15,6 @@
           type: string
           description: 'The hashed ID of the user assigned to this product.'
           example: pR0j3
-        project_id:
-          type: string
-          description: 'The hashed ID of the project that this product is associated with.'
-          example: pR0j3
-        vendor_id:
-          type: string
-          description: 'The hashed ID of the vendor that this product is associated with.'
-          example: pR0j3
         custom_value1:
           type: string
           description: 'Custom value field 1.'

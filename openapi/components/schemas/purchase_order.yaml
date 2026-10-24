@@ -25,10 +25,6 @@
           description: 'The unique alpha-numeric purchase order number per company'
           type: string
           example: PO_101
-        quote_number:
-          description: 'The quote number associated with this purchase order'
-          type: string
-          example: QUOTE_101
         terms:
           description: 'The terms and conditions for the purchase order'
           type: string
@@ -156,22 +152,13 @@
           description: 'The due date for the total amount of the purchase order, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First custom surcharge amount for the purchase order'
@@ -209,10 +196,6 @@
           description: 'Boolean flag indicating if taxes are charged on the fourth custom surcharge amount'
           type: boolean
           example: true
-        backup:
-          description: 'Backup data or file reference for this purchase order'
-          type: string
-          example: 'backup_data.json'
         client_id:
           description: 'The unique identifier of the client associated with this purchase order'
           type: string
@@ -248,10 +231,6 @@
           example: 'PO-2024-001'
         project_id:
           description: 'The unique identifier of the project associated with this purchase order'
-          type: string
-          example: Opnel5aKBz
-        recurring_id:
-          description: 'The unique identifier of the recurring schedule'
           type: string
           example: Opnel5aKBz
         reminder1_sent:
@@ -303,8 +282,7 @@
           additionalProperties: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         subscription_id:

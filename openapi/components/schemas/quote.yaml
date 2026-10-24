@@ -156,22 +156,13 @@
           description: 'The due date for the total amount of the quote, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: 'The timestamp of the last time the quote was viewed'
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: 'The timestamp of the last update to the quote'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: 'The timestamp of when the quote was archived'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First custom surcharge amount for the quote'
@@ -271,8 +262,7 @@
           example: Opnel5aKBz
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         reminder1_sent:

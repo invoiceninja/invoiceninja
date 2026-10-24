@@ -27,7 +27,7 @@
           example: '4'
         remaining_cycles:
           description: 'The number of invoices left to be generated'
-          type: number
+          type: integer
           example: 4
         number:
           description: 'The recurringinvoice number - is a unique alpha numeric number per invoice per company'
@@ -163,22 +163,13 @@
           description: 'The due date of the invoice, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
@@ -245,11 +236,6 @@
           type: number
           format: float
           example: 1.0
-        next_send_date_client:
-          description: 'The next scheduled send date for the client'
-          type: string
-          format: date
-          example: '2024-12-31'
         project_id:
           description: 'The unique identifier of the project associated with this recurring invoice'
           type: string
@@ -278,8 +264,7 @@
           deprecated: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         documents:

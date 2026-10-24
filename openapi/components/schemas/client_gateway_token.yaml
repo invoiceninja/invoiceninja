@@ -9,6 +9,7 @@
           description: 'The hashed_id of the client'
           type: string
           example: '2'
+          writeOnly: true
         token:
           description: 'The payment token'
           type: string
@@ -17,6 +18,7 @@
           description: 'THe bank account routing number'
           type: string
           example: '2'
+          writeOnly: true
         company_gateway_id:
           description: 'The hashed id of the company gateway'
           type: string
@@ -27,12 +29,10 @@
           example: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         created_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
         gateway_customer_reference:
           description: 'The gateway customer reference'
           type: string
@@ -48,6 +48,5 @@
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
       type: object

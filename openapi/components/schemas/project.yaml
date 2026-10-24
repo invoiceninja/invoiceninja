@@ -51,18 +51,15 @@
           type: string
           description: Custom value field 4
         created_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the project creation
         updated_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the last project update
         archived_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the project deletion
         public_notes:

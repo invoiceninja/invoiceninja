@@ -41,10 +41,6 @@
           description: 'Boolean flag determining if the task has been deleted'
           type: boolean
           example: true
-        task_status_id:
-          description: 'The hashed id of the task status'
-          type: string
-          example: Opnel5aKBz
         description:
           description: 'The task description'
           type: string
@@ -62,10 +58,6 @@
           type: integer
           nullable: true
           example: 7200
-        task_status_order:
-          description: 'The order of the task'
-          type: integer
-          example: 4
         rate:
           description: 'The task rate'
           type: number
@@ -90,37 +82,21 @@
           description: 'Boolean flag determining if the task is date based'
           type: boolean
           example: true
-        calculated_start_date:
-          description: 'The calculated start date of the task'
-          type: string
-          example: '2022-10-10'
-          readOnly: true
-        invoice_documents:
-          description: "Boolean flags which determines whether to include the task documents on the invoice"
-          type: boolean
-          example: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
-        hash:
-          description: 'Unique hash identifier for this task'
-          type: string
-          example: 'a1b2c3d4e5f6'
         meta:
           description: 'Metadata associated with this task, an empty string when there is none'
           oneOf:
@@ -154,4 +130,6 @@
           type: array
           items:
             $ref: '#/components/schemas/Document'
+        project:
+          $ref: '#/components/schemas/Project'
       type: object
