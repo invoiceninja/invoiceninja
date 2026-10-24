@@ -34,16 +34,16 @@
           description: 'Timestamp'
           type: integer
         gateway_customer_reference:
-          description: 'The gateway customer reference'
+          description: 'The customer reference at the payment gateway'
           type: string
         gateway_type_id:
-          description: 'The gateway type id'
+          description: 'The gateway type id, for example 1 for credit card'
           type: string
         is_deleted:
           description: 'Whether the client gateway token has been deleted'
           type: boolean
         meta:
-          description: 'The meta'
+          description: 'Details of the payment method, such as the card brand, last 4 digits and expiry'
           type: object
           additionalProperties: true
         updated_at:

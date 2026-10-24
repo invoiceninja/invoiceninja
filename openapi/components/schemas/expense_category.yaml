@@ -29,6 +29,6 @@
           description: 'Timestamp'
           type: integer
         color:
-          description: 'The color'
+          description: 'The colour of the category as a hex code'
           type: string
       type: object

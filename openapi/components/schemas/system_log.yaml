@@ -42,6 +42,6 @@
           type: integer
           example: 1434342123
         company_id:
-          description: 'The company id'
+          description: 'The company hashed id'
           type: string
       type: object

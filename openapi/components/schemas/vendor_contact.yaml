@@ -71,9 +71,9 @@
           description: 'Timestamp'
           type: integer
         last_login:
-          description: 'The last login'
+          description: 'Timestamp of the last login'
           type: integer
         link:
-          description: 'The link'
+          description: 'The vendor portal login link of the contact'
           type: string
       type: object

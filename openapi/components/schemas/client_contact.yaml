@@ -85,6 +85,6 @@
           description: 'Timestamp'
           type: integer
         link:
-          description: 'The link'
+          description: 'The client portal login link of the contact'
           type: string
       type: object

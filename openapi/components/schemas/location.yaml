@@ -82,7 +82,7 @@
           description: 'Timestamp'
           type: integer
         tax_data:
-          description: 'The tax data'
+          description: 'Tax data of the location'
           type: object
           additionalProperties: true
       type: object 

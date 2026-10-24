@@ -117,30 +117,30 @@
           description: 'Timestamp'
           type: integer
         email_verified_at:
-          description: 'The email verified at'
+          description: 'Timestamp of the email verification'
           nullable: true
         last_login:
-          description: 'The last login'
+          description: 'Timestamp of the last login, 0 when the user has never logged in'
           type: integer
         oauth_user_token:
-          description: 'The oauth user token'
+          description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
           type: string
         referral_code:
-          description: 'The referral code'
+          description: 'The referral code of the user'
           type: string
         referral_meta:
-          description: 'The referral meta'
+          description: 'Referral statistics of the user'
           type: object
           additionalProperties: true
         settings:
-          description: 'The settings'
+          description: 'Preferences of the user'
           type: object
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
           type: integer
         user_logged_in_notification:
-          description: 'The user logged in notification'
+          description: 'Whether the user is emailed when they log in from a new location'
           type: boolean
       type: object
     UserRef:
@@ -274,27 +274,27 @@
           description: 'Timestamp'
           type: integer
         company_user:
-          description: 'The company user'
+          description: 'The company user of the user in the current company, returned with include=company_user'
           type: object
           additionalProperties: true
         created_at:
           description: 'Timestamp'
           type: integer
         email_verified_at:
-          description: 'The email verified at'
+          description: 'Timestamp of the email verification'
           type: integer
         last_login:
-          description: 'The last login'
+          description: 'Timestamp of the last login, 0 when the user has never logged in'
           type: integer
         referral_code:
-          description: 'The referral code'
+          description: 'The referral code of the user'
           type: string
         referral_meta:
-          description: 'The referral meta'
+          description: 'Referral statistics of the user'
           type: object
           additionalProperties: true
         settings:
-          description: 'The settings'
+          description: 'Preferences of the user'
           type: object
           additionalProperties: true
         updated_at:

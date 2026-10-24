@@ -23,16 +23,16 @@
           type: integer
           example: 1434342123
         activity_id:
-          description: 'The activity id'
+          description: 'The id of the activity that created the entry'
           type: integer
         archived_at:
           description: 'Timestamp'
           type: integer
         credit_id:
-          description: 'The credit id'
+          description: 'The credit hashed id, present when the entry belongs to a credit'
           type: string
         invoice_id:
-          description: 'The invoice id'
+          description: 'The invoice hashed id, present when the entry belongs to an invoice'
           type: string
         client_id:
           description: 'The client hashed id, present when the entry belongs to a client'

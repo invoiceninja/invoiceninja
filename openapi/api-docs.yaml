@@ -11661,8 +11661,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report vendors"
-      description: "Report vendors"
+      summary: "Vendor report"
+      description: "Generates the vendor report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsVendors
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11711,8 +11711,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report purchase orders"
-      description: "Report purchase orders"
+      summary: "Purchase order report"
+      description: "Generates the purchase order report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsPurchaseOrders
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11761,8 +11761,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report purchase order items"
-      description: "Report purchase order items"
+      summary: "Purchase order item report"
+      description: "Generates the purchase order line item report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsPurchaseOrderItems
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11811,8 +11811,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report recurring invoice items"
-      description: "Report recurring invoice items"
+      summary: "Recurring invoice item report"
+      description: "Generates the recurring invoice line item report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsRecurringInvoiceItems
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11861,8 +11861,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report locations"
-      description: "Report locations"
+      summary: "Location report"
+      description: "Generates the location report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsLocations
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11911,8 +11911,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report client locations"
-      description: "Report client locations"
+      summary: "Client location report"
+      description: "Generates the location report for client locations. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsClientLocations
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11961,8 +11961,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart summary"
-      description: "Chart summary"
+      summary: "Dashboard chart series"
+      description: "Returns the invoice, outstanding, payment and expense series for the dashboard chart between start_date and end_date, per currency id and aggregated under key 999."
       operationId: postChartsChartSummary
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12011,8 +12011,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart analytics summary"
-      description: "Chart analytics summary"
+      summary: "Analytics chart series"
+      description: "Returns the time series for the analytics charts between start_date and end_date, per currency id and aggregated under key 999."
       operationId: postChartsAnalyticsSummary
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12061,8 +12061,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart analytics totals"
-      description: "Chart analytics totals"
+      summary: "Analytics totals"
+      description: "Returns the KPI totals for the analytics dashboard cards between start_date and end_date, per currency id and aggregated under key 999."
       operationId: postChartsAnalyticsTotals
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12115,8 +12115,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart cashflow forecast"
-      description: "Chart cashflow forecast"
+      summary: "Cash flow forecast"
+      description: "Returns the projected inflows and outflows between start_date and end_date, grouped by bucket_type (monthly by default)."
       operationId: postChartsCashflowForecast
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12201,8 +12201,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart client payment analytics"
-      description: "Chart client payment analytics"
+      summary: "Client payment analytics"
+      description: "Returns payment scorecards per client, including a payment risk score."
       operationId: postChartsClientPaymentAnalytics
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12291,8 +12291,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart project analytics"
-      description: "Chart project analytics"
+      summary: "Project analytics"
+      description: "Returns the execution and financial datasets for the charts of a project. Draft invoices are included when include_drafts is true."
       operationId: postChartsProjectAnalyticsProject
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12628,8 +12628,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart project burnup"
-      description: "Chart project burnup"
+      summary: "Project burn-up"
+      description: "Returns the cumulative logged time, invoiced, paid and expense series of a project between start_date and end_date, grouped by bucket_type (daily by default)."
       operationId: postChartsProjectBurnupProject
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12812,8 +12812,8 @@ paths:
     get:
       tags:
         - credits
-      summary: "Credit action"
-      description: "Credit action"
+      summary: "Perform an action on a credit"
+      description: "Performs a single action on a credit, such as mark_sent, mark_paid, clone_to_credit, download, email, archive, restore or delete, and returns the credit (or the PDF for download)."
       operationId: getCreditsIdAction
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12861,8 +12861,8 @@ paths:
     post:
       tags:
         - designs
-      summary: "Default design"
-      description: "Default design"
+      summary: "Set the default design"
+      description: "Sets a design as the default for an entity at the company, group or client settings level."
       operationId: postDesignsSetDefault
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12909,8 +12909,8 @@ paths:
     post:
       tags:
         - clients
-      summary: "Client settings"
-      description: "Client settings"
+      summary: "Show the settings a client overrides"
+      description: "Returns the settings set on the client itself and the settings inherited only from its group, with their labels and values."
       operationId: postClientsClientShowSettings
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12957,8 +12957,8 @@ paths:
     post:
       tags:
         - invoices
-      summary: "Update reminders"
-      description: "Update reminders"
+      summary: "Recalculate reminder dates"
+      description: "Queues a job that recalculates the next reminder date of every open invoice of the company."
       operationId: postInvoicesUpdateReminders
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12992,8 +12992,8 @@ paths:
     get:
       tags:
         - subscriptions
-      summary: "Subscription steps"
-      description: "Subscription steps"
+      summary: "List subscription purchase steps"
+      description: "Returns the steps available for a subscription purchase flow and the steps each one depends on."
       operationId: getSubscriptionsSteps
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13061,8 +13061,8 @@ paths:
     post:
       tags:
         - refresh_react
-      summary: "Refresh react"
-      description: "Refresh react"
+      summary: "Refresh the session for the web app"
+      description: "Returns the same payload as /api/v1/refresh for the web app, creating a system token for each company where one is missing. Pass current_company=true to return only the current company."
       operationId: postRefreshReact
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13111,8 +13111,8 @@ paths:
     post:
       tags:
         - login
-      summary: "Login precheck"
-      description: "Login precheck"
+      summary: "Check the login methods for an email"
+      description: "Returns the login methods available for an email address (password, and totp when two factor authentication is enabled), and whether an API secret is required. Responds in constant time."
       operationId: postLoginPrecheck
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13159,8 +13159,8 @@ paths:
     post:
       tags:
         - company_gateways
-      summary: "Clone company gateway"
-      description: "Clone company gateway"
+      summary: "Clone a company gateway"
+      description: "Creates a copy of the company gateway with \"(Clone)\" and a timestamp appended to its label, and returns the copy."
       operationId: postCompanyGatewaysCompanyGatewayClone
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13201,8 +13201,8 @@ paths:
     post:
       tags:
         - webhooks
-      summary: "Retry webhook"
-      description: "Retry webhook"
+      summary: "Resend a webhook"
+      description: "Sends the webhook again for the record given by entity and entity_id."
       operationId: postWebhooksWebhookRetry
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13254,8 +13254,8 @@ paths:
     post:
       tags:
         - filters
-      summary: "Filters"
-      description: "Filters"
+      summary: "List bulk actions for an entity"
+      description: "Returns the bulk actions available for an entity type, such as mark_paid or email for invoices."
       operationId: postFiltersEntity
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13295,8 +13295,8 @@ paths:
     post:
       tags:
         - live_preview
-      summary: "Live preview"
-      description: "Live preview"
+      summary: "Preview an unsaved entity"
+      description: "Renders the PDF of an invoice, quote, credit, purchase order or recurring invoice from the request body without saving it."
       operationId: postLivePreview
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13354,8 +13354,8 @@ paths:
     post:
       tags:
         - invoices
-      summary: "Payment schedule"
-      description: "Payment schedule"
+      summary: "Create a payment schedule"
+      description: "Creates a payment schedule for the invoice from the schedule in the request body, and returns the invoice."
       operationId: postInvoicesInvoicePaymentSchedule
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13410,7 +13410,7 @@ paths:
       tags:
         - companies
       summary: "Company logo"
-      description: "Company logo"
+      description: "Returns the logo image of the current company, or the Invoice Ninja logo when none is set."
       operationId: getCompaniesCompanyLogo
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13449,8 +13449,8 @@ paths:
     get:
       tags:
         - documents
-      summary: "Show document"
-      description: "Show document"
+      summary: "Show a document"
+      description: "Returns a document."
       operationId: getDocumentsDocument
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13490,8 +13490,8 @@ paths:
     put:
       tags:
         - documents
-      summary: "Update document"
-      description: "Update document"
+      summary: "Update a document"
+      description: "Updates a document and returns it."
       operationId: putDocumentsDocument
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13542,8 +13542,8 @@ paths:
     delete:
       tags:
         - documents
-      summary: "Delete document"
-      description: "Delete document"
+      summary: "Delete a document"
+      description: "Deletes a document."
       operationId: deleteDocumentsDocument
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13584,8 +13584,8 @@ paths:
     get:
       tags:
         - documents
-      summary: "Download document"
-      description: "Download document"
+      summary: "Download a document"
+      description: "Returns the file of the document."
       operationId: getDocumentsDocumentDownload
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13624,8 +13624,8 @@ paths:
     put:
       tags:
         - company_users
-      summary: "Update company user"
-      description: "Update company user"
+      summary: "Update a company user"
+      description: "Updates the company user of a user in the current company and returns it."
       operationId: putCompanyUsersUser
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -24249,13 +24249,13 @@ components:
           description: 'Timestamp'
           type: integer
         company_id:
-          description: 'The company id'
+          description: 'The company hashed id'
           type: string
         created_at:
           description: 'Timestamp'
           type: integer
         headers:
-          description: 'The headers'
+          description: 'Additional HTTP headers sent with the webhook request'
           type: array
           items:
             type: object
@@ -24263,13 +24263,13 @@ components:
           description: 'Whether the webhook has been deleted'
           type: boolean
         rest_method:
-          description: 'The rest method'
+          description: 'The HTTP method used to call the target URL'
           type: string
         updated_at:
           description: 'Timestamp'
           type: integer
         user_id:
-          description: 'The user id'
+          description: 'The hashed id of the user who created the record'
           type: string
       type: object
 
@@ -25016,7 +25016,7 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
         always_show_required_fields:
-          description: 'The always show required fields'
+          description: 'Whether the required fields form is always shown at checkout'
           type: boolean
         archived_at:
           description: 'Timestamp'
@@ -25025,22 +25025,22 @@ components:
           description: 'Timestamp'
           type: integer
         custom_value1:
-          description: 'The custom value1'
+          description: 'A custom value'
           type: string
         custom_value2:
-          description: 'The custom value2'
+          description: 'A custom value'
           type: string
         custom_value3:
-          description: 'The custom value3'
+          description: 'A custom value'
           type: string
         custom_value4:
-          description: 'The custom value4'
+          description: 'A custom value'
           type: string
         is_deleted:
           description: 'Whether the company gateway has been deleted'
           type: boolean
         label:
-          description: 'The label'
+          description: 'The label shown for the gateway'
           type: string
         require_client_name:
           description: 'Whether to require client name'
@@ -25076,7 +25076,7 @@ components:
           description: 'Whether to require zip'
           type: boolean
         settings:
-          description: 'The settings'
+          description: 'Gateway settings that override the company settings'
           type: object
           additionalProperties: true
         show_billing_address:
@@ -25086,10 +25086,10 @@ components:
           description: 'Whether to show shipping address'
           type: boolean
         test_mode:
-          description: 'The test mode'
+          description: 'Whether the gateway runs in test mode'
           type: boolean
         token_billing:
-          description: 'The token billing'
+          description: 'When card details are saved: always, optin, optout or off'
           type: string
         updated_at:
           description: 'Timestamp'
@@ -25329,7 +25329,7 @@ components:
           type: integer
           example: 1434342123
         company_id:
-          description: 'The company id'
+          description: 'The company hashed id'
           type: string
       type: object
     Meta:
@@ -25441,10 +25441,10 @@ components:
           description: 'Timestamp'
           type: integer
         last_login:
-          description: 'The last login'
+          description: 'Timestamp of the last login'
           type: integer
         link:
-          description: 'The link'
+          description: 'The vendor portal login link of the contact'
           type: string
       type: object
 
@@ -25643,16 +25643,16 @@ components:
           type: integer
           example: 1434342123
         activity_id:
-          description: 'The activity id'
+          description: 'The id of the activity that created the entry'
           type: integer
         archived_at:
           description: 'Timestamp'
           type: integer
         credit_id:
-          description: 'The credit id'
+          description: 'The credit hashed id, present when the entry belongs to a credit'
           type: string
         invoice_id:
-          description: 'The invoice id'
+          description: 'The invoice hashed id, present when the entry belongs to an invoice'
           type: string
         client_id:
           description: 'The client hashed id, present when the entry belongs to a client'
@@ -25676,7 +25676,7 @@ components:
           type: string
           example: bob
         search_key:
-          description: 'The search key'
+          description: 'The transaction field the rule matches: description, amount, participant or participant_name'
           type: string
       type: object
     BankTransaction:
@@ -26049,7 +26049,7 @@ components:
           description: 'Timestamp'
           type: integer
         link:
-          description: 'The link'
+          description: 'The client portal login link of the contact'
           type: string
       type: object
     TagAssignment:
@@ -26293,22 +26293,22 @@ components:
           description: 'Timestamp'
           type: integer
         purchase_order_id:
-          description: 'The purchase order id'
+          description: 'The hashed id of the purchase order, an empty string when not related'
           type: string
         quote_id:
-          description: 'The quote id'
+          description: 'The hashed id of the quote, an empty string when not related'
           type: string
         recurring_expense_id:
-          description: 'The recurring expense id'
+          description: 'The hashed id of the recurring expense, an empty string when not related'
           type: string
         recurring_invoice_id:
-          description: 'The recurring invoice id'
+          description: 'The hashed id of the recurring invoice, an empty string when not related'
           type: string
         vendor_contact_id:
-          description: 'The vendor contact id'
+          description: 'The hashed id of the vendor contact, an empty string when not related'
           type: string
         vendor_id:
-          description: 'The vendor id'
+          description: 'The hashed id of the vendor, an empty string when not related'
           type: string
       type: object
     Account:
@@ -26326,43 +26326,43 @@ components:
           description: 'Timestamp'
           type: integer
         can_trial:
-          description: 'The can trial'
+          description: 'Whether the account can still start a free trial: it is less than 14 days old and has never had a plan or trial'
           type: boolean
         current_version:
-          description: 'The current version'
+          description: 'The version of Invoice Ninja this server runs'
           type: string
         debug_enabled:
-          description: 'The debug enabled'
+          description: 'Whether debug mode is enabled on this server'
           type: boolean
         default_company_id:
-          description: 'The default company id'
+          description: 'The hashed id of the company the account opens by default'
           type: string
         default_url:
-          description: 'The default url'
+          description: 'The base URL of this Invoice Ninja installation (APP_URL)'
           type: string
         disable_auto_update:
-          description: 'The disable auto update'
+          description: 'Whether automatic self-updates are disabled on this server'
           type: boolean
         docuninja_num_users:
-          description: 'The docuninja num users'
+          description: 'The number of DocuNinja users included in the plan'
           type: integer
         e_invoice_quota:
-          description: 'The e invoice quota'
+          description: 'The number of e-invoices the account can still send through the e-invoicing network'
           type: integer
         email_quota:
-          description: 'The email quota'
+          description: 'The number of emails the account may send per day, 0 when the account is flagged'
           type: integer
         emails_sent:
-          description: 'The emails sent'
+          description: 'The number of emails the account has sent today'
           type: integer
         has_iap_plan:
           description: 'Whether the account has iap plan'
           type: boolean
         hosted_client_count:
-          description: 'The hosted client count'
+          description: 'The maximum number of clients allowed on the hosted plan'
           type: integer
         hosted_company_count:
-          description: 'The hosted company count'
+          description: 'The maximum number of companies allowed on the hosted plan'
           type: integer
         is_docker:
           description: 'Whether the account is docker'
@@ -26380,79 +26380,79 @@ components:
           description: 'Whether the account is scheduler running'
           type: boolean
         key:
-          description: 'The key'
+          description: 'The account key'
           type: string
         latest_version:
-          description: 'The latest version'
+          description: 'The latest released version of Invoice Ninja'
           type: string
         nordigen_enabled:
-          description: 'The nordigen enabled'
+          description: 'Whether the server is configured for Nordigen (GoCardless) bank integrations'
           type: boolean
         num_users:
-          description: 'The num users'
+          description: 'The number of users included in the plan'
           type: integer
         payment_id:
-          description: 'The payment id'
+          description: 'The hashed id of the payment for the current plan, an empty string when there is none'
           type: string
         plan:
-          description: 'The plan'
+          description: 'The active plan, for example pro or enterprise, an empty string when there is no plan or it has expired'
           type: string
         plan_expires:
-          description: 'The plan expires'
+          description: 'The date the plan expires'
           type: string
         plan_paid:
-          description: 'The plan paid'
+          description: 'The date the current plan term was paid'
           type: string
         plan_price:
-          description: 'The plan price'
+          description: 'The price of the plan'
           type: number
         plan_started:
-          description: 'The plan started'
+          description: 'The date the plan started'
           type: string
         plan_term:
-          description: 'The plan term'
+          description: 'The billing term of the plan, month or year'
           type: string
         referral_code:
-          description: 'The referral code'
+          description: 'The referral code of the account'
           type: string
         report_errors:
-          description: 'The report errors'
+          description: 'Whether errors are reported to Invoice Ninja'
           type: boolean
         set_react_as_default_ap:
-          description: 'The set react as default ap'
+          description: 'Whether the React app is the default web app'
           type: boolean
         tax_api_enabled:
-          description: 'The tax api enabled'
+          description: 'Whether the server is configured for the Zip-Tax sales tax API'
           type: boolean
         trial_days_left:
-          description: 'The trial days left'
+          description: 'The number of days left in the trial, always 0 on the hosted platform'
           type: integer
         trial_plan:
-          description: 'The trial plan'
+          description: 'The plan being trialled'
           type: string
         trial_started:
-          description: 'The trial started'
+          description: 'The date the trial started'
           type: string
         updated_at:
           description: 'Timestamp'
           type: integer
         upload_extensions:
-          description: 'The upload extensions'
+          description: 'A comma separated list of the file extensions that can be uploaded as documents'
           type: string
         user_agent:
-          description: 'The user agent'
+          description: 'The user agent of the browser the account was created with'
           type: string
         utm_content:
-          description: 'The utm content'
+          description: 'The utm_content campaign parameter recorded at sign up'
           type: string
         utm_medium:
-          description: 'The utm medium'
+          description: 'The utm_medium campaign parameter recorded at sign up'
           type: string
         utm_source:
-          description: 'The utm source'
+          description: 'The utm_source campaign parameter recorded at sign up'
           type: string
         utm_term:
-          description: 'The utm term'
+          description: 'The utm_term campaign parameter recorded at sign up'
           type: string
       type: object
     RecurringQuote:
@@ -26668,16 +26668,16 @@ components:
           type: boolean
           example: true
         auto_bill:
-          description: 'The auto bill'
+          description: 'Whether the generated invoices are auto billed: always, optin, optout or off'
           type: string
         auto_bill_enabled:
-          description: 'The auto bill enabled'
+          description: 'Whether auto billing is enabled'
           type: boolean
         created_at:
           description: 'Timestamp'
           type: integer
         design_id:
-          description: 'The design id'
+          description: 'The design hashed id'
           type: string
         documents:
           description: 'The documents attached to the recurring quote'
@@ -26685,13 +26685,13 @@ components:
           items:
             $ref: '#/components/schemas/Document'
         due_date_days:
-          description: 'The due date days'
+          description: 'The number of days after the quote date the generated quote is due, an empty string when not set'
           type: string
         entity_type:
-          description: 'The entity type'
+          description: 'Always recurringQuote'
           type: string
         exchange_rate:
-          description: 'The exchange rate'
+          description: 'The exchange rate between the client currency and the company currency'
           type: number
         has_expenses:
           description: 'Whether the recurring quote has expenses'
@@ -26705,18 +26705,18 @@ components:
           items:
             type: object
         project_id:
-          description: 'The project id'
+          description: 'The project hashed id'
           type: string
         recurring_dates:
-          description: 'The recurring dates'
+          description: 'The upcoming send dates'
           type: array
           items:
             type: object
         subscription_id:
-          description: 'The subscription id'
+          description: 'The hashed id of the subscription that created the recurring quote'
           type: string
         vendor_id:
-          description: 'The vendor id'
+          description: 'The vendor hashed id'
           type: string
       type: object
     Credit:
@@ -27079,7 +27079,7 @@ components:
           description: 'Timestamp'
           type: integer
         user_id:
-          description: 'The user id'
+          description: 'The hashed id of the user the token belongs to'
           type: string
       type: object
     ProjectRequest:
@@ -27267,30 +27267,30 @@ components:
           description: 'Timestamp'
           type: integer
         email_verified_at:
-          description: 'The email verified at'
+          description: 'Timestamp of the email verification'
           nullable: true
         last_login:
-          description: 'The last login'
+          description: 'Timestamp of the last login, 0 when the user has never logged in'
           type: integer
         oauth_user_token:
-          description: 'The oauth user token'
+          description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
           type: string
         referral_code:
-          description: 'The referral code'
+          description: 'The referral code of the user'
           type: string
         referral_meta:
-          description: 'The referral meta'
+          description: 'Referral statistics of the user'
           type: object
           additionalProperties: true
         settings:
-          description: 'The settings'
+          description: 'Preferences of the user'
           type: object
           additionalProperties: true
         updated_at:
           description: 'Timestamp'
           type: integer
         user_logged_in_notification:
-          description: 'The user logged in notification'
+          description: 'Whether the user is emailed when they log in from a new location'
           type: boolean
       type: object
     UserRef:
@@ -27424,27 +27424,27 @@ components:
           description: 'Timestamp'
           type: integer
         company_user:
-          description: 'The company user'
+          description: 'The company user of the user in the current company, returned with include=company_user'
           type: object
           additionalProperties: true
         created_at:
           description: 'Timestamp'
           type: integer
         email_verified_at:
-          description: 'The email verified at'
+          description: 'Timestamp of the email verification'
           type: integer
         last_login:
-          description: 'The last login'
+          description: 'Timestamp of the last login, 0 when the user has never logged in'
           type: integer
         referral_code:
-          description: 'The referral code'
+          description: 'The referral code of the user'
           type: string
         referral_meta:
-          description: 'The referral meta'
+          description: 'Referral statistics of the user'
           type: object
           additionalProperties: true
         settings:
-          description: 'The settings'
+          description: 'Preferences of the user'
           type: object
           additionalProperties: true
         updated_at:
@@ -28727,7 +28727,7 @@ components:
           description: 'Timestamp'
           type: integer
         tax_data:
-          description: 'The tax data'
+          description: 'Tax data of the location'
           type: object
           additionalProperties: true
       type: object 
@@ -28779,14 +28779,14 @@ components:
           description: 'Timestamp'
           type: integer
         ninja_portal_url:
-          description: 'The ninja portal url'
+          description: 'The URL of the Invoice Ninja account portal'
           type: string
         notifications:
-          description: 'The notifications'
+          description: 'The notification preferences of the user in this company'
           type: object
           additionalProperties: true
         permissions_updated_at:
-          description: 'The permissions updated at'
+          description: 'Timestamp of the last change to the permissions'
           type: integer
       type: object
     CompanyUserRef:
@@ -29058,12 +29058,12 @@ components:
           items:
             $ref: '#/components/schemas/Document'
         gateway_tokens:
-          description: 'The gateway tokens'
+          description: 'The saved payment methods of the client'
           type: array
           items:
             type: object
         locations:
-          description: 'The locations'
+          description: 'The additional addresses of the client'
           type: array
           items:
             type: object
@@ -29533,10 +29533,10 @@ components:
           description: 'Whether to enable modules'
           type: boolean
         expense_amount_is_pretax:
-          description: 'The expense amount is pretax'
+          description: 'Deprecated, always true'
           type: boolean
         google_analytics_url:
-          description: 'The google analytics url'
+          description: 'Deprecated, the Google Analytics key'
           type: string
         has_e_invoice_certificate:
           description: 'Whether the company has e invoice certificate'
@@ -29548,13 +29548,13 @@ components:
           description: 'Whether to hide empty columns on pdf'
           type: boolean
         quickbooks:
-          description: 'The quickbooks'
+          description: 'The QuickBooks integration settings'
           nullable: true
         smtp_password:
-          description: 'The smtp password'
+          description: 'Masked as ******** when an SMTP password is set, otherwise an empty string'
           type: string
         smtp_username:
-          description: 'The smtp username'
+          description: 'Masked as ******** when an SMTP username is set, otherwise an empty string'
           type: string
         updated_at:
           description: 'Timestamp'
@@ -29563,157 +29563,157 @@ components:
           description: 'Whether to use credits payment'
           type: string
         activities:
-          description: 'The activities'
+          description: 'The activities of the company, returned with include=activities'
           type: array
           items:
             $ref: '#/components/schemas/Activity'
         bank_integrations:
-          description: 'The bank integrations'
+          description: 'The bank integrations of the company, returned with include=bank_integrations'
           type: array
           items:
             $ref: '#/components/schemas/BankIntegration'
         bank_transaction_rules:
-          description: 'The bank transaction rules'
+          description: 'The bank transaction rules of the company, returned with include=bank_transaction_rules'
           type: array
           items:
             $ref: '#/components/schemas/BankTransactionRule'
         bank_transactions:
-          description: 'The bank transactions'
+          description: 'The bank transactions of the company, returned with include=bank_transactions'
           type: array
           items:
             $ref: '#/components/schemas/BankTransaction'
         clients:
-          description: 'The clients'
+          description: 'The clients of the company, returned with include=clients'
           type: array
           items:
             $ref: '#/components/schemas/Client'
         company_gateways:
-          description: 'The company gateways'
+          description: 'The payment gateways of the company, returned with include=company_gateways'
           type: array
           items:
             $ref: '#/components/schemas/CompanyGateway'
         credits:
-          description: 'The credits'
+          description: 'The credits of the company, returned with include=credits'
           type: array
           items:
             $ref: '#/components/schemas/Credit'
         designs:
-          description: 'The designs'
+          description: 'The designs of the company, returned with include=designs'
           type: array
           items:
             $ref: '#/components/schemas/Design'
         expense_categories:
-          description: 'The expense categories'
+          description: 'The expense categories of the company, returned with include=expense_categories'
           type: array
           items:
             $ref: '#/components/schemas/ExpenseCategory'
         expenses:
-          description: 'The expenses'
+          description: 'The expenses of the company, returned with include=expenses'
           type: array
           items:
             $ref: '#/components/schemas/Expense'
         groups:
-          description: 'The groups'
+          description: 'The group settings of the company, returned with include=groups'
           type: array
           items:
             $ref: '#/components/schemas/GroupSetting'
         invoices:
-          description: 'The invoices'
+          description: 'The invoices of the company, returned with include=invoices'
           type: array
           items:
             $ref: '#/components/schemas/Invoice'
         locations:
-          description: 'The locations'
+          description: 'The locations of the company, returned with include=locations'
           type: array
           items:
             $ref: '#/components/schemas/Location'
         payment_terms:
-          description: 'The payment terms'
+          description: 'The payment terms of the company, returned with include=payment_terms'
           type: array
           items:
             $ref: '#/components/schemas/PaymentTerm'
         payments:
-          description: 'The payments'
+          description: 'The payments of the company, returned with include=payments'
           type: array
           items:
             $ref: '#/components/schemas/Payment'
         products:
-          description: 'The products'
+          description: 'The products of the company, returned with include=products'
           type: array
           items:
             $ref: '#/components/schemas/Product'
         projects:
-          description: 'The projects'
+          description: 'The projects of the company, returned with include=projects'
           type: array
           items:
             $ref: '#/components/schemas/Project'
         purchase_orders:
-          description: 'The purchase orders'
+          description: 'The purchase orders of the company, returned with include=purchase_orders'
           type: array
           items:
             $ref: '#/components/schemas/PurchaseOrder'
         quotes:
-          description: 'The quotes'
+          description: 'The quotes of the company, returned with include=quotes'
           type: array
           items:
             $ref: '#/components/schemas/Quote'
         recurring_expenses:
-          description: 'The recurring expenses'
+          description: 'The recurring expenses of the company, returned with include=recurring_expenses'
           type: array
           items:
             $ref: '#/components/schemas/RecurringExpense'
         recurring_invoices:
-          description: 'The recurring invoices'
+          description: 'The recurring invoices of the company, returned with include=recurring_invoices'
           type: array
           items:
             $ref: '#/components/schemas/RecurringInvoice'
         subscriptions:
-          description: 'The subscriptions'
+          description: 'The subscriptions of the company, returned with include=subscriptions'
           type: array
           items:
             $ref: '#/components/schemas/Subscription'
         system_logs:
-          description: 'The system logs'
+          description: 'The system logs of the company, returned with include=system_logs'
           type: array
           items:
             $ref: '#/components/schemas/SystemLog'
         task_schedulers:
-          description: 'The task schedulers'
+          description: 'The task schedulers of the company, returned with include=task_schedulers'
           type: array
           items:
             type: object
         task_statuses:
-          description: 'The task statuses'
+          description: 'The task statuses of the company, returned with include=task_statuses'
           type: array
           items:
             $ref: '#/components/schemas/TaskStatus'
         tasks:
-          description: 'The tasks'
+          description: 'The tasks of the company, returned with include=tasks'
           type: array
           items:
             $ref: '#/components/schemas/Task'
         tax_rates:
-          description: 'The tax rates'
+          description: 'The tax rates of the company, returned with include=tax_rates'
           type: array
           items:
             $ref: '#/components/schemas/TaxRate'
         tokens_hashed:
-          description: 'The tokens hashed'
+          description: 'The API tokens of the company with the token masked, returned with include=tokens_hashed'
           type: array
           items:
             $ref: '#/components/schemas/CompanyToken'
         users:
-          description: 'The users'
+          description: 'The users of the company, returned with include=users'
           type: array
           items:
             type: object
         vendors:
-          description: 'The vendors'
+          description: 'The vendors of the company, returned with include=vendors'
           type: array
           items:
             $ref: '#/components/schemas/Vendor'
         webhooks:
-          description: 'The webhooks'
+          description: 'The webhooks of the company, returned with include=webhooks'
           type: array
           items:
             $ref: '#/components/schemas/Webhook'
@@ -30853,49 +30853,49 @@ components:
           type: string
           example: ten_day
         brevo_secret:
-          description: 'The brevo secret'
+          description: 'The Brevo API key used to send emails'
           type: string
         client_portal_enable_uploads:
-          description: 'The client portal enable uploads'
+          description: 'Whether clients can upload documents in the client portal'
           type: boolean
         credit_design_id:
-          description: 'The credit design id'
+          description: 'The hashed id of the default credit design'
           type: string
         delivery_note_design_id:
-          description: 'The delivery note design id'
+          description: 'The hashed id of the delivery note design'
           type: string
         e_expense_forward_email:
-          description: 'The e expense forward email'
+          description: 'Email address received e-expenses are forwarded to, for a processing service such as Yuki or WinAuditor'
           type: string
         e_invoice_forward_email:
-          description: 'The e invoice forward email'
+          description: 'Email address sent e-invoices are forwarded to, for a processing service such as Yuki or WinAuditor'
           type: string
         e_quote_type:
-          description: 'The e quote type'
+          description: 'The e-quote standard, for example OrderX_Comfort'
           type: string
         email_quote_subject_reminder1:
-          description: 'The email quote subject reminder1'
+          description: 'The subject of the first quote reminder email'
           type: string
         email_quote_template_reminder1:
-          description: 'The email quote template reminder1'
+          description: 'The body of the first quote reminder email'
           type: string
         email_subject_credit:
-          description: 'The email subject credit'
+          description: 'The subject of the credit email'
           type: string
         email_subject_payment_failed:
-          description: 'The email subject payment failed'
+          description: 'The subject of the failed payment email'
           type: string
         email_subject_payment_partial:
-          description: 'The email subject payment partial'
+          description: 'The subject of the partial payment email'
           type: string
         email_template_credit:
-          description: 'The email template credit'
+          description: 'The body of the credit email'
           type: string
         email_template_payment_failed:
-          description: 'The email template payment failed'
+          description: 'The body of the failed payment email'
           type: string
         email_template_payment_partial:
-          description: 'The email template payment partial'
+          description: 'The body of the partial payment email'
           type: string
         enable_client_profile_update:
           description: 'Whether to enable client profile update'
@@ -30907,119 +30907,119 @@ components:
           description: 'Whether to enable rappen rounding'
           type: boolean
         id_number:
-          description: 'The id number'
+          description: 'The company ID number'
           type: string
         late_fee_percent1:
-          description: 'The late fee percent1'
+          description: 'The late fee added with the first reminder, as a percentage of the balance'
           type: integer
         late_fee_percent2:
-          description: 'The late fee percent2'
+          description: 'The late fee added with the second reminder, as a percentage of the balance'
           type: integer
         late_fee_percent3:
-          description: 'The late fee percent3'
+          description: 'The late fee added with the third reminder, as a percentage of the balance'
           type: integer
         merge_e_invoice_to_pdf:
-          description: 'The merge e invoice to pdf'
+          description: 'Whether the e-invoice XML is embedded in the PDF'
           type: boolean
         page_layout:
-          description: 'The page layout'
+          description: 'The PDF page orientation, portrait or landscape'
           type: string
         payment_email_all_contacts:
-          description: 'The payment email all contacts'
+          description: 'Whether the payment email is sent to all contacts'
           type: boolean
         payment_flow:
-          description: 'The payment flow'
+          description: 'The client portal payment flow, smooth or default'
           type: string
         payment_receipt_design_id:
-          description: 'The payment receipt design id'
+          description: 'The hashed id of the payment receipt design'
           type: string
         payment_refund_design_id:
-          description: 'The payment refund design id'
+          description: 'The hashed id of the payment refund design'
           type: string
         pdf_variables:
-          description: 'The pdf variables'
+          description: 'The fields shown in each section of the PDF'
           type: object
           additionalProperties: true
         portal_custom_css:
-          description: 'The portal custom css'
+          description: 'Custom CSS for the client portal'
           type: string
         portal_custom_footer:
-          description: 'The portal custom footer'
+          description: 'Custom footer HTML for the client portal'
           type: string
         portal_custom_head:
-          description: 'The portal custom head'
+          description: 'Custom HTML added to the head of the client portal'
           type: string
         portal_custom_js:
-          description: 'The portal custom js'
+          description: 'Custom JavaScript for the client portal'
           type: string
         preference_product_notes_for_html_view:
-          description: 'The preference product notes for html view'
+          description: 'Whether the item description is shown instead of the item title in the HTML view of an invoice'
           type: boolean
         project_number_counter:
-          description: 'The project number counter'
+          description: 'The next project number'
           type: integer
         project_number_pattern:
-          description: 'The project number pattern'
+          description: 'The pattern for project numbers'
           type: string
         quote_late_fee_amount1:
-          description: 'The quote late fee amount1'
+          description: 'The fee added with the first quote reminder'
           type: integer
         quote_late_fee_percent1:
-          description: 'The quote late fee percent1'
+          description: 'The fee added with the first quote reminder, as a percentage'
           type: integer
         quote_num_days_reminder1:
-          description: 'The quote num days reminder1'
+          description: 'The number of days for the first quote reminder'
           type: integer
         quote_schedule_reminder1:
-          description: 'The quote schedule reminder1'
+          description: 'When the first quote reminder is sent: before_valid_until_date, after_valid_until_date or after_quote_date'
           type: string
         recurring_expense_number_counter:
-          description: 'The recurring expense number counter'
+          description: 'The next recurring expense number'
           type: integer
         recurring_expense_number_pattern:
-          description: 'The recurring expense number pattern'
+          description: 'The pattern for recurring expense numbers'
           type: string
         recurring_number_prefix:
-          description: 'The recurring number prefix'
+          description: 'The prefix for recurring invoice numbers'
           type: string
         recurring_quote_number_counter:
-          description: 'The recurring quote number counter'
+          description: 'The next recurring quote number'
           type: integer
         recurring_quote_number_pattern:
-          description: 'The recurring quote number pattern'
+          description: 'The pattern for recurring quote numbers'
           type: string
         ses_access_key:
-          description: 'The ses access key'
+          description: 'The Amazon SES access key id'
           type: string
         ses_from_address:
-          description: 'The ses from address'
+          description: 'The Amazon SES sending address, must be verified in AWS'
           type: string
         ses_region:
-          description: 'The ses region'
+          description: 'The Amazon SES region, for example us-east-1'
           type: string
         ses_secret_key:
-          description: 'The ses secret key'
+          description: 'The Amazon SES secret key'
           type: string
         ses_topic_arn:
-          description: 'The ses topic arn'
+          description: 'The Amazon SES topic ARN, only needed for webhook tracking'
           type: string
         show_pdfhtml_on_mobile:
           description: 'Whether to show pdfhtml on mobile'
           type: boolean
         skip_automatic_email_with_peppol:
-          description: 'The skip automatic email with peppol'
+          description: 'Whether invoices sent through PEPPOL are not also emailed to the client'
           type: boolean
         statement_design_id:
-          description: 'The statement design id'
+          description: 'The hashed id of the statement design'
           type: string
         task_round_to_nearest:
-          description: 'The task round to nearest'
+          description: 'The interval in seconds task times are rounded to'
           type: integer
         task_round_up:
-          description: 'The task round up'
+          description: 'Whether task times are rounded up, otherwise down'
           type: boolean
         unlock_invoice_documents_after_payment:
-          description: 'The unlock invoice documents after payment'
+          description: 'Whether clients can access invoice documents once the invoice is paid'
           type: boolean
         use_unapplied_payment:
           description: 'Whether to use unapplied payment'
@@ -31061,16 +31061,16 @@ components:
           description: 'Timestamp'
           type: integer
         gateway_customer_reference:
-          description: 'The gateway customer reference'
+          description: 'The customer reference at the payment gateway'
           type: string
         gateway_type_id:
-          description: 'The gateway type id'
+          description: 'The gateway type id, for example 1 for credit card'
           type: string
         is_deleted:
           description: 'Whether the client gateway token has been deleted'
           type: boolean
         meta:
-          description: 'The meta'
+          description: 'Details of the payment method, such as the card brand, last 4 digits and expiry'
           type: object
           additionalProperties: true
         updated_at:
@@ -31108,7 +31108,7 @@ components:
           description: 'Timestamp'
           type: integer
         color:
-          description: 'The color'
+          description: 'The colour of the category as a hex code'
           type: string
       type: object
     PurchaseOrder:
@@ -31457,34 +31457,34 @@ components:
           description: 'Timestamp'
           type: integer
         auto_sync:
-          description: 'The auto sync'
+          description: 'Whether transactions are synced automatically'
           type: boolean
         created_at:
           description: 'Timestamp'
           type: integer
         disabled_upstream:
-          description: 'The disabled upstream'
+          description: 'Whether the bank connection was disabled by the provider and needs to be reconnected'
           type: boolean
         from_date:
-          description: 'The from date'
+          description: 'The date transactions are imported from'
           type: string
         integration_type:
-          description: 'The integration type'
+          description: 'The integration provider, for example YODLEE or NORDIGEN'
           type: string
         is_deleted:
           description: 'Whether the bank integration has been deleted'
           type: boolean
         nickname:
-          description: 'The nickname'
+          description: 'The nickname of the bank account'
           type: string
         nordigen_institution_id:
-          description: 'The nordigen institution id'
+          description: 'The Nordigen (GoCardless) institution id'
           type: string
         provider_id:
-          description: 'The provider id'
+          description: 'The bank provider id'
           type: integer
         provider_name:
-          description: 'The provider name'
+          description: 'The bank provider name'
           type: string
         updated_at:
           description: 'Timestamp'
@@ -32340,13 +32340,13 @@ components:
           type: string
           example: ten_day
         entity:
-          description: 'The entity'
+          description: 'The class of the entity the settings belong to, App\Models\Client'
           type: string
         industry_id:
           description: 'The industry id'
           type: string
         size_id:
-          description: 'The size id'
+          description: 'The company size id'
           type: string
       type: object
     InvoiceItem:
@@ -32558,19 +32558,19 @@ components:
           description: 'Timestamp'
           type: integer
         height:
-          description: 'The height'
+          description: 'The image height in pixels, 0 for other files'
           type: integer
         is_public:
           description: 'Whether the document is public'
           type: boolean
         link:
-          description: 'The link'
+          description: 'The URL to download the document'
           type: string
         size:
-          description: 'The size'
+          description: 'The file size in bytes'
           type: integer
         width:
-          description: 'The width'
+          description: 'The image width in pixels, 0 for other files'
           type: integer
         documentable_id:
           description: 'The hashed id of the record the document is attached to'
@@ -32642,7 +32642,7 @@ components:
           description: 'Timestamp'
           type: integer
         message_id:
-          description: 'The message id'
+          description: 'The id of the last email sent for this invitation'
           type: string
 
     FillableInvoice:
@@ -33122,15 +33122,15 @@ components:
           items:
             type: object
         next_send_datetime:
-          description: 'The next send datetime'
+          description: 'The date and time the next invoice is sent'
           type: string
         recurring_dates:
-          description: 'The recurring dates'
+          description: 'Always an empty array'
           type: array
           items:
             type: object
         subscription_id:
-          description: 'The subscription id'
+          description: 'The hashed id of the subscription that created the recurring invoice'
           type: string
       type: object
       
@@ -33223,49 +33223,49 @@ components:
           type: integer
           example: 134341234234
         assigned_user_id:
-          description: 'The assigned user id'
+          description: 'The hashed id of the assigned user'
           type: string
         company_id:
-          description: 'The company id'
+          description: 'The company hashed id'
           type: string
         group_id:
-          description: 'The group id'
+          description: 'The hashed id of the group settings applied to clients who subscribe'
           type: string
         name:
-          description: 'The name'
+          description: 'The name of the subscription'
           type: string
         optional_product_ids:
-          description: 'The optional product ids'
+          description: 'A comma separated list of the hashed ids of optional one-off products'
           type: string
         optional_recurring_product_ids:
-          description: 'The optional recurring product ids'
+          description: 'A comma separated list of the hashed ids of optional recurring products'
           type: string
         plan_map:
-          description: 'The plan map'
+          description: 'Deprecated, always an empty string'
           type: string
         price:
-          description: 'The price'
+          description: 'The price of the subscription'
           type: number
         product_ids:
-          description: 'The product ids'
+          description: 'A comma separated list of the hashed ids of one-off products'
           type: string
         promo_price:
-          description: 'The promo price'
+          description: 'The promotional price'
           type: number
         purchase_page:
-          description: 'The purchase page'
+          description: 'The client portal URL to purchase the subscription'
           type: string
         recurring_product_ids:
-          description: 'The recurring product ids'
+          description: 'A comma separated list of the hashed ids of recurring products'
           type: string
         registration_required:
-          description: 'The registration required'
+          description: 'Whether clients have to register before purchasing'
           type: boolean
         remaining_cycles:
-          description: 'The remaining cycles'
+          description: 'The number of billing cycles, -1 for endless'
           type: integer
         steps:
-          description: 'The steps'
+          description: 'A comma separated list of the purchase steps'
           type: string
         use_inventory_management:
           description: 'Whether to use inventory management'
@@ -33327,7 +33327,7 @@ components:
           description: 'Timestamp'
           type: integer
         entities:
-          description: 'The entities'
+          description: 'A comma separated list of the entities the design can be used for'
           type: string
         is_free:
           description: 'Whether the design is free'
@@ -34145,18 +34145,18 @@ components:
           items:
             $ref: '#/components/schemas/Document'
         entity_type:
-          description: 'The entity type'
+          description: 'Always recurringExpense'
           type: string
         recurring_dates:
-          description: 'The recurring dates'
+          description: 'Always an empty array'
           type: array
           items:
             type: object
         recurring_expense_currency_id:
-          description: 'The recurring expense currency id'
+          description: 'Deprecated, always an empty string'
           type: string
         status_id:
-          description: 'The status id'
+          description: 'The status of the recurring expense: 1 draft, 2 active, 3 paused, 4 completed'
           type: string
       type: object
 

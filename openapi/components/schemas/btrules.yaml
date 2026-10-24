@@ -13,6 +13,6 @@
           type: string
           example: bob
         search_key:
-          description: 'The search key'
+          description: 'The transaction field the rule matches: description, amount, participant or participant_name'
           type: string
       type: object

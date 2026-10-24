@@ -848,12 +848,12 @@
           type: string
           example: ten_day
         entity:
-          description: 'The entity'
+          description: 'The class of the entity the settings belong to, App\Models\Client'
           type: string
         industry_id:
           description: 'The industry id'
           type: string
         size_id:
-          description: 'The size id'
+          description: 'The company size id'
           type: string
       type: object

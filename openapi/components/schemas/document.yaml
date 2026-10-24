@@ -65,19 +65,19 @@
           description: 'Timestamp'
           type: integer
         height:
-          description: 'The height'
+          description: 'The image height in pixels, 0 for other files'
           type: integer
         is_public:
           description: 'Whether the document is public'
           type: boolean
         link:
-          description: 'The link'
+          description: 'The URL to download the document'
           type: string
         size:
-          description: 'The size'
+          description: 'The file size in bytes'
           type: integer
         width:
-          description: 'The width'
+          description: 'The image width in pixels, 0 for other files'
           type: integer
         documentable_id:
           description: 'The hashed id of the record the document is attached to'

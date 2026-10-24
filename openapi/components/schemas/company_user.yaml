@@ -46,14 +46,14 @@
           description: 'Timestamp'
           type: integer
         ninja_portal_url:
-          description: 'The ninja portal url'
+          description: 'The URL of the Invoice Ninja account portal'
           type: string
         notifications:
-          description: 'The notifications'
+          description: 'The notification preferences of the user in this company'
           type: object
           additionalProperties: true
         permissions_updated_at:
-          description: 'The permissions updated at'
+          description: 'Timestamp of the last change to the permissions'
           type: integer
       type: object
     CompanyUserRef:

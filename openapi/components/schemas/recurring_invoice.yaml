@@ -278,15 +278,15 @@
           items:
             type: object
         next_send_datetime:
-          description: 'The next send datetime'
+          description: 'The date and time the next invoice is sent'
           type: string
         recurring_dates:
-          description: 'The recurring dates'
+          description: 'Always an empty array'
           type: array
           items:
             type: object
         subscription_id:
-          description: 'The subscription id'
+          description: 'The hashed id of the subscription that created the recurring invoice'
           type: string
       type: object
       

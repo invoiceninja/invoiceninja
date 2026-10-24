@@ -11542,8 +11542,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report vendors"
-      description: "Report vendors"
+      summary: "Vendor report"
+      description: "Generates the vendor report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsVendors
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11592,8 +11592,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report purchase orders"
-      description: "Report purchase orders"
+      summary: "Purchase order report"
+      description: "Generates the purchase order report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsPurchaseOrders
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11642,8 +11642,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report purchase order items"
-      description: "Report purchase order items"
+      summary: "Purchase order item report"
+      description: "Generates the purchase order line item report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsPurchaseOrderItems
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11692,8 +11692,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report recurring invoice items"
-      description: "Report recurring invoice items"
+      summary: "Recurring invoice item report"
+      description: "Generates the recurring invoice line item report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsRecurringInvoiceItems
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11742,8 +11742,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report locations"
-      description: "Report locations"
+      summary: "Location report"
+      description: "Generates the location report. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsLocations
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11792,8 +11792,8 @@ paths:
     post:
       tags:
         - reports
-      summary: "Report client locations"
-      description: "Report client locations"
+      summary: "Client location report"
+      description: "Generates the location report for client locations. Returns a hash to fetch the result from /api/v1/reports/preview/{hash}, or emails the report when send_email is true."
       operationId: postReportsClientLocations
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11842,8 +11842,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart summary"
-      description: "Chart summary"
+      summary: "Dashboard chart series"
+      description: "Returns the invoice, outstanding, payment and expense series for the dashboard chart between start_date and end_date, per currency id and aggregated under key 999."
       operationId: postChartsChartSummary
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11892,8 +11892,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart analytics summary"
-      description: "Chart analytics summary"
+      summary: "Analytics chart series"
+      description: "Returns the time series for the analytics charts between start_date and end_date, per currency id and aggregated under key 999."
       operationId: postChartsAnalyticsSummary
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11942,8 +11942,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart analytics totals"
-      description: "Chart analytics totals"
+      summary: "Analytics totals"
+      description: "Returns the KPI totals for the analytics dashboard cards between start_date and end_date, per currency id and aggregated under key 999."
       operationId: postChartsAnalyticsTotals
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11996,8 +11996,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart cashflow forecast"
-      description: "Chart cashflow forecast"
+      summary: "Cash flow forecast"
+      description: "Returns the projected inflows and outflows between start_date and end_date, grouped by bucket_type (monthly by default)."
       operationId: postChartsCashflowForecast
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12082,8 +12082,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart client payment analytics"
-      description: "Chart client payment analytics"
+      summary: "Client payment analytics"
+      description: "Returns payment scorecards per client, including a payment risk score."
       operationId: postChartsClientPaymentAnalytics
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12172,8 +12172,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart project analytics"
-      description: "Chart project analytics"
+      summary: "Project analytics"
+      description: "Returns the execution and financial datasets for the charts of a project. Draft invoices are included when include_drafts is true."
       operationId: postChartsProjectAnalyticsProject
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12509,8 +12509,8 @@ paths:
     post:
       tags:
         - charts
-      summary: "Chart project burnup"
-      description: "Chart project burnup"
+      summary: "Project burn-up"
+      description: "Returns the cumulative logged time, invoiced, paid and expense series of a project between start_date and end_date, grouped by bucket_type (daily by default)."
       operationId: postChartsProjectBurnupProject
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12693,8 +12693,8 @@ paths:
     get:
       tags:
         - credits
-      summary: "Credit action"
-      description: "Credit action"
+      summary: "Perform an action on a credit"
+      description: "Performs a single action on a credit, such as mark_sent, mark_paid, clone_to_credit, download, email, archive, restore or delete, and returns the credit (or the PDF for download)."
       operationId: getCreditsIdAction
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12742,8 +12742,8 @@ paths:
     post:
       tags:
         - designs
-      summary: "Default design"
-      description: "Default design"
+      summary: "Set the default design"
+      description: "Sets a design as the default for an entity at the company, group or client settings level."
       operationId: postDesignsSetDefault
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12790,8 +12790,8 @@ paths:
     post:
       tags:
         - clients
-      summary: "Client settings"
-      description: "Client settings"
+      summary: "Show the settings a client overrides"
+      description: "Returns the settings set on the client itself and the settings inherited only from its group, with their labels and values."
       operationId: postClientsClientShowSettings
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12838,8 +12838,8 @@ paths:
     post:
       tags:
         - invoices
-      summary: "Update reminders"
-      description: "Update reminders"
+      summary: "Recalculate reminder dates"
+      description: "Queues a job that recalculates the next reminder date of every open invoice of the company."
       operationId: postInvoicesUpdateReminders
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12873,8 +12873,8 @@ paths:
     get:
       tags:
         - subscriptions
-      summary: "Subscription steps"
-      description: "Subscription steps"
+      summary: "List subscription purchase steps"
+      description: "Returns the steps available for a subscription purchase flow and the steps each one depends on."
       operationId: getSubscriptionsSteps
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12942,8 +12942,8 @@ paths:
     post:
       tags:
         - refresh_react
-      summary: "Refresh react"
-      description: "Refresh react"
+      summary: "Refresh the session for the web app"
+      description: "Returns the same payload as /api/v1/refresh for the web app, creating a system token for each company where one is missing. Pass current_company=true to return only the current company."
       operationId: postRefreshReact
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12992,8 +12992,8 @@ paths:
     post:
       tags:
         - login
-      summary: "Login precheck"
-      description: "Login precheck"
+      summary: "Check the login methods for an email"
+      description: "Returns the login methods available for an email address (password, and totp when two factor authentication is enabled), and whether an API secret is required. Responds in constant time."
       operationId: postLoginPrecheck
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13040,8 +13040,8 @@ paths:
     post:
       tags:
         - company_gateways
-      summary: "Clone company gateway"
-      description: "Clone company gateway"
+      summary: "Clone a company gateway"
+      description: "Creates a copy of the company gateway with \"(Clone)\" and a timestamp appended to its label, and returns the copy."
       operationId: postCompanyGatewaysCompanyGatewayClone
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13082,8 +13082,8 @@ paths:
     post:
       tags:
         - webhooks
-      summary: "Retry webhook"
-      description: "Retry webhook"
+      summary: "Resend a webhook"
+      description: "Sends the webhook again for the record given by entity and entity_id."
       operationId: postWebhooksWebhookRetry
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13135,8 +13135,8 @@ paths:
     post:
       tags:
         - filters
-      summary: "Filters"
-      description: "Filters"
+      summary: "List bulk actions for an entity"
+      description: "Returns the bulk actions available for an entity type, such as mark_paid or email for invoices."
       operationId: postFiltersEntity
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13176,8 +13176,8 @@ paths:
     post:
       tags:
         - live_preview
-      summary: "Live preview"
-      description: "Live preview"
+      summary: "Preview an unsaved entity"
+      description: "Renders the PDF of an invoice, quote, credit, purchase order or recurring invoice from the request body without saving it."
       operationId: postLivePreview
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13235,8 +13235,8 @@ paths:
     post:
       tags:
         - invoices
-      summary: "Payment schedule"
-      description: "Payment schedule"
+      summary: "Create a payment schedule"
+      description: "Creates a payment schedule for the invoice from the schedule in the request body, and returns the invoice."
       operationId: postInvoicesInvoicePaymentSchedule
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13291,7 +13291,7 @@ paths:
       tags:
         - companies
       summary: "Company logo"
-      description: "Company logo"
+      description: "Returns the logo image of the current company, or the Invoice Ninja logo when none is set."
       operationId: getCompaniesCompanyLogo
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13330,8 +13330,8 @@ paths:
     get:
       tags:
         - documents
-      summary: "Show document"
-      description: "Show document"
+      summary: "Show a document"
+      description: "Returns a document."
       operationId: getDocumentsDocument
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13371,8 +13371,8 @@ paths:
     put:
       tags:
         - documents
-      summary: "Update document"
-      description: "Update document"
+      summary: "Update a document"
+      description: "Updates a document and returns it."
       operationId: putDocumentsDocument
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13423,8 +13423,8 @@ paths:
     delete:
       tags:
         - documents
-      summary: "Delete document"
-      description: "Delete document"
+      summary: "Delete a document"
+      description: "Deletes a document."
       operationId: deleteDocumentsDocument
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13465,8 +13465,8 @@ paths:
     get:
       tags:
         - documents
-      summary: "Download document"
-      description: "Download document"
+      summary: "Download a document"
+      description: "Returns the file of the document."
       operationId: getDocumentsDocumentDownload
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -13505,8 +13505,8 @@ paths:
     put:
       tags:
         - company_users
-      summary: "Update company user"
-      description: "Update company user"
+      summary: "Update a company user"
+      description: "Updates the company user of a user in the current company and returns it."
       operationId: putCompanyUsersUser
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"

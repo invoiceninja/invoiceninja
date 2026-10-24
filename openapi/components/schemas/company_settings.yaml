@@ -901,49 +901,49 @@
           type: string
           example: ten_day
         brevo_secret:
-          description: 'The brevo secret'
+          description: 'The Brevo API key used to send emails'
           type: string
         client_portal_enable_uploads:
-          description: 'The client portal enable uploads'
+          description: 'Whether clients can upload documents in the client portal'
           type: boolean
         credit_design_id:
-          description: 'The credit design id'
+          description: 'The hashed id of the default credit design'
           type: string
         delivery_note_design_id:
-          description: 'The delivery note design id'
+          description: 'The hashed id of the delivery note design'
           type: string
         e_expense_forward_email:
-          description: 'The e expense forward email'
+          description: 'Email address received e-expenses are forwarded to, for a processing service such as Yuki or WinAuditor'
           type: string
         e_invoice_forward_email:
-          description: 'The e invoice forward email'
+          description: 'Email address sent e-invoices are forwarded to, for a processing service such as Yuki or WinAuditor'
           type: string
         e_quote_type:
-          description: 'The e quote type'
+          description: 'The e-quote standard, for example OrderX_Comfort'
           type: string
         email_quote_subject_reminder1:
-          description: 'The email quote subject reminder1'
+          description: 'The subject of the first quote reminder email'
           type: string
         email_quote_template_reminder1:
-          description: 'The email quote template reminder1'
+          description: 'The body of the first quote reminder email'
           type: string
         email_subject_credit:
-          description: 'The email subject credit'
+          description: 'The subject of the credit email'
           type: string
         email_subject_payment_failed:
-          description: 'The email subject payment failed'
+          description: 'The subject of the failed payment email'
           type: string
         email_subject_payment_partial:
-          description: 'The email subject payment partial'
+          description: 'The subject of the partial payment email'
           type: string
         email_template_credit:
-          description: 'The email template credit'
+          description: 'The body of the credit email'
           type: string
         email_template_payment_failed:
-          description: 'The email template payment failed'
+          description: 'The body of the failed payment email'
           type: string
         email_template_payment_partial:
-          description: 'The email template payment partial'
+          description: 'The body of the partial payment email'
           type: string
         enable_client_profile_update:
           description: 'Whether to enable client profile update'
@@ -955,119 +955,119 @@
           description: 'Whether to enable rappen rounding'
           type: boolean
         id_number:
-          description: 'The id number'
+          description: 'The company ID number'
           type: string
         late_fee_percent1:
-          description: 'The late fee percent1'
+          description: 'The late fee added with the first reminder, as a percentage of the balance'
           type: integer
         late_fee_percent2:
-          description: 'The late fee percent2'
+          description: 'The late fee added with the second reminder, as a percentage of the balance'
           type: integer
         late_fee_percent3:
-          description: 'The late fee percent3'
+          description: 'The late fee added with the third reminder, as a percentage of the balance'
           type: integer
         merge_e_invoice_to_pdf:
-          description: 'The merge e invoice to pdf'
+          description: 'Whether the e-invoice XML is embedded in the PDF'
           type: boolean
         page_layout:
-          description: 'The page layout'
+          description: 'The PDF page orientation, portrait or landscape'
           type: string
         payment_email_all_contacts:
-          description: 'The payment email all contacts'
+          description: 'Whether the payment email is sent to all contacts'
           type: boolean
         payment_flow:
-          description: 'The payment flow'
+          description: 'The client portal payment flow, smooth or default'
           type: string
         payment_receipt_design_id:
-          description: 'The payment receipt design id'
+          description: 'The hashed id of the payment receipt design'
           type: string
         payment_refund_design_id:
-          description: 'The payment refund design id'
+          description: 'The hashed id of the payment refund design'
           type: string
         pdf_variables:
-          description: 'The pdf variables'
+          description: 'The fields shown in each section of the PDF'
           type: object
           additionalProperties: true
         portal_custom_css:
-          description: 'The portal custom css'
+          description: 'Custom CSS for the client portal'
           type: string
         portal_custom_footer:
-          description: 'The portal custom footer'
+          description: 'Custom footer HTML for the client portal'
           type: string
         portal_custom_head:
-          description: 'The portal custom head'
+          description: 'Custom HTML added to the head of the client portal'
           type: string
         portal_custom_js:
-          description: 'The portal custom js'
+          description: 'Custom JavaScript for the client portal'
           type: string
         preference_product_notes_for_html_view:
-          description: 'The preference product notes for html view'
+          description: 'Whether the item description is shown instead of the item title in the HTML view of an invoice'
           type: boolean
         project_number_counter:
-          description: 'The project number counter'
+          description: 'The next project number'
           type: integer
         project_number_pattern:
-          description: 'The project number pattern'
+          description: 'The pattern for project numbers'
           type: string
         quote_late_fee_amount1:
-          description: 'The quote late fee amount1'
+          description: 'The fee added with the first quote reminder'
           type: integer
         quote_late_fee_percent1:
-          description: 'The quote late fee percent1'
+          description: 'The fee added with the first quote reminder, as a percentage'
           type: integer
         quote_num_days_reminder1:
-          description: 'The quote num days reminder1'
+          description: 'The number of days for the first quote reminder'
           type: integer
         quote_schedule_reminder1:
-          description: 'The quote schedule reminder1'
+          description: 'When the first quote reminder is sent: before_valid_until_date, after_valid_until_date or after_quote_date'
           type: string
         recurring_expense_number_counter:
-          description: 'The recurring expense number counter'
+          description: 'The next recurring expense number'
           type: integer
         recurring_expense_number_pattern:
-          description: 'The recurring expense number pattern'
+          description: 'The pattern for recurring expense numbers'
           type: string
         recurring_number_prefix:
-          description: 'The recurring number prefix'
+          description: 'The prefix for recurring invoice numbers'
           type: string
         recurring_quote_number_counter:
-          description: 'The recurring quote number counter'
+          description: 'The next recurring quote number'
           type: integer
         recurring_quote_number_pattern:
-          description: 'The recurring quote number pattern'
+          description: 'The pattern for recurring quote numbers'
           type: string
         ses_access_key:
-          description: 'The ses access key'
+          description: 'The Amazon SES access key id'
           type: string
         ses_from_address:
-          description: 'The ses from address'
+          description: 'The Amazon SES sending address, must be verified in AWS'
           type: string
         ses_region:
-          description: 'The ses region'
+          description: 'The Amazon SES region, for example us-east-1'
           type: string
         ses_secret_key:
-          description: 'The ses secret key'
+          description: 'The Amazon SES secret key'
           type: string
         ses_topic_arn:
-          description: 'The ses topic arn'
+          description: 'The Amazon SES topic ARN, only needed for webhook tracking'
           type: string
         show_pdfhtml_on_mobile:
           description: 'Whether to show pdfhtml on mobile'
           type: boolean
         skip_automatic_email_with_peppol:
-          description: 'The skip automatic email with peppol'
+          description: 'Whether invoices sent through PEPPOL are not also emailed to the client'
           type: boolean
         statement_design_id:
-          description: 'The statement design id'
+          description: 'The hashed id of the statement design'
           type: string
         task_round_to_nearest:
-          description: 'The task round to nearest'
+          description: 'The interval in seconds task times are rounded to'
           type: integer
         task_round_up:
-          description: 'The task round up'
+          description: 'Whether task times are rounded up, otherwise down'
           type: boolean
         unlock_invoice_documents_after_payment:
-          description: 'The unlock invoice documents after payment'
+          description: 'Whether clients can access invoice documents once the invoice is paid'
           type: boolean
         use_unapplied_payment:
           description: 'Whether to use unapplied payment'

@@ -28,6 +28,6 @@
           description: 'Timestamp'
           type: integer
         user_id:
-          description: 'The user id'
+          description: 'The hashed id of the user the token belongs to'
           type: string
       type: object

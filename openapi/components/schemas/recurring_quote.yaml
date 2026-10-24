@@ -211,16 +211,16 @@
           type: boolean
           example: true
         auto_bill:
-          description: 'The auto bill'
+          description: 'Whether the generated invoices are auto billed: always, optin, optout or off'
           type: string
         auto_bill_enabled:
-          description: 'The auto bill enabled'
+          description: 'Whether auto billing is enabled'
           type: boolean
         created_at:
           description: 'Timestamp'
           type: integer
         design_id:
-          description: 'The design id'
+          description: 'The design hashed id'
           type: string
         documents:
           description: 'The documents attached to the recurring quote'
@@ -228,13 +228,13 @@
           items:
             $ref: '#/components/schemas/Document'
         due_date_days:
-          description: 'The due date days'
+          description: 'The number of days after the quote date the generated quote is due, an empty string when not set'
           type: string
         entity_type:
-          description: 'The entity type'
+          description: 'Always recurringQuote'
           type: string
         exchange_rate:
-          description: 'The exchange rate'
+          description: 'The exchange rate between the client currency and the company currency'
           type: number
         has_expenses:
           description: 'Whether the recurring quote has expenses'
@@ -248,17 +248,17 @@
           items:
             type: object
         project_id:
-          description: 'The project id'
+          description: 'The project hashed id'
           type: string
         recurring_dates:
-          description: 'The recurring dates'
+          description: 'The upcoming send dates'
           type: array
           items:
             type: object
         subscription_id:
-          description: 'The subscription id'
+          description: 'The hashed id of the subscription that created the recurring quote'
           type: string
         vendor_id:
-          description: 'The vendor id'
+          description: 'The vendor hashed id'
           type: string
       type: object

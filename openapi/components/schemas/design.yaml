@@ -49,7 +49,7 @@
           description: 'Timestamp'
           type: integer
         entities:
-          description: 'The entities'
+          description: 'A comma separated list of the entities the design can be used for'
           type: string
         is_free:
           description: 'Whether the design is free'

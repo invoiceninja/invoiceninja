@@ -37,34 +37,34 @@
           description: 'Timestamp'
           type: integer
         auto_sync:
-          description: 'The auto sync'
+          description: 'Whether transactions are synced automatically'
           type: boolean
         created_at:
           description: 'Timestamp'
           type: integer
         disabled_upstream:
-          description: 'The disabled upstream'
+          description: 'Whether the bank connection was disabled by the provider and needs to be reconnected'
           type: boolean
         from_date:
-          description: 'The from date'
+          description: 'The date transactions are imported from'
           type: string
         integration_type:
-          description: 'The integration type'
+          description: 'The integration provider, for example YODLEE or NORDIGEN'
           type: string
         is_deleted:
           description: 'Whether the bank integration has been deleted'
           type: boolean
         nickname:
-          description: 'The nickname'
+          description: 'The nickname of the bank account'
           type: string
         nordigen_institution_id:
-          description: 'The nordigen institution id'
+          description: 'The Nordigen (GoCardless) institution id'
           type: string
         provider_id:
-          description: 'The provider id'
+          description: 'The bank provider id'
           type: integer
         provider_name:
-          description: 'The provider name'
+          description: 'The bank provider name'
           type: string
         updated_at:
           description: 'Timestamp'

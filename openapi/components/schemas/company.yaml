@@ -462,10 +462,10 @@
           description: 'Whether to enable modules'
           type: boolean
         expense_amount_is_pretax:
-          description: 'The expense amount is pretax'
+          description: 'Deprecated, always true'
           type: boolean
         google_analytics_url:
-          description: 'The google analytics url'
+          description: 'Deprecated, the Google Analytics key'
           type: string
         has_e_invoice_certificate:
           description: 'Whether the company has e invoice certificate'
@@ -477,13 +477,13 @@
           description: 'Whether to hide empty columns on pdf'
           type: boolean
         quickbooks:
-          description: 'The quickbooks'
+          description: 'The QuickBooks integration settings'
           nullable: true
         smtp_password:
-          description: 'The smtp password'
+          description: 'Masked as ******** when an SMTP password is set, otherwise an empty string'
           type: string
         smtp_username:
-          description: 'The smtp username'
+          description: 'Masked as ******** when an SMTP username is set, otherwise an empty string'
           type: string
         updated_at:
           description: 'Timestamp'
@@ -492,157 +492,157 @@
           description: 'Whether to use credits payment'
           type: string
         activities:
-          description: 'The activities'
+          description: 'The activities of the company, returned with include=activities'
           type: array
           items:
             $ref: '#/components/schemas/Activity'
         bank_integrations:
-          description: 'The bank integrations'
+          description: 'The bank integrations of the company, returned with include=bank_integrations'
           type: array
           items:
             $ref: '#/components/schemas/BankIntegration'
         bank_transaction_rules:
-          description: 'The bank transaction rules'
+          description: 'The bank transaction rules of the company, returned with include=bank_transaction_rules'
           type: array
           items:
             $ref: '#/components/schemas/BankTransactionRule'
         bank_transactions:
-          description: 'The bank transactions'
+          description: 'The bank transactions of the company, returned with include=bank_transactions'
           type: array
           items:
             $ref: '#/components/schemas/BankTransaction'
         clients:
-          description: 'The clients'
+          description: 'The clients of the company, returned with include=clients'
           type: array
           items:
             $ref: '#/components/schemas/Client'
         company_gateways:
-          description: 'The company gateways'
+          description: 'The payment gateways of the company, returned with include=company_gateways'
           type: array
           items:
             $ref: '#/components/schemas/CompanyGateway'
         credits:
-          description: 'The credits'
+          description: 'The credits of the company, returned with include=credits'
           type: array
           items:
             $ref: '#/components/schemas/Credit'
         designs:
-          description: 'The designs'
+          description: 'The designs of the company, returned with include=designs'
           type: array
           items:
             $ref: '#/components/schemas/Design'
         expense_categories:
-          description: 'The expense categories'
+          description: 'The expense categories of the company, returned with include=expense_categories'
           type: array
           items:
             $ref: '#/components/schemas/ExpenseCategory'
         expenses:
-          description: 'The expenses'
+          description: 'The expenses of the company, returned with include=expenses'
           type: array
           items:
             $ref: '#/components/schemas/Expense'
         groups:
-          description: 'The groups'
+          description: 'The group settings of the company, returned with include=groups'
           type: array
           items:
             $ref: '#/components/schemas/GroupSetting'
         invoices:
-          description: 'The invoices'
+          description: 'The invoices of the company, returned with include=invoices'
           type: array
           items:
             $ref: '#/components/schemas/Invoice'
         locations:
-          description: 'The locations'
+          description: 'The locations of the company, returned with include=locations'
           type: array
           items:
             $ref: '#/components/schemas/Location'
         payment_terms:
-          description: 'The payment terms'
+          description: 'The payment terms of the company, returned with include=payment_terms'
           type: array
           items:
             $ref: '#/components/schemas/PaymentTerm'
         payments:
-          description: 'The payments'
+          description: 'The payments of the company, returned with include=payments'
           type: array
           items:
             $ref: '#/components/schemas/Payment'
         products:
-          description: 'The products'
+          description: 'The products of the company, returned with include=products'
           type: array
           items:
             $ref: '#/components/schemas/Product'
         projects:
-          description: 'The projects'
+          description: 'The projects of the company, returned with include=projects'
           type: array
           items:
             $ref: '#/components/schemas/Project'
         purchase_orders:
-          description: 'The purchase orders'
+          description: 'The purchase orders of the company, returned with include=purchase_orders'
           type: array
           items:
             $ref: '#/components/schemas/PurchaseOrder'
         quotes:
-          description: 'The quotes'
+          description: 'The quotes of the company, returned with include=quotes'
           type: array
           items:
             $ref: '#/components/schemas/Quote'
         recurring_expenses:
-          description: 'The recurring expenses'
+          description: 'The recurring expenses of the company, returned with include=recurring_expenses'
           type: array
           items:
             $ref: '#/components/schemas/RecurringExpense'
         recurring_invoices:
-          description: 'The recurring invoices'
+          description: 'The recurring invoices of the company, returned with include=recurring_invoices'
           type: array
           items:
             $ref: '#/components/schemas/RecurringInvoice'
         subscriptions:
-          description: 'The subscriptions'
+          description: 'The subscriptions of the company, returned with include=subscriptions'
           type: array
           items:
             $ref: '#/components/schemas/Subscription'
         system_logs:
-          description: 'The system logs'
+          description: 'The system logs of the company, returned with include=system_logs'
           type: array
           items:
             $ref: '#/components/schemas/SystemLog'
         task_schedulers:
-          description: 'The task schedulers'
+          description: 'The task schedulers of the company, returned with include=task_schedulers'
           type: array
           items:
             type: object
         task_statuses:
-          description: 'The task statuses'
+          description: 'The task statuses of the company, returned with include=task_statuses'
           type: array
           items:
             $ref: '#/components/schemas/TaskStatus'
         tasks:
-          description: 'The tasks'
+          description: 'The tasks of the company, returned with include=tasks'
           type: array
           items:
             $ref: '#/components/schemas/Task'
         tax_rates:
-          description: 'The tax rates'
+          description: 'The tax rates of the company, returned with include=tax_rates'
           type: array
           items:
             $ref: '#/components/schemas/TaxRate'
         tokens_hashed:
-          description: 'The tokens hashed'
+          description: 'The API tokens of the company with the token masked, returned with include=tokens_hashed'
           type: array
           items:
             $ref: '#/components/schemas/CompanyToken'
         users:
-          description: 'The users'
+          description: 'The users of the company, returned with include=users'
           type: array
           items:
             type: object
         vendors:
-          description: 'The vendors'
+          description: 'The vendors of the company, returned with include=vendors'
           type: array
           items:
             $ref: '#/components/schemas/Vendor'
         webhooks:
-          description: 'The webhooks'
+          description: 'The webhooks of the company, returned with include=webhooks'
           type: array
           items:
             $ref: '#/components/schemas/Webhook'

@@ -221,12 +221,12 @@
           items:
             $ref: '#/components/schemas/Document'
         gateway_tokens:
-          description: 'The gateway tokens'
+          description: 'The saved payment methods of the client'
           type: array
           items:
             type: object
         locations:
-          description: 'The locations'
+          description: 'The additional addresses of the client'
           type: array
           items:
             type: object
