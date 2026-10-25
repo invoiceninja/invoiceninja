@@ -18,6 +18,7 @@ use App\Models\CompanyGateway;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class HostedPaymentPageSetupReturnRequest extends FormRequest
 {
@@ -27,14 +28,17 @@ class HostedPaymentPageSetupReturnRequest extends FormRequest
 
     public function authorize(): bool
     {
-        if (! $this->hasValidSignature()) {
-            return false;
+        if (! $this->hasValidSignatureWhileIgnoring([
+            'billing_request_id',
+            'billing_request_flow_id',
+        ])) {
+            return $this->rejectCallback('invalid_signature');
         }
 
         $this->context_state = Cache::get($this->route('context'), []);
 
         if (! isset($this->context_state['db'], $this->context_state['company_gateway_id'], $this->context_state['gateway_type_id'], $this->context_state['contact_key'])) {
-            return false;
+            return $this->rejectCallback('missing_setup_context');
         }
 
         MultiDB::setDb($this->context_state['db']);
@@ -42,13 +46,47 @@ class HostedPaymentPageSetupReturnRequest extends FormRequest
         $contact = $this->getContact();
         $company_gateway = $this->getCompanyGateway();
 
-        return $contact
-            && $company_gateway
-            && hash_equals((string) $this->context_state['contact_key'], (string) $contact->contact_key)
-            && $contact->client->company_id === $company_gateway->company_id
-            && $company_gateway->id === (int) $this->context_state['company_gateway_id']
-            && hash_equals($company_gateway->company->company_key, (string) $this->route('company_key'))
-            && data_get($this->context_state, 'gocardless.billing_request');
+        if (! $contact) {
+            return $this->rejectCallback('missing_contact_session');
+        }
+
+        if (! $company_gateway) {
+            return $this->rejectCallback('missing_company_gateway');
+        }
+
+        if (! hash_equals((string) $this->context_state['contact_key'], (string) $contact->contact_key)) {
+            return $this->rejectCallback('contact_mismatch');
+        }
+
+        if ($contact->client->company_id !== $company_gateway->company_id) {
+            return $this->rejectCallback('client_company_mismatch');
+        }
+
+        if ($company_gateway->id !== (int) $this->context_state['company_gateway_id']) {
+            return $this->rejectCallback('gateway_mismatch');
+        }
+
+        if (! hash_equals($company_gateway->company->company_key, (string) $this->route('company_key'))) {
+            return $this->rejectCallback('company_key_mismatch');
+        }
+
+        if (! data_get($this->context_state, 'gocardless.billing_request')) {
+            return $this->rejectCallback('missing_billing_request');
+        }
+
+        return true;
+    }
+
+    private function rejectCallback(string $reason): bool
+    {
+        Log::warning('GoCardless setup callback rejected', [
+            'reason' => $reason,
+            'host' => $this->getHost(),
+            'scheme' => $this->getScheme(),
+            'query_keys' => array_keys($this->query()),
+        ]);
+
+        return false;
     }
 
     public function rules(): array

@@ -421,14 +421,16 @@ class HostedPaymentPage
                 'company_key' => $company_gateway->company->company_key,
                 'company_gateway_id' => $company_gateway->hashed_id,
                 'hash' => $this->driver->payment_hash->hash,
-            ]);
+            ],
+            false);
         }
 
         return URL::temporarySignedRoute('gocardless.hosted_payment_page.setup_return', now()->addDays(self::FLOW_EXPIRY_DAYS), [
             'company_key' => $company_gateway->company->company_key,
             'company_gateway_id' => $company_gateway->hashed_id,
             'context' => $this->context_id,
-        ]);
+        ],
+        false);
     }
 
     private function exitUrl(): string
