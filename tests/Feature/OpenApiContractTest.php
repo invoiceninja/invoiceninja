@@ -13,6 +13,7 @@
 namespace Tests\Feature;
 
 use App\Http\Middleware\PasswordProtection;
+use App\Models\User;
 use cebe\openapi\spec\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -316,6 +317,10 @@ class OpenApiContractTest extends TestCase
 
         // Lets the login row sign in as the MockAccountData user.
         $this->user->forceFill(['password' => Hash::make(self::PASSWORD)])->save();
+
+        // On hosted, inviting the only user of an account sends the email from the
+        // Invoice Ninja company (NINJA_COMPANY_ID), which tests don't have.
+        User::factory()->create(['account_id' => $this->account->id]);
 
         // Parsing the spec takes a few seconds, so it is shared when tests run in one process.
         $this->validator = self::$parsed ??= (new ValidatorBuilder())->fromYamlFile(base_path('openapi/api-docs.yaml'))->getResponseValidator();
