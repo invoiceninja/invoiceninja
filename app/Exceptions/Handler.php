@@ -115,7 +115,7 @@ class Handler extends ExceptionHandler
                 } elseif (auth()->guard('user') && auth()->guard('user')->user()) { // @phpstan-ignore-line
 
                     $name = 'Admin = ' . auth()->guard('user')->user()->email;
-                    $key = auth()->user()->account->key;
+                    $key = auth()->guard('user')->user()->account->key;
                 } else {
                     $key = 'Anonymous';
                 }
