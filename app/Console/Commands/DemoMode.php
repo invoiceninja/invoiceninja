@@ -237,7 +237,7 @@ class DemoMode extends Command
             $this->info('creating entities for client #' . $client->id);
             $this->createInvoice($client, $u2->id);
 
-            $this->createRecurringInvoice($client, $u2->id);
+            $this->createRecurringInvoice($client, $u2->id, $x % 2 === 0);
 
             $client = $company->clients->random();
             $this->createCredit($client, $u2->id);
@@ -292,19 +292,24 @@ class DemoMode extends Command
             $client->assigned_user_id = $assigned_user_id;
         }
 
-        $client->country_id = array_rand([36, 392, 840, 124, 276, 826]);
+        $client->country_id = \Illuminate\Support\Arr::random([36, 392, 840, 124, 276, 826]);
         $client->save();
     }
 
     private function createExpense($client)
     {
-        Expense::factory()->count(rand(1, 5))->create([
+        $expenses = Expense::factory()->count(rand(1, 5))->state(fn () => [
+            'date' => now()->subDays(rand(0, 90))->toDateString(),
+        ])->create([
             'user_id' => $client->user_id,
             'client_id' => $client->id,
             'company_id' => $client->company_id,
+            'currency_id' => $client->company->settings->currency_id,
+            'invoice_currency_id' => $client->company->settings->currency_id,
+            'exchange_rate' => 1,
         ]);
 
-        Expense::all()->each(function ($expense) {
+        $expenses->each(function ($expense) {
             $expense->number = $this->getNextExpenseNumber($expense);
             $expense->save();
         });
@@ -413,35 +418,33 @@ class DemoMode extends Command
 
         $this->invoice_repo->markSent($invoice);
 
-        if ((bool) rand(0, 2)) {
-            $invoice = $invoice->service()->markPaid()->save();
+        // Match the company-local payment date used by MarkPaid and leave future invoices unpaid.
+        $payment_date = now();
+        if ($invoice->company->timezone()) {
+            $payment_date->addSeconds($invoice->company->utc_offset());
+        }
 
-            $invoice->payments->each(function ($payment) {
-                $payment->date = now()->addDays(rand(-30, 30));
-                $payment->save();
-            });
+        if (Carbon::parse($invoice->date)->toDateString() <= $payment_date->toDateString() && (bool) rand(0, 2)) {
+            $invoice = $invoice->service()->markPaid()->save();
         }
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 
-    private function createRecurringInvoice($client, $assigned_user_id = null)
+    private function createRecurringInvoice($client, $assigned_user_id = null, bool $active = false)
     {
         $faker = \Faker\Factory::create();
 
         $invoice = RecurringInvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
         $invoice->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-        $invoice->last_sent_date = now()->subMonth();
-        $invoice->next_send_date = now()->addMonthNoOverflow();
+        $invoice->date = now()->toDateString();
 
-        if ((bool) rand(0, 1)) {
-            $dateable = Carbon::now()->subDays(rand(0, 90));
-        } else {
-            $dateable = Carbon::now()->addDays(rand(0, 90));
+        // Active schedules await their first send; drafts have no send history or schedule.
+        if ($active) {
+            $invoice->next_send_date_client = now()->addDays(rand(1, 30))->toDateString();
+            $invoice->next_send_date = $client->scheduledDateTimeUtc($invoice->next_send_date_client);
         }
-
-        $invoice->date = $dateable;
 
         $invoice->line_items = $this->buildLineItems(rand(1, 10));
         $invoice->uses_inclusive_taxes = false;
@@ -476,13 +479,23 @@ class DemoMode extends Command
         }
         $invoice->number = $this->getNextRecurringInvoiceNumber($client, $invoice);
         $invoice->save();
+
+        if ($active) {
+            $invoice->service()->createInvitations()->start()->save();
+        }
     }
 
     private function createCredit($client, $assigned_user_id = null)
     {
         $faker = \Faker\Factory::create();
 
-        $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+        $credit = Credit::factory()->create([
+            'user_id' => $client->user->id,
+            'company_id' => $client->company->id,
+            'client_id' => $client->id,
+            'number' => null,
+            'due_date' => null,
+        ]);
 
         if ((bool) rand(0, 1)) {
             $dateable = Carbon::now()->subDays(rand(0, 90));
@@ -522,8 +535,7 @@ class DemoMode extends Command
         }
 
         $credit->save();
-        $credit->service()->markSent()->save();
-        $credit->service()->createInvitations();
+        $credit->service()->createInvitations()->markSent()->save();
     }
 
     private function createQuote($client, $assigned_user_id = null)
@@ -534,11 +546,11 @@ class DemoMode extends Command
 
         if ((bool) rand(0, 1)) {
             $dateable = Carbon::now()->subDays(rand(1, 30));
-            $dateable_due = $dateable->addDays(rand(1, 30));
         } else {
             $dateable = Carbon::now()->addDays(rand(1, 30));
-            $dateable_due = $dateable->addDays(rand(-10, 30));
         }
+
+        $dateable_due = $dateable->copy()->addDays(rand(1, 30));
 
         $quote->date = $dateable;
         $quote->due_date = $dateable_due;
@@ -578,8 +590,7 @@ class DemoMode extends Command
 
         $quote->save();
 
-        $quote->service()->markSent()->save();
-        $quote->service()->createInvitations();
+        $quote->service()->createInvitations()->markSent()->save();
     }
 
     private function buildLineItems($count = 1)

@@ -965,6 +965,211 @@ class HostedPaymentPageTest extends TestCase
         $this->assertFalse(Route::has('gocardless.ibp_redirect'));
     }
 
+    #[DataProvider('hostedCallbackProvider')]
+    public function test_hosted_callback_uses_only_the_stored_billing_request(bool $setup, string $query): void
+    {
+        [$url, $company_gateway, $context] = $this->prepareHostedCallback($setup);
+        $gateway = Mockery::mock(GoCardlessClient::class);
+        $billing_requests = Mockery::mock(BillingRequestsService::class);
+        $billing_requests->shouldReceive('get')->once()->with('BRQ_STORED')->andReturn(new BillingRequest((object) [
+            'id' => 'BRQ_STORED',
+            'status' => 'fulfilled',
+            'mandate_request' => (object) ['scheme' => 'ach', 'links' => (object) ['mandate' => 'MD_CALLBACK']],
+        ]));
+        $gateway->shouldReceive('billingRequests')->once()->andReturn($billing_requests);
+        $mandates = Mockery::mock(MandatesService::class);
+        $mandates->shouldReceive('get')->once()->with('MD_CALLBACK')->andReturn(new Mandate((object) [
+            'id' => 'MD_CALLBACK',
+            'scheme' => 'ach',
+            'status' => 'active',
+            'links' => (object) ['customer' => 'CU_CALLBACK'],
+        ]));
+        $gateway->shouldReceive('mandates')->once()->andReturn($mandates);
+
+        $driver = Mockery::mock(GoCardlessPaymentDriver::class, [$company_gateway, $this->client])->makePartial();
+        $driver->gateway = $gateway;
+        $driver->shouldReceive('init')->once()->andReturnSelf();
+
+        if (! $setup) {
+            $payments = Mockery::mock(PaymentsService::class);
+            $payments->shouldReceive('create')->once()->withArgs(function (array $payload): bool {
+                return data_get($payload, 'params.links.mandate') === 'MD_CALLBACK'
+                    && data_get($payload, 'params.amount') === 1000;
+            })->andReturn(new GoCardlessPayment((object) [
+                'id' => 'PM_CALLBACK',
+                'amount' => 1000,
+                'status' => 'confirmed',
+                'links' => (object) ['mandate' => 'MD_CALLBACK'],
+            ]));
+            $gateway->shouldReceive('payments')->once()->andReturn($payments);
+        }
+
+        // Keep the real request authorization and controller, replacing only the gateway
+        // driver so no external GoCardless requests can escape this test.
+        $gateway_model = Mockery::mock(CompanyGateway::class)->makePartial();
+        $gateway_model->setRawAttributes($company_gateway->getAttributes(), true);
+        $gateway_model->setRelation('company', $this->company);
+        $gateway_model->shouldReceive('driver')->once()->andReturn($driver);
+        $request_class = $setup
+            ? \App\Http\Requests\Gateways\GoCardless\HostedPaymentPageSetupReturnRequest::class
+            : \App\Http\Requests\Gateways\GoCardless\HostedPaymentPageReturnRequest::class;
+        $this->app->bind($request_class, function () use ($request_class, $gateway_model) {
+            $request = Mockery::mock($request_class)->makePartial();
+            $request->shouldReceive('getCompanyGateway')->andReturn($gateway_model);
+
+            return $request;
+        });
+
+        try {
+            $response = $this->get($url . $query);
+            $response->assertRedirect();
+            $token = ClientGatewayToken::query()->where('company_gateway_id', $company_gateway->id)
+                ->where('token', 'MD_CALLBACK')->firstOrFail();
+            $this->assertSame($this->client->id, $token->client_id);
+            $this->assertSame(GatewayType::BANK_TRANSFER, $token->gateway_type_id);
+            $this->assertSame('authorized', $token->meta->state);
+            if ($setup) {
+                $response->assertRedirect(route('client.payment_methods.show', ['payment_method' => $token->hashed_id]));
+            } else {
+                $payment = \App\Models\Payment::query()->where('company_id', $this->company->id)
+                    ->where('transaction_reference', 'PM_CALLBACK')->firstOrFail();
+                $this->assertSame($this->client->id, $payment->client_id);
+                $this->assertSame(PaymentType::ACH, $payment->type_id);
+                $this->assertSame(\App\Models\Payment::STATUS_COMPLETED, $payment->status_id);
+                $response->assertRedirect(route('client.payments.show', ['payment' => $payment->hashed_id]));
+            }
+        } finally {
+            cache()->forget($context);
+        }
+    }
+
+    public static function hostedCallbackProvider(): array
+    {
+        $cases = [];
+        foreach (['setup' => true, 'payment' => false] as $flow => $setup) {
+            $cases[$flow . ' original URL'] = [$setup, ''];
+            $cases[$flow . ' provider parameters'] = [$setup, '&billing_request_id=BRQ_STORED&billing_request_flow_id=BRF_STORED'];
+            $cases[$flow . ' untrusted provider IDs'] = [$setup, '&billing_request_id=BRQ_ATTACKER&billing_request_flow_id=BRF_ATTACKER'];
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('invalidHostedCallbackProvider')]
+    public function test_hosted_callback_rejects_invalid_signature_or_state(bool $setup, string $mutation): void
+    {
+        [$url, $company_gateway, $context] = $this->prepareHostedCallback($setup, $mutation === 'expired');
+        $token_count = ClientGatewayToken::query()->count();
+
+        $url = match ($mutation) {
+            'missing signature' => preg_replace('/([?&])signature=[^&]+/', '$1', $url),
+            'tampered signature' => preg_replace('/signature=[^&]+/', 'signature=invalid', $url),
+            'changed gateway' => str_replace('/' . $company_gateway->hashed_id . '/', '/invalid-gateway/', $url),
+            'changed context' => str_replace('/' . $context . '?', '/different-context?', $url),
+            'extra parameter' => $url . '&unexpected=value',
+            default => $url,
+        };
+        if ($mutation === 'missing context') {
+            cache()->forget($context);
+        } elseif ($mutation === 'different contact') {
+            $state = cache()->get($context);
+            $state['contact_key'] = 'another-contact-key';
+            cache()->put($context, $state, now()->addHour());
+        } elseif ($mutation === 'no contact') {
+            auth()->guard('contact')->logout();
+        } elseif ($mutation === 'wrong client company') {
+            $other_company = \App\Models\Company::factory()->create(['account_id' => $this->company->account_id]);
+            $this->client->company_id = $other_company->id;
+            $this->client->saveQuietly();
+            $this->contact->setRelation('client', $this->client);
+        }
+
+        if ($setup) {
+            $reason = match ($mutation) {
+                'missing context' => 'missing_setup_context',
+                'different contact' => 'contact_mismatch',
+                'no contact' => 'missing_contact_session',
+                'wrong client company' => 'client_company_mismatch',
+                default => 'invalid_signature',
+            };
+            \Illuminate\Support\Facades\Log::shouldReceive('warning')->once()
+                ->with('GoCardless setup callback rejected', Mockery::on(function (array $context) use ($reason): bool {
+                    return $context['reason'] === $reason
+                        && array_keys($context) === ['reason', 'host', 'scheme', 'query_keys']
+                        && in_array('billing_request_id', $context['query_keys'], true)
+                        && ! str_contains(json_encode($context), 'BRQ_ATTACKER');
+                }));
+        }
+
+        try {
+            $this->get($url . '&billing_request_id=BRQ_ATTACKER&billing_request_flow_id=BRF_ATTACKER')
+                ->assertForbidden();
+            $this->assertSame($token_count, ClientGatewayToken::query()->count());
+        } finally {
+            cache()->forget($context);
+        }
+    }
+
+    public static function invalidHostedCallbackProvider(): array
+    {
+        $cases = [];
+        foreach (['setup' => true, 'payment' => false] as $flow => $setup) {
+            foreach (['missing signature', 'tampered signature', 'expired', 'changed gateway', 'changed context', 'extra parameter', 'wrong client company'] as $mutation) {
+                $cases[$flow . ' ' . $mutation] = [$setup, $mutation];
+            }
+        }
+        foreach (['missing context', 'different contact', 'no contact'] as $mutation) {
+            $cases['setup ' . $mutation] = [true, $mutation];
+        }
+
+        return $cases;
+    }
+
+    private function prepareHostedCallback(bool $setup, bool $expired = false): array
+    {
+        $this->makeTestData();
+        $this->actingAs($this->contact, 'contact');
+        config(['cache.default' => 'array']);
+        $this->withoutMiddleware(ThrottleRequests::class);
+        $company_gateway = $this->makeCompanyGateway();
+        $context = 'callback-' . str()->random(20);
+        $parameters = [
+            'company_key' => $this->company->company_key,
+            'company_gateway_id' => $company_gateway->hashed_id,
+        ];
+        $state = ['billing_request' => 'BRQ_STORED', 'gateway_type_id' => GatewayType::BANK_TRANSFER];
+
+        if ($setup) {
+            cache()->put($context, [
+                'db' => $this->company->db,
+                'company_gateway_id' => $company_gateway->id,
+                'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                'contact_key' => $this->contact->contact_key,
+                'gocardless' => $state,
+            ], now()->addHour());
+            $parameters['context'] = $context;
+        } else {
+            PaymentHash::query()->create([
+                'hash' => $context,
+                'data' => [
+                    'client_id' => $this->client->id,
+                    'amount_with_fee' => 10,
+                    'invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => 10]],
+                    'gocardless' => $state,
+                ],
+            ]);
+            $parameters['hash'] = $context;
+        }
+
+        $url = URL::temporarySignedRoute(
+            $setup ? 'gocardless.hosted_payment_page.setup_return' : 'gocardless.hosted_payment_page.return',
+            $expired ? now()->subMinute() : now()->addHour(),
+            $parameters,
+        );
+
+        return [$url, $company_gateway, $context];
+    }
+
     private function assertHostedReturnLifetime(string $url): void
     {
         parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
