@@ -130,6 +130,7 @@ class OpenApiContractTest extends TestCase
         'quote action' => ['get', '/api/v1/quotes/{id}/{action}', ['id' => '{quote}', 'action' => 'mark_sent']],
         'purchase order action' => ['get', '/api/v1/purchase_orders/{id}/{action}', ['id' => '{purchase_order}', 'action' => 'mark_sent']],
         'invoice download' => ['get', '/api/v1/invoice/{invitation_key}/download', ['invitation_key' => '{invoice.invitations.0.key}']],
+        'invoice download by id' => ['get', '/api/v1/invoices/{id}/download', ['id' => '{invoice}']],
         'quote download' => ['get', '/api/v1/quote/{invitation_key}/download', ['invitation_key' => '{quote.invitations.0.key}']],
         'credit download' => ['get', '/api/v1/credit/{invitation_key}/download', ['invitation_key' => '{credit.invitations.0.key}']],
         'purchase order download' => ['get', '/api/v1/purchase_order/{invitation_key}/download', ['invitation_key' => '{purchase_order.invitations.0.key}']],
