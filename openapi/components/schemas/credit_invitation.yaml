@@ -56,7 +56,7 @@
           example: false
           readOnly: true
         created_at:
-          description: 'Timestamp'
+          description: 'When the invitation was created, as a Unix timestamp in seconds'
           type: integer
         message_id:
           description: 'The id of the last email sent for this invitation'

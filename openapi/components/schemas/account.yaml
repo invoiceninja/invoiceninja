@@ -10,7 +10,7 @@
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'Always 0: accounts cannot be archived'
           type: integer
         can_trial:
           description: 'Whether the account can still start a free trial: it is less than 14 days old and has never had a plan or trial'
@@ -91,7 +91,7 @@
           description: 'The date the current plan term was paid'
           type: string
         plan_price:
-          description: 'The price of the plan'
+          description: 'The price of the hosted plan per plan_term (month or year); 0 when there is no paid plan'
           type: number
         plan_started:
           description: 'The date the plan started'
@@ -121,7 +121,7 @@
           description: 'The date the trial started'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the account was last changed, as a Unix timestamp in seconds'
           type: integer
         upload_extensions:
           description: 'A comma separated list of the file extensions that can be uploaded as documents'

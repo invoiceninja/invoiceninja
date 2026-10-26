@@ -62,7 +62,7 @@
           type: integer
           example: 134341234234
         archived_at:
-          description: 'Timestamp'
+          description: 'When the document was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         height:
           description: 'The image height in pixels, 0 for other files'

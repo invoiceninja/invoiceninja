@@ -40,10 +40,10 @@
         token:
           $ref: '#/components/schemas/CompanyToken'
         archived_at:
-          description: 'Timestamp'
+          description: 'When the company user was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the company user was created, as a Unix timestamp in seconds'
           type: integer
         ninja_portal_url:
           description: 'The URL of the Invoice Ninja account portal'

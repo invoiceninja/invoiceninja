@@ -79,7 +79,7 @@
           type: integer
           example: 1623456999
         archived_at:
-          description: 'Timestamp'
+          description: 'When the location was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         tax_data:
           description: 'Tax data of the location'

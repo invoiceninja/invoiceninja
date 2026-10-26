@@ -86,10 +86,10 @@
           type: integer
           example: 134341234234
         assigned_user_id:
-          description: 'The hashed id of the assigned user'
+          description: 'The hashed id of the user the subscription is assigned to; empty if none'
           type: string
         company_id:
-          description: 'The company hashed id'
+          description: 'The hashed id of the company the subscription belongs to'
           type: string
         group_id:
           description: 'The hashed id of the group settings applied to clients who subscribe'

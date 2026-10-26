@@ -163,9 +163,6 @@
           description: 'The due date of the quote, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-          writeOnly: true
         updated_at:
           description: Timestamp
           type: integer
@@ -217,10 +214,10 @@
           description: 'Whether auto billing is enabled'
           type: boolean
         created_at:
-          description: 'Timestamp'
+          description: 'When the recurring quote was created, as a Unix timestamp in seconds'
           type: integer
         design_id:
-          description: 'The design hashed id'
+          description: 'The hashed id of the design used to render the quotes this recurring quote generates'
           type: string
         documents:
           description: 'The documents attached to the recurring quote'
@@ -231,7 +228,7 @@
           description: 'The number of days after the quote date the generated quote is due, an empty string when not set'
           type: string
         entity_type:
-          description: 'Always recurringQuote'
+          description: 'The type of the record, always "recurringQuote"'
           type: string
         exchange_rate:
           description: 'The exchange rate between the client currency and the company currency'
@@ -248,7 +245,7 @@
           items:
             type: object
         project_id:
-          description: 'The project hashed id'
+          description: 'The hashed id of the project the recurring quote belongs to; empty if none'
           type: string
         recurring_dates:
           description: 'The upcoming send dates'
@@ -259,6 +256,6 @@
           description: 'The hashed id of the subscription that created the recurring quote'
           type: string
         vendor_id:
-          description: 'The vendor hashed id'
+          description: 'The hashed id of the vendor linked to the recurring quote; empty if none'
           type: string
       type: object

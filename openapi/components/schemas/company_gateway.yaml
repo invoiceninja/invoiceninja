@@ -38,22 +38,22 @@
           description: 'Whether the required fields form is always shown at checkout'
           type: boolean
         archived_at:
-          description: 'Timestamp'
+          description: 'When the gateway was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the gateway was created, as a Unix timestamp in seconds'
           type: integer
         custom_value1:
-          description: 'A custom value'
+          description: 'Free-form custom value 1 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         custom_value2:
-          description: 'A custom value'
+          description: 'Free-form custom value 2 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         custom_value3:
-          description: 'A custom value'
+          description: 'Free-form custom value 3 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         custom_value4:
-          description: 'A custom value'
+          description: 'Free-form custom value 4 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         is_deleted:
           description: 'Whether the company gateway has been deleted'
@@ -111,7 +111,7 @@
           description: 'When card details are saved: always, optin, optout or off'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the gateway was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     

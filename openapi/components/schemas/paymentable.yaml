@@ -32,9 +32,9 @@
           type: integer
           example: 1434342123
         payment_id:
-          description: 'The payment hashed id'
+          description: 'The hashed id of the payment this allocation belongs to'
           type: string
         archived_at:
-          description: 'Timestamp'
+          description: 'When the payment allocation was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
       type: object

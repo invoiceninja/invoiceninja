@@ -42,6 +42,6 @@
           type: integer
           example: 1434342123
         company_id:
-          description: 'The company hashed id'
+          description: 'The hashed id of the company the log entry belongs to'
           type: string
       type: object

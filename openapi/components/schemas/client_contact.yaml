@@ -82,7 +82,7 @@
           example: 134341234234
           readOnly: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the contact was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         link:
           description: 'The client portal login link of the contact'

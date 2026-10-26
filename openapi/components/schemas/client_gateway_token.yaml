@@ -28,10 +28,10 @@
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the client gateway token was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the client gateway token was created, as a Unix timestamp in seconds'
           type: integer
         gateway_customer_reference:
           description: 'The customer reference at the payment gateway'
@@ -47,6 +47,6 @@
           type: object
           additionalProperties: true
         updated_at:
-          description: 'Timestamp'
+          description: 'When the client gateway token was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object

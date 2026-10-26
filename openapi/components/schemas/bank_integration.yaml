@@ -34,13 +34,13 @@
           type: string
           example: USD
         archived_at:
-          description: 'Timestamp'
+          description: 'When the bank integration was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         auto_sync:
           description: 'Whether transactions are synced automatically'
           type: boolean
         created_at:
-          description: 'Timestamp'
+          description: 'When the bank integration was created, as a Unix timestamp in seconds'
           type: integer
         disabled_upstream:
           description: 'Whether the bank connection was disabled by the provider and needs to be reconnected'
@@ -67,6 +67,6 @@
           description: 'The bank provider name'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the bank integration was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object

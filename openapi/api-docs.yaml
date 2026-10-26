@@ -12299,7 +12299,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: project
           in: path
-          description: "The project"
+          description: "The hashed id of the project"
           required: true
           schema:
             type: string
@@ -12636,7 +12636,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: project
           in: path
-          description: "The project"
+          description: "The hashed id of the project"
           required: true
           schema:
             type: string
@@ -12820,14 +12820,14 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: id
           in: path
-          description: "The id"
+          description: "The hashed id of the credit"
           required: true
           schema:
             type: string
           example: D2J234DFA
         - name: action
           in: path
-          description: "The action"
+          description: "The action to perform: mark_paid, clone_to_credit, mark_sent, download, archive, restore, delete, email or send_email"
           required: true
           schema:
             type: string
@@ -12917,7 +12917,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: client
           in: path
-          description: "The client"
+          description: "The hashed id of the client"
           required: true
           schema:
             type: string
@@ -13209,7 +13209,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: webhook
           in: path
-          description: "The webhook"
+          description: "The hashed id of the webhook"
           required: true
           schema:
             type: string
@@ -13262,7 +13262,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: entity
           in: path
-          description: "The entity"
+          description: "The entity type: invoice, quote, credit, payment or recurring_invoice. Any other value returns only archive, restore and delete"
           required: true
           schema:
             type: string
@@ -13362,7 +13362,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: invoice
           in: path
-          description: "The invoice"
+          description: "The hashed id of the invoice"
           required: true
           schema:
             type: string
@@ -13417,7 +13417,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: company
           in: path
-          description: "The company"
+          description: "Not used: the logo of the company the API token belongs to is returned for any value"
           required: true
           schema:
             type: string
@@ -13457,7 +13457,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13498,7 +13498,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13550,7 +13550,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13592,7 +13592,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13632,7 +13632,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: user
           in: path
-          description: "The user"
+          description: "The hashed id of the user whose membership of the current company is updated"
           required: true
           schema:
             type: string
@@ -23912,10 +23912,10 @@ components:
           type: object
           example: {}
         archived_at:
-          description: 'Timestamp'
+          description: 'When the group setting was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the group setting was created, as a Unix timestamp in seconds'
           type: integer
         documents:
           description: 'The documents attached to the group setting'
@@ -23926,7 +23926,7 @@ components:
           description: 'Whether the group setting has been deleted'
           type: boolean
         updated_at:
-          description: 'Timestamp'
+          description: 'When the group setting was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     InvoicePaymentable:
@@ -23987,17 +23987,17 @@ components:
           example: false
           readOnly: true
         updated_at:
-          description: Timestamp
+          description: 'When the scheduled task was last changed, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
         created_at:
-          description: Timestamp
+          description: 'When the scheduled task was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
         archived_at:
-          description: Timestamp
+          description: 'When the scheduled task was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
           example: 1434342123
           readOnly: true
@@ -24147,13 +24147,13 @@ components:
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the tax rate was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the tax rate was created, as a Unix timestamp in seconds'
           type: integer
         updated_at:
-          description: 'Timestamp'
+          description: 'When the tax rate was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     Template:
@@ -24246,13 +24246,13 @@ components:
           type: string
           example: JSON
         archived_at:
-          description: 'Timestamp'
+          description: 'When the webhook was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         company_id:
-          description: 'The company hashed id'
+          description: 'The hashed id of the company the webhook belongs to'
           type: string
         created_at:
-          description: 'Timestamp'
+          description: 'When the webhook was created, as a Unix timestamp in seconds'
           type: integer
         headers:
           description: 'Additional HTTP headers sent with the webhook request'
@@ -24266,7 +24266,7 @@ components:
           description: 'The HTTP method used to call the target URL'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the webhook was last changed, as a Unix timestamp in seconds'
           type: integer
         user_id:
           description: 'The hashed id of the user who created the record'
@@ -25019,22 +25019,22 @@ components:
           description: 'Whether the required fields form is always shown at checkout'
           type: boolean
         archived_at:
-          description: 'Timestamp'
+          description: 'When the gateway was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the gateway was created, as a Unix timestamp in seconds'
           type: integer
         custom_value1:
-          description: 'A custom value'
+          description: 'Free-form custom value 1 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         custom_value2:
-          description: 'A custom value'
+          description: 'Free-form custom value 2 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         custom_value3:
-          description: 'A custom value'
+          description: 'Free-form custom value 3 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         custom_value4:
-          description: 'A custom value'
+          description: 'Free-form custom value 4 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
           type: string
         is_deleted:
           description: 'Whether the company gateway has been deleted'
@@ -25092,7 +25092,7 @@ components:
           description: 'When card details are saved: always, optin, optout or off'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the gateway was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     
@@ -25329,7 +25329,7 @@ components:
           type: integer
           example: 1434342123
         company_id:
-          description: 'The company hashed id'
+          description: 'The hashed id of the company the log entry belongs to'
           type: string
       type: object
     Meta:
@@ -25438,7 +25438,7 @@ components:
           type: boolean
           example: false
         archived_at:
-          description: 'Timestamp'
+          description: 'When the contact was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         last_login:
           description: 'Timestamp of the last login'
@@ -25646,7 +25646,7 @@ components:
           description: 'The id of the activity that created the entry'
           type: integer
         archived_at:
-          description: 'Timestamp'
+          description: 'Always 0: ledger entries cannot be archived'
           type: integer
         credit_id:
           description: 'The credit hashed id, present when the entry belongs to a credit'
@@ -25736,7 +25736,7 @@ components:
           items:
             $ref: '#/components/schemas/TagAssignment'
         bank_integration_id:
-          description: 'The hashed id of the bank integration'
+          description: 'The hashed id of the bank account (bank integration) the transaction was imported from'
           type: string
           example: AS3df3A
         ninja_category_id:
@@ -25784,17 +25784,17 @@ components:
           type: string
           example: '20220101-abc123'
         created_at:
-          description: Timestamp
+          description: 'When the bank transaction was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
         updated_at:
-          description: Timestamp
+          description: 'When the bank transaction was last changed, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
         archived_at:
-          description: Timestamp
+          description: 'When the bank transaction was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
           example: 1434342123
           readOnly: true
@@ -26046,7 +26046,7 @@ components:
           example: 134341234234
           readOnly: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the contact was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         link:
           description: 'The client portal login link of the contact'
@@ -26290,7 +26290,7 @@ components:
         vendor_contact:
           $ref: '#/components/schemas/VendorContact'
         created_at:
-          description: 'Timestamp'
+          description: 'When the activity was created, as a Unix timestamp in seconds'
           type: integer
         purchase_order_id:
           description: 'The hashed id of the purchase order, an empty string when not related'
@@ -26323,7 +26323,7 @@ components:
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'Always 0: accounts cannot be archived'
           type: integer
         can_trial:
           description: 'Whether the account can still start a free trial: it is less than 14 days old and has never had a plan or trial'
@@ -26404,7 +26404,7 @@ components:
           description: 'The date the current plan term was paid'
           type: string
         plan_price:
-          description: 'The price of the plan'
+          description: 'The price of the hosted plan per plan_term (month or year); 0 when there is no paid plan'
           type: number
         plan_started:
           description: 'The date the plan started'
@@ -26434,7 +26434,7 @@ components:
           description: 'The date the trial started'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the account was last changed, as a Unix timestamp in seconds'
           type: integer
         upload_extensions:
           description: 'A comma separated list of the file extensions that can be uploaded as documents'
@@ -26620,9 +26620,6 @@ components:
           description: 'The due date of the quote, an empty string when not set'
           type: string
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-          writeOnly: true
         updated_at:
           description: Timestamp
           type: integer
@@ -26674,10 +26671,10 @@ components:
           description: 'Whether auto billing is enabled'
           type: boolean
         created_at:
-          description: 'Timestamp'
+          description: 'When the recurring quote was created, as a Unix timestamp in seconds'
           type: integer
         design_id:
-          description: 'The design hashed id'
+          description: 'The hashed id of the design used to render the quotes this recurring quote generates'
           type: string
         documents:
           description: 'The documents attached to the recurring quote'
@@ -26688,7 +26685,7 @@ components:
           description: 'The number of days after the quote date the generated quote is due, an empty string when not set'
           type: string
         entity_type:
-          description: 'Always recurringQuote'
+          description: 'The type of the record, always "recurringQuote"'
           type: string
         exchange_rate:
           description: 'The exchange rate between the client currency and the company currency'
@@ -26705,7 +26702,7 @@ components:
           items:
             type: object
         project_id:
-          description: 'The project hashed id'
+          description: 'The hashed id of the project the recurring quote belongs to; empty if none'
           type: string
         recurring_dates:
           description: 'The upcoming send dates'
@@ -26716,7 +26713,7 @@ components:
           description: 'The hashed id of the subscription that created the recurring quote'
           type: string
         vendor_id:
-          description: 'The vendor hashed id'
+          description: 'The hashed id of the vendor linked to the recurring quote; empty if none'
           type: string
       type: object
     Credit:
@@ -26988,7 +26985,7 @@ components:
           type: object
           additionalProperties: true
         created_at:
-          description: Timestamp
+          description: 'When the credit was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -27064,10 +27061,10 @@ components:
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the API token was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the API token was created, as a Unix timestamp in seconds'
           type: integer
         id:
           description: 'The company token hashed id'
@@ -27076,7 +27073,7 @@ components:
           description: 'Whether the company token has been deleted'
           type: boolean
         updated_at:
-          description: 'Timestamp'
+          description: 'When the API token was last changed, as a Unix timestamp in seconds'
           type: integer
         user_id:
           description: 'The hashed id of the user the token belongs to'
@@ -27206,12 +27203,6 @@ components:
           type: boolean
           example: true
           readOnly: true
-        oauth_user_token_expiry:
-          description: 'The expiry date of the oauth token'
-          type: string
-          example: '2022-10-10'
-          readOnly: true
-          writeOnly: true
         has_password:
           description: 'Boolean flag determining if the user has a password'
           type: boolean
@@ -27261,10 +27252,10 @@ components:
         company_user:
             $ref: '#/components/schemas/CompanyUserRef'
         archived_at:
-          description: 'Timestamp'
+          description: 'When the user was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the user was created, as a Unix timestamp in seconds'
           type: integer
         email_verified_at:
           description: 'Timestamp of the email verification'
@@ -27287,7 +27278,7 @@ components:
           type: object
           additionalProperties: true
         updated_at:
-          description: 'Timestamp'
+          description: 'When the user was last changed, as a Unix timestamp in seconds'
           type: integer
         user_logged_in_notification:
           description: 'Whether the user is emailed when they log in from a new location'
@@ -27421,14 +27412,14 @@ components:
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the user was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         company_user:
           description: 'The company user of the user in the current company, returned with include=company_user'
           type: object
           additionalProperties: true
         created_at:
-          description: 'Timestamp'
+          description: 'When the user was created, as a Unix timestamp in seconds'
           type: integer
         email_verified_at:
           description: 'Timestamp of the email verification'
@@ -27448,7 +27439,7 @@ components:
           type: object
           additionalProperties: true
         updated_at:
-          description: 'Timestamp'
+          description: 'When the user was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
 
@@ -27752,7 +27743,7 @@ components:
           type: string
           example: Opnel5aKBz
         created_at:
-          description: Timestamp
+          description: 'When the payment was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -28127,7 +28118,7 @@ components:
           example: false
           deprecated: true
         created_at:
-          description: Timestamp
+          description: 'When the invoice was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -28438,7 +28429,7 @@ components:
           type: string
           example: Opnel5aKBz
         created_at:
-          description: Timestamp
+          description: 'When the quote was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -28724,7 +28715,7 @@ components:
           type: integer
           example: 1623456999
         archived_at:
-          description: 'Timestamp'
+          description: 'When the location was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         tax_data:
           description: 'Tax data of the location'
@@ -28773,10 +28764,10 @@ components:
         token:
           $ref: '#/components/schemas/CompanyToken'
         archived_at:
-          description: 'Timestamp'
+          description: 'When the company user was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the company user was created, as a Unix timestamp in seconds'
           type: integer
         ninja_portal_url:
           description: 'The URL of the Invoice Ninja account portal'
@@ -29035,7 +29026,7 @@ components:
           items:
             $ref: '#/components/schemas/TagAssignment'
         archived_at:
-          description: Timestamp
+          description: 'When the client was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
           example: 1434342123
           readOnly: true
@@ -29325,11 +29316,14 @@ components:
             type: object
             properties:
               key:
+                description: 'The client or contact field this entry controls, e.g. first_name, email, phone, password, name or address1'
                 type: string
                 example: first_name
               required:
+                description: 'Whether the field must be filled in to register'
                 type: boolean
               visible:
+                description: 'Whether the field is shown on the registration form'
                 type: boolean
         stop_on_unpaid_recurring:
           description: "A flag determining whether to stop recurring invoices when they are unpaid"
@@ -29519,10 +29513,10 @@ components:
         settings:
           $ref: '#/components/schemas/CompanySettings'
         archived_at:
-          description: 'Timestamp'
+          description: 'Always 0: companies cannot be archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the company was created, as a Unix timestamp in seconds'
           type: integer
         documents:
           description: 'The documents attached to the company'
@@ -29557,7 +29551,7 @@ components:
           description: 'Masked as ******** when an SMTP username is set, otherwise an empty string'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the company was last changed, as a Unix timestamp in seconds'
           type: integer
         use_credits_payment:
           description: 'Whether to use credits payment'
@@ -30862,7 +30856,7 @@ components:
           description: 'The hashed id of the default credit design'
           type: string
         delivery_note_design_id:
-          description: 'The hashed id of the delivery note design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the delivery note PDF. When it is empty or not a template, the built-in layout is used'
           type: string
         e_expense_forward_email:
           description: 'Email address received e-expenses are forwarded to, for a processing service such as Yuki or WinAuditor'
@@ -30880,13 +30874,13 @@ components:
           description: 'The body of the first quote reminder email'
           type: string
         email_subject_credit:
-          description: 'The subject of the credit email'
+          description: 'Subject line of the email sent with a credit. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_subject_payment_failed:
-          description: 'The subject of the failed payment email'
+          description: 'Subject line of the email sent when a payment fails. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_subject_payment_partial:
-          description: 'The subject of the partial payment email'
+          description: 'Subject line of the email sent when a partial payment is received. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_template_credit:
           description: 'The body of the credit email'
@@ -30931,10 +30925,10 @@ components:
           description: 'The client portal payment flow, smooth or default'
           type: string
         payment_receipt_design_id:
-          description: 'The hashed id of the payment receipt design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the payment receipt PDF attached to the payment email. When it is empty or not a template, the built-in layout is used'
           type: string
         payment_refund_design_id:
-          description: 'The hashed id of the payment refund design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the refund receipt PDF attached to the refund email. When it is empty or not a template, the built-in layout is used'
           type: string
         pdf_variables:
           description: 'The fields shown in each section of the PDF'
@@ -31010,7 +31004,7 @@ components:
           description: 'Whether invoices sent through PEPPOL are not also emailed to the client'
           type: boolean
         statement_design_id:
-          description: 'The hashed id of the statement design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the client statement PDF. When it is empty or not a template, the built-in layout is used'
           type: string
         task_round_to_nearest:
           description: 'The interval in seconds task times are rounded to'
@@ -31055,10 +31049,10 @@ components:
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the client gateway token was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the client gateway token was created, as a Unix timestamp in seconds'
           type: integer
         gateway_customer_reference:
           description: 'The customer reference at the payment gateway'
@@ -31074,7 +31068,7 @@ components:
           type: object
           additionalProperties: true
         updated_at:
-          description: 'Timestamp'
+          description: 'When the client gateway token was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     ExpenseCategory:
@@ -31105,7 +31099,7 @@ components:
           type: integer
           example: 2
         archived_at:
-          description: 'Timestamp'
+          description: 'When the expense category was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         color:
           description: 'The colour of the category as a hex code'
@@ -31394,7 +31388,7 @@ components:
           type: object
           additionalProperties: true
         created_at:
-          description: Timestamp
+          description: 'When the purchase order was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -31454,13 +31448,13 @@ components:
           type: string
           example: USD
         archived_at:
-          description: 'Timestamp'
+          description: 'When the bank integration was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         auto_sync:
           description: 'Whether transactions are synced automatically'
           type: boolean
         created_at:
-          description: 'Timestamp'
+          description: 'When the bank integration was created, as a Unix timestamp in seconds'
           type: integer
         disabled_upstream:
           description: 'Whether the bank connection was disabled by the provider and needs to be reconnected'
@@ -31487,7 +31481,7 @@ components:
           description: 'The bank provider name'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the bank integration was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     ClientSettings:
@@ -32343,7 +32337,7 @@ components:
           description: 'The class of the entity the settings belong to, App\Models\Client'
           type: string
         industry_id:
-          description: 'The industry id'
+          description: 'Not used: a client''s industry is stored in the client''s own industry_id field. Kept in the settings for compatibility and usually empty'
           type: string
         size_id:
           description: 'The company size id'
@@ -32555,7 +32549,7 @@ components:
           type: integer
           example: 134341234234
         archived_at:
-          description: 'Timestamp'
+          description: 'When the document was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         height:
           description: 'The image height in pixels, 0 for other files'
@@ -32639,7 +32633,7 @@ components:
           example: false
           readOnly: true
         created_at:
-          description: 'Timestamp'
+          description: 'When the invitation was created, as a Unix timestamp in seconds'
           type: integer
         message_id:
           description: 'The id of the last email sent for this invitation'
@@ -33107,7 +33101,7 @@ components:
           example: false
           deprecated: true
         created_at:
-          description: Timestamp
+          description: 'When the recurring invoice was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -33223,10 +33217,10 @@ components:
           type: integer
           example: 134341234234
         assigned_user_id:
-          description: 'The hashed id of the assigned user'
+          description: 'The hashed id of the user the subscription is assigned to; empty if none'
           type: string
         company_id:
-          description: 'The company hashed id'
+          description: 'The hashed id of the company the subscription belongs to'
           type: string
         group_id:
           description: 'The hashed id of the group settings applied to clients who subscribe'
@@ -33292,16 +33286,22 @@ components:
           type: object
           properties:
             includes:
+              description: 'The <style> and <link> includes of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
             header:
+              description: 'The header section of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
             body:
+              description: 'The body section of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
             product:
+              description: 'Legacy product table section, kept for older designs. It is not used when the PDF is built'
               type: string
             task:
+              description: 'Legacy task table section, kept for older designs. It is not used when the PDF is built'
               type: string
             footer:
+              description: 'The footer section of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
         is_custom:
           description: 'Flag to determine if the design is a custom user design'
@@ -33324,7 +33324,7 @@ components:
           type: integer
           example: 134341234234
         archived_at:
-          description: 'Timestamp'
+          description: 'When the design was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         entities:
           description: 'A comma separated list of the entities the design can be used for'
@@ -33612,7 +33612,7 @@ components:
           items:
             $ref: '#/components/schemas/TagAssignment'
         archived_at:
-          description: Timestamp
+          description: 'When the vendor was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
           example: 1434342123
           readOnly: true
@@ -33822,7 +33822,7 @@ components:
           type: string
           example: '2'
         created_at:
-          description: Timestamp
+          description: 'When the expense was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -33885,7 +33885,7 @@ components:
           example: 1434342123
           readOnly: true
         created_at:
-          description: 'Timestamp'
+          description: 'When the invitation was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
@@ -34137,7 +34137,7 @@ components:
           items:
             $ref: '#/components/schemas/TagAssignment'
         created_at:
-          description: 'Timestamp'
+          description: 'When the recurring expense was created, as a Unix timestamp in seconds'
           type: integer
         documents:
           description: 'The documents attached to the recurring expense'
@@ -34145,7 +34145,7 @@ components:
           items:
             $ref: '#/components/schemas/Document'
         entity_type:
-          description: 'Always recurringExpense'
+          description: 'The type of the record, always "recurringExpense"'
           type: string
         recurring_dates:
           description: 'Always an empty array'
@@ -34615,16 +34615,16 @@ components:
           type: string
           example: AS3df3A
         archived_at:
-          description: 'Timestamp'
+          description: 'When the bank transaction rule was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the bank transaction rule was created, as a Unix timestamp in seconds'
           type: integer
         is_deleted:
           description: 'Whether the bank transaction rule has been deleted'
           type: boolean
         updated_at:
-          description: 'Timestamp'
+          description: 'When the bank transaction rule was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     ClientContactRequest:
@@ -34712,10 +34712,10 @@ components:
           type: integer
           example: 1434342123
         payment_id:
-          description: 'The payment hashed id'
+          description: 'The hashed id of the payment this allocation belongs to'
           type: string
         archived_at:
-          description: 'Timestamp'
+          description: 'When the payment allocation was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
       type: object
 tags:

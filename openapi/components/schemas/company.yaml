@@ -254,11 +254,14 @@
             type: object
             properties:
               key:
+                description: 'The client or contact field this entry controls, e.g. first_name, email, phone, password, name or address1'
                 type: string
                 example: first_name
               required:
+                description: 'Whether the field must be filled in to register'
                 type: boolean
               visible:
+                description: 'Whether the field is shown on the registration form'
                 type: boolean
         stop_on_unpaid_recurring:
           description: "A flag determining whether to stop recurring invoices when they are unpaid"
@@ -448,10 +451,10 @@
         settings:
           $ref: '#/components/schemas/CompanySettings'
         archived_at:
-          description: 'Timestamp'
+          description: 'Always 0: companies cannot be archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the company was created, as a Unix timestamp in seconds'
           type: integer
         documents:
           description: 'The documents attached to the company'
@@ -486,7 +489,7 @@
           description: 'Masked as ******** when an SMTP username is set, otherwise an empty string'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the company was last changed, as a Unix timestamp in seconds'
           type: integer
         use_credits_payment:
           description: 'Whether to use credits payment'

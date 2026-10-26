@@ -263,7 +263,7 @@
           example: false
           deprecated: true
         created_at:
-          description: Timestamp
+          description: 'When the recurring invoice was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true

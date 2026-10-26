@@ -206,7 +206,7 @@
           items:
             $ref: '#/components/schemas/TagAssignment'
         created_at:
-          description: 'Timestamp'
+          description: 'When the recurring expense was created, as a Unix timestamp in seconds'
           type: integer
         documents:
           description: 'The documents attached to the recurring expense'
@@ -214,7 +214,7 @@
           items:
             $ref: '#/components/schemas/Document'
         entity_type:
-          description: 'Always recurringExpense'
+          description: 'The type of the record, always "recurringExpense"'
           type: string
         recurring_dates:
           description: 'Always an empty array'

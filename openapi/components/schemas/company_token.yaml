@@ -13,10 +13,10 @@
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the API token was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the API token was created, as a Unix timestamp in seconds'
           type: integer
         id:
           description: 'The company token hashed id'
@@ -25,7 +25,7 @@
           description: 'Whether the company token has been deleted'
           type: boolean
         updated_at:
-          description: 'Timestamp'
+          description: 'When the API token was last changed, as a Unix timestamp in seconds'
           type: integer
         user_id:
           description: 'The hashed id of the user the token belongs to'

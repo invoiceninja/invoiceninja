@@ -14,16 +14,22 @@
           type: object
           properties:
             includes:
+              description: 'The <style> and <link> includes of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
             header:
+              description: 'The header section of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
             body:
+              description: 'The body section of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
             product:
+              description: 'Legacy product table section, kept for older designs. It is not used when the PDF is built'
               type: string
             task:
+              description: 'Legacy task table section, kept for older designs. It is not used when the PDF is built'
               type: string
             footer:
+              description: 'The footer section of the design, as HTML. The PDF is built from includes, header, body and footer in that order'
               type: string
         is_custom:
           description: 'Flag to determine if the design is a custom user design'
@@ -46,7 +52,7 @@
           type: integer
           example: 134341234234
         archived_at:
-          description: 'Timestamp'
+          description: 'When the design was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         entities:
           description: 'A comma separated list of the entities the design can be used for'

@@ -140,7 +140,7 @@
           items:
             $ref: '#/components/schemas/TagAssignment'
         archived_at:
-          description: Timestamp
+          description: 'When the vendor was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
           example: 1434342123
           readOnly: true

@@ -910,7 +910,7 @@
           description: 'The hashed id of the default credit design'
           type: string
         delivery_note_design_id:
-          description: 'The hashed id of the delivery note design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the delivery note PDF. When it is empty or not a template, the built-in layout is used'
           type: string
         e_expense_forward_email:
           description: 'Email address received e-expenses are forwarded to, for a processing service such as Yuki or WinAuditor'
@@ -928,13 +928,13 @@
           description: 'The body of the first quote reminder email'
           type: string
         email_subject_credit:
-          description: 'The subject of the credit email'
+          description: 'Subject line of the email sent with a credit. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_subject_payment_failed:
-          description: 'The subject of the failed payment email'
+          description: 'Subject line of the email sent when a payment fails. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_subject_payment_partial:
-          description: 'The subject of the partial payment email'
+          description: 'Subject line of the email sent when a partial payment is received. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_template_credit:
           description: 'The body of the credit email'
@@ -979,10 +979,10 @@
           description: 'The client portal payment flow, smooth or default'
           type: string
         payment_receipt_design_id:
-          description: 'The hashed id of the payment receipt design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the payment receipt PDF attached to the payment email. When it is empty or not a template, the built-in layout is used'
           type: string
         payment_refund_design_id:
-          description: 'The hashed id of the payment refund design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the refund receipt PDF attached to the refund email. When it is empty or not a template, the built-in layout is used'
           type: string
         pdf_variables:
           description: 'The fields shown in each section of the PDF'
@@ -1058,7 +1058,7 @@
           description: 'Whether invoices sent through PEPPOL are not also emailed to the client'
           type: boolean
         statement_design_id:
-          description: 'The hashed id of the statement design'
+          description: 'The hashed id of the template design (a design with is_template set) used to render the client statement PDF. When it is empty or not a template, the built-in layout is used'
           type: string
         task_round_to_nearest:
           description: 'The interval in seconds task times are rounded to'

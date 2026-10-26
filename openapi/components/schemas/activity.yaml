@@ -92,7 +92,7 @@
         vendor_contact:
           $ref: '#/components/schemas/VendorContact'
         created_at:
-          description: 'Timestamp'
+          description: 'When the activity was created, as a Unix timestamp in seconds'
           type: integer
         purchase_order_id:
           description: 'The hashed id of the purchase order, an empty string when not related'

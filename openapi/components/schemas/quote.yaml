@@ -261,7 +261,7 @@
           type: string
           example: Opnel5aKBz
         created_at:
-          description: Timestamp
+          description: 'When the quote was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true

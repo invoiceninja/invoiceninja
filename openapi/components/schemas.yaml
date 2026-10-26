@@ -50,10 +50,10 @@
           type: object
           example: {}
         archived_at:
-          description: 'Timestamp'
+          description: 'When the group setting was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the group setting was created, as a Unix timestamp in seconds'
           type: integer
         documents:
           description: 'The documents attached to the group setting'
@@ -64,7 +64,7 @@
           description: 'Whether the group setting has been deleted'
           type: boolean
         updated_at:
-          description: 'Timestamp'
+          description: 'When the group setting was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     InvoicePaymentable:
@@ -125,17 +125,17 @@
           example: false
           readOnly: true
         updated_at:
-          description: Timestamp
+          description: 'When the scheduled task was last changed, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
         created_at:
-          description: Timestamp
+          description: 'When the scheduled task was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true
         archived_at:
-          description: Timestamp
+          description: 'When the scheduled task was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
           example: 1434342123
           readOnly: true
@@ -285,13 +285,13 @@
           type: boolean
           example: true
         archived_at:
-          description: 'Timestamp'
+          description: 'When the tax rate was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         created_at:
-          description: 'Timestamp'
+          description: 'When the tax rate was created, as a Unix timestamp in seconds'
           type: integer
         updated_at:
-          description: 'Timestamp'
+          description: 'When the tax rate was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     Template:
@@ -384,13 +384,13 @@
           type: string
           example: JSON
         archived_at:
-          description: 'Timestamp'
+          description: 'When the webhook was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         company_id:
-          description: 'The company hashed id'
+          description: 'The hashed id of the company the webhook belongs to'
           type: string
         created_at:
-          description: 'Timestamp'
+          description: 'When the webhook was created, as a Unix timestamp in seconds'
           type: integer
         headers:
           description: 'Additional HTTP headers sent with the webhook request'
@@ -404,7 +404,7 @@
           description: 'The HTTP method used to call the target URL'
           type: string
         updated_at:
-          description: 'Timestamp'
+          description: 'When the webhook was last changed, as a Unix timestamp in seconds'
           type: integer
         user_id:
           description: 'The hashed id of the user who created the record'

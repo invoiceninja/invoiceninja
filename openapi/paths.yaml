@@ -12180,7 +12180,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: project
           in: path
-          description: "The project"
+          description: "The hashed id of the project"
           required: true
           schema:
             type: string
@@ -12517,7 +12517,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: project
           in: path
-          description: "The project"
+          description: "The hashed id of the project"
           required: true
           schema:
             type: string
@@ -12701,14 +12701,14 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: id
           in: path
-          description: "The id"
+          description: "The hashed id of the credit"
           required: true
           schema:
             type: string
           example: D2J234DFA
         - name: action
           in: path
-          description: "The action"
+          description: "The action to perform: mark_paid, clone_to_credit, mark_sent, download, archive, restore, delete, email or send_email"
           required: true
           schema:
             type: string
@@ -12798,7 +12798,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: client
           in: path
-          description: "The client"
+          description: "The hashed id of the client"
           required: true
           schema:
             type: string
@@ -13090,7 +13090,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: webhook
           in: path
-          description: "The webhook"
+          description: "The hashed id of the webhook"
           required: true
           schema:
             type: string
@@ -13143,7 +13143,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: entity
           in: path
-          description: "The entity"
+          description: "The entity type: invoice, quote, credit, payment or recurring_invoice. Any other value returns only archive, restore and delete"
           required: true
           schema:
             type: string
@@ -13243,7 +13243,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: invoice
           in: path
-          description: "The invoice"
+          description: "The hashed id of the invoice"
           required: true
           schema:
             type: string
@@ -13298,7 +13298,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: company
           in: path
-          description: "The company"
+          description: "Not used: the logo of the company the API token belongs to is returned for any value"
           required: true
           schema:
             type: string
@@ -13338,7 +13338,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13379,7 +13379,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13431,7 +13431,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13473,7 +13473,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: document
           in: path
-          description: "The document"
+          description: "The hashed id of the document"
           required: true
           schema:
             type: string
@@ -13513,7 +13513,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: user
           in: path
-          description: "The user"
+          description: "The hashed id of the user whose membership of the current company is updated"
           required: true
           schema:
             type: string

@@ -267,7 +267,7 @@
           type: object
           additionalProperties: true
         created_at:
-          description: Timestamp
+          description: 'When the credit was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true

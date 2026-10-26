@@ -197,7 +197,7 @@
           type: string
           example: '2'
         created_at:
-          description: Timestamp
+          description: 'When the expense was created, as a Unix timestamp in seconds'
           type: integer
           example: 1434342123
           readOnly: true

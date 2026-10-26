@@ -26,7 +26,7 @@
           description: 'The id of the activity that created the entry'
           type: integer
         archived_at:
-          description: 'Timestamp'
+          description: 'Always 0: ledger entries cannot be archived'
           type: integer
         credit_id:
           description: 'The credit hashed id, present when the entry belongs to a credit'
