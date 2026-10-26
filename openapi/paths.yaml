@@ -433,7 +433,7 @@ paths:
         - name: updated_at
           in: query
           description: "The unix timestamp from which the refreshed data should be sent from, if no value is passed the system will assume you require all data."
-          required: true
+          required: false
           schema:
             type: number
             format: integer
@@ -443,6 +443,17 @@ paths:
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/include_static"
         - $ref: "#/components/parameters/clear_cache"
+      requestBody:
+        description: 'Alternatively to the query parameter, the timestamps can be sent in the body'
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                updated_at:
+                  description: 'Return only data changed since this Unix timestamp; 0 or absent returns everything'
+                  type: integer
       responses:
         200:
           description: "The Company User response"
@@ -1443,16 +1454,56 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Action paramters"
+        description: "The bank transactions to match, each to invoices, a payment, expenses, or a new expense"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              type: object
+              required:
+                - transactions
+              properties:
+                transactions:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - id
+                    properties:
+                      id:
+                        description: 'The hashed id of the bank transaction'
+                        type: string
+                      invoice_ids:
+                        description: 'Comma separated hashed invoice ids to pay with a credit transaction'
+                        type: string
+                        nullable: true
+                      payment_id:
+                        description: 'The hashed id of an existing payment to link'
+                        type: string
+                        nullable: true
+                      expense_id:
+                        description: 'Comma separated hashed ids of existing expenses to link to a debit transaction'
+                        type: string
+                        nullable: true
+                      vendor_id:
+                        description: 'The hashed vendor id for the expense created from a debit transaction'
+                        type: string
+                        nullable: true
+                      ninja_category_id:
+                        description: 'The hashed expense category id for the created expense'
+                        type: string
+                        nullable: true
+                      client_id:
+                        description: 'The hashed client id for the created expense'
+                        type: string
+                        nullable: true
+                      project_id:
+                        description: 'The hashed project id for the created expense'
+                        type: string
+                        nullable: true
+                      should_be_invoiced:
+                        description: 'Whether the created expense should be invoiced'
+                        type: boolean
       responses:
         200:
           description: "The Bulk Action response"
@@ -1894,6 +1945,25 @@ paths:
             type: number
             format: integer
           example: 50
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_range:
+                  description: 'Accepted for every listed value, but totals only acts on all_time, which starts the range at the first chart date; other values use start_date and end_date'
+                  type: string
+                  enum: [last7_days, last30_days, last365_days, this_month, last_month, this_quarter, last_quarter, this_year, last_year, all_time, custom]
+                start_date:
+                  type: string
+                  format: date
+                  example: '2026-01-01'
+                end_date:
+                  type: string
+                  format: date
+                  example: '2026-12-31'
       responses:
         200:
           description: "json dataset of chart data"
@@ -5794,6 +5864,26 @@ paths:
       operationId: postOneTimeToken
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - context
+              properties:
+                context:
+                  description: 'What the token is for, stored with it and returned when it is redeemed'
+                  type: string
+                platform:
+                  description: 'The client app requesting the token'
+                  type: string
+                  nullable: true
+                  enum: [flutter_native, react]
+                institution_id:
+                  description: 'Bank institution id, for bank integration tokens'
+                  type: string
       responses:
         200:
           description: "The Company User response"
@@ -6362,6 +6452,23 @@ paths:
       operationId: getPreview
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entity:
+                  description: 'The entity type to render'
+                  type: string
+                  enum: [invoice, quote, credit, recurring_invoice]
+                entity_id:
+                  description: 'The hashed id of the entity to render; -1 or absent renders a blank entity'
+                  type: string
+                design:
+                  description: 'The design to render with, as stored on a Design (its design property holds body, header, footer, includes, product and task)'
+                  type: object
       responses:
         200:
           description: "The pdf response"
@@ -6394,6 +6501,23 @@ paths:
       operationId: getPreviewPurchaseOrder
       parameters:
         - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entity:
+                  description: 'The entity type to render'
+                  type: string
+                  enum: [purchase_order]
+                entity_id:
+                  description: 'The hashed id of the purchase order to render; -1 or absent renders a blank entity'
+                  type: string
+                design:
+                  description: 'The design to render with, as stored on a Design (its design property holds body, header, footer, includes, product and task)'
+                  type: object
       responses:
         200:
           description: "The pdf response"
@@ -8553,6 +8677,7 @@ paths:
                           type: integer
                         site_url:
                           type: string
+                          nullable: true
                         is_offsite:
                           type: boolean
                         is_secure:
@@ -8701,7 +8826,11 @@ paths:
                         items:
                           type: string
                   license_key:
-                    type: boolean
+                    description: 'Self-hosted only: the configured license key, or false when none is set'
+                    oneOf:
+                      - type: string
+                      - type: boolean
+                        enum: [false]
         401:
           $ref: "#/components/responses/401"
         403:

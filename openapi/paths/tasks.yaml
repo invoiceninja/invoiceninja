@@ -587,9 +587,11 @@
         source: |
           $ninja = new InvoiceNinja("YOUR-TOKEN");
           $ninja->tasks->sort([
-              'task_ids' => ['D2J234DFA', 'E3K345EFB', 'F4L456FGC'],
-              'status_id' => 1,
-              'sort_order' => ['F4L456FGC', 'D2J234DFA', 'E3K345EFB']
+              'status_ids' => ['Wpmbk5ezJn', 'Opnel5aKBz'],
+              'task_ids' => [
+                  'Wpmbk5ezJn' => ['D2J234DFA', 'E3K345EFB'],
+                  'Opnel5aKBz' => ['F4L456FGC'],
+              ],
           ]);
       - lang: curl
         label: curl
@@ -599,9 +601,11 @@
             -H "Content-Type: application/json" \
             -H "X-Requested-With: XMLHttpRequest" \
             -d '{
-              "task_ids": ["D2J234DFA", "E3K345EFB", "F4L456FGC"],
-              "status_id": 1,
-              "sort_order": ["F4L456FGC", "D2J234DFA", "E3K345EFB"]
+              "status_ids": ["Wpmbk5ezJn", "Opnel5aKBz"],
+              "task_ids": {
+                "Wpmbk5ezJn": ["D2J234DFA", "E3K345EFB"],
+                "Opnel5aKBz": ["F4L456FGC"]
+              }
             }'
       responses:
         200:

@@ -393,10 +393,15 @@
           description: 'When the webhook was created, as a Unix timestamp in seconds'
           type: integer
         headers:
-          description: 'Additional HTTP headers sent with the webhook request'
-          type: array
-          items:
-            type: object
+          description: 'Additional HTTP headers sent with the webhook request, as a map of header name to value. An empty array when there are none'
+          anyOf:
+            - type: object
+              additionalProperties:
+                type: string
+            - type: array
+              maxItems: 0
+          example:
+            X-Custom-Header: value
         is_deleted:
           description: 'Whether the webhook has been deleted'
           type: boolean

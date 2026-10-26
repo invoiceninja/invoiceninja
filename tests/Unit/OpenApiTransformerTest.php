@@ -157,6 +157,28 @@ class OpenApiTransformerTest extends TestCase
         $this->assertSame([], $problems, "{$schema_name} does not match {$transformer}");
     }
 
+    /** OpenAPI forbids a property that is both readOnly and writeOnly. */
+    public function testNoPropertyIsBothReadOnlyAndWriteOnly(): void
+    {
+        $both = [];
+        $walk = function (mixed $node, string $at) use (&$walk, &$both) {
+            if (! is_array($node)) {
+                return;
+            }
+
+            if (($node['readOnly'] ?? false) && ($node['writeOnly'] ?? false)) {
+                $both[] = $at;
+            }
+
+            foreach ($node as $key => $child) {
+                $walk($child, "{$at}.{$key}");
+            }
+        };
+        $walk(Yaml::parseFile(dirname(__DIR__, 2) . '/openapi/api-docs.yaml'), 'spec');
+
+        $this->assertSame([], $both);
+    }
+
     /**
      * The keys transform() returns, mapped to the type their cast implies (null when uncast),
      * plus the default and available includes.

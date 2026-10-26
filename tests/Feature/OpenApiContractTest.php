@@ -13,6 +13,7 @@
 namespace Tests\Feature;
 
 use App\Http\Middleware\PasswordProtection;
+use App\Models\Gateway;
 use App\Models\User;
 use cebe\openapi\spec\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -86,7 +87,7 @@ class OpenApiContractTest extends TestCase
         'tag' => ['/api/v1/tags', ['name' => 'Contract Test Tag', 'entity_type' => 'App\\Models\\Invoice'], ['create']],
         'token' => ['/api/v1/tokens', ['name' => 'Contract Test Token']],
         'user' => ['/api/v1/users', ['first_name' => 'Contract', 'last_name' => 'Test', 'email' => 'contract-test@example.com'], ['edit', 'delete']],
-        'webhook' => ['/api/v1/webhooks', ['target_url' => 'https://example.com/hook', 'event_id' => '1', 'rest_method' => 'post', 'format' => 'JSON']],
+        'webhook' => ['/api/v1/webhooks', ['target_url' => 'https://example.com/hook', 'event_id' => '1', 'rest_method' => 'post', 'format' => 'JSON', 'headers' => ['X-Contract-Test' => 'test']]],
         'subscription' => ['/api/v1/subscriptions', ['name' => 'Contract Test Subscription', 'product_ids' => '{product}', 'steps' => 'cart,auth.login-or-register']],
         'bank_integration' => ['/api/v1/bank_integrations', ['bank_account_name' => 'Contract Test Bank']],
         'bank_transaction' => ['/api/v1/bank_transactions', ['bank_integration_id' => '{bank_integration}', 'amount' => 10, 'description' => 'Contract test transaction', 'base_type' => 'CREDIT', 'date' => '2026-01-01']],
@@ -115,7 +116,7 @@ class OpenApiContractTest extends TestCase
         'ping' => ['get', '/api/v1/ping'],
         'health check' => ['get', '/api/v1/health_check'],
         'statics' => ['get', '/api/v1/statics'],
-        'refresh' => ['post', '/api/v1/refresh', [], self::NOTHING_CHANGED],
+        'refresh' => ['post', '/api/v1/refresh', [], ['updated_at' => self::NOTHING_CHANGED['updated_at']]],
         'login' => ['post', '/api/v1/login', [], ['email' => '{me.email}', 'password' => self::PASSWORD] + self::NOTHING_CHANGED],
         'current company' => ['post', '/api/v1/companies/current'],
         'default company' => ['post', '/api/v1/companies/{company}/default', ['company' => '{company}']],
@@ -147,7 +148,7 @@ class OpenApiContractTest extends TestCase
         'match transactions' => ['post', '/api/v1/bank_transactions/match', [], ['transactions' => [['id' => '{bank_transaction}', 'vendor_id' => '{vendor}']]]],
         'invite user' => ['post', '/api/v1/users/{user}/invite', ['user' => '{me.hashed_id}']],
         'reconfirm user' => ['post', '/api/v1/user/{user}/reconfirm', ['user' => '{me.hashed_id}']],
-        'export' => ['post', '/api/v1/export', [], ['send_email' => false]],
+        'export' => ['post', '/api/v1/export'],
         'purge client' => ['post', '/api/v1/clients/{id}/purge', ['id' => '{client}']],
         'detach user' => ['delete', '/api/v1/users/{user}/detach_from_company', ['user' => '{user}']],
         'logout' => ['post', '/api/v1/logout'],
@@ -408,7 +409,10 @@ class OpenApiContractTest extends TestCase
             array_map(fn ($key) => '{'.$key.'}', array_keys($parameters)),
             $this->resolve(array_values($parameters)),
         ));
-        $mismatch = $this->specMismatch($method, $path, $this->apiRequest($method, $url, $body), null);
+        $mismatch = array_merge(
+            $body ? $this->requestMismatch($method, $path, $body) : [],
+            $this->specMismatch($method, $path, $this->apiRequest($method, $url, $body), null),
+        );
 
         $this->assertEmpty($mismatch, strtoupper($method)." {$path} does not match the spec:\n  - ".implode("\n  - ", $mismatch));
     }
@@ -516,6 +520,20 @@ class OpenApiContractTest extends TestCase
         $mismatch = $this->specMismatch('post', '/api/v1/companies', $response, null);
 
         $this->assertEmpty($mismatch, "POST /api/v1/companies does not match the spec:\n  - ".implode("\n  - ", $mismatch));
+    }
+
+    /** Seeded data leaves out values real installations have: a license key, and gateways without a site_url. */
+    public function testStaticsOfAConfiguredInstallationMatchSpec(): void
+    {
+        config(['ninja.license_key' => 'contract-test-license']);
+
+        $gateways = Gateway::query()->orderBy('id')->get();
+        $gateways->first()->site_url = null;
+        app()->instance('gateways', $gateways);
+
+        $mismatch = $this->specMismatch('get', '/api/v1/statics', $this->apiRequest('get', '/api/v1/statics'), null);
+
+        $this->assertEmpty($mismatch, "GET /api/v1/statics does not match the spec:\n  - ".implode("\n  - ", $mismatch));
     }
 
     private function created(string $entity): string
