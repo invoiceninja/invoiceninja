@@ -82,7 +82,7 @@
           description: 'When the location was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         tax_data:
-          description: 'Tax data of the location'
+          description: 'Sales tax data the tax provider looked up for the location''s address, an empty object when none'
           type: object
           additionalProperties: true
       type: object 

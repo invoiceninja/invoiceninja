@@ -144,15 +144,15 @@
           type: boolean
           example: true
         date:
-          description: 'The quote Date, an empty string when not set'
+          description: 'The date of the recurring quote, an empty string when not set'
           type: string
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the quote was sent out, an empty string when not set'
+          description: 'The date the last quote was generated and sent, an empty string when not set'
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent, an empty string when not set'
+          description: 'The date the next quote is generated (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
           example: '1994-07-30'
         partial_due_date:
@@ -160,7 +160,7 @@
           type: string
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the quote, an empty string when not set'
+          description: 'The due date of the recurring quote, an empty string when not set. The generated quotes get their due date from due_date_days'
           type: string
           example: '1994-07-30'
         updated_at:
@@ -208,10 +208,10 @@
           type: boolean
           example: true
         auto_bill:
-          description: 'Whether the generated invoices are auto billed: always, optin, optout or off'
+          description: 'The auto bill setting: always, optin, optout or off. Defaults to the client''s auto_bill setting'
           type: string
         auto_bill_enabled:
-          description: 'Whether auto billing is enabled'
+          description: 'True when auto_bill is always or optout'
           type: boolean
         created_at:
           description: 'When the recurring quote was created, as a Unix timestamp in seconds'
@@ -225,7 +225,7 @@
           items:
             $ref: '#/components/schemas/Document'
         due_date_days:
-          description: 'The number of days after the quote date the generated quote is due, an empty string when not set'
+          description: 'The day of the month the generated quotes are due, or terms to use the client''s payment terms. An empty string when not set'
           type: string
         entity_type:
           description: 'The type of the record, always "recurringQuote"'
@@ -234,10 +234,10 @@
           description: 'The exchange rate between the client currency and the company currency'
           type: number
         has_expenses:
-          description: 'Whether the recurring quote has expenses'
+          description: 'Legacy flag that Invoice Ninja does not set or accept for recurring quotes, so it is false'
           type: boolean
         has_tasks:
-          description: 'Whether the recurring quote has tasks'
+          description: 'Legacy flag that Invoice Ninja does not set or accept for recurring quotes, so it is false'
           type: boolean
         invitations:
           description: 'The invitations of the recurring quote'
@@ -248,7 +248,7 @@
           description: 'The hashed id of the project the recurring quote belongs to; empty if none'
           type: string
         recurring_dates:
-          description: 'The upcoming send dates'
+          description: 'The upcoming dates quotes are generated on'
           type: array
           items:
             type: object

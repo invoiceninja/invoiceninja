@@ -221,7 +221,7 @@
           type: string
           example: "R"
         reset_counter_frequency_id:
-          description: 'CONSTANT which is used to apply the frequency which the counters are reset. The default is returned as the string 0'
+          description: 'How often the number counters are reset, as a frequency id string (see RecurringInvoice frequency_id). 0, the default, never resets them'
           oneOf:
             - type: integer
             - type: string
@@ -568,17 +568,17 @@
           type: integer
           example: 9
         schedule_reminder1:
-          description: 'When the reminder is sent, an empty string when not set'
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
           enum: [after_invoice_date, before_due_date, after_due_date, '']
           example: after_invoice_date
         schedule_reminder2:
-          description: 'When the reminder is sent, an empty string when not set'
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
           enum: [after_invoice_date, before_due_date, after_due_date, '']
           example: after_invoice_date
         schedule_reminder3:
-          description: 'When the reminder is sent, an empty string when not set'
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
           enum: [after_invoice_date, before_due_date, after_due_date, '']
           example: after_invoice_date
@@ -922,10 +922,10 @@
           description: 'The e-quote standard, for example OrderX_Comfort'
           type: string
         email_quote_subject_reminder1:
-          description: 'The subject of the first quote reminder email'
+          description: 'Subject line of the first quote reminder email. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_quote_template_reminder1:
-          description: 'The body of the first quote reminder email'
+          description: 'Body of the first quote reminder email. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         email_subject_credit:
           description: 'Subject line of the email sent with a credit. Empty uses the built-in default subject; template variables such as $number are replaced'
@@ -937,25 +937,25 @@
           description: 'Subject line of the email sent when a partial payment is received. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_template_credit:
-          description: 'The body of the credit email'
+          description: 'Body of the email sent with a credit. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         email_template_payment_failed:
-          description: 'The body of the failed payment email'
+          description: 'Body of the email sent when a payment fails. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         email_template_payment_partial:
-          description: 'The body of the partial payment email'
+          description: 'Body of the email sent when a partial payment is received. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         enable_client_profile_update:
-          description: 'Whether to enable client profile update'
+          description: 'Whether contacts can edit the client''s details in the client portal'
           type: boolean
         enable_quote_reminder1:
-          description: 'Whether to enable quote reminder1'
+          description: 'Whether the first quote reminder is sent'
           type: boolean
         enable_rappen_rounding:
-          description: 'Whether to enable rappen rounding'
+          description: 'Whether invoice totals are rounded to the nearest 0.05 (Swiss Rappen rounding)'
           type: boolean
         id_number:
-          description: 'The company ID number'
+          description: 'The company''s registration number, shown on documents as $company.id_number'
           type: string
         late_fee_percent1:
           description: 'The late fee added with the first reminder, as a percentage of the balance'
@@ -1004,37 +1004,37 @@
           description: 'Whether the item description is shown instead of the item title in the HTML view of an invoice'
           type: boolean
         project_number_counter:
-          description: 'The next project number'
+          description: 'The incrementing counter for project numbers'
           type: integer
         project_number_pattern:
-          description: 'The pattern for project numbers'
+          description: 'Allows customisation of the project number pattern'
           type: string
         quote_late_fee_amount1:
-          description: 'The fee added with the first quote reminder'
+          description: 'Stored only: no late fee is added to quotes'
           type: integer
         quote_late_fee_percent1:
-          description: 'The fee added with the first quote reminder, as a percentage'
+          description: 'Stored only: no late fee is added to quotes'
           type: integer
         quote_num_days_reminder1:
-          description: 'The number of days for the first quote reminder'
+          description: 'The number of days before or after the date chosen by quote_schedule_reminder1 that the first quote reminder is sent'
           type: integer
         quote_schedule_reminder1:
           description: 'When the first quote reminder is sent: before_valid_until_date, after_valid_until_date or after_quote_date'
           type: string
         recurring_expense_number_counter:
-          description: 'The next recurring expense number'
+          description: 'The incrementing counter for recurring expense numbers'
           type: integer
         recurring_expense_number_pattern:
-          description: 'The pattern for recurring expense numbers'
+          description: 'Allows customisation of the recurring expense number pattern'
           type: string
         recurring_number_prefix:
-          description: 'The prefix for recurring invoice numbers'
+          description: 'A prefix added to the numbers of invoices generated by recurring invoices'
           type: string
         recurring_quote_number_counter:
-          description: 'The next recurring quote number'
+          description: 'The incrementing counter for recurring quote numbers'
           type: integer
         recurring_quote_number_pattern:
-          description: 'The pattern for recurring quote numbers'
+          description: 'Allows customisation of the recurring quote number pattern'
           type: string
         ses_access_key:
           description: 'The Amazon SES access key id'
@@ -1052,7 +1052,7 @@
           description: 'The Amazon SES topic ARN, only needed for webhook tracking'
           type: string
         show_pdfhtml_on_mobile:
-          description: 'Whether to show pdfhtml on mobile'
+          description: 'Whether the client portal shows invoices as HTML instead of the PDF on mobile devices'
           type: boolean
         skip_automatic_email_with_peppol:
           description: 'Whether invoices sent through PEPPOL are not also emailed to the client'
@@ -1070,5 +1070,5 @@
           description: 'Whether clients can access invoice documents once the invoice is paid'
           type: boolean
         use_unapplied_payment:
-          description: 'Whether to use unapplied payment'
+          description: 'Whether auto billing first uses the client''s unapplied payments: always, option or off'
           type: string

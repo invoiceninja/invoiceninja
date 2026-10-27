@@ -66,7 +66,7 @@
           type: integer
           example: 30
         webhook_configuration:
-          description: 'Webhook configuration for the subscription'
+          description: 'The webhook called after a purchase: post_purchase_url, post_purchase_rest_method (post or put), post_purchase_headers and post_purchase_body'
           type: object
           additionalProperties: true
         is_deleted:
@@ -95,7 +95,7 @@
           description: 'The hashed id of the group settings applied to clients who subscribe'
           type: string
         name:
-          description: 'The name of the subscription'
+          description: 'The name of the subscription, shown in the billing portal'
           type: string
         optional_product_ids:
           description: 'A comma separated list of the hashed ids of optional one-off products'
@@ -107,13 +107,13 @@
           description: 'Deprecated, always an empty string'
           type: string
         price:
-          description: 'The price of the subscription'
+          description: 'The price charged in the billing portal when no promo code is applied'
           type: number
         product_ids:
           description: 'A comma separated list of the hashed ids of one-off products'
           type: string
         promo_price:
-          description: 'The promotional price'
+          description: 'The price charged in the billing portal once the promo_code is entered'
           type: number
         purchase_page:
           description: 'The client portal URL to purchase the subscription'
@@ -128,10 +128,10 @@
           description: 'The number of billing cycles, -1 for endless'
           type: integer
         steps:
-          description: 'A comma separated list of the purchase steps'
+          description: 'A comma separated list of the billing portal purchase steps, in order (see /api/v1/subscriptions/steps)'
           type: string
         use_inventory_management:
-          description: 'Whether to use inventory management'
+          description: 'Whether the billing portal checks product stock and blocks products that are out of stock'
           type: boolean
       type: object
     BulkAction:

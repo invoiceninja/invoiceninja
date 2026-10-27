@@ -243,7 +243,7 @@
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the payment to update'
         required: true
         content:
           application/json:

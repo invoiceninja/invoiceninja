@@ -118,14 +118,14 @@
           description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
           type: string
         referral_code:
-          description: 'The referral code of the user'
+          description: 'The code that new accounts sign up with to be counted as referred by this user'
           type: string
         referral_meta:
-          description: 'Referral statistics of the user'
+          description: 'The number of accounts the user referred, by plan: free, pro and enterprise'
           type: object
           additionalProperties: true
         settings:
-          description: 'Preferences of the user'
+          description: 'The user''s settings, currently calendar_connection with the status and email of the connected calendar'
           type: object
           additionalProperties: true
         updated_at:
@@ -251,7 +251,7 @@
           type: string
           example: 'refresh_token_abc123'
         oauth_user_token:
-          description: 'Masked when the user has connected an OAuth account, an empty string otherwise'
+          description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
           type: string
           example: '***'
         shopify_user_id:
@@ -279,14 +279,14 @@
           description: 'Timestamp of the last login, 0 when the user has never logged in'
           type: integer
         referral_code:
-          description: 'The referral code of the user'
+          description: 'The code that new accounts sign up with to be counted as referred by this user'
           type: string
         referral_meta:
-          description: 'Referral statistics of the user'
+          description: 'The number of accounts the user referred, by plan: free, pro and enterprise'
           type: object
           additionalProperties: true
         settings:
-          description: 'Preferences of the user'
+          description: 'The user''s settings, currently calendar_connection with the status and email of the connected calendar'
           type: object
           additionalProperties: true
         updated_at:

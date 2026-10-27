@@ -71,7 +71,7 @@
           description: 'When the contact was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         last_login:
-          description: 'Timestamp of the last login'
+          description: 'When the contact last logged in to the vendor portal, as a Unix timestamp in seconds; 0 when never'
           type: integer
         link:
           description: 'The vendor portal login link of the contact'

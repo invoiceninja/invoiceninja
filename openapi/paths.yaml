@@ -590,7 +590,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The bank integration to create'
         required: true
         content:
           application/json:
@@ -692,7 +692,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the bank integration to update'
         required: true
         content:
           application/json:
@@ -1103,7 +1103,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The bank transaction to create'
         required: true
         content:
           application/json:
@@ -1205,7 +1205,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the bank transaction to update'
         required: true
         content:
           application/json:
@@ -1604,7 +1604,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The bank transaction rule to create'
         required: true
         content:
           application/json:
@@ -1706,7 +1706,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the bank transaction rule to update'
         required: true
         content:
           application/json:
@@ -2182,7 +2182,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The client gateway token to create'
         required: true
         content:
           application/json:
@@ -2284,7 +2284,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the client gateway token to update'
         required: true
         content:
           application/json:
@@ -2649,7 +2649,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the company to update'
         required: true
         content:
           application/json:
@@ -2990,7 +2990,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The company gateway to create'
         required: true
         content:
           application/json:
@@ -3126,7 +3126,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the company gateway to update'
         required: true
         content:
           application/json:
@@ -3427,7 +3427,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The design to create'
         required: true
         content:
           application/json:
@@ -3523,7 +3523,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the design to update'
         required: true
         content:
           application/json:
@@ -3903,7 +3903,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The expense category to create'
         required: true
         content:
           application/json:
@@ -4030,7 +4030,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the expense category to update'
         required: true
         content:
           application/json:
@@ -4246,7 +4246,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The expense to create'
         required: true
         content:
           application/json:
@@ -4340,7 +4340,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the expense to update'
         required: true
         content:
           application/json:
@@ -4690,7 +4690,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The group setting to create'
         required: true
         content:
           application/json:
@@ -4820,7 +4820,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the group setting to update'
         required: true
         content:
           application/json:
@@ -6095,7 +6095,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the payment term to update'
         required: true
         content:
           application/json:
@@ -6597,7 +6597,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The recurring expense to create'
         required: true
         content:
           application/json:
@@ -6691,7 +6691,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the recurring expense to update'
         required: true
         content:
           application/json:
@@ -7006,7 +7006,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The recurring quote to create'
         required: true
         content:
           application/json:
@@ -7136,7 +7136,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the recurring quote to update'
         required: true
         content:
           application/json:
@@ -7259,7 +7259,7 @@ paths:
       tags:
         - Recurring Quotes
       summary: "Add recurring quote document"
-      description: "Handles the uploading of a document to a recurring_quote"
+      description: "Uploads one or more documents and attaches them to the recurring quote, then returns the recurring quote"
       operationId: uploadRecurringQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -8893,7 +8893,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The subscription to create'
         required: true
         content:
           application/json:
@@ -9023,7 +9023,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the subscription to update'
         required: true
         content:
           application/json:
@@ -9843,7 +9843,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the task status to update'
         required: true
         content:
           application/json:
@@ -10184,7 +10184,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the tax rate to update'
         required: true
         content:
           application/json:
@@ -10606,7 +10606,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The API token to create'
         required: true
         content:
           application/json:
@@ -10700,7 +10700,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the API token to update'
         required: true
         content:
           application/json:
@@ -10953,7 +10953,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The user to create'
         required: true
         content:
           application/json:
@@ -11083,7 +11083,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the user to update'
         required: true
         content:
           application/json:
@@ -11374,7 +11374,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The webhook to create'
         required: true
         content:
           application/json:
@@ -11468,7 +11468,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the webhook to update'
         required: true
         content:
           application/json:
@@ -13177,7 +13177,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: company_gateway
           in: path
-          description: "The company gateway"
+          description: "The hashed id of the company gateway to clone"
           required: true
           schema:
             type: string

@@ -248,7 +248,7 @@
           type: boolean
           example: true
         client_registration_fields:
-          description: 'The client registration fields for the company'
+          description: 'The fields of the client portal registration form, as a list of {key, required, visible} entries'
           type: array
           items:
             type: object
@@ -402,7 +402,7 @@
           example: 587
 
         smtp_encryption:
-          description: 'The encryption method for SMTP, an empty string when not set'
+          description: 'The encryption used for the custom SMTP server, for example tls or ssl; tls is used when it is not set'
           type: string
           nullable: true
           enum: [tls, ssl, '']
@@ -423,7 +423,7 @@
           additionalProperties: true
 
         legal_entity_id:
-          description: 'The ID of the legal entity associated with the company, null when there is none'
+          description: 'The id of the company''s legal entity on the Storecove e-invoicing network, null when the company is not registered'
           type: integer
           nullable: true
           example: 1234
@@ -462,7 +462,7 @@
           items:
             $ref: '#/components/schemas/Document'
         enable_modules:
-          description: 'Whether to enable modules'
+          description: 'Whether DocuNinja is enabled for the company'
           type: boolean
         expense_amount_is_pretax:
           description: 'Deprecated, always true'
@@ -471,16 +471,16 @@
           description: 'Deprecated, the Google Analytics key'
           type: string
         has_e_invoice_certificate:
-          description: 'Whether the company has e invoice certificate'
+          description: 'Whether an e-invoicing certificate has been uploaded. The certificate itself is never returned'
           type: boolean
         has_e_invoice_certificate_passphrase:
-          description: 'Whether the company has e invoice certificate passphrase'
+          description: 'Whether a passphrase for the e-invoicing certificate is stored. The passphrase itself is never returned'
           type: boolean
         hide_empty_columns_on_pdf:
-          description: 'Whether to hide empty columns on pdf'
+          description: 'Deprecated, always false. The setting is settings.hide_empty_columns_on_pdf'
           type: boolean
         quickbooks:
-          description: 'The QuickBooks integration settings'
+          description: 'The QuickBooks Online connection and sync settings without the access and refresh tokens, null when QuickBooks is not connected'
           nullable: true
         smtp_password:
           description: 'Masked as ******** when an SMTP password is set, otherwise an empty string'
@@ -492,7 +492,7 @@
           description: 'When the company was last changed, as a Unix timestamp in seconds'
           type: integer
         use_credits_payment:
-          description: 'Whether to use credits payment'
+          description: 'Deprecated, always ''always''. The setting is settings.use_credits_payment'
           type: string
         activities:
           description: 'The activities of the company, returned with include=activities'

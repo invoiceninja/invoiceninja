@@ -98,7 +98,7 @@
           example: 1434342123
           readOnly: true
         meta:
-          description: 'Metadata associated with this task, an empty object when there is none'
+          description: 'Calendar sync data: calendar_event_id, the id of the calendar event linked to the task. An empty object when there is none'
           type: object
           additionalProperties: true
         status_id:

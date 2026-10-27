@@ -34,7 +34,7 @@
           description: 'When the client gateway token was created, as a Unix timestamp in seconds'
           type: integer
         gateway_customer_reference:
-          description: 'The customer reference at the payment gateway'
+          description: 'The id of the customer at the payment gateway, for example a Stripe customer id (cus_...)'
           type: string
         gateway_type_id:
           description: 'The gateway type id, for example 1 for credit card'

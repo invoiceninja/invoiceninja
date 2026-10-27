@@ -151,7 +151,7 @@
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent (YYYY-MM-DD), an empty string when not set'
+          description: 'The next date a reminder is sent (YYYY-MM-DD), an empty string when not set'
           type: string
           example: '1994-07-30'
         partial_due_date:

@@ -87,32 +87,32 @@
     TaskScheduler:
       properties:
         id:
-          description: 'The scheduler hashed id'
+          description: 'The scheduled task hashed id'
           type: string
           example: Opnel5aKBz
           readOnly: true
         name:
-          description: 'The name of the scheduler'
+          description: 'The name the user gave the scheduled task'
           type: string
           example: 'Monthly statements'
         frequency_id:
-          description: 'The frequency the scheduler runs at, as a string'
+          description: 'How often the task runs, as a frequency id string: 1 daily, 2 weekly, 3 every two weeks, 4 every four weeks, 5 monthly, 6 every two months, 7 every three months, 8 every four months, 9 every six months, 10 yearly, 11 every two years, 12 every three years'
           type: string
           example: '5'
         next_run:
-          description: 'The next date the scheduler runs (YYYY-MM-DD)'
+          description: 'The next date the task runs (YYYY-MM-DD), in the company time zone'
           type: string
           example: '2030-01-01'
         template:
-          description: 'The template the scheduler runs'
+          description: 'What the task does: email_statement, email_record, email_report, invoice_outstanding_tasks or payment_schedule'
           type: string
           example: client_statement
         is_paused:
-          description: 'Whether the scheduler is paused'
+          description: 'Whether the task is paused and skipped until it is resumed'
           type: boolean
           example: false
         parameters:
-          description: 'The template specific parameters'
+          description: 'The options for the template, for example clients, date_range and entity for email_statement, or report_name for email_report'
           type: object
           additionalProperties: true
         remaining_cycles:
@@ -120,7 +120,7 @@
           type: integer
           example: -1
         is_deleted:
-          description: 'Whether the scheduler has been deleted'
+          description: 'Whether the scheduled task has been deleted'
           type: boolean
           example: false
           readOnly: true

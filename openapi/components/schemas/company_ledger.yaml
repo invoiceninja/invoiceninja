@@ -23,7 +23,7 @@
           type: integer
           example: 1434342123
         activity_id:
-          description: 'The id of the activity that created the entry'
+          description: 'The unhashed numeric id of the activity that created the entry'
           type: integer
         archived_at:
           description: 'Always 0: ledger entries cannot be archived'

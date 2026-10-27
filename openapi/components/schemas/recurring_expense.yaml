@@ -94,7 +94,7 @@
           format: float
           example: 10.00
         frequency_id:
-          description: 'The frequency this recurring expense fires, an empty string when not set'
+          description: 'How often an expense is created, as a frequency id string (see RecurringInvoice frequency_id), an empty string when not set'
           type: string
           example: '1'
         remaining_cycles:
@@ -128,11 +128,11 @@
           type: boolean
           example: true
         last_sent_date:
-          description: 'The Date it was sent last, an empty string when not set'
+          description: 'The date the last expense was created, an empty string when not set'
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The next send date (YYYY-MM-DD HH:MM:SS)'
+          description: 'The date the next expense is created, in the company time zone'
           type: string
           example: '1994-07-30'
         invoice_documents:

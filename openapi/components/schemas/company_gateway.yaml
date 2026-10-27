@@ -62,47 +62,47 @@
           description: 'The label shown for the gateway'
           type: string
         require_client_name:
-          description: 'Whether to require client name'
+          description: 'Whether the client must enter the client name before paying with this gateway'
           type: boolean
         require_client_phone:
-          description: 'Whether to require client phone'
+          description: 'Whether the client must enter the client phone number before paying with this gateway'
           type: boolean
         require_contact_email:
-          description: 'Whether to require contact email'
+          description: 'Whether the client must enter the contact email before paying with this gateway'
           type: boolean
         require_contact_name:
-          description: 'Whether to require contact name'
+          description: 'Whether the client must enter the contact name before paying with this gateway'
           type: boolean
         require_custom_value1:
-          description: 'Whether to require custom value1'
+          description: 'Whether the client must fill in client custom field 1 before paying with this gateway'
           type: boolean
         require_custom_value2:
-          description: 'Whether to require custom value2'
+          description: 'Whether the client must fill in client custom field 2 before paying with this gateway'
           type: boolean
         require_custom_value3:
-          description: 'Whether to require custom value3'
+          description: 'Whether the client must fill in client custom field 3 before paying with this gateway'
           type: boolean
         require_custom_value4:
-          description: 'Whether to require custom value4'
+          description: 'Whether the client must fill in client custom field 4 before paying with this gateway'
           type: boolean
         require_cvv:
-          description: 'Whether to require cvv'
+          description: 'Whether the Authorize.net card form asks for the card''s CVV'
           type: boolean
         require_postal_code:
-          description: 'Whether to require postal code'
+          description: 'Whether the client must enter a postal code before paying with this gateway'
           type: boolean
         require_zip:
-          description: 'Whether to require zip'
+          description: 'Legacy flag, not used by the payment flow. require_postal_code is used instead'
           type: boolean
         settings:
           description: 'Gateway settings that override the company settings'
           type: object
           additionalProperties: true
         show_billing_address:
-          description: 'Whether to show billing address'
+          description: 'Deprecated and not used. require_billing_address is used instead'
           type: boolean
         show_shipping_address:
-          description: 'Whether to show shipping address'
+          description: 'Deprecated and not used. require_shipping_address is used instead'
           type: boolean
         test_mode:
           description: 'Whether the gateway runs in test mode'

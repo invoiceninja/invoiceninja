@@ -68,7 +68,7 @@
           description: 'The image height in pixels, 0 for other files'
           type: integer
         is_public:
-          description: 'Whether the document is public'
+          description: 'Whether the document is shared with the client in the client portal and on the PDF. Defaults to the documents_public_by_default setting'
           type: boolean
         link:
           description: 'The URL to download the document'

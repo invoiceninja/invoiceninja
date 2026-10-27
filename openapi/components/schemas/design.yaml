@@ -58,9 +58,9 @@
           description: 'A comma separated list of the entities the design can be used for'
           type: string
         is_free:
-          description: 'Whether the design is free'
+          description: 'Whether the design is one of the built-in free designs (ids 1 to 4)'
           type: boolean
         is_template:
-          description: 'Whether the design is template'
+          description: 'Whether the design is a template (for statements, payment receipts and other template output) rather than an entity PDF design'
           type: boolean
       type: object

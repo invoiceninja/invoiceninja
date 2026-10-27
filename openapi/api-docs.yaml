@@ -709,7 +709,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The bank integration to create'
         required: true
         content:
           application/json:
@@ -811,7 +811,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the bank integration to update'
         required: true
         content:
           application/json:
@@ -1222,7 +1222,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The bank transaction to create'
         required: true
         content:
           application/json:
@@ -1324,7 +1324,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the bank transaction to update'
         required: true
         content:
           application/json:
@@ -1723,7 +1723,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The bank transaction rule to create'
         required: true
         content:
           application/json:
@@ -1825,7 +1825,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the bank transaction rule to update'
         required: true
         content:
           application/json:
@@ -2301,7 +2301,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The client gateway token to create'
         required: true
         content:
           application/json:
@@ -2403,7 +2403,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the client gateway token to update'
         required: true
         content:
           application/json:
@@ -2768,7 +2768,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the company to update'
         required: true
         content:
           application/json:
@@ -3109,7 +3109,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The company gateway to create'
         required: true
         content:
           application/json:
@@ -3245,7 +3245,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the company gateway to update'
         required: true
         content:
           application/json:
@@ -3546,7 +3546,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The design to create'
         required: true
         content:
           application/json:
@@ -3642,7 +3642,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the design to update'
         required: true
         content:
           application/json:
@@ -4022,7 +4022,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The expense category to create'
         required: true
         content:
           application/json:
@@ -4149,7 +4149,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the expense category to update'
         required: true
         content:
           application/json:
@@ -4365,7 +4365,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The expense to create'
         required: true
         content:
           application/json:
@@ -4459,7 +4459,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the expense to update'
         required: true
         content:
           application/json:
@@ -4809,7 +4809,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The group setting to create'
         required: true
         content:
           application/json:
@@ -4939,7 +4939,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the group setting to update'
         required: true
         content:
           application/json:
@@ -6214,7 +6214,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the payment term to update'
         required: true
         content:
           application/json:
@@ -6716,7 +6716,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The recurring expense to create'
         required: true
         content:
           application/json:
@@ -6810,7 +6810,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the recurring expense to update'
         required: true
         content:
           application/json:
@@ -7125,7 +7125,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The recurring quote to create'
         required: true
         content:
           application/json:
@@ -7255,7 +7255,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the recurring quote to update'
         required: true
         content:
           application/json:
@@ -7378,7 +7378,7 @@ paths:
       tags:
         - Recurring Quotes
       summary: "Add recurring quote document"
-      description: "Handles the uploading of a document to a recurring_quote"
+      description: "Uploads one or more documents and attaches them to the recurring quote, then returns the recurring quote"
       operationId: uploadRecurringQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -9012,7 +9012,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The subscription to create'
         required: true
         content:
           application/json:
@@ -9142,7 +9142,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the subscription to update'
         required: true
         content:
           application/json:
@@ -9962,7 +9962,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the task status to update'
         required: true
         content:
           application/json:
@@ -10303,7 +10303,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the tax rate to update'
         required: true
         content:
           application/json:
@@ -10725,7 +10725,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The API token to create'
         required: true
         content:
           application/json:
@@ -10819,7 +10819,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the API token to update'
         required: true
         content:
           application/json:
@@ -11072,7 +11072,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The user to create'
         required: true
         content:
           application/json:
@@ -11202,7 +11202,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the user to update'
         required: true
         content:
           application/json:
@@ -11493,7 +11493,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       requestBody:
-        description: "The entity to save"
+        description: 'The webhook to create'
         required: true
         content:
           application/json:
@@ -11587,7 +11587,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the webhook to update'
         required: true
         content:
           application/json:
@@ -13296,7 +13296,7 @@ paths:
         - $ref: "#/components/parameters/X-Requested-With"
         - name: company_gateway
           in: path
-          description: "The company gateway"
+          description: "The hashed id of the company gateway to clone"
           required: true
           schema:
             type: string
@@ -15273,7 +15273,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the payment to update'
         required: true
         content:
           application/json:
@@ -18267,7 +18267,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the credit to update'
         required: true
         content:
           application/json:
@@ -20790,7 +20790,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the recurring invoice to update'
         required: true
         content:
           application/json:
@@ -21569,7 +21569,7 @@ paths:
             format: string
           example: D2J234DFA
       requestBody:
-        description: "The entity to save"
+        description: 'The fields of the invoice to update'
         required: true
         content:
           application/json:
@@ -24141,32 +24141,32 @@ components:
     TaskScheduler:
       properties:
         id:
-          description: 'The scheduler hashed id'
+          description: 'The scheduled task hashed id'
           type: string
           example: Opnel5aKBz
           readOnly: true
         name:
-          description: 'The name of the scheduler'
+          description: 'The name the user gave the scheduled task'
           type: string
           example: 'Monthly statements'
         frequency_id:
-          description: 'The frequency the scheduler runs at, as a string'
+          description: 'How often the task runs, as a frequency id string: 1 daily, 2 weekly, 3 every two weeks, 4 every four weeks, 5 monthly, 6 every two months, 7 every three months, 8 every four months, 9 every six months, 10 yearly, 11 every two years, 12 every three years'
           type: string
           example: '5'
         next_run:
-          description: 'The next date the scheduler runs (YYYY-MM-DD)'
+          description: 'The next date the task runs (YYYY-MM-DD), in the company time zone'
           type: string
           example: '2030-01-01'
         template:
-          description: 'The template the scheduler runs'
+          description: 'What the task does: email_statement, email_record, email_report, invoice_outstanding_tasks or payment_schedule'
           type: string
           example: client_statement
         is_paused:
-          description: 'Whether the scheduler is paused'
+          description: 'Whether the task is paused and skipped until it is resumed'
           type: boolean
           example: false
         parameters:
-          description: 'The template specific parameters'
+          description: 'The options for the template, for example clients, date_range and entity for email_statement, or report_name for email_report'
           type: object
           additionalProperties: true
         remaining_cycles:
@@ -24174,7 +24174,7 @@ components:
           type: integer
           example: -1
         is_deleted:
-          description: 'Whether the scheduler has been deleted'
+          description: 'Whether the scheduled task has been deleted'
           type: boolean
           example: false
           readOnly: true
@@ -25240,47 +25240,47 @@ components:
           description: 'The label shown for the gateway'
           type: string
         require_client_name:
-          description: 'Whether to require client name'
+          description: 'Whether the client must enter the client name before paying with this gateway'
           type: boolean
         require_client_phone:
-          description: 'Whether to require client phone'
+          description: 'Whether the client must enter the client phone number before paying with this gateway'
           type: boolean
         require_contact_email:
-          description: 'Whether to require contact email'
+          description: 'Whether the client must enter the contact email before paying with this gateway'
           type: boolean
         require_contact_name:
-          description: 'Whether to require contact name'
+          description: 'Whether the client must enter the contact name before paying with this gateway'
           type: boolean
         require_custom_value1:
-          description: 'Whether to require custom value1'
+          description: 'Whether the client must fill in client custom field 1 before paying with this gateway'
           type: boolean
         require_custom_value2:
-          description: 'Whether to require custom value2'
+          description: 'Whether the client must fill in client custom field 2 before paying with this gateway'
           type: boolean
         require_custom_value3:
-          description: 'Whether to require custom value3'
+          description: 'Whether the client must fill in client custom field 3 before paying with this gateway'
           type: boolean
         require_custom_value4:
-          description: 'Whether to require custom value4'
+          description: 'Whether the client must fill in client custom field 4 before paying with this gateway'
           type: boolean
         require_cvv:
-          description: 'Whether to require cvv'
+          description: 'Whether the Authorize.net card form asks for the card''s CVV'
           type: boolean
         require_postal_code:
-          description: 'Whether to require postal code'
+          description: 'Whether the client must enter a postal code before paying with this gateway'
           type: boolean
         require_zip:
-          description: 'Whether to require zip'
+          description: 'Legacy flag, not used by the payment flow. require_postal_code is used instead'
           type: boolean
         settings:
           description: 'Gateway settings that override the company settings'
           type: object
           additionalProperties: true
         show_billing_address:
-          description: 'Whether to show billing address'
+          description: 'Deprecated and not used. require_billing_address is used instead'
           type: boolean
         show_shipping_address:
-          description: 'Whether to show shipping address'
+          description: 'Deprecated and not used. require_shipping_address is used instead'
           type: boolean
         test_mode:
           description: 'Whether the gateway runs in test mode'
@@ -25638,7 +25638,7 @@ components:
           description: 'When the contact was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         last_login:
-          description: 'Timestamp of the last login'
+          description: 'When the contact last logged in to the vendor portal, as a Unix timestamp in seconds; 0 when never'
           type: integer
         link:
           description: 'The vendor portal login link of the contact'
@@ -25840,7 +25840,7 @@ components:
           type: integer
           example: 1434342123
         activity_id:
-          description: 'The id of the activity that created the entry'
+          description: 'The unhashed numeric id of the activity that created the entry'
           type: integer
         archived_at:
           description: 'Always 0: ledger entries cannot be archived'
@@ -26553,7 +26553,7 @@ components:
           description: 'The number of emails the account has sent today'
           type: integer
         has_iap_plan:
-          description: 'Whether the account has iap plan'
+          description: 'Whether the account pays for its plan through an in-app purchase (App Store or Google Play)'
           type: boolean
         hosted_client_count:
           description: 'The maximum number of clients allowed on the hosted plan'
@@ -26562,22 +26562,22 @@ components:
           description: 'The maximum number of companies allowed on the hosted plan'
           type: integer
         is_docker:
-          description: 'Whether the account is docker'
+          description: 'Whether this server runs the official Docker image (IS_DOCKER is set)'
           type: boolean
         is_hosted:
-          description: 'Whether the account is hosted'
+          description: 'Whether this is the hosted platform rather than a self-hosted installation'
           type: boolean
         is_migrated:
-          description: 'Whether the account is migrated'
+          description: 'Whether the account was migrated from Invoice Ninja v4. Migrated accounts get no trial days'
           type: boolean
         is_premium:
-          description: 'Whether the account is premium'
+          description: 'Hosted only: whether the account is on a paid plan, not in a trial and more than a month old. Always false on self-hosted installations'
           type: boolean
         is_scheduler_running:
-          description: 'Whether the account is scheduler running'
+          description: 'Whether the cron scheduler has run on this server. Always true on the hosted platform'
           type: boolean
         key:
-          description: 'The account key'
+          description: 'A random 32 character key generated when the account is created'
           type: string
         latest_version:
           description: 'The latest released version of Invoice Ninja'
@@ -26595,22 +26595,22 @@ components:
           description: 'The active plan, for example pro or enterprise, an empty string when there is no plan or it has expired'
           type: string
         plan_expires:
-          description: 'The date the plan expires'
+          description: 'The date the plan expires (YYYY-MM-DD), an empty string when not set'
           type: string
         plan_paid:
-          description: 'The date the current plan term was paid'
+          description: 'The date the current plan term was paid (YYYY-MM-DD), an empty string when not set'
           type: string
         plan_price:
           description: 'The price of the hosted plan per plan_term (month or year); 0 when there is no paid plan'
           type: number
         plan_started:
-          description: 'The date the plan started'
+          description: 'The date the plan started (YYYY-MM-DD), an empty string when not set'
           type: string
         plan_term:
           description: 'The billing term of the plan, month or year'
           type: string
         referral_code:
-          description: 'The referral code of the account'
+          description: 'The referral code the account signed up with (the rc parameter), an empty string when none'
           type: string
         report_errors:
           description: 'Whether errors are reported to Invoice Ninja'
@@ -26625,10 +26625,10 @@ components:
           description: 'The number of days left in the trial, always 0 on the hosted platform'
           type: integer
         trial_plan:
-          description: 'The plan being trialled'
+          description: 'The plan being trialled, for example pro or enterprise, an empty string when there is no trial'
           type: string
         trial_started:
-          description: 'The date the trial started'
+          description: 'The date the trial started (YYYY-MM-DD), an empty string when not set'
           type: string
         updated_at:
           description: 'When the account was last changed, as a Unix timestamp in seconds'
@@ -26798,15 +26798,15 @@ components:
           type: boolean
           example: true
         date:
-          description: 'The quote Date, an empty string when not set'
+          description: 'The date of the recurring quote, an empty string when not set'
           type: string
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the quote was sent out, an empty string when not set'
+          description: 'The date the last quote was generated and sent, an empty string when not set'
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent, an empty string when not set'
+          description: 'The date the next quote is generated (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
           example: '1994-07-30'
         partial_due_date:
@@ -26814,7 +26814,7 @@ components:
           type: string
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the quote, an empty string when not set'
+          description: 'The due date of the recurring quote, an empty string when not set. The generated quotes get their due date from due_date_days'
           type: string
           example: '1994-07-30'
         updated_at:
@@ -26862,10 +26862,10 @@ components:
           type: boolean
           example: true
         auto_bill:
-          description: 'Whether the generated invoices are auto billed: always, optin, optout or off'
+          description: 'The auto bill setting: always, optin, optout or off. Defaults to the client''s auto_bill setting'
           type: string
         auto_bill_enabled:
-          description: 'Whether auto billing is enabled'
+          description: 'True when auto_bill is always or optout'
           type: boolean
         created_at:
           description: 'When the recurring quote was created, as a Unix timestamp in seconds'
@@ -26879,7 +26879,7 @@ components:
           items:
             $ref: '#/components/schemas/Document'
         due_date_days:
-          description: 'The number of days after the quote date the generated quote is due, an empty string when not set'
+          description: 'The day of the month the generated quotes are due, or terms to use the client''s payment terms. An empty string when not set'
           type: string
         entity_type:
           description: 'The type of the record, always "recurringQuote"'
@@ -26888,10 +26888,10 @@ components:
           description: 'The exchange rate between the client currency and the company currency'
           type: number
         has_expenses:
-          description: 'Whether the recurring quote has expenses'
+          description: 'Legacy flag that Invoice Ninja does not set or accept for recurring quotes, so it is false'
           type: boolean
         has_tasks:
-          description: 'Whether the recurring quote has tasks'
+          description: 'Legacy flag that Invoice Ninja does not set or accept for recurring quotes, so it is false'
           type: boolean
         invitations:
           description: 'The invitations of the recurring quote'
@@ -26902,7 +26902,7 @@ components:
           description: 'The hashed id of the project the recurring quote belongs to; empty if none'
           type: string
         recurring_dates:
-          description: 'The upcoming send dates'
+          description: 'The upcoming dates quotes are generated on'
           type: array
           items:
             type: object
@@ -27462,14 +27462,14 @@ components:
           description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
           type: string
         referral_code:
-          description: 'The referral code of the user'
+          description: 'The code that new accounts sign up with to be counted as referred by this user'
           type: string
         referral_meta:
-          description: 'Referral statistics of the user'
+          description: 'The number of accounts the user referred, by plan: free, pro and enterprise'
           type: object
           additionalProperties: true
         settings:
-          description: 'Preferences of the user'
+          description: 'The user''s settings, currently calendar_connection with the status and email of the connected calendar'
           type: object
           additionalProperties: true
         updated_at:
@@ -27595,7 +27595,7 @@ components:
           type: string
           example: 'refresh_token_abc123'
         oauth_user_token:
-          description: 'Masked when the user has connected an OAuth account, an empty string otherwise'
+          description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
           type: string
           example: '***'
         shopify_user_id:
@@ -27623,14 +27623,14 @@ components:
           description: 'Timestamp of the last login, 0 when the user has never logged in'
           type: integer
         referral_code:
-          description: 'The referral code of the user'
+          description: 'The code that new accounts sign up with to be counted as referred by this user'
           type: string
         referral_meta:
-          description: 'Referral statistics of the user'
+          description: 'The number of accounts the user referred, by plan: free, pro and enterprise'
           type: object
           additionalProperties: true
         settings:
-          description: 'Preferences of the user'
+          description: 'The user''s settings, currently calendar_connection with the status and email of the connected calendar'
           type: object
           additionalProperties: true
         updated_at:
@@ -28186,7 +28186,7 @@ components:
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent (YYYY-MM-DD), an empty string when not set'
+          description: 'The next date a reminder is sent (YYYY-MM-DD), an empty string when not set'
           type: string
           example: '1994-07-30'
         partial_due_date:
@@ -28913,7 +28913,7 @@ components:
           description: 'When the location was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         tax_data:
-          description: 'Tax data of the location'
+          description: 'Sales tax data the tax provider looked up for the location''s address, an empty object when none'
           type: object
           additionalProperties: true
       type: object 
@@ -29505,7 +29505,7 @@ components:
           type: boolean
           example: true
         client_registration_fields:
-          description: 'The client registration fields for the company'
+          description: 'The fields of the client portal registration form, as a list of {key, required, visible} entries'
           type: array
           items:
             type: object
@@ -29659,7 +29659,7 @@ components:
           example: 587
 
         smtp_encryption:
-          description: 'The encryption method for SMTP, an empty string when not set'
+          description: 'The encryption used for the custom SMTP server, for example tls or ssl; tls is used when it is not set'
           type: string
           nullable: true
           enum: [tls, ssl, '']
@@ -29680,7 +29680,7 @@ components:
           additionalProperties: true
 
         legal_entity_id:
-          description: 'The ID of the legal entity associated with the company, null when there is none'
+          description: 'The id of the company''s legal entity on the Storecove e-invoicing network, null when the company is not registered'
           type: integer
           nullable: true
           example: 1234
@@ -29719,7 +29719,7 @@ components:
           items:
             $ref: '#/components/schemas/Document'
         enable_modules:
-          description: 'Whether to enable modules'
+          description: 'Whether DocuNinja is enabled for the company'
           type: boolean
         expense_amount_is_pretax:
           description: 'Deprecated, always true'
@@ -29728,16 +29728,16 @@ components:
           description: 'Deprecated, the Google Analytics key'
           type: string
         has_e_invoice_certificate:
-          description: 'Whether the company has e invoice certificate'
+          description: 'Whether an e-invoicing certificate has been uploaded. The certificate itself is never returned'
           type: boolean
         has_e_invoice_certificate_passphrase:
-          description: 'Whether the company has e invoice certificate passphrase'
+          description: 'Whether a passphrase for the e-invoicing certificate is stored. The passphrase itself is never returned'
           type: boolean
         hide_empty_columns_on_pdf:
-          description: 'Whether to hide empty columns on pdf'
+          description: 'Deprecated, always false. The setting is settings.hide_empty_columns_on_pdf'
           type: boolean
         quickbooks:
-          description: 'The QuickBooks integration settings'
+          description: 'The QuickBooks Online connection and sync settings without the access and refresh tokens, null when QuickBooks is not connected'
           nullable: true
         smtp_password:
           description: 'Masked as ******** when an SMTP password is set, otherwise an empty string'
@@ -29749,7 +29749,7 @@ components:
           description: 'When the company was last changed, as a Unix timestamp in seconds'
           type: integer
         use_credits_payment:
-          description: 'Whether to use credits payment'
+          description: 'Deprecated, always ''always''. The setting is settings.use_credits_payment'
           type: string
         activities:
           description: 'The activities of the company, returned with include=activities'
@@ -30362,7 +30362,7 @@ components:
           type: string
           example: "R"
         reset_counter_frequency_id:
-          description: 'CONSTANT which is used to apply the frequency which the counters are reset. The default is returned as the string 0'
+          description: 'How often the number counters are reset, as a frequency id string (see RecurringInvoice frequency_id). 0, the default, never resets them'
           oneOf:
             - type: integer
             - type: string
@@ -30709,17 +30709,17 @@ components:
           type: integer
           example: 9
         schedule_reminder1:
-          description: 'When the reminder is sent, an empty string when not set'
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
           enum: [after_invoice_date, before_due_date, after_due_date, '']
           example: after_invoice_date
         schedule_reminder2:
-          description: 'When the reminder is sent, an empty string when not set'
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
           enum: [after_invoice_date, before_due_date, after_due_date, '']
           example: after_invoice_date
         schedule_reminder3:
-          description: 'When the reminder is sent, an empty string when not set'
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
           enum: [after_invoice_date, before_due_date, after_due_date, '']
           example: after_invoice_date
@@ -31063,10 +31063,10 @@ components:
           description: 'The e-quote standard, for example OrderX_Comfort'
           type: string
         email_quote_subject_reminder1:
-          description: 'The subject of the first quote reminder email'
+          description: 'Subject line of the first quote reminder email. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_quote_template_reminder1:
-          description: 'The body of the first quote reminder email'
+          description: 'Body of the first quote reminder email. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         email_subject_credit:
           description: 'Subject line of the email sent with a credit. Empty uses the built-in default subject; template variables such as $number are replaced'
@@ -31078,25 +31078,25 @@ components:
           description: 'Subject line of the email sent when a partial payment is received. Empty uses the built-in default subject; template variables such as $number are replaced'
           type: string
         email_template_credit:
-          description: 'The body of the credit email'
+          description: 'Body of the email sent with a credit. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         email_template_payment_failed:
-          description: 'The body of the failed payment email'
+          description: 'Body of the email sent when a payment fails. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         email_template_payment_partial:
-          description: 'The body of the partial payment email'
+          description: 'Body of the email sent when a partial payment is received. Empty uses the built-in default template; template variables such as $number are replaced'
           type: string
         enable_client_profile_update:
-          description: 'Whether to enable client profile update'
+          description: 'Whether contacts can edit the client''s details in the client portal'
           type: boolean
         enable_quote_reminder1:
-          description: 'Whether to enable quote reminder1'
+          description: 'Whether the first quote reminder is sent'
           type: boolean
         enable_rappen_rounding:
-          description: 'Whether to enable rappen rounding'
+          description: 'Whether invoice totals are rounded to the nearest 0.05 (Swiss Rappen rounding)'
           type: boolean
         id_number:
-          description: 'The company ID number'
+          description: 'The company''s registration number, shown on documents as $company.id_number'
           type: string
         late_fee_percent1:
           description: 'The late fee added with the first reminder, as a percentage of the balance'
@@ -31145,37 +31145,37 @@ components:
           description: 'Whether the item description is shown instead of the item title in the HTML view of an invoice'
           type: boolean
         project_number_counter:
-          description: 'The next project number'
+          description: 'The incrementing counter for project numbers'
           type: integer
         project_number_pattern:
-          description: 'The pattern for project numbers'
+          description: 'Allows customisation of the project number pattern'
           type: string
         quote_late_fee_amount1:
-          description: 'The fee added with the first quote reminder'
+          description: 'Stored only: no late fee is added to quotes'
           type: integer
         quote_late_fee_percent1:
-          description: 'The fee added with the first quote reminder, as a percentage'
+          description: 'Stored only: no late fee is added to quotes'
           type: integer
         quote_num_days_reminder1:
-          description: 'The number of days for the first quote reminder'
+          description: 'The number of days before or after the date chosen by quote_schedule_reminder1 that the first quote reminder is sent'
           type: integer
         quote_schedule_reminder1:
           description: 'When the first quote reminder is sent: before_valid_until_date, after_valid_until_date or after_quote_date'
           type: string
         recurring_expense_number_counter:
-          description: 'The next recurring expense number'
+          description: 'The incrementing counter for recurring expense numbers'
           type: integer
         recurring_expense_number_pattern:
-          description: 'The pattern for recurring expense numbers'
+          description: 'Allows customisation of the recurring expense number pattern'
           type: string
         recurring_number_prefix:
-          description: 'The prefix for recurring invoice numbers'
+          description: 'A prefix added to the numbers of invoices generated by recurring invoices'
           type: string
         recurring_quote_number_counter:
-          description: 'The next recurring quote number'
+          description: 'The incrementing counter for recurring quote numbers'
           type: integer
         recurring_quote_number_pattern:
-          description: 'The pattern for recurring quote numbers'
+          description: 'Allows customisation of the recurring quote number pattern'
           type: string
         ses_access_key:
           description: 'The Amazon SES access key id'
@@ -31193,7 +31193,7 @@ components:
           description: 'The Amazon SES topic ARN, only needed for webhook tracking'
           type: string
         show_pdfhtml_on_mobile:
-          description: 'Whether to show pdfhtml on mobile'
+          description: 'Whether the client portal shows invoices as HTML instead of the PDF on mobile devices'
           type: boolean
         skip_automatic_email_with_peppol:
           description: 'Whether invoices sent through PEPPOL are not also emailed to the client'
@@ -31211,7 +31211,7 @@ components:
           description: 'Whether clients can access invoice documents once the invoice is paid'
           type: boolean
         use_unapplied_payment:
-          description: 'Whether to use unapplied payment'
+          description: 'Whether auto billing first uses the client''s unapplied payments: always, option or off'
           type: string
 
     ClientGatewayToken:
@@ -31250,7 +31250,7 @@ components:
           description: 'When the client gateway token was created, as a Unix timestamp in seconds'
           type: integer
         gateway_customer_reference:
-          description: 'The customer reference at the payment gateway'
+          description: 'The id of the customer at the payment gateway, for example a Stripe customer id (cus_...)'
           type: string
         gateway_type_id:
           description: 'The gateway type id, for example 1 for credit card'
@@ -31655,7 +31655,7 @@ components:
           description: 'Whether the bank connection was disabled by the provider and needs to be reconnected'
           type: boolean
         from_date:
-          description: 'The date transactions are imported from'
+          description: 'The date transactions are imported from (YYYY-MM-DD), an empty string when not set'
           type: string
         integration_type:
           description: 'The integration provider, for example YODLEE or NORDIGEN'
@@ -31664,16 +31664,16 @@ components:
           description: 'Whether the bank integration has been deleted'
           type: boolean
         nickname:
-          description: 'The nickname of the bank account'
+          description: 'The account owner name reported by the bank for Nordigen integrations, an empty string when not set'
           type: string
         nordigen_institution_id:
-          description: 'The Nordigen (GoCardless) institution id'
+          description: 'The Nordigen (GoCardless) id of the bank, an empty string for other integration types'
           type: string
         provider_id:
-          description: 'The bank provider id'
+          description: 'The Yodlee provider account id the integration was created from, 0 when not set'
           type: integer
         provider_name:
-          description: 'The bank provider name'
+          description: 'The name of the bank as reported by the bank data provider, an empty string when not set'
           type: string
         updated_at:
           description: 'When the bank integration was last changed, as a Unix timestamp in seconds'
@@ -32535,7 +32535,7 @@ components:
           description: 'Not used: a client''s industry is stored in the client''s own industry_id field. Kept in the settings for compatibility and usually empty'
           type: string
         size_id:
-          description: 'The company size id'
+          description: 'Not used: a client''s size is stored in the client''s own size_id field. Kept in the settings for compatibility and usually empty'
           type: string
       type: object
     InvoiceItem:
@@ -32750,7 +32750,7 @@ components:
           description: 'The image height in pixels, 0 for other files'
           type: integer
         is_public:
-          description: 'Whether the document is public'
+          description: 'Whether the document is shared with the client in the client portal and on the PDF. Defaults to the documents_public_by_default setting'
           type: boolean
         link:
           description: 'The URL to download the document'
@@ -32792,15 +32792,15 @@ components:
           example: 'https://www.example.com/invitations/Opnel5aKBz4343343566236gvbb'
           readOnly: true
         sent_date:
-          description: 'The invitation sent date, an empty string when not set'
+          description: 'The invitation sent date (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
           readOnly: true
         viewed_date:
-          description: 'The invitation viewed date, an empty string when not set'
+          description: 'The invitation viewed date (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
           readOnly: true
         opened_date:
-          description: 'The invitation opened date, an empty string when not set'
+          description: 'The invitation opened date (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
           readOnly: true
         updated_at:
@@ -32831,7 +32831,7 @@ components:
           description: 'When the invitation was created, as a Unix timestamp in seconds'
           type: integer
         message_id:
-          description: 'The id of the last email sent for this invitation'
+          description: 'The message id the mail provider returned for the last email sent for this invitation'
           type: string
 
     FillableInvoice:
@@ -33177,15 +33177,15 @@ components:
           type: boolean
           example: true
         date:
-          description: 'The Invoice Date, an empty string when not set'
+          description: 'The date of the recurring invoice, an empty string when not set'
           type: string
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the invoice was sent out, an empty string when not set'
+          description: 'The date the last invoice was generated and sent, an empty string when not set'
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent (YYYY-MM-DD HH:MM:SS), an empty string when not set'
+          description: 'The date the next invoice is generated, in the client time zone, an empty string when not set'
           type: string
           example: '1994-07-30'
         partial_due_date:
@@ -33193,7 +33193,7 @@ components:
           type: string
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the invoice, an empty string when not set'
+          description: 'The due date of the recurring invoice, an empty string when not set. The generated invoices get their due date from due_date_days'
           type: string
           example: '1994-07-30'
         updated_at:
@@ -33311,7 +33311,7 @@ components:
           items:
             type: object
         next_send_datetime:
-          description: 'The date and time the next invoice is sent'
+          description: 'The date and time the next invoice is generated, in UTC (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
         recurring_dates:
           description: 'Always an empty array'
@@ -33392,7 +33392,7 @@ components:
           type: integer
           example: 30
         webhook_configuration:
-          description: 'Webhook configuration for the subscription'
+          description: 'The webhook called after a purchase: post_purchase_url, post_purchase_rest_method (post or put), post_purchase_headers and post_purchase_body'
           type: object
           additionalProperties: true
         is_deleted:
@@ -33421,7 +33421,7 @@ components:
           description: 'The hashed id of the group settings applied to clients who subscribe'
           type: string
         name:
-          description: 'The name of the subscription'
+          description: 'The name of the subscription, shown in the billing portal'
           type: string
         optional_product_ids:
           description: 'A comma separated list of the hashed ids of optional one-off products'
@@ -33433,13 +33433,13 @@ components:
           description: 'Deprecated, always an empty string'
           type: string
         price:
-          description: 'The price of the subscription'
+          description: 'The price charged in the billing portal when no promo code is applied'
           type: number
         product_ids:
           description: 'A comma separated list of the hashed ids of one-off products'
           type: string
         promo_price:
-          description: 'The promotional price'
+          description: 'The price charged in the billing portal once the promo_code is entered'
           type: number
         purchase_page:
           description: 'The client portal URL to purchase the subscription'
@@ -33454,10 +33454,10 @@ components:
           description: 'The number of billing cycles, -1 for endless'
           type: integer
         steps:
-          description: 'A comma separated list of the purchase steps'
+          description: 'A comma separated list of the billing portal purchase steps, in order (see /api/v1/subscriptions/steps)'
           type: string
         use_inventory_management:
-          description: 'Whether to use inventory management'
+          description: 'Whether the billing portal checks product stock and blocks products that are out of stock'
           type: boolean
       type: object
     BulkAction:
@@ -33525,10 +33525,10 @@ components:
           description: 'A comma separated list of the entities the design can be used for'
           type: string
         is_free:
-          description: 'Whether the design is free'
+          description: 'Whether the design is one of the built-in free designs (ids 1 to 4)'
           type: boolean
         is_template:
-          description: 'Whether the design is template'
+          description: 'Whether the design is a template (for statements, payment receipts and other template output) rather than an entity PDF design'
           type: boolean
       type: object
     Task:
@@ -33631,7 +33631,7 @@ components:
           example: 1434342123
           readOnly: true
         meta:
-          description: 'Metadata associated with this task, an empty object when there is none'
+          description: 'Calendar sync data: calendar_event_id, the id of the calendar event linked to the task. An empty object when there is none'
           type: object
           additionalProperties: true
         status_id:
@@ -34221,7 +34221,7 @@ components:
           format: float
           example: 10.00
         frequency_id:
-          description: 'The frequency this recurring expense fires, an empty string when not set'
+          description: 'How often an expense is created, as a frequency id string (see RecurringInvoice frequency_id), an empty string when not set'
           type: string
           example: '1'
         remaining_cycles:
@@ -34255,11 +34255,11 @@ components:
           type: boolean
           example: true
         last_sent_date:
-          description: 'The Date it was sent last, an empty string when not set'
+          description: 'The date the last expense was created, an empty string when not set'
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The next send date (YYYY-MM-DD HH:MM:SS)'
+          description: 'The date the next expense is created, in the company time zone'
           type: string
           example: '1994-07-30'
         invoice_documents:

@@ -43,7 +43,7 @@
           description: 'The number of emails the account has sent today'
           type: integer
         has_iap_plan:
-          description: 'Whether the account has iap plan'
+          description: 'Whether the account pays for its plan through an in-app purchase (App Store or Google Play)'
           type: boolean
         hosted_client_count:
           description: 'The maximum number of clients allowed on the hosted plan'
@@ -52,22 +52,22 @@
           description: 'The maximum number of companies allowed on the hosted plan'
           type: integer
         is_docker:
-          description: 'Whether the account is docker'
+          description: 'Whether this server runs the official Docker image (IS_DOCKER is set)'
           type: boolean
         is_hosted:
-          description: 'Whether the account is hosted'
+          description: 'Whether this is the hosted platform rather than a self-hosted installation'
           type: boolean
         is_migrated:
-          description: 'Whether the account is migrated'
+          description: 'Whether the account was migrated from Invoice Ninja v4. Migrated accounts get no trial days'
           type: boolean
         is_premium:
-          description: 'Whether the account is premium'
+          description: 'Hosted only: whether the account is on a paid plan, not in a trial and more than a month old. Always false on self-hosted installations'
           type: boolean
         is_scheduler_running:
-          description: 'Whether the account is scheduler running'
+          description: 'Whether the cron scheduler has run on this server. Always true on the hosted platform'
           type: boolean
         key:
-          description: 'The account key'
+          description: 'A random 32 character key generated when the account is created'
           type: string
         latest_version:
           description: 'The latest released version of Invoice Ninja'
@@ -85,22 +85,22 @@
           description: 'The active plan, for example pro or enterprise, an empty string when there is no plan or it has expired'
           type: string
         plan_expires:
-          description: 'The date the plan expires'
+          description: 'The date the plan expires (YYYY-MM-DD), an empty string when not set'
           type: string
         plan_paid:
-          description: 'The date the current plan term was paid'
+          description: 'The date the current plan term was paid (YYYY-MM-DD), an empty string when not set'
           type: string
         plan_price:
           description: 'The price of the hosted plan per plan_term (month or year); 0 when there is no paid plan'
           type: number
         plan_started:
-          description: 'The date the plan started'
+          description: 'The date the plan started (YYYY-MM-DD), an empty string when not set'
           type: string
         plan_term:
           description: 'The billing term of the plan, month or year'
           type: string
         referral_code:
-          description: 'The referral code of the account'
+          description: 'The referral code the account signed up with (the rc parameter), an empty string when none'
           type: string
         report_errors:
           description: 'Whether errors are reported to Invoice Ninja'
@@ -115,10 +115,10 @@
           description: 'The number of days left in the trial, always 0 on the hosted platform'
           type: integer
         trial_plan:
-          description: 'The plan being trialled'
+          description: 'The plan being trialled, for example pro or enterprise, an empty string when there is no trial'
           type: string
         trial_started:
-          description: 'The date the trial started'
+          description: 'The date the trial started (YYYY-MM-DD), an empty string when not set'
           type: string
         updated_at:
           description: 'When the account was last changed, as a Unix timestamp in seconds'

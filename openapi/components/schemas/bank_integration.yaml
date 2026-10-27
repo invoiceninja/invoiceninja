@@ -46,7 +46,7 @@
           description: 'Whether the bank connection was disabled by the provider and needs to be reconnected'
           type: boolean
         from_date:
-          description: 'The date transactions are imported from'
+          description: 'The date transactions are imported from (YYYY-MM-DD), an empty string when not set'
           type: string
         integration_type:
           description: 'The integration provider, for example YODLEE or NORDIGEN'
@@ -55,16 +55,16 @@
           description: 'Whether the bank integration has been deleted'
           type: boolean
         nickname:
-          description: 'The nickname of the bank account'
+          description: 'The account owner name reported by the bank for Nordigen integrations, an empty string when not set'
           type: string
         nordigen_institution_id:
-          description: 'The Nordigen (GoCardless) institution id'
+          description: 'The Nordigen (GoCardless) id of the bank, an empty string for other integration types'
           type: string
         provider_id:
-          description: 'The bank provider id'
+          description: 'The Yodlee provider account id the integration was created from, 0 when not set'
           type: integer
         provider_name:
-          description: 'The bank provider name'
+          description: 'The name of the bank as reported by the bank data provider, an empty string when not set'
           type: string
         updated_at:
           description: 'When the bank integration was last changed, as a Unix timestamp in seconds'
