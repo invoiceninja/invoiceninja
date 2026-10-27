@@ -28,13 +28,6 @@ class HostedPaymentPageReturnRequest extends FormRequest
     {
         MultiDB::findAndSetDbByCompanyKey($this->route('company_key'));
 
-        if (! $this->hasValidSignatureWhileIgnoring([
-            'billing_request_id',
-            'billing_request_flow_id',
-        ])) {
-            return false;
-        }
-
         $company = $this->getCompany();
         $company_gateway = $this->getCompanyGateway();
         $payment_hash = $this->getPaymentHash();

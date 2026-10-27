@@ -376,9 +376,10 @@ class GoCardlessPaymentDriver extends BaseDriver
     {
         $this->init();
 
-        $customers = $this->gateway->customers()->list();
-
-        foreach ($customers->records as $customer) {
+        $customers = $this->gateway->customers()->all();
+        
+        /** @var \GoCardlessPro\Resources\Customer $customer */
+        foreach ($customers as $customer) {
             $existing_customer_token = $this->company_gateway
                             ->client_gateway_tokens()
                             ->where('gateway_customer_reference', $customer->id)
@@ -405,28 +406,43 @@ class GoCardlessPaymentDriver extends BaseDriver
     {
         $this->client = $client;
 
-        $mandates = $this->gateway->mandates()->list();
+        $mandates = $this->gateway->mandates()->all([
+            'params' => [
+                'customer' => $customer->id,
+            ]
+        ]);
+        
+        /** @var \GoCardlessPro\Resources\Mandate $mandate */
+        foreach ($mandates as $mandate) {
+            if (!in_array($mandate->status, ['active', 'pending_submission']) || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+                continue;
+            }
 
-        foreach ($mandates->records as $mandate) {
-            if ($customer->id != $mandate->links->customer || !in_array($mandate->status, ['active', 'pending_submission']) || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
-                // if ($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+            $type = match ($mandate->scheme) {
+                'bacs' => GatewayType::DIRECT_DEBIT,
+                'sepa_core' => GatewayType::SEPA,
+                'ach' => GatewayType::BANK_TRANSFER,
+                default => null,
+            };
+
+            if(!$type){
+                continue;
+            }
+
+            try{
+                $bank_account = $this->gateway->customerBankAccounts()->get($mandate->links->customer_bank_account);
+            }
+            catch(\Throwable $e){
+                nlog("Error getting bank account: " . $e->getMessage());
                 continue;
             }
 
             $payment_meta = new \stdClass();
-
-            if ($mandate->scheme == 'bacs') {
-                $payment_meta->brand = ctrans('texts.payment_type_direct_debit');
-                $payment_meta->type = GatewayType::DIRECT_DEBIT;
-            } elseif ($mandate->scheme == 'sepa_core') {
-                $payment_meta->brand = ctrans('texts.sepa');
-                $payment_meta->type = GatewayType::SEPA;
-            } else {
-                continue;
-            }
-
+            $payment_meta->last4 = $bank_account->account_holder_name . " - " . $bank_account->account_number_ending;
+            $payment_meta->brand = $bank_account->bank_name;
             $payment_meta->state = 'authorized';
             $payment_meta->scheme = $mandate->scheme;
+            $payment_meta->type = $type;
 
             $data = [
                 'payment_meta' => $payment_meta,

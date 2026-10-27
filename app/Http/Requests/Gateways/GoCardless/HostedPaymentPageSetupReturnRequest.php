@@ -28,12 +28,6 @@ class HostedPaymentPageSetupReturnRequest extends FormRequest
 
     public function authorize(): bool
     {
-        if (! $this->hasValidSignatureWhileIgnoring([
-            'billing_request_id',
-            'billing_request_flow_id',
-        ])) {
-            return $this->rejectCallback('invalid_signature');
-        }
 
         $this->context_state = Cache::get($this->route('context'), []);
 

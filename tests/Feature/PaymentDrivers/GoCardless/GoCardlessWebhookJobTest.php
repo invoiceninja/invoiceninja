@@ -507,6 +507,89 @@ class GoCardlessWebhookJobTest extends TestCase
             ->exists());
     }
 
+    /**
+     * Characterize the support failure: setup never saved a local token, and
+     * subsequent successful mandate events cannot identify its client.
+     * A passing test documents the missing method, not a successful recovery.
+     */
+    #[DataProvider('unresolvable_mandate_metadata_provider')]
+    public function test_accepted_webhooks_leave_repeated_active_mandates_without_payment_methods(array $metadata): void
+    {
+        Bus::fake([GoCardlessWebhook::class]);
+        $mandate_ids = ['MD_ORPHAN_FIRST', 'MD_ORPHAN_SECOND'];
+        $events = [];
+
+        foreach ($mandate_ids as $mandate_id) {
+            foreach (['created', 'submitted', 'active'] as $action) {
+                $events[] = array_merge([
+                    'id' => "EV_{$mandate_id}_{$action}",
+                    'resource_type' => 'mandates',
+                    'action' => $action,
+                    'links' => ['mandate' => $mandate_id],
+                ], $metadata);
+            }
+        }
+
+        $payload = json_encode(['events' => $events], JSON_THROW_ON_ERROR);
+
+        $this->call('POST', route('payment_webhook', [
+            'company_key' => $this->company->company_key,
+            'company_gateway_id' => $this->gocardless_gateway->hashed_id,
+        ]), [], [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_WEBHOOK_SIGNATURE' => hash_hmac('sha256', $payload, 'shh'),
+        ], $payload)->assertStatus(200);
+
+        Bus::assertDispatched(GoCardlessWebhook::class, 1);
+
+        // Execute the actual queued job, including a delivery retry. This does
+        // not override synchronization or require a live GoCardless account.
+        $job = Bus::dispatched(GoCardlessWebhook::class)->sole();
+        $job->handle();
+        $job->handle();
+
+        $this->assertSame(0, ClientGatewayToken::withTrashed()
+            ->where('company_gateway_id', $this->gocardless_gateway->id)
+            ->whereIn('token', $mandate_ids)
+            ->count());
+        $this->assertSame(0, $this->client->gateway_tokens()
+            ->where('company_gateway_id', $this->gocardless_gateway->id)
+            ->count());
+    }
+
+    public static function unresolvable_mandate_metadata_provider(): array
+    {
+        return [
+            'legacy mandate without metadata' => [[]],
+            'empty metadata' => [['resource_metadata' => []]],
+            'unmatched client hash' => [['resource_metadata' => ['client_hash' => 'unknown-client-hash']]],
+        ];
+    }
+
+    public function test_active_mandate_with_matching_client_hash_reaches_synchronization_on_retry(): void
+    {
+        $event = [
+            'id' => 'EV_ACTIVE_RECOVERY_CONTROL',
+            'resource_type' => 'mandates',
+            'action' => 'active',
+            'resource_metadata' => ['client_hash' => $this->client->client_hash],
+            'links' => ['mandate' => 'MD_ACTIVE_RECOVERY_CONTROL'],
+        ];
+
+        // The existing test double isolates client resolution from the SDK.
+        $job = $this->dispatchEvents([$event]);
+        $this->dispatchEvents([$event]);
+
+        $tokens = $this->client->gateway_tokens()
+            ->where('company_gateway_id', $this->gocardless_gateway->id)
+            ->where('token', $event['links']['mandate'])
+            ->get();
+
+        $this->assertSame($this->client->id, $job->synced_client_id);
+        $this->assertCount(1, $tokens);
+        $this->assertSame('authorized', $tokens->sole()->meta->state);
+    }
+
     public function test_replaced_mandate_updates_only_the_referenced_payment_method(): void
     {
         $token = $this->makeMandate('MD_REPLACED');
