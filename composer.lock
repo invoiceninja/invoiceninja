@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "261c8458217d90aa07761208c5a71818",
+    "content-hash": "c3b8b5054a199aa478fbdfc42ea19fcb",
     "packages": [
         {
             "name": "apimatic/core",
@@ -385,16 +385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.402.1",
+            "version": "3.402.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "8c7d9eb8d8baa92ce13ba875ceac7da89597ad8e"
+                "reference": "8c6f1eeb8975212ec90fb7a22f332ba6b17f990c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8c7d9eb8d8baa92ce13ba875ceac7da89597ad8e",
-                "reference": "8c7d9eb8d8baa92ce13ba875ceac7da89597ad8e",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8c6f1eeb8975212ec90fb7a22f332ba6b17f990c",
+                "reference": "8c6f1eeb8975212ec90fb7a22f332ba6b17f990c",
                 "shasum": ""
             },
             "require": {
@@ -476,9 +476,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.402.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.402.2"
             },
-            "time": "2026-10-26T18:06:02+00:00"
+            "time": "2026-10-27T18:08:49+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -959,16 +959,16 @@
         },
         {
             "name": "braintree/braintree_php",
-            "version": "6.39.0",
+            "version": "6.40.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/braintree/braintree_php.git",
-                "reference": "883a2199aad6f3e1e4796d0f3bea6725c981fd85"
+                "reference": "b116668cb1c66b10aceb71e7753a49fbf4e44fd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/883a2199aad6f3e1e4796d0f3bea6725c981fd85",
-                "reference": "883a2199aad6f3e1e4796d0f3bea6725c981fd85",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/b116668cb1c66b10aceb71e7753a49fbf4e44fd6",
+                "reference": "b116668cb1c66b10aceb71e7753a49fbf4e44fd6",
                 "shasum": ""
             },
             "require": {
@@ -1002,9 +1002,9 @@
             "description": "Braintree PHP Client Library",
             "support": {
                 "issues": "https://github.com/braintree/braintree_php/issues",
-                "source": "https://github.com/braintree/braintree_php/tree/6.39.0"
+                "source": "https://github.com/braintree/braintree_php/tree/6.40.0"
             },
-            "time": "2026-10-19T15:09:19+00:00"
+            "time": "2026-10-27T20:38:14+00:00"
         },
         {
             "name": "brick/math",
@@ -2747,16 +2747,16 @@
         },
         {
             "name": "gocardless/gocardless-pro",
-            "version": "8.16.0",
+            "version": "8.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gocardless/gocardless-pro-php.git",
-                "reference": "77cbcda209f6e313aece5f0a5225b288e9f6f3a1"
+                "reference": "087fdcc002329436f55902d2d8d61c3d819e8519"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/77cbcda209f6e313aece5f0a5225b288e9f6f3a1",
-                "reference": "77cbcda209f6e313aece5f0a5225b288e9f6f3a1",
+                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/087fdcc002329436f55902d2d8d61c3d819e8519",
+                "reference": "087fdcc002329436f55902d2d8d61c3d819e8519",
                 "shasum": ""
             },
             "require": {
@@ -2796,9 +2796,9 @@
             ],
             "support": {
                 "issues": "https://github.com/gocardless/gocardless-pro-php/issues",
-                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v8.16.0"
+                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v8.17.0"
             },
-            "time": "2026-10-26T10:53:28+00:00"
+            "time": "2026-10-27T17:58:25+00:00"
         },
         {
             "name": "goetas-webservices/xsd2php-runtime",
@@ -5008,16 +5008,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v12.70.1",
+            "version": "v12.70.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "e09fc54263d1a56cfe1709958fcbb22a4159b1e3"
+                "reference": "4dc928b47c05a2a96ba51c39d2bd7749b5ea332e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/e09fc54263d1a56cfe1709958fcbb22a4159b1e3",
-                "reference": "e09fc54263d1a56cfe1709958fcbb22a4159b1e3",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/4dc928b47c05a2a96ba51c39d2bd7749b5ea332e",
+                "reference": "4dc928b47c05a2a96ba51c39d2bd7749b5ea332e",
                 "shasum": ""
             },
             "require": {
@@ -5226,7 +5226,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-10-21T12:55:36+00:00"
+            "time": "2026-10-27T14:07:51+00:00"
         },
         {
             "name": "laravel/octane",
@@ -11914,16 +11914,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v17.6.0",
+            "version": "v17.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "a6219df5df1324a0d3f1da25fb5e4b8a3307ea16"
+                "reference": "3b847b1612f1cdadde4254cf81c743ad7d3b12fe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/a6219df5df1324a0d3f1da25fb5e4b8a3307ea16",
-                "reference": "a6219df5df1324a0d3f1da25fb5e4b8a3307ea16",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/3b847b1612f1cdadde4254cf81c743ad7d3b12fe",
+                "reference": "3b847b1612f1cdadde4254cf81c743ad7d3b12fe",
                 "shasum": ""
             },
             "require": {
@@ -11967,9 +11967,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v17.6.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v17.6.1"
             },
-            "time": "2025-08-27T19:32:42+00:00"
+            "time": "2026-10-27T19:45:29+00:00"
         },
         {
             "name": "symfony/brevo-mailer",
@@ -17247,16 +17247,16 @@
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "v5.8.0",
+            "version": "v5.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpdotenv/phpdotenv.git",
-                "reference": "96149103e62ac67e915f6d2ef59b72dee2e011e0"
+                "reference": "301c07936b16d88628b126b01d082ba153cf4c40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/96149103e62ac67e915f6d2ef59b72dee2e011e0",
-                "reference": "96149103e62ac67e915f6d2ef59b72dee2e011e0",
+                "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
+                "reference": "301c07936b16d88628b126b01d082ba153cf4c40",
                 "shasum": ""
             },
             "require": {
@@ -17283,7 +17283,7 @@
                     "forward-command": false
                 },
                 "branch-alias": {
-                    "dev-master": "5.8-dev"
+                    "dev-master": "5.6-dev"
                 }
             },
             "autoload": {
@@ -17314,8 +17314,8 @@
                 "environment"
             ],
             "support": {
-                "issues": "https://github.com/phpdotenv/phpdotenv/issues",
-                "source": "https://github.com/phpdotenv/phpdotenv/tree/v5.8.0"
+                "issues": "https://github.com/vlucas/phpdotenv/issues",
+                "source": "https://github.com/vlucas/phpdotenv/tree/v5.7.0"
             },
             "funding": [
                 {
@@ -17327,7 +17327,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-25T16:26:19+00:00"
+            "time": "2026-08-24T18:07:49+00:00"
         },
         {
             "name": "voku/portable-ascii",
@@ -18631,6 +18631,66 @@
             "time": "2026-01-28T22:20:33+00:00"
         },
         {
+            "name": "invoiceninja/admin-api",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../admin-api",
+                "reference": "b5b6eca7eff6db7ab712899227f82d7deee6379d"
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-libxml": "*",
+                "ext-simplexml": "*",
+                "illuminate/database": "^11|^12",
+                "illuminate/support": "^11|^12",
+                "imdhemy/laravel-purchases": "^1.7",
+                "php": "^8.2|^8.3|^8.4"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "orchestra/testbench": "^9.0",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "InvoiceNinja\\AdminApi\\Providers\\AdminApiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "InvoiceNinja\\AdminApi\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
+                },
+                "files": [
+                    "tests/Support/BillingState.php"
+                ]
+            },
+            "license": [
+                "Elastic"
+            ],
+            "authors": [
+                {
+                    "name": "David Bomba",
+                    "email": "turbo124@gmail.com"
+                }
+            ],
+            "description": "API endpoints for the admin interface",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "larastan/larastan",
             "version": "v3.13.2",
             "source": {
@@ -19389,11 +19449,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.2",
+            "version": "2.3.3",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/18bc23a0682f08591529377d271b5c4dfe9ed1dd",
-                "reference": "18bc23a0682f08591529377d271b5c4dfe9ed1dd",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/4b57dc8ca7456b635d1661845f44bc060b02c6b0",
+                "reference": "4b57dc8ca7456b635d1661845f44bc060b02c6b0",
                 "shasum": ""
             },
             "require": {
@@ -19449,7 +19509,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-24T11:36:00+00:00"
+            "time": "2026-10-27T14:06:26+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -22104,6 +22164,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "beganovich/snappdf": 20,
+        "invoiceninja/admin-api": 20,
         "invoiceninja/einvoice": 20
     },
     "prefer-stable": true,
