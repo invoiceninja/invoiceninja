@@ -35,7 +35,7 @@
           additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
         always_show_required_fields:
-          description: 'Whether the required fields form is always shown at checkout'
+          description: 'Whether the client portal shows the required fields form before payment even when the client''s details already fill them'
           type: boolean
         archived_at:
           description: 'When the gateway was archived, as a Unix timestamp in seconds; 0 when it is not archived'
@@ -59,7 +59,7 @@
           description: 'Whether the company gateway has been deleted'
           type: boolean
         label:
-          description: 'The label shown for the gateway'
+          description: 'The name of this gateway configuration, defaults to the gateway''s name'
           type: string
         require_client_name:
           description: 'Whether the client must enter the client name before paying with this gateway'

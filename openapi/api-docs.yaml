@@ -13241,7 +13241,7 @@ paths:
       tags:
         - login
       summary: "Check the login methods for an email"
-      description: "Returns the login methods available for an email address (password, and totp when two factor authentication is enabled), and whether an API secret is required. Responds in constant time."
+      description: "Returns the login methods available for an email address (password, and totp when two factor authentication is enabled), and whether an API secret is required. Responses are padded to a minimum duration, so known and unknown email addresses take the same time."
       operationId: postLoginPrecheck
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -24460,13 +24460,13 @@ components:
           description: 'Whether the webhook has been deleted'
           type: boolean
         rest_method:
-          description: 'The HTTP method used to call the target URL'
+          description: 'The HTTP method used to call the target URL, post or put'
           type: string
         updated_at:
           description: 'When the webhook was last changed, as a Unix timestamp in seconds'
           type: integer
         user_id:
-          description: 'The hashed id of the user who created the record'
+          description: 'The hashed id of the user who created the webhook'
           type: string
       type: object
 
@@ -25213,7 +25213,7 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
         always_show_required_fields:
-          description: 'Whether the required fields form is always shown at checkout'
+          description: 'Whether the client portal shows the required fields form before payment even when the client''s details already fill them'
           type: boolean
         archived_at:
           description: 'When the gateway was archived, as a Unix timestamp in seconds; 0 when it is not archived'
@@ -25237,7 +25237,7 @@ components:
           description: 'Whether the company gateway has been deleted'
           type: boolean
         label:
-          description: 'The label shown for the gateway'
+          description: 'The name of this gateway configuration, defaults to the gateway''s name'
           type: string
         require_client_name:
           description: 'Whether the client must enter the client name before paying with this gateway'
@@ -25873,7 +25873,7 @@ components:
           type: string
           example: bob
         search_key:
-          description: 'The transaction field the rule matches: description, amount, participant or participant_name'
+          description: 'The transaction field a debit rule matches: description, amount, participant or participant_name. Credit rules match on value instead'
           type: string
       type: object
     BankTransaction:
@@ -27069,7 +27069,7 @@ components:
           type: string
           example: "1994-07-30"
         next_send_date:
-          description: "The next scheduled date for sending a credit reminder, an empty string when not set"
+          description: 'Not used: no reminders are sent for credits, so this is normally an empty string'
           type: string
           example: "1994-07-30"
         partial_due_date:
@@ -27453,10 +27453,10 @@ components:
           description: 'When the user was created, as a Unix timestamp in seconds'
           type: integer
         email_verified_at:
-          description: 'Timestamp of the email verification'
+          description: 'When the user verified their email address, as a Unix timestamp in seconds; null when not verified'
           nullable: true
         last_login:
-          description: 'Timestamp of the last login, 0 when the user has never logged in'
+          description: 'When the user last logged in, as a Unix timestamp in seconds; 0 when never'
           type: integer
         oauth_user_token:
           description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
@@ -27476,7 +27476,7 @@ components:
           description: 'When the user was last changed, as a Unix timestamp in seconds'
           type: integer
         user_logged_in_notification:
-          description: 'Whether the user is emailed when they log in from a new location'
+          description: 'Whether the user is emailed when they log in from a new IP address'
           type: boolean
       type: object
     UserRef:
@@ -27617,10 +27617,10 @@ components:
           description: 'When the user was created, as a Unix timestamp in seconds'
           type: integer
         email_verified_at:
-          description: 'Timestamp of the email verification'
+          description: 'When the user verified their email address, as a Unix timestamp in seconds; null when not verified'
           type: integer
         last_login:
-          description: 'Timestamp of the last login, 0 when the user has never logged in'
+          description: 'When the user last logged in, as a Unix timestamp in seconds; 0 when never'
           type: integer
         referral_code:
           description: 'The code that new accounts sign up with to be counted as referred by this user'
@@ -28972,7 +28972,7 @@ components:
           type: object
           additionalProperties: true
         permissions_updated_at:
-          description: 'Timestamp of the last change to the permissions'
+          description: 'When the user''s permissions in this company were last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     CompanyUserRef:
@@ -30793,7 +30793,7 @@ components:
           type: boolean
           example: false
         custom_sending_email:
-          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting, an empty string when not set"
+          description: 'The FROM address for emails sent through custom SMTP, Mailgun, Brevo or Postmark, an empty string uses the default'
           type: string
           example: "bob@gmail.com"
         show_paid_stamp:
@@ -30908,7 +30908,7 @@ components:
           enum: [all, uninvoiced, invoiced]
           example: "all"
         entity_send_time:
-          description: 'The hour emails are sent at, localized to the clients locale. Integer values from 0 - 24'
+          description: 'The hour (1 to 24) scheduled emails such as recurring invoices and reminders are sent at, in the client''s time zone. 0 sends them at midnight UTC'
           type: integer
           minimum: 0
           maximum: 24
@@ -31196,7 +31196,7 @@ components:
           description: 'Whether the client portal shows invoices as HTML instead of the PDF on mobile devices'
           type: boolean
         skip_automatic_email_with_peppol:
-          description: 'Whether invoices sent through PEPPOL are not also emailed to the client'
+          description: 'Whether invoices generated by recurring invoices and sent through PEPPOL are not also emailed to the client'
           type: boolean
         statement_design_id:
           description: 'The hashed id of the template design (a design with is_template set) used to render the client statement PDF. When it is empty or not a template, the built-in layout is used'
@@ -31208,7 +31208,7 @@ components:
           description: 'Whether task times are rounded up, otherwise down'
           type: boolean
         unlock_invoice_documents_after_payment:
-          description: 'Whether clients can access invoice documents once the invoice is paid'
+          description: 'Whether the invoice''s documents are made public, and so visible to the client, once the invoice is paid'
           type: boolean
         use_unapplied_payment:
           description: 'Whether auto billing first uses the client''s unapplied payments: always, option or off'
@@ -31443,7 +31443,7 @@ components:
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The next scheduled date for sending a reminder for the purchase order, an empty string when not set'
+          description: 'Not used: no reminders are sent for purchase orders, so this is normally an empty string'
           type: string
           example: '1994-07-30'
         partial_due_date:
@@ -31536,19 +31536,19 @@ components:
           type: string
           example: Opnel5aKBz
         reminder1_sent:
-          description: 'The date the first reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          description: 'The date the first reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
           type: string
           example: '1994-07-30'
         reminder2_sent:
-          description: 'The date the second reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          description: 'The date the second reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
           type: string
           example: '1994-07-30'
         reminder3_sent:
-          description: 'The date the third reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          description: 'The date the third reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
           type: string
           example: '1994-07-30'
         reminder_last_sent:
-          description: 'The date the most recent reminder was sent (YYYY-MM-DD), an empty string when not sent'
+          description: 'The date the most recent reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
           type: string
           example: '1994-07-30'
         tags:
@@ -31646,7 +31646,7 @@ components:
           description: 'When the bank integration was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         auto_sync:
-          description: 'Whether transactions are synced automatically'
+          description: 'Stored only: the daily sync imports transactions for every bank integration regardless of this flag'
           type: boolean
         created_at:
           description: 'When the bank integration was created, as a Unix timestamp in seconds'
@@ -31658,7 +31658,7 @@ components:
           description: 'The date transactions are imported from (YYYY-MM-DD), an empty string when not set'
           type: string
         integration_type:
-          description: 'The integration provider, for example YODLEE or NORDIGEN'
+          description: 'The integration provider, YODLEE or NORDIGEN'
           type: string
         is_deleted:
           description: 'Whether the bank integration has been deleted'
@@ -32678,7 +32678,7 @@ components:
         income_account_id:
           type: string
           example: ''
-          description: 'The income account this line item is booked to in a connected accounting system, an empty string when not set'
+          description: 'The id of the income account this line item is booked to in a connected accounting system such as QuickBooks, an empty string when not set'
 
     Document:
       properties:
@@ -33314,7 +33314,7 @@ components:
           description: 'The date and time the next invoice is generated, in UTC (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
         recurring_dates:
-          description: 'Always an empty array'
+          description: 'The upcoming dates a new invoice is created on, only returned with ?show_dates=true; otherwise an empty array'
           type: array
           items:
             type: object
@@ -33653,7 +33653,7 @@ components:
           items:
             $ref: '#/components/schemas/TagAssignment'
         date:
-          description: 'The calculated start date of the task, an empty string when not set'
+          description: 'The date the task''s first time log starts (YYYY-MM-DD), an empty string when the task has no time log'
           type: string
           example: '2024-01-15'
         documents:
@@ -34259,7 +34259,7 @@ components:
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The date the next expense is created, in the company time zone'
+          description: 'The date the next expense is created, an empty string when not set'
           type: string
           example: '1994-07-30'
         invoice_documents:
@@ -34344,7 +34344,7 @@ components:
           description: 'The type of the record, always "recurringExpense"'
           type: string
         recurring_dates:
-          description: 'Always an empty array'
+          description: 'The upcoming dates a new expense is created on, only returned with ?show_dates=true; otherwise an empty array'
           type: array
           items:
             type: object

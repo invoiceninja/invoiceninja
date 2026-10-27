@@ -120,7 +120,7 @@
           items:
             $ref: '#/components/schemas/TagAssignment'
         date:
-          description: 'The calculated start date of the task, an empty string when not set'
+          description: 'The date the task''s first time log starts (YYYY-MM-DD), an empty string when the task has no time log'
           type: string
           example: '2024-01-15'
         documents:

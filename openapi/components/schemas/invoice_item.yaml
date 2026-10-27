@@ -138,4 +138,4 @@
         income_account_id:
           type: string
           example: ''
-          description: 'The income account this line item is booked to in a connected accounting system, an empty string when not set'
+          description: 'The id of the income account this line item is booked to in a connected accounting system such as QuickBooks, an empty string when not set'

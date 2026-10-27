@@ -53,7 +53,7 @@
           type: object
           additionalProperties: true
         permissions_updated_at:
-          description: 'Timestamp of the last change to the permissions'
+          description: 'When the user''s permissions in this company were last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
     CompanyUserRef:

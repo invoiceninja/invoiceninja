@@ -406,13 +406,13 @@
           description: 'Whether the webhook has been deleted'
           type: boolean
         rest_method:
-          description: 'The HTTP method used to call the target URL'
+          description: 'The HTTP method used to call the target URL, post or put'
           type: string
         updated_at:
           description: 'When the webhook was last changed, as a Unix timestamp in seconds'
           type: integer
         user_id:
-          description: 'The hashed id of the user who created the record'
+          description: 'The hashed id of the user who created the webhook'
           type: string
       type: object
 

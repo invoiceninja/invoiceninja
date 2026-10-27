@@ -109,10 +109,10 @@
           description: 'When the user was created, as a Unix timestamp in seconds'
           type: integer
         email_verified_at:
-          description: 'Timestamp of the email verification'
+          description: 'When the user verified their email address, as a Unix timestamp in seconds; null when not verified'
           nullable: true
         last_login:
-          description: 'Timestamp of the last login, 0 when the user has never logged in'
+          description: 'When the user last logged in, as a Unix timestamp in seconds; 0 when never'
           type: integer
         oauth_user_token:
           description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
@@ -132,7 +132,7 @@
           description: 'When the user was last changed, as a Unix timestamp in seconds'
           type: integer
         user_logged_in_notification:
-          description: 'Whether the user is emailed when they log in from a new location'
+          description: 'Whether the user is emailed when they log in from a new IP address'
           type: boolean
       type: object
     UserRef:
@@ -273,10 +273,10 @@
           description: 'When the user was created, as a Unix timestamp in seconds'
           type: integer
         email_verified_at:
-          description: 'Timestamp of the email verification'
+          description: 'When the user verified their email address, as a Unix timestamp in seconds; null when not verified'
           type: integer
         last_login:
-          description: 'Timestamp of the last login, 0 when the user has never logged in'
+          description: 'When the user last logged in, as a Unix timestamp in seconds; 0 when never'
           type: integer
         referral_code:
           description: 'The code that new accounts sign up with to be counted as referred by this user'

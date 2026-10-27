@@ -37,7 +37,7 @@
           description: 'When the bank integration was archived, as a Unix timestamp in seconds; 0 when it is not archived'
           type: integer
         auto_sync:
-          description: 'Whether transactions are synced automatically'
+          description: 'Stored only: the daily sync imports transactions for every bank integration regardless of this flag'
           type: boolean
         created_at:
           description: 'When the bank integration was created, as a Unix timestamp in seconds'
@@ -49,7 +49,7 @@
           description: 'The date transactions are imported from (YYYY-MM-DD), an empty string when not set'
           type: string
         integration_type:
-          description: 'The integration provider, for example YODLEE or NORDIGEN'
+          description: 'The integration provider, YODLEE or NORDIGEN'
           type: string
         is_deleted:
           description: 'Whether the bank integration has been deleted'

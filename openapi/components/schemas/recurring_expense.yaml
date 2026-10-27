@@ -132,7 +132,7 @@
           type: string
           example: '1994-07-30'
         next_send_date:
-          description: 'The date the next expense is created, in the company time zone'
+          description: 'The date the next expense is created, an empty string when not set'
           type: string
           example: '1994-07-30'
         invoice_documents:
@@ -217,7 +217,7 @@
           description: 'The type of the record, always "recurringExpense"'
           type: string
         recurring_dates:
-          description: 'Always an empty array'
+          description: 'The upcoming dates a new expense is created on, only returned with ?show_dates=true; otherwise an empty array'
           type: array
           items:
             type: object

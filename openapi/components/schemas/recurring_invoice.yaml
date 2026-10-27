@@ -281,7 +281,7 @@
           description: 'The date and time the next invoice is generated, in UTC (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
         recurring_dates:
-          description: 'Always an empty array'
+          description: 'The upcoming dates a new invoice is created on, only returned with ?show_dates=true; otherwise an empty array'
           type: array
           items:
             type: object

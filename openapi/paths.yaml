@@ -13122,7 +13122,7 @@ paths:
       tags:
         - login
       summary: "Check the login methods for an email"
-      description: "Returns the login methods available for an email address (password, and totp when two factor authentication is enabled), and whether an API secret is required. Responds in constant time."
+      description: "Returns the login methods available for an email address (password, and totp when two factor authentication is enabled), and whether an API secret is required. Responses are padded to a minimum duration, so known and unknown email addresses take the same time."
       operationId: postLoginPrecheck
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
