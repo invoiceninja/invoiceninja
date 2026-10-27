@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -19,6 +20,7 @@ use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Razorpay\Hosted;
 use App\Utils\Traits\MakesHash;
+use Razorpay\Api\Errors\SignatureVerificationError;
 
 class RazorpayPaymentDriver extends BaseDriver
 {
@@ -119,8 +121,58 @@ class RazorpayPaymentDriver extends BaseDriver
         return \number_format((float) $amount * 100, 0, '.', '');
     }
 
-    public function processWebhookRequest(): void
+    /**
+     * Records a captured payment when the customer never returned from Checkout.
+     *
+     * @see https://razorpay.com/docs/webhooks/validate-test/
+     */
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        //
+        $webhook_secret = (string) $this->company_gateway->getConfigField('webhookSecret');
+
+        if ($webhook_secret === '') {
+            nlog('Razorpay webhook ignored: no webhook secret configured');
+
+            return response()->json([], 200);
+        }
+
+        try {
+            $this->init()->gateway->utility->verifyWebhookSignature( // @phpstan-ignore-line
+                $request->getContent(),
+                (string) $request->header('X-Razorpay-Signature'),
+                $webhook_secret,
+            );
+        } catch (SignatureVerificationError) {
+            return response()->json(['error' => 'Invalid signature'], 400);
+        }
+
+        $event = json_decode($request->getContent(), true);
+        $entity = $event['payload']['payment']['entity'] ?? null;
+
+        if (! in_array($event['event'] ?? null, ['payment.captured', 'order.paid'], true)
+            || ! is_array($entity)
+            || ($entity['status'] ?? null) !== 'captured'
+            || empty($entity['id'])
+            || empty($entity['order_id'])) {
+            return response()->json([], 200);
+        }
+
+        $payment_hash = PaymentHash::query()
+            ->where('data->order_id', $entity['order_id'])
+            ->whereHas('fee_invoice', fn ($query) => $query->where('company_id', $this->company_gateway->company_id))
+            ->first();
+
+        if (! $payment_hash) {
+            return response()->json([], 200);
+        }
+
+        $this->setPaymentHash($payment_hash);
+        $this->client = $payment_hash->fee_invoice->client;
+
+        $this->setPaymentMethod(GatewayType::HOSTED_PAGE)
+            ->payment_method
+            ->recordPayment($entity['id']);
+
+        return response()->json([], 200);
     }
 }
