@@ -359,6 +359,8 @@ class CompanySettings extends BaseSettings
 
     public $company_logo = ''; //@implemented
 
+    public $company_logo_dark = ''; //@implemented
+
     public $website = ''; //@implemented
 
     public $address1 = ''; //@implemented
@@ -721,6 +723,7 @@ class CompanySettings extends BaseSettings
         'address2' => 'string',
         'city' => 'string',
         'company_logo' => 'string',
+        'company_logo_dark' => 'string',
         'country_id' => 'string',
         'client_number_pattern' => 'string',
         'client_number_counter' => 'integer',
@@ -827,6 +830,7 @@ class CompanySettings extends BaseSettings
         'address2' => 'string',
         'city' => 'string',
         'company_logo' => 'string',
+        'company_logo_dark' => 'string',
         'country_id' => 'string',
         'custom_value1' => 'string',
         'custom_value2' => 'string',
