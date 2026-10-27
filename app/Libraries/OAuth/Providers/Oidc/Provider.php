@@ -32,7 +32,7 @@ use SocialiteProviders\Manager\OAuth2\AbstractProvider;
  * Configuration lives under `config/services.php` -> `oidc`:
  *   - issuer        (required) URL to the identity provider without `/.well-known/openid-configuration` suffix
  *   - client_id     (required)
- *   - client_secret (optional)
+ *   - client_secret (optional) required for identity provider clients configured as confidential (not public / PKCE-only)
  *   - redirect      (required) callback URL, e.g. https://app.example.com/auth/oidc
  *   - scopes        (optional) space-separated list, default "openid profile email"
  */
