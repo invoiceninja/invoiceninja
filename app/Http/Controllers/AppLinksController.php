@@ -27,7 +27,8 @@ use Illuminate\Http\Request;
  * loads {@see self::bridge()}.
  *
  * The browser fallback goes to whichever web client the instance serves — see
- * {@see self::usesFlutterWebClient()}.
+ * {@see self::usesFlutterWebClient()} — on the instance's own origin when
+ * self-hosted, and on `react_url` when hosted.
  */
 class AppLinksController extends Controller
 {
@@ -122,12 +123,16 @@ class AppLinksController extends Controller
     {
         $suffix = empty($query) ? '' : '?'.http_build_query($query);
 
-        // Untranslated: a Flutter web client built from the apps shares their
-        // route table. The bundled admin-portal v1 opens at its main screen.
-        if ($this->usesFlutterWebClient()) {
+        // Self-host serves its web client, either one, at its own root (see
+        // BaseController::flutterRoute), so REACT_URL is not read here: installs
+        // keep .env.example's dev-server value, and nothing listens on it.
+        // Untranslated for Flutter: a web client built from the apps shares their
+        // route table, and the bundled admin-portal v1 opens at its main screen.
+        if (Ninja::isSelfHost()) {
             $base = rtrim((string) config('ninja.app_url') ?: url('/'), '/');
+            $route = $this->usesFlutterWebClient() ? $path : AppLinkPath::forWebClient($path);
 
-            return $base.'/#/'.$path.$suffix;
+            return $base.'/#/'.$route.$suffix;
         }
 
         $base = rtrim((string) config('ninja.react_url') ?: url('/'), '/');

@@ -446,8 +446,29 @@ class InvoiceItemTest extends TestCase
         $this->assertEquals(9, $invoice->total_taxes);
     }
 
+    public function testLineAmountDiscountWhenOnlyInvoiceFlagIsSet()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->is_amount_discount = true;
+        $invoice->discount = 0;
 
+        $line_item = new InvoiceItem();
+        $line_item->quantity = 1;
+        $line_item->cost = 200;
+        $line_item->discount = 10;
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
 
+        $invoice->line_items = [$line_item];
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(190, $invoice->line_items[0]->line_total);
+        $this->assertTrue($invoice->line_items[0]->is_amount_discount);
+    }
 
     public function testInvoiceItemTotalSimple()
     {

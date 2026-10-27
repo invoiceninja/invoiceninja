@@ -251,7 +251,7 @@ class ProductTest extends TestCase
         $this->assertSame(
             100,
             Product::withTrashed()
-                ->whereIn('id', $products->modelKeys())
+                ->whereIn('id', $products->pluck('id')->all())
                 ->where('is_deleted', true)
                 ->whereNotNull('deleted_at')
                 ->count(),

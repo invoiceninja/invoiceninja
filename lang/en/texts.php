@@ -6572,6 +6572,13 @@ $lang = array(
     'price_tiers_help_progressive' => 'Each tier applies only to the units within its bracket; the shown value is the blended unit price at that minimum quantity.',
     'min_quantity' => 'Min. quantity',
     'add_tier' => 'Add tier',
+    'sign_in_with' => 'Sign in with :provider',
+    'signing_you_in' => 'Signing you in…',
+    'sign_in_failed' => 'Sign in failed',
+    'oidc_login_failed' => 'Unable to sign in with your identity provider. Please try again.',
+    'oidc_missing_code' => 'The sign-in code is missing. Please return to the login page and try again.',
+    'oidc_no_token' => 'No authentication token was returned. Please return to the login page and try again.',
+    'back_to_login' => 'Back to login',
 
 );
 

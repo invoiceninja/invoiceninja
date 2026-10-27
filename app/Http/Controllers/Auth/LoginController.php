@@ -459,12 +459,21 @@ class LoginController extends BaseController
 
     private function getSocialiteUser(string $provider, string $token)
     {
+        if ($provider == 'apple') {
+            return OAuth::appleUserFromToken($token);
+        }
+
         return Socialite::driver($provider)->userFromToken($token);
     }
 
     private function handleSocialiteLogin($provider, $token)
     {
-        $user = $this->getSocialiteUser($provider, $token);
+        try {
+            $user = $this->getSocialiteUser($provider, $token);
+        } catch (\Throwable $e) {
+            nlog('Socialite login failed: '.$e->getMessage());
+            $user = null;
+        }
 
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
@@ -966,7 +975,7 @@ class LoginController extends BaseController
      * self-hosted instance so the React login page can conditionally
      * show a "Sign in with <label>" button.
      *
-     * Returns { oidc_enabled: bool, oidc_provider_label: string }.
+     * Returns { oidc_enabled: bool, oidc_provider_label: string, oidc_auto: bool }.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -975,6 +984,7 @@ class LoginController extends BaseController
         return response()->json([
             'oidc_enabled' => !empty(config('services.oidc.client_id')) && !empty(config('services.oidc.issuer')),
             'oidc_provider_label' => config('services.oidc.provider_label', 'OIDC'),
+            'oidc_auto' => config('services.oidc.auto', false),
         ]);
     }
 
