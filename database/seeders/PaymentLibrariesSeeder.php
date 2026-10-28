@@ -96,6 +96,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 67, 'name' => 'payware', 'is_offsite' => false, 'sort_order' => 29, 'provider' => 'Payware', 'key' => 'b0a6294fca4488c2bab58f3e11e3c623', 'fields' => '{"partnerId":"","vposId":"","paywarePublicKey":"","testMode":false,"timeToLive":"600"}', 'default_gateway_type_id' => 30],
             ['id' => 68, 'name' => 'CHIP', 'provider' => 'ChipInAsia', 'is_offsite' => true, 'sort_order' => 30, 'key' => 'c7a8e2f1b4d90635a3f8e1c9b2d4a6e0', 'fields' => '{"apiKey":"","brandId":""}', 'default_gateway_type_id' => GatewayType::HOSTED_PAGE],
             ['id' => 69, 'name' => 'Helcim', 'is_offsite' => false, 'sort_order' => 31, 'provider' => 'Helcim', 'key' => 'ca3b3f7e4be811c96a8a1f4cafe2a97f', 'fields' => '{"apiToken":"","webhookVerifierToken":""}'],
+            ['id' => 70, 'name' => 'Deluxe Payment Platform', 'is_offsite' => false, 'sort_order' => 32, 'provider' => 'DeluxePaymentPlatform', 'key' => '26e7aed2062f96138650d6e0e133be8b', 'fields' => '{"partnerToken":"","clientId":"","clientSecret":"","webhookSecret":"","testMode":false}'],
         ];
 
         foreach ($gateways as $gateway) {
@@ -112,7 +113,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1, 3, 7, 11, 15, 20, 39, 46, 55, 50, 57, 52, 58, 59, 60, 62, 63, 67, 69])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1, 3, 7, 11, 15, 20, 39, 46, 55, 50, 57, 52, 58, 59, 60, 62, 63, 67, 69, 70])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20, 49])->update(['visible' => 0]);
