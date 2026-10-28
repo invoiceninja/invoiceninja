@@ -303,6 +303,10 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
             return response()->json(['message' => 'Transaction not found'], 200);
         }
 
+        if ($this->transactionStatus($transaction) === 'voided') {
+            return $this->reversePayment($transaction, Payment::STATUS_CANCELLED);
+        }
+
         return $this->recordTransaction($transaction);
     }
 
@@ -318,11 +322,15 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
     }
 
     /**
-     * Map a Deluxe transaction to a payment status: completed, pending or failed.
+     * Map a Deluxe transaction to a payment status: completed, pending, voided or failed.
      */
     public function transactionStatus(array $transaction): string
     {
         $auth_response = strtoupper((string) data_get($transaction, 'payment.authResponse', ''));
+
+        if (str_starts_with($auth_response, 'VOID')) {
+            return 'voided';
+        }
 
         if (data_get($transaction, 'payment.isSuccessful') === true || data_get($transaction, 'payment.settled') === true) {
             return 'completed';
@@ -343,7 +351,7 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
         $transaction_id = (string) $transaction['paymentId'];
         $status = $this->transactionStatus($transaction);
 
-        if ($status === 'failed') {
+        if (! in_array($status, ['completed', 'pending'], true)) {
             return response()->json(['message' => 'Transaction not successful'], 200);
         }
 
@@ -409,12 +417,12 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
     }
 
     /**
-     * Re-check a pending ACH payment with Deluxe. Called by CheckACHStatus.
+     * Re-check a recent payment with Deluxe. Called by the ReconcilePayments job.
      *
-     * Deluxe does not send a webhook when an ACH debit is rejected, so this is
-     * how rejected ACH payments are detected.
+     * Deluxe sends no webhook when an ACH debit is rejected or a payment is
+     * voided, so polling is how those changes reach Invoice Ninja.
      */
-    public function reconcileAchPayment(Payment $payment): string
+    public function reconcilePayment(Payment $payment): string
     {
         $transaction = $this->getTransaction((string) $payment->transaction_reference);
 
@@ -424,32 +432,36 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
 
         $status = $this->transactionStatus($transaction);
 
-        if ($status === 'completed') {
+        if ($status === 'voided') {
+            $this->reversePayment($transaction, Payment::STATUS_CANCELLED);
+        } elseif ($status === 'failed') {
+            $this->reversePayment($transaction, Payment::STATUS_FAILED);
+        } elseif ($status === 'completed' && $payment->status_id === Payment::STATUS_PENDING) {
             $this->recordTransaction($transaction);
-
-            return 'completed';
         }
 
-        if ($status === 'failed') {
-            $this->failPendingPayment((string) $payment->transaction_reference, ['transaction' => $transaction]);
-
-            return 'failed';
-        }
-
-        return 'pending';
+        return $status;
     }
 
     /**
-     * Deluxe reports the ACH debit as unsuccessful: reverse the pending payment and notify the company.
+     * Reverse a payment Deluxe reports as voided (cancelled) or as a failed ACH debit (failed).
+     * Failed payments also send the payment-failed notification.
      */
-    private function failPendingPayment(string $transaction_id, array $log)
+    private function reversePayment(array $transaction, int $status_id)
     {
-        return Cache::lock("deluxe-transaction-{$transaction_id}", 60)->block(10, function () use ($transaction_id, $log) {
+        $transaction_id = (string) $transaction['paymentId'];
+
+        // A failed debit can only affect a pending ACH payment; a void can cancel a completed one too.
+        $reversible = $status_id === Payment::STATUS_CANCELLED
+            ? [Payment::STATUS_PENDING, Payment::STATUS_COMPLETED]
+            : [Payment::STATUS_PENDING];
+
+        return Cache::lock("deluxe-transaction-{$transaction_id}", 60)->block(10, function () use ($transaction, $transaction_id, $status_id, $reversible) {
             /** @var Payment|null $payment */
             $payment = Payment::where('company_id', $this->company_gateway->company_id)
                 ->where('company_gateway_id', $this->company_gateway->id)
                 ->where('transaction_reference', $transaction_id)
-                ->where('status_id', Payment::STATUS_PENDING)
+                ->whereIn('status_id', $reversible)
                 ->where('is_deleted', false)
                 ->first();
 
@@ -459,21 +471,24 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
 
             $client = $payment->client;
             $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
+            $reason = (string) data_get($transaction, 'payment.authResponse', 'unsuccessful');
 
             $payment->service()->deletePayment();
-            $payment->status_id = Payment::STATUS_FAILED;
+            $payment->status_id = $status_id;
             $payment->save();
 
-            $reason = (string) data_get($log, 'transaction.payment.authResponse', 'unsuccessful');
+            if ($status_id === Payment::STATUS_CANCELLED) {
+                $this->logWebhook(['transaction' => $transaction, 'message' => "Payment voided in Deluxe: {$reason}"], SystemLog::EVENT_GATEWAY_SUCCESS, $client);
+            } else {
+                $this->logWebhook(['transaction' => $transaction, 'message' => "ACH payment failed: {$reason}"], SystemLog::EVENT_GATEWAY_FAILURE, $client);
 
-            $this->logWebhook(array_merge($log, ['message' => "ACH payment failed: {$reason}"]), SystemLog::EVENT_GATEWAY_FAILURE, $client);
-
-            PaymentFailedMailer::dispatch(
-                $payment_hash,
-                $client->company,
-                $client,
-                "Deluxe ACH payment {$transaction_id} failed: {$reason}."
-            );
+                PaymentFailedMailer::dispatch(
+                    $payment_hash,
+                    $client->company,
+                    $client,
+                    "Deluxe ACH payment {$transaction_id} failed: {$reason}."
+                );
+            }
 
             return response()->json(['message' => 'Webhook processed'], 200);
         });

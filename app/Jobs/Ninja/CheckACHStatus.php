@@ -168,27 +168,6 @@ class CheckACHStatus implements ShouldQueue
                 });
 
             /**
-             * Deluxe ACH payments remain pending until Deluxe reports them as successful.
-             */
-            Payment::with('client', 'company_gateway', 'currency')
-                ->where('is_deleted', false)
-                ->where('gateway_type_id', 2)
-                ->where('status_id', Payment::STATUS_PENDING)
-                ->where('created_at', '>', now()->subDays(10))
-                ->whereHas('company_gateway', function ($q) {
-                    $q->where('gateway_key', '26e7aed2062f96138650d6e0e133be8b');
-                })
-                ->cursor()
-                ->each(function (Payment $payment) {
-                    try {
-                        $driver = $payment->company_gateway->driver($payment->client)->init();
-                        $driver->reconcileAchPayment($payment);
-                    } catch (\Throwable $e) {
-                        nlog("Error checking Deluxe ACH payment {$payment->id}: {$e->getMessage()}");
-                    }
-                });
-
-            /**
              * Blockonomics payments that have been pending for over 3 days are deleted
              */
             Payment::where('status_id', 1)

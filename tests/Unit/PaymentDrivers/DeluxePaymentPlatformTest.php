@@ -104,6 +104,8 @@ class DeluxePaymentPlatformTest extends TestCase
         $this->assertSame('pending', $driver->transactionStatus(['isAch' => true, 'payment' => ['isSuccessful' => false, 'authResponse' => 'PENDING']]));
         $this->assertSame('completed', $driver->transactionStatus(['isAch' => true, 'payment' => ['isSuccessful' => false, 'settled' => true, 'authResponse' => 'PENDING']]));
         $this->assertSame('failed', $driver->transactionStatus(['isAch' => true, 'payment' => ['isSuccessful' => false, 'authResponse' => 'REJECTED']]));
+        $this->assertSame('voided', $driver->transactionStatus(['isAch' => false, 'payment' => ['isSuccessful' => false, 'authResponse' => 'VOIDED 123456']]));
+        $this->assertSame('failed', $driver->transactionStatus(['isAch' => false, 'payment' => ['isSuccessful' => false, 'authResponse' => 'REQUEST DECLINED!']]));
     }
 
     private function driver(array $config = []): DeluxePaymentPlatformPaymentDriver
