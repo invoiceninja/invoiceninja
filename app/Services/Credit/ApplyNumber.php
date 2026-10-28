@@ -22,22 +22,15 @@ class ApplyNumber extends AbstractService
 {
     use GeneratesCounter;
 
-    private $client;
-
-    private $credit;
-
     private bool $completed = true;
 
-    public function __construct(Client $client, Credit $credit)
+    public function __construct(private Client $client, private Credit $credit)
     {
-        $this->client = $client;
-
-        $this->credit = $credit;
     }
 
     public function run()
     {
-        if ($this->credit->number != '') {
+        if (trim((string)$this->credit->number) !== '') {
             return $this->credit;
         }
 

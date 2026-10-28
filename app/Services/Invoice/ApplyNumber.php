@@ -22,22 +22,15 @@ class ApplyNumber extends AbstractService
 {
     use GeneratesCounter;
 
-    private $client;
-
-    private $invoice;
-
     private $completed = true;
 
-    public function __construct(Client $client, Invoice $invoice)
+    public function __construct(private Client $client, private Invoice $invoice)
     {
-        $this->client = $client;
-
-        $this->invoice = $invoice;
     }
 
     public function run()
     {
-        if (is_string($this->invoice->number) && trim($this->invoice->number) !== '') {
+        if (trim((string)$this->invoice->number) !== '') {
             return $this->invoice;
         }
 
@@ -78,7 +71,7 @@ class ApplyNumber extends AbstractService
                 if ($peppol_enabled && strlen(trim($this->client->getSetting('credit_number_pattern'))) > 0 && $this->invoice->amount < 0) {
                     $this->invoice->number = $this->getPeppolCreditNumber($this->client, $this->invoice);
                 } else {
-                    $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
+                    $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, isset($this->invoice->recurring_id));
                 }
 
                 $this->invoice->saveQuietly();

@@ -48,7 +48,7 @@
         "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.28",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
-        "checkout/checkout-sdk-php": "^3.0",
+        "checkout/checkout-sdk-php": "^6.8.1",
         "endroid/qr-code": "^5",
         "eway/eway-rapid-php": "^2.0",
         "fakerphp/faker": "^1.14",

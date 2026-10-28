@@ -129,7 +129,7 @@ class PaymentTransformer extends EntityTransformer
             'type_id' => (string) $payment->type_id ?: '',
             'invitation_id' => (string) $payment->invitation_id ?: '',
             'private_notes' => (string) $payment->private_notes ?: '',
-            'number' => (string) $payment->number ?: '',
+            'number' => (string) ($payment->number ?? ''),
             'custom_value1' => (string) $payment->custom_value1 ?: '',
             'custom_value2' => (string) $payment->custom_value2 ?: '',
             'custom_value3' => (string) $payment->custom_value3 ?: '',

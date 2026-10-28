@@ -49,6 +49,7 @@ use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentMethodDomain;
 use App\Exceptions\StripeConnectFailure;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\PaymentDrivers\Stripe\Jobs\RefundFailed;
 use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\CreditCard;
@@ -893,6 +894,16 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         if (in_array($request->type, ['payment_intent.payment_failed', 'charge.failed'])) {
             PaymentIntentFailureWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(2));
+
+            return response()->json([], 200);
+        }
+
+        if ($event->type === 'refund.failed') {
+            RefundFailed::dispatch(
+                $event->data->object->toArray(),
+                $this->company_gateway->company->company_key,
+                $this->company_gateway->id,
+            )->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
         }
