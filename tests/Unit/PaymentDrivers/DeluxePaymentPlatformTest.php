@@ -49,25 +49,50 @@ class DeluxePaymentPlatformTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function testWebhookIsRejectedWhenSecretIsNotConfigured(): void
+    public function testWebhookIgnoresUnknownEventsWithoutCallingDeluxe(): void
     {
-        $response = $this->driver(['webhookSecret' => ''])->processWebhookRequest($this->webhook('anything'));
+        Http::fake();
 
-        $this->assertSame(401, $response->getStatusCode());
-    }
-
-    public function testWebhookIsRejectedWithWrongSecret(): void
-    {
-        $response = $this->driver()->processWebhookRequest($this->webhook('wrong-secret'));
-
-        $this->assertSame(401, $response->getStatusCode());
-    }
-
-    public function testWebhookWithValidSecretIgnoresUnknownEvents(): void
-    {
-        $response = $this->driver()->processWebhookRequest($this->webhook('webhook-secret', ['EventType' => 'SOMETHING_ELSE']));
+        $response = $this->driver()->processWebhookRequest($this->webhook(['EventType' => 'SOMETHING_ELSE', 'TransactionId' => 'abc']));
 
         $this->assertSame(200, $response->getStatusCode());
+        Http::assertNothingSent();
+    }
+
+    public function testWebhookVerifiesTransactionWithDeluxeBeforeRecording(): void
+    {
+        Http::fake([
+            '*/oauth2/v2/token' => Http::response(['access_token' => 'bearer-token'], 200),
+            '*/payments/search' => Http::response(['data' => ['payments' => []]], 200),
+        ]);
+
+        $response = $this->driver()->processWebhookRequest($this->webhook([
+            'EventType' => 'Transaction',
+            'TransactionId' => 'forged-transaction',
+            'Status' => 'APPROVED',
+            'TransactionAmount' => '100.00',
+        ]));
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('Transaction not found', $response->getData(true)['message']);
+
+        Http::assertSent(function (Request $request) {
+            return str_ends_with($request->url(), '/dpp/v1/payments/search')
+                && $request['paymentId'] === 'forged-transaction'
+                && $request->hasHeader('Authorization', 'Bearer bearer-token')
+                && $request->hasHeader('partnerToken', 'partner-token');
+        });
+    }
+
+    public function testTransactionStatusMapping(): void
+    {
+        $driver = $this->driver();
+
+        $this->assertSame('completed', $driver->transactionStatus(['isAch' => false, 'payment' => ['isSuccessful' => true, 'authResponse' => 'APPROVED 123456']]));
+        $this->assertSame('failed', $driver->transactionStatus(['isAch' => false, 'payment' => ['isSuccessful' => false, 'authResponse' => 'DECLINED']]));
+        $this->assertSame('pending', $driver->transactionStatus(['isAch' => true, 'payment' => ['isSuccessful' => false, 'authResponse' => 'PENDING']]));
+        $this->assertSame('completed', $driver->transactionStatus(['isAch' => true, 'payment' => ['isSuccessful' => false, 'settled' => true, 'authResponse' => 'PENDING']]));
+        $this->assertSame('failed', $driver->transactionStatus(['isAch' => true, 'payment' => ['isSuccessful' => false, 'authResponse' => 'REJECTED']]));
     }
 
     private function driver(array $config = []): DeluxePaymentPlatformPaymentDriver
@@ -78,23 +103,14 @@ class DeluxePaymentPlatformTest extends TestCase
             'partnerToken' => 'partner-token',
             'clientId' => 'client-id',
             'clientSecret' => 'client-secret',
-            'webhookSecret' => 'webhook-secret',
             'testMode' => true,
         ], $config));
 
         return new DeluxePaymentPlatformPaymentDriver($gateway);
     }
 
-    private function webhook(string $secret, array $payload = ['EventType' => 'TRANSACTION']): HttpRequest
+    private function webhook(array $payload): HttpRequest
     {
-        return HttpRequest::create(
-            '/payment_webhook/company/gateway?secret='.urlencode($secret),
-            'POST',
-            [],
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode($payload)
-        );
+        return HttpRequest::create('/payment_webhook/company/gateway', 'POST', [], [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($payload));
     }
 }

@@ -17,7 +17,6 @@ return new class extends Migration
             $configuration->partnerToken = '';
             $configuration->clientId = '';
             $configuration->clientSecret = '';
-            $configuration->webhookSecret = '';
             $configuration->testMode = false;
 
             $gateway = new Gateway();
