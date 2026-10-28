@@ -309,6 +309,9 @@ class OpenApiContractTest extends TestCase
     {
         parent::setUp();
 
+        // CI queues on redis with no worker; activities are written by queued listeners.
+        config(['queue.default' => 'sync']);
+
         $this->makeTestData();
 
         Model::reguard();
