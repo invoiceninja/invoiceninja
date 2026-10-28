@@ -91,4 +91,25 @@
           $ref: '#/components/schemas/Vendor'
         vendor_contact:
           $ref: '#/components/schemas/VendorContact'
+        created_at:
+          description: 'When the activity was created, as a Unix timestamp in seconds'
+          type: integer
+        purchase_order_id:
+          description: 'The hashed id of the purchase order, an empty string when not related'
+          type: string
+        quote_id:
+          description: 'The hashed id of the quote, an empty string when not related'
+          type: string
+        recurring_expense_id:
+          description: 'The hashed id of the recurring expense, an empty string when not related'
+          type: string
+        recurring_invoice_id:
+          description: 'The hashed id of the recurring invoice, an empty string when not related'
+          type: string
+        vendor_contact_id:
+          description: 'The hashed id of the vendor contact, an empty string when not related'
+          type: string
+        vendor_id:
+          description: 'The hashed id of the vendor, an empty string when not related'
+          type: string
       type: object

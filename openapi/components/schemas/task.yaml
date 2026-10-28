@@ -41,10 +41,6 @@
           description: 'Boolean flag determining if the task has been deleted'
           type: boolean
           example: true
-        task_status_id:
-          description: 'The hashed id of the task status'
-          type: string
-          example: Opnel5aKBz
         description:
           description: 'The task description'
           type: string
@@ -54,18 +50,14 @@
           type: integer
           example: 3600
         due_date:
-          description: 'The due date of the task'
+          description: 'The due date of the task, an empty string when not set'
           type: string
-          format: date
           example: '2024-01-31'
         estimated_duration:
-          description: 'The estimated duration of the task in seconds'
+          description: 'The estimated duration of the task in seconds, null when not set'
           type: integer
+          nullable: true
           example: 7200
-        task_status_order:
-          description: 'The order of the task'
-          type: integer
-          example: 4
         rate:
           description: 'The task rate'
           type: number
@@ -90,39 +82,23 @@
           description: 'Boolean flag determining if the task is date based'
           type: boolean
           example: true
-        calculated_start_date:
-          description: 'The calculated start date of the task'
-          type: string
-          example: '2022-10-10'
-          readOnly: true
-        invoice_documents:
-          description: "Boolean flags which determines whether to include the task documents on the invoice"
-          type: boolean
-          example: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
-        hash:
-          description: 'Unique hash identifier for this task'
-          type: string
-          example: 'a1b2c3d4e5f6'
         meta:
-          description: 'Metadata associated with this task'
+          description: 'Calendar sync data: calendar_event_id, the id of the calendar event linked to the task. An empty object when there is none'
           type: object
           additionalProperties: true
         status_id:
@@ -130,8 +106,9 @@
           type: string
           example: Opnel5aKBz
         status_order:
-          description: 'Sort order for status display'
+          description: 'Sort order for status display, null when the task has not been sorted'
           type: integer
+          nullable: true
           example: 1
         status_sort_order:
           description: 'Alternative sort order for status'
@@ -143,8 +120,14 @@
           items:
             $ref: '#/components/schemas/TagAssignment'
         date:
-          description: 'The calculated start date of the task'
+          description: 'The date the task''s first time log starts (YYYY-MM-DD), an empty string when the task has no time log'
           type: string
-          format: date
           example: '2024-01-15'
+        documents:
+          description: 'The documents attached to the task'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        project:
+          $ref: '#/components/schemas/Project'
       type: object

@@ -37,10 +37,6 @@
           description: 'The currency id of the expense'
           type: string
           example: '2'
-        invoice_category_id:
-          description: 'The invoice category id'
-          type: string
-          example: 'Opnel5aKBz'
         payment_type_id:
           description: 'The payment type id'
           type: string
@@ -61,10 +57,6 @@
           description: 'The transaction references of the expense'
           type: string
           example: ''
-        transcation_id:
-          description: 'The transaction id of the expense'
-          type: string
-          example: ''
         custom_value1:
           description: 'A custom value'
           type: string
@@ -81,10 +73,6 @@
           description: 'A custom value'
           type: string
           example: ''
-        tax_amount:
-          description: 'The tax amount'
-          type: number
-          example: 10.00
         tax_name1:
           description: 'Tax Name 1'
           type: string
@@ -149,13 +137,11 @@
           example: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
@@ -173,6 +159,7 @@
           description: 'The unique identifier of the associated purchase order'
           type: string
           example: Opnel5aKBz
+          writeOnly: true
         tax_amount1:
           description: 'The amount of the first tax'
           type: number
@@ -210,9 +197,8 @@
           type: string
           example: '2'
         created_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the expense was created, as a Unix timestamp in seconds'
+          type: integer
           example: 1434342123
           readOnly: true
         entity_type:
@@ -223,4 +209,9 @@
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
+        documents:
+          description: 'The documents attached to the expense'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object

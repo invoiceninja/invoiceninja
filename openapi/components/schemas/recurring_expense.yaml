@@ -29,14 +29,6 @@
           description: 'The currency id of the invoice associated with this recurring expense'
           type: string
           example: "1"
-        expense_currency_id:
-          description: 'The currency id of the expense associated with this recurring expense'
-          type: string
-          example: "1"
-        invoice_category_id:
-          description: 'The category id of the invoice'
-          type: string
-          example: "1"
         payment_type_id:
           description: 'The payment type id'
           type: string
@@ -53,10 +45,6 @@
           description: 'The recurring expense transaction reference'
           type: string
           example: EXP-1223-2333
-        transcation_id:
-          description: 'The transaction id of the recurring expense'
-          type: string
-          example: '1233312312'
         custom_value1:
           description: 'Custom value field'
           type: string
@@ -106,14 +94,12 @@
           format: float
           example: 10.00
         frequency_id:
-          description: 'The frequency this recurring expense fires'
-          type: number
-          format: int
-          example: 1
+          description: 'How often an expense is created, as a frequency id string (see RecurringInvoice frequency_id), an empty string when not set'
+          type: string
+          example: '1'
         remaining_cycles:
           description: 'The number of remaining cycles for this recurring expense'
-          type: number
-          format: int
+          type: integer
           example: 1
         foreign_amount:
           description: 'The foreign currency amount of the recurring expense'
@@ -142,14 +128,12 @@
           type: boolean
           example: true
         last_sent_date:
-          description: 'The Date it was sent last'
+          description: 'The date the last expense was created, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next send date'
+          description: 'The date the next expense is created, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         invoice_documents:
           description: 'Boolean flag determining if the documents associated with this expense should be passed onto the invoice if it is converted to an invoice'
@@ -157,13 +141,11 @@
           example: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
@@ -182,6 +164,7 @@
           type: string
           format: date
           example: '2024-12-31'
+          writeOnly: true
         number:
           description: 'The unique number assigned to this recurring expense'
           type: string
@@ -222,4 +205,26 @@
           type: array
           items:
             $ref: '#/components/schemas/TagAssignment'
+        created_at:
+          description: 'When the recurring expense was created, as a Unix timestamp in seconds'
+          type: integer
+        documents:
+          description: 'The documents attached to the recurring expense'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        entity_type:
+          description: 'The type of the record, always "recurringExpense"'
+          type: string
+        recurring_dates:
+          description: 'The upcoming dates a new expense is created on, only returned with ?show_dates=true; otherwise an empty array'
+          type: array
+          items:
+            type: object
+        recurring_expense_currency_id:
+          description: 'Deprecated, always an empty string'
+          type: string
+        status_id:
+          description: 'The status of the recurring expense: 1 draft, 2 active, 3 paused, 4 completed'
+          type: string
       type: object

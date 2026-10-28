@@ -29,16 +29,17 @@
           description: 'The users avatar'
           type: string
           example: 'https://url.to.your/avatar.png'
+          writeOnly: true
         accepted_terms_version:
           description: 'The version of the invoice ninja terms that has been accepted by the user'
           type: string
           example: 1.0.1
-          readOnly: true
+          writeOnly: true
         oauth_user_id:
           description: 'The provider id of the oauth entity'
           type: string
           example: jkhasdf789as6f675sdf768sdfs
-          readOnly: true
+          writeOnly: true
         oauth_provider_id:
           description: 'The oauth entity id'
           type: string
@@ -52,16 +53,6 @@
           description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
           type: boolean
           example: true
-          readOnly: true
-        sms_verification_code:
-          description: 'The sms verification code for the user. Required to settings up 2FA'
-          type: string
-          example: '123456'
-          readOnly: true
-        oauth_user_token_expiry:
-          description: 'The expiry date of the oauth token'
-          type: string
-          example: '2022-10-10'
           readOnly: true
         has_password:
           description: 'Boolean flag determining if the user has a password'
@@ -95,9 +86,9 @@
           example: true
           readOnly: true
         google_2fa_secret:
-          description: 'The google 2fa secret for the user'
-          type: string
-          example: '123456'
+          description: 'Whether the user has two factor authentication enabled'
+          type: boolean
+          example: false
           readOnly: true
         passkey_enabled:
           description: 'Boolean flag if passkey auth is enabled for this user'
@@ -111,6 +102,38 @@
           readOnly: true
         company_user:
             $ref: '#/components/schemas/CompanyUserRef'
+        archived_at:
+          description: 'When the user was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        created_at:
+          description: 'When the user was created, as a Unix timestamp in seconds'
+          type: integer
+        email_verified_at:
+          description: 'When the user verified their email address, as a Unix timestamp in seconds; null when not verified'
+          nullable: true
+        last_login:
+          description: 'When the user last logged in, as a Unix timestamp in seconds; 0 when never'
+          type: integer
+        oauth_user_token:
+          description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
+          type: string
+        referral_code:
+          description: 'The code that new accounts sign up with to be counted as referred by this user'
+          type: string
+        referral_meta:
+          description: 'The number of accounts the user referred, by plan: free, pro and enterprise'
+          type: object
+          additionalProperties: true
+        settings:
+          description: 'The user''s settings, currently calendar_connection with the status and email of the connected calendar'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'When the user was last changed, as a Unix timestamp in seconds'
+          type: integer
+        user_logged_in_notification:
+          description: 'Whether the user is emailed when they log in from a new IP address'
+          type: boolean
       type: object
     UserRef:
       properties:
@@ -209,9 +232,9 @@
           example: true
           readOnly: true
         google_2fa_secret:
-          description: 'The google 2fa secret for the user'
-          type: string
-          example: '123456'
+          description: 'Whether the user has two factor authentication enabled'
+          type: boolean
+          example: false
           readOnly: true
         passkey_enabled:
           description: 'Boolean flag if passkey auth is enabled for this user'
@@ -228,9 +251,9 @@
           type: string
           example: 'refresh_token_abc123'
         oauth_user_token:
-          description: 'OAuth access token data for the user'
-          type: object
-          additionalProperties: true
+          description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
+          type: string
+          example: '***'
         shopify_user_id:
           description: 'The unique identifier of the Shopify user'
           type: string
@@ -239,4 +262,34 @@
           description: 'Flag indicating whether to send login notifications'
           type: boolean
           example: true
+        archived_at:
+          description: 'When the user was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        company_user:
+          description: 'The company user of the user in the current company, returned with include=company_user'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: 'When the user was created, as a Unix timestamp in seconds'
+          type: integer
+        email_verified_at:
+          description: 'When the user verified their email address, as a Unix timestamp in seconds; null when not verified'
+          type: integer
+        last_login:
+          description: 'When the user last logged in, as a Unix timestamp in seconds; 0 when never'
+          type: integer
+        referral_code:
+          description: 'The code that new accounts sign up with to be counted as referred by this user'
+          type: string
+        referral_meta:
+          description: 'The number of accounts the user referred, by plan: free, pro and enterprise'
+          type: object
+          additionalProperties: true
+        settings:
+          description: 'The user''s settings, currently calendar_connection with the status and email of the connected calendar'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'When the user was last changed, as a Unix timestamp in seconds'
+          type: integer
       type: object

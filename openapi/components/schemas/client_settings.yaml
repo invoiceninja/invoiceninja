@@ -847,4 +847,13 @@
           description: 'The French reporting schedule. ten_day or monthly'
           type: string
           example: ten_day
+        entity:
+          description: 'The class of the entity the settings belong to, App\Models\Client'
+          type: string
+        industry_id:
+          description: 'Not used: a client''s industry is stored in the client''s own industry_id field. Kept in the settings for compatibility and usually empty'
+          type: string
+        size_id:
+          description: 'Not used: a client''s size is stored in the client''s own size_id field. Kept in the settings for compatibility and usually empty'
+          type: string
       type: object

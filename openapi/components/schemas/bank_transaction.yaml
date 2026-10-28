@@ -55,7 +55,7 @@
           items:
             $ref: '#/components/schemas/TagAssignment'
         bank_integration_id:
-          description: 'The hashed id of the bank integration'
+          description: 'The hashed id of the bank account (bank integration) the transaction was imported from'
           type: string
           example: AS3df3A
         ninja_category_id:
@@ -103,21 +103,18 @@
           type: string
           example: '20220101-abc123'
         created_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the bank transaction was created, as a Unix timestamp in seconds'
+          type: integer
           example: 1434342123
           readOnly: true
         updated_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the bank transaction was last changed, as a Unix timestamp in seconds'
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the bank transaction was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
           example: 1434342123
           readOnly: true
       type: object

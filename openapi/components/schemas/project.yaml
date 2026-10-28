@@ -29,9 +29,8 @@
           description: The default rate per task for the project
         due_date:
           type: string
-          format: date
           example: '2019-01-01'
-          description: The due date for the project
+          description: 'The due date for the project, an empty string when not set'
         private_notes:
           type: string
           description: Private notes associated with the project
@@ -52,18 +51,15 @@
           type: string
           description: Custom value field 4
         created_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the project creation
         updated_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the last project update
         archived_at:
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           description: The timestamp of the project deletion
         public_notes:
@@ -93,6 +89,11 @@
           type: number
           format: float
           example: 5000.00
+        documents:
+          description: 'The documents attached to the project'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       required:
         - id
         - user_id

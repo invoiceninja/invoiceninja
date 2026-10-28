@@ -112,3 +112,30 @@
           example: '1'
           default: '1'
           description: 'The tax ID of the product: 1 product, 2 service, 3 digital, 4 shipping, 5 exempt, 5 reduced tax, 7 override, 8 zero rate, 9 reverse tax'
+        net_cost:
+          type: number
+          format: float
+          example: 10.00
+          description: 'The cost of the line item net of inclusive taxes'
+          readOnly: true
+        date:
+          type: string
+          example: '1994-07-30'
+          description: 'The date of the line item, an empty string when not set'
+        task_id:
+          type: string
+          example: Opnel5aKBz
+          description: 'The hashed id of the task this line item was created from, an empty string when there is none'
+        expense_id:
+          type: string
+          example: Opnel5aKBz
+          description: 'The hashed id of the expense this line item was created from, an empty string when there is none'
+        unit_code:
+          type: string
+          example: C62
+          default: C62
+          description: 'The UN/ECE Recommendation 20 unit code used in e-invoices'
+        income_account_id:
+          type: string
+          example: ''
+          description: 'The id of the income account this line item is booked to in a connected accounting system such as QuickBooks, an empty string when not set'

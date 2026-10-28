@@ -1,7 +1,4 @@
     ClientRequest:
-      required:
-        - contacts
-        - country_id
       properties:
         id:
           description: 'The unique identifier of the client'
@@ -62,8 +59,7 @@
             The unique identifier of the client's country expressed by the countries ISO number.
 
             Optionally, instead of the country_id you can pass either the iso_3166_2 or iso_3166_3 country code into the country_code property.
-          type: number
-          format: integer
+          type: integer
           $ref: '#/components/schemas/CountryType'
           example: 1
         custom_value1:
@@ -118,8 +114,7 @@
             The unique identifier of the client's shipping country expressed by the countries ISO number.
 
             Optionally, instead of the shipping_country_id you can pass either the iso_3166_2 or iso_3166_3 country code into the shipping_country_code property.
-          type: number
-          format: integer
+          type: integer
           example: 4
         is_deleted:
           description: 'A boolean value indicating whether the client has been deleted or not'

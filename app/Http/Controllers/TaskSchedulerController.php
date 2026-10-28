@@ -70,6 +70,11 @@ class TaskSchedulerController extends BaseController
         return $this->itemResponse($scheduler);
     }
 
+    public function edit(ShowSchedulerRequest $request, Scheduler $scheduler)
+    {
+        return $this->itemResponse($scheduler);
+    }
+
     public function update(UpdateSchedulerRequest $request, Scheduler $scheduler)
     {
         $this->scheduler_repository->save($request->all(), $scheduler);

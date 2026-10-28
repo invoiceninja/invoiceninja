@@ -171,7 +171,10 @@
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -218,7 +221,10 @@
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -284,7 +290,10 @@
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -348,6 +357,13 @@
               $ref: '#/components/headers/X-RateLimit-Remaining'
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Location"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -368,6 +384,68 @@
         label: curl
         source: |
           curl -X DELETE \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
+  "/api/v1/locations/{id}/edit":
+    get:
+      tags:
+        - locations
+      summary: 'Edit location'
+      description: |
+        ##  GET /api/v1/locations/{id}/edit
+
+        Displays a location by id for editing
+      operationId: editLocation
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+        - name: id
+          in: path
+          description: 'The Location Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the location object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
             --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
             --header 'X-API-TOKEN: YOUR-TOKEN' \
             --header 'Accept: application/json'
@@ -399,7 +477,10 @@
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -486,7 +567,12 @@
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Location"
         401:
           $ref: '#/components/responses/401'
         403:

@@ -6,7 +6,139 @@
           example: AS3df3A
           readOnly: true
         account_sms_verified:
-          description: 'Boolean flag if the account has been verified by sms'
+          description: 'Whether the account phone number has been verified by SMS'
+          type: boolean
+          example: true
+        archived_at:
+          description: 'Always 0: accounts cannot be archived'
+          type: integer
+        can_trial:
+          description: 'Whether the account can still start a free trial: it is less than 14 days old and has never had a plan or trial'
+          type: boolean
+        current_version:
+          description: 'The version of Invoice Ninja this server runs'
           type: string
-          example: "true"
+        debug_enabled:
+          description: 'Whether debug mode is enabled on this server'
+          type: boolean
+        default_company_id:
+          description: 'The hashed id of the company the account opens by default'
+          type: string
+        default_url:
+          description: 'The base URL of this Invoice Ninja installation (APP_URL)'
+          type: string
+        disable_auto_update:
+          description: 'Whether automatic self-updates are disabled on this server'
+          type: boolean
+        docuninja_num_users:
+          description: 'The number of DocuNinja users included in the plan'
+          type: integer
+        e_invoice_quota:
+          description: 'The number of e-invoices the account can still send through the e-invoicing network'
+          type: integer
+        email_quota:
+          description: 'The number of emails the account may send per day, 0 when the account is flagged'
+          type: integer
+        emails_sent:
+          description: 'The number of emails the account has sent today'
+          type: integer
+        has_iap_plan:
+          description: 'Whether the account pays for its plan through an in-app purchase (App Store or Google Play)'
+          type: boolean
+        hosted_client_count:
+          description: 'The maximum number of clients allowed on the hosted plan'
+          type: integer
+        hosted_company_count:
+          description: 'The maximum number of companies allowed on the hosted plan'
+          type: integer
+        is_docker:
+          description: 'Whether this server runs the official Docker image (IS_DOCKER is set)'
+          type: boolean
+        is_hosted:
+          description: 'Whether this is the hosted platform rather than a self-hosted installation'
+          type: boolean
+        is_migrated:
+          description: 'Whether the account was migrated from Invoice Ninja v4. Migrated accounts get no trial days'
+          type: boolean
+        is_premium:
+          description: 'Hosted only: whether the account is on a paid plan, not in a trial and more than a month old. Always false on self-hosted installations'
+          type: boolean
+        is_scheduler_running:
+          description: 'Whether the cron scheduler has run on this server. Always true on the hosted platform'
+          type: boolean
+        key:
+          description: 'A random 32 character key generated when the account is created'
+          type: string
+        latest_version:
+          description: 'The latest released version of Invoice Ninja'
+          type: string
+        nordigen_enabled:
+          description: 'Whether the server is configured for Nordigen (GoCardless) bank integrations'
+          type: boolean
+        num_users:
+          description: 'The number of users included in the plan'
+          type: integer
+        payment_id:
+          description: 'The hashed id of the payment for the current plan, an empty string when there is none'
+          type: string
+        plan:
+          description: 'The active plan, for example pro or enterprise, an empty string when there is no plan or it has expired'
+          type: string
+        plan_expires:
+          description: 'The date the plan expires (YYYY-MM-DD), an empty string when not set'
+          type: string
+        plan_paid:
+          description: 'The date the current plan term was paid (YYYY-MM-DD), an empty string when not set'
+          type: string
+        plan_price:
+          description: 'The price of the hosted plan per plan_term (month or year); 0 when there is no paid plan'
+          type: number
+        plan_started:
+          description: 'The date the plan started (YYYY-MM-DD), an empty string when not set'
+          type: string
+        plan_term:
+          description: 'The billing term of the plan, month or year'
+          type: string
+        referral_code:
+          description: 'The referral code the account signed up with (the rc parameter), an empty string when none'
+          type: string
+        report_errors:
+          description: 'Whether errors are reported to Invoice Ninja'
+          type: boolean
+        set_react_as_default_ap:
+          description: 'Whether the React app is the default web app'
+          type: boolean
+        tax_api_enabled:
+          description: 'Whether the server is configured for the Zip-Tax sales tax API'
+          type: boolean
+        trial_days_left:
+          description: 'The number of days left in the trial, always 0 on the hosted platform'
+          type: integer
+        trial_plan:
+          description: 'The plan being trialled, for example pro or enterprise, an empty string when there is no trial'
+          type: string
+        trial_started:
+          description: 'The date the trial started (YYYY-MM-DD), an empty string when not set'
+          type: string
+        updated_at:
+          description: 'When the account was last changed, as a Unix timestamp in seconds'
+          type: integer
+        upload_extensions:
+          description: 'A comma separated list of the file extensions that can be uploaded as documents'
+          type: string
+        user_agent:
+          description: 'The user agent of the browser the account was created with'
+          type: string
+        utm_content:
+          description: 'The utm_content campaign parameter recorded at sign up'
+          type: string
+        utm_medium:
+          description: 'The utm_medium campaign parameter recorded at sign up'
+          type: string
+        utm_source:
+          description: 'The utm_source campaign parameter recorded at sign up'
+          type: string
+        utm_term:
+          description: 'The utm_term campaign parameter recorded at sign up'
+          type: string
       type: object

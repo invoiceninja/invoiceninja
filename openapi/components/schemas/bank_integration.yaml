@@ -5,14 +5,6 @@
           type: string
           example: AS3df3A
           readOnly: true
-        user_id:
-          description: 'The user hashed id'
-          type: string
-          example: AS3df3A
-        provider_bank_name:
-          description: 'The providers bank name'
-          type: string
-          example: 'Chase Bank'
         bank_account_id:
           description: 'The bank account id'
           type: integer
@@ -41,4 +33,40 @@
           description: 'iso_3166_3 code'
           type: string
           example: USD
+        archived_at:
+          description: 'When the bank integration was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        auto_sync:
+          description: 'Stored only: the daily sync imports transactions for every bank integration regardless of this flag'
+          type: boolean
+        created_at:
+          description: 'When the bank integration was created, as a Unix timestamp in seconds'
+          type: integer
+        disabled_upstream:
+          description: 'Whether the bank connection was disabled by the provider and needs to be reconnected'
+          type: boolean
+        from_date:
+          description: 'The date transactions are imported from (YYYY-MM-DD), an empty string when not set'
+          type: string
+        integration_type:
+          description: 'The integration provider, YODLEE or NORDIGEN'
+          type: string
+        is_deleted:
+          description: 'Whether the bank integration has been deleted'
+          type: boolean
+        nickname:
+          description: 'The account owner name reported by the bank for Nordigen integrations, an empty string when not set'
+          type: string
+        nordigen_institution_id:
+          description: 'The Nordigen (GoCardless) id of the bank, an empty string for other integration types'
+          type: string
+        provider_id:
+          description: 'The Yodlee provider account id the integration was created from, 0 when not set'
+          type: integer
+        provider_name:
+          description: 'The name of the bank as reported by the bank data provider, an empty string when not set'
+          type: string
+        updated_at:
+          description: 'When the bank integration was last changed, as a Unix timestamp in seconds'
+          type: integer
       type: object

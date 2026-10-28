@@ -25,4 +25,10 @@
           description: 'The created at timestamp'
           type: integer
           example: 2
+        archived_at:
+          description: 'When the expense category was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        color:
+          description: 'The colour of the category as a hex code'
+          type: string
       type: object

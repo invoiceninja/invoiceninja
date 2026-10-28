@@ -2,20 +2,20 @@
       required:
         - task_ids
       properties:
+        status_ids:
+          type: array
+          description: 'Hashed task status ids in their new order; each status gets its position as status_order'
+          items:
+            type: string
+          example: ['Wpmbk5ezJn', 'Opnel5aKBz']
         task_ids:
-          type: array
-          description: 'Array of task IDs to be sorted'
-          items:
-            type: string
-            example: 'D2J234DFA'
-        status_id:
-          description: 'Status ID to assign to sorted tasks'
-          type: integer
-          example: 1
-        sort_order:
-          type: array
-          description: 'Array of task IDs in the desired sort order'
-          items:
-            type: string
-            example: 'D2J234DFA'
+          type: object
+          description: 'Map of hashed task status id to the hashed task ids in that column, in their new order. Each task is moved to that status and gets its position as status_order'
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            Wpmbk5ezJn: ['D2J234DFA', 'E3K345EFB']
+            Opnel5aKBz: ['F4L456FGC']
       type: object

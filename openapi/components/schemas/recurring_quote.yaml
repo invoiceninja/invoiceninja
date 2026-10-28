@@ -23,11 +23,11 @@
           example: '4'
         frequency_id:
           description: 'The recurring quote frequency'
-          type: number
-          example: 4
+          type: string
+          example: '4'
         remaining_cycles:
           description: 'The number of quotes left to be generated'
-          type: number
+          type: integer
           example: 4
         number:
           description: 'The recurringquote number - is a unique alpha numeric number per quote per company'
@@ -103,8 +103,9 @@
           example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the quote'
-          type: object
-          example: {}
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         amount:
           description: 'The quote amount'
           type: number
@@ -143,46 +144,32 @@
           type: boolean
           example: true
         date:
-          description: 'The quote Date'
+          description: 'The date of the recurring quote, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the quote was sent out'
+          description: 'The date the last quote was generated and sent, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent'
+          description: 'The date the next quote is generated (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the deposit/partial amount'
+          description: 'The due date for the deposit/partial amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the quote'
+          description: 'The due date of the recurring quote, an empty string when not set. The generated quotes get their due date from due_date_days'
           type: string
-          format: date
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
@@ -220,4 +207,55 @@
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        auto_bill:
+          description: 'The auto bill setting: always, optin, optout or off. Defaults to the client''s auto_bill setting'
+          type: string
+        auto_bill_enabled:
+          description: 'True when auto_bill is always or optout'
+          type: boolean
+        created_at:
+          description: 'When the recurring quote was created, as a Unix timestamp in seconds'
+          type: integer
+        design_id:
+          description: 'The hashed id of the design used to render the quotes this recurring quote generates'
+          type: string
+        documents:
+          description: 'The documents attached to the recurring quote'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        due_date_days:
+          description: 'The day of the month the generated quotes are due, or terms to use the client''s payment terms. An empty string when not set'
+          type: string
+        entity_type:
+          description: 'The type of the record, always "recurringQuote"'
+          type: string
+        exchange_rate:
+          description: 'The exchange rate between the client currency and the company currency'
+          type: number
+        has_expenses:
+          description: 'Legacy flag that Invoice Ninja does not set or accept for recurring quotes, so it is false'
+          type: boolean
+        has_tasks:
+          description: 'Legacy flag that Invoice Ninja does not set or accept for recurring quotes, so it is false'
+          type: boolean
+        invitations:
+          description: 'The invitations of the recurring quote'
+          type: array
+          items:
+            type: object
+        project_id:
+          description: 'The hashed id of the project the recurring quote belongs to; empty if none'
+          type: string
+        recurring_dates:
+          description: 'The upcoming dates quotes are generated on'
+          type: array
+          items:
+            type: object
+        subscription_id:
+          description: 'The hashed id of the subscription that created the recurring quote'
+          type: string
+        vendor_id:
+          description: 'The hashed id of the vendor linked to the recurring quote; empty if none'
+          type: string
       type: object

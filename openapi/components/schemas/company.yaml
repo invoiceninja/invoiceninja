@@ -123,11 +123,6 @@
           example: true
         custom_surcharge_taxes4:
           description: "A flag determining whether to apply taxes on custom surcharge amounts for the fourth custom"
-        logo:
-          description: "The company logo file in binary format"
-          type: string
-          format: binary
-          example: logo.png
         company_key:
           description: "The static company key hash used to identify the Company"
           readOnly: true
@@ -160,10 +155,6 @@
                 The default per_page value is 20.
 
           example: 2048
-        db:
-          readOnly: true
-          type: string
-          example: 'db-ninja-01'
         first_day_of_week:
           description: "The first day of the week for the company"
           type: string
@@ -180,18 +171,6 @@
           description: "A flag determining whether the company is considered large"
           type: boolean
           example: true
-        default_auto_bill:
-          type: string
-          example: 'always'
-          description: |
-                A flag determining whether to auto-bill clients by default
-
-                values:
-                
-                - always - Always auto bill
-                - disabled - Never auto bill
-                - optin - Allow the client to select their auto bill status with the default being disabled
-                - optout -Allow the client to select their auto bill status with the default being enabled
         mark_expenses_invoiceable:
           description: "A flag determining whether to mark expenses as invoiceable by default"
           type: boolean
@@ -269,8 +248,21 @@
           type: boolean
           example: true
         client_registration_fields:
-          description: "The client registration fields for the company"
-          type: object
+          description: 'The fields of the client portal registration form, as a list of {key, required, visible} entries'
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                description: 'The client or contact field this entry controls, e.g. first_name, email, phone, password, name or address1'
+                type: string
+                example: first_name
+              required:
+                description: 'Whether the field must be filled in to register'
+                type: boolean
+              visible:
+                description: 'Whether the field is shown on the registration form'
+                type: boolean
         stop_on_unpaid_recurring:
           description: "A flag determining whether to stop recurring invoices when they are unpaid"
           type: boolean
@@ -342,14 +334,11 @@
         tax_data:
           description: "The tax data for the company"
           type: object
-        e_invoice_certificate:
-          description: "The e-invoice certificate for the company"
-          type: string
-          example: '-----BEGIN CERTIFICATE-----'
         e_invoice_certificate_passphrase:
           description: "The e-invoice certificate passphrase for the company"
           type: string
           example: 'secret'
+          writeOnly: true
         origin_tax_data:
           description: "The origin tax data for the company"
           type: object
@@ -413,12 +402,11 @@
           example: 587
 
         smtp_encryption:
-          description: "The encryption method for SMTP"
+          description: 'The encryption used for the custom SMTP server, for example tls or ssl; tls is used when it is not set'
           type: string
           nullable: true
-          enum: [tls, ssl]
-          example: "tls"
-
+          enum: [tls, ssl, '']
+          example: tls
         smtp_local_domain:
           description: "The local domain for SMTP"
           type: string
@@ -435,8 +423,9 @@
           additionalProperties: true
 
         legal_entity_id:
-          description: "The ID of the legal entity associated with the company"
+          description: 'The id of the company''s legal entity on the Storecove e-invoicing network, null when the company is not registered'
           type: integer
+          nullable: true
           example: 1234
         convert_rate_to_client:
           description: 'Flag indicating whether to convert rates to the client currency'
@@ -446,6 +435,7 @@
           description: 'Authentication token for e-invoicing services'
           type: string
           example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
+          writeOnly: true
         enable_shop_api:
           description: 'Flag indicating whether the shop API is enabled'
           type: boolean
@@ -460,4 +450,203 @@
           example: true
         settings:
           $ref: '#/components/schemas/CompanySettings'
+        archived_at:
+          description: 'Always 0: companies cannot be archived'
+          type: integer
+        created_at:
+          description: 'When the company was created, as a Unix timestamp in seconds'
+          type: integer
+        documents:
+          description: 'The documents attached to the company'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        enable_modules:
+          description: 'Whether DocuNinja is enabled for the company'
+          type: boolean
+        expense_amount_is_pretax:
+          description: 'Deprecated, always true'
+          type: boolean
+        google_analytics_url:
+          description: 'Deprecated, the Google Analytics key'
+          type: string
+        has_e_invoice_certificate:
+          description: 'Whether an e-invoicing certificate has been uploaded. The certificate itself is never returned'
+          type: boolean
+        has_e_invoice_certificate_passphrase:
+          description: 'Whether a passphrase for the e-invoicing certificate is stored. The passphrase itself is never returned'
+          type: boolean
+        hide_empty_columns_on_pdf:
+          description: 'Deprecated, always false. The setting is settings.hide_empty_columns_on_pdf'
+          type: boolean
+        quickbooks:
+          description: 'The QuickBooks Online connection and sync settings without the access and refresh tokens, null when QuickBooks is not connected'
+          nullable: true
+        smtp_password:
+          description: 'Masked as ******** when an SMTP password is set, otherwise an empty string'
+          type: string
+        smtp_username:
+          description: 'Masked as ******** when an SMTP username is set, otherwise an empty string'
+          type: string
+        updated_at:
+          description: 'When the company was last changed, as a Unix timestamp in seconds'
+          type: integer
+        use_credits_payment:
+          description: 'Deprecated, always ''always''. The setting is settings.use_credits_payment'
+          type: string
+        activities:
+          description: 'The activities of the company, returned with include=activities'
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+        bank_integrations:
+          description: 'The bank integrations of the company, returned with include=bank_integrations'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankIntegration'
+        bank_transaction_rules:
+          description: 'The bank transaction rules of the company, returned with include=bank_transaction_rules'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransactionRule'
+        bank_transactions:
+          description: 'The bank transactions of the company, returned with include=bank_transactions'
+          type: array
+          items:
+            $ref: '#/components/schemas/BankTransaction'
+        clients:
+          description: 'The clients of the company, returned with include=clients'
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        company_gateways:
+          description: 'The payment gateways of the company, returned with include=company_gateways'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyGateway'
+        credits:
+          description: 'The credits of the company, returned with include=credits'
+          type: array
+          items:
+            $ref: '#/components/schemas/Credit'
+        designs:
+          description: 'The designs of the company, returned with include=designs'
+          type: array
+          items:
+            $ref: '#/components/schemas/Design'
+        expense_categories:
+          description: 'The expense categories of the company, returned with include=expense_categories'
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseCategory'
+        expenses:
+          description: 'The expenses of the company, returned with include=expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+        groups:
+          description: 'The group settings of the company, returned with include=groups'
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupSetting'
+        invoices:
+          description: 'The invoices of the company, returned with include=invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        locations:
+          description: 'The locations of the company, returned with include=locations'
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        payment_terms:
+          description: 'The payment terms of the company, returned with include=payment_terms'
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentTerm'
+        payments:
+          description: 'The payments of the company, returned with include=payments'
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        products:
+          description: 'The products of the company, returned with include=products'
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        projects:
+          description: 'The projects of the company, returned with include=projects'
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        purchase_orders:
+          description: 'The purchase orders of the company, returned with include=purchase_orders'
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseOrder'
+        quotes:
+          description: 'The quotes of the company, returned with include=quotes'
+          type: array
+          items:
+            $ref: '#/components/schemas/Quote'
+        recurring_expenses:
+          description: 'The recurring expenses of the company, returned with include=recurring_expenses'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringExpense'
+        recurring_invoices:
+          description: 'The recurring invoices of the company, returned with include=recurring_invoices'
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurringInvoice'
+        subscriptions:
+          description: 'The subscriptions of the company, returned with include=subscriptions'
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+        system_logs:
+          description: 'The system logs of the company, returned with include=system_logs'
+          type: array
+          items:
+            $ref: '#/components/schemas/SystemLog'
+        task_schedulers:
+          description: 'The task schedulers of the company, returned with include=task_schedulers'
+          type: array
+          items:
+            type: object
+        task_statuses:
+          description: 'The task statuses of the company, returned with include=task_statuses'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskStatus'
+        tasks:
+          description: 'The tasks of the company, returned with include=tasks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        tax_rates:
+          description: 'The tax rates of the company, returned with include=tax_rates'
+          type: array
+          items:
+            $ref: '#/components/schemas/TaxRate'
+        tokens_hashed:
+          description: 'The API tokens of the company with the token masked, returned with include=tokens_hashed'
+          type: array
+          items:
+            $ref: '#/components/schemas/CompanyToken'
+        users:
+          description: 'The users of the company, returned with include=users'
+          type: array
+          items:
+            type: object
+        vendors:
+          description: 'The vendors of the company, returned with include=vendors'
+          type: array
+          items:
+            $ref: '#/components/schemas/Vendor'
+        webhooks:
+          description: 'The webhooks of the company, returned with include=webhooks'
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
       type: object

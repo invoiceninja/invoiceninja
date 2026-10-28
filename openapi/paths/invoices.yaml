@@ -308,7 +308,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -370,7 +373,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -457,6 +463,13 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: 'The fields of the invoice to update'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceRequest"
       responses:
         200:
           description: "Returns the invoice object"
@@ -470,7 +483,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -528,6 +544,13 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -589,7 +612,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -640,7 +666,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -768,6 +797,15 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -833,7 +871,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -846,23 +887,83 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/invoices/{invitation_key}/download":
+  "/api/v1/invoice/{invitation_key}/download":
     get:
       operationId: downloadInvoiceByInvitation
       tags:
         - invoices
       summary: "Download invoice PDF"
       description: |
-        ## GET /api/v1/invoices/{invitation_key}/download
+        ## GET /api/v1/invoice/{invitation_key}/download
 
-        Downloads a specific invoice
+        Downloads the invoice PDF by an invitation key: the key in the link a client contact receives.
+        To download by the invoice's hashed id, use /api/v1/invoices/{id}/download.
+
+      x-codeSamples:
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/invoice/D2J234DFA/download' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: invitation_key
+          in: path
+          description: "The invitation key of one of the invoice's contacts"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: OBSCNpyl1UcxGpXrTJW2xyBPOtpvR0xB
+      responses:
+        200:
+          description: "Returns the invoice pdf"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{id}/download":
+    get:
+      operationId: downloadInvoice
+      tags:
+        - invoices
+      summary: "Download invoice PDF by id"
+      description: |
+        ## GET /api/v1/invoices/{id}/download
+
+        Downloads the invoice PDF by the invoice's hashed id.
+        To download with the invitation key from a client contact's link instead, use /api/v1/invoice/{invitation_key}/download.
 
       x-codeSamples:
       - lang: php
         label: php
         source: |
           $ninja = new InvoiceNinja("your_token");
-          $invoice = $ninja->invoices->download("D2J234DFA");
+          $pdf = $ninja->invoices->download(["D2J234DFA"]);
       - lang: curl
         label: curl
         source: |
@@ -873,10 +974,9 @@
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: invitation_key
+        - name: id
           in: path
-          description: "The Invoice Invitation Key"
+          description: "The invoice hashed id"
           required: true
           schema:
             type: string
@@ -892,12 +992,17 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
           $ref: "#/components/responses/403"
-        422:
-          $ref: '#/components/responses/422'
+        404:
+          description: 'No invoice with this id'
         429:
           $ref: '#/components/responses/429'
         5XX:
@@ -950,6 +1055,11 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -1028,7 +1138,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Invoice"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Invoice"
         401:
           $ref: "#/components/responses/401"
         403:

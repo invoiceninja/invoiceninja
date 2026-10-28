@@ -28,9 +28,9 @@
           type: boolean
           example: true
         payment_terms:
-          description: "-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days"
-          type: integer
-          example: 1
+          description: 'The payment terms in days as a string: -1 sets no payment term, 0 sets payment due immediately. An empty string when not set'
+          type: string
+          example: '30'
         company_gateway_ids:
           description: "A commad separate list of available gateways"
           type: string
@@ -70,9 +70,8 @@
           enum: [plain, light, dark, custom]
           example: "light"
         reply_to_email:
-          description: "The reply to email address"
+          description: "The reply to email address, an empty string when not set"
           type: string
-          format: email
           example: "email@gmail.com"
         bcc_email:
           description: "A comma separate list of BCC emails"
@@ -117,10 +116,10 @@
           type: string
           example: "Please approve quote"
         lock_invoices:
-          description: "Toggles whether invoices are locked once sent and cannot be modified further"
+          description: 'Toggles whether invoices are locked once sent and cannot be modified further'
           type: string
-          enum: [off, when_sent, when_paid, end_of_month]
-          example: "off"
+          enum: ['off', when_sent, when_paid, end_of_month]
+          example: 'off'
         auto_archive_invoice:
           description: "Toggles whether a invoice is archived immediately following payment"
           type: boolean
@@ -222,13 +221,14 @@
           type: string
           example: "R"
         reset_counter_frequency_id:
-          description: "CONSTANT which is used to apply the frequency which the counters are reset"
-          type: integer
+          description: 'How often the number counters are reset, as a frequency id string (see RecurringInvoice frequency_id). 0, the default, never resets them'
+          oneOf:
+            - type: integer
+            - type: string
           example: 1
         reset_counter_date:
-          description: "The explicit date which is used to reset counters"
+          description: "The explicit date which is used to reset counters, an empty string when not set"
           type: string
-          format: date
           example: "2019-01-01"
         counter_padding:
           description: "Pads the counter with leading zeros"
@@ -440,9 +440,8 @@
           type: string
           example: "555-213-3948"
         email:
-          description: "The company email"
+          description: "The company email, an empty string when not set"
           type: string
-          format: email
           example: "joe@acme.co"
         country_id:
           description: "The country ID"
@@ -569,20 +568,20 @@
           type: integer
           example: 9
         schedule_reminder1:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder2:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         schedule_reminder3:
-          description: "(enum: after_invoice_date, before_due_date, after_due_date)"
+          description: 'What the reminder''s num_days count from: after_invoice_date, before_due_date or after_due_date. An empty string disables the reminder'
           type: string
-          enum: [after_invoice_date, before_due_date, after_due_date]
-          example: "after_invoice_date"
+          enum: [after_invoice_date, before_due_date, after_due_date, '']
+          example: after_invoice_date
         late_fee_amount1:
           description: "The late fee amount for reminder 1"
           type: number
@@ -653,9 +652,8 @@
           type: boolean
           example: false
         custom_sending_email:
-          description: "When using Mailgun or Postmark, the FROM email address can be customized using this setting."
+          description: 'The FROM address for emails sent through custom SMTP, Mailgun, Brevo or Postmark, an empty string uses the default'
           type: string
-          format: email
           example: "bob@gmail.com"
         show_paid_stamp:
           description: "Determines if the PAID stamp is shown on the invoice"
@@ -666,11 +664,9 @@
           type: boolean
           example: false
         company_logo_size:
-          description: "The size of the company logo on the PDF - percentage value between 0 and 100"
-          type: integer
-          minimum: 0
-          maximum: 100
-          example: 100
+          description: 'The size of the company logo on the PDF as a CSS size, an empty string when not set'
+          type: string
+          example: '65%'
         show_email_footer:
           description: "Determines if the email footer is shown on emails"
           type: boolean
@@ -749,10 +745,10 @@
           type: integer
           example: 1
         page_numbering_alignment:
-          description: "The alignment for page numbering: options include left / center / right"
+          description: 'The alignment for page numbering: L (left), C (center) or R (right)'
           type: string
-          enum: [left, center, right]
-          example: "left"
+          enum: [L, C, R]
+          example: C
         page_numbering:
           description: "Determines if page numbering is enabled on Document PDFs"
           type: boolean
@@ -771,9 +767,9 @@
           enum: [all, uninvoiced, invoiced]
           example: "all"
         entity_send_time:
-          description: "The time that emails are sent. The time is localized to the clients locale, integer values from 1 - 24"
+          description: 'The hour (1 to 24) scheduled emails such as recurring invoices and reminders are sent at, in the client''s time zone. 0 sends them at midnight UTC'
           type: integer
-          minimum: 1
+          minimum: 0
           maximum: 24
           example: 9
         shared_invoice_credit_counter:
@@ -793,9 +789,10 @@
           type: boolean
           example: false
         use_credits_payment:
-          description: "Determines if credits can be used as a payment method"
-          type: boolean
-          example: false
+          description: 'Determines if credits can be used as a payment method'
+          type: string
+          enum: [always, option, 'off']
+          example: 'off'
         recurring_invoice_number_pattern:
           description: "The pattern for recurring invoice numbers"
           type: string
@@ -833,10 +830,10 @@
           type: boolean
           example: false
         auto_bill:
-          description: "Determines how autobilling is applied for recurring invoices"
+          description: 'Determines how autobilling is applied for recurring invoices'
           type: string
-          enum: [off, always, optin, optout]
-          example: "off"
+          enum: ['off', always, optin, optout]
+          example: 'off'
         client_portal_terms:
           description: "The terms which are displayed on the client portal"
           type: string
@@ -903,3 +900,175 @@
           description: 'The French reporting schedule. ten_day or monthly'
           type: string
           example: ten_day
+        brevo_secret:
+          description: 'The Brevo API key used to send emails'
+          type: string
+        client_portal_enable_uploads:
+          description: 'Whether clients can upload documents in the client portal'
+          type: boolean
+        credit_design_id:
+          description: 'The hashed id of the default credit design'
+          type: string
+        delivery_note_design_id:
+          description: 'The hashed id of the template design (a design with is_template set) used to render the delivery note PDF. When it is empty or not a template, the built-in layout is used'
+          type: string
+        e_expense_forward_email:
+          description: 'Email address received e-expenses are forwarded to, for a processing service such as Yuki or WinAuditor'
+          type: string
+        e_invoice_forward_email:
+          description: 'Email address sent e-invoices are forwarded to, for a processing service such as Yuki or WinAuditor'
+          type: string
+        e_quote_type:
+          description: 'The e-quote standard, for example OrderX_Comfort'
+          type: string
+        email_quote_subject_reminder1:
+          description: 'Subject line of the first quote reminder email. Empty uses the built-in default subject; template variables such as $number are replaced'
+          type: string
+        email_quote_template_reminder1:
+          description: 'Body of the first quote reminder email. Empty uses the built-in default template; template variables such as $number are replaced'
+          type: string
+        email_subject_credit:
+          description: 'Subject line of the email sent with a credit. Empty uses the built-in default subject; template variables such as $number are replaced'
+          type: string
+        email_subject_payment_failed:
+          description: 'Subject line of the email sent when a payment fails. Empty uses the built-in default subject; template variables such as $number are replaced'
+          type: string
+        email_subject_payment_partial:
+          description: 'Subject line of the email sent when a partial payment is received. Empty uses the built-in default subject; template variables such as $number are replaced'
+          type: string
+        email_template_credit:
+          description: 'Body of the email sent with a credit. Empty uses the built-in default template; template variables such as $number are replaced'
+          type: string
+        email_template_payment_failed:
+          description: 'Body of the email sent when a payment fails. Empty uses the built-in default template; template variables such as $number are replaced'
+          type: string
+        email_template_payment_partial:
+          description: 'Body of the email sent when a partial payment is received. Empty uses the built-in default template; template variables such as $number are replaced'
+          type: string
+        enable_client_profile_update:
+          description: 'Whether contacts can edit the client''s details in the client portal'
+          type: boolean
+        enable_quote_reminder1:
+          description: 'Whether the first quote reminder is sent'
+          type: boolean
+        enable_rappen_rounding:
+          description: 'Whether invoice totals are rounded to the nearest 0.05 (Swiss Rappen rounding)'
+          type: boolean
+        id_number:
+          description: 'The company''s registration number, shown on documents as $company.id_number'
+          type: string
+        late_fee_percent1:
+          description: 'The late fee added with the first reminder, as a percentage of the balance'
+          type: integer
+        late_fee_percent2:
+          description: 'The late fee added with the second reminder, as a percentage of the balance'
+          type: integer
+        late_fee_percent3:
+          description: 'The late fee added with the third reminder, as a percentage of the balance'
+          type: integer
+        merge_e_invoice_to_pdf:
+          description: 'Whether the e-invoice XML is embedded in the PDF'
+          type: boolean
+        page_layout:
+          description: 'The PDF page orientation, portrait or landscape'
+          type: string
+        payment_email_all_contacts:
+          description: 'Whether the payment email is sent to all contacts'
+          type: boolean
+        payment_flow:
+          description: 'The client portal payment flow, smooth or default'
+          type: string
+        payment_receipt_design_id:
+          description: 'The hashed id of the template design (a design with is_template set) used to render the payment receipt PDF attached to the payment email. When it is empty or not a template, the built-in layout is used'
+          type: string
+        payment_refund_design_id:
+          description: 'The hashed id of the template design (a design with is_template set) used to render the refund receipt PDF attached to the refund email. When it is empty or not a template, the built-in layout is used'
+          type: string
+        pdf_variables:
+          description: 'The fields shown in each section of the PDF'
+          type: object
+          additionalProperties: true
+        portal_custom_css:
+          description: 'Custom CSS for the client portal'
+          type: string
+        portal_custom_footer:
+          description: 'Custom footer HTML for the client portal'
+          type: string
+        portal_custom_head:
+          description: 'Custom HTML added to the head of the client portal'
+          type: string
+        portal_custom_js:
+          description: 'Custom JavaScript for the client portal'
+          type: string
+        preference_product_notes_for_html_view:
+          description: 'Whether the item description is shown instead of the item title in the HTML view of an invoice'
+          type: boolean
+        project_number_counter:
+          description: 'The incrementing counter for project numbers'
+          type: integer
+        project_number_pattern:
+          description: 'Allows customisation of the project number pattern'
+          type: string
+        quote_late_fee_amount1:
+          description: 'Stored only: no late fee is added to quotes'
+          type: integer
+        quote_late_fee_percent1:
+          description: 'Stored only: no late fee is added to quotes'
+          type: integer
+        quote_num_days_reminder1:
+          description: 'The number of days before or after the date chosen by quote_schedule_reminder1 that the first quote reminder is sent'
+          type: integer
+        quote_schedule_reminder1:
+          description: 'When the first quote reminder is sent: before_valid_until_date, after_valid_until_date or after_quote_date'
+          type: string
+        recurring_expense_number_counter:
+          description: 'The incrementing counter for recurring expense numbers'
+          type: integer
+        recurring_expense_number_pattern:
+          description: 'Allows customisation of the recurring expense number pattern'
+          type: string
+        recurring_number_prefix:
+          description: 'A prefix added to the numbers of invoices generated by recurring invoices'
+          type: string
+        recurring_quote_number_counter:
+          description: 'The incrementing counter for recurring quote numbers'
+          type: integer
+        recurring_quote_number_pattern:
+          description: 'Allows customisation of the recurring quote number pattern'
+          type: string
+        ses_access_key:
+          description: 'The Amazon SES access key id'
+          type: string
+        ses_from_address:
+          description: 'The Amazon SES sending address, must be verified in AWS'
+          type: string
+        ses_region:
+          description: 'The Amazon SES region, for example us-east-1'
+          type: string
+        ses_secret_key:
+          description: 'The Amazon SES secret key'
+          type: string
+        ses_topic_arn:
+          description: 'The Amazon SES topic ARN, only needed for webhook tracking'
+          type: string
+        show_pdfhtml_on_mobile:
+          description: 'Whether the client portal shows invoices as HTML instead of the PDF on mobile devices'
+          type: boolean
+        skip_automatic_email_with_peppol:
+          description: 'Whether invoices generated by recurring invoices and sent through PEPPOL are not also emailed to the client'
+          type: boolean
+        statement_design_id:
+          description: 'The hashed id of the template design (a design with is_template set) used to render the client statement PDF. When it is empty or not a template, the built-in layout is used'
+          type: string
+        task_round_to_nearest:
+          description: 'The interval in seconds task times are rounded to'
+          type: integer
+        task_round_up:
+          description: 'Whether task times are rounded up, otherwise down'
+          type: boolean
+        unlock_invoice_documents_after_payment:
+          description: 'Whether the invoice''s documents are made public, and so visible to the client, once the invoice is paid'
+          type: boolean
+        use_unapplied_payment:
+          description: 'Whether auto billing first uses the client''s unapplied payments: always, option or off'
+          type: string

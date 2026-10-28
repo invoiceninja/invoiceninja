@@ -22,7 +22,9 @@
           type: string
           example: Opnel5aKBz
         type_id:
-          $ref: '#/components/schemas/PaymentType'
+          description: 'The payment type id (see PaymentType for the values), an empty string when not set'
+          type: string
+          example: '1'
         date:
           description: 'The Payment date'
           type: string
@@ -57,20 +59,21 @@
           example: 10
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         company_gateway_id:
           description: 'The company gateway id'
           type: string
           example: "3"
         paymentables:
-          $ref: '#/components/schemas/Paymentable'
+          description: 'The invoices and credits this payment is applied to'
+          type: array
+          items:
+            $ref: '#/components/schemas/Paymentable'
         invoices:
           description: ''
           type: array
@@ -89,6 +92,7 @@
           description: 'The unique identifier of the payment category'
           type: string
           example: Opnel5aKBz
+          writeOnly: true
         custom_value1:
           description: 'Custom field for storing additional information'
           type: string
@@ -118,6 +122,7 @@
           description: 'Unique key to ensure idempotent payment processing'
           type: string
           example: 'key_1234567890abcdef'
+          writeOnly: true
         tags:
           description: 'Tags assigned to this entity'
           type: array
@@ -134,9 +139,8 @@
           type: string
           example: Opnel5aKBz
         created_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the payment was created, as a Unix timestamp in seconds'
+          type: integer
           example: 1434342123
           readOnly: true
         gateway_type_id:
@@ -159,5 +163,10 @@
           description: 'The currency id of the payment'
           type: string
           example: '1'
+        documents:
+          description: 'The documents attached to the payment'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object
     

@@ -150,14 +150,12 @@
           format: date
           example: "1994-07-30"
         last_sent_date:
-          description: "The date the credit was last sent out"
+          description: "The date the credit was last sent out, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
         next_send_date:
-          description: "The next scheduled date for sending a credit reminder"
+          description: 'Not used: no reminders are sent for credits, so this is normally an empty string'
           type: string
-          format: date
           example: "1994-07-30"
         partial_due_date:
           description: "The due date for the partial amount of the credit"
@@ -165,26 +163,16 @@
           format: date
           example: "1994-07-30"
         due_date:
-          description: "The due date for the total amount of the credit"
+          description: "The due date for the total amount of the credit, an empty string when not set"
           type: string
-          format: date
           example: "1994-07-30"
-        settings:
-          $ref: "#/components/schemas/CompanySettings"
-        last_viewed:
-          description: "The timestamp of the last time the credit was viewed"
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: "The timestamp of the last time the credit was updated"
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: "The timestamp of the last time the credit was archived"
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: "First custom surcharge amount"
@@ -279,9 +267,8 @@
           type: object
           additionalProperties: true
         created_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the credit was created, as a Unix timestamp in seconds'
+          type: integer
           example: 1434342123
           readOnly: true
         backup:
@@ -305,4 +292,9 @@
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        documents:
+          description: 'The documents attached to the credit'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object

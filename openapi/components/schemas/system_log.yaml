@@ -26,15 +26,22 @@
           type: integer
           example: 1
         log:
-          description: 'The json object of the error'
-          type: object
-          example: {}
+          description: 'The log entry: an object, or a string for plain messages'
+          oneOf:
+            - type: object
+              additionalProperties: true
+            - type: array
+              items: {}
+            - type: string
         updated_at:
           description: Timestamp
-          type: string
-          example: '2'
+          type: integer
+          example: 1434342123
         created_at:
           description: Timestamp
+          type: integer
+          example: 1434342123
+        company_id:
+          description: 'The hashed id of the company the log entry belongs to'
           type: string
-          example: '2'
       type: object
