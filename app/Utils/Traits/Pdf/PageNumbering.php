@@ -38,7 +38,8 @@ trait PageNumbering
 
             for ($i = 1; $i <= $pageCount; $i++) {
                 //import a page then get the id and will be used in the template
-                $tplId = $pdf->importPage($i);
+                //external links are imported so Pay/View and template links stay clickable
+                $tplId = $pdf->importPage($i, importExternalLinks: true);
 
                 //create a page
                 $templateSize = $pdf->getTemplateSize($tplId);
