@@ -288,10 +288,10 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
         // Deluxe sends PascalCase keys; normalise them so lookups are case-insensitive.
         $payload = $this->lowercaseKeys($request->json()->all());
 
-        $event_type = strtoupper(str_replace([' ', '_'], '', (string) ($payload['eventtype'] ?? '')));
+        $event_type = strtoupper((string) ($payload['eventtype'] ?? ''));
         $transaction_id = (string) ($payload['transactionid'] ?? $payload['paymentid'] ?? '');
 
-        if (! in_array($event_type, ['TRANSACTION', 'ACHREJECT'], true) || $transaction_id === '') {
+        if ($event_type !== 'TRANSACTION' || $transaction_id === '') {
             return response()->json(['message' => 'Event ignored'], 200);
         }
 
@@ -301,10 +301,6 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
             nlog("Deluxe webhook: transaction {$transaction_id} could not be verified");
 
             return response()->json(['message' => 'Transaction not found'], 200);
-        }
-
-        if ($event_type === 'ACHREJECT') {
-            return $this->failPendingPayment($transaction_id, ['webhook_payload' => $payload, 'transaction' => $transaction]);
         }
 
         return $this->recordTransaction($transaction);
@@ -414,6 +410,9 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
 
     /**
      * Re-check a pending ACH payment with Deluxe. Called by CheckACHStatus.
+     *
+     * Deluxe does not send a webhook when an ACH debit is rejected, so this is
+     * how rejected ACH payments are detected.
      */
     public function reconcileAchPayment(Payment $payment): string
     {
@@ -441,7 +440,7 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
     }
 
     /**
-     * The bank rejected an ACH debit: reverse the pending payment and notify the company.
+     * Deluxe reports the ACH debit as unsuccessful: reverse the pending payment and notify the company.
      */
     private function failPendingPayment(string $transaction_id, array $log)
     {
@@ -465,13 +464,15 @@ class DeluxePaymentPlatformPaymentDriver extends BaseDriver
             $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();
 
-            $this->logWebhook(array_merge($log, ['message' => 'ACH payment rejected by the bank']), SystemLog::EVENT_GATEWAY_FAILURE, $client);
+            $reason = (string) data_get($log, 'transaction.payment.authResponse', 'unsuccessful');
+
+            $this->logWebhook(array_merge($log, ['message' => "ACH payment failed: {$reason}"]), SystemLog::EVENT_GATEWAY_FAILURE, $client);
 
             PaymentFailedMailer::dispatch(
                 $payment_hash,
                 $client->company,
                 $client,
-                "Deluxe ACH payment {$transaction_id} was rejected by the bank."
+                "Deluxe ACH payment {$transaction_id} failed: {$reason}."
             );
 
             return response()->json(['message' => 'Webhook processed'], 200);

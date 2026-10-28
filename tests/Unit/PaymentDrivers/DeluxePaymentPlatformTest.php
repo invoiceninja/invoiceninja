@@ -59,6 +59,17 @@ class DeluxePaymentPlatformTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function testAchRejectWebhooksAreIgnored(): void
+    {
+        // Deluxe does not send ACH rejections; failed ACH debits are found by CheckACHStatus.
+        Http::fake();
+
+        $response = $this->driver()->processWebhookRequest($this->webhook(['EventType' => 'ACH REJECT', 'TransactionId' => 'abc']));
+
+        $this->assertSame(200, $response->getStatusCode());
+        Http::assertNothingSent();
+    }
+
     public function testWebhookVerifiesTransactionWithDeluxeBeforeRecording(): void
     {
         Http::fake([

@@ -289,7 +289,7 @@ class Gateway extends StaticModel
             case 70:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => false, 'webhooks' => ['TRANSACTION']],
-                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => false, 'webhooks' => ['TRANSACTION', 'ACH REJECT']],
+                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => false, 'webhooks' => ['TRANSACTION']],
                 ]; //Deluxe Payment Platform
             default:
                 return [];
