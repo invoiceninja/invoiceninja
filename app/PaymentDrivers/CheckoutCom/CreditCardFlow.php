@@ -421,14 +421,23 @@ class CreditCardFlow implements MethodInterface, LivewireMethodInterface
         $request->billing = $billing;
 
         // Restrict the Flow widget to the active payment method.
-        // Apple Pay and Google Pay must always be offered together as a pair.
-        $flowMethod = self::gatewayTypeToFlowMethod($this->checkout->gateway_type_id);
-        $walletGroup = ['applepay', 'googlepay'];
+        // Offer both wallets when Apple Pay domain enrollment succeeds.
+        $flow_method = self::gatewayTypeToFlowMethod($this->checkout->gateway_type_id);
+        $wallet_group = ['applepay', 'googlepay'];
 
-        if ($flowMethod && in_array($flowMethod, $walletGroup)) {
-            $request->enabled_payment_methods = $walletGroup;
-        } elseif ($flowMethod) {
-            $request->enabled_payment_methods = [$flowMethod];
+        if ($flow_method && in_array($flow_method, $wallet_group)) {
+            $request->enabled_payment_methods = $wallet_group;
+        } elseif ($flow_method) {
+            $request->enabled_payment_methods = [$flow_method];
+        }
+
+        if ((! $flow_method || in_array('applepay', $request->enabled_payment_methods, true))
+            && ! $this->checkout->ensureApplePayDomainIsValidated()) {
+            if ($flow_method) {
+                $request->enabled_payment_methods = array_values(array_diff($request->enabled_payment_methods, ['applepay']));
+            } else {
+                $request->disabled_payment_methods = ['applepay'];
+            }
         }
 
         // Card-specific configuration (token storage)

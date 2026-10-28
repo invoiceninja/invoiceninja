@@ -118,6 +118,7 @@ class CreditFilters extends QueryFilters
         return $this->builder->where(function ($query) {
             $query->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL])
                   ->where('balance', '>', 0)
+                  ->where('is_deleted', false)
                   ->where(function ($q) {
                       $q->whereNull('due_date')->orWhere('due_date', '>', now());
                   });

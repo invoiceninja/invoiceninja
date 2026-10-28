@@ -129,7 +129,7 @@ class QuoteService
 
     public function approve($contact = null): self
     {
-        $this->setStatus(Quote::STATUS_APPROVED)->save();
+        $this->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
 
         if (! $contact) {
             $contact = $this->quote->invitations->first()->contact;
@@ -184,7 +184,7 @@ class QuoteService
 
     public function approveWithNoCoversion($contact = null): self
     {
-        $this->setStatus(Quote::STATUS_APPROVED)->save();
+        $this->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
 
         if (! $contact) {
             $contact = $this->quote->invitations->first()->contact;

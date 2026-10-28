@@ -144,7 +144,7 @@ class PurchaseOrderTransformer extends EntityTransformer
             'updated_at' => (int) $purchase_order->updated_at,
             'archived_at' => (int) $purchase_order->deleted_at,
             'is_deleted' => (bool) $purchase_order->is_deleted,
-            'number' => $purchase_order->number ?: '',
+            'number' => (string) ($purchase_order->number ?? ''),
             'discount' => (float) $purchase_order->discount,
             'po_number' => $purchase_order->po_number ?: '',
             'date' => $purchase_order->date ?: '',

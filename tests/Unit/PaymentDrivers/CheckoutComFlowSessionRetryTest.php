@@ -15,6 +15,7 @@ namespace Tests\Unit\PaymentDrivers;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Presenters\ClientPresenter;
 use App\PaymentDrivers\CheckoutCom\CreditCardFlow;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
@@ -109,6 +110,53 @@ class CheckoutComFlowSessionRetryTest extends TestCase
         );
     }
 
+    public function testCardSessionDoesNotAttemptApplePayEnrollment(): void
+    {
+        $driver = $this->makeDriver(null);
+        $driver->apple_pay_ready = false;
+        $this->createSession($driver);
+        $this->assertSame(0, $driver->enrollment_attempts);
+        $this->assertSame([['card']], $driver->session_methods);
+    }
+
+    public function testWalletSessionEnrollsBeforeOfferingApplePay(): void
+    {
+        $driver = $this->makeDriver(null);
+        $driver->gateway_type_id = GatewayType::APPLE_PAY;
+        $this->createSession($driver);
+        $this->assertSame(1, $driver->enrollment_attempts);
+        $this->assertSame([['applepay', 'googlepay']], $driver->session_methods);
+    }
+
+    public function testFailedEnrollmentExcludesApplePayAndPreservesOtherMethods(): void
+    {
+        $driver = $this->makeDriver(null);
+        $driver->gateway_type_id = GatewayType::APPLE_PAY;
+        $driver->apple_pay_ready = false;
+        $this->assertSame(['id' => 'ps_test'], $this->createSession($driver));
+        $this->assertSame([['googlepay']], $driver->session_methods);
+        $this->assertSame(1, $driver->enrollment_attempts);
+
+        $driver->gateway_type_id = GatewayType::CREDIT_CARD;
+        $this->assertSame(['id' => 'ps_test'], $this->createSession($driver));
+        $this->assertSame([['googlepay'], ['card']], $driver->session_methods);
+        $this->assertSame(1, $driver->enrollment_attempts);
+    }
+
+    public function testUnrestrictedSessionDisablesApplePayWhenEnrollmentFails(): void
+    {
+        $driver = $this->makeDriver(null);
+        $driver->gateway_type_id = 999;
+        $driver->apple_pay_ready = false;
+        $this->createSession($driver);
+        $this->assertSame([['applepay']], $driver->session_disabled_methods);
+    }
+
+    private function createSession(CheckoutComPaymentDriver $driver): array
+    {
+        return (new CreditCardFlow($driver))->createPaymentSession(1000, 'invoice-ref', 'hash', 'https://example.com/success', 'https://example.com/failure');
+    }
+
     private function checkoutApiException(array $errorCodes, int $status = 422): CheckoutApiException
     {
         $exception = new CheckoutApiException('checkout api error');
@@ -153,6 +201,18 @@ class CheckoutComFlowSessionRetryTest extends TestCase
             /** @var list<?string> */
             public array $sessionReferences = [];
 
+            public bool $apple_pay_ready = true;
+            public int $enrollment_attempts = 0;
+            public array $session_methods = [];
+            public array $session_disabled_methods = [];
+
+            public function ensureApplePayDomainIsValidated(): bool
+            {
+                $this->enrollment_attempts++;
+
+                return $this->apple_pay_ready;
+            }
+
             public function __construct(
                 CompanyGateway $company_gateway,
                 $client,
@@ -174,6 +234,8 @@ class CheckoutComFlowSessionRetryTest extends TestCase
 
                             public function createPaymentSessions($request)
                             {
+                                $this->driver->session_methods[] = $request->enabled_payment_methods;
+                                $this->driver->session_disabled_methods[] = $request->disabled_payment_methods;
                                 $this->driver->sessionCustomerIds[] = $request->customer->id ?? null;
                                 $this->driver->sessionReferences[] = $request->reference ?? null;
 

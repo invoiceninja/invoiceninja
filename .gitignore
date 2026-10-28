@@ -52,6 +52,7 @@ _ide_helper.php
 CLAUDE.md
 boost.json
 AGENTS.md
+!/AGENTS.md
 junie/
 .agents/
 .claude/
