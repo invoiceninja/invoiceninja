@@ -233,7 +233,6 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapClientApiRoutes();
 
-        $this->mapShopApiRoutes();
     }
 
     /**
@@ -289,13 +288,6 @@ class RouteServiceProvider extends ServiceProvider
         Route::prefix('')
              ->middleware('client')
              ->group(base_path('routes/client.php'));
-    }
-
-    protected function mapShopApiRoutes()
-    {
-        Route::prefix('')
-             ->middleware('shop')
-             ->group(base_path('routes/shop.php'));
     }
 
     protected function mapVendorsApiRoutes()

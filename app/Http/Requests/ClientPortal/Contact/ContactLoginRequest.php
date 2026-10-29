@@ -32,8 +32,8 @@ class ContactLoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required',
-            'password' => 'required',
+            'email' => 'required|string',
+            'password' => 'required|string',
         ];
     }
 }

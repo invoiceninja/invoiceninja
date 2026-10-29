@@ -105,7 +105,7 @@ class SwissQrGenerator
         $qrBill->setPaymentAmountInformation(
             QrBill\DataGroup\Element\PaymentAmountInformation::create(
                 'CHF',
-                $this->calcDueAmount()
+                round($this->calcDueAmount(), 2)
             )
         );
 

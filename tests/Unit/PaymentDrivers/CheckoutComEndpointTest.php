@@ -73,6 +73,35 @@ class CheckoutComEndpointTest extends TestCase
         );
     }
 
+    public function testCurrentApiPublicKeyFallbackPreservesLegacyDomain(): void
+    {
+        $driver = $this->makeDriver([
+            'secretApiKey' => self::CURRENT_SECRET_KEY,
+            'publicApiKey' => 'pk_invalid',
+            'testMode' => true,
+        ])->init();
+
+        $this->assertSame(
+            'https://api.sandbox.checkout.com/',
+            $this->baseUri($driver->gateway->getPaymentsClient())
+        );
+    }
+
+    public function testCurrentApiPublicKeyFallbackPreservesSubdomain(): void
+    {
+        $driver = $this->makeDriver([
+            'secretApiKey' => self::CURRENT_SECRET_KEY,
+            'publicApiKey' => 'pk_invalid',
+            'clientId' => 'cli_vkuhvk4vabcdefghijklmnop',
+            'testMode' => false,
+        ])->init();
+
+        $this->assertSame(
+            'https://vkuhvk4v.api.checkout.com/',
+            $this->baseUri($driver->gateway->getPaymentsClient())
+        );
+    }
+
     public function testPreviousSandboxApiDoesNotRequireClientId(): void
     {
         $driver = $this->makeDriver([

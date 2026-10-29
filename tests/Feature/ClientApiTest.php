@@ -55,6 +55,60 @@ class ClientApiTest extends TestCase
     }
 
 
+    public function testClientStoreAcceptsPaymentMeansWithoutBankDetails(): void
+    {
+        $e_invoice = [
+            'Invoice' => [
+                'PaymentMeans' => [
+                    ['PaymentMeansCode' => ['value' => '30']],
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', [
+            'name' => 'Payment Means Client',
+            'e_invoice' => $e_invoice,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonMissingValidationErrors();
+
+        // e_invoice is not fillable, so accepting the request does not persist it.
+        $client = Client::findOrFail($this->decodePrimaryKey($response->json('data.id')));
+        $this->assertNull($client->e_invoice);
+        $this->assertSame([], $response->json('data.e_invoice'));
+    }
+
+    public function testClientUpdateAcceptsPaymentMeansWithoutBankDetails(): void
+    {
+        $e_invoice = [
+            'Invoice' => [
+                'PaymentMeans' => [
+                    ['PaymentMeansCode' => ['value' => '30']],
+                ],
+            ],
+        ];
+
+        $this->client->e_invoice = null;
+        $this->client->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/clients/'.$this->client->hashed_id, [
+            'e_invoice' => $e_invoice,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonMissingValidationErrors();
+
+        $this->assertNull($this->client->fresh()->e_invoice);
+        $this->assertSame([], $response->json('data.e_invoice'));
+    }
+
     public function testClientUpdatePersistsNullSettingsKeysAndFallsBackToCompany(): void
     {
         $company_settings = $this->company->settings;

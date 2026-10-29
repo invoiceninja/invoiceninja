@@ -120,6 +120,14 @@ class PeppolTaxCalculator
 
         $tax_id = (string) ($item->tax_id ?? '');
 
+        // Preserve exempt treatment for legacy zero-tax goods and services.
+        if (in_array($tax_id, [
+            (string) Product::PRODUCT_TYPE_PHYSICAL,
+            (string) Product::PRODUCT_TYPE_SERVICE,
+        ], true)) {
+            $tax_id = (string) Product::PRODUCT_TYPE_EXEMPT;
+        }
+
         // Preserve outside-scope treatment for non-EU cross-border sellers.
         if (!$company_in_eu && $company_country !== $client_country) {
             return ['tax_type' => 'O', 'reason_code' => 'vatex-eu-o', 'reason' => 'Not subject to VAT'];

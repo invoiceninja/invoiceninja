@@ -22,22 +22,15 @@ class ApplyNumber extends AbstractService
 {
     use GeneratesCounter;
 
-    public Vendor $vendor;
-
-    private PurchaseOrder $purchase_order;
-
     private bool $completed = true;
 
-    public function __construct(Vendor $vendor, PurchaseOrder $purchase_order)
+    public function __construct(private Vendor $vendor, private PurchaseOrder $purchase_order)
     {
-        $this->vendor = $vendor;
-
-        $this->purchase_order = $purchase_order;
     }
 
     public function run()
     {
-        if ($this->purchase_order->number != '') {
+        if (trim((string)$this->purchase_order->number) !== '') {
             return $this->purchase_order;
         }
 

@@ -158,9 +158,38 @@ class PeppolZeroTaxRegressionTest extends TestCase
     {
         $client = $this->harnessClient();
         $item = $this->harnessLineItem('Unclassified', 100, 1, taxRate: 0);
+        $item->tax_id = '';
         $model = $this->harnessInvoice($client, [$item]);
         $peppol = (new Peppol($model))->run();
         $this->assertStringContainsString('Select a tax category', implode('; ', $peppol->getErrors()));
+    }
+
+    public function testLegacyDomesticZeroTaxIsTreatedAsExempt(): void
+    {
+        $client = $this->harnessClient();
+
+        foreach ([Product::PRODUCT_TYPE_PHYSICAL, Product::PRODUCT_TYPE_SERVICE] as $tax_id) {
+            foreach ([false, true] as $is_credit) {
+                $item = $this->harnessLineItem('Legacy zero tax', 100, 1, taxRate: 0);
+                $item->tax_id = (string) $tax_id;
+
+                $model = $is_credit
+                    ? $this->harnessCredit($client, [$item])
+                    : $this->harnessInvoice($client, [$item]);
+                $model->po_number = 'LEGACY-ZERO-TAX';
+
+                $result = $this->buildUbl($model);
+                $document = $result['peppol']->getDocument();
+                $lines = $is_credit
+                    ? $document->CreditNoteLine
+                    : $document->InvoiceLine;
+
+                $this->assertSame('E', $lines[0]->Item->ClassifiedTaxCategory[0]->ID->value);
+                $this->assertSame('E', $document->TaxTotal[0]->TaxSubtotal[0]->TaxCategory->ID->value);
+                $this->assertSame((string) $tax_id, $model->line_items[0]->tax_id);
+                $this->assertUblPassesSchematron($result['xml']);
+            }
+        }
     }
 
     public function testClientExemptionIsPreserved(): void

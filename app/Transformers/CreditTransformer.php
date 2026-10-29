@@ -99,7 +99,7 @@ class CreditTransformer extends EntityTransformer
             'updated_at' => (int) $credit->updated_at,
             'archived_at' => (int) $credit->deleted_at,
             'is_deleted' => (bool) $credit->is_deleted,
-            'number' => $credit->number ?: '',
+            'number' => (string) ($credit->number ?? ''),
             'discount' => (float) $credit->discount,
             'po_number' => $credit->po_number ?: '',
             'date' => $credit->date ?: '',
