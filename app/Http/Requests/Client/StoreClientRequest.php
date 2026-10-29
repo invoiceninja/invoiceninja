@@ -15,6 +15,7 @@ namespace App\Http\Requests\Client;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\EInvoice\ValidClientScheme;
 use App\Http\ValidationRules\Ninja\CanStoreClientsRule;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\Client;
@@ -52,6 +53,7 @@ class StoreClientRequest extends Request
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
+        $rules['e_invoice'] = ['sometimes','nullable', new ValidClientScheme()];
 
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
