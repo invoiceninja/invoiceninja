@@ -176,7 +176,7 @@ test.describe('Braintree supported SDK sandbox checkout', () => {
             });
         }
 
-        for (const scenario of [
+        for (const [scenario_index, scenario] of [
             ...['personal', 'business'].flatMap((ownership_type) =>
                 ['checking', 'savings'].map((account_type) => ({
                     ownership_type,
@@ -195,8 +195,11 @@ test.describe('Braintree supported SDK sandbox checkout', () => {
                 account_type: 'checking',
                 account_number,
             })),
-        ]) {
+        ].entries()) {
             const { ownership_type, account_type, account_number } = scenario;
+            const verification_succeeds = ['1000000000', '1000000001'].includes(
+                account_number
+            );
             test(
                 `${flow}: ACH ${ownership_type} ${account_type} ${account_number} verification and payments`,
                 {
@@ -212,6 +215,18 @@ test.describe('Braintree supported SDK sandbox checkout', () => {
                         page,
                         company_gateway,
                         flow
+                    );
+                    // Braintree rejects simultaneous charges of the same bank and amount.
+                    context.invoice = await createSentInvoice(
+                        api,
+                        context.client,
+                        {
+                            cost:
+                                42 +
+                                scenario_index +
+                                (flow === 'smooth' ? 10 : 0),
+                            label: 'braintree-ach',
+                        }
                     );
                     await navigateToPortalGatewayCheckout(
                         page,
@@ -269,14 +284,34 @@ test.describe('Braintree supported SDK sandbox checkout', () => {
                     await page.locator('#billing-region').selectOption('CA');
                     await page.locator('#billing-postal-code').fill('94105');
                     await page.locator('#accept-terms').check();
-                    await page.locator('#authorize-bank-account').click();
-                    if (account_number !== '1000000000') {
+                    await expect(page.locator('#routing-number')).toHaveValue(
+                        '021000021'
+                    );
+                    const [authorization_response] = await Promise.all([
+                        page.waitForResponse(
+                            (response) =>
+                                response.request().method() === 'POST' &&
+                                new URL(response.url()).pathname ===
+                                    '/client/payment_methods'
+                        ),
+                        page.locator('#authorize-bank-account').click(),
+                    ]);
+                    expect(authorization_response.status()).toBe(
+                        verification_succeeds ? 200 : 302
+                    );
+                    if (!verification_succeeds) {
                         await expect(
                             page
                                 .locator(
                                     '#braintree-ach-authorize .alert-failure'
                                 )
                                 .filter({ hasText: /\S/ })
+                                .or(
+                                    page.getByText(
+                                        'Unable to verify payment method.',
+                                        { exact: true }
+                                    )
+                                )
                                 .first()
                         ).toBeVisible({ timeout: 60_000 });
                         const client = await getEntity(
@@ -367,7 +402,10 @@ test.describe('Braintree supported SDK sandbox checkout', () => {
                         api,
                         context.client,
                         {
-                            cost: 19,
+                            cost:
+                                19 +
+                                scenario_index +
+                                (flow === 'smooth' ? 10 : 0),
                             label: 'braintree-saved-bank',
                         }
                     );

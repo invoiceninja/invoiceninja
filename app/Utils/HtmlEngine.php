@@ -643,7 +643,7 @@ class HtmlEngine
 
         $data['$contact.last_name'] = ['value' => isset($this->contact) ? $this->contact->last_name : '', 'label' => ctrans('texts.last_name')];
 
-        $data['$portal_button'] = ['value' => $this->buildViewButton($this->contact->getLoginLink() . '?client_hash=' . $this->client->client_hash, ctrans('texts.view_client_portal')), 'label' => ctrans('view_client_portal')];
+        $data['$portal_button'] = ['value' => $this->buildViewButton($this->contact->getLoginLink(), ctrans('texts.view_client_portal')), 'label' => ctrans('view_client_portal')];
         $data['$contact.portal_button'] = &$data['$portal_button'];
         $data['$portalButton'] = &$data['$portal_button'];
 
