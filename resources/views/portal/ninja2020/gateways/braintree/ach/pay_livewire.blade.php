@@ -47,28 +47,6 @@
     @endif
 </div>
 
-@script
-    <script defer>
-        Array
-            .from(document.getElementsByClassName('toggle-payment-with-token'))
-            .forEach((element) => element.addEventListener('click', (element) => {
-                document.querySelector('input[name=source]').value = element.target.dataset.token;
-            }));
-
-        document.getElementById('pay-now').addEventListener('click', function (e) {
-            e.target.parentElement.disabled = true;
-
-            document.getElementById('server-response').submit();
-        });
-
-
-    /**
-    * @type {HTMLInputElement|null}
-    */
-    const first = document.querySelector('input[name="payment-type"]');
-
-    if (first) {
-        first.click();
-    }
-    </script>
-@endscript
+@assets
+    @vite('resources/js/clients/payment_methods/braintree-ach.js')
+@endassets
