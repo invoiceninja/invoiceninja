@@ -13,24 +13,51 @@
 namespace Tests\Unit;
 
 use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Tests\Concerns\UsesRealPdfGeneration;
 use Tests\TestCase;
 
+/**
+ * Set DUMP_PAGE_NUMBERING_PDF=true to write PDFs to tests/artifacts/page-numbering/.
+ */
 class PageNumberingLinksTest extends TestCase
 {
     use PageNumbering;
+    use PdfMaker;
+    use UsesRealPdfGeneration;
+
+    private bool $dumpPdf;
+
+    private string $artifactDir;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->useRealPdfGeneration();
+
+        $this->dumpPdf = filter_var(env('DUMP_PAGE_NUMBERING_PDF', false), FILTER_VALIDATE_BOOLEAN);
+        $this->artifactDir = base_path('tests/artifacts/page-numbering');
+
+        if ($this->dumpPdf && ! is_dir($this->artifactDir)) {
+            mkdir($this->artifactDir, 0755, true);
+        }
+    }
+
+    private function maybeDumpPdf(string $filename, string $pdf): void
+    {
+        if (! $this->dumpPdf) {
+            return;
+        }
+
+        file_put_contents($this->artifactDir.'/'.$filename, $pdf);
+    }
 
     private function sourcePdf(): string
     {
-        $pdf = new \FPDF();
-        $pdf->SetFont('Arial', '', 12);
+        $html = file_get_contents(base_path('tests/Unit/fixtures/page-numbering-links.html'));
 
-        $pdf->AddPage();
-        $pdf->Cell(0, 10, 'Pay now', 0, 1, 'L', false, 'https://example.com/pay');
-
-        $pdf->AddPage();
-        $pdf->Cell(0, 10, 'View invoice', 0, 1, 'L', false, 'https://example.com/view');
-
-        return $pdf->Output('S');
+        return $this->makePdf(null, null, $html);
     }
 
     private function company(): object
@@ -57,6 +84,9 @@ class PageNumberingLinksTest extends TestCase
         $this->assertSame(2, preg_match_all('#/Subtype\s*/Link#', $source));
 
         $output = $this->pageNumbering($source, $this->company());
+
+        $this->maybeDumpPdf('page-numbering-links-source.pdf', $source);
+        $this->maybeDumpPdf('page-numbering-links-numbered.pdf', $output);
 
         $this->assertSame(2, preg_match_all('#/Subtype\s*/Link#', $output));
         // one link annotation on each of the two pages
