@@ -39,7 +39,7 @@
     "src": "node_modules/dialog-polyfill/dist/dialog-polyfill.esm.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-9b56a494.js",
+    "file": "assets/app-7feec974.js",
     "imports": [
       "_dialog-05be6357.js",
       "_index-893ebfa4.js",

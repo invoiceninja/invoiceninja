@@ -80,6 +80,17 @@ npm run test:e2e -- tests/e2e/client-portal-payments/gateways.spec.ts
 npm run test:e2e -- tests/e2e/client-portal-payments/gateways.spec.ts -g "PayPal REST"
 ```
 
+Braintree's real sandbox suite uses `BRAINTREE_KEYS`, with optional
+`BRAINTREE_ACH_KEYS` for a separate ACH-enabled sandbox. Both are JSON with
+`merchantId`, `publicKey`, `privateKey`, optional `merchantAccountId`, and
+`testMode: true`. ACH cases prefer `BRAINTREE_ACH_KEYS` when configured.
+They cover personal/business checking/savings, saved-account payments, and
+network-check verification failures in both checkout flows:
+
+```sh
+PLAYWRIGHT_HEADLESS=1 npm run test:e2e -- tests/e2e/client-portal-payments/braintree.spec.ts --grep ACH
+```
+
 Recurring auto-billing preferences in both the default and smooth checkout:
 
 ```sh
