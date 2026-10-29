@@ -46,7 +46,7 @@
         "babenkoivan/elastic-scout-driver-plus": "^5.1",
         "bacon/bacon-qr-code": "^3.0",
         "beganovich/snappdf": "dev-master",
-        "braintree/braintree_php": "^6.28",
+        "braintree/braintree_php": "^6.40",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^6.8.1",
         "endroid/qr-code": "^5",

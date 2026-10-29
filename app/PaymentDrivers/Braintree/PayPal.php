@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -8,6 +9,7 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\PaymentDrivers\Braintree;
 
 use App\Exceptions\PaymentFailed;
@@ -64,7 +66,7 @@ class PayPal implements LivewireMethodInterface
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $state = [
-            'server_response' => json_decode($request->gateway_response),
+            'server_response' => json_decode($request->gateway_response ?? ''),
             'payment_hash' => $request->payment_hash,
         ];
 
@@ -76,7 +78,7 @@ class PayPal implements LivewireMethodInterface
 
         $customer = $this->braintree->findOrCreateCustomer();
 
-        $token = $this->getPaymentToken($request->all(), $customer->id);
+        $payment_source = $this->paymentSource($request, $customer->id);
 
         $total_taxes = \App\Models\Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->braintree->payment_hash->invoices(), 'invoice_id')))->withTrashed()->sum('total_taxes');
         $invoice = $this->braintree->payment_hash->fee_invoice;
@@ -84,7 +86,6 @@ class PayPal implements LivewireMethodInterface
 
         $data = [
             'amount' => $this->braintree->payment_hash->data->amount_with_fee, //@phpstan-ignore-line
-            'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'channel' => 'invoiceninja_BT',
             'options' => [
@@ -97,6 +98,12 @@ class PayPal implements LivewireMethodInterface
             'purchaseOrderNumber' => substr($po_number, 0, 16),
         ];
 
+        $data = array_replace_recursive($data, $payment_source);
+
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
+
         $result = $this->braintree->gateway->transaction()->sale($data);
 
         if ($result->success) {
@@ -105,8 +112,8 @@ class PayPal implements LivewireMethodInterface
                 SystemLog::TYPE_BRAINTREE
             );
 
-            if ($request->store_card && is_null($request->token)) {
-                $payment_method = $this->braintree->gateway->paymentMethod()->find($token);
+            if ($request->boolean('store_card') && ! $request->filled('token')) {
+                $payment_method = $this->braintree->gateway->paymentMethod()->find($result->transaction->paypalDetails->token);
 
                 $this->storePaymentMethod($payment_method, $customer->id);
             }
@@ -117,24 +124,29 @@ class PayPal implements LivewireMethodInterface
         return $this->processUnsuccessfulPayment($result);
     }
 
-    private function getPaymentToken(array $data, string $customerId)
+    private function paymentSource(PaymentResponseRequest $request, string $customer_id): array
     {
-        if (array_key_exists('token', $data) && ! is_null($data['token'])) {
-            return $data['token'];
+        if ($request->filled('token')) {
+            $this->braintree->resolveStoredToken($request->token, GatewayType::PAYPAL);
+
+            return ['paymentMethodToken' => $request->token];
         }
 
-        $gateway_response = json_decode($data['gateway_response']);
+        $gateway_response = json_decode($request->input('gateway_response') ?? '', true);
+        $nonce = $gateway_response['nonce'] ?? null;
 
-        $payment_method = $this->braintree->gateway->paymentMethod()->create([
-            'customerId' => $customerId,
-            'paymentMethodNonce' => $gateway_response->nonce,
-        ]);
-
-        if ($payment_method->success) {
-            return $payment_method->paymentMethod->token;
-        } else {
-            throw new PaymentFailed(property_exists($payment_method, 'message') ? $payment_method->message : 'Undefined error storing payment token.', 0);
+        if (! is_string($nonce) || $nonce === '') {
+            throw new PaymentFailed(ctrans('texts.unable_to_verify_payment_method'));
         }
+
+        $data = ['paymentMethodNonce' => $nonce];
+
+        if ($request->boolean('store_card')) {
+            $data['customerId'] = $customer_id;
+            $data['options']['storeInVaultOnSuccess'] = true;
+        }
+
+        return $data;
     }
 
     /**
@@ -222,7 +234,9 @@ class PayPal implements LivewireMethodInterface
     public function paymentData(array $data): array
     {
         $data['gateway'] = $this->braintree;
-        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
+        $data['client_token'] = $this->braintree->gateway->clientToken()->generate(array_filter([
+            'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
+        ]));
 
         return $data;
     }

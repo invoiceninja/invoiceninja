@@ -81,6 +81,10 @@ export function gatewayCheckoutContainer(page: Page) {
 }
 
 const gatewayCheckoutReadySelectors = [
+    '#braintree-credit-card-payment',
+    '#braintree-paypal-payment',
+    '#braintree-ach-authorize',
+    '#braintree-ach-payment',
     '#paypal-credit-card-payment',
     '#checkout-form',
     '#card-element',
@@ -1056,7 +1060,7 @@ export async function submitRequiredClientInfoIfPresent(
     /** Submitting re-renders the page, so the gateway form has to come back first. */
     await page
         .locator('#authorize--credit-card-container')
-        .or(page.locator('#dropin-container'))
+        .or(page.locator('#braintree-credit-card-payment, #braintree-paypal-payment, #braintree-ach-authorize, #braintree-ach-payment'))
         .or(page.locator('#card-element'))
         .or(page.locator('#payment-form'))
         .or(page.locator('#forte--credit-card-container'))

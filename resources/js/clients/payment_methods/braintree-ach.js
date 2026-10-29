@@ -8,74 +8,96 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { instant, wait } from '../wait';
+import {
+    BraintreePayment,
+    mountBraintree,
+} from '../payments/braintree/payment';
 
-function boot() {
-    window.braintree.client.create({
-        authorization: document.querySelector('meta[name="client-token"]')?.content
-    }).then(function (clientInstance) {
-        return braintree.usBankAccount.create({
-            client: clientInstance
-        });
-    }).then(function (usBankAccountInstance) {
-        document
-            .getElementById('authorize-bank-account')
-            ?.addEventListener('click', (e) => {
-
-                if (!document.getElementById('accept-terms').checked) {
-                    errors.textContent = "You must accept the mandate terms prior to making payment.";
-                    errors.hidden = false;
-                    return;
-                }
-
-                e.target.parentElement.disabled = true;
-    
-                document.getElementById('errors').hidden = true;
-                document.getElementById('errors').textContent = '';
-    
-                let bankDetails = {
-                    accountNumber: document.getElementById('account-number').value,
-                    routingNumber: document.getElementById('routing-number').value,
-                    accountType: document.querySelector('input[name="account-type"]:checked').value,
-                    ownershipType: document.querySelector('input[name="ownership-type"]:checked').value,
-                    billingAddress: {
-                        streetAddress: document.getElementById('billing-street-address').value,
-                        extendedAddress: document.getElementById('billing-extended-address').value,
-                        locality: document.getElementById('billing-locality').value,
-                        region: document.getElementById('billing-region').value,
-                        postalCode: document.getElementById('billing-postal-code').value
-                    }
-                }
-    
-                if (bankDetails.ownershipType === 'personal') {
-                    let name = document.getElementById('account-holder-name').value.split(' ', 2);
-    
-                    bankDetails.firstName = name[0];
-                    bankDetails.lastName = name[1];
-                } else {
-                    bankDetails.businessName = document.getElementById('account-holder-name').value;
-                }
-    
-                usBankAccountInstance.tokenize({
-                    bankDetails,
-                    mandateText: 'By clicking ["Checkout"], I authorize Braintree, a service of PayPal, on behalf of [your business name here] (i) to verify my bank account information using bank information and consumer reports and (ii) to debit my bank account.'
-                }).then(function (payload) {
-                    document.querySelector('input[name=nonce]').value = payload.nonce;
-                    document.getElementById('server_response').submit();
-                })
-                    .catch(function (error) {
-                        e.target.parentElement.disabled = false;
-    
-                        document.getElementById('errors').textContent = `${error.details.originalError.message} ${error.details.originalError.details.originalError[0].message}`;
-                        document.getElementById('errors').hidden = false;
-                    });
+class BraintreeACH extends BraintreePayment {
+    async handle() {
+        if (this.root.id === 'braintree-ach-payment') {
+            const button = this.find('#pay-now');
+            if (!button) return;
+            const tokens = this.root.querySelectorAll(
+                '.toggle-payment-with-token'
+            );
+            const selectToken = (input) =>
+                (this.find('input[name=source]').value = input.dataset.token);
+            tokens.forEach((input) =>
+                this.on(input, 'change', () => selectToken(input))
+            );
+            if (tokens[0]) {
+                tokens[0].checked = true;
+                selectToken(tokens[0]);
+            }
+            this.on(button, 'click', () => {
+                if (this.busy) return;
+                this.setBusy(true);
+                this.submit();
             });
-    }).catch(function (err) {
-    
-        document.getElementById('errors').textContent = err.message;
-        document.getElementById('errors').hidden = false;
-    
-    });
+            return;
+        }
+
+        this.setBusy(true);
+        const client = await this.createClient(false);
+        const bank_account = await this.keep(
+            await window.braintree.usBankAccount.create({ client })
+        );
+        this.on(this.find('#authorize-bank-account'), 'click', async () => {
+            if (this.busy) return;
+            if (!this.find('#accept-terms').checked) {
+                this.showError({ message: this.root.dataset.mandateError });
+                return;
+            }
+            for (const input of this.root.querySelectorAll('[required]')) {
+                if (!input.reportValidity()) return;
+            }
+            this.setBusy(true);
+            this.find('#errors').hidden = true;
+            const value = (id) => this.find(`#${id}`).value.trim();
+            const bank_details = {
+                accountNumber: value('account-number'),
+                routingNumber: value('routing-number'),
+                accountType: this.find('input[name=account-type]:checked')
+                    .value,
+                ownershipType: this.find('input[name=ownership-type]:checked')
+                    .value,
+                billingAddress: {
+                    streetAddress: value('billing-street-address'),
+                    extendedAddress: value('billing-extended-address'),
+                    locality: value('billing-locality'),
+                    region: value('billing-region'),
+                    postalCode: value('billing-postal-code'),
+                },
+            };
+            if (bank_details.ownershipType === 'personal') {
+                const [first_name, ...last_name] = value(
+                    'account-holder-name'
+                ).split(/\s+/);
+                bank_details.firstName = first_name;
+                bank_details.lastName = last_name.join(' ');
+            } else {
+                bank_details.businessName = value('account-holder-name');
+            }
+            try {
+                const payload = await bank_account.tokenize({
+                    bankDetails: bank_details,
+                    mandateText: this.find('label[for=accept-terms]')
+                        .textContent.trim()
+                        .replace(/\s+/g, ' '),
+                });
+                this.find('input[name=nonce]').value = payload.nonce;
+                this.submit();
+            } catch (error) {
+                this.showError(error);
+                this.setBusy(false);
+            }
+        });
+        this.setBusy(false);
+    }
 }
 
-instant() ? boot() : wait('#braintree-ach-authorize').then(() => boot());
+mountBraintree(
+    '#braintree-ach-authorize, #braintree-ach-payment',
+    (root) => new BraintreeACH(root)
+);
