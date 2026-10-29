@@ -24,6 +24,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
@@ -116,25 +117,41 @@ class Hosted implements MethodInterface, LivewireMethodInterface
      */
     public function processSuccessfulPayment(string $payment_id): RedirectResponse
     {
-        $data = [
-            'gateway_type_id' => GatewayType::HOSTED_PAGE,
-            'amount' => array_sum(array_column($this->razorpay->payment_hash->invoices(), 'amount')) + $this->razorpay->payment_hash->fee_total,
-            'payment_type' => PaymentType::HOSTED_PAGE,
-            'transaction_reference' => $payment_id,
-        ];
-
-        $payment_record = $this->razorpay->createPayment($data, Payment::STATUS_COMPLETED);
-
-        SystemLogger::dispatch(
-            ['response' => $payment_id, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_RAZORPAY,
-            $this->razorpay->client,
-            $this->razorpay->client->company,
-        );
+        $payment_record = $this->recordPayment($payment_id);
 
         return redirect()->route('client.payments.show', ['payment' => $this->razorpay->encodePrimaryKey($payment_record->id)]);
+    }
+
+    /**
+     * Record a captured Razorpay payment once, whether the browser return or the webhook gets here first.
+     *
+     * @param string $payment_id
+     * @return Payment
+     */
+    public function recordPayment(string $payment_id): Payment
+    {
+        return Cache::lock("razorpay-order-{$this->razorpay->payment_hash->data->order_id}", 30)
+            ->block(5, function () use ($payment_id): Payment {
+                $data = [
+                    'gateway_type_id' => GatewayType::HOSTED_PAGE,
+                    'amount' => array_sum(array_column($this->razorpay->payment_hash->invoices(), 'amount')) + $this->razorpay->payment_hash->fee_total,
+                    'payment_type' => PaymentType::HOSTED_PAGE,
+                    'transaction_reference' => $payment_id,
+                ];
+
+                $payment_record = $this->razorpay->createPayment($data, Payment::STATUS_COMPLETED);
+
+                SystemLogger::dispatch(
+                    ['response' => $payment_id, 'data' => $data],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_RAZORPAY,
+                    $this->razorpay->client,
+                    $this->razorpay->client->company,
+                );
+
+                return $payment_record;
+            });
     }
 
     /**
