@@ -50,10 +50,13 @@ class RazorpayWebhookTest extends TestCase
 
     public function testCapturedWebhookRecordsCompletedPayment(): void
     {
+        Queue::fake([PaymentCapturedWebhook::class]);
+
         $this->makePaymentHash('order_captured');
         $balance = (float) $this->invoice->fresh()->balance;
 
         $this->postWebhook('payment.captured', 'pay_captured', 'order_captured')->assertStatus(200);
+        $this->runAllPushedCapturedWebhookJobs();
 
         $payment = Payment::query()->where('transaction_reference', 'pay_captured')->first();
 
@@ -65,26 +68,34 @@ class RazorpayWebhookTest extends TestCase
 
     public function testOrderPaidWebhookRecordsCompletedPayment(): void
     {
+        Queue::fake([PaymentCapturedWebhook::class]);
+
         $this->makePaymentHash('order_paid');
 
         $this->postWebhook('order.paid', 'pay_order_paid', 'order_paid')->assertStatus(200);
+        $this->runAllPushedCapturedWebhookJobs();
 
         $this->assertSame(1, Payment::query()->where('transaction_reference', 'pay_order_paid')->count());
     }
 
     public function testRepeatedWebhooksRecordOnePayment(): void
     {
+        Queue::fake([PaymentCapturedWebhook::class]);
+
         $this->makePaymentHash('order_repeat');
 
         $this->postWebhook('payment.captured', 'pay_repeat', 'order_repeat')->assertStatus(200);
         $this->postWebhook('order.paid', 'pay_repeat', 'order_repeat')->assertStatus(200);
         $this->postWebhook('payment.captured', 'pay_repeat', 'order_repeat')->assertStatus(200);
+        $this->runAllPushedCapturedWebhookJobs();
 
         $this->assertSame(1, Payment::query()->where('transaction_reference', 'pay_repeat')->count());
     }
 
     public function testBrowserReturnAfterWebhookDoesNotRecordASecondPayment(): void
     {
+        Queue::fake([PaymentCapturedWebhook::class]);
+
         $payment_hash = $this->makePaymentHash('order_return');
 
         $this->postWebhook('payment.captured', 'pay_return', 'order_return')->assertStatus(200);
@@ -102,6 +113,8 @@ class RazorpayWebhookTest extends TestCase
         $request->setContainer($this->app);
 
         (new Hosted($driver))->paymentResponse($request);
+
+        $this->runAllPushedCapturedWebhookJobs();
 
         $this->assertSame(1, Payment::query()->where('transaction_reference', 'pay_return')->count());
     }
@@ -214,11 +227,14 @@ class RazorpayWebhookTest extends TestCase
 
     public function testPaymentNotesTakePriorityOverOrderLookup(): void
     {
+        Queue::fake([PaymentCapturedWebhook::class]);
+
         $other_hash = $this->makePaymentHash('order_metadata');
         $payment_hash = $this->makePaymentHash('order_metadata');
 
         $this->postWebhook('payment.captured', 'pay_metadata', 'order_metadata', payment_notes: ['payment_hash' => $payment_hash->hash])
             ->assertStatus(200);
+        $this->runAllPushedCapturedWebhookJobs();
 
         $payment = Payment::query()->where('transaction_reference', 'pay_metadata')->firstOrFail();
         $this->assertSame($payment->id, $payment_hash->fresh()->payment_id);
@@ -227,11 +243,14 @@ class RazorpayWebhookTest extends TestCase
 
     public function testOrderNotesRehydratePaymentHash(): void
     {
+        Queue::fake([PaymentCapturedWebhook::class]);
+
         $other_hash = $this->makePaymentHash('order_order_notes');
         $payment_hash = $this->makePaymentHash('order_order_notes');
 
         $this->postWebhook('order.paid', 'pay_order_notes', 'order_order_notes', order_notes: ['payment_hash' => $payment_hash->hash])
             ->assertStatus(200);
+        $this->runAllPushedCapturedWebhookJobs();
 
         $payment = Payment::query()->where('transaction_reference', 'pay_order_notes')->firstOrFail();
         $this->assertSame($payment->id, $payment_hash->fresh()->payment_id);
@@ -240,12 +259,23 @@ class RazorpayWebhookTest extends TestCase
 
     public function testMetadataForDifferentOrderIsIgnored(): void
     {
+        Queue::fake([PaymentCapturedWebhook::class]);
+
         $payment_hash = $this->makePaymentHash('order_expected');
 
         $this->postWebhook('payment.captured', 'pay_mismatch', 'order_different', payment_notes: ['payment_hash' => $payment_hash->hash])
             ->assertStatus(200);
+        $this->runAllPushedCapturedWebhookJobs();
 
         $this->assertFalse(Payment::query()->where('transaction_reference', 'pay_mismatch')->exists());
+    }
+
+    private function runAllPushedCapturedWebhookJobs(): void
+    {
+        foreach (Queue::pushed(PaymentCapturedWebhook::class) as $job) {
+            $queued_job = unserialize(serialize($job));
+            $queued_job->handle();
+        }
     }
 
     private function makeGateway(string $webhook_secret): CompanyGateway
