@@ -8,23 +8,28 @@ export class BraintreePaymentGateway extends BasePaymentGateway {
     readonly slug = 'braintree';
     readonly displayName = 'Braintree';
     readonly gatewayKey = 'f7ec488676d310683fb51802d076d713';
-    readonly envVar = 'BRAINTREE_KEYS';
+    readonly envVar: string;
     readonly gatewayTypeId = GatewayType.CREDIT_CARD;
     readonly supportsFullPayment = true;
 
+    constructor(env_var = 'BRAINTREE_KEYS') {
+        super();
+        this.envVar = env_var;
+    }
+
     async assertCheckoutReady(page: Page): Promise<void> {
-        await expect(page.locator('meta[name="client-token"]')).toHaveAttribute(
+        await expect(page.locator('#braintree-credit-card-payment meta[name="client-token"]')).toHaveAttribute(
             'content',
             /.+/,
         );
-        await expect(page.locator('#dropin-container')).toBeVisible({
+        await expect(page.locator('#braintree-hosted-fields')).toBeVisible({
             timeout: 30_000,
         });
         await expect(page.locator('#pay-now')).toBeVisible();
     }
 
     /**
-     * The drop-in UI puts each card field in its own hosted iframe.
+     * Hosted Fields puts each card field in its own hosted iframe.
      *
      * @see resources/views/portal/ninja2020/gateways/braintree/credit_card/pay_livewire.blade.php
      */
@@ -33,23 +38,17 @@ export class BraintreePaymentGateway extends BasePaymentGateway {
         await dismissCookieConsent(page);
         await submitRequiredClientInfoIfPresent(page);
 
-        /** Drop-in names each hosted field iframe braintree-hosted-field-<field>. */
+        /** Braintree names each hosted field iframe braintree-hosted-field-<field>. */
         const field = (name: string) =>
             page
                 .frameLocator(`iframe[name="braintree-hosted-field-${name}"]`)
                 .locator('input')
                 .first();
 
-        const cardOption = page.locator('[data-braintree-id="card"]');
-
-        if (await cardOption.isVisible().catch(() => false)) {
-            await cardOption.click({ force: true });
-        }
-
         await field('number').fill('4111111111111111');
         await field('expirationDate').fill('12/29');
 
-        /** Drop-in only renders a CVV field when the merchant account asks for one. */
+        /** Hosted Fields only renders a CVV field when the merchant account asks for one. */
         const cvv = page.locator('iframe[name="braintree-hosted-field-cvv"]');
 
         if (await cvv.isVisible().catch(() => false)) {
@@ -58,7 +57,7 @@ export class BraintreePaymentGateway extends BasePaymentGateway {
 
         /**
          * The portal overlays the pay button, so a coordinate click lands on the overlay
-         * instead of the listener drop-in attached to it.
+         * instead of the payment listener attached to it.
          */
         await page
             .locator('#pay-now')

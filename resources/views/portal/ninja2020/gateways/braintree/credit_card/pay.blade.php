@@ -4,21 +4,18 @@
     <meta name="client-token" content="{{ $client_token ?? '' }}"/>
     <meta name="instant-payment" content="yes" />
 
-    <script src='https://js.braintreegateway.com/web/dropin/1.33.4/js/dropin.min.js'></script>
-    {{-- <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script> --}}
-    <script src="https://js.braintreegateway.com/web/3.87.0/js/data-collector.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/client.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/data-collector.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/hosted-fields.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/three-d-secure.min.js"></script>
 
-<!-- Load the client component. -->
-<script src='https://js.braintreegateway.com/web/3.87.0/js/client.min.js'></script>
-
-    <style>
-        [data-braintree-id="toggle"] {
-            display: none;
-        }
-    </style>
 @endsection
 
 @section('gateway_content')
+<div id="braintree-credit-card-payment" data-retry-message="{{ ctrans('texts.try_again') }}" data-error-message="{{ ctrans('texts.generic_gateway_error') }}" data-require-cvv="{{ $gateway->company_gateway->require_cvv ? 'true' : 'false' }}" data-verification-error="{{ ctrans('texts.unable_to_verify_payment_method') }}">
+    <meta name="client-token" content="{{ $client_token ?? '' }}" />
+    <div id="errors" class="alert alert-failure mb-4" role="alert" hidden></div>
+
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -49,13 +46,15 @@
                     <input
                         type="radio"
                         data-token="{{ $token->token }}"
+                            data-nonce="{{ $saved_cards[$token->token]['nonce'] ?? '' }}"
+                            data-bin="{{ $saved_cards[$token->token]['bin'] ?? '' }}"
                         name="payment-type"
                         class="form-radio cursor-pointer toggle-payment-with-token"/>
                     <span class="ml-1">**** {{ $token->meta?->last4 }}</span>
                 </label>
             </li>
             @endforeach
-        @endisset
+        @endif
 
         <li class="payment-method-item">
         <label class="payment-method-label">
@@ -74,16 +73,17 @@
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
-        <div id="dropin-container"></div>
+        @include('portal.ninja2020.gateways.braintree.credit_card.fields')
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.pay_now')
     @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-with-token', 'class' => 'hidden'])
+</div>
 @endsection
 
 @section('gateway_footer')
 
-    <script defer src="{{ asset('js/clients/payments/braintree-credit-card.js') }}"></script>
+    @vite('resources/js/clients/payments/braintree-credit-card.js')
 
 @endsection
 

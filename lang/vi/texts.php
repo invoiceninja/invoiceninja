@@ -6553,6 +6553,15 @@ $lang = array(
     'shortcut_conflict' => 'Phím tắt này hiện đang được sử dụng bởi một thao tác khác.',
     'decimal_hours' => 'Giờ thập phân',
     'locked_task' => 'Nhiệm vụ này đã bị khóa và không thể chỉnh sửa.',
+    'map_signatories_description' => 'Chọn người bạn muốn đến tài liệu này rồi tiếp đến .',
+    'sign_in_with' => 'Đăng nhập bằng tài khoản :provider',
+    'signing_you_in' => 'Đang đăng nhập…',
+    'sign_in_failed' => 'Đăng nhập không thành công',
+    'oidc_login_failed' => 'Không đến đăng nhập bằng tài khoản xác thực của bạn. Vui lòng thử lại.',
+    'oidc_missing_code' => 'Thông tin đăng nhập Mã bị thiếu. Vui lòng quay đến trang đăng nhập và thử lại.',
+    'oidc_no_token' => 'Không nhận được mã xác thực. Vui lòng quay đến trang đăng nhập và thử lại.',
+    'back_to_login' => 'Quay đến trang đăng nhập',
+
 );
 
 return $lang;

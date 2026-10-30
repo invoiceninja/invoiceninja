@@ -171,6 +171,36 @@ class CrossCompanyAccessTest extends TestCase
 
     }
 
+    public function testCrossCompanyTestCompanyGatewayDenied(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->post('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id) . '/test');
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyImportCompanyGatewayCustomersDenied(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->post('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id) . '/import_customers');
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+    }
+
     public function testCrossCompanyShowWebhookDenied(): void
     {
         $webhook = new Webhook();

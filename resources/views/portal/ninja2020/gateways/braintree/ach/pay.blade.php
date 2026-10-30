@@ -1,6 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_content')
+<div id="braintree-ach-payment">
     @if(count($tokens) > 0)
         <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -31,7 +32,7 @@
                     </label>
                 </li>
                 @endforeach
-            @endisset
+            @endif
                 </ul>
     @endcomponent
 
@@ -44,29 +45,9 @@
                href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method') }}</a>
         @endcomponent
     @endif
+</div>
 @endsection
 
-@push('footer')
-    <script defer>
-        Array
-            .from(document.getElementsByClassName('toggle-payment-with-token'))
-            .forEach((element) => element.addEventListener('click', (element) => {
-                document.querySelector('input[name=source]').value = element.target.dataset.token;
-            }));
-
-        document.getElementById('pay-now').addEventListener('click', function (e) {
-            e.target.parentElement.disabled = true;
-
-            document.getElementById('server-response').submit();
-        });
-
-    /**
-    * @type {HTMLInputElement|null}
-    */
-    const first = document.querySelector('input[name="payment-type"]');
-
-    if (first) {
-        first.click();
-    }
-    </script>
-@endpush
+@section('gateway_footer')
+    @vite('resources/js/clients/payment_methods/braintree-ach.js')
+@endsection

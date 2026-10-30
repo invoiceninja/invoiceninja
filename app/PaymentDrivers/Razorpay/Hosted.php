@@ -157,7 +157,7 @@ class Hosted implements MethodInterface, LivewireMethodInterface
     /**
      * Handle unsuccessful payment for Razorpay.
      *
-     * @param Exception $exception
+     * @param \Exception $exception
      * @throws PaymentFailed
      * @return void
      */
@@ -190,7 +190,10 @@ class Hosted implements MethodInterface, LivewireMethodInterface
      */
     public function paymentData(array $data): array
     {
+        $notes = ['payment_hash' => $this->razorpay->payment_hash->hash];
+
         $order = $this->razorpay->gateway->order->create([
+            'notes' => $notes,
             'currency' => $this->razorpay->client->currency()->code,
             'amount' => $this->razorpay->convertToRazorpayAmount((float) $this->razorpay->payment_hash->data->amount_with_fee),
         ]);
@@ -206,6 +209,7 @@ class Hosted implements MethodInterface, LivewireMethodInterface
             'currency' => $this->razorpay->client->currency()->code,
             'name' => $this->razorpay->company_gateway->company->present()->name(),
             'order_id' => $order->id,
+            'notes' => $notes,
         ];
 
         return $data;

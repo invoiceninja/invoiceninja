@@ -19,6 +19,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Razorpay\Hosted;
+use App\PaymentDrivers\Razorpay\Jobs\PaymentCapturedWebhook;
 use App\Utils\Traits\MakesHash;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
@@ -157,21 +158,12 @@ class RazorpayPaymentDriver extends BaseDriver
             return response()->json([], 200);
         }
 
-        $payment_hash = PaymentHash::query()
-            ->where('data->order_id', $entity['order_id'])
-            ->whereHas('fee_invoice', fn ($query) => $query->where('company_id', $this->company_gateway->company_id))
-            ->first();
+        $entity['notes']['payment_hash'] = $entity['notes']['payment_hash']
+            ?? $event['payload']['order']['entity']['notes']['payment_hash']
+            ?? null;
 
-        if (! $payment_hash) {
-            return response()->json([], 200);
-        }
-
-        $this->setPaymentHash($payment_hash);
-        $this->client = $payment_hash->fee_invoice->client;
-
-        $this->setPaymentMethod(GatewayType::HOSTED_PAGE)
-            ->payment_method
-            ->recordPayment($entity['id']);
+        PaymentCapturedWebhook::dispatch($entity, $request->company_key, $this->company_gateway->id)
+            ->delay(now()->addSeconds(5));
 
         return response()->json([], 200);
     }

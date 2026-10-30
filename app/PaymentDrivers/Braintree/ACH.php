@@ -46,7 +46,9 @@ class ACH implements MethodInterface, LivewireMethodInterface
     {
         try {
             $data['gateway'] = $this->braintree;
-            $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
+            $data['client_token'] = $this->braintree->gateway->clientToken()->generate(array_filter([
+                'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
+            ]));
         } catch (\Exception $e) {
 
             throw new PaymentFailed("Unable to generate client token, check your Braintree credentials. Error: " . $e->getMessage(), 500);
@@ -143,7 +145,9 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $customer = $this->braintree->findOrCreateCustomer();
 
         $token = ClientGatewayToken::query()
-            ->where('client_id', auth()->guard('contact')->user()->client->id)
+            ->where('client_id', $this->braintree->client->id)
+            ->where('company_gateway_id', $this->braintree->company_gateway->id)
+            ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
             ->where('id', $this->decodePrimaryKey($request->source))
             ->firstOrFail();
 
@@ -161,6 +165,10 @@ class ACH implements MethodInterface, LivewireMethodInterface
             'taxAmount' => $total_taxes,
             'purchaseOrderNumber' => substr($po_number, 0, 16),
         ];
+
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
 
         $data = array_merge($data, $this->braintree->getLevel23Data($this->braintree->payment_hash));
 
@@ -245,7 +253,9 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $data['currency'] = $this->braintree->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['amount'] = $this->braintree->payment_hash->data->amount_with_fee;
-        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
+        $data['client_token'] = $this->braintree->gateway->clientToken()->generate(array_filter([
+            'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
+        ]));
         $data['payment_hash'] = $this->braintree->payment_hash->hash;
 
         if (count($data['tokens']) === 0) {
