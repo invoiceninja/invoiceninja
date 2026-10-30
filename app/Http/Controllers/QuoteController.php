@@ -540,7 +540,7 @@ class QuoteController extends BaseController
 
         $quotes = Quote::query()->with('invitations')->withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (! $quotes) {
+        if ($quotes->isEmpty()) {
             return response()->json(['message' => ctrans('texts.quote_not_found')]);
         }
 
