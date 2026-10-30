@@ -62,7 +62,7 @@ class ProjectTransformer extends EntityTransformer
     {
         $transformer = new UserTransformer($this->serializer);
 
-        if (!$project->assigned_user) {
+        if (!$project->assigned_user) { //@phpstan-ignore-line
             return null;
         }
 

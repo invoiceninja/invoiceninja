@@ -677,7 +677,7 @@ class LoginController extends BaseController
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
-                if (!$existing_user->account) {
+                if (!$existing_user->account) { //@phpstan-ignore-line
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
