@@ -83,10 +83,11 @@ class InvitationController extends Controller
 
     public function download(string $invitation_key)
     {
+        /** @var \App\Models\PurchaseOrderInvitation|null $invitation */
         $invitation = PurchaseOrderInvitation::withTrashed()
                             ->where('key', $invitation_key)
                             ->with('contact.vendor')
-                            ->firstOrFail();
+                            ->first();
 
         if (!$invitation) {
             return response()->json(["message" => "no record found"], 400);

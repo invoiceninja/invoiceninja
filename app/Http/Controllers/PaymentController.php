@@ -517,10 +517,6 @@ class PaymentController extends BaseController
 
         $payments = Payment::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (!$payments) {
-            return response()->json(['message' => ctrans('texts.record_not_found')]);
-        }
-
         if ($action == 'template' && $user->can('view', $payments->first())) {
 
             $hash_or_response = request()->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
@@ -538,7 +534,6 @@ class PaymentController extends BaseController
 
             return response()->json(['message' => $hash_or_response], 200);
         }
-
 
         $payments->each(function ($payment, $key) use ($action, $user) {
             if ($user->can('edit', $payment)) {

@@ -922,7 +922,7 @@ class HtmlEngine
             return '';
         }
 
-        /** @var \App\Models\VerifactuLog $verifactu_log */
+        /** @var \App\Models\VerifactuLog|null $verifactu_log */
         $verifactu_log = $this->entity->verifactu_logs()->orderBy('id', 'desc')->first();
 
         if (!$verifactu_log) {

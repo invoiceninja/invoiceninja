@@ -25,7 +25,6 @@ class InvoiceType
         "84" => "Invoice for cross border services",
         "82" => "Simplified invoice",
         "80" => "Debit note",
-        "875" => "Self-billed credit note",
         "896" => "Debit note related to self-billed invoice",
         ];
 }

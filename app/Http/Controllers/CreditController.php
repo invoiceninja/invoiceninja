@@ -564,7 +564,7 @@ class CreditController extends BaseController
                          ->company()
                          ->get();
 
-        if (! $credits) {
+        if ($credits->isEmpty()) {
             return response()->json(['message' => ctrans('texts.no_credits_found')]);
         }
 

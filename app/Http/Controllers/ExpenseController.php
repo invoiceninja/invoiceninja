@@ -379,7 +379,7 @@ class ExpenseController extends BaseController
 
         $expense = $this->expense_repo->save($request->all(), ExpenseFactory::create($user->company()->id, $user->id));
 
-        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars($user ? $user->id : null)));
+        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars($user->id)));
 
         event('eloquent.created: App\Models\Expense', $expense);
 
