@@ -130,6 +130,7 @@ class InvoiceController extends BaseController
 
         $invoices = Invoice::filter($filters)->with('tags');
 
+        /** Fixes for N+1 eager loading */
         foreach ($this->getRequestIncludes([]) as $include) {
             if (explode('.', $include)[0] === 'payments') {
                     $invoices->with('payments.documents');
