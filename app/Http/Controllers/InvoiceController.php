@@ -253,7 +253,7 @@ class InvoiceController extends BaseController
                            ->adjustInventory()
                            ->save();
 
-        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars($user ? $user->id : null)));
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars($user->id)));
 
         Atomic::del($request->lock_key);
 
@@ -585,7 +585,7 @@ class InvoiceController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'download' && $invoices->count() >= 1 && $user->can('view', $invoices->first())) {
+        if ($action == 'download' && $invoices->isNotEmpty() && $user->can('view', $invoices->first())) {
 
             $filename = $invoices->first()->getFileName();
 

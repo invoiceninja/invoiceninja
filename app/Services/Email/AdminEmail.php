@@ -557,7 +557,10 @@ class AdminEmail implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
         } catch (\Exception $e) {
-            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+
+            /** @var \App\Models\Client|null $client */
+            $client = $this->company->clients()->first();
+            $this->logMailError('Gmail Token Invalid', $client);
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
