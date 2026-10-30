@@ -212,7 +212,12 @@ class Account extends BaseModel
     {
         return $this->hasMany(Company::class);
     }
-
+    
+    /**
+     * bank_integrations
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function bank_integrations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(BankIntegration::class);
