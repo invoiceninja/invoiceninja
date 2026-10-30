@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Page numbering link fixture</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 14px;
+            margin: 48px;
+        }
+
+        .sheet {
+            page-break-after: always;
+        }
+
+        .sheet:last-child {
+            page-break-after: auto;
+        }
+    </style>
+</head>
+<body>
+    <section class="sheet">
+        <h1>Invoice page 1</h1>
+        <p>External payment link (page 1).</p>
+        <p><a href="https://example.com/pay">Pay now</a></p>
+    </section>
+    <section class="sheet">
+        <h1>Invoice page 2</h1>
+        <p>External view link (page 2).</p>
+        <p><a href="https://example.com/view">View online</a></p>
+    </section>
+</body>
+</html>
