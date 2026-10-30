@@ -517,7 +517,7 @@ class PaymentController extends BaseController
 
         $payments = Payment::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (!$payments) {
+        if ($payments->isEmpty()) {
             return response()->json(['message' => ctrans('texts.record_not_found')]);
         }
 

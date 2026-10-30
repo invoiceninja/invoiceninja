@@ -188,7 +188,7 @@ class PreviewPurchaseOrderController extends BaseController
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($user->company()->settings));
 
-        /** @var \App\Models\PurchaseOrderInvitation $invitation */
+        /** @var \App\Models\PurchaseOrderInvitation|null $invitation */
         $invitation = PurchaseOrderInvitation::where('company_id', $user->company()->id)->orderBy('id', 'desc')->first();
 
         /* If we don't have a valid invitation in the system - create a mock using transactions */
