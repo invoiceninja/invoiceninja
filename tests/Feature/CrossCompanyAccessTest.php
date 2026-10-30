@@ -732,6 +732,8 @@ class CrossCompanyAccessTest extends TestCase
             'action' => 'archive',
         ];
 
+        $this->assertNotNull($this->payment->id);
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->other_token,
