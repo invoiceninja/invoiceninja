@@ -130,6 +130,13 @@ class InvoiceController extends BaseController
 
         $invoices = Invoice::filter($filters)->with('tags');
 
+        foreach ($this->getRequestIncludes([]) as $include) {
+            if (explode('.', $include)[0] === 'payments') {
+                    $invoices->with('payments.documents');
+        
+                    break;
+                }
+            }
         return $this->listResponse($invoices);
     }
 
