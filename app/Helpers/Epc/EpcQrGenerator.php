@@ -92,7 +92,8 @@ class EpcQrGenerator
             $name, // Recipient Name - Account Name
             $iban, // IBAN
             $this->formatMoney($this->amount), // Amount with EUR prefix
-            '', // Reference
+            '', // Purpose
+            '', // Structured remittance information
             substr(($this->invoice->number ?? ''), 0, 34), // Unstructured remittance information
         ];
 
