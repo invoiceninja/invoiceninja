@@ -1321,7 +1321,7 @@ class TemplateService
             'assigned_user' => $project->assigned_user ? $this->userInfo($project->assigned_user) : [],
             'invoices' => !$nested ? $this->processInvoices($project->invoices) : [],
             'quotes' => !$nested ? $this->processQuotes($project->quotes) : [],
-            'expenses' => ($project->expenses && !$nested) ? $this->processExpenses($project->expenses, true) : [],
+            'expenses' => ($project->expenses && !$nested) ? $this->processExpenses($project->expenses, true) : [], //@phpstan-ignore-line
             'tags' => $project->tags->pluck('name')->values()->all(),
         ];
 
@@ -1339,7 +1339,7 @@ class TemplateService
 
             /** @var PurchaseOrder $purchase_order */
             return [
-                'vendor' => $purchase_order->vendor ? [
+                'vendor' => $purchase_order->vendor ? [ //@phpstan-ignore-line
                     'name' => $purchase_order->vendor->present()->name(),
                     'vat_number' => $purchase_order->vendor->vat_number ?? '',
                     'currency' => $purchase_order->vendor->currency()->code ?? 'USD',

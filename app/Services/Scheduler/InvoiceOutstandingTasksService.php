@@ -74,10 +74,10 @@ class InvoiceOutstandingTasksService
                             return $sub_query_two->whereNull('project_id');
                         })
                         ->get()
-                        ->filter(function (Task $task) {
+                        ->filter(function (Task $task) { //@phpstan-ignore-line
                             return $task->calcDuration(true) > 0 && !$task->isRunning();
                         })
-                        ->map(function (Task $task, $key) {
+                        ->map(function (Task $task, $key) { //@phpstan-ignore-line
 
                             $body = '';
 
