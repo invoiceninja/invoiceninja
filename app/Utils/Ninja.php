@@ -96,27 +96,17 @@ class Ninja
             return false;
         }
 
-        $url = config('ninja.license_url') . '/signup/register';
-        $data = '';
-        $fields = [
-            'first_name' => urlencode($user->first_name),
-            'last_name' => urlencode($user->last_name),
-            'email' => urlencode($user->email),
-        ];
+        $url = config('ninja.license_url').'/signup/register';
 
-        foreach ($fields as $key => $value) {
-            $data .= $key . '=' . $value . '&';
+        try {
+            Http::asForm()->post($url, [
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+            ]);
+        } catch (\Throwable) {
+            // Fire-and-forget registration ping; signup must not fail if license server is down.
         }
-
-        $data = rtrim($data, '&');
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, count($fields));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($ch);
-        curl_close($ch);
     }
 
     public static function eventVars($user_id = null)
