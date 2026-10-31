@@ -38,7 +38,7 @@ class BaseTransformer
     public function resolveCurrency(string $currency_code): string
     {
 
-        /** @var \App\Models\Currency $currency */
+        /** @var \App\Models\Currency|null $currency */
         $currency = app('currencies')->first(function ($c) use ($currency_code) {
 
             /** @var \App\Models\Currency $c */
@@ -54,7 +54,7 @@ class BaseTransformer
             return (string) $this->company->settings->timezone_id;
         }
 
-        /** @var \App\Models\Timezone $timezone */
+        /** @var \App\Models\Timezone|null $timezone */
         $timezone = app('timezones')->first(function ($t) use ($timezone_name) {
             /** @var \App\Models\Timezone $t */
             return $t->name === $timezone_name;

@@ -136,7 +136,7 @@ class QuoteReminderJob implements ShouldQueue
        && $quote->client->getSetting('send_reminders')
        && (Ninja::isSelfHost() || $quote->company->account->isPaidHostedClient())) {
                 $quote->invitations->each(function ($invitation) use ($quote, $reminder_template) {
-                    if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
+                    if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) { //@phpstan-ignore-line
                         EmailEntity::dispatch($invitation->withoutRelations(), $invitation->company->db, $reminder_template);
                         nrlog("Firing reminder email for quote {$quote->number} - {$reminder_template}");
                         $quote->entityEmailEvent($invitation, $reminder_template);

@@ -12,8 +12,8 @@
 
 namespace App\Console\Commands;
 
-use App\Utils\CurlUtils;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class MobileLocalization extends Command
 {
@@ -106,7 +106,7 @@ class MobileLocalization extends Command
     private function getResources()
     {
         $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
-        $data = CurlUtils::get($url);
+        $data = Http::get($url)->body();
 
         $start = strpos($data, 'do not remove comment') + 25;
         $end = strpos($data, '},', $start);

@@ -229,12 +229,22 @@ class RecurringExpense extends BaseModel
     {
         return $this->belongsTo(Company::class);
     }
-
+    
+    /**
+     * vendor
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
     }
-
+    
+    /**
+     * client
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function client()
     {
         return $this->belongsTo(Client::class);

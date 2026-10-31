@@ -90,7 +90,7 @@ class EmailPayment implements ShouldQueue
 
         $nmo = new NinjaMailerObject();
 
-        if ($this->payment->invoices && $this->payment->invoices->count() >= 1) {
+        if ($this->payment->invoices->isNotEmpty()) {
 
             $invitation = $this->payment->invoices->first()->invitations()->where('client_contact_id', $this->contact->id)->first();
 

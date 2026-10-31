@@ -64,12 +64,14 @@ class Ninja
             return true;
         }
 
-        $data = [
-            'license' => config('ninja.license'),
-        ];
-
-        $data = trim(CurlUtils::post('https://license.invoicing.co/api/check', $data));
-        $data = json_decode($data);
+        try {
+            $response = Http::asForm()->post('https://license.invoicing.co/api/check', [
+                'license' => config('ninja.license'),
+            ]);
+            $data = json_decode(trim($response->body()));
+        } catch (\Throwable) {
+            return false;
+        }
 
         if ($data && property_exists($data, 'message') && $data->message == sha1(config('ninja.license'))) {
             return true;

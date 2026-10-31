@@ -256,7 +256,10 @@ class InvoiceController extends Controller
         $settings = auth()->guard('contact')->user()->client->getMergedSettings();
         $variables = false;
 
-        if (($invitation = $invoices->first()->invitations()->first() ?? false) && $settings->show_accept_invoice_terms) {
+        /** @var \Illuminate\Support\Collection<\App\Models\Invoice> $invoices */
+        $invitation = $invoices->first()->invitations()->first();
+
+        if ($invitation && $settings->show_accept_invoice_terms) {
             $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
         }
 
