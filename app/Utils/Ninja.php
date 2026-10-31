@@ -42,6 +42,22 @@ class Ninja
         return config('ninja.environment') == 'development';
     }
 
+    /**
+     * The Invoice Ninja logo documents carry without a white-label licence.
+     * Embedded on self-host, like the company logo, so rendering a document
+     * never calls hosted.
+     */
+    public static function whitelabelLogo(): string
+    {
+        $path = public_path('images/new_logo.png');
+
+        if (self::isHosted() || ! is_readable($path)) {
+            return 'https://invoicing.co/images/new_logo.png';
+        }
+
+        return 'data:image/png;base64,' . base64_encode(file_get_contents($path));
+    }
+
     public static function getDebugInfo()
     {
         $mysql_version = DB::select('select version() as version')[0]->version;
