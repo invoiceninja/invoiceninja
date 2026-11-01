@@ -42,24 +42,7 @@ class ACH implements LivewireMethodInterface
 {
     use MakesHash;
 
-    /** @var StripePaymentDriver */
-    public $stripe;
-
-    public function __construct(StripePaymentDriver $stripe)
-    {
-        $this->stripe = $stripe;
-    }
-
-    /**
-     * Authorize a bank account - requires microdeposit verification
-     */
-    // public function authorizeView(array $data)
-    // {
-    //     $data['gateway'] = $this->stripe;
-
-    //     return render('gateways.stripe.ach.authorize', array_merge($data));
-    // }
-
+    public function __construct(public StripePaymentDriver $stripe){}
 
     /**
      * Instant Verification methods with fall back to microdeposits.
