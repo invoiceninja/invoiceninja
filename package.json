@@ -14,7 +14,7 @@
     "test:e2e:kill": "pkill -f 'ms-playwright/chromium|@playwright/test/cli.js (test-server|run-server)' || true"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^26.2.0",
