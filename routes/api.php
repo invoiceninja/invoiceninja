@@ -133,8 +133,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WebCronController;
 use App\Http\Controllers\WebhookController;
-use App\Models\Location;
-use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\PaymentDrivers\PayPalPPCPPaymentDriver;
 use Illuminate\Support\Facades\Route;
 

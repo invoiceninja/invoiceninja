@@ -71,13 +71,11 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeDocuments(Project $project)
     {
+
         $transformer = new DocumentTransformer($this->serializer);
 
-        // if($project->documents->count() > 0) {
         return $this->includeCollection($project->documents, $transformer, Document::class);
-        // }
 
-        // return null;
     }
 
     public function includeClient(Project $project): ?\League\Fractal\Resource\Item
