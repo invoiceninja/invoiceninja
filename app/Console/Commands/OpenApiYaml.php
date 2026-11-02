@@ -64,8 +64,11 @@ class OpenApiYaml extends Command
             $this->info($file);
         }
 
+        $version = trim(file_get_contents(base_path('VERSION.txt')));
+        $info = preg_replace('/^  version:.*$/m', '  version: ' . $version, file_get_contents($path . '/info.yaml'));
+
         Storage::disk('base')->delete('/openapi/api-docs.yaml');
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/info.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', $info);
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/paths.yaml'));
 
         //iterate paths
