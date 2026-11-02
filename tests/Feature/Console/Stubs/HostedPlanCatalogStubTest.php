@@ -110,7 +110,7 @@ class HostedPlanCatalogStubTest extends TestCase
         ]);
     }
 
-    public function test_it_skips_subscriptions_that_already_exist(): void
+    public function test_it_syncs_existing_subscriptions_to_match_catalog(): void
     {
         config([
             'admin-api.products' => [
@@ -130,17 +130,41 @@ class HostedPlanCatalogStubTest extends TestCase
         $stub->seed($this->company, $this->user);
 
         $initial_count = Subscription::query()->count();
+        $product = Product::query()
+            ->where('company_id', $this->company->id)
+            ->where('product_key', 'test_plan')
+            ->firstOrFail();
+
         $existing_subscription = Subscription::query()->find(self::TEST_SUBSCRIPTION_ID);
 
         $this->assertNotNull($existing_subscription);
 
+        $existing_subscription->recurring_product_ids = 'invalid_product_reference';
+        $existing_subscription->max_seats_limit = 1;
+        $existing_subscription->saveQuietly();
+
+        config([
+            'admin-api.products' => [
+                'test_plan' => [
+                    'price' => 99,
+                    'description' => 'Test Plan - Annual',
+                    'subscription_id' => self::TEST_SUBSCRIPTION_ID,
+                    'users' => 5,
+                    'plan' => 'enterprise',
+                    'term' => 'year',
+                ],
+            ],
+        ]);
+
         $stub->seed($this->company, $this->user);
 
+        $synced_subscription = Subscription::query()->find(self::TEST_SUBSCRIPTION_ID);
+
         $this->assertSame($initial_count, Subscription::query()->count());
-        $this->assertSame(
-            $existing_subscription->updated_at,
-            Subscription::query()->find(self::TEST_SUBSCRIPTION_ID)->updated_at,
-        );
+        $this->assertSame('Test Plan - Annual', $synced_subscription->name);
+        $this->assertSame((string) $product->hashed_id, $synced_subscription->recurring_product_ids);
+        $this->assertSame(5, $synced_subscription->max_seats_limit);
+        $this->assertSame(RecurringInvoice::FREQUENCY_ANNUALLY, $synced_subscription->frequency_id);
     }
 
     public function test_it_reuses_existing_products_when_seeding_subscriptions(): void

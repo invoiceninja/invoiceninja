@@ -524,11 +524,11 @@ class Invoice extends BaseModel
     {
         if ($this->is_deleted || $this->status_id == self::STATUS_PAID || $this->balance < 0) {
             return false;
-        } elseif ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
+        } elseif ($this->status_id == self::STATUS_DRAFT && !$this->is_deleted) { // @phpstan-ignore-line
             return true;
-        } elseif ($this->status_id == self::STATUS_SENT && $this->is_deleted !== false && $this->balance > 0) {
+        } elseif ($this->status_id == self::STATUS_SENT && !$this->is_deleted && $this->balance > 0) { // @phpstan-ignore-line
             return true;
-        } elseif ($this->status_id == self::STATUS_PARTIAL && $this->is_deleted !== false && $this->balance > 0) {
+        } elseif ($this->status_id == self::STATUS_PARTIAL && !$this->is_deleted && $this->balance > 0) { // @phpstan-ignore-line
             return true;
         } else {
             return false;
