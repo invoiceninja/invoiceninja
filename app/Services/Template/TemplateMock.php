@@ -93,6 +93,7 @@ class TemplateMock
 
     private function generateEntityDataArray(): array
     {
+        /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|null $invite */
         $invite = $this->company->invoice_invitations()->first() ?? $this->company->quote_invitations()->first() ?? null;
 
         if (!$invite) {

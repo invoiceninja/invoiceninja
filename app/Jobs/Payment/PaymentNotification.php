@@ -27,21 +27,14 @@ class PaymentNotification implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $payment;
-
-    private $company;
-
     /**
      * Create a new job instance.
      *
      * @param Payment $payment
      * @param Company $company
      */
-    public function __construct(Payment $payment, Company $company)
+    public function __construct(public Payment $payment, private Company $company)
     {
-        $this->payment = $payment;
-
-        $this->company = $company;
     }
 
     /**

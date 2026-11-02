@@ -135,6 +135,17 @@ class RouteServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('support-messages', function (Request $request) {
+            $identity = $request->user()?->email
+                ?? $request->input('email')
+                ?? $request->ip();
+
+            return [
+                Limit::perMinute(1)->by($identity),
+                Limit::perDay(10)->by($identity),
+            ];
+        });
+        
         RateLimiter::for('honeypot', function (Request $request) {
             return Limit::perMinute(2)->by($request->ip());
         });

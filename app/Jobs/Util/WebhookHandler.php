@@ -52,7 +52,7 @@ class WebhookHandler implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         //If the company is disabled, or if on hosted, the user is not a paid hosted user return early
-        if (! $this->company || $this->company->is_disabled || (Ninja::isHosted() && !$this->company->account->isPaidHostedClient())) {
+        if ($this->company->is_disabled || (Ninja::isHosted() && !$this->company->account->isPaidHostedClient())) {
             return true;
         }
 

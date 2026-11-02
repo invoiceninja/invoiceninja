@@ -547,7 +547,7 @@ class QuoteController extends BaseController
         if ($action == 'convert_to_purchase_order') {
             $quote = $quotes->first();
 
-            if (! $quote || $user->cannot('edit', $quote)) {
+            if (! $quote || $user->cannot('edit', $quote)) { //@phpstan-ignore-line
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 

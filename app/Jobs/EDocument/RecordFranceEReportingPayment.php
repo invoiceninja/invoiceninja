@@ -74,16 +74,11 @@ class RecordFranceEReportingPayment implements ShouldQueue
             ->find($this->paymentId);
 
         if (! $payment
-            || ! $payment->company
             || ! (bool) $payment->company->getSetting('france_reporting_enabled')) {
             return;
         }
 
         $payment->loadMissing(['client.country', 'client.company', 'currency']);
-
-        if (! $payment->client) {
-            return;
-        }
 
         if (! $payment->client->relationLoaded('company')) {
             $payment->client->setRelation('company', $payment->company);

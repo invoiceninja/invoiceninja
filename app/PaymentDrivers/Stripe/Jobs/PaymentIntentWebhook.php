@@ -25,13 +25,11 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\Utilities;
-use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Modules\Admin\Jobs\Stripe\CampaignCharge;
 use Stripe\PaymentIntent;
 
 class PaymentIntentWebhook implements ShouldQueue

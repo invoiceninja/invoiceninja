@@ -12,7 +12,7 @@
 
 namespace App\Utils\PhantomJS;
 
-use App\Utils\CurlUtils;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
 
 class Phantom
@@ -21,18 +21,22 @@ class Phantom
     {
         $key = config('ninja.phantomjs_key');
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/";
-        $pdf = CurlUtils::post($phantom_url, json_encode([
-            'content'            => $html,
-            'renderType'     => 'pdf',
-            'outputAsJson'   => false,
+        $payload = json_encode([
+            'content' => $html,
+            'renderType' => 'pdf',
+            'outputAsJson' => false,
             'renderSettings' => [
                 'emulateMedia' => 'print',
-                'pdfOptions'   => [
+                'pdfOptions' => [
                     'preferCSSPageSize' => true,
-                    'printBackground'   => true,
+                    'printBackground' => true,
                 ],
             ],
-        ]));
+        ]);
+
+        $pdf = Http::withBody($payload, 'application/x-www-form-urlencoded')
+            ->post($phantom_url)
+            ->body();
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
