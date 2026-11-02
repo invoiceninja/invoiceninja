@@ -38,8 +38,8 @@ class BankIntegrationTransformer extends EntityTransformer
      * @var array
      */
     protected array $availableIncludes = [
-        'company',
-        'account',
+        // 'company',
+        // 'account',
         'bank_transactions',
     ];
 

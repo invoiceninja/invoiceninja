@@ -39,8 +39,8 @@ class AccountTransformer extends EntityTransformer
      * @var array
      */
     protected array $availableIncludes = [
-        'default_company',
-        'company_users',
+        // 'default_company',
+        // 'company_users',
     ];
 
     /**

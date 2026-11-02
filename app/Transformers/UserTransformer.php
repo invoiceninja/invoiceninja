@@ -36,8 +36,8 @@ class UserTransformer extends EntityTransformer
      * @var array
      */
     protected array $availableIncludes = [
-        'companies',
-        'company_users',
+        // 'companies',
+        // 'company_users',
         'company_user',
     ];
 
