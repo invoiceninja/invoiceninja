@@ -3,14 +3,12 @@
 
 @section('body')
     @if(Route::is('client.invoice.show'))
-        <div x-data="portalDialog">
-            <template x-teleport="body">
-                <dialog x-ref="dialog" class="portal-dialog portal-dialog-pdf" id="dialogPdf" aria-modal="true" aria-label="{{ ctrans('texts.view_pdf') }}" data-error-message="{{ ctrans('texts.an_error_occurred_try_again') }}">
-                    <div class="portal-dialog-body">
-                        @livewire('pdf-slot', ['entity_type' => 'invoice', 'entity_key' => $invoice->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $invoice->company->db, 'with_close_button' => 'dialog#dialogPdf'])
-                    </div>
-                </dialog>
-            </template>
+        <div>
+            <dialog class="portal-dialog portal-dialog-pdf" id="dialogPdf" aria-modal="true" aria-label="{{ ctrans('texts.view_pdf') }}">
+                <div class="portal-dialog-body">
+                    @livewire('pdf-slot', ['entity_type' => 'invoice', 'entity_key' => $invoice->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $invoice->company->db, 'with_close_button' => 'dialog#dialogPdf'])
+                </div>
+            </dialog>
 
             <div class="px-2">
                 <div class="bg-white shadow rounded-lg mb-4" translate>
@@ -22,7 +20,7 @@
                                 </h3>
                             </div>
                             <div class="sm:mt-0 sm:ml-6 flex justify-end">
-                                <button @click="open($event)" type="button"
+                                <button onclick="document.getElementById('dialogPdf').showModal()" type="button"
                                     class="button button-primary bg-primary">{{ ctrans('texts.view_pdf') }}</button>
                             </div>
                         </div>
