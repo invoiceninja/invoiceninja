@@ -37,7 +37,7 @@ class ContactTokenAuth
             ];
 
             //client_contact who once existed, but has been soft deleted
-            if (! $client_contact) {
+            if ($client_contact->trashed()) {
                 return response()->json($error, 403);
             }
 

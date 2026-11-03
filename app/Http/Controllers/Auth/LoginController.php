@@ -677,7 +677,7 @@ class LoginController extends BaseController
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
-                if (!$existing_user->account) {
+                if (!$existing_user->account) { //@phpstan-ignore-line
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -777,7 +777,7 @@ class LoginController extends BaseController
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
-                if (!$existing_user->account) {
+                if (!$existing_user->account) { //@phpstan-ignore-line
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -797,7 +797,7 @@ class LoginController extends BaseController
         if ($user) {
             //check the user doesn't already exist in some form
             if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user), 'oauth_provider_id' => 'google'])) {
-                if (!$existing_login_user->account) {
+                if (!$existing_login_user->account) { //@phpstan-ignore-line
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -975,7 +975,7 @@ class LoginController extends BaseController
      * self-hosted instance so the React login page can conditionally
      * show a "Sign in with <label>" button.
      *
-     * Returns { oidc_enabled: bool, oidc_provider_label: string }.
+     * Returns { oidc_enabled: bool, oidc_provider_label: string, oidc_auto: bool }.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -984,6 +984,7 @@ class LoginController extends BaseController
         return response()->json([
             'oidc_enabled' => !empty(config('services.oidc.client_id')) && !empty(config('services.oidc.issuer')),
             'oidc_provider_label' => config('services.oidc.provider_label', 'OIDC'),
+            'oidc_auto' => config('services.oidc.auto', false),
         ]);
     }
 
@@ -1042,7 +1043,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'No Invoice Ninja account is linked to this OIDC identity. Ask an administrator to invite you first.'], 400);
         }
 
-        if (!$user->account) {
+        if (!$user->account) { //@phpstan-ignore-line
             return response()->json(['message' => 'User exists but is not attached to any company.'], 400);
         }
 
@@ -1122,7 +1123,8 @@ class LoginController extends BaseController
 
             $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
 
-            $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
+            $expires_in = $socialite_user->accessTokenResponseBody['expires_in'] ?? 300;
+            $oauth_expiry = now()->addSeconds($expires_in);
 
             if ($user = OAuth::handleAuth($socialite_user, $provider)) {
                 nlog('found user and updating their user record');

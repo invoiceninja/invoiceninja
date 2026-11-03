@@ -12,8 +12,11 @@
 
 namespace Tests\Unit;
 
+use App\Listeners\Payment\PaymentNotification;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Http;
+use ReflectionMethod;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -67,5 +70,22 @@ class GoogleAnalyticsTest extends TestCase
         $url = $base."&t=item&in={$item}&ip={$amount}&iq=1";
 
         $this->assertNotNull($url);
+    }
+
+    public function testSendAnalyticsPostsMeasurementProtocolPayload(): void
+    {
+        Http::fake();
+
+        $hit = 'v=1&tid=UA-123&cid=1&cu=USD&ti=0001&t=transaction&ta=ninja&tr=10';
+
+        $method = new ReflectionMethod(PaymentNotification::class, 'sendAnalytics');
+        $method->invoke(new PaymentNotification(), $hit);
+
+        Http::assertSent(function ($request) use ($hit) {
+            return $request->url() === config('ninja.google_analytics_url')
+                && $request->method() === 'POST'
+                && $request->body() === mb_convert_encoding($hit, 'UTF-8')
+                && $request->header('Content-Type')[0] === 'application/x-www-form-urlencoded';
+        });
     }
 }

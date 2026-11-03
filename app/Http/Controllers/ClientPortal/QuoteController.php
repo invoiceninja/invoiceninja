@@ -55,6 +55,7 @@ class QuoteController extends Controller
     {
         /* If the quote is expired, convert the status here */
 
+        /** @var \App\Models\QuoteInvitation|null $invitation */
         $invitation = $quote->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first() ?? $quote->invitations()->first();
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_quote_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
         $docuninja_active = $quote->company->docuninjaActive();
@@ -202,7 +203,7 @@ class QuoteController extends Controller
             ->withTrashed()
             ->get();
 
-        if (! $quote_invitations || $quote_invitations->count() == 0) {
+        if ($quote_invitations->isEmpty()) {
             return redirect()
                 ->route('client.quotes.index')
                 ->with('message', ctrans('texts.no_quotes_available_for_download'));
@@ -252,7 +253,7 @@ class QuoteController extends Controller
             ->withTrashed()
             ->get();
 
-        if (! $quotes || $quotes->count() == 0) {
+        if ($quotes->isEmpty()) {
             return redirect()
                 ->route('client.quotes.index')
                 ->with('message', ctrans('texts.quotes_with_status_sent_can_be_rejected'));
@@ -294,7 +295,7 @@ class QuoteController extends Controller
             ->withTrashed()
             ->get();
 
-        if (! $quotes || $quotes->count() == 0) {
+        if ($quotes->isEmpty()) {
             return redirect()
                 ->route('client.quotes.index')
                 ->with('message', ctrans('texts.quotes_with_status_sent_can_be_approved'));
@@ -331,7 +332,9 @@ class QuoteController extends Controller
 
         $variables = false;
 
-        if ($invitation = $quotes->first()->invitations()->first() ?? false) {
+        /** @var \App\Models\QuoteInvitation|null $invitation */
+        $invitation = $quotes->first()->invitations()->first();
+        if ($invitation) {
             $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
         }
 

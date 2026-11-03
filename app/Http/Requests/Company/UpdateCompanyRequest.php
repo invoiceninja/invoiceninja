@@ -226,7 +226,7 @@ class UpdateCompanyRequest extends Request
      * down to the free plan setting properties which
      * are saveable
      *
-     * @param  object $settings
+     * @param  object|array $settings
      * @return \stdClass $settings
      */
     private function filterSaveableSettings($settings)

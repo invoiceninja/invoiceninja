@@ -30,7 +30,7 @@ class TestCompanyGatewayRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin();
+        return $user->isAdmin() && $user->company()->id === $this->company_gateway->company_id;
     }
 
     public function rules()

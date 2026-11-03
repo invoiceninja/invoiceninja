@@ -16,7 +16,6 @@ use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
-use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
@@ -71,6 +70,7 @@ class CreditCard implements LivewireMethodInterface
                 'streetAddress' => $this->braintree->client->address1 ?: '',
                 'extendedAddress' => $this->braintree->client->address2 ?: '',
                 'locality' => $this->braintree->client->city ?: '',
+                'region' => $this->braintree->client->state ?: '',
                 'postalCode' => $this->braintree->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
             ],
@@ -96,7 +96,7 @@ class CreditCard implements LivewireMethodInterface
         $this->braintree->client->fresh();
 
         $state = [
-            'server_response' => json_decode($request->gateway_response),
+            'server_response' => json_decode($request->gateway_response ?? ''),
             'payment_hash' => $request->payment_hash,
         ];
 
@@ -108,7 +108,7 @@ class CreditCard implements LivewireMethodInterface
 
         $customer = $this->braintree->findOrCreateCustomer();
 
-        $token = $this->getPaymentToken($request->all(), $customer->id);
+        $payment_source = $this->paymentSource($request, $customer->id);
 
         $total_taxes = \App\Models\Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->braintree->payment_hash->invoices(), 'invoice_id')))->withTrashed()->sum('total_taxes');
         $invoice = $this->braintree->payment_hash->fee_invoice;
@@ -116,7 +116,6 @@ class CreditCard implements LivewireMethodInterface
 
         $data = [
             'amount' => $this->braintree->payment_hash->data->amount_with_fee, //@phpstan-ignore-line
-            'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'options' => [
                 'submitForSettlement' => true,
@@ -133,6 +132,7 @@ class CreditCard implements LivewireMethodInterface
             'purchaseOrderNumber' => substr($po_number, 0, 16),
         ];
 
+        $data = array_replace_recursive($data, $payment_source);
         $data = array_merge($data, $this->braintree->getLevel23Data($this->braintree->payment_hash));
 
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
@@ -157,8 +157,8 @@ class CreditCard implements LivewireMethodInterface
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash->data], SystemLog::TYPE_BRAINTREE);
 
-            if ($request->store_card && is_null($request->token)) {
-                $payment_method = $this->braintree->gateway->paymentMethod()->find($token);
+            if ($request->boolean('store_card') && ! $request->filled('token')) {
+                $payment_method = $this->braintree->gateway->paymentMethod()->find($result->transaction->creditCard['token']);
 
                 $this->storePaymentMethod($payment_method, $customer->id);
             }
@@ -171,43 +171,45 @@ class CreditCard implements LivewireMethodInterface
         return $this->processUnsuccessfulPayment($error);
     }
 
-    private function getPaymentToken(array $data, $customerId): ?string
+    private function paymentSource(PaymentResponseRequest $request, string $customer_id): array
     {
-        if (array_key_exists('token', $data) && ! is_null($data['token'])) {
-            return $data['token'];
+        $threeds_enabled = (bool) $this->braintree->company_gateway->getConfigField('threeds');
+
+        if ($request->filled('token')) {
+            $this->braintree->resolveStoredToken($request->token, GatewayType::CREDIT_CARD);
+
+            if (! $threeds_enabled) {
+                return ['paymentMethodToken' => $request->token];
+            }
         }
 
-        $gateway_response = \json_decode($data['gateway_response']);
+        $gateway_response = json_decode($request->input('gateway_response') ?? '', true);
+        $nonce = $gateway_response['nonce'] ?? null;
+
+        if (! is_string($nonce) || $nonce === '') {
+            throw new PaymentFailed(ctrans('texts.unable_to_verify_payment_method'));
+        }
+
+        if ($threeds_enabled) {
+            // Never trust liability-shift flags posted by the browser.
+            $payment_nonce = $this->braintree->gateway->paymentMethodNonce()->find($nonce);
+
+            if (! ($payment_nonce->threeDSecureInfo->liabilityShifted ?? false)) {
+                throw new PaymentFailed(ctrans('texts.unable_to_verify_payment_method'));
+            }
+        }
 
         $data = [
-            'customerId' => $customerId,
-            'paymentMethodNonce' => $gateway_response->nonce,
-            'options' => [
-                'verifyCard' => true,
-            ],
-            'billingAddress' => [
-                'streetAddress' => $this->braintree->client->address1 ?: '',
-                'extendedAddress' => $this->braintree->client->address2 ?: '',
-                'locality' => $this->braintree->client->city ?: '',
-                'postalCode' => $this->braintree->client->postal_code ?: '',
-                'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
-            ],
+            'paymentMethodNonce' => $nonce,
+            'options' => ['threeDSecure' => ['required' => $threeds_enabled]],
         ];
 
-        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
-            /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
-            $data['options']['verificationMerchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        if (! $request->filled('token') && $request->boolean('store_card')) {
+            $data['customerId'] = $customer_id;
+            $data['options']['storeInVaultOnSuccess'] = true;
         }
 
-        $response = $this->braintree->gateway->paymentMethod()->create($data);
-
-        if ($response->success) {
-            return $response->paymentMethod->token;
-        }
-
-        $this->braintree->sendFailureMail($response->message);
-
-        throw new PaymentFailed($response->message);
+        return $data;
     }
 
     private function processSuccessfulPayment($response)
@@ -295,15 +297,38 @@ class CreditCard implements LivewireMethodInterface
     public function paymentData(array $data): array
     {
         $data['gateway'] = $this->braintree;
-        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
         $data['threeds'] = $this->threeDParameters($data);
         $data['threeds_enable'] = $this->braintree->company_gateway->getConfigField('threeds') ? "true" : "false";
 
+        $token_options = [];
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
-            /** https://developer.paypal.com/braintree/docs/reference/request/client-token/generate#merchant_account_id */
-            $data['client_token'] = $this->braintree->gateway->clientToken()->generate([ // @phpstan-ignore-line
-                'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
-            ]);
+            $token_options['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
+        $data['client_token'] = $this->braintree->gateway->clientToken()->generate($token_options);
+        $data['saved_cards'] = [];
+
+        if ($this->braintree->company_gateway->getConfigField('threeds')) {
+            foreach ($data['tokens'] ?? [] as $token) {
+                $this->braintree->resolveStoredToken($token->token, GatewayType::CREDIT_CARD);
+                try {
+                    $result = $this->braintree->gateway->paymentMethodNonce()->create($token->token);
+
+                    if (! $result->success) {
+                        continue;
+                    }
+
+                    $card = $this->braintree->gateway->paymentMethod()->find($token->token);
+                } catch (\Braintree\Exception\NotFound $e) {
+                    // A card removed from the vault must not prevent paying with a new card.
+                    continue;
+                }
+
+                $data['saved_cards'][$token->token] = ['nonce' => $result->paymentMethodNonce->nonce, 'bin' => $card->bin];
+            }
+
+            $data['tokens'] = collect($data['tokens'] ?? [])
+                ->filter(fn($token) => isset($data['saved_cards'][$token->token]))
+                ->values();
         }
 
         return $data;

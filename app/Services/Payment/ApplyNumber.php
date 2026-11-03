@@ -27,7 +27,7 @@ class ApplyNumber extends AbstractService
 
     public function run()
     {
-        if ($this->payment->number != '') {
+        if (trim((string)$this->payment->number) !== '') {
             return $this->payment;
         }
 

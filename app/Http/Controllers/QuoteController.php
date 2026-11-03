@@ -540,14 +540,14 @@ class QuoteController extends BaseController
 
         $quotes = Quote::query()->with('invitations')->withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (! $quotes) {
+        if ($quotes->isEmpty()) {
             return response()->json(['message' => ctrans('texts.quote_not_found')]);
         }
 
         if ($action == 'convert_to_purchase_order') {
             $quote = $quotes->first();
 
-            if (! $quote || $user->cannot('edit', $quote)) {
+            if (! $quote || $user->cannot('edit', $quote)) { //@phpstan-ignore-line
                 return response()->json(['message' => ctrans('texts.access_denied')], 403);
             }
 

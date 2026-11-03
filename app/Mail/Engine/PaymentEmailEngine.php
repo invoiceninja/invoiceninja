@@ -331,6 +331,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
         $data['$invoice_numbers'] = ['value' => $this->formatInvoiceNumbersRaw(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_raw'] = ['value' => $this->formatInvoiceNumberRaw(), 'label' => ctrans('texts.invoice_number')];
 
         if ($this->payment->status_id == 4) {
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') . '</div>', 'label' => ''];
@@ -425,6 +426,14 @@ class PaymentEmailEngine extends BaseEmailEngine
     {
 
         return collect($this->payment->invoices->pluck('number')->toArray())->implode(', ');
+
+    }
+
+
+    private function formatInvoiceNumberRaw()
+    {
+
+        return $this->payment->invoices->first()->number ?? '&nbsp;';
 
     }
 

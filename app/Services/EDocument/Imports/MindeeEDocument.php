@@ -89,7 +89,7 @@ class MindeeEDocument extends AbstractService
             // The document does not exist as an expense
             // Handle accordingly
 
-            /** @var \App\Models\Currency $currency */
+            /** @var \App\Models\Currency|null $currency */
             $currency = app('currencies')->first(function ($c) use ($invoiceCurrency) {
                 /** @var \App\Models\Currency $c */
                 return $c->code == strtoupper($invoiceCurrency);
@@ -98,7 +98,7 @@ class MindeeEDocument extends AbstractService
             $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
             $expense->date = $documentdate;
             $expense->public_notes = $documentno;
-            $expense->currency_id = $currency ? $currency->id : $this->company->settings->currency_id;
+            $expense->currency_id = $currency ? $currency->id : $this->company->settings->currency_id; 
             $expense->save();
 
             $this->saveDocuments([
@@ -117,7 +117,7 @@ class MindeeEDocument extends AbstractService
                 $counter++;
             }
 
-            /** @var \App\Models\VendorContact $vendor_contact */
+            /** @var \App\Models\VendorContact|null $vendor_contact */
             $vendor_contact = VendorContact::query()->where("company_id", $this->company->id)->where("email", $prediction->supplierEmail)->first();
 
             /** @var \App\Models\Vendor|null $vendor */

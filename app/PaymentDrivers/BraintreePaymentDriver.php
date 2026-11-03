@@ -68,6 +68,17 @@ class BraintreePaymentDriver extends BaseDriver
         return $this;
     }
 
+    public function resolveStoredToken(string $token, int $gateway_type_id): ClientGatewayToken
+    {
+        return ClientGatewayToken::query()
+            ->where('company_id', $this->company_gateway->company_id)
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->where('client_id', $this->client->id)
+            ->where('gateway_type_id', $gateway_type_id)
+            ->where('token', $token)
+            ->firstOrFail();
+    }
+
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];
@@ -238,8 +249,12 @@ class BraintreePaymentDriver extends BaseDriver
                 'submitForSettlement' => true,
             ],
             'taxAmount' => $total_taxes,
-            'purchaseOrderNumber' => substr($invoice->po_number ?? $invoice->number, 0, 16),
+            'purchaseOrderNumber' => substr($invoice->po_number ?? $invoice->number ?? '', 0, 16),
         ];
+
+        if ($this->company_gateway->getConfigField('merchantAccountId')) {
+            $data['merchantAccountId'] = $this->company_gateway->getConfigField('merchantAccountId');
+        }
 
         $data = array_merge($data, $this->getLevel23Data($payment_hash));
 
@@ -248,10 +263,14 @@ class BraintreePaymentDriver extends BaseDriver
         if ($result->success) {
 
             $data = [
-                'payment_type' => PaymentType::parseCardType(strtolower($result->transaction->creditCard['cardType'])),
+                'payment_type' => match ((int) $cgt->gateway_type_id) {
+                    GatewayType::PAYPAL => PaymentType::PAYPAL,
+                    GatewayType::BANK_TRANSFER => PaymentType::ACH,
+                    default => PaymentType::parseCardType(strtolower($result->transaction->creditCard['cardType'])),
+                },
                 'amount' => $amount,
                 'transaction_reference' => $result->transaction->id,
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'gateway_type_id' => (int) $cgt->gateway_type_id,
             ];
 
             $this->confirmGatewayFee($data);
