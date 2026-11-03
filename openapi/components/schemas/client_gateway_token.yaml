@@ -5,20 +5,10 @@
           type: string
           example: Opnel5aKBz
           readOnly: true
-        client_id:
-          description: 'The hashed_id of the client'
-          type: string
-          example: '2'
-          writeOnly: true
         token:
           description: 'The payment token'
           type: string
           example: '2'
-        routing_number:
-          description: 'THe bank account routing number'
-          type: string
-          example: '2'
-          writeOnly: true
         company_gateway_id:
           description: 'The hashed id of the company gateway'
           type: string

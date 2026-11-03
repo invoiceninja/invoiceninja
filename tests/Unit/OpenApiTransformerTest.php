@@ -139,8 +139,8 @@ class OpenApiTransformerTest extends TestCase
             }
         }
 
-        // writeOnly properties are request-only inputs of schemas that double as request bodies
-        foreach (array_keys(array_filter($properties, fn ($p) => ! ($p['writeOnly'] ?? false))) as $property) {
+        // Request-only inputs belong in the {Schema}Request schemas, not here.
+        foreach (array_keys($properties) as $property) {
             if (! array_key_exists($property, $fields) && ! in_array($property, $default_includes) && ! in_array($property, $available_includes)) {
                 $problems[] = "{$property} is documented but {$transformer} never returns it";
             }

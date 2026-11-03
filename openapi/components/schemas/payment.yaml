@@ -88,11 +88,6 @@
           description: 'The payment number - is a unique alpha numeric number per payment per company'
           type: string
           example: PAY_101
-        category_id:
-          description: 'The unique identifier of the payment category'
-          type: string
-          example: Opnel5aKBz
-          writeOnly: true
         custom_value1:
           description: 'Custom field for storing additional information'
           type: string
@@ -118,11 +113,6 @@
           type: number
           format: float
           example: 1.0
-        idempotency_key:
-          description: 'Unique key to ensure idempotent payment processing'
-          type: string
-          example: 'key_1234567890abcdef'
-          writeOnly: true
         tags:
           description: 'Tags assigned to this entity'
           type: array

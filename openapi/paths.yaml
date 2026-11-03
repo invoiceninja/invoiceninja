@@ -2187,7 +2187,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ClientGatewayToken"
+              $ref: "#/components/schemas/ClientGatewayTokenRequest"
       responses:
         200:
           description: "Returns the saved client payment token object"
@@ -2289,7 +2289,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ClientGatewayToken"
+              $ref: "#/components/schemas/ClientGatewayTokenRequest"
       responses:
         200:
           description: "Returns the client payment token object"
@@ -2654,7 +2654,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Company"
+              $ref: "#/components/schemas/CompanyRequest"
       responses:
         200:
           description: "Returns the company object"
@@ -4251,7 +4251,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Expense"
+              $ref: "#/components/schemas/ExpenseRequest"
       responses:
         200:
           description: "Returns the saved expense object"
@@ -4345,7 +4345,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Expense"
+              $ref: "#/components/schemas/ExpenseRequest"
       responses:
         200:
           description: "Returns the expense object"
@@ -6602,7 +6602,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RecurringExpense"
+              $ref: "#/components/schemas/RecurringExpenseRequest"
       responses:
         200:
           description: "Returns the saved recurring expense object"
@@ -6696,7 +6696,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RecurringExpense"
+              $ref: "#/components/schemas/RecurringExpenseRequest"
       responses:
         200:
           description: "Returns the recurring expense object"
@@ -10958,7 +10958,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/UserRequest"
       responses:
         200:
           description: "Returns the saved User object"
@@ -11088,7 +11088,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/UserRequest"
       responses:
         200:
           description: "Returns the User object"

@@ -2306,7 +2306,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ClientGatewayToken"
+              $ref: "#/components/schemas/ClientGatewayTokenRequest"
       responses:
         200:
           description: "Returns the saved client payment token object"
@@ -2408,7 +2408,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ClientGatewayToken"
+              $ref: "#/components/schemas/ClientGatewayTokenRequest"
       responses:
         200:
           description: "Returns the client payment token object"
@@ -2773,7 +2773,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Company"
+              $ref: "#/components/schemas/CompanyRequest"
       responses:
         200:
           description: "Returns the company object"
@@ -4370,7 +4370,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Expense"
+              $ref: "#/components/schemas/ExpenseRequest"
       responses:
         200:
           description: "Returns the saved expense object"
@@ -4464,7 +4464,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Expense"
+              $ref: "#/components/schemas/ExpenseRequest"
       responses:
         200:
           description: "Returns the expense object"
@@ -6721,7 +6721,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RecurringExpense"
+              $ref: "#/components/schemas/RecurringExpenseRequest"
       responses:
         200:
           description: "Returns the saved recurring expense object"
@@ -6815,7 +6815,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RecurringExpense"
+              $ref: "#/components/schemas/RecurringExpenseRequest"
       responses:
         200:
           description: "Returns the recurring expense object"
@@ -11077,7 +11077,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/UserRequest"
       responses:
         200:
           description: "Returns the saved User object"
@@ -11207,7 +11207,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/UserRequest"
       responses:
         200:
           description: "Returns the User object"
@@ -25117,8 +25117,83 @@ components:
             - 882: Samoa (WS/WSM)
             - 887: Yemen (YE/YEM)
             - 894: Zambia (ZM/ZMB)
+    ClientGatewayTokenRequest:
+      description: 'The client gateway token fields a request can send: the ClientGatewayToken fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/ClientGatewayToken'
+        - type: object
+          properties:
+            client_id:
+              description: 'The hashed_id of the client'
+              type: string
+              example: '2'
+            routing_number:
+              description: 'THe bank account routing number'
+              type: string
+              example: '2'
+    CompanyRequest:
+      description: 'The company fields a request can send: the Company fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/Company'
+        - type: object
+          properties:
+            e_invoice_certificate_passphrase:
+              description: "The e-invoice certificate passphrase for the company"
+              type: string
+              example: 'secret'
+            e_invoicing_token:
+              description: 'Authentication token for e-invoicing services'
+              type: string
+              example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
+    ExpenseRequest:
+      description: 'The expense fields a request can send: the Expense fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/Expense'
+        - type: object
+          properties:
+            purchase_order_id:
+              description: 'The unique identifier of the associated purchase order'
+              type: string
+              example: Opnel5aKBz
+    RecurringExpenseRequest:
+      description: 'The recurring expense fields a request can send: the RecurringExpense fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/RecurringExpense'
+        - type: object
+          properties:
+            next_send_date_client:
+              description: 'The next scheduled send date for the client'
+              type: string
+              format: date
+              example: '2024-12-31'
+    UserRequest:
+      description: 'The user fields a request can send: the User fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            avatar:
+              description: 'The users avatar'
+              type: string
+              example: 'https://url.to.your/avatar.png'
+            accepted_terms_version:
+              description: 'The version of the invoice ninja terms that has been accepted by the user'
+              type: string
+              example: 1.0.1
+            oauth_user_id:
+              description: 'The provider id of the oauth entity'
+              type: string
+              example: jkhasdf789as6f675sdf768sdfs
     PaymentRequest:
       properties:
+        category_id:
+          description: 'The unique identifier of the payment category'
+          type: string
+          example: Opnel5aKBz
+        idempotency_key:
+          description: 'Unique key to ensure idempotent payment processing'
+          type: string
+          example: 'key_1234567890abcdef'
         client_id:
           description: 'The client hashed id'
           type: string
@@ -27369,21 +27444,6 @@ components:
           description: 'The users sign off signature'
           type: string
           example: 'Have a nice day!'
-        avatar:
-          description: 'The users avatar'
-          type: string
-          example: 'https://url.to.your/avatar.png'
-          writeOnly: true
-        accepted_terms_version:
-          description: 'The version of the invoice ninja terms that has been accepted by the user'
-          type: string
-          example: 1.0.1
-          writeOnly: true
-        oauth_user_id:
-          description: 'The provider id of the oauth entity'
-          type: string
-          example: jkhasdf789as6f675sdf768sdfs
-          writeOnly: true
         oauth_provider_id:
           description: 'The oauth entity id'
           type: string
@@ -27887,11 +27947,6 @@ components:
           description: 'The payment number - is a unique alpha numeric number per payment per company'
           type: string
           example: PAY_101
-        category_id:
-          description: 'The unique identifier of the payment category'
-          type: string
-          example: Opnel5aKBz
-          writeOnly: true
         custom_value1:
           description: 'Custom field for storing additional information'
           type: string
@@ -27917,11 +27972,6 @@ components:
           type: number
           format: float
           example: 1.0
-        idempotency_key:
-          description: 'Unique key to ensure idempotent payment processing'
-          type: string
-          example: 'key_1234567890abcdef'
-          writeOnly: true
         tags:
           description: 'Tags assigned to this entity'
           type: array
@@ -29591,11 +29641,6 @@ components:
         tax_data:
           description: "The tax data for the company"
           type: object
-        e_invoice_certificate_passphrase:
-          description: "The e-invoice certificate passphrase for the company"
-          type: string
-          example: 'secret'
-          writeOnly: true
         origin_tax_data:
           description: "The origin tax data for the company"
           type: object
@@ -29688,11 +29733,6 @@ components:
           description: 'Flag indicating whether to convert rates to the client currency'
           type: boolean
           example: true
-        e_invoicing_token:
-          description: 'Authentication token for e-invoicing services'
-          type: string
-          example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
-          writeOnly: true
         enable_shop_api:
           description: 'Flag indicating whether the shop API is enabled'
           type: boolean
@@ -31221,20 +31261,10 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        client_id:
-          description: 'The hashed_id of the client'
-          type: string
-          example: '2'
-          writeOnly: true
         token:
           description: 'The payment token'
           type: string
           example: '2'
-        routing_number:
-          description: 'THe bank account routing number'
-          type: string
-          example: '2'
-          writeOnly: true
         company_gateway_id:
           description: 'The hashed id of the company gateway'
           type: string
@@ -33975,11 +34005,6 @@ components:
           description: 'The unique number assigned to this expense'
           type: string
           example: 'EXP-0001'
-        purchase_order_id:
-          description: 'The unique identifier of the associated purchase order'
-          type: string
-          example: Opnel5aKBz
-          writeOnly: true
         tax_amount1:
           description: 'The amount of the first tax'
           type: number
@@ -34286,12 +34311,6 @@ components:
           description: 'The unique identifier of the currency'
           type: string
           example: "1"
-        next_send_date_client:
-          description: 'The next scheduled send date for the client'
-          type: string
-          format: date
-          example: '2024-12-31'
-          writeOnly: true
         number:
           description: 'The unique number assigned to this recurring expense'
           type: string

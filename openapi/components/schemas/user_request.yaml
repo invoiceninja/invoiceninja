@@ -1,0 +1,18 @@
+    UserRequest:
+      description: 'The user fields a request can send: the User fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            avatar:
+              description: 'The users avatar'
+              type: string
+              example: 'https://url.to.your/avatar.png'
+            accepted_terms_version:
+              description: 'The version of the invoice ninja terms that has been accepted by the user'
+              type: string
+              example: 1.0.1
+            oauth_user_id:
+              description: 'The provider id of the oauth entity'
+              type: string
+              example: jkhasdf789as6f675sdf768sdfs

@@ -334,11 +334,6 @@
         tax_data:
           description: "The tax data for the company"
           type: object
-        e_invoice_certificate_passphrase:
-          description: "The e-invoice certificate passphrase for the company"
-          type: string
-          example: 'secret'
-          writeOnly: true
         origin_tax_data:
           description: "The origin tax data for the company"
           type: object
@@ -431,11 +426,6 @@
           description: 'Flag indicating whether to convert rates to the client currency'
           type: boolean
           example: true
-        e_invoicing_token:
-          description: 'Authentication token for e-invoicing services'
-          type: string
-          example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
-          writeOnly: true
         enable_shop_api:
           description: 'Flag indicating whether the shop API is enabled'
           type: boolean

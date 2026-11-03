@@ -155,11 +155,6 @@
           description: 'The unique number assigned to this expense'
           type: string
           example: 'EXP-0001'
-        purchase_order_id:
-          description: 'The unique identifier of the associated purchase order'
-          type: string
-          example: Opnel5aKBz
-          writeOnly: true
         tax_amount1:
           description: 'The amount of the first tax'
           type: number
