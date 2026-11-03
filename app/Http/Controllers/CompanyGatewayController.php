@@ -654,17 +654,10 @@ class CompanyGatewayController extends BaseController
     public function importCustomers(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
 
-        //Throttle here
-        // if (Cache::has("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}")) {
-        //     return response()->json(['message' => 'Please wait whilst your previous attempts complete.'], 200);
-        // }
-
         dispatch(function () use ($company_gateway) {
             MultiDB::setDb($company_gateway->company->db);
             $company_gateway->driver()->importCustomers();
         })->afterResponse();
-
-        Cache::put("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}", true, 300);
 
         return response()->json(['message' => ctrans('texts.import_started')], 200);
     }

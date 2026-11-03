@@ -13,29 +13,23 @@
 namespace App\PaymentDrivers;
 
 use App\Exceptions\PaymentFailed;
-use App\Factory\ClientContactFactory;
-use App\Factory\ClientFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Mail\PaymentFailedMailer;
 use App\Jobs\Util\SystemLogger;
-use App\Models\Client;
 use App\Models\ClientGatewayToken;
-use App\Models\Country;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\GoCardless\HostedPaymentPage;
 use App\PaymentDrivers\GoCardless\Jobs\GoCardlessWebhook;
+use App\PaymentDrivers\GoCardless\Jobs\ImportGoCardlessCustomers;
 use App\Utils\BcMath;
-use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\QueryException;
 
 class GoCardlessPaymentDriver extends BaseDriver
 {
     use MakesHash;
-    use GeneratesCounter;
 
     public $refundable = false;
 
@@ -46,8 +40,6 @@ class GoCardlessPaymentDriver extends BaseDriver
     public \GoCardlessPro\Client $gateway;
 
     public $payment_method;
-
-    private bool $completed = true;
 
     public static $methods = [
         GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\DirectDebit::class,
@@ -374,161 +366,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     public function importCustomers()
     {
-        $this->init();
-
-        $customers = $this->gateway->customers()->all();
-        
-        /** @var \GoCardlessPro\Resources\Customer $customer */
-        foreach ($customers as $customer) {
-            $existing_customer_token = $this->company_gateway
-                            ->client_gateway_tokens()
-                            ->where('gateway_customer_reference', $customer->id)
-                            ->first();
-
-            if ($existing_customer_token) {
-                nlog("Skipping - Customer exists: {$customer->email} just updating payment methods");
-                $this->updatePaymentMethods($customer, $existing_customer_token->client);
-            } elseif ($customer->email && $this->company_gateway->company->client_contacts()->where('email', $customer->email)->exists()) {
-                nlog("Customer exists: {$customer->email} just updating payment methods");
-
-                $this->company_gateway->company->client_contacts()->where('email', $customer->email)->each(function ($contact) use ($customer) {
-                    $this->updatePaymentMethods($customer, $contact->client);
-                });
-            } else {
-                nlog("Creating new customer: {$customer->email}");
-                $client = $this->createNinjaClient($customer);
-                $this->updatePaymentMethods($customer, $client);
-            }
-        }
-    }
-
-    private function updatePaymentMethods($customer, Client $client): void
-    {
-        $this->client = $client;
-
-        $mandates = $this->gateway->mandates()->all([
-            'params' => [
-                'customer' => $customer->id,
-            ]
-        ]);
-        
-        /** @var \GoCardlessPro\Resources\Mandate $mandate */
-        foreach ($mandates as $mandate) {
-            if (!in_array($mandate->status, ['active', 'pending_submission']) || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
-                continue;
-            }
-
-            $type = match ($mandate->scheme) {
-                'bacs' => GatewayType::DIRECT_DEBIT,
-                'sepa_core' => GatewayType::SEPA,
-                'ach' => GatewayType::BANK_TRANSFER,
-                default => null,
-            };
-
-            if(!$type){
-                continue;
-            }
-
-            try{
-                $bank_account = $this->gateway->customerBankAccounts()->get($mandate->links->customer_bank_account);
-            }
-            catch(\Throwable $e){
-                nlog("Error getting bank account: " . $e->getMessage());
-                continue;
-            }
-
-            $payment_meta = new \stdClass();
-            $payment_meta->last4 = $bank_account->account_holder_name . " - " . $bank_account->account_number_ending;
-            $payment_meta->brand = $bank_account->bank_name;
-            $payment_meta->state = 'authorized';
-            $payment_meta->scheme = $mandate->scheme;
-            $payment_meta->type = $type;
-
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $mandate->id,
-                'payment_method_id' => $payment_meta->type,
-            ];
-
-            $this->storeGatewayToken($data, ['gateway_customer_reference' => $mandate->links->customer]);
-        }
-    }
-
-    /*
-            [id] => CU0021PHBG5J6G
-            [created_at] => 2022-12-02T11:24:15.739Z
-            [email] => test@test.com
-            [given_name] => Test
-            [family_name] => Red
-            [company_name] =>
-            [address_line1] =>
-            [address_line2] =>
-            [address_line3] =>
-            [city] =>
-            [region] =>
-            [postal_code] =>
-            [country_code] =>
-            [language] => en
-            [swedish_identity_number] =>
-            [danish_identity_number] =>
-            [phone_number] =>
-    */
-    private function createNinjaClient($customer): Client
-    {
-        $client = ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
-
-        $client->address1 = $customer->address_line1 ?: '';
-        $client->address2 = $customer->address_line2 ?: '';
-        $client->city = $customer->city ?: '';
-        $client->state = $customer->region ?: '';
-        $client->postal_code = $customer->postal_code ?: '';
-        $client->phone = $customer->phone_number ? $customer->phone_number : '';
-        $client->name = $customer->company_name;
-
-        if ($customer->country_code) {
-            $country = Country::where('iso_3166_2', $customer->country_code)->first();
-
-            if ($country) {
-                $client->country_id = $country->id;
-            } else {
-                $client->country_id = $this->company_gateway->company->settings->country_id;
-            }
-        }
-
-        $settings = $client->settings;
-        $settings->currency_id = (string) $this->company_gateway->company->settings->currency_id;
-        $client->settings = $settings;
-        $client->save();
-
-        $contact = ClientContactFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
-        $contact->first_name = $customer->given_name ?: '';
-        $contact->last_name = $customer->family_name ?: '';
-        $contact->email = $customer->email ?: '';
-        $contact->client_id = $client->id;
-        $contact->saveQuietly();
-
-        if (! isset($client->number) || empty($client->number)) {
-            $x = 1;
-
-            do {
-                try {
-                    $client->number = $this->getNextClientNumber($client);
-                    $client->saveQuietly();
-
-                    $this->completed = false;
-                } catch (QueryException $e) {
-                    $x++;
-
-                    if ($x > 10) {
-                        $this->completed = false;
-                    }
-                }
-            } while ($this->completed);
-        } else {
-            $client->saveQuietly();
-        }
-
-        return $client;
+        ImportGoCardlessCustomers::dispatch($this->company_gateway->company->company_key, $this->company_gateway->id);
     }
 
     public function verificationView()

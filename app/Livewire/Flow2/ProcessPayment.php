@@ -88,6 +88,13 @@ class ProcessPayment extends Component
 
             $this->payment_data_payload = $driver->processPaymentViewData($responder_data['payload']);
 
+            if (!empty($this->payment_data_payload['ach_redirect_url'])) {
+                $this->redirect($this->payment_data_payload['ach_redirect_url']);
+                $this->skipRender();
+
+                return;
+            }
+
             $this->payment_view = $driver->livewirePaymentView(
                 $this->payment_data_payload,
             );

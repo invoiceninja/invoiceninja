@@ -6,16 +6,17 @@ use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Mandate;
 use Stripe\PaymentMethod;
+use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
 
-/** Customer/account-scoped evidence cache, discarded after each import. */
+/** Customer/account-scoped evidence cache, discarded after each operation. */
 final class BankAccountEligibility
 {
     private ?array $setupMandates = null;
     private ?array $paymentMandates = null;
     private array $mandates = [];
 
-    public function __construct(private Customer $customer, private array $requestOptions)
+    public function __construct(private Customer $customer, private array $requestOptions, private bool $allow_processing = false)
     {
     }
 
@@ -88,8 +89,8 @@ final class BankAccountEligibility
 
         foreach ($charges->autoPagingIterator() as $charge) {
             if (
-                $charge->status !== 'succeeded'
-                || $charge->paid !== true
+                !in_array($charge->status, $this->allow_processing ? ['succeeded', 'pending'] : ['succeeded'], true)
+                || ($charge->status === 'succeeded' && $charge->paid !== true)
                 || $this->id($charge->customer ?? null) !== $this->customer->id
                 || $charge->livemode !== $this->customer->livemode
                 || data_get($charge, 'payment_method_details.type') !== 'us_bank_account'
@@ -99,6 +100,29 @@ final class BankAccountEligibility
 
             $methodId = $this->id($charge->payment_method ?? null);
             $mandateId = $this->id(data_get($charge, 'payment_method_details.us_bank_account.mandate'));
+
+            // ACH verification can finish before the initial debit settles.
+            if ($charge->status === 'pending') {
+                $payment_intent_id = $this->id($charge->payment_intent ?? null);
+
+                if (!$payment_intent_id || !$methodId || !$mandateId) {
+                    continue;
+                }
+
+                $payment_intent = PaymentIntent::retrieve($payment_intent_id, $this->requestOptions);
+
+                if (
+                    !in_array($payment_intent->status, ['processing', 'succeeded'], true)
+                    || $payment_intent->setup_future_usage !== 'off_session'
+                    || $this->id($payment_intent->customer ?? null) !== $this->customer->id
+                    || $this->id($payment_intent->payment_method ?? null) !== $methodId
+                    || $this->id($payment_intent->latest_charge ?? null) !== $charge->id
+                    || $payment_intent->livemode !== $this->customer->livemode
+                ) {
+                    continue;
+                }
+            }
+
             if ($methodId && $mandateId) {
                 $candidates[$methodId][$mandateId] = $mandateId;
             }

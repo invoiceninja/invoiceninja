@@ -488,6 +488,10 @@ class ACH implements LivewireMethodInterface
     {
         $data = $this->paymentData($data);
 
+        if (!empty($data['ach_redirect_url'])) {
+            return redirect($data['ach_redirect_url']);
+        }
+
         if (!$data['authorized']) {
             $token = $data['tokens'][0];
             return redirect()->route('client.payment_methods.show', $token->hashed_id);
@@ -512,6 +516,13 @@ class ACH implements LivewireMethodInterface
 
     public function paymentIntentTokenBilling($amount, $description, $cgt, $client_present = true, ?string $mandate = null)
     {
+        if (
+            !$this->validatePaymentMethod($cgt)
+            || in_array($cgt->meta->state ?? null, ['unauthorized', 'pending'], true)
+        ) {
+            throw new PaymentFailed('ACH verification and authorization are required before payment.', 400);
+        }
+
         $this->stripe->init();
 
         $response = false;
@@ -617,6 +628,45 @@ class ACH implements LivewireMethodInterface
         return $payment;
     }
 
+    /** Reconcile bank eligibility when a stored verification action may be stale. */
+    public function validatePaymentMethod(ClientGatewayToken $token): bool
+    {
+        if (!isset($token->meta->next_action)) {
+            return true;
+        }
+
+        $this->stripe->init();
+
+        try {
+            $customer = $this->stripe->getCustomer($token->gateway_customer_reference);
+
+            if (!$customer || ($customer->deleted ?? false)) {
+                return false;
+            }
+
+            $payment_method = \Stripe\PaymentMethod::retrieve($token->token, $this->stripe->stripe_connect_auth);
+            $eligibility = new BankAccountEligibility($customer, $this->stripe->stripe_connect_auth, true);
+
+            if (!$eligibility->resolve($payment_method)) {
+                return false;
+            }
+        } catch (InvalidRequestException $e) {
+            if ($e->getStripeCode() === 'resource_missing') {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        $meta = $token->meta;
+        $meta->state = 'authorized';
+        unset($meta->next_action);
+        $token->meta = $meta;
+        $token->save();
+
+        return true;
+    }
+
     public function handlePaymentIntentResponse($request)
     {
         $response = json_decode($request->gateway_response);
@@ -715,6 +765,20 @@ class ACH implements LivewireMethodInterface
             ->where('client_id', $this->stripe->client->id)
             ->firstOrFail();
 
+        if (
+            !$request->filled('setup_intent_id')
+            && (!$this->validatePaymentMethod($source)
+                || in_array($source->meta->state ?? null, ['unauthorized', 'pending'], true))
+        ) {
+            $next_action = $source->meta->next_action ?? null;
+
+            if (is_string($next_action) && str_starts_with($next_action, 'https://')) {
+                return redirect($next_action);
+            }
+
+            throw new PaymentFailed('ACH verification and authorization are required before payment.', 400);
+        }
+
         $state = [
             'payment_method' => $request->payment_method_id,
             'gateway_type_id' => $request->company_gateway_id,
@@ -733,8 +797,6 @@ class ACH implements LivewireMethodInterface
 
         $description = $this->stripe->getDescription(false);
 
-        $this->stripe->syncAchPaymentMethodBillingAddress($source);
-
         $state = $source->meta->state ?? null;
 
         if ($state === 'inactive' && ! $request->filled('setup_intent_id')) {
@@ -750,6 +812,8 @@ class ACH implements LivewireMethodInterface
             $source->meta = $meta;
             $source->save();
 
+            $this->stripe->syncAchPaymentMethodBillingAddress($source);
+
             return $this->paymentIntentTokenBilling(
                 $amount,
                 $description,
@@ -758,6 +822,8 @@ class ACH implements LivewireMethodInterface
                 (string) $setup_intent->mandate,
             );
         }
+
+        $this->stripe->syncAchPaymentMethodBillingAddress($source);
 
         // if (substr($source->token, 0, 2) === 'pm') {
         return $this->paymentIntentTokenBilling($amount, $description, $source);
@@ -891,6 +957,26 @@ class ACH implements LivewireMethodInterface
 
     public function paymentData(array $data): array
     {
+        $tokens = collect($data['tokens'])->values();
+
+        $data['tokens'] = $tokens
+            ->filter(fn(ClientGatewayToken $token): bool => $this->validatePaymentMethod($token)
+                && !in_array($token->meta->state ?? null, ['unauthorized', 'pending'], true))
+            ->values()
+            ->all();
+
+        if ($tokens->isNotEmpty() && count($data['tokens']) === 0) {
+            $next_action = $tokens->count() === 1
+                ? ($tokens->first()->meta->next_action ?? null)
+                : null;
+
+            if (is_string($next_action) && str_starts_with($next_action, 'https://')) {
+                return ['ach_redirect_url' => $next_action];
+            }
+
+            throw new PaymentFailed('ACH verification and authorization are required before payment.', 400);
+        }
+
         $data['gateway'] = $this->stripe;
         $data['currency'] = $this->stripe->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
@@ -903,19 +989,7 @@ class ACH implements LivewireMethodInterface
 
         $intent = false;
 
-        if (count($data['tokens']) == 1) {
-
-            $token = $data['tokens'][0];
-
-            $meta = $token->meta;
-
-            if (isset($meta->state) && $meta->state == 'unauthorized') {
-                $data['authorized'] = false;
-                // return redirect()->route('client.payment_methods.show', $token->hashed_id);
-            }
-        }
-
-        if (count($data['tokens']) == 0) {
+        if ($tokens->isEmpty()) {
             $intent
             = $this->stripe->createPaymentIntent(
                 [

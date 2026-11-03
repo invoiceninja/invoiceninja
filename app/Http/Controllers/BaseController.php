@@ -15,6 +15,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Utils\Ninja;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Design;
 use App\Models\Tag;
 use App\Utils\Statics;
@@ -1233,9 +1234,14 @@ class BaseController extends Controller
      */
     protected function itemResponse($item)
     {
+
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(request()->input('serializer'));
+
+        if ($item instanceof Company && $item->exists) {
+            $this->loadCompanyIncludes($item, $transformer);
+        }
 
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $this->entity_type = null;
@@ -1251,6 +1257,83 @@ class BaseController extends Controller
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
+    }
+
+    private function loadCompanyIncludes(Company $company, EntityTransformer $transformer): void
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user || $user->isSuperUser()) {
+            return;
+        }
+
+        $permissions = [
+            'clients' => 'view_client',
+            'credits' => 'view_credit',
+            'expenses' => 'view_expense',
+            'invoices' => 'view_invoice',
+            'payments' => 'view_payment',
+            'products' => 'view_product',
+            'projects' => 'view_project',
+            'purchase_orders' => 'view_purchase_order',
+            'quotes' => 'view_quote',
+            'recurring_expenses' => 'view_recurring_expense',
+            'recurring_invoices' => 'view_recurring_invoice',
+            'tasks' => 'view_task',
+            'vendors' => 'view_vendor',
+            'bank_integrations' => 'view_bank_transaction',
+            'bank_transactions' => 'view_bank_transaction',
+        ];
+
+        $includes = array_unique(array_map(
+            static fn (string $include): string => Str::before($include, '.'),
+            array_merge(
+                $transformer->getDefaultIncludes(),
+                $this->manager->getRequestedIncludes()
+            )
+        ));
+
+        $with = [];
+
+        foreach (array_intersect($includes, array_keys($permissions)) as $include) {
+            $with[$include] = function ($query) use ($include, $permissions, $user) {
+                if (! $user->hasPermission($permissions[$include])) {
+                    $query->where(function ($query) use ($include, $user) {
+                        $query->where($include.'.user_id', $user->id);
+
+                        if (! in_array($include, ['bank_integrations', 'bank_transactions'], true)) {
+                            $query->orWhere($include.'.assigned_user_id', $user->id);
+                        }
+                    });
+                }
+
+                if (
+                    $include === 'clients'
+                    && $user->hasExcludedPermissions(
+                        $this->client_excludable_permissions,
+                        $this->client_excludable_overrides
+                    )
+                ) {
+                    $query->exclude($this->client_exclusion_fields);
+                }
+
+                if (
+                    $include === 'bank_integrations'
+                    && $user->hasIntersectPermissions([
+                        'create_bank_transaction',
+                        'edit_bank_transaction',
+                        'view_bank_transaction',
+                    ])
+                ) {
+                    $query->exclude(['balance']);
+                }
+            };
+        }
+
+        if ($with !== []) {
+            $company->load($with);
+        }
     }
 
     /**
