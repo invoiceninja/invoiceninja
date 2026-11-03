@@ -216,10 +216,6 @@
           description: "The incrementing counter for credits"
           type: integer
           example: 1
-        recurring_invoice_number_prefix:
-          description: "This string is prepended to the recurring invoice number"
-          type: string
-          example: "R"
         reset_counter_frequency_id:
           description: 'How often the number counters are reset, as a frequency id string (see RecurringInvoice frequency_id). 0, the default, never resets them'
           oneOf:
@@ -236,18 +232,6 @@
           example: 1
         shared_invoice_quote_counter:
           description: "Flags whether to share the counter for invoices and quotes"
-          type: boolean
-          example: true
-        update_products:
-          description: "Determines if client fields are updated from third party APIs"
-          type: boolean
-          example: true
-        convert_products:
-          description: ""
-          type: boolean
-          example: true
-        fill_products:
-          description: "Automatically fill products based on product_key"
           type: boolean
           example: true
         invoice_terms:
@@ -309,14 +293,6 @@
           description: "The default payment type id"
           type: string
           example: "1"
-        custom_fields:
-          description: "JSON string of custom fields"
-          type: string
-          example: "{}"
-        email_footer:
-          description: "The default email footer"
-          type: string
-          example: "A default email footer"
         email_sending_method:
           description: "The email driver to use to send email"
           type: string
@@ -382,10 +358,6 @@
           description: "The full template for enless reminders"
           type: string
           example: "<HTML></HTML>"
-        enable_portal_password:
-          description: "Toggles whether a password is required to log into the client portal"
-          type: boolean
-          example: true
         show_accept_invoice_terms:
           description: "Toggles whether the terms dialogue is shown to the client"
           type: boolean

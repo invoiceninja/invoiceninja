@@ -25889,6 +25889,10 @@ components:
           description: 'Adjusts the fee to match the exact gateway fee.'
           type: boolean
           example: true
+        is_enabled:
+          description: 'Whether this payment type is enabled on the gateway'
+          type: boolean
+          example: true
       type: object
     CompanyLedger:
       properties:
@@ -27566,20 +27570,6 @@ components:
           description: 'The users sign off signature'
           type: string
           example: 'Have a nice day!'
-        avatar:
-          description: 'The users avatar'
-          type: string
-          example: 'https://url.to.your/avatar.png'
-        accepted_terms_version:
-          description: 'The version of the invoice ninja terms that has been accepted by the user'
-          type: string
-          example: 1.0.1
-          readOnly: true
-        oauth_user_id:
-          description: 'The provider id of the oauth entity'
-          type: string
-          example: jkhasdf789as6f675sdf768sdfs
-          readOnly: true
         oauth_provider_id:
           description: 'The oauth entity id'
           type: string
@@ -27593,16 +27583,6 @@ components:
           description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
           type: boolean
           example: true
-          readOnly: true
-        sms_verification_code:
-          description: 'The sms verification code for the user. Required to settings up 2FA'
-          type: string
-          example: '123456'
-          readOnly: true
-        oauth_user_token_expiry:
-          description: 'The expiry date of the oauth token'
-          type: string
-          example: '2022-10-10'
           readOnly: true
         has_password:
           description: 'Boolean flag determining if the user has a password'
@@ -27650,18 +27630,10 @@ components:
           type: integer
           example: 2
           readOnly: true
-        oauth_user_refresh_token:
-          description: 'OAuth refresh token for the user'
-          type: string
-          example: 'refresh_token_abc123'
         oauth_user_token:
           description: 'Masked as *** when an OAuth token is stored, otherwise an empty string'
           type: string
           example: '***'
-        shopify_user_id:
-          description: 'The unique identifier of the Shopify user'
-          type: string
-          example: '123456789'
         user_logged_in_notification:
           description: 'Flag indicating whether to send login notifications'
           type: boolean
@@ -29027,6 +28999,22 @@ components:
       type: object
     CompanyUserRef:
       properties:
+        archived_at:
+          description: 'When the company user was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        created_at:
+          description: 'When the company user was created, as a Unix timestamp in seconds'
+          type: integer
+        ninja_portal_url:
+          description: 'The URL of the Invoice Ninja account portal'
+          type: string
+        notifications:
+          description: 'The notification preferences of the user in this company'
+          type: object
+          additionalProperties: true
+        permissions_updated_at:
+          description: 'When the user''s permissions in this company were last changed, as a Unix timestamp in seconds'
+          type: integer
         permissions:
           description: 'The user permissions for this company in a comma separated list'
           type: string
@@ -29058,10 +29046,6 @@ components:
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer
           example: 1231232312321
-        deleted_at:
-          description: 'Timestamp when the user was archived, format Unix Timestamp'
-          type: integer
-          example: 12312312321
         account:
           $ref: '#/components/schemas/Account'
         company:
@@ -30397,10 +30381,6 @@ components:
           description: "The incrementing counter for credits"
           type: integer
           example: 1
-        recurring_invoice_number_prefix:
-          description: "This string is prepended to the recurring invoice number"
-          type: string
-          example: "R"
         reset_counter_frequency_id:
           description: 'How often the number counters are reset, as a frequency id string (see RecurringInvoice frequency_id). 0, the default, never resets them'
           oneOf:
@@ -30417,18 +30397,6 @@ components:
           example: 1
         shared_invoice_quote_counter:
           description: "Flags whether to share the counter for invoices and quotes"
-          type: boolean
-          example: true
-        update_products:
-          description: "Determines if client fields are updated from third party APIs"
-          type: boolean
-          example: true
-        convert_products:
-          description: ""
-          type: boolean
-          example: true
-        fill_products:
-          description: "Automatically fill products based on product_key"
           type: boolean
           example: true
         invoice_terms:
@@ -30490,14 +30458,6 @@ components:
           description: "The default payment type id"
           type: string
           example: "1"
-        custom_fields:
-          description: "JSON string of custom fields"
-          type: string
-          example: "{}"
-        email_footer:
-          description: "The default email footer"
-          type: string
-          example: "A default email footer"
         email_sending_method:
           description: "The email driver to use to send email"
           type: string
@@ -30563,10 +30523,6 @@ components:
           description: "The full template for enless reminders"
           type: string
           example: "<HTML></HTML>"
-        enable_portal_password:
-          description: "Toggles whether a password is required to log into the client portal"
-          type: boolean
-          example: true
         show_accept_invoice_terms:
           description: "Toggles whether the terms dialogue is shown to the client"
           type: boolean
@@ -31918,10 +31874,6 @@ components:
           description: 'The incrementing counter for credits'
           type: integer
           example: 1
-        recurring_invoice_number_prefix:
-          description: 'This string is prepended to the recurring invoice number'
-          type: string
-          example: R
         reset_counter_frequency_id:
           description: 'CONSTANT which is used to apply the frequency which the counters are reset'
           type: integer
@@ -31936,18 +31888,6 @@ components:
           example: 1
         shared_invoice_quote_counter:
           description: 'Flags whether to share the counter for invoices and quotes'
-          type: boolean
-          example: true
-        update_products:
-          description: 'Determines if client fields are updated from third party APIs'
-          type: boolean
-          example: true
-        convert_products:
-          description: ''
-          type: boolean
-          example: true
-        fill_products:
-          description: 'Automatically fill products based on product_key'
           type: boolean
           example: true
         invoice_terms:
@@ -32006,14 +31946,6 @@ components:
           description: 'The default payment type id'
           type: string
           example: '1'
-        custom_fields:
-          description: 'JSON string of custom fields'
-          type: string
-          example: '{}'
-        email_footer:
-          description: 'The default email footer'
-          type: string
-          example: 'A default email footer'
         email_sending_method:
           description: 'The email driver to use to send email, options include default, gmail'
           type: string
@@ -32078,10 +32010,6 @@ components:
           description: 'The full template for enless reminders'
           type: string
           example: '<HTML></HTML>'
-        enable_portal_password:
-          description: 'Toggles whether a password is required to log into the client portal'
-          type: boolean
-          example: true
         show_accept_invoice_terms:
           description: 'Toggles whether the terms dialogue is shown to the client'
           type: boolean

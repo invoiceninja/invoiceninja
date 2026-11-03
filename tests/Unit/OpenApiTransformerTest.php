@@ -12,6 +12,10 @@
 
 namespace Tests\Unit;
 
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\FeesAndLimits;
+use App\DataMapper\InvoiceItem;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt;
@@ -20,6 +24,8 @@ use PhpParser\ParserFactory;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use ReflectionProperty;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -78,6 +84,24 @@ class OpenApiTransformerTest extends TestCase
         'WebhookTransformer' => 'Webhook',
     ];
 
+    /** Further schemas documenting a transformer's output: schema => transformer. */
+    private const ALSO_DOCUMENTED = [
+        'CompanyUserRef' => 'CompanyUserTransformer',
+        'UserRef' => 'UserTransformer',
+    ];
+
+    /**
+     * Objects the API returns as stored rather than through a transformer:
+     * schema => [classes whose public properties are its fields, fields set outside them, whether every field must be documented].
+     * A client's settings override any subset of the company's.
+     */
+    private const DATA_MAPPERS = [
+        'CompanySettings' => [[CompanySettings::class], [], true],
+        'ClientSettings' => [[CompanySettings::class, ClientSettings::class], ['entity'], false],
+        'FeesAndLimits' => [[FeesAndLimits::class], [], true],
+        'InvoiceItem' => [[InvoiceItem::class], [], true],
+    ];
+
     /** Transformers without a schema of their own, and why. */
     private const UNDOCUMENTED = [
         'ArraySerializer' => 'serializer, not a transformer',
@@ -113,7 +137,46 @@ class OpenApiTransformerTest extends TestCase
 
     public static function transformers(): array
     {
-        return array_combine(array_keys(self::SCHEMAS), array_map(fn ($t) => [$t], array_keys(self::SCHEMAS)));
+        $rows = [];
+
+        foreach (self::SCHEMAS as $transformer => $schema) {
+            $rows[$transformer] = [$transformer, $schema];
+        }
+
+        foreach (self::ALSO_DOCUMENTED as $schema => $transformer) {
+            $rows["{$transformer} as {$schema}"] = [$transformer, $schema];
+        }
+
+        return $rows;
+    }
+
+    public static function dataMappers(): array
+    {
+        return array_combine(array_keys(self::DATA_MAPPERS), array_map(fn ($s) => [$s], array_keys(self::DATA_MAPPERS)));
+    }
+
+    #[DataProvider('dataMappers')]
+    public function testSchemaMatchesDataMapper(string $schema_name): void
+    {
+        [$classes, $fields, $complete] = self::DATA_MAPPERS[$schema_name];
+
+        foreach ($classes as $class) {
+            foreach ((new ReflectionClass($class))->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+                if (! $property->isStatic()) {
+                    $fields[] = $property->getName();
+                }
+            }
+        }
+
+        $documented = array_keys($this->schemas()[$schema_name]['properties'] ?? []);
+
+        $problems = array_map(fn ($p) => "{$p} is documented but {$schema_name} never has it", array_values(array_diff($documented, $fields)));
+
+        if ($complete) {
+            $problems = array_merge($problems, array_map(fn ($f) => "{$f} is not documented", array_values(array_diff($fields, $documented))));
+        }
+
+        $this->assertSame([], $problems, "{$schema_name} does not match its class");
     }
 
     public function testEveryTransformerIsAccountedFor(): void
@@ -124,9 +187,8 @@ class OpenApiTransformerTest extends TestCase
     }
 
     #[DataProvider('transformers')]
-    public function testSchemaMatchesTransformer(string $transformer): void
+    public function testSchemaMatchesTransformer(string $transformer, string $schema_name): void
     {
-        $schema_name = self::SCHEMAS[$transformer];
         $properties = $this->schemas()[$schema_name]['properties'] ?? [];
         [$fields, $default_includes, $available_includes] = $this->parse($transformer);
         $fields += array_fill_keys(self::DYNAMIC_KEYS[$transformer] ?? [], 'string');
