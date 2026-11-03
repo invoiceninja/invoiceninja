@@ -66,7 +66,7 @@ class TaskTransformer extends EntityTransformer
 
     public function includeUser(Task $task): ?Item
     {
-        $transformer = new UserTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer);
 
         if (!$task->user) { //@phpstan-ignore-line
             return null;
@@ -77,7 +77,7 @@ class TaskTransformer extends EntityTransformer
 
     public function includeAssignedUser(Task $task): ?Item
     {
-        $transformer = new UserTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer);
 
         if (!$task->assigned_user) {
             return null;

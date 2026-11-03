@@ -220,7 +220,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new UserTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer);
 
         return $this->includeItem($activity->user, $transformer, User::class);
     }

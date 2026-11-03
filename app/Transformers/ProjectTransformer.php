@@ -49,7 +49,7 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeUser(Project $project): ?Item
     {
-        $transformer = new UserTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer);
 
         if (!$project->user) { //@phpstan-ignore-line
             return null;
@@ -60,7 +60,7 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeAssignedUser(Project $project): ?Item
     {
-        $transformer = new UserTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer);
 
         if (!$project->assigned_user) { //@phpstan-ignore-line
             return null;
