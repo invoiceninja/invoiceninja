@@ -408,12 +408,7 @@ class LoginController extends BaseController
         });
 
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
-            $cu->where('company_id', $company_token->company_id)
-                ->with([
-                    'company.users.company_users' => fn ($query) => $query
-                        ->where('company_id', $company_token->company_id)
-                        ->without(['user', 'account']),
-                ]);
+            $cu->where('company_id', $company_token->company_id);
         }
 
         if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterprisePaidClient()) {
@@ -616,7 +611,7 @@ class LoginController extends BaseController
         $this->setLoginCache($user);
 
         $truth = app()->make(TruthSource::class);
-        $truth->setCompanyUser($cu->first());
+        $truth->setCompanyUser((clone $cu)->where('company_id', $set_company->id)->firstOrFail());
         $truth->setUser($user);
         $truth->setCompany($set_company);
 

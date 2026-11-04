@@ -12,11 +12,28 @@
 
 namespace App\Transformers;
 
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 
 class AuthenticatedCompanyUserTransformer extends CompanyUserTransformer
 {
+    public function __construct($serializer = null, private ?int $active_company_id = null)
+    {
+        parent::__construct($serializer);
+    }
+
+    public function includeCompany(CompanyUser $company_user)
+    {
+        $transformer = new CompanyTransformer($this->serializer);
+
+        if ($this->active_company_id !== null && $company_user->company_id != $this->active_company_id) {
+            $transformer->setDefaultIncludes([]);
+            $transformer->setAvailableIncludes([]);
+        }
+
+        return $this->includeItem($company_user->company, $transformer, Company::class);
+    }
 
     public function includeToken(CompanyUser $company_user)
     {
