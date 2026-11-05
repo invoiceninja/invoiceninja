@@ -9,6 +9,7 @@ const catalog=JSON.parse(fs.readFileSync(new URL('catalog.json',local)));
 const client=new Client({name:'invoice-ninja-complete-catalog-test',version:'1.0.0'});
 const url=process.env.MCP_TEST_URL ?? 'http://app:8000/api/v1/mcp';
 assert.equal(new URL(url).hostname,'app','Full mutation suite only runs on the internal Docker fixture network');
+fs.writeFileSync(new URL('full-e2e-results.json',local),'[]');
 await client.connect(new StreamableHTTPClientTransport(new URL(url),{requestInit:{headers:{Authorization:`Bearer ${fixture.tokens.alpha.admin}`}}}));
 const results=[];
 const suffix=Date.now();

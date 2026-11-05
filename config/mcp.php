@@ -10,7 +10,8 @@
 
 return [
     'enabled' => env('MCP_ENABLED', false),
-    'allowed_origins' => array_filter(explode(',', env('MCP_ALLOWED_ORIGINS', ''))),
+    // Explicit browser origins only; absent Origin headers remain valid for native clients.
+    'allowed_origins' => array_values(array_filter(array_map('trim', explode(',', env('MCP_ALLOWED_ORIGINS', ''))))),
 
     // Additional restrictions only. Keys are "company_id:user_id", using internal IDs.
     // Values are tool names, or "tool.operation". The REST policies still apply.

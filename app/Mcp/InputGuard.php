@@ -50,7 +50,7 @@ final class InputGuard
             }
         }
         foreach ([&$query, &$data] as &$input) {
-            foreach (['_method', 'X-API-TOKEN', 'X-API-SECRET', 'Authorization', 'showAccountUsers', 'include_static'] as $reserved) {
+            foreach (['_method', 'X-API-TOKEN', 'X-API-SECRET', 'Authorization', 'showAccountUsers', 'include_static', 'first_load'] as $reserved) {
                 if (array_key_exists($reserved, $input)) {
                     throw new InvalidArgumentException('Credentials, method overrides and account-wide selectors cannot be tool arguments.');
                 }
@@ -89,9 +89,9 @@ final class InputGuard
         return [$parameters, $query, $data];
     }
 
-    private function includes(mixed $value): string
+    private function includes(mixed $input): string
     {
-        $values = is_array($value) ? $value : [$value];
+        $values = is_array($input) ? $input : [$input];
         $normalized = [];
         foreach ($values as $value) {
             if (!is_string($value)) {

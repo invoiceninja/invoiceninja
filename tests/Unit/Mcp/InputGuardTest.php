@@ -20,6 +20,11 @@ class InputGuardTest extends TestCase
     public static function unsafeInputs(): array
     {
         $cases = [];
+        foreach (['query', 'data'] as $source) {
+            foreach (['true', true, false, null, ['true']] as $value) {
+                $cases[] = [$source, ['first_load' => $value]];
+            }
+        }
         foreach (["action\0ignored", 'action[ignored]', 'include[0]', "include\0ignored", 'showAccountUsers[0]', 'include.static', 'include static'] as $key) {
             $cases[] = ['query', [$key => 'download']];
         }

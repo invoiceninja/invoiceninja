@@ -329,4 +329,38 @@ class McpApiTest extends TestCase
         config(['mcp.enabled' => false]);
         $this->rpc('tools/list')->assertNotFound();
     }
+
+    public function testFirstLoadIsRejectedBeforeReadOrMutationDispatch(): void
+    {
+        $client = $this->fixture['entities']['alpha']['clients'];
+        $before = $client->fresh()->getAttributes();
+        foreach (['query', 'data'] as $source) {
+            foreach (['index', 'update'] as $operation) {
+                $arguments = $operation === 'index' ? ['operation' => 'index'] : $this->clientArguments('update', $client, ['name' => 'Must not persist']);
+                $arguments['data'] = (array) ($arguments['data'] ?? []);
+                $arguments[$source]['first_load'] = 'true';
+                $response = $this->callTool('clients', $arguments);
+                $response->assertOk()->assertJsonPath('result.isError', true);
+                $this->assertNull($response->json('result.structuredContent'), 'Reserved selectors must be rejected before REST dispatch.');
+                $this->assertSame($before, $client->fresh()->getAttributes());
+            }
+        }
+    }
+
+    public function testOriginTrustComesOnlyFromConfigurationNotTheRequestHost(): void
+    {
+        config(['mcp.allowed_origins' => []]);
+        $token = $this->fixture['roles']['alpha']['admin']['token']->token;
+        $payload = ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'tools/list'];
+        $this->withHeaders(['Authorization' => 'Bearer '.$token, 'Origin' => 'http://untrusted.invalid'])
+            ->postJson('http://untrusted.invalid/api/v1/mcp', $payload)
+            ->assertStatus(403)->assertJsonPath('message', 'Origin not allowed.');
+
+        config(['mcp.allowed_origins' => ['https://trusted.example.invalid']]);
+        $this->withHeaders(['Origin' => 'http://untrusted.invalid'])->rpc('tools/list')->assertStatus(403);
+        $this->withHeaders(['Origin' => 'https://trusted.example.invalid'])->rpc('tools/list')->assertOk();
+        $this->withHeaders(['Origin' => 'https://trusted.example.invalid.attacker.invalid'])->rpc('tools/list')->assertStatus(403);
+        $this->flushHeaders();
+        $this->rpc('tools/list')->assertOk();
+    }
 }

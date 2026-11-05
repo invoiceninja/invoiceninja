@@ -12,6 +12,7 @@ assert.match(endpoint, /^https?:\/\/(127\.0\.0\.1|localhost|100\.99\.75\.75|app)
 const client = new Client({name:'invoice-ninja-upstream-e2e',version:'1.0.0'});
 const transport = new StreamableHTTPClientTransport(new URL(endpoint), {requestInit:{headers:{Authorization:`Bearer ${fixture.tokens.alpha.admin}`}}});
 const results = [];
+fs.writeFileSync(new URL('e2e-results.json', local), JSON.stringify({endpoint, results}));
 async function scenario(name, fn) {
   try { const detail = await fn(); results.push({scenario:name,result:'passed',...detail}); }
   catch (error) { results.push({scenario:name,result:'failed',message:String(error.message)}); }
@@ -79,6 +80,30 @@ try {
     assert.equal(reply.status,403);
     return {status:reply.status};
   });
+  await scenario('security.first_load_rejected', async()=>{
+    const id=fixture.entities.alpha.clients;
+    const before=body(await client.callTool({name:'clients',arguments:{operation:'show',parameters:{client:id}}}));
+    for (const source of ['query','data']) {
+      for (const operation of ['index','update']) {
+        const args=operation==='index'?{operation,data:{}}:{operation,parameters:{client:id},data:{name:'Must not persist'}};
+        args[source]={...args[source],first_load:'true'};
+        const reply=await client.callTool({name:'clients',arguments:args});
+        assert.equal(reply.isError,true);
+        assert.ok(!reply.structuredContent,'first_load must be rejected before REST dispatch');
+      }
+    }
+    assert.deepEqual(body(await client.callTool({name:'clients',arguments:{operation:'show',parameters:{client:id}}})),before);
+    return {rejected:4};
+  });
+  await scenario('security.matching_host_origin_rejected', async()=>{
+    // Even the actual endpoint origin needs explicit server configuration.
+    const reply=await fetch(endpoint,{method:'POST',headers:{
+      Authorization:`Bearer ${fixture.tokens.alpha.admin}`,
+      Origin:new URL(endpoint).origin, Accept:'application/json, text/event-stream', 'Content-Type':'application/json',
+    },body:JSON.stringify({jsonrpc:'2.0',id:3206,method:'tools/list',params:{}})});
+    assert.equal(reply.status,403);
+    return {status:reply.status};
+  });
   await scenario('protocol.unimplemented_actions_rejected', async()=>{
     const invoice=fixture.entities.alpha.invoices;
     const recurring=fixture.entities.alpha.recurring_invoices;
@@ -127,6 +152,33 @@ try {
     const logs=JSON.parse(task.data.time_log);
     assert.equal(logs[0][1]-logs[0][0],7200);
     return {status:200};
+  });
+  await scenario('invoices.payment_and_refund', async()=>{
+    const call=async(name,arguments_)=>body(await client.callTool({name,arguments:arguments_})).data;
+    const clientId=fixture.entities.alpha.clients;
+    const invoice=await call('invoices',{operation:'store',data:{client_id:clientId,date:'2026-01-15',line_items:[{product_key:'SDK demo service',quantity:2,cost:50}]}});
+    assert.equal(Number(invoice.amount),100);
+    await call('invoices',{operation:'action',parameters:{invoice:invoice.id,action:'mark_sent'}});
+    const payment=await call('payments',{operation:'store',data:{client_id:clientId,amount:100,date:'2026-01-15',payment_type_id:1,invoices:[{invoice_id:invoice.id,amount:100}]}});
+    const paid=await call('invoices',{operation:'show',parameters:{invoice:invoice.id}});
+    assert.equal(Number(paid.balance),0);
+    assert.equal(Number(paid.status_id),4);
+    await call('payments',{operation:'refund',data:{id:payment.id,amount:25,date:'2026-01-16',gateway_refund:false,send_email:false,invoices:[{invoice_id:invoice.id,amount:25}]}});
+    const refunded=await call('payments',{operation:'show',parameters:{payment:payment.id}});
+    assert.equal(Number(refunded.refunded),25);
+    return {invoice:invoice.id,payment:payment.id};
+  });
+  await scenario('quotes.convert_to_invoice', async()=>{
+    const call=async(name,arguments_)=>body(await client.callTool({name,arguments:arguments_})).data;
+    const quote=await call('quotes',{operation:'store',data:{client_id:fixture.entities.alpha.clients,date:'2026-01-15',line_items:[{product_key:'SDK demo consultation',quantity:3,cost:40}]}});
+    await call('quotes',{operation:'action',parameters:{quote:quote.id,action:'convert_to_invoice'}});
+    const converted=await call('quotes',{operation:'show',parameters:{quote:quote.id}});
+    assert.ok(converted.invoice_id);
+    const invoice=await call('invoices',{operation:'show',parameters:{invoice:converted.invoice_id}});
+    assert.equal(Number(invoice.amount),120);
+    assert.equal(invoice.client_id,quote.client_id);
+    assert.deepEqual(invoice.line_items,quote.line_items);
+    return {quote:quote.id,invoice:invoice.id};
   });
 } finally { await client.close(); }
 const failed=results.filter(r=>r.result==='failed');

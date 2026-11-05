@@ -2,6 +2,6 @@
   "name": "invoiceninja-native-mcp-test-client",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node e2e.mjs" },
+  "scripts": { "test": "node e2e.mjs", "test:coverage": "node --test coverage.test.mjs" },
   "dependencies": { "@modelcontextprotocol/sdk": "^1.26.0" }
 }
