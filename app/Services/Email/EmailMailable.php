@@ -141,10 +141,17 @@ class EmailMailable extends Mailable
      */
     public function headers()
     {
+        $headers = $this->email_object->headers;
+
+        if (!empty($this->email_object->settings?->disposition_notification_to ?? '')) {
+            $headers['Disposition-Notification-To'] = $this->email_object->settings->disposition_notification_to;
+            $headers['Return-Receipt-To'] = $this->email_object->settings->disposition_notification_to;
+        }
+
         return new Headers(
             messageId: null,
             references: [],
-            text: $this->email_object->headers,
+            text: $headers,
         );
     }
 }
