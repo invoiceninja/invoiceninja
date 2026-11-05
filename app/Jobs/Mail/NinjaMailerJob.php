@@ -38,6 +38,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Services\Email\SmtpFailure;
+use App\Helpers\Mail\EmailSettingsHeaders;
 
 /*Multi Mailer implemented*/
 
@@ -121,6 +122,8 @@ class NinjaMailerJob implements ShouldQueue
                     // $message->getHeaders()->addTextHeader('List-Unsubscribe', $this->nmo->mailable->viewData->email_preferences);
                 });
         }
+
+        EmailSettingsHeaders::apply($this->nmo->mailable, $this->nmo->settings);
 
         $this->deliver();
 

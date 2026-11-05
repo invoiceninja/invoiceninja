@@ -14,6 +14,7 @@ namespace App\Services\Email;
 
 use App\DataMapper\Analytics\EmailFailure;
 use App\DataMapper\Analytics\EmailSuccess;
+use App\Helpers\Mail\EmailSettingsHeaders;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Util\SystemLogger;
@@ -113,6 +114,8 @@ class AdminEmail implements ShouldQueue
     public function buildMailable(): self
     {
         $this->mailable = new AdminEmailMailable($this->email_object);
+
+        EmailSettingsHeaders::apply($this->mailable, $this->company->settings);
 
         return $this;
     }

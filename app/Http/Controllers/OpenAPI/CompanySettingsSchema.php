@@ -22,6 +22,7 @@
  *       @OA\Property(property="email_style", type="string", example="light", description="options include plain,light,dark,custom"),
  *       @OA\Property(property="reply_to_email", type="string", example="email@gmail.com", description="The reply to email address"),
  *       @OA\Property(property="bcc_email", type="string", example="email@gmail.com, contact@gmail.com", description="A comma separate list of BCC emails"),
+ *       @OA\Property(property="disposition_notification_to", type="string", format="email", example="email@gmail.com", description="Address for read receipts. Sent as both the Disposition-Notification-To and Return-Receipt-To (Outlook) headers"),
  *       @OA\Property(property="pdf_email_attachment", type="boolean", example=true, description="Toggles whether to attach PDF as attachment"),
  *       @OA\Property(property="ubl_email_attachment", type="boolean", example=true, description="Toggles whether to attach UBL as attachment"),
  *       @OA\Property(property="email_style_custom", type="string", example="<HTML></HTML>", description="The custom template"),

@@ -241,6 +241,8 @@ class CompanySettings extends BaseSettings
 
     public $bcc_email = ''; //@TODO
 
+    public $disposition_notification_to = '';
+
     public $pdf_email_attachment = false; //@implemented
 
     public $ubl_email_attachment = false; //@implemented
@@ -712,6 +714,7 @@ class CompanySettings extends BaseSettings
         'payment_number_counter' => 'int',
         'reply_to_email' => 'string',
         'bcc_email' => 'string',
+        'disposition_notification_to' => 'string',
         'pdf_email_attachment' => 'bool',
         'ubl_email_attachment' => 'bool',
         'email_style' => 'string',

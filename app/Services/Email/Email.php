@@ -23,6 +23,7 @@ use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
+use App\Helpers\Mail\EmailSettingsHeaders;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
 use Illuminate\Bus\Queueable;
@@ -265,6 +266,8 @@ class Email implements ShouldQueue
     public function buildMailable(): self
     {
         $this->mailable = new EmailMailable($this->email_object);
+
+        EmailSettingsHeaders::apply($this->mailable, $this->email_object->settings);
 
         return $this;
     }
