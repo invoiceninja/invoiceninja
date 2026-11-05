@@ -37,7 +37,7 @@ use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-/** Characterizes actual company traversal; exposed cases are defects, not an intended access contract. */
+/** Asserts nested includes cannot load or return other companies' data for the active token context. */
 class CompanyTraversalTest extends TestCase
 {
     use DatabaseTransactions;
@@ -100,14 +100,6 @@ class CompanyTraversalTest extends TestCase
                 $status = 401;
             } elseif (str_contains($route, '{company_d}')) {
                 $status = 400;
-            } elseif (in_array($route, ['products', 'tasks', 'projects', 'activities', 'bank_transactions', 'bank_transaction_rules', 'bank_integrations'], true)) {
-                if (str_contains($include, 'company_users.company.invoices') && !str_starts_with($include, 'account.')) {
-                    $loaded = ['b' => ['invoices'], 'c' => ['invoices']];
-                } elseif ($include === 'company.account.default_company.invoices') {
-                    $loaded = ['b' => ['invoices']];
-                } elseif ($include === 'company.company_user.company.invoices') {
-                    $status = 400;
-                }
             }
             array_push($case, $status, $returned, $loaded);
         }

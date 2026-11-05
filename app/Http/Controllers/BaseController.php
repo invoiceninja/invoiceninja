@@ -750,11 +750,16 @@ class BaseController extends Controller
                 continue;
             }
 
-            $eager_loads[] = $this->eagerLoadIncludePath($include);
+            $root_include = $this->eagerLoadIncludePath($include);
+
+            if ($root_include !== '') {
+                $eager_loads[] = $root_include;
+            }
+
             array_push($eager_loads, ...$this->tagIncludePaths($include));
         }
 
-        return array_values(array_unique($eager_loads));
+        return array_values(array_unique(array_filter($eager_loads)));
     }
 
     private function normalizeFractalInclude(string $include): ?string
@@ -813,7 +818,12 @@ class BaseController extends Controller
 
     private function eagerLoadIncludePath(string $include): string
     {
-        return implode('.', $this->eagerLoadIncludeSegments(explode('.', $include)));
+        $segments = $this->eagerLoadIncludeSegments(explode('.', $include));
+
+        // Eager-load only the root relationship. Nested segments are resolved by Fractal
+        // using each transformer’s availableIncludes, which prevents traversing disallowed paths
+        // (for example product → user → company_users → company → invoices).
+        return $segments[0] ?? '';
     }
 
     /**

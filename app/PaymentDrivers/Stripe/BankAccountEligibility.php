@@ -25,7 +25,6 @@ final class BankAccountEligibility
         if (
             $method->type !== 'us_bank_account'
             || $this->id($method->customer ?? null) !== $this->customer->id
-            || !is_bool($method->livemode)
             || $method->livemode !== $this->customer->livemode
             || ($method->us_bank_account ?? null) === null
             || data_get($method, 'us_bank_account.status_details.blocked') !== null

@@ -163,7 +163,7 @@ class AdminEmail implements ShouldQueue
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->cleanUpMailers();
-            /** @var \App\Models\Client|null $c lient */
+            /** @var \App\Models\Client|null $client */
             $client=$this->company->clients()->first();
             $this->logMailError($e->getMessage(), $client);
             return;

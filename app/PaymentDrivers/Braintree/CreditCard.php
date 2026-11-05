@@ -313,7 +313,7 @@ class CreditCard implements LivewireMethodInterface
                 try {
                     $result = $this->braintree->gateway->paymentMethodNonce()->create($token->token);
 
-                    if (! $result->success) {
+                    if (! $result->success) { //@phpstan-ignore-line
                         continue;
                     }
 
@@ -323,7 +323,7 @@ class CreditCard implements LivewireMethodInterface
                     continue;
                 }
 
-                $data['saved_cards'][$token->token] = ['nonce' => $result->paymentMethodNonce->nonce, 'bin' => $card->bin];
+                $data['saved_cards'][$token->token] = ['nonce' => $result->paymentMethodNonce->nonce, 'bin' => $card->bin]; //@phpstan-ignore-line
             }
 
             $data['tokens'] = collect($data['tokens'] ?? [])
