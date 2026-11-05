@@ -62,7 +62,7 @@ class CompanyPresenter extends EntityPresenter
             return $this->logo($settings);
         }
 
-        return "data:image/png;base64, " . base64_encode($logo);
+        return "data:image/png;base64," . base64_encode($logo);
     }
 
     /**
