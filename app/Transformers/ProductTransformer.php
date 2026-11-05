@@ -30,7 +30,7 @@ class ProductTransformer extends EntityTransformer
      * @var array
      */
     protected array $availableIncludes = [
-        'company',
+        // 'company',
         'user',
     ];
 

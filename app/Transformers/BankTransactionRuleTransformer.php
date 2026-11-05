@@ -36,7 +36,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
      * @var array
      */
     protected array $availableIncludes = [
-        'company',
+        // 'company',
         'vendor',
         'client',
         'expense_category',

@@ -1008,23 +1008,29 @@ class BaseController extends Controller
      *
      * @param Builder $query
      */
-    protected function listResponse(Builder $query)
+    protected function listResponse(Builder $query, bool $include_relations = true)
     {
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(request()->input('serializer'));
 
-        $includes = $transformer->getDefaultIncludes();
+        if ($include_relations) {
+            $includes = $transformer->getDefaultIncludes();
 
-        // Pass transformer instance to avoid duplicate instantiation
-        $includes = $this->getRequestIncludes($includes, $transformer);
+            // Pass transformer instance to avoid duplicate instantiation
+            $includes = $this->getRequestIncludes($includes, $transformer);
 
-        $query->with($this->tagAwareIncludes($includes));
-        $this->eagerLoadTagsIfSupported($query);
+            $query->with($this->tagAwareIncludes($includes));
+            $this->eagerLoadTagsIfSupported($query);
+        } else {
+            $this->manager->parseIncludes([]);
+            $transformer->setDefaultIncludes([]);
+            $transformer->setAvailableIncludes([]);
+        }
 
         $user = Auth::user();
 
-        if ($user && ! $user->hasPermission('view_' . Str::snake(class_basename($this->entity_type)))) {
+        if ($user && $this->entity_type !== Company::class && ! $user->hasPermission('view_' . Str::snake(class_basename($this->entity_type)))) {
             if (in_array($this->entity_type, [User::class])) {
                 $query->where('id', $user->id);
             } elseif (in_array($this->entity_type, [Activity::class, BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
