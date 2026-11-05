@@ -154,7 +154,7 @@ class CompanyTransformer extends EntityTransformer
             'matomo_id' => (string) $company->matomo_id ?: '',
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
-            'is_large' => (bool) $this->isLarge($company),
+            'is_large' => true, // Entity collections are always loaded through their paginated endpoints
             'is_disabled' => (bool) $company->is_disabled,
             'enable_shop_api' => (bool) $company->enable_shop_api,
             'mark_expenses_invoiceable' => (bool) $company->mark_expenses_invoiceable,
@@ -243,19 +243,6 @@ class CompanyTransformer extends EntityTransformer
         unset($quickbooks['accessTokenKey'], $quickbooks['refresh_token']);
 
         return $quickbooks;
-    }
-
-    private function isLarge(Company $company): bool
-    {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        //if the user is attached to more than one company AND they are not an admin across all companies
-        if ($company->is_large || ($user->company_users()->count() > 1 && ($user->company_users()->where('is_admin', 1)->count() != $user->company_users()->count()))) {
-            return true;
-        }
-
-        return false;
     }
 
     public function includeExpenseCategories(Company $company)

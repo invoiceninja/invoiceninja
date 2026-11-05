@@ -41,54 +41,61 @@ class RefreshNPlusOneTest extends TestCase
         Model::reguard();
     }
 
-    public function testRefreshBatchesCompanyUserIncludes(): void
+    public static function refreshModes(): array
+    {
+        return ['mini-load' => [false], 'delta' => [true]];
+    }
+
+    #[DataProvider('refreshModes')]
+    public function testRefreshBatchesCompanyUserIncludes(bool $is_delta): void
     {
         $this->addCompanyUsers(2);
 
-        [$baselineQueries, $baselineUserCount] = $this->measureRefreshQueries();
+        [$baseline_queries, $baseline_user_count] = $this->measureRefreshQueries($is_delta);
 
         $this->addCompanyUsers(6);
 
-        [$expandedQueries, $expandedUserCount] = $this->measureRefreshQueries();
+        [$expanded_queries, $expanded_user_count] = $this->measureRefreshQueries($is_delta);
 
-        $this->assertSame($baselineUserCount + 6, $expandedUserCount);
+        $this->assertSame($baseline_user_count + 6, $expanded_user_count);
 
-        $perUserLookups = array_filter(
-            $expandedQueries,
+        $per_user_lookups = array_filter(
+            $expanded_queries,
             fn(array $query): bool => $this->isPerUserCompanyUserLookup($query['query'])
         );
 
         $this->assertLessThanOrEqual(
             1,
-            count($perUserLookups),
+            count($per_user_lookups),
             "Refresh queried CompanyUser once per company user instead of once for the root user:\n"
-                . implode("\n", array_column($perUserLookups, 'query'))
+                . implode("\n", array_column($per_user_lookups, 'query'))
         );
 
         $this->assertLessThanOrEqual(
-            count($baselineQueries) + 2,
-            count($expandedQueries),
+            count($baseline_queries) + 2,
+            count($expanded_queries),
             sprintf(
                 'Refresh query count grew from %d queries for %d users to %d queries for %d users.',
-                count($baselineQueries),
-                $baselineUserCount,
-                count($expandedQueries),
-                $expandedUserCount
+                count($baseline_queries),
+                $baseline_user_count,
+                count($expanded_queries),
+                $expanded_user_count
             )
         );
     }
 
-    public function testRefreshUsesTheMatchingPreloadedCompanyUser(): void
+    #[DataProvider('refreshModes')]
+    public function testRefreshUsesTheMatchingPreloadedCompanyUser(bool $is_delta): void
     {
-        $expectedPortalUrls = $this->addCompanyUsers(3);
+        $expected_portal_urls = $this->addCompanyUsers(3);
 
-        [, , $responseUsers] = $this->measureRefreshQueries();
-        $responseUsersById = collect($responseUsers)->keyBy('id');
+        [, , $response_users] = $this->measureRefreshQueries($is_delta);
+        $response_users_by_id = collect($response_users)->keyBy('id');
 
-        foreach ($expectedPortalUrls as $userId => $portalUrl) {
+        foreach ($expected_portal_urls as $user_id => $portal_url) {
             $this->assertSame(
-                $portalUrl,
-                data_get($responseUsersById->get($userId), 'company_user.ninja_portal_url')
+                $portal_url,
+                data_get($response_users_by_id->get($user_id), 'company_user.ninja_portal_url')
             );
         }
     }
@@ -114,7 +121,7 @@ class RefreshNPlusOneTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=0');
+        ])->postJson('/api/v1/refresh?current_company=true&updated_at=0');
 
         $response->assertOk();
 
@@ -191,7 +198,7 @@ class RefreshNPlusOneTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson("/api/v1/{$endpoint}?current_company=true&first_load=true&updated_at=0");
+        ])->postJson("/api/v1/{$endpoint}?current_company=true&updated_at=0");
 
         $response->assertOk();
 
@@ -221,7 +228,7 @@ class RefreshNPlusOneTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson("/api/v1/{$endpoint}?current_company=true&first_load=true&updated_at=0");
+        ])->postJson("/api/v1/{$endpoint}?current_company=true&updated_at=0");
 
         $response->assertOk();
 
@@ -253,7 +260,7 @@ class RefreshNPlusOneTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=0');
+        ])->postJson('/api/v1/refresh?current_company=true&updated_at=0');
 
         $response->assertOk()
             ->assertJsonPath('data.0.token.token', $systemToken->token);
@@ -285,15 +292,20 @@ class RefreshNPlusOneTest extends TestCase
     /**
      * @return array{0: array<int, array<string, mixed>>, 1: int, 2: array<int, array<string, mixed>>}
      */
-    private function measureRefreshQueries(): array
+    private function measureRefreshQueries(bool $is_delta): array
     {
         DB::flushQueryLog();
         DB::enableQueryLog();
 
+        $parameters = ['current_company' => 'true'];
+        if ($is_delta) {
+            $parameters['updated_at'] = now()->addMinute()->timestamp;
+        }
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/refresh?current_company=true&first_load=true&updated_at=' . now()->addMinute()->timestamp);
+        ])->postJson('/api/v1/refresh?'.http_build_query($parameters));
 
         $response->assertOk();
 

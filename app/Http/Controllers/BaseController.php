@@ -135,9 +135,9 @@ class BaseController extends Controller
     protected Manager $manager;
 
     /**
-     * An array of includes to be loaded by default.
+     * Includes returned by an incremental refresh.
      */
-    private $first_load = [
+    private array $delta_includes = [
         'account',
         'user.company_user',
         'token.company_user',
@@ -192,10 +192,9 @@ class BaseController extends Controller
     ];
 
     /**
-     * An array of includes to be loaded by default
-     * when the company is large.
+     * Includes returned by login and refresh without a timestamp.
      */
-    private $mini_load = [
+    private array $mini_includes = [
         'account',
         'user.company_user',
         'token',
@@ -236,18 +235,14 @@ class BaseController extends Controller
     {
         $include = '';
 
-        if (request()->has('first_load') && request()->input('first_load') == 'true') {
-            $include = implode(',', array_merge($this->forced_includes, $this->getRequestIncludes([])));
-        } elseif (request()->input('include') !== null) {
+        if (request()->input('include') !== null) {
             // Validate includes using getRequestIncludes to filter out invalid ones
-            $validatedIncludes = $this->getRequestIncludes([]);
-            $include = array_merge($this->forced_includes, $validatedIncludes);
+            $validated_includes = $this->getRequestIncludes([]);
+            $include = array_merge($this->forced_includes, $validated_includes);
             $include = implode(',', $include);
         } elseif (count($this->forced_includes) >= 1) {
             $include = implode(',', $this->forced_includes);
         }
-
-        // $include = $this->filterIncludes($include);
 
         $this->manager->parseIncludes($include);
 
@@ -332,79 +327,16 @@ class BaseController extends Controller
         return response()->make($error, $httpErrorCode, $headers);
     }
 
-    /**
-     * Heavily reduced refresh query to reduce DB burden
-     *
-     * @param  Builder           $query
-     * @return Response| \Illuminate\Http\JsonResponse
-     */
-    protected function refreshReactResponse($query)
+    /** Return mini-load data unless an incremental refresh was requested. */
+    protected function refreshResponse(Builder $query)
     {
-        $this->manager->parseIncludes([
-            'account',
-            'user.company_user',
-            'token',
-            'company.tax_rates',
-        ]);
-
-        $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
-
-        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
-            $this->manager->setSerializer(new JsonApiSerializer());
-        } else {
-            $this->manager->setSerializer(new ArraySerializer());
+        if (! request()->has('updated_at')) {
+            return $this->miniLoadResponse($query);
         }
 
-        $active_company_id = auth()->user()->companyId();
-        $transformer = new $this->entity_transformer($this->serializer, $active_company_id);
-
-        $company_includes = ['company.documents', 'company.tax_rates'];
-
-        $limit = $this->resolveQueryLimit();
-
-        $paginator = $query->with('company')->paginate($limit);
-
-        $memberships = $paginator->getCollection();
-        $active_membership = $memberships->firstWhere('company_id', $active_company_id);
-        $active_membership?->load($company_includes);
-
-        $resource = new Collection($memberships, $transformer, $this->entity_type);
-
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
-
-        return $this->response($this->manager->createData($resource)->toArray());
-    }
-    /**
-     * Refresh API response with latest cahnges
-     *
-     * @param  Builder           $query
-     * @return Response| \Illuminate\Http\JsonResponse
-     */
-    protected function refreshResponse($query)
-    {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
-
-        $this->manager->parseIncludes($this->first_load);
-
-        $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
-
-        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
-            $this->manager->setSerializer(new JsonApiSerializer());
-        } else {
-            $this->manager->setSerializer(new ArraySerializer());
-        }
-
-        $active_company_id = auth()->user()->companyId();
-        $transformer = new $this->entity_transformer($this->serializer, $active_company_id);
-
-        $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
-
-        if ($user->getCompany()->is_large && $updated_at == 0) {
-            $updated_at = time();
-        }
-
-        $updated_at = date('Y-m-d H:i:s', $updated_at);
+        $updated_at = date('Y-m-d H:i:s', (int) request()->input('updated_at'));
 
         $company_includes = [
             'company' => function ($query) {
@@ -611,25 +543,9 @@ class BaseController extends Controller
             'company.locations' => function ($query) {
                 $query->whereNotNull('updated_at');
             },
-            'company.users.company_users' => fn ($query) => $query
-                ->where('company_id', $active_company_id)
-                ->without(['user', 'account']),
         ];
 
-        $limit = $this->resolveQueryLimit();
-
-        $paginator = $query->with('company')->paginate($limit);
-
-        $memberships = $paginator->getCollection();
-        $active_membership = $memberships->firstWhere('company_id', $active_company_id);
-        $active_membership?->load($company_includes);
-
-        $resource = new Collection($memberships, $transformer, $this->entity_type);
-
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
-    
-
-        return $this->response($this->manager->createData($resource)->toArray());
+        return $this->companyResponse($query, $this->delta_includes, $company_includes);
     }
 
     /**
@@ -646,56 +562,38 @@ class BaseController extends Controller
         return 20;
     }
 
-    /**
-     * Mini Load Query
-     *
-     * @param  Builder $query
-     *
-     */
-    protected function miniLoadResponse($query)
+    /** Load the metadata needed before the client fetches entity collections. */
+    protected function miniLoadResponse(Builder $query)
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
-        $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
-
-        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
-            $this->manager->setSerializer(new JsonApiSerializer());
-        } else {
-            $this->manager->setSerializer(new ArraySerializer());
-        }
-
-        $active_company_id = auth()->user()->companyId();
-        $transformer = new $this->entity_transformer($this->serializer, $active_company_id);
-        $created_at = request()->has('created_at') ? request()->input('created_at') : 0;
-
-        $created_at = date('Y-m-d H:i:s', $created_at);
-
         $company_includes = [
-            'company' => function ($query) {
-                $query->whereNotNull('created_at')->with('documents', 'users');
+            'company.designs',
+            'company.documents',
+            'company.groups.documents',
+            'company.payment_terms',
+            'company.tax_rates',
+            'company.task_statuses',
+            'company.expense_categories',
+            'company.locations',
+            'company.company_gateways' => function ($query) use ($user) {
+                $query->with('gateway');
+
+                if (! $user->isAdmin()) {
+                    $query->where('company_gateways.user_id', $user->id);
+                }
             },
-            'company.designs' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at)->with('company');
-            },
-            'company.documents' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at);
-            },
-            'company.groups' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at)->with('documents');
-            },
-            'company.payment_terms' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at);
-            },
-            'company.tax_rates' => function ($query) {
-                $query->whereNotNull('created_at');
-            },
-            'company.activities' => function ($query) use ($user, $created_at) {
-                $floor = max($created_at, now()->subDays(90)->toDateTimeString());
-                $query->where('activities.created_at', '>=', $floor);
+            'company.activities' => function ($query) use ($user) {
+                $query->where('activities.created_at', '>=', now()->subDays(90));
 
                 if (! $user->isAdmin()) {
                     $query->where('activities.user_id', $user->id);
+                }
+            },
+            'company.subscriptions' => function ($query) use ($user) {
+                if (! $user->isAdmin()) {
+                    $query->where('subscriptions.user_id', $user->id);
                 }
             },
             'company.bank_integrations' => function ($query) use ($user) {
@@ -703,12 +601,12 @@ class BaseController extends Controller
                     $query->where('bank_integrations.user_id', $user->id);
                 }
 
-                if (!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
-                    $query->exclude(["balance"]);
+                if (! $user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction', 'edit_bank_transaction', 'view_bank_transaction'])) {
+                    $query->exclude(['balance']);
                 }
             },
             'company.bank_transaction_rules' => function ($query) use ($user) {
-                if (! $user->isAdmin() && !$user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
+                if (! $user->isAdmin() && ! $user->hasIntersectPermissions(['create_bank_transaction', 'edit_bank_transaction', 'view_bank_transaction'])) {
                     $query->where('bank_transaction_rules.user_id', $user->id);
                 }
             },
@@ -717,290 +615,35 @@ class BaseController extends Controller
                     $query->where('schedulers.user_id', $user->id);
                 }
             },
-            'company.locations' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at);
-            },
         ];
 
-        $limit = $this->resolveQueryLimit();
-
-        $paginator = $query->with('company')->paginate($limit);
-
-        $memberships = $paginator->getCollection();
-        $active_membership = $memberships->firstWhere('company_id', $active_company_id);
-        $active_membership?->load($company_includes);
-
-        $resource = new Collection($memberships, $transformer, $this->entity_type);
-        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
-    
-        return $this->response($this->manager->createData($resource)->toArray());
+        return $this->companyResponse($query, $this->mini_includes, $company_includes);
     }
 
-    /**
-     * Passes back the miniloaded data response
-     *
-     * @param  mixed $query
-     *
-     */
-    protected function timeConstrainedResponse($query)
+    /** Only the active membership may load and serialize company children. */
+    private function companyResponse(Builder $query, array $includes, array $company_includes)
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        /** React does not require bloated login response. */
-        if (request()->hasHeader('X-React')) {
-            $this->manager->parseIncludes(
-                [
-                    'account',
-                    'user.company_user',
-                    'token',
-                    'company',
-                ]
-            );
-
-            // Set created_at to current time to filter out all existing related records
-            // (designs, documents, groups, etc.) for a minimal response payload
-            request()->merge(['created_at' => time()]);
-
-            //2026-01-23: Improve Login Performance for react.
-            return $this->refreshReactResponse($query);
-            // return $this->miniLoadResponse($query);
-        } elseif ($user->getCompany()->is_large) {
-            $this->manager->parseIncludes($this->mini_load);
-
-            return $this->miniLoadResponse($query);
-        } else {
-            $this->manager->parseIncludes($this->first_load);
-        }
-
+        $this->manager->parseIncludes($includes);
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
-
-        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
-            $this->manager->setSerializer(new JsonApiSerializer());
-        } else {
-            $this->manager->setSerializer(new ArraySerializer());
-        }
+        $this->manager->setSerializer($this->serializer === EntityTransformer::API_SERIALIZER_JSON
+            ? new JsonApiSerializer()
+            : new ArraySerializer());
 
         $active_company_id = auth()->user()->companyId();
         $transformer = new $this->entity_transformer($this->serializer, $active_company_id);
-        $created_at = request()->has('created_at') ? request()->input('created_at') : 0;
 
-        $created_at = date('Y-m-d H:i:s', $created_at);
+        $company_includes['company.users.company_users'] = fn ($query) => $query
+            ->where('company_id', $active_company_id)
+            ->without(['user', 'account']);
 
-        $company_includes = [
-            'company' => function ($query) {
-                $query->whereNotNull('created_at')->with('documents', 'users');
-            },
-            'company.clients' => function ($query) use ($created_at, $user) {
-                $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents', 'tags');
-
-                if (! $user->hasPermission('view_client')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
-                    });
-                }
-
-                if ($user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
-                    $query->exclude($this->client_exclusion_fields);
-                }
-            },
-            'company.company_gateways' => function ($query) use ($user) {
-                $query->whereNotNull('created_at')->with('gateway');
-
-                if (! $user->isAdmin()) {
-                    $query->where('company_gateways.user_id', $user->id);
-                }
-            },
-            'company.credits' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('invitations', 'documents', 'tags');
-
-                if (! $user->hasPermission('view_credit')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('credits.user_id', $user->id)->orWhere('credits.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.documents' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at);
-            },
-            'company.expenses' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('documents', 'tags');
-
-                if (! $user->hasPermission('view_expense')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.groups' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at)->with('documents');
-            },
-            'company.invoices' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('invitations', 'documents', 'tags');
-
-                if (! $user->hasPermission('view_invoice')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('invoices.user_id', $user->id)->orWhere('invoices.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.payments' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('paymentables', 'documents', 'tags');
-
-                if (! $user->hasPermission('view_payment')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('payments.user_id', $user->id)->orWhere('payments.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.payment_terms' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at);
-            },
-            'company.products' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('documents', 'tags');
-
-                if (! $user->hasPermission('view_product')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('products.user_id', $user->id)->orWhere('products.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.projects' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('documents', 'tags');
-
-                if (! $user->hasPermission('view_project')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('projects.user_id', $user->id)->orWhere('projects.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.purchase_orders' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('documents', 'tags');
-
-                if (! $user->hasPermission('view_purchase_order')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('purchase_orders.user_id', $user->id)->orWhere('purchase_orders.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.quotes' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('invitations', 'documents', 'tags');
-
-                if (! $user->hasPermission('view_quote')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('quotes.user_id', $user->id)->orWhere('quotes.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.recurring_invoices' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings', 'client.company', 'tags');
-
-                if (! $user->hasPermission('view_recurring_invoice')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.tasks' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('project.documents', 'project.tags', 'documents', 'tags');
-
-                if (! $user->hasPermission('view_task')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('tasks.user_id', $user->id)->orWhere('tasks.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.tax_rates' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at);
-            },
-            'company.vendors' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('contacts', 'documents', 'tags');
-
-                if (! $user->hasPermission('view_vendor')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('vendors.user_id', $user->id)->orWhere('vendors.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.expense_categories' => function ($query) {
-                $query->whereNotNull('created_at');
-            },
-            'company.task_statuses' => function ($query) use ($created_at) {
-                $query->where('created_at', '>=', $created_at);
-            },
-            'company.activities' => function ($query) use ($user, $created_at) {
-                $floor = max($created_at, now()->subDays(90)->toDateTimeString());
-                $query->where('activities.created_at', '>=', $floor);
-
-                if (! $user->isAdmin()) {
-                    $query->where('activities.user_id', $user->id);
-                }
-            },
-            'company.webhooks' => function ($query) use ($user) {
-                if (! $user->isAdmin()) {
-                    $query->where('webhooks.user_id', $user->id);
-                }
-            },
-            'company.tokens' => function ($query) use ($user) {
-                $query->where('company_tokens.user_id', $user->id);
-            },
-            'company.system_logs',
-            'company.subscriptions' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
-
-                if (! $user->isAdmin()) {
-                    $query->where('subscriptions.user_id', $user->id);
-                }
-            },
-            'company.recurring_expenses' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('documents', 'tags');
-
-                if (! $user->hasPermission('view_recurring_expense')) {
-                    $query->whereNested(function ($query) use ($user) {
-                        $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
-                    });
-                }
-            },
-            'company.bank_integrations' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
-
-                if (! $user->hasPermission('view_bank_transaction')) {
-                    $query->where('bank_integrations.user_id', $user->id);
-                }
-
-                if (!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
-                    $query->exclude(["balance"]);
-                }
-            },
-            'company.bank_transactions' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('tags');
-
-                if (! $user->hasPermission('bank_transaction')) {
-                    $query->where('bank_transactions.user_id', $user->id);
-                }
-            },
-            'company.task_schedulers' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
-
-                if (! $user->isAdmin()) {
-                    $query->where('schedulers.user_id', $user->id);
-                }
-            },
-        ];
-
-        $limit = $this->resolveQueryLimit();
-
-        $paginator = $query->with('company')->paginate($limit);
-
+        $paginator = $query->with('company')->paginate($this->resolveQueryLimit());
         $memberships = $paginator->getCollection();
-        $active_membership = $memberships->firstWhere('company_id', $active_company_id);
-        $active_membership?->load($company_includes);
+        $memberships->firstWhere('company_id', $active_company_id)?->load($company_includes);
 
         $resource = new Collection($memberships, $transformer, $this->entity_type);
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator->appends(request()->query())));
-    
 
-        return $this->response($this->manager->createData($resource)->toArray()); //@phpstan-ignore-line
+        return $this->response($this->manager->createData($resource)->toArray());
     }
 
     /**
@@ -1378,83 +1021,67 @@ class BaseController extends Controller
      */
     protected function getRequestIncludes($data, ?EntityTransformer $transformer = null): array
     {
-        /*
-         * Thresholds for displaying large account on first load
-         */
-        if (request()->has('first_load') && request()->input('first_load') == 'true') {
+        $included = request()->input('include') ?? '';
 
-            /** @var \App\Models\User $user */
-            $user = auth()->user();
+        // Early return if no includes requested
+        if (empty($included)) {
+            return $data;
+        }
 
-            if ($user->getCompany()->is_large && request()->missing('updated_at')) {
-                $data = $this->mini_load;
-            } else {
-                $data = $this->first_load;
-            }
+        $included = explode(',', $included);
 
-        } else {
-            $included = request()->input('include') ?? '';
-
-            // Early return if no includes requested
-            if (empty($included)) {
+        // Get valid includes from transformer
+        // Use provided transformer or instantiate if needed (for buildManager context)
+        if ($transformer === null && !empty($this->entity_transformer) && class_exists($this->entity_transformer)) {
+            try {
+                $transformer = new $this->entity_transformer(request()->input('serializer'));
+            } catch (\Exception $e) {
+                // If transformer instantiation fails, skip validation and return data as-is
+                // This maintains backward compatibility for edge cases
                 return $data;
             }
+        }
 
-            $included = explode(',', $included);
+        // Only validate if we have a transformer instance
+        $valid_includes = [];
+        $has_transformer = $transformer !== null;
+        if ($transformer !== null) {
+            $valid_includes = array_merge(
+                $transformer->getDefaultIncludes() ?? [],
+                $transformer->getAvailableIncludes() ?? []
+            );
+        }
 
-            // Get valid includes from transformer
-            // Use provided transformer or instantiate if needed (for buildManager context)
-            if ($transformer === null && !empty($this->entity_transformer) && class_exists($this->entity_transformer)) {
-                try {
-                    $transformer = new $this->entity_transformer(request()->input('serializer'));
-                } catch (\Exception $e) {
-                    // If transformer instantiation fails, skip validation and return data as-is
-                    // This maintains backward compatibility for edge cases
-                    return $data;
-                }
+        foreach ($included as $include) {
+            $include = $this->normalizeFractalInclude($include);
+
+            if ($include === null) {
+                continue;
             }
 
-            // Only validate if we have a transformer instance
-            $validIncludes = [];
-            $hasTransformer = $transformer !== null;
-            if ($transformer !== null) {
-                $validIncludes = array_merge(
-                    $transformer->getDefaultIncludes() ?? [],
-                    $transformer->getAvailableIncludes() ?? []
-                );
+            // Special case: clients -> clients.contacts (legacy support)
+            if ($include == 'clients') {
+                if (! $has_transformer || in_array('clients', $valid_includes, true)) {
+                    $data[] = 'clients.contacts';
+                }
+
+                continue;
             }
 
-            foreach ($included as $include) {
-                $include = $this->normalizeFractalInclude($include);
+            // If we have a transformer, validate the include
+            if ($has_transformer) {
+                // For nested includes (e.g., "client.group_settings"), extract the base relationship
+                $base_include = explode('.', $include)[0];
 
-                if ($include === null) {
-                    continue;
-                }
-
-                // Special case: clients -> clients.contacts (legacy support)
-                if ($include == 'clients') {
-                    if (! $hasTransformer || in_array('clients', $validIncludes, true)) {
-                        $data[] = 'clients.contacts';
-                    }
-
-                    continue;
-                }
-
-                // If we have a transformer, validate the include
-                if ($hasTransformer) {
-                    // For nested includes (e.g., "client.group_settings"), extract the base relationship
-                    $baseInclude = explode('.', $include)[0];
-
-                    // Validate that the base relationship is in the transformer's available includes
-                    if (in_array($baseInclude, $validIncludes, true)) {
-                        $data[] = $include;
-                    }
-                    // Invalid includes like 'deleted' are silently ignored
-                } else {
-                    // No transformer available, allow all includes
-                    // This maintains backward compatibility
+                // Validate that the base relationship is in the transformer's available includes
+                if (in_array($base_include, $valid_includes, true)) {
                     $data[] = $include;
                 }
+                // Invalid includes like 'deleted' are silently ignored
+            } else {
+                // No transformer available, allow all includes
+                // This maintains backward compatibility
+                $data[] = $include;
             }
         }
 

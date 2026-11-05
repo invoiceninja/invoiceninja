@@ -11,6 +11,8 @@ namespace Tests\Feature;
 
 use App\Factory\CompanyGatewayFactory;
 use App\Factory\CompanyUserFactory;
+use App\Http\Controllers\AccountController;
+use App\Http\Requests\Account\CreateAccountRequest;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
@@ -144,7 +146,7 @@ class CompanyResponseScopeTest extends TestCase
     public static function bootstrapCases(): array
     {
         $cases = [];
-        foreach (['full login' => ['login', false, false], 'mini login' => ['login', false, true],
+        foreach (['small company login' => ['login', false, false], 'mini login' => ['login', false, true],
             'react login' => ['login', true, false], 'refresh' => ['refresh', false, false],
             'react refresh' => ['refresh_react', true, false]] as $label => $arguments) {
             foreach ([true, false] as $admin_a) {
@@ -178,9 +180,14 @@ class CompanyResponseScopeTest extends TestCase
         $active_company = $memberships[$this->companies[0]->hashed_id]['company'];
         $this->assertContains($this->records[0]['tax_rate']->hashed_id, array_column($active_company['tax_rates'], 'id'));
         $this->assertContains($this->records[0]['document']->hashed_id, array_column($active_company['documents'], 'id'));
-        if (! $is_react && ! $is_large) {
-            $this->assertSame($admin_a ? [$this->records[0]['invoice']->hashed_id] : [], array_column($active_company['invoices'], 'id'));
-            $this->assertSame($admin_a ? [$this->records[0]['gateway']->hashed_id] : [], array_column($active_company['company_gateways'], 'id'));
+        $this->assertArrayNotHasKey('clients', $active_company);
+        $this->assertArrayNotHasKey('invoices', $active_company);
+        $this->assertTrue($active_company['is_large']);
+        $this->assertTrue($memberships[$this->companies[1]->hashed_id]['company']['is_large']);
+        $this->assertSame($admin_a ? [$this->records[0]['gateway']->hashed_id] : [], array_column($active_company['company_gateways'], 'id'));
+        foreach (['client', 'invoice'] as $entity) {
+            $record = $this->records[0][$entity];
+            $this->assertNotContains($record->getTable().'.'.$record->id, $retrieved);
         }
         $this->assertCompanyHasNoChildren($memberships[$this->companies[1]->hashed_id]['company']);
         foreach ($this->records[1] as $record) {
@@ -204,9 +211,7 @@ class CompanyResponseScopeTest extends TestCase
         $memberships = collect($response->json('data'))->keyBy('company.id');
         $this->assertCompanyHasNoChildren($memberships[$this->companies[0]->hashed_id]['company']);
         $this->assertArrayHasKey('tax_rates', $memberships[$this->companies[1]->hashed_id]['company']);
-        if (! $is_react) {
-            $this->assertSame([], $memberships[$this->companies[1]->hashed_id]['company']['invoices']);
-        }
+        $this->assertArrayNotHasKey('invoices', $memberships[$this->companies[1]->hashed_id]['company']);
         $truth = app(TruthSource::class);
         $this->assertSame($this->companies[1]->id, $truth->getCompany()->id);
         $this->assertSame($this->companies[1]->id, $truth->getCompanyUser()->company_id);
@@ -356,6 +361,110 @@ class CompanyResponseScopeTest extends TestCase
         $invoice->forceFill(['updated_at' => now()])->save();
         $response = $this->requestBootstrap('refresh', parameters: ['updated_at' => now()->subDay()->timestamp])->assertOk();
         $response->assertJsonPath('data.0.company.invoices.0.id', $invoice->hashed_id);
+    }
+
+    #[DataProvider('frontends')]
+    public function testLoginAndRefreshShareMiniLoadRegardlessOfLegacyFlags(bool $is_react): void
+    {
+        $this->createFixture();
+        // Even small companies with administrators everywhere require paginated loading.
+        CompanyUser::where('user_id', $this->user->id)->update(['is_admin' => true]);
+        $login = $this->requestBootstrap('login', $is_react, [
+            'updated_at' => 0, 'first_load' => 'true', 'created_at' => now()->addDay()->timestamp,
+            'include' => 'company.invoices',
+        ])->assertOk();
+        $refresh = $this->requestBootstrap($is_react ? 'refresh_react' : 'refresh', $is_react, [
+            'first_load' => 'true', 'include' => 'company.invoices',
+        ])->assertOk();
+
+        $this->assertSame($login->json('data.0.company'), $refresh->json('data.0.company'));
+        $this->assertTrue($login->json('data.0.company.is_large'));
+        $this->assertArrayNotHasKey('invoices', $login->json('data.0.company'));
+        $this->assertNotEmpty($login->json('data.0.company.tax_rates'));
+        $this->assertNotEmpty($login->json('data.0.token.token'));
+    }
+
+    public static function deltaCases(): array
+    {
+        $cases = [];
+        foreach (['refresh', 'refresh_react'] as $endpoint) {
+            foreach ([false, true] as $is_large) {
+                foreach ([false, true] as $is_admin) {
+                    $cases[$endpoint.' large='.(int) $is_large.' admin='.(int) $is_admin] = [$endpoint, $is_large, $is_admin];
+                }
+            }
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('deltaCases')]
+    public function testDeltaIncludesOnlyPermittedCurrentCompanyRecords(string $endpoint, bool $is_large, bool $is_admin): void
+    {
+        $this->createFixture($is_admin, $is_large);
+        $old_invoice = $this->records[0]['invoice'];
+        $old_invoice->forceFill(['updated_at' => now()->subDays(2)])->save();
+        $owned_invoice = Invoice::factory()->create([
+            'company_id' => $this->companies[0]->id, 'client_id' => $this->records[0]['client']->id,
+            'user_id' => $this->user->id, 'created_at' => now()->subDays(3),
+        ]);
+        $assigned_invoice = Invoice::factory()->create([
+            'company_id' => $this->companies[0]->id, 'client_id' => $this->records[0]['client']->id,
+            'user_id' => $this->owner->id, 'assigned_user_id' => $this->user->id,
+        ]);
+        $this->records[0]['owned_invoice'] = $owned_invoice;
+        $this->records[0]['assigned_invoice'] = $assigned_invoice;
+        $retrieved = [];
+        Invoice::retrieved(function (Invoice $invoice) use (&$retrieved) {
+            $retrieved[] = $invoice->id;
+        });
+
+        foreach ([now()->subDay()->timestamp, 0] as $updated_at) {
+            $response = $this->requestBootstrap($endpoint, $endpoint === 'refresh_react', [
+                'updated_at' => $updated_at,
+            ])->assertOk()->assertJsonCount(2, 'data');
+            $memberships = collect($response->json('data'))->keyBy('company.id');
+            $expected_ids = [$owned_invoice->hashed_id, $assigned_invoice->hashed_id];
+            if ($updated_at === 0 && $is_admin) {
+                $expected_ids[] = $old_invoice->hashed_id;
+            }
+            $this->assertEqualsCanonicalizing($expected_ids,
+                array_column($memberships[$this->companies[0]->hashed_id]['company']['invoices'], 'id'));
+            $this->assertCompanyHasNoChildren($memberships[$this->companies[1]->hashed_id]['company']);
+            $this->assertSame($this->tokens[1], $memberships[$this->companies[1]->hashed_id]['token']['token']);
+            $this->assertNotContains($this->records[1]['invoice']->id, $retrieved);
+        }
+    }
+
+    public function testFirstLoadDoesNotOverrideOrdinaryIncludes(): void
+    {
+        $this->createFixture();
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->tokens[0],
+            'X-API-PASSWORD' => 'company-scope-test',
+        ])->getJson('/api/v1/users/'.$this->user->hashed_id.'?first_load=true&include=company_user')->assertOk();
+        $this->assertArrayHasKey('company_user', $response->json('data'));
+        $this->assertArrayNotHasKey('company', $response->json('data'));
+        $this->assertArrayNotHasKey('account', $response->json('data'));
+    }
+
+    public function testSignupReturnsMiniLoadWithoutFirstLoad(): void
+    {
+        $this->createFixture();
+        $this->actingAs($this->user);
+        // Isolate response construction from signup validation and external provisioning.
+        \Mockery::mock('overload:App\Jobs\Account\CreateAccount')
+            ->shouldReceive('handle')->once()->andReturn($this->account);
+        $request = CreateAccountRequest::create('/api/v1/signup', 'POST');
+        $this->app->instance('request', $request);
+
+        $response = TestResponse::fromBaseResponse(app(AccountController::class)->store($request));
+        $response->assertOk()->assertJsonPath('data.0.token.token', $this->tokens[0])
+            ->assertJsonPath('data.0.company.is_large', true);
+        $this->assertArrayHasKey('tax_rates', $response->json('data.0.company'));
+        $this->assertArrayHasKey('account', $response->json('data.0'));
+        $this->assertArrayNotHasKey('invoices', $response->json('data.0.company'));
+        $this->assertCompanyHasNoChildren($response->json('data.1.company'));
     }
 
     public function testCompanyTransformerRestrictionsDoNotCarryBetweenMemberships(): void
