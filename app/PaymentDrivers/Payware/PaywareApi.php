@@ -21,6 +21,10 @@ class PaywareApi
     private const SANDBOX_URL = 'https://sandbox.payware.eu';
     private const PRODUCTION_URL = 'https://api.payware.eu';
 
+    // The host each environment's payware links are served from.
+    private const SANDBOX_LINK_HOST = 'https://go-sandbox.payware.eu';
+    private const PRODUCTION_LINK_HOST = 'https://go.payware.eu';
+
     private const SANDBOX_PARTNER_ID = 'SBPARIDA';
     private const SANDBOX_VPOS_ID = '111111';
     private const SANDBOX_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr969qg5NpsDNfvICxnXlDtIFgCPql3Dh58dAYhgI0iMYEQpT4EsmhN6+m9xuTjj0zCQPIX38MSIWBQy/sYASBrgGa0q+W9roO0FSEp0pKcXe8K6GhugoFnuqat41jQCfBoAVa/AYl9ZVdTAdAnOX/oIxq359G5p013ntoFoK5QYEgIAKIFnaiz3Z18bvZHmmK5xhtCMQcza+GOqn28iUdlCQOVhVshd6b1NCxuvXhvz42dIL5FDWldnQjNO0uVZkB0e6tZZYPbY4Mp/xukyaOiaAFdu8N6+IDWj8493FeLd2Oepn1mNq5nfNnQSuMNKGOVRmMAgpkfwDvjKJYCuasQIDAQAB\n-----END PUBLIC KEY-----";
@@ -35,6 +39,7 @@ class PaywareApi
     private const LOGIN_FAILURE_COOLDOWN_SECONDS = 60;
 
     private string $baseUrl;
+    private string $linkHost;
     private string $partnerId;
     private string $vposId;
     private string $publicKey;
@@ -47,15 +52,27 @@ class PaywareApi
     ) {
         if ($testMode) {
             $this->baseUrl = self::SANDBOX_URL;
+            $this->linkHost = self::SANDBOX_LINK_HOST;
             $this->partnerId = self::SANDBOX_PARTNER_ID;
             $this->vposId = self::SANDBOX_VPOS_ID;
             $this->publicKey = self::SANDBOX_PUBLIC_KEY;
         } else {
             $this->baseUrl = self::PRODUCTION_URL;
+            $this->linkHost = self::PRODUCTION_LINK_HOST;
             $this->partnerId = $partnerId;
             $this->vposId = $vposId;
             $this->publicKey = $publicKey;
         }
+    }
+
+    /**
+     * The payware link of a transaction, on the link host of the environment this gateway talks to. A phone
+     * camera opens it: the payer's bank app when it handles payware links, payware's payment page otherwise,
+     * which hands the payment to the app. payware://{id} opened nothing without an app that registered it.
+     */
+    public function linkFor(string $transactionId): string
+    {
+        return $this->linkHost . '/' . $transactionId;
     }
 
     /**
