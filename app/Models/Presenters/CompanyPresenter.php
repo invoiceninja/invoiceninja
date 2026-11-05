@@ -33,6 +33,24 @@ class CompanyPresenter extends EntityPresenter
     }
 
 
+    public function logoDark($settings = null)
+    {
+        if (! $settings) {
+            $settings = $this->entity->settings;
+        }
+
+        if (! empty($settings->company_logo_dark)) {
+            if (strlen($settings->company_logo_dark) >= 1 && (strpos($settings->company_logo_dark, 'http') !== false)) {
+                return $settings->company_logo_dark;
+            } elseif (strlen($settings->company_logo_dark) >= 1) {
+                return url('') . $settings->company_logo_dark;
+            }
+        }
+
+        // Fall back to regular logo
+        return $this->logo($settings);
+    }
+
     public function logo($settings = null)
     {
         if (! $settings) {
