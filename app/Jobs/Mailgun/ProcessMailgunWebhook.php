@@ -95,7 +95,7 @@ class ProcessMailgunWebhook implements ShouldQueue
 
         MultiDB::findAndSetDbByCompanyKey($this->request['event-data']['tags'][0]);
 
-        /** @var \App\Models\Company $company */
+        /** @var \App\Models\Company|null $company */
         $company = Company::where('company_key', $this->request['event-data']['tags'][0])->first();
 
         if ($company && $this->request['event-data']['event'] == 'complained' && config('ninja.notification.slack')) {
@@ -103,7 +103,7 @@ class ProcessMailgunWebhook implements ShouldQueue
         }
 
         /** Free accounts do not have email delivery meta data stored. */
-        if (!$company || ($company && Ninja::isHosted() && $company->account->isFreeHostedClient())) {
+        if (!$company || (Ninja::isHosted() && $company->account->isFreeHostedClient())) {
             return;
         }
 

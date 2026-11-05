@@ -63,13 +63,13 @@ class LogoutController extends BaseController
                     ->first();
 
         $ct->company
-                    ->tokens()
-                    ->where('is_system', true)
-                    ->cursor()
-                    ->each(function (CompanyToken $ct) {
-                        $ct->token = \Illuminate\Support\Str::random(64);
-                        $ct->save();
-                    });
+            ->tokens()
+            ->where('is_system', true)
+            ->cursor()
+            ->each(function ($company_token) {
+                $company_token->token = \Illuminate\Support\Str::random(64);
+                $company_token->save();
+            });
 
         return response()->json(['message' => 'All tokens deleted'], 200);
     }

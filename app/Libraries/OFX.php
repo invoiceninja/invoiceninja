@@ -14,6 +14,7 @@ namespace App\Libraries;
 
 // https://github.com/denvertimothy/OFX
 
+use Illuminate\Support\Facades\Http;
 use SimpleXMLElement;
 
 class OFX
@@ -36,17 +37,14 @@ class OFX
 
     public function go()
     {
-        $c = curl_init();
-        curl_setopt($c, CURLOPT_URL, $this->bank->url);
-        curl_setopt($c, CURLOPT_POST, 1);
         // User-Agent: http://www.ofxhome.com/ofxforum/viewtopic.php?pid=108091#p108091
-        curl_setopt($c, CURLOPT_HTTPHEADER, ['Content-Type: application/x-ofx', 'User-Agent: httpclient']);
-        curl_setopt($c, CURLOPT_POSTFIELDS, $this->request);
-        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
-
-        $this->response = curl_exec($c);
-
-        curl_close($c);
+        $this->response = Http::withHeaders([
+            'Content-Type' => 'application/x-ofx',
+            'User-Agent' => 'httpclient',
+        ])
+            ->withBody($this->request, 'application/x-ofx')
+            ->post($this->bank->url)
+            ->body();
 
         $tmp = explode('<OFX>', $this->response);
         $this->responseHeader = $tmp[0];

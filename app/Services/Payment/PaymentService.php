@@ -20,6 +20,8 @@ use App\Factory\PaymentFactory;
 use App\Utils\Traits\MakesHash;
 use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Services\Payment\DeletePaymentV2;
+use App\Models\Subscription;
+use App\Services\Subscription\SubscriptionService;
 
 class PaymentService
 {
@@ -209,6 +211,26 @@ class PaymentService
 
         $this->payment->status_id = Payment::STATUS_COMPLETED;
         $this->payment->save();
+
+
+        $payment_hash = $this->payment->payment_hash ?? null;
+
+        if ($payment_hash && isset($payment_hash->data->billing_context->subscription_id)) {
+     
+            if (is_int($payment_hash->data->billing_context->subscription_id)) {
+                $billing_subscription = Subscription::find($payment_hash->data->billing_context->subscription_id);
+            } else {
+                $billing_subscription = \App\Models\Subscription::find($this->decodePrimaryKey($payment_hash->data->billing_context->subscription_id));
+            }
+
+            if(!$billing_subscription) {
+                return $this->payment;
+            }
+
+              /** @var \App\Models\Subscription $billing_subscription */
+            (new SubscriptionService($billing_subscription))->completePurchase($payment_hash);
+
+        }
 
         return $this->payment;
     }

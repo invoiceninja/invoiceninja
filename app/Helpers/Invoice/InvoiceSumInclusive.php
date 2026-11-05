@@ -330,7 +330,8 @@ class InvoiceSumInclusive
 
     public function roundRappen($value): float
     {
-        return round($value / .05, 0) * .05;
+        // return round($value / .05, 0) * .05;
+        return round(round($value / 0.05) * 0.05, 2);
     }
 
     public function getSubTotal()

@@ -55,7 +55,7 @@ class PreviewInvoiceRequest extends Request
 
         return [
             'number' => 'nullable',
-            'entity' => 'bail|sometimes|in:invoice,quote,credit,recurring_invoice',
+            'entity' => 'bail|required|in:invoice,quote,credit,recurring_invoice',
             'entity_id' => ['bail','sometimes','integer',Rule::exists($this->entity_plural, 'id')->where('is_deleted', 0)->where('company_id', $user->company()->id)],
             'client_id' => ['required', Rule::exists(Client::class, 'id')->where('is_deleted', 0)->where('company_id', $user->company()->id)],
         ];
@@ -81,7 +81,8 @@ class PreviewInvoiceRequest extends Request
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'], true);
         }
 
-        $this->convertEntityPlural($input['entity'] ?? 'invoice');
+        $input['entity'] ??= 'invoice';
+        $this->convertEntityPlural($input['entity']);
 
         $this->replace($input);
     }

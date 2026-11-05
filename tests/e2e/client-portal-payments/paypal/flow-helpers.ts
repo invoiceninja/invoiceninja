@@ -458,10 +458,10 @@ async function clickFundingSourceInFrameLocator(
 ): Promise<boolean> {
     const frameLocators = [
         page
-            .frameLocator('#paypal-button-container iframe.component-frame')
+            .frameLocator(':is(#paypal-button-container, #paypal-button) iframe.component-frame')
             .first()
             .frameLocator('iframe'),
-        page.frameLocator('#paypal-button-container iframe').first(),
+        page.frameLocator(':is(#paypal-button-container, #paypal-button) iframe').first(),
         page.frameLocator('iframe[name^="__zoid__paypal_buttons"]').first(),
         page.frameLocator('iframe[title*="PayPal"]').first(),
         page.frameLocator('iframe[title*="Venmo"]').first(),
@@ -483,7 +483,7 @@ async function clickFundingSourceInFrameLocator(
 }
 
 async function clickPayPalButtonContainer(page: Page): Promise<boolean> {
-    const container = page.locator('#paypal-button-container');
+    const container = page.locator(':is(#paypal-button-container, #paypal-button)');
 
     if ((await container.count()) === 0) {
         return false;
@@ -516,7 +516,7 @@ async function clickPayPalButtonContainer(page: Page): Promise<boolean> {
 async function waitForPayPalButtonContainerReady(page: Page): Promise<void> {
     await expect
         .poll(async () => {
-            const container = page.locator('#paypal-button-container');
+            const container = page.locator(':is(#paypal-button-container, #paypal-button)');
 
             if ((await container.count()) === 0) {
                 return false;
@@ -593,7 +593,7 @@ export async function clickPayPalFundingButton(
     await waitForPayPalFundingButton(page, fundingSource);
     await clearPortalOverlays(page);
 
-    const container = page.locator('#paypal-button-container');
+    const container = page.locator(':is(#paypal-button-container, #paypal-button)');
     await container.scrollIntoViewIfNeeded();
 
     if (await clickPayPalButtonContainer(page)) {
@@ -1299,55 +1299,84 @@ async function resolvePayPalPasswordPage(merchantPage: Page): Promise<Page> {
     throw new Error('PayPal sandbox login page with #password was not found');
 }
 
-async function replacePayPalLoginPassword(
+export async function replacePayPalLoginPassword(
     page: Page,
-    password: string,
+    password: string
 ): Promise<void> {
-    const passwordField = page
+    const password_field = page
         .locator('#password, input[name="login_password"]')
         .first();
-
-    await expect(passwordField).toBeVisible({ timeout: 60_000 });
-    await passwordField.click({ force: true });
-    await passwordField.fill('');
-
-    try {
-        await passwordField.pressSequentially(password, { delay: 40 });
-    } catch {
-        await passwordField.fill(password);
-    }
-
-    await passwordField.evaluate((element, nextPassword) => {
-        const input = element as HTMLInputElement;
-        input.value = nextPassword;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-    }, password);
-
-    const loginButton = page
+    const login_button = page
         .locator('#btnLogin')
         .or(page.getByRole('button', { name: /^log in$/i }))
         .first();
 
-    await expect(loginButton).toBeVisible({ timeout: 15_000 });
-    await expect(loginButton).toBeEnabled({ timeout: 15_000 });
-    await loginButton.click({ force: true });
+    for (let attempt = 0; attempt < 2; attempt++) {
+        await page.waitForLoadState('load');
+        await expect(password_field).toBeVisible({ timeout: 60_000 });
+        await password_field.click({ force: true });
+        await password_field.fill('');
 
-    await expect
-        .poll(async () => {
-            if (!(await passwordField.isVisible().catch(() => false))) {
-                return true;
-            }
+        try {
+            await password_field.pressSequentially(password, { delay: 40 });
+        } catch {
+            await password_field.fill(password);
+        }
 
-            const reviewButton = page
-                .locator(
-                    '#confirmButtonTop, #payment-submit-btn, button:has-text("Pay Now")',
-                )
-                .first();
+        await password_field.evaluate((element, next_password) => {
+            const input = element as HTMLInputElement;
+            input.value = next_password;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }, password);
 
-            return await reviewButton.isVisible().catch(() => false);
-        }, { timeout: 60_000 })
-        .toBe(true);
+        await expect(login_button).toBeVisible({ timeout: 15_000 });
+        await expect(login_button).toBeEnabled({ timeout: 15_000 });
+        await login_button.click({ force: true });
+
+        let state = '';
+        await expect
+            .poll(
+                async () => {
+                    if (
+                        !(await password_field.isVisible().catch(() => false))
+                    ) {
+                        state = 'complete';
+                        return state;
+                    }
+                    const review_button = page
+                        .locator(
+                            '#confirmButtonTop, #payment-submit-btn, button:has-text("Pay Now")'
+                        )
+                        .first();
+                    if (await review_button.isVisible().catch(() => false)) {
+                        state = 'complete';
+                        return state;
+                    }
+                    if (
+                        (await page
+                            .getByText(/^Enter your password\.?$/i)
+                            .isVisible()
+                            .catch(() => false)) &&
+                        (await password_field.inputValue()) === ''
+                    ) {
+                        state = 'empty';
+                        return state;
+                    }
+                    return null;
+                },
+                { timeout: 60_000 }
+            )
+            .not.toBeNull();
+
+        if (state === 'complete') return;
+        // The vault sign-in page can replace the form after the first entry.
+        // Retry only its explicit empty-password validation, never a rejected password.
+    }
+
+    throw new Error(
+        'PayPal sandbox submitted an empty password after re-entering it.'
+    );
 }
 
 async function fillPayPalSandboxPassword(
@@ -1762,6 +1791,8 @@ async function completePayPalSandboxApproval(
         /agree and apply/i,
         /agree.?&.?pay/i,
         /agree and pay/i,
+        /agree.?&.?continue/i,
+        /agree and continue/i,
         /approve/i,
         /submit/i,
     ];
@@ -2073,7 +2104,7 @@ export async function assertPayPalMethodCheckoutReadyWhenUnblocked(
     await expect(
         page
             .locator('#paypal-payment')
-            .or(page.locator('#paypal-button-container'))
+            .or(page.locator(':is(#paypal-button-container, #paypal-button)'))
             .first(),
     ).toBeAttached({ timeout: 30_000 });
 

@@ -21,6 +21,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
 use App\Http\Requests\ClientPortal\UpdateClientRequest;
 use App\Http\Requests\ClientPortal\UpdateContactRequest;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -51,7 +52,7 @@ class ProfileController extends Controller
         $client_contact->fill($request->only(['first_name', 'last_name', 'email', 'password', 'phone']));
 
         if ($request->has('password')) {
-            $client_contact->password = encrypt($request->password);
+            $client_contact->password = Hash::make($request->password);
         }
 
         $client_contact->save();

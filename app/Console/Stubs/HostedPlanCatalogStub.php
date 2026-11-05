@@ -58,8 +58,9 @@ class HostedPlanCatalogStub
     }
 
     /**
-     * Create missing hosted-plan subscriptions from admin-api.products.
-     * Existing subscription ids are skipped. Products must already exist.
+     * Create or sync hosted-plan subscriptions from admin-api.products.
+     * Existing rows for the same company are updated to match the catalog.
+     * Products must already exist (run seed() to ensure products and subscriptions).
      *
      * @param  Closure(string): void|null  $log
      */
@@ -71,11 +72,7 @@ class HostedPlanCatalogStub
             return;
         }
 
-        $webhook_config = [
-            'post_purchase_url' => config('ninja.app_url').'/api/admin/plan',
-            'post_purchase_rest_method' => 'post',
-            'post_purchase_headers' => [config('ninja.ninja_hosted_header') => config('ninja.ninja_hosted_secret')],
-        ];
+        $webhook_config = $this->hostedPlanWebhookConfiguration();
 
         $subscription_repository = new SubscriptionRepository();
 
@@ -94,18 +91,6 @@ class HostedPlanCatalogStub
                 continue;
             }
 
-            $existing = Subscription::query()->find($subscription_id);
-
-            if ($existing) {
-                if ((int) $existing->company_id === (int) $company->id) {
-                    $this->log($log, "Skipping subscription {$subscription_id} ({$product_key}) - already exists for company");
-                } else {
-                    $this->log($log, "Skipping subscription {$subscription_id} ({$product_key}) - id already reserved");
-                }
-
-                continue;
-            }
-
             $product = $this->findCatalogProduct($company, $product_key);
 
             if (! $product) {
@@ -114,22 +99,85 @@ class HostedPlanCatalogStub
                 continue;
             }
 
-            $subscription = SubscriptionFactory::create($company->id, $user->id);
-            $subscription->id = $subscription_id;
-            $subscription->name = (string) ($product_config['description'] ?? $product_key);
-            $subscription->group_id = $this->resolveGroupId($company, $user, $product_config['term'] ?? null, $log);
-            $subscription->recurring_product_ids = (string) $product->hashed_id;
-            $subscription->webhook_configuration = $webhook_config;
-            $subscription->allow_plan_changes = true;
-            $subscription->frequency_id = $this->resolveFrequencyId($product_config['term'] ?? null);
-            $subscription->max_seats_limit = (int) ($product_config['users'] ?? 1);
-            $subscription->per_seat_enabled = ($product_config['plan'] ?? null) === 'enterprise';
+            $existing = Subscription::query()->find($subscription_id);
+
+            if ($existing && (int) $existing->company_id !== (int) $company->id) {
+                $this->log($log, "Skipping subscription {$subscription_id} ({$product_key}) - id already reserved");
+
+                continue;
+            }
+
+            $subscription = $existing ?? SubscriptionFactory::create($company->id, $user->id);
+            $created = ! $existing;
+
+            if ($created) {
+                $subscription->id = $subscription_id;
+            }
+
+            $this->applyCatalogToSubscription(
+                $subscription,
+                $company,
+                $user,
+                $product,
+                $product_key,
+                $product_config,
+                $webhook_config,
+                $log,
+            );
+
             $subscription->save();
 
             $subscription_repository->save($subscription->toArray(), $subscription);
 
-            $this->log($log, "Created subscription {$subscription_id} ({$product_key})");
+            $this->log(
+                $log,
+                ($created ? 'Created' : 'Synced')." subscription {$subscription_id} ({$product_key})",
+            );
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function hostedPlanWebhookConfiguration(): array
+    {
+        return [
+            'post_purchase_url' => config('ninja.app_url').'/api/admin/plan',
+            'post_purchase_rest_method' => 'post',
+            'post_purchase_headers' => [config('ninja.ninja_hosted_header') => config('ninja.ninja_hosted_secret')],
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $product_config
+     * @param  array<string, mixed>  $webhook_config
+     */
+    private function applyCatalogToSubscription(
+        Subscription $subscription,
+        Company $company,
+        User $user,
+        Product $product,
+        string $product_key,
+        array $product_config,
+        array $webhook_config,
+        ?Closure $log,
+    ): void {
+        if (! $subscription->company_id) {
+            $subscription->company_id = $company->id;
+        }
+
+        if (! $subscription->user_id) {
+            $subscription->user_id = $user->id;
+        }
+
+        $subscription->name = (string) ($product_config['description'] ?? $product_key);
+        $subscription->group_id = $this->resolveGroupId($company, $user, $product_config['term'] ?? null, $log);
+        $subscription->recurring_product_ids = (string) $product->hashed_id;
+        $subscription->webhook_configuration = $webhook_config;
+        $subscription->allow_plan_changes = true;
+        $subscription->frequency_id = $this->resolveFrequencyId($product_config['term'] ?? null);
+        $subscription->max_seats_limit = (int) ($product_config['users'] ?? 1);
+        $subscription->per_seat_enabled = ($product_config['plan'] ?? null) === 'enterprise';
     }
 
     private function findCatalogProduct(Company $company, string $product_key): ?Product

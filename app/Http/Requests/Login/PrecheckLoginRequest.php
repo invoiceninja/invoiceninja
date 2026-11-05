@@ -38,9 +38,9 @@ class PrecheckLoginRequest extends Request
     public function rules(): array
     {
         if (Ninja::isHosted()) {
-            $email_rules = ['required', 'bail', new EmailBlackListRule()];
+            $email_rules = ['required', 'bail', 'string', new EmailBlackListRule()];
         } else {
-            $email_rules = 'required|bail';
+            $email_rules = 'required|bail|string';
         }
 
         return [

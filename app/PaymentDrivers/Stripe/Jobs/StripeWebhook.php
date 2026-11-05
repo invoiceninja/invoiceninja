@@ -44,6 +44,7 @@ class StripeWebhook implements ShouldQueue
         'source.chargeable',
         'charge.succeeded',
         'charge.failed',
+        'refund.failed',
         'payment_intent.processing',
         'payment_intent.succeeded',
         'payment_intent.payment_failed',

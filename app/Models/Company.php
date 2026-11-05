@@ -800,7 +800,12 @@ class Company extends BaseModel
     {
         return $this->hasMany(Payment::class)->withTrashed();
     }
-
+    
+    /**
+     * tokens
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyToken::class);

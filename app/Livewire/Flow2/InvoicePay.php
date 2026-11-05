@@ -175,8 +175,10 @@ class InvoicePay extends Component
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
 
         $invoices = $this->markPayableInvoicesSent($invite->contact->client_id);
-        $payable_invoices = $this->buildPayableInvoicesPayload($invoices);
+        // $payable_invoices = $this->buildPayableInvoicesPayload($invoices);
+        $payable_invoices = ($this->getContext($invite->key)['payable_invoices'] ?? []) ? : $this->buildPayableInvoicesPayload($invoices);
 
+        
         $this->bulkSetContext($invite->key, [
             'company_gateway_id' => $company_gateway_id,
             'gateway_type_id' => $gateway_type_id,

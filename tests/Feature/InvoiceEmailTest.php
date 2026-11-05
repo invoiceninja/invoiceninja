@@ -19,6 +19,7 @@ use App\Models\CompanyToken;
 use App\Models\Quote;
 use App\Models\SystemLog;
 use App\Models\User;
+use App\Services\Email\Email;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -471,5 +472,23 @@ class InvoiceEmailTest extends TestCase
         });
 
         $this->assertTrue(true);
+    }
+
+    public function testEndlessReminderEmailsUseTheEndlessReminderTemplate()
+    {
+        Bus::fake([Email::class]);
+
+        // The scheduler and bulk email send 'reminder_endless'; calculateTemplate() returns 'endless_reminder'.
+        $this->invoice->service()->sendEmail(null, 'reminder_endless');
+        $this->invoice->service()->sendEmail(null, 'endless_reminder');
+
+        Bus::assertDispatched(Email::class, function (Email $job) {
+            return $job->email_object->email_template_body === 'email_template_reminder_endless'
+                && $job->email_object->email_template_subject === 'email_subject_reminder_endless';
+        });
+
+        Bus::assertNotDispatched(Email::class, function (Email $job) {
+            return $job->email_object->email_template_body === 'email_template_invoice';
+        });
     }
 }

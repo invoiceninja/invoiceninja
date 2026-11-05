@@ -13,6 +13,7 @@
 namespace App\Http\Middleware;
 
 use App\Libraries\MultiDB;
+use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
 use Closure;
 use Illuminate\Http\Request;
@@ -108,7 +109,12 @@ class PasswordProtection
                     return $next($request);
                 }
             } elseif (auth()->user()->oauth_provider_id == 'apple') {
-                $user = Socialite::driver('apple')->userFromToken($request->header('X-API-OAUTH-PASSWORD'));
+                try {
+                    $user = OAuth::appleUserFromToken($request->header('X-API-OAUTH-PASSWORD'));
+                } catch (\Throwable $e) {
+                    nlog("Exception:: PasswordProtection::" . $e->getMessage());
+                    $user = null;
+                }
 
                 if ($user && ($user->email == auth()->user()->email)) {
                     Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);

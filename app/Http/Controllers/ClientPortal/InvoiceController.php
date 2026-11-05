@@ -256,7 +256,10 @@ class InvoiceController extends Controller
         $settings = auth()->guard('contact')->user()->client->getMergedSettings();
         $variables = false;
 
-        if (($invitation = $invoices->first()->invitations()->first() ?? false) && $settings->show_accept_invoice_terms) {
+        /** @var \Illuminate\Support\Collection<\App\Models\Invoice> $invoices */
+        $invitation = $invoices->first()->invitations()->first();
+
+        if ($invitation && $settings->show_accept_invoice_terms) {
             $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
         }
 
@@ -313,7 +316,7 @@ class InvoiceController extends Controller
                             ->get();
 
         //generate pdf's of invoices locally
-        if (! $invoices || $invoices->count() == 0) {
+        if ($invoices->isEmpty()) {
             return back()->with(['message' => ctrans('texts.no_items_selected')]);
         }
 

@@ -164,7 +164,7 @@ class ReminderJob implements ShouldQueue
                 $event_fired = false;
 
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template, &$event_fired) {
-                    if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
+                    if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) { //@phpstan-ignore-line
                         EmailEntity::dispatch($invitation->withoutRelations(), $invitation->company->db, $reminder_template);
                         nrlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
                         $invoice->entityEmailEvent($invitation, $reminder_template);

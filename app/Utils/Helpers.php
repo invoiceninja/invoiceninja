@@ -356,11 +356,11 @@ class Helpers
                 }
 
                 if ($matches->keys()->first() == ':MONTH') {
-                    $output = \Carbon\Carbon::create()->month($output)->translatedFormat('F');
+                    $output = \Carbon\Carbon::create()->month((int)$output)->translatedFormat('F');
                 }
 
                 if ($matches->keys()->first() == ':MONTHYEAR') {
-                    $final_date = $monthStart->copy()->addMonths($output - $currentDateTime->month);
+                    $final_date = $monthStart->copy()->addMonths((int)$output - $currentDateTime->month);
 
                     $output = \sprintf(
                         '%s %s',

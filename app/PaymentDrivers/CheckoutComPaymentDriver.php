@@ -34,16 +34,21 @@ use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutSdk;
 use Checkout\Common\Phone;
 use Checkout\Customers\CustomerRequest;
+use Checkout\DefaultHttpClientBuilder;
 use Checkout\Environment;
+use Checkout\Payments\ApplePay\Request\DomainEnrollmentRequest;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\RequestIdSource as SourceRequestIdSource;
 use Checkout\Payments\RefundRequest;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestIdSource;
 use Exception;
+use GuzzleHttp\HandlerStack;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Psr\Log\NullLogger;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -95,6 +100,103 @@ class CheckoutComPaymentDriver extends BaseDriver
     ];
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
+
+    public function ensureApplePayDomainIsValidated(): bool
+    {
+        $config = $this->company_gateway->getConfig();
+        $domain = parse_url($this->company_gateway->company->domain(), PHP_URL_HOST);
+
+        if (is_string($domain) && ($config->apple_pay_domain_name ?? null) === $domain) {
+            return true;
+        }
+
+        try {
+            $this->setApplePayDomain($domain);
+            $this->company_gateway->setConfigField('apple_pay_domain_name', $domain);
+
+            return true;
+        } catch (\Throwable $e) {
+            nlog('Checkout.com Apple Pay enrollment failed. Check domain onboarding and the secret key enrollment permission.', [
+                'company_gateway_id' => $this->company_gateway->id,
+                'domain' => $domain,
+            ]);
+
+            return false;
+        }
+    }
+
+    public function setApplePayDomain(string $domain): void
+    {
+        if (! $this->useFlow()) {
+            throw new \RuntimeException('Configure Checkout.com Flow before registering Apple Pay.');
+        }
+
+        $request = new DomainEnrollmentRequest();
+        $request->domain = $domain;
+        $log_context = [
+            'company_gateway_id' => $this->company_gateway->id,
+            'domain' => $domain,
+            'environment' => $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production',
+            'environment_subdomain' => $this->checkoutEnvironmentSubdomain(),
+        ];
+
+        try {
+            // Flow enrollment uses the existing secret key with vault:apme-enrollment permission.
+            $builder = CheckoutSdk::builder()->staticKeys()
+                ->secretKey($this->company_gateway->getConfigField('secretApiKey'))
+                ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
+                ->httpClientBuilder($this->applePayHttpClient())
+                ->logger(new NullLogger());
+
+            $subdomain = $this->checkoutEnvironmentSubdomain();
+            if ($subdomain !== null) {
+                $builder->environmentSubdomain($subdomain);
+            } else {
+                $builder->useLegacyDomain();
+            }
+
+            $response = $builder->build()->getApplePayClient()->enrollDomain($request);
+        } catch (Exception $e) {
+            Log::warning('Checkout.com Apple Pay enrollment request failed.', array_merge($log_context, [
+                'exception_class' => get_class($e),
+                'exception_code' => $e->getCode(),
+                'http_status' => $e instanceof CheckoutApiException ? $e->http_metadata?->getStatusCode() : null,
+                'request_id' => $e instanceof CheckoutApiException ? ($e->error_details['request_id'] ?? null) : null,
+                'error_type' => $e instanceof CheckoutApiException ? ($e->error_details['error_type'] ?? null) : null,
+                'error_codes' => $e instanceof CheckoutApiException ? ($e->error_details['error_codes'] ?? []) : [],
+            ]));
+
+            throw new \RuntimeException('Checkout.com Apple Pay enrollment failed. Check domain onboarding and the secret key enrollment permission.');
+        }
+
+        if (($response['http_metadata'] ?? null)?->getStatusCode() !== 204) {
+            Log::warning('Checkout.com Apple Pay enrollment returned an unexpected status.', array_merge($log_context, [
+                'http_status' => ($response['http_metadata'] ?? null)?->getStatusCode(),
+            ]));
+
+            throw new \RuntimeException('Checkout.com did not confirm Apple Pay domain enrollment.');
+        }
+    }
+
+    protected function applePayHttpClient(): DefaultHttpClientBuilder
+    {
+        $stack = HandlerStack::create();
+        // SDK 6.8 overrides verify per request; enforce TLS verification for enrollment.
+        $stack->push(function (callable $handler) {
+            return function ($request, array $options) use ($handler) {
+                $options['verify'] = true;
+
+                return $handler($request, $options);
+            };
+        });
+
+        return new DefaultHttpClientBuilder([
+            'handler' => $stack,
+            'connect_timeout' => 5,
+            'timeout' => 20,
+            'allow_redirects' => false,
+        ]);
+    }
 
     /**
      * Returns the gateway types available for this driver.
@@ -176,6 +278,8 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             if ($environmentSubdomain !== null) {
                 $builder->environmentSubdomain($environmentSubdomain);
+            } else {
+                $builder->useLegacyDomain();
             }
 
             $builder->publicKey($publicKey)
@@ -193,6 +297,8 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 if ($environmentSubdomain !== null) {
                     $builder->environmentSubdomain($environmentSubdomain);
+                } else {
+                    $builder->useLegacyDomain();
                 }
 
                 $builder->secretKey($secretKey);
@@ -207,6 +313,8 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             if ($environmentSubdomain !== null) {
                 $builder->environmentSubdomain($environmentSubdomain);
+            } else {
+                $builder->useLegacyDomain();
             }
 
             $builder->publicKey($publicKey)
@@ -223,6 +331,8 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 if ($environmentSubdomain !== null) {
                     $builder->environmentSubdomain($environmentSubdomain);
+                } else {
+                    $builder->useLegacyDomain();
                 }
 
                 $builder->secretKey($secretKey);

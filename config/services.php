@@ -70,6 +70,7 @@ return [
         'client_id' => env('APPLE_CLIENT_ID'),
         'client_secret' => env('APPLE_CLIENT_SECRET'),
         'redirect' => env('APPLE_REDIRECT_URI'),
+        'client_ids' => explode(',', env('APPLE_CLIENT_IDS', '')),
     ],
 
     'oidc' => [
@@ -83,7 +84,9 @@ return [
         // Space-separated scopes.
         'scopes'         => env('OIDC_SCOPES', 'openid profile email'),
         // Human-readable label used on the Blade login page button.
-        'provider_label' => env('OIDC_PROVIDER_LABEL', 'OIDC'),
+        'provider_label' => env('OIDC_PROVIDER_LABEL', 'Single Sign-On'),
+        // Redirect automatically to OIDC provider on login page.
+        'auto' => env('OIDC_AUTO', false),
     ],
 
     'ses' => [

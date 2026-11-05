@@ -6554,6 +6554,13 @@ $lang = array(
     'decimal_hours' => 'Decimal Hours',
     'locked_task' => 'This task is locked and cannot be edited.',
     'map_signatories_description' => 'Select who you would like to send this document to, then continue.',
+    'sign_in_with' => 'Sign in with :provider',
+    'signing_you_in' => 'Signing you in…',
+    'sign_in_failed' => 'Sign in failed',
+    'oidc_login_failed' => 'Unable to sign in with your identity provider. Please try again.',
+    'oidc_missing_code' => 'The sign-in code is missing. Please return to the login page and try again.',
+    'oidc_no_token' => 'No authentication token was returned. Please return to the login page and try again.',
+    'back_to_login' => 'Back to login',
 
 );
 

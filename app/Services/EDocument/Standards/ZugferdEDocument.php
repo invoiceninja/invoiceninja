@@ -312,9 +312,10 @@ class ZugferdEDocument extends AbstractService
             ctrans("texts.xinvoice_payable", [
                 'payeddue' => date_create($this->document->date ?? now()->format('Y-m-d'))
                     ->diff(date_create($this->document->due_date ?? now()->format('Y-m-d')))
-                    ->format("%d"),
+                    ->format("%a"),
                 'paydate' => $this->document->due_date,
-            ])
+            ]),
+            $this->document->due_date ? date_create($this->document->due_date) : null
         );
 
         return $this;

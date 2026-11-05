@@ -59,7 +59,7 @@ class InvoiceValidator
         }
 
         // Check system NIF
-        if ($invoice->getSistemaInformatico() && $invoice->getSistemaInformatico()->getNif()) {
+        if ($invoice->getSistemaInformatico() && $invoice->getSistemaInformatico()->getNif()) { //@phpstan-ignore-line
             $nif = $invoice->getSistemaInformatico()->getNif();
             if (!$this->isValidNif($nif)) {
                 $errors[] = "Invalid system NIF format: {$nif}";

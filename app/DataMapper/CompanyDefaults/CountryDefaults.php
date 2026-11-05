@@ -166,7 +166,7 @@ class CountryDefaults
             'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'DPH', 'rate' => 21],
-                ['name' => 'DPH (snížená)', 'rate' => 15],
+                ['name' => 'DPH (snížená)', 'rate' => 12],
             ],
         ],
 
@@ -184,7 +184,7 @@ class CountryDefaults
             'timezone_id' => '63',
             'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
-                ['name' => 'KM', 'rate' => 22],
+                ['name' => 'KM', 'rate' => 24],
                 ['name' => 'KM (vähendatud)', 'rate' => 9],
             ],
         ],
@@ -195,7 +195,7 @@ class CountryDefaults
             'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
                 ['name' => 'ALV', 'rate' => 25.5],
-                ['name' => 'ALV (alennettu)', 'rate' => 14],
+                ['name' => 'ALV (alennettu)', 'rate' => 13.5],
             ],
         ],
 
@@ -271,7 +271,7 @@ class CountryDefaults
             'date_format_id' => '8', // Y-m-d (ISO)
             'tax_rates' => [
                 ['name' => 'PVM', 'rate' => 21],
-                ['name' => 'PVM (lengvatinis)', 'rate' => 9],
+                ['name' => 'PVM (lengvatinis)', 'rate' => 12],
             ],
         ],
 
@@ -328,8 +328,8 @@ class CountryDefaults
             'timezone_id' => '54',
             'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
-                ['name' => 'TVA', 'rate' => 19],
-                ['name' => 'TVA (redusă)', 'rate' => 5],
+                ['name' => 'TVA', 'rate' => 21],
+                ['name' => 'TVA (redusă)', 'rate' => 11],
             ],
         ],
 
@@ -338,8 +338,8 @@ class CountryDefaults
             'timezone_id' => '38',
             'date_format_id' => '11', // d.m.Y
             'tax_rates' => [
-                ['name' => 'DPH', 'rate' => 20],
-                ['name' => 'DPH (znížená)', 'rate' => 10],
+                ['name' => 'DPH', 'rate' => 23],
+                ['name' => 'DPH (znížená)', 'rate' => 19],
             ],
         ],
 
@@ -459,7 +459,7 @@ class CountryDefaults
             'currency_id' => '6',
             'timezone_id' => '58',
             'tax_rates' => [
-                ['name' => 'מע"מ', 'rate' => 17],
+                ['name' => 'מע"מ', 'rate' => 18],
             ],
         ],
 

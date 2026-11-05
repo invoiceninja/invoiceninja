@@ -20,6 +20,27 @@ use Tests\TestCase;
 
 class EpcQrGeneratorTest extends TestCase
 {
+    public function testInvoiceNumberUsesUnstructuredRemittance(): void
+    {
+        $settings = CompanySettings::defaults();
+        $settings->name = 'Test Company';
+
+        $company = new Company();
+        $company->settings = $settings;
+
+        $invoice = new Invoice();
+        $invoice->number = 'INV-001';
+
+        $payload = (new EpcQrGenerator($company, $invoice, 100))->encodeMessage();
+        $lines = explode("\n", $payload);
+
+        $this->assertCount(11, $lines);
+        $this->assertSame('', $lines[8]); // Purpose
+        $this->assertSame('', $lines[9]); // Structured remittance
+        $this->assertSame('INV-001', $lines[10]); // Unstructured remittance
+        $this->assertFalse(str_ends_with($payload, "\n"));
+    }
+
     public function test_qr_code_wrapper_has_a_white_background(): void
     {
         $settings = CompanySettings::defaults();

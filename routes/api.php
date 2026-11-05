@@ -430,7 +430,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
-    Route::post('support/messages/send', SendingController::class);
+    Route::post('support/messages/send', SendingController::class)->middleware('throttle:support-messages');;
 
     Route::post('self-update', [SelfUpdateController::class, 'update'])->middleware('password_protected');
     Route::post('self-update/check_version', [SelfUpdateController::class, 'checkVersion']);

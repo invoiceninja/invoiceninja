@@ -135,6 +135,17 @@ class RouteServiceProvider extends ServiceProvider
             ];
         });
 
+        RateLimiter::for('support-messages', function (Request $request) {
+            $identity = $request->user()?->email
+                ?? $request->input('email')
+                ?? $request->ip();
+
+            return [
+                Limit::perMinute(1)->by($identity),
+                Limit::perDay(10)->by($identity),
+            ];
+        });
+        
         RateLimiter::for('honeypot', function (Request $request) {
             return Limit::perMinute(2)->by($request->ip());
         });
@@ -233,7 +244,6 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapClientApiRoutes();
 
-        $this->mapShopApiRoutes();
     }
 
     /**
@@ -289,13 +299,6 @@ class RouteServiceProvider extends ServiceProvider
         Route::prefix('')
              ->middleware('client')
              ->group(base_path('routes/client.php'));
-    }
-
-    protected function mapShopApiRoutes()
-    {
-        Route::prefix('')
-             ->middleware('shop')
-             ->group(base_path('routes/shop.php'));
     }
 
     protected function mapVendorsApiRoutes()

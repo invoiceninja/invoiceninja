@@ -91,7 +91,7 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
             }
 
             if (isset($transaction['payment_method'])) {
-                /** @var \App\Models\ClientGatewayToken $cgt **/
+                /** @var \App\Models\ClientGatewayToken|null $cgt **/
                 $cgt = ClientGatewayToken::where('token', $transaction['payment_method'])
                     ->where('company_id', $company->id)
                     ->where('company_gateway_id', $this->company_gateway_id)

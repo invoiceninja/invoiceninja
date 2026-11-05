@@ -21,6 +21,7 @@ use App\Mail\Admin\EntityPaidObject;
 use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Http;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class PaymentNotification implements ShouldQueue
@@ -185,17 +186,12 @@ class PaymentNotification implements ShouldQueue
     private function sendAnalytics($url)
     {
         $data = mb_convert_encoding($url, 'UTF-8');
-        // $data = utf8_encode($data);
-        $curl = curl_init();
 
-        $opts = [
-            CURLOPT_URL => config('ninja.google_analytics_url'),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => 'POST',
-            CURLOPT_POSTFIELDS => $data,
-        ];
-
-        curl_setopt_array($curl, $opts);
-        curl_exec($curl);
+        try {
+            Http::withBody($data, 'application/x-www-form-urlencoded')
+                ->post(config('ninja.google_analytics_url'));
+        } catch (\Throwable) {
+            // Fire-and-forget analytics; unreachable collect must not fail payment notifications.
+        }
     }
 }
