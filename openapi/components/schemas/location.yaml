@@ -62,10 +62,6 @@
           type: string
           example: Opnel5aKBz
           readOnly: true
-        assigned_user_id:
-          description: 'The assigned user hashed id'
-          type: string
-          example: Opnel5aKBz
         client_id:
           description: 'The client hashed id'
           type: string
@@ -82,4 +78,11 @@
           description: 'Timestamp of when the location was last updated'
           type: integer
           example: 1623456999
+        archived_at:
+          description: 'When the location was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        tax_data:
+          description: 'Sales tax data the tax provider looked up for the location''s address, an empty object when none'
+          type: object
+          additionalProperties: true
       type: object 

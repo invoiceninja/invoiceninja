@@ -5,16 +5,8 @@
           type: string
           example: Opnel5aKBz
           readOnly: true
-        client_id:
-          description: 'The hashed_id of the client'
-          type: string
-          example: '2'
         token:
           description: 'The payment token'
-          type: string
-          example: '2'
-        routing_number:
-          description: 'THe bank account routing number'
           type: string
           example: '2'
         company_gateway_id:
@@ -25,4 +17,26 @@
           description: 'Flag determining if the token is the default payment method'
           type: boolean
           example: true
+        archived_at:
+          description: 'When the client gateway token was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        created_at:
+          description: 'When the client gateway token was created, as a Unix timestamp in seconds'
+          type: integer
+        gateway_customer_reference:
+          description: 'The id of the customer at the payment gateway, for example a Stripe customer id (cus_...)'
+          type: string
+        gateway_type_id:
+          description: 'The gateway type id, for example 1 for credit card'
+          type: string
+        is_deleted:
+          description: 'Whether the client gateway token has been deleted'
+          type: boolean
+        meta:
+          description: 'Details of the payment method, such as the card brand, last 4 digits and expiry'
+          type: object
+          additionalProperties: true
+        updated_at:
+          description: 'When the client gateway token was last changed, as a Unix timestamp in seconds'
+          type: integer
       type: object

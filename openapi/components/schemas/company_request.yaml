@@ -1,0 +1,14 @@
+    CompanyRequest:
+      description: 'The company fields a request can send: the Company fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/Company'
+        - type: object
+          properties:
+            e_invoice_certificate_passphrase:
+              description: "The e-invoice certificate passphrase for the company"
+              type: string
+              example: 'secret'
+            e_invoicing_token:
+              description: 'Authentication token for e-invoicing services'
+              type: string
+              example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'

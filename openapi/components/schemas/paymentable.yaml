@@ -25,12 +25,16 @@
           example: 10.00
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
+        payment_id:
+          description: 'The hashed id of the payment this allocation belongs to'
+          type: string
+        archived_at:
+          description: 'When the payment allocation was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
       type: object

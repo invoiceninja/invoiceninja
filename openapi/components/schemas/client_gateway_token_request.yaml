@@ -1,0 +1,14 @@
+    ClientGatewayTokenRequest:
+      description: 'The client gateway token fields a request can send: the ClientGatewayToken fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/ClientGatewayToken'
+        - type: object
+          properties:
+            client_id:
+              description: 'The hashed_id of the client'
+              type: string
+              example: '2'
+            routing_number:
+              description: 'THe bank account routing number'
+              type: string
+              example: '2'

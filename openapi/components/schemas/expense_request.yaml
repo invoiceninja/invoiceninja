@@ -1,0 +1,10 @@
+    ExpenseRequest:
+      description: 'The expense fields a request can send: the Expense fields, plus inputs the API accepts but does not return'
+      allOf:
+        - $ref: '#/components/schemas/Expense'
+        - type: object
+          properties:
+            purchase_order_id:
+              description: 'The unique identifier of the associated purchase order'
+              type: string
+              example: Opnel5aKBz
