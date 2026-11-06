@@ -116,6 +116,8 @@ class Gateway extends StaticModel
             $link = 'https://notes.chip-in.asia/s/faq/p/Qwsatm6PeN';
         } elseif ($this->id == 69) {
             $link = 'https://www.helcim.com/';
+        } elseif ($this->id == 70) {
+            $link = 'https://developer.deluxe.com';
         }
 
         return $link;
@@ -284,6 +286,11 @@ class Gateway extends StaticModel
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
                 ]; //Helcim
+            case 70:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => false, 'webhooks' => ['TRANSACTION']],
+                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => false, 'webhooks' => ['TRANSACTION']],
+                ]; //Deluxe Payment Platform
             default:
                 return [];
         }
