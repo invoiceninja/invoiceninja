@@ -79,7 +79,7 @@ class CompanyResponseScopeTest extends TestCase
             'password' => Hash::make('company-scope-test'),
             'confirmation_code' => Str::random(32),
         ]);
-        $this->owner = User::factory()->create(['account_id' => $this->account->id]);
+        $this->owner = User::factory()->create(['account_id' => $this->account->id, 'email' => Str::uuid().'@example.test']);
 
         foreach ([0, 1] as $index) {
             $company = Company::factory()->create([
