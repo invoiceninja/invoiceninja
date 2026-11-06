@@ -4409,12 +4409,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "24717cd4fcd478ccf8951b89b6ca4184a00412f7"
+                "reference": "9e5c950ae414c438a93e0070cde2e45fe0fbd452"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/24717cd4fcd478ccf8951b89b6ca4184a00412f7",
-                "reference": "24717cd4fcd478ccf8951b89b6ca4184a00412f7",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/9e5c950ae414c438a93e0070cde2e45fe0fbd452",
+                "reference": "9e5c950ae414c438a93e0070cde2e45fe0fbd452",
                 "shasum": ""
             },
             "require": {
@@ -4456,7 +4456,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2026-11-05T03:01:08+00:00"
+            "time": "2026-11-05T23:49:04+00:00"
         },
         {
             "name": "invoiceninja/ubl_invoice",
