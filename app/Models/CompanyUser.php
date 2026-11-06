@@ -104,7 +104,7 @@ class CompanyUser extends Pivot
     ];
 
     protected $fillable = [
-        // 'account_id',
+        'account_id',
         'permissions',
         'notifications',
         'settings',
@@ -119,19 +119,6 @@ class CompanyUser extends Pivot
     protected $touches = ['user'];
 
     protected $with = ['user', 'account'];
-
-    protected static function booted(): void
-    {
-        static::creating(function (CompanyUser $company_user) {
-            if ($company_user->account_id || ! $company_user->company_id) {
-                return;
-            }
-
-            $company_user->account_id = Company::on($company_user->getConnectionName())
-                ->whereKey($company_user->company_id)
-                ->value('account_id');
-        });
-    }
 
     public function getEntityType()
     {
