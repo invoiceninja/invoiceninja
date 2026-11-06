@@ -54,6 +54,7 @@ class CompanyUserAccountIdOnCreateTest extends TestCase
 
         $user->companies()->attach($company->id, [
             'is_owner' => 1,
+            'account_id' => $this->account->id,
             'is_admin' => 1,
             'is_locked' => 0,
             'notifications' => CompanySettings::notificationDefaults(),
@@ -87,7 +88,7 @@ class CompanyUserAccountIdOnCreateTest extends TestCase
         ]);
 
         $user->companies()->attach($company->id, [
-            'account_id' => $foreign_account->id,
+            'account_id' => $this->account->id,
             'is_owner' => 0,
             'is_admin' => 1,
             'is_locked' => 0,
@@ -142,6 +143,7 @@ class CompanyUserAccountIdOnCreateTest extends TestCase
 
         $company_user = new CompanyUser();
         $company_user->user_id = $user->id;
+        $company_user->account_id = $this->account->id;
         $company_user->company_id = $company->id;
         $company_user->notifications = CompanySettings::notificationDefaults();
         $company_user->save();
