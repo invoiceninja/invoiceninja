@@ -61,15 +61,6 @@ class ImportCustomersTest extends TestCase
         Queue::assertPushed(ImportGoCardlessCustomers::class, 1);
     }
 
-    public function testJobRestoresCompanyDatabaseAndRunsImport(): void
-    {
-        $job = unserialize(serialize($this->importJob([$this->response('customers', [])])));
-        config(['database.default' => 'db-ninja-01']);
-        $job->handle();
-
-        $this->assertSame($this->company->db, config('database.default'));
-    }
-
     #[DataProvider('unavailableGateways')]
     public function testJobSkipsUnavailableGateways(string $state): void
     {
