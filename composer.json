@@ -70,6 +70,7 @@
         "josemmo/facturae-php": "^1.7",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "^12",
+        "laravel/mcp": "^1.0",
         "laravel/octane": "^2.6",
         "laravel/scout": "^10.11",
         "laravel/slack-notification-channel": "^3",

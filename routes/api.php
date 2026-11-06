@@ -566,3 +566,8 @@ Route::get('/health', function () {
         'message' => 'API is healthy',
     ]);
 })->middleware('throttle:20,1');
+
+// Native, opt-in, stateless Streamable HTTP. All verbs are authenticated.
+Route::middleware([\App\Mcp\Authenticate::class, 'throttle:api'])->group(function () {
+    \Laravel\Mcp\Facades\Mcp::web('api/v1/mcp', \App\Mcp\InvoiceNinjaServer::class)->name('api.mcp');
+});

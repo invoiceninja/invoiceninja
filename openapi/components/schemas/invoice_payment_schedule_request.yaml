@@ -1,0 +1,57 @@
+    InvoicePaymentScheduleRequest:
+      type: object
+      properties:
+        next_run:
+          type: string
+          format: date
+        frequency_id:
+          type: integer
+          description: 'Required with remaining_cycles. Uses the existing recurring frequency identifiers.'
+        remaining_cycles:
+          type: integer
+          description: 'Required with frequency_id.'
+        parameters:
+          type: object
+          properties:
+            auto_bill:
+              type: boolean
+              default: false
+            schedule:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  date:
+                    type: string
+                    format: date
+                  amount:
+                    type: number
+                  is_amount:
+                    type: boolean
+                required:
+                  - id
+                  - date
+                  - amount
+                  - is_amount
+        schedule:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              amount:
+                type: number
+              is_amount:
+                type: boolean
+            required:
+              - date
+              - amount
+              - is_amount
+          description: 'Alternative schedule input. Amounts must total the invoice amount, or percentages must total 100.'
+      required:
+        - next_run
+      description: 'Supply frequency_id with remaining_cycles, or explicit schedule entries. The server supplies parameters.invoice_id from the route and normalizes the schedule.'
