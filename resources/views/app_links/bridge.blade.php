@@ -33,7 +33,7 @@
     {{-- Messengers unfurl these links; without this the card is a bare URL. --}}
     <meta property="og:title" content="{{ config('ninja.app_name') }}">
     <meta property="og:description" content="{{ ctrans('texts.open_in_app') }}">
-    <meta property="og:image" content="{{ config('ninja.app_logo') }}">
+    <meta property="og:image" content="{{ asset('images/new_logo.png') }}">
     <meta name="twitter:card" content="summary">
 
     <style>
@@ -63,7 +63,7 @@
 </head>
 <body>
     <main>
-        <img src="{{ config('ninja.app_logo') }}" alt="">
+        <img src="{{ asset('images/new_logo.png') }}" alt="">
         <h1>{{ ctrans('texts.open_in_app') }}</h1>
 
         <a class="primary" id="app-link" href="{{ $appUrl }}"
