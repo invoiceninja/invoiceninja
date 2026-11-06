@@ -104,12 +104,13 @@ class UserTransformer extends EntityTransformer
         return $this->includeCollection($user->tokens, $transformer, CompanyToken::class);
     }
 
-    public function includeCompanyUsers(User $user)
-    {
-        $transformer = new CompanyUserTransformer($this->serializer);
+    /** do not enable this */
+    // public function includeCompanyUsers(User $user)
+    // {
+    //     $transformer = new CompanyUserTransformer($this->serializer);
 
-        return $this->includeCollection($user->company_users, $transformer, CompanyUser::class);
-    }
+    //     return $this->includeCollection($user->company_users, $transformer, CompanyUser::class);
+    // }
 
     /**
      *

@@ -21,6 +21,9 @@ use App\Models\Tag;
 use App\Utils\Statics;
 use App\Models\Account;
 use App\Models\Activity;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\Webhook;
 use App\Models\Scheduler;
@@ -1085,6 +1088,13 @@ class BaseController extends Controller
 
                 // Validate that the base relationship is in the transformer's available includes
                 if (in_array($base_include, $valid_includes, true)) {
+                    if (
+                        in_array($this->entity_type, [Product::class, Task::class, Project::class, Activity::class], true)
+                        && (str_starts_with($include, 'user.') || str_starts_with($include, 'assigned_user.'))
+                    ) {
+                        $include = $base_include;
+                    }
+
                     $data[] = $include;
                 }
                 // Invalid includes like 'deleted' are silently ignored
