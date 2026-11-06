@@ -51,6 +51,7 @@ class CompanyResponseScopeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['ninja.environment' => 'selfhost']);
         $this->withoutMiddleware(ThrottleRequests::class);
         Session::start();
         // Registered after DatabaseTransactions so this checks rollback, including on failure.
