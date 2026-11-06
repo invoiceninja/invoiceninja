@@ -20,6 +20,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
+use App\Models\CompanyUser;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Product;
@@ -27,6 +28,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -41,6 +43,12 @@ use Tests\TestCase;
 class CompanyTraversalTest extends TestCase
 {
     use DatabaseTransactions;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        config(['ninja.environment' => 'selfhost']);
+    }
 
     public static function routes(): array
     {
@@ -124,6 +132,130 @@ class CompanyTraversalTest extends TestCase
         }
         unset($case);
         return $cases;
+    }
+
+    public static function refreshNinjaEnvironments(): array
+    {
+        return [
+            'selfhost' => ['selfhost', 200],
+            'hosted' => ['hosted', 403],
+        ];
+    }
+
+    /**
+     * CI copies .env.ci (NINJA_ENVIRONMENT=hosted). Local .env is usually selfhost, so shell
+     * NINJA_ENVIRONMENT= does not reproduce CI unless config is forced in-process.
+     */
+    #[DataProvider('refreshNinjaEnvironments')]
+    public function testRefreshStatusByNinjaEnvironment(string $environment, int $expected_status): void
+    {
+        config(['ninja.environment' => $environment]);
+        $this->assertSame($environment, config('ninja.environment'));
+        $this->assertSame($environment === 'hosted', Ninja::isHosted());
+
+        $this->withoutMiddleware(ThrottleRequests::class);
+        Session::start();
+
+        $account = Account::factory()->create(['num_users' => 3]);
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => Str::uuid().'@example.test',
+            'password' => Hash::make('traversal-test'),
+            'confirmation_code' => Str::random(32),
+        ]);
+        $owner = User::factory()->create(['account_id' => $account->id, 'email' => Str::uuid().'@example.test']);
+
+        foreach (['a', 'b'] as $label) {
+            $company = Company::factory()->create(['account_id' => $account->id]);
+            CompanyUserFactory::create($owner->id, $company->id, $account->id)
+                ->forceFill(['is_owner' => true, 'is_admin' => true, 'permissions' => ''])->save();
+            CompanyUserFactory::create($user->id, $company->id, $account->id)
+                ->forceFill(['is_owner' => false, 'is_admin' => $label === 'a', 'permissions' => ''])->save();
+        }
+
+        $token = new CompanyToken();
+        $token->forceFill([
+            'account_id' => $account->id,
+            'company_id' => Company::where('account_id', $account->id)->first()->id,
+            'user_id' => $user->id,
+            'is_system' => true,
+            'name' => 'Traversal refresh probe',
+            'token' => Str::random(64),
+        ])->save();
+
+        $include = 'user.company_users.company.invoices,user.company_user.company.invoices,company.invoices,account.default_company.invoices';
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'traversal-test',
+            'X-API-TOKEN' => $token->token,
+        ])->post('/api/v1/refresh?'.http_build_query(['include' => $include]));
+
+        if ($environment === 'hosted') {
+            $response->assertJson([
+                'message' => 'Pro / Free accounts only the owner can log in. Please upgrade',
+            ]);
+        }
+    }
+
+    /**
+     * GitHub Actions: cp .env.ci → .env sets NINJA_ENVIRONMENT=hosted. The refresh data set still
+     * expects HTTP 200, so testRouteTraversal(..., "refresh") fails with 403 before include assertions.
+     */
+    public function testRefreshDataSetOnHostedReproducesCiFailure(): void
+    {
+        config(['ninja.environment' => 'hosted']);
+
+        $case = self::routes()['refresh'];
+        [$method, $route, $include, $payload, $provider_status] = $case;
+        $this->assertSame('POST', $method);
+        $this->assertSame('refresh', $route);
+        $this->assertSame(200, $provider_status, 'routes() assumes selfhost; CI is hosted.');
+
+        $this->withoutMiddleware(ThrottleRequests::class);
+        Session::start();
+
+        $account = Account::factory()->create(['num_users' => 3]);
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => Str::uuid().'@example.test',
+            'password' => Hash::make('traversal-test'),
+            'confirmation_code' => Str::random(32),
+        ]);
+        $owner = User::factory()->create(['account_id' => $account->id, 'email' => Str::uuid().'@example.test']);
+
+        foreach (['a', 'b'] as $label) {
+            $company = Company::factory()->create(['account_id' => $account->id]);
+            CompanyUserFactory::create($owner->id, $company->id, $account->id)
+                ->forceFill(['is_owner' => true, 'is_admin' => true, 'permissions' => ''])->save();
+            CompanyUserFactory::create($user->id, $company->id, $account->id)
+                ->forceFill(['is_owner' => false, 'is_admin' => $label === 'a', 'permissions' => ''])->save();
+        }
+
+        $token = new CompanyToken();
+        $token->forceFill([
+            'account_id' => $account->id,
+            'company_id' => Company::where('account_id', $account->id)->orderBy('id')->first()->id,
+            'user_id' => $user->id,
+            'is_system' => true,
+            'name' => 'Traversal refresh CI repro',
+            'token' => Str::random(64),
+        ])->save();
+
+        $membership = CompanyUser::query()->where('user_id', $user->id)->orderBy('id')->first();
+        $this->assertSame(0, (int)$membership->is_owner);
+        $this->assertTrue(Ninja::isHosted());
+        $this->assertFalse($membership->user->account->isEnterprisePaidClient());
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'traversal-test',
+            'X-API-TOKEN' => $token->token,
+        ])->json($method, '/api/v1/'.$route.'?'.http_build_query(['include' => $include]), $payload);
+
+        $response->assertStatus(403);
+        $response->assertJson([
+            'message' => 'Pro / Free accounts only the owner can log in. Please upgrade',
+        ]);
     }
 
     #[DataProvider('routes')]
