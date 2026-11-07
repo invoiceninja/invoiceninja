@@ -42,7 +42,9 @@ class PasskeyService
             240,
             true,
             'required',
-            null
+            null,
+            // Without these, iCloud Keychain and Google Password Manager silently replace the account's passkey.
+            $user->passkey_credentials->pluck('credential_id')->map(fn (string $id) => base64_decode($id))->filter()->values()->toArray()
         );
 
         $token = $this->storeChallenge($webAuthn->getChallenge(), [

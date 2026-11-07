@@ -86,6 +86,34 @@ class PasskeyRegistrationTest extends TestCase
         $this->assertFalse(PasskeyCredential::query()->where('user_id', $this->user->id)->exists());
     }
 
+    public function testRegistrationOptionsExcludeThePasskeysTheUserAlreadyHas(): void
+    {
+        // Without the list, iCloud Keychain and Google Password Manager quietly
+        // replace the existing passkey for this account, and the server keeps a
+        // row for a credential that no longer exists.
+        $ids = [random_bytes(16), random_bytes(32)];
+        foreach ($ids as $id) {
+            $credential = new PasskeyCredential();
+            $credential->account_id = $this->account->id;
+            $credential->user_id = $this->user->id;
+            $credential->name = 'Existing';
+            $credential->credential_id = base64_encode($id);
+            $credential->credential_public_key = base64_encode($this->publicKeyPem);
+            $credential->signature_counter = 0;
+            $credential->save();
+        }
+
+        $excluded = $this->registrationOptions()['publicKey']['excludeCredentials'];
+
+        $this->assertEqualsCanonicalizing(array_map(fn ($id) => $this->b64url($id), $ids), array_column($excluded, 'id'));
+        $this->assertSame(['public-key', 'public-key'], array_column($excluded, 'type'));
+    }
+
+    public function testRegistrationOptionsExcludeNothingForAUserWithoutPasskeys(): void
+    {
+        $this->assertSame([], $this->registrationOptions()['publicKey']['excludeCredentials']);
+    }
+
     private function registrationOptions(): array
     {
         return $this->authenticated()
