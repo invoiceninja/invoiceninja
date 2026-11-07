@@ -67,7 +67,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
 
     public function includeCompany(BankTransactionRule $bank_transaction_rule)
     {
-        $transformer = new CompanyTransformer($this->serializer);
+        $transformer = new CompanyTransformer($this->serializer, $this->user);
 
         return $this->includeItem($bank_transaction_rule->company, $transformer, Company::class);
     }
@@ -78,7 +78,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         return $this->includeItem($bank_transaction_rule->client, $transformer, Client::class);
     }
@@ -89,7 +89,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new VendorTransformer($this->serializer);
+        $transformer = new VendorTransformer($this->serializer, $this->user);
 
         return $this->includeItem($bank_transaction_rule->vendor, $transformer, Vendor::class);
     }
@@ -100,7 +100,7 @@ class BankTransactionRuleTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new ExpenseCategoryTransformer($this->serializer);
+        $transformer = new ExpenseCategoryTransformer($this->serializer, $this->user);
 
         return $this->includeItem($bank_transaction_rule->expense_category, $transformer, ExpenseCategory::class);
     }

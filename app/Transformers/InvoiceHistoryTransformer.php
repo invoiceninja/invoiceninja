@@ -55,7 +55,7 @@ class InvoiceHistoryTransformer extends EntityTransformer
 
     public function includeActivity(Backup $backup)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeItem($backup->activity, $transformer, Activity::class);
     }

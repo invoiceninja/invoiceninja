@@ -45,7 +45,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includeLocation(Invoice $invoice)
     {
-        $transformer = new LocationTransformer($this->serializer);
+        $transformer = new LocationTransformer($this->serializer, $this->user);
 
         if (!$invoice->location) {
             return null;
@@ -56,28 +56,28 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includeInvitations(Invoice $invoice)
     {
-        $transformer = new InvoiceInvitationTransformer($this->serializer);
+        $transformer = new InvoiceInvitationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->invitations, $transformer, InvoiceInvitation::class);
     }
 
     public function includeHistory(Invoice $invoice)
     {
-        $transformer = new InvoiceHistoryTransformer($this->serializer);
+        $transformer = new InvoiceHistoryTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->history, $transformer, Backup::class);
     }
 
     public function includeClient(Invoice $invoice)
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         return $this->includeItem($invoice->client, $transformer, Client::class);
     }
 
     public function includeProject(Invoice $invoice)
     {
-        $transformer = new ProjectTransformer($this->serializer);
+        $transformer = new ProjectTransformer($this->serializer, $this->user);
 
         if (!$invoice->project || $invoice->project->company_id !== $invoice->company_id) {
             return null;
@@ -88,21 +88,21 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includePayments(Invoice $invoice)
     {
-        $transformer = new PaymentTransformer($this->serializer);
+        $transformer = new PaymentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->payments, $transformer, Payment::class);
     }
 
     public function includePaymentables(Invoice $invoice)
     {
-        $transformer = new PaymentableTransformer($this->serializer);
+        $transformer = new PaymentableTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->paymentables, $transformer, Paymentable::class);
     }
 
     public function includeCredits(Invoice $invoice)
     {
-        $transformer = new CreditTransformer($this->serializer);
+        $transformer = new CreditTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->credits, $transformer, Credit::class);
     }
@@ -117,14 +117,14 @@ class InvoiceTransformer extends EntityTransformer
     */
     public function includeDocuments(Invoice $invoice)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->documents, $transformer, Document::class);
     }
 
     public function includeActivities(Invoice $invoice)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->activities, $transformer, Activity::class);
     }

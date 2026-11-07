@@ -633,7 +633,7 @@ class BaseController extends Controller
             : new ArraySerializer());
 
         $active_company_id = auth()->user()->companyId();
-        $transformer = new $this->entity_transformer($this->serializer, $active_company_id);
+        $transformer = new $this->entity_transformer($this->serializer, auth()->user(), $active_company_id);
 
         $company_includes['company.users.company_users'] = fn ($query) => $query
             ->where('company_id', $active_company_id)
@@ -658,7 +658,7 @@ class BaseController extends Controller
     {
         $this->buildManager();
 
-        $transformer = new $this->entity_transformer(request()->input('serializer'));
+        $transformer = new $this->entity_transformer(request()->input('serializer'), auth()->guard('user')->user());
 
         if ($include_relations) {
             $includes = $transformer->getDefaultIncludes();
@@ -906,7 +906,7 @@ class BaseController extends Controller
 
         $this->buildManager();
 
-        $transformer = new $this->entity_transformer(request()->input('serializer'));
+        $transformer = new $this->entity_transformer(request()->input('serializer'), auth()->guard('user')->user());
 
         if ($item instanceof Company && $item->exists) {
             $this->loadCompanyIncludes($item, $transformer);
@@ -1047,7 +1047,7 @@ class BaseController extends Controller
         // Use provided transformer or instantiate if needed (for buildManager context)
         if ($transformer === null && !empty($this->entity_transformer) && class_exists($this->entity_transformer)) {
             try {
-                $transformer = new $this->entity_transformer(request()->input('serializer'));
+                $transformer = new $this->entity_transformer(request()->input('serializer'), auth()->guard('user')->user());
             } catch (\Exception $e) {
                 // If transformer instantiation fails, skip validation and return data as-is
                 // This maintains backward compatibility for edge cases

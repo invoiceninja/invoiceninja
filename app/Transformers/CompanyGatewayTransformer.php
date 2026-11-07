@@ -88,14 +88,14 @@ class CompanyGatewayTransformer extends EntityTransformer
 
     public function includeGateway(CompanyGateway $company_gateway)
     {
-        $transformer = new GatewayTransformer($this->serializer);
+        $transformer = new GatewayTransformer($this->serializer, $this->user);
 
         return $this->includeItem($company_gateway->gateway, $transformer, Gateway::class);
     }
 
     public function includeSystemLogs(CompanyGateway $company_gateway)
     {
-        $transformer = new SystemLogTransformer($this->serializer);
+        $transformer = new SystemLogTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($company_gateway->system_logs(), $transformer, SystemLog::class);
     }

@@ -92,7 +92,7 @@ class ActivityTransformer extends EntityTransformer
 
     public function includeHistory(Activity $activity)
     {
-        $transformer = new InvoiceHistoryTransformer($this->serializer);
+        $transformer = new InvoiceHistoryTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->backup, $transformer, Backup::class);
     }
@@ -104,7 +104,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->client, $transformer, Client::class);
     }
@@ -115,7 +115,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new VendorTransformer($this->serializer);
+        $transformer = new VendorTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->vendor, $transformer, Vendor::class);
     }
@@ -127,7 +127,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new ClientContactTransformer($this->serializer);
+        $transformer = new ClientContactTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->contact, $transformer, ClientContact::class);
     }
@@ -139,7 +139,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new VendorContactTransformer($this->serializer);
+        $transformer = new VendorContactTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->vendor_contact, $transformer, VendorContact::class);
     }
@@ -151,7 +151,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new RecurringInvoiceTransformer($this->serializer);
+        $transformer = new RecurringInvoiceTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->recurring_invoice, $transformer, RecurringInvoice::class);
     }
@@ -163,7 +163,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new PurchaseOrderTransformer($this->serializer);
+        $transformer = new PurchaseOrderTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->purchase_order, $transformer, PurchaseOrder::class);
     }
@@ -176,7 +176,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new RecurringInvoiceTransformer($this->serializer);
+        $transformer = new RecurringInvoiceTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->quote, $transformer, Quote::class);
     }
@@ -187,7 +187,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new InvoiceTransformer($this->serializer);
+        $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->invoice, $transformer, Invoice::class);
     }
@@ -198,7 +198,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new CreditTransformer($this->serializer);
+        $transformer = new CreditTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->credit, $transformer, Credit::class);
     }
@@ -209,7 +209,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new PaymentTransformer($this->serializer);
+        $transformer = new PaymentTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->payment, $transformer, Payment::class);
     }
@@ -220,7 +220,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new UserProfileTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->user, $transformer, User::class);
     }
@@ -231,7 +231,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new ExpenseTransformer($this->serializer);
+        $transformer = new ExpenseTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->expense, $transformer, Expense::class);
     }
@@ -242,7 +242,7 @@ class ActivityTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new TaskTransformer($this->serializer);
+        $transformer = new TaskTransformer($this->serializer, $this->user);
 
         return $this->includeItem($activity->task, $transformer, Task::class);
     }

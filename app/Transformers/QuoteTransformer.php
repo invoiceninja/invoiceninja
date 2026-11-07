@@ -39,7 +39,7 @@ class QuoteTransformer extends EntityTransformer
 
     public function includeLocation(Quote $quote)
     {
-        $transformer = new LocationTransformer($this->serializer);
+        $transformer = new LocationTransformer($this->serializer, $this->user);
 
         if (!$quote->location) {
             return null;
@@ -50,21 +50,21 @@ class QuoteTransformer extends EntityTransformer
 
     public function includeActivities(Quote $quote)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->activities, $transformer, Activity::class);
     }
 
     public function includeHistory(Quote $quote)
     {
-        $transformer = new InvoiceHistoryTransformer($this->serializer);
+        $transformer = new InvoiceHistoryTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->history, $transformer, Backup::class);
     }
 
     public function includeInvitations(Quote $quote)
     {
-        $transformer = new QuoteInvitationTransformer($this->serializer);
+        $transformer = new QuoteInvitationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->invitations, $transformer, QuoteInvitation::class);
     }
@@ -87,14 +87,14 @@ class QuoteTransformer extends EntityTransformer
 
     public function includeDocuments(Quote $quote)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->documents, $transformer, Document::class);
     }
 
     public function includeClient(Quote $quote): Item
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         return $this->includeItem($quote->client, $transformer, Client::class);
     }

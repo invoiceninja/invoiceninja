@@ -468,10 +468,45 @@ class CompanyResponseScopeTest extends TestCase
         $this->assertCompanyHasNoChildren($response->json('data.1.company'));
     }
 
+    public function testApiResponsesPassTokenUserToTransformers(): void
+    {
+        $this->withoutExceptionHandling();
+        $this->createFixture(false);
+        $client = $this->records[0]['client'];
+        $client->user_id = $this->user->id;
+        $client->save();
+
+        $this->app->bind(\App\Http\Controllers\ClientController::class, function () {
+            $controller = $this->app->build(\App\Http\Controllers\ClientController::class);
+            $property = new \ReflectionProperty($controller, 'entity_transformer');
+            $property->setValue($controller, TokenUserClientTransformer::class);
+
+            return $controller;
+        });
+
+        foreach (['array', 'json'] as $serializer) {
+            foreach (['', '/'.$client->hashed_id] as $suffix) {
+                TokenUserClientTransformer::$users = [];
+                $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->tokens[0],
+                ])->getJson('/api/v1/clients'.$suffix.'?include=contacts&serializer='.$serializer)->assertOk();
+
+                $this->assertNotEmpty(TokenUserClientTransformer::$users);
+                foreach (TokenUserClientTransformer::$users as $user) {
+                    $this->assertInstanceOf(User::class, $user);
+                    $this->assertSame($this->user->id, $user->id);
+                    $this->assertSame($this->companies[0]->id, $user->companyId());
+                    $this->assertFalse($user->isAdmin());
+                }
+            }
+        }
+    }
+
     public function testCompanyTransformerRestrictionsDoNotCarryBetweenMemberships(): void
     {
         $this->createFixture();
-        $transformer = new AuthenticatedCompanyUserTransformer('array', $this->companies[0]->id);
+        $transformer = new AuthenticatedCompanyUserTransformer('array', $this->user, $this->companies[0]->id);
         foreach ([1, 0, 1] as $index) {
             $membership = (new CompanyUser())->forceFill(['company_id' => $this->companies[$index]->id]);
             $membership->setRelation('company', $this->companies[$index]);
@@ -528,5 +563,16 @@ class CompanyResponseScopeTest extends TestCase
         $this->withHeaders(['X-API-TOKEN' => $new_token])->postJson('/api/v1/refresh?current_company=true')
             ->assertOk()->assertJsonPath('data.0.company.id', $new_company_id)
             ->assertJsonPath('data.0.token.token', $new_token);
+    }
+}
+
+class TokenUserClientTransformer extends \App\Transformers\ClientTransformer
+{
+    public static array $users = [];
+
+    public function __construct($serializer = null, ?User $user = null)
+    {
+        parent::__construct($serializer, $user);
+        self::$users[] = $user;
     }
 }

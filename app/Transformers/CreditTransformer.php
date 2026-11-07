@@ -38,7 +38,7 @@ class CreditTransformer extends EntityTransformer
 
     public function includeLocation(Credit $credit)
     {
-        $transformer = new LocationTransformer($this->serializer);
+        $transformer = new LocationTransformer($this->serializer, $this->user);
 
         if (!$credit->location) {
             return null;
@@ -49,35 +49,35 @@ class CreditTransformer extends EntityTransformer
 
     public function includeActivities(Credit $credit)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($credit->activities, $transformer, Activity::class);
     }
 
     public function includeHistory(Credit $credit)
     {
-        $transformer = new InvoiceHistoryTransformer($this->serializer);
+        $transformer = new InvoiceHistoryTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($credit->history, $transformer, Backup::class);
     }
 
     public function includeInvitations(Credit $credit)
     {
-        $transformer = new CreditInvitationTransformer($this->serializer);
+        $transformer = new CreditInvitationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($credit->invitations, $transformer, CreditInvitation::class);
     }
 
     public function includeClient(Credit $credit): Item
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         return $this->includeItem($credit->client, $transformer, Client::class);
     }
 
     public function includeDocuments(Credit $credit)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($credit->documents, $transformer, Document::class);
     }

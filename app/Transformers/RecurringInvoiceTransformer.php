@@ -37,7 +37,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
 
     public function includeLocation(RecurringInvoice $invoice)
     {
-        $transformer = new LocationTransformer($this->serializer);
+        $transformer = new LocationTransformer($this->serializer, $this->user);
 
         if (!$invoice->location) {
             return null;
@@ -48,35 +48,35 @@ class RecurringInvoiceTransformer extends EntityTransformer
 
     public function includeHistory(RecurringInvoice $invoice)
     {
-        $transformer = new InvoiceHistoryTransformer($this->serializer);
+        $transformer = new InvoiceHistoryTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->history, $transformer, Backup::class);
     }
 
     public function includeActivities(RecurringInvoice $invoice)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->activities, $transformer, Activity::class);
     }
 
     public function includeInvitations(RecurringInvoice $invoice)
     {
-        $transformer = new RecurringInvoiceInvitationTransformer($this->serializer);
+        $transformer = new RecurringInvoiceInvitationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->invitations, $transformer, RecurringInvoiceInvitation::class);
     }
 
     public function includeDocuments(RecurringInvoice $invoice)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($invoice->documents, $transformer, Document::class);
     }
 
     public function includeClient(RecurringInvoice $invoice)
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         return $this->includeItem($invoice->client, $transformer, Client::class);
     }

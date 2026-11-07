@@ -41,7 +41,7 @@ class ProductTransformer extends EntityTransformer
      */
     public function includeUser(Product $product)
     {
-        $transformer = new UserProfileTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer, $this->user);
 
         return $this->includeItem($product->user, $transformer, User::class);
     }
@@ -53,14 +53,14 @@ class ProductTransformer extends EntityTransformer
      */
     public function includeCompany(Product $product)
     {
-        $transformer = new CompanyTransformer($this->serializer);
+        $transformer = new CompanyTransformer($this->serializer, $this->user);
 
         return $this->includeItem($product->company, $transformer, Company::class);
     }
 
     public function includeDocuments(Product $product)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($product->documents, $transformer, Document::class);
     }

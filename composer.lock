@@ -385,16 +385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.403.0",
+            "version": "3.403.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "effd01087c371988150d882e856889ffd2b5d728"
+                "reference": "608a2c79f57fd3dd54d0dff1e98e9c124f3cb96c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/effd01087c371988150d882e856889ffd2b5d728",
-                "reference": "effd01087c371988150d882e856889ffd2b5d728",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/608a2c79f57fd3dd54d0dff1e98e9c124f3cb96c",
+                "reference": "608a2c79f57fd3dd54d0dff1e98e9c124f3cb96c",
                 "shasum": ""
             },
             "require": {
@@ -476,9 +476,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.403.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.403.1"
             },
-            "time": "2026-11-05T19:10:30+00:00"
+            "time": "2026-11-06T19:34:26+00:00"
         },
         {
             "name": "babenkoivan/elastic-adapter",
@@ -1196,22 +1196,23 @@
         },
         {
             "name": "checkout/checkout-sdk-php",
-            "version": "6.9.1",
+            "version": "6.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/checkout/checkout-sdk-php.git",
-                "reference": "aaad9890d5aeffa33a91dcb24451ed5fdaf9e480"
+                "reference": "17897a88a8a507b38da0d66a08193a762f9c0b2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/aaad9890d5aeffa33a91dcb24451ed5fdaf9e480",
-                "reference": "aaad9890d5aeffa33a91dcb24451ed5fdaf9e480",
+                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/17897a88a8a507b38da0d66a08193a762f9c0b2e",
+                "reference": "17897a88a8a507b38da0d66a08193a762f9c0b2e",
                 "shasum": ""
             },
             "require": {
                 "ext-fileinfo": "*",
                 "ext-json": "*",
-                "guzzlehttp/guzzle": "^7.4",
+                "guzzlehttp/guzzle": "^7.15.2",
+                "guzzlehttp/psr7": "^2.12.3",
                 "monolog/monolog": "^2.4 || ^3.0.0",
                 "php": ">=8.1.0"
             },
@@ -1258,9 +1259,9 @@
             ],
             "support": {
                 "issues": "https://github.com/checkout/checkout-sdk-php/issues",
-                "source": "https://github.com/checkout/checkout-sdk-php/tree/6.9.1"
+                "source": "https://github.com/checkout/checkout-sdk-php/tree/6.10.0"
             },
-            "time": "2026-11-03T10:28:05+00:00"
+            "time": "2026-11-06T10:34:54+00:00"
         },
         {
             "name": "clue/stream-filter",
@@ -18438,16 +18439,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.95.28",
+            "version": "v3.95.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "de66c41256ad603e63cf033bd153fa4a14ebaca4"
+                "reference": "60e424d3e54b15b0174924fb123783aae0de7b0c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/de66c41256ad603e63cf033bd153fa4a14ebaca4",
-                "reference": "de66c41256ad603e63cf033bd153fa4a14ebaca4",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/60e424d3e54b15b0174924fb123783aae0de7b0c",
+                "reference": "60e424d3e54b15b0174924fb123783aae0de7b0c",
                 "shasum": ""
             },
             "require": {
@@ -18481,12 +18482,12 @@
             "require-dev": {
                 "facile-it/paraunit": "^1.3.1 || ^2.11.0",
                 "infection/infection": "^0.32.7",
-                "justinrainbow/json-schema": "^6.12.0",
+                "justinrainbow/json-schema": "^6.14.0",
                 "keradus/cli-executor": "^2.3",
                 "php-coveralls/php-coveralls": "^2.9.1",
                 "php-cs-fixer/phpunit-constraint-isidenticalstring": "^1.8",
                 "php-cs-fixer/phpunit-constraint-xmlmatchesxsd": "^1.8",
-                "phpunit/phpunit": "^9.6.36 || ^10.5.64 || ^11.5.56 || ^12.5.35 || ^13.3.3",
+                "phpunit/phpunit": "^9.6.38 || ^10.5.66 || ^11.5.57 || ^12.5.43 || ^13.4.6",
                 "symfony/polyfill-php85": "^1.43",
                 "symfony/var-dumper": "^5.4.54 || ^6.4.49 || ^7.4.22 || ^8.1.10",
                 "symfony/yaml": "^5.4.56 || ^6.4.50 || ^7.4.23 || ^8.1.11"
@@ -18530,7 +18531,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.28"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.29"
             },
             "funding": [
                 {
@@ -18538,7 +18539,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-04T13:04:49+00:00"
+            "time": "2026-11-06T16:25:42+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",

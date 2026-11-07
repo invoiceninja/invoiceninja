@@ -48,14 +48,14 @@ class ExpenseTransformer extends EntityTransformer
 
     public function includeDocuments(Expense $expense)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($expense->documents, $transformer, Document::class);
     }
 
     public function includeProject(Expense $expense): ?Item
     {
-        $transformer = new ProjectTransformer($this->serializer);
+        $transformer = new ProjectTransformer($this->serializer, $this->user);
 
         if (!$expense->project) {
             return null;
@@ -66,7 +66,7 @@ class ExpenseTransformer extends EntityTransformer
 
     public function includeClient(Expense $expense): ?Item
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         if (!$expense->client) {
             return null;
@@ -77,7 +77,7 @@ class ExpenseTransformer extends EntityTransformer
 
     public function includeInvoice(Expense $expense): ?Item
     {
-        $transformer = new InvoiceTransformer($this->serializer);
+        $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
         if (!$expense->invoice) {
             return null;
@@ -88,7 +88,7 @@ class ExpenseTransformer extends EntityTransformer
 
     public function includeCategory(Expense $expense): ?Item
     {
-        $transformer = new ExpenseCategoryTransformer($this->serializer);
+        $transformer = new ExpenseCategoryTransformer($this->serializer, $this->user);
 
         if (!$expense->category) {
             return null;
@@ -99,7 +99,7 @@ class ExpenseTransformer extends EntityTransformer
 
     public function includeVendor(Expense $expense): ?Item
     {
-        $transformer = new VendorTransformer($this->serializer);
+        $transformer = new VendorTransformer($this->serializer, $this->user);
 
         if (!$expense->vendor) {
             return null;

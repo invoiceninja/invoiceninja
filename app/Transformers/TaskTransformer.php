@@ -48,14 +48,14 @@ class TaskTransformer extends EntityTransformer
 
     public function includeDocuments(Task $task)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($task->documents, $transformer, Document::class);
     }
 
     public function includeInvoice(Task $task): ?Item
     {
-        $transformer = new InvoiceTransformer($this->serializer);
+        $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
         if (!$task->invoice) {
             return null;
@@ -66,7 +66,7 @@ class TaskTransformer extends EntityTransformer
 
     public function includeUser(Task $task): ?Item
     {
-        $transformer = new UserProfileTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer, $this->user);
 
         if (!$task->user) { //@phpstan-ignore-line
             return null;
@@ -77,7 +77,7 @@ class TaskTransformer extends EntityTransformer
 
     public function includeAssignedUser(Task $task): ?Item
     {
-        $transformer = new UserProfileTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer, $this->user);
 
         if (!$task->assigned_user) {
             return null;
@@ -88,7 +88,7 @@ class TaskTransformer extends EntityTransformer
 
     public function includeClient(Task $task): ?Item
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         if (!$task->client) {
             return null;
@@ -99,7 +99,7 @@ class TaskTransformer extends EntityTransformer
 
     public function includeStatus(Task $task): ?Item
     {
-        $transformer = new TaskStatusTransformer($this->serializer);
+        $transformer = new TaskStatusTransformer($this->serializer, $this->user);
 
         if (!$task->status) {
             return null;
@@ -110,7 +110,7 @@ class TaskTransformer extends EntityTransformer
 
     public function includeProject(Task $task): ?Item
     {
-        $transformer = new ProjectTransformer($this->serializer);
+        $transformer = new ProjectTransformer($this->serializer, $this->user);
 
         if ($task->project) {
             return $this->includeItem($task->project, $transformer, Project::class);

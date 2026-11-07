@@ -85,21 +85,21 @@ class UserTransformer extends EntityTransformer
 
     public function includeCompanies(User $user)
     {
-        $transformer = new CompanyTransformer($this->serializer);
+        $transformer = new CompanyTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($user->companies, $transformer, Company::class);
     }
 
     public function includeToken(User $user)
     {
-        $transformer = new CompanyTokenTransformer($this->serializer);
+        $transformer = new CompanyTokenTransformer($this->serializer, $this->user);
 
         return $this->includeItem($user->token, $transformer, CompanyToken::class);
     }
 
     public function includeCompanyTokens(User $user)
     {
-        $transformer = new CompanyTokenTransformer($this->serializer);
+        $transformer = new CompanyTokenTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($user->tokens, $transformer, CompanyToken::class);
     }
@@ -123,7 +123,7 @@ class UserTransformer extends EntityTransformer
             $user->company_id = $company_token->company_id;
         }
 
-        $transformer = new CompanyUserTransformer($this->serializer);
+        $transformer = new CompanyUserTransformer($this->serializer, $this->user);
 
         $cu = $user->relationLoaded('company_users')
             ? $user->company_users->firstWhere('company_id', $user->company_id)

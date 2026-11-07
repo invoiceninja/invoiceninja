@@ -55,14 +55,14 @@ class ClientTransformer extends EntityTransformer
      */
     public function includeActivities(Client $client)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($client->activities, $transformer, Activity::class);
     }
 
     public function includeDocuments(Client $client)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($client->documents, $transformer, Document::class);
     }
@@ -74,7 +74,7 @@ class ClientTransformer extends EntityTransformer
      */
     public function includeContacts(Client $client)
     {
-        $transformer = new ClientContactTransformer($this->serializer);
+        $transformer = new ClientContactTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($client->contacts, $transformer, ClientContact::class);
     }
@@ -86,28 +86,28 @@ class ClientTransformer extends EntityTransformer
      */
     public function includeLocations(Client $client)
     {
-        $transformer = new LocationTransformer($this->serializer);
+        $transformer = new LocationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($client->locations, $transformer, Location::class);
     }
 
     public function includeGatewayTokens(Client $client)
     {
-        $transformer = new ClientGatewayTokenTransformer($this->serializer);
+        $transformer = new ClientGatewayTokenTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($client->gateway_tokens, $transformer, ClientGatewayToken::class);
     }
 
     public function includeLedger(Client $client)
     {
-        $transformer = new CompanyLedgerTransformer($this->serializer);
+        $transformer = new CompanyLedgerTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($client->ledger, $transformer, CompanyLedger::class);
     }
 
     public function includeSystemLogs(Client $client)
     {
-        $transformer = new SystemLogTransformer($this->serializer);
+        $transformer = new SystemLogTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($client->system_logs, $transformer, SystemLog::class);
     }
@@ -118,7 +118,7 @@ class ClientTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new GroupSettingTransformer($this->serializer);
+        $transformer = new GroupSettingTransformer($this->serializer, $this->user);
 
         return $this->includeItem($client->group_settings, $transformer, GroupSetting::class);
     }
