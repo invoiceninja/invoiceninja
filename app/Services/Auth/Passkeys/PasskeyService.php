@@ -50,7 +50,7 @@ class PasskeyService
             'user_id' => $user->id,
         ]);
 
-        return ['data' => array_merge($args, ['challenge_token' => $token])];
+        return ['data' => array_merge($args, ['challenge_token' => $token, 'android_origins' => $this->androidOrigins()])];
     }
 
     public function registerCredential(User $user, string $challengeToken, array $payload, ?string $name = null): ?PasskeyCredential
@@ -128,7 +128,7 @@ class PasskeyService
             'passwordless' => $passwordless,
         ]);
 
-        return ['data' => array_merge($args, ['challenge_token' => $token])];
+        return ['data' => array_merge($args, ['challenge_token' => $token, 'android_origins' => $this->androidOrigins()])];
 
     }
 
@@ -183,7 +183,42 @@ class PasskeyService
         // JSON the client decodes cannot parse. NOTE: the WebAuthn constructor assigns
         // ByteBuffer::$useBase64UrlEncoding from this flag, so it must be passed here —
         // setting the static separately is overwritten by every new WebAuthn().
-        return new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm'], true);
+        $webAuthn = new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm'], true);
+
+        // The Android app's origin is `android:apk-key-hash:<hash>`, accepted only for hashes added here.
+        $webAuthn->addAndroidKeyHashes(self::androidKeyHashes((string) config('ninja.app_links.android_fingerprints')));
+
+        return $webAuthn;
+    }
+
+    /**
+     * Unpadded base64url SHA-256 of each app-links signing certificate, as Android puts it after `android:apk-key-hash:`.
+     *
+     * @return array<int, string>
+     */
+    public static function androidKeyHashes(string $fingerprints): array
+    {
+        $hashes = [];
+
+        foreach (explode(',', $fingerprints) as $fingerprint) {
+            $hex = str_replace(':', '', trim($fingerprint));
+
+            if (preg_match('/\A[0-9A-Fa-f]{64}\z/', $hex) === 1) {
+                $hashes[] = rtrim(strtr(base64_encode((string) hex2bin($hex)), '+/', '-_'), '=');
+            }
+        }
+
+        return array_values(array_unique($hashes));
+    }
+
+    /**
+     * Sent with the options, so an app can avoid a ceremony this server would reject.
+     *
+     * @return array<int, string>
+     */
+    private function androidOrigins(): array
+    {
+        return array_map(fn (string $hash) => 'android:apk-key-hash:'.$hash, self::androidKeyHashes((string) config('ninja.app_links.android_fingerprints')));
     }
 
     private function storeChallenge(ByteBuffer|string $challenge, array $meta): string
