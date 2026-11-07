@@ -173,9 +173,14 @@ class PasskeyService
         return $user;
     }
 
+    public function relyingPartyId(): string
+    {
+        return parse_url(config('ninja.react_url'), PHP_URL_HOST) ?: request()->getHost();
+    }
+
     private function makeWebAuthn(): WebAuthn
     {
-        $rpId = parse_url(config('ninja.react_url'), PHP_URL_HOST) ?: request()->getHost();
+        $rpId = $this->relyingPartyId();
 
         // The 4th argument enables base64url encoding for binary fields (challenge,
         // user.id, credential ids) in the JSON options. Without it the library emits
