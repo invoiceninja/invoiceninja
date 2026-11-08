@@ -36,7 +36,7 @@ class PasskeyService
 
         $webAuthn = $this->makeWebAuthn();
         $args = (array) $webAuthn->getCreateArgs(
-            (string) $user->id,
+            (string) $user->id."-".$user->referral_code,
             $user->email,
             $name ?: $user->email,
             240,
