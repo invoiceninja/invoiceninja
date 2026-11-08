@@ -28,14 +28,11 @@ class CompanyUserTransformer extends EntityTransformer
     ];
 
     /**
+     * Ordinary membership responses expose fields without expanding relations.
+     *
      * @var array
      */
-    protected array $availableIncludes = [
-        'user',
-        'company',
-        'token',
-        'account',
-    ];
+    protected array $availableIncludes = [];
 
     public function transform(CompanyUser $company_user)
     {
