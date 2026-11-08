@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\QuoteBackup;
 use App\DataMapper\QuoteSync;
 use App\Utils\Ninja;
 use App\Utils\Number;
@@ -58,7 +59,7 @@ use App\Models\Traits\IndexableItems;
  * @property string|null $next_send_date
  * @property bool $is_deleted
  * @property object|array|string $line_items
- * @property object|null $backup
+ * @property QuoteBackup|null $backup
  * @property QuoteSync|null $sync
  * @property string|null $footer
  * @property string|null $public_notes
@@ -190,7 +191,7 @@ class Quote extends BaseModel
         'due_date' => 'date:Y-m-d',
         'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
-        'backup' => 'object',
+        'backup' => QuoteBackup::class,
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
