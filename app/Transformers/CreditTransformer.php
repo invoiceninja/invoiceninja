@@ -72,6 +72,10 @@ class CreditTransformer extends EntityTransformer
     {
         $transformer = new ClientTransformer($this->serializer, $this->user);
 
+        if($this->user?->cannot('view', $credit->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($credit->client, $transformer, Client::class);
     }
 

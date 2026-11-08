@@ -88,6 +88,10 @@ class ProjectTransformer extends EntityTransformer
 
         $transformer = new ClientTransformer($this->serializer, $this->user);
 
+        if($this->user?->cannot('view', $project->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($project->client, $transformer, Client::class);
     }
 
@@ -102,7 +106,12 @@ class ProjectTransformer extends EntityTransformer
         
         $transformer = new TaskTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->tasks, $transformer, Task::class);
+        return $this->includeAuthorizedCollection(
+            $project->tasks,
+            $transformer,
+            Task::class
+        );
+        // return $this->includeCollection($project->tasks, $transformer, Task::class);
     }
 
     public function includeInvoices(Project $project): \League\Fractal\Resource\Collection
@@ -110,21 +119,37 @@ class ProjectTransformer extends EntityTransformer
        
         $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->invoices, $transformer, Invoice::class);
+        return $this->includeAuthorizedCollection(
+            $project->invoices,
+            $transformer,
+            Invoice::class
+        );
+
+        // return $this->includeCollection($project->invoices, $transformer, Invoice::class);
     }
 
     public function includeExpenses(Project $project): \League\Fractal\Resource\Collection
     {
         $transformer = new ExpenseTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->expenses, $transformer, Expense::class);
+        return $this->includeAuthorizedCollection(
+            $project->expenses,
+            $transformer,
+            Expense::class
+        );
+        // return $this->includeCollection($project->expenses, $transformer, Expense::class);
     }
 
     public function includeQuotes(Project $project): \League\Fractal\Resource\Collection
     {
         $transformer = new QuoteTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->quotes, $transformer, Quote::class);
+        return $this->includeAuthorizedCollection(
+            $project->quotes,
+            $transformer,
+            Quote::class
+        );
+        // return $this->includeCollection($project->quotes, $transformer, Quote::class);
     }
 
     public function transform(Project $project)

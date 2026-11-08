@@ -96,6 +96,10 @@ class QuoteTransformer extends EntityTransformer
     {
         $transformer = new ClientTransformer($this->serializer, $this->user);
 
+        if($this->user?->cannot('view', $quote->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($quote->client, $transformer, Client::class);
     }
 

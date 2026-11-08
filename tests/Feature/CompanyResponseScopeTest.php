@@ -528,15 +528,49 @@ class CompanyResponseScopeTest extends TestCase
         $this->assertArrayNotHasKey('company_users', $response->json('data'));
     }
 
-    public function testUserItemSingularMembershipSelectsTokenCompany(): void
+    public static function userMembershipCases(): array
     {
-        $this->createFixture();
+        $cases = [];
+        foreach (['restricted list' => [false, false], 'admin list' => [true, false], 'admin item' => [true, true]] as $label => $arguments) {
+            foreach ([
+                'plain' => 'company_user',
+                'nested' => 'company_user.company.invoices',
+                'multiple' => 'company_user.account,company_user.user.company_user.company.invoices,company_user.token,company_user',
+            ] as $include_label => $include) {
+                $cases[$label.' '.$include_label] = [...$arguments, $include];
+            }
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('userMembershipCases')]
+    public function testUserResponsesDoNotExpandMembershipChildren(bool $is_admin, bool $is_item, string $include): void
+    {
+        $this->createFixture($is_admin);
+        $invoice_queries = [];
+        DB::listen(function ($query) use (&$invoice_queries) {
+            if (str_contains($query->sql, '`invoices`')) {
+                $invoice_queries[] = $query->sql;
+            }
+        });
+
+        $url = '/api/v1/users'.($is_item ? '/'.$this->user->hashed_id : '');
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->tokens[0],
             'X-API-PASSWORD' => 'company-scope-test',
-        ])->getJson('/api/v1/users/'.$this->user->hashed_id.'?include=company_user.company.invoices')->assertOk();
-        $response->assertJsonPath('data.company_user.company.id', $this->companies[0]->hashed_id);
-        $this->assertStringNotContainsString($this->records[1]['invoice']->number, $response->getContent());
+        ])->getJson($url.'?'.http_build_query(['include' => $include]))->assertOk();
+        $user_data = $is_item ? $response->json('data') : collect($response->json('data'))->firstWhere('id', $this->user->hashed_id);
+        $membership = $user_data['company_user'];
+
+        $this->assertSame($is_admin, $membership['is_admin']);
+        $this->assertFalse($membership['is_owner']);
+        $this->assertSame('', $membership['permissions']);
+        $this->assertArrayHasKey('settings', $membership);
+        foreach (['company', 'account', 'user', 'token'] as $child) {
+            $this->assertArrayNotHasKey($child, $membership);
+        }
+        $this->assertSame([], $invoice_queries, 'User includes must not load nested company invoices.');
     }
 
     public function testNewCompanyRetainsItsTokenAndBecomesDiscoverable(): void

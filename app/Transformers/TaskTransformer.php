@@ -57,7 +57,7 @@ class TaskTransformer extends EntityTransformer
     {
         $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
-        if (!$task->invoice) {
+        if (!$task->invoice || $this->user?->cannot('view', $task->invoice)) {
             return null;
         }
 
@@ -88,12 +88,17 @@ class TaskTransformer extends EntityTransformer
 
     public function includeClient(Task $task): ?Item
     {
+     
         $transformer = new ClientTransformer($this->serializer, $this->user);
 
         if (!$task->client) {
             return null;
         }
 
+        if($this->user?->cannot('view', $task->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+     
         return $this->includeItem($task->client, $transformer, Client::class);
     }
 
@@ -110,10 +115,11 @@ class TaskTransformer extends EntityTransformer
 
     public function includeProject(Task $task): ?Item
     {
-        $transformer = new ProjectTransformer($this->serializer, $this->user);
-
-        if ($task->project) {
-            return $this->includeItem($task->project, $transformer, Project::class);
+        if ($task->project && $this->user?->can('view', $task->project)) {
+            return $this->includeItem($task->project, new ProjectTransformer($this->serializer, $this->user), Project::class);
+        }
+        elseif($task->project && $this->user?->cannot('view', $task->project)) {
+            return $this->includeItem($task->project, new ProjectProfileTransformer($this->serializer, $this->user), Project::class);
         }
 
         return null;
