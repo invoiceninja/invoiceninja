@@ -48,7 +48,7 @@ class ResetPasswordObject
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
-        $mail_obj->text_view = 'email.template.text';
+        $mail_obj->text_view = 'email.auth.password-reset_text';
 
         return $mail_obj;
     }
