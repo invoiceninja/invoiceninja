@@ -190,6 +190,7 @@ return [
     'disable_auto_update' => env('DISABLE_AUTO_UPDATE', false),
     'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),
     'ninja_stripe_key' => env('NINJA_STRIPE_KEY', null),
+    'terminal_enabled' => env('NINJA_TERMINAL_ENABLED', true),
     'wepay' => [
         'environment' => env('WEPAY_ENVIRONMENT', 'stage'),
         'client_id' => env('WEPAY_CLIENT_ID', ''),

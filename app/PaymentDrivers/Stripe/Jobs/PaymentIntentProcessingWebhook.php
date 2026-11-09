@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Stripe\Jobs;
 
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Client;
@@ -71,6 +72,11 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
     /* Stub processing payment intents with a pending payment */
     public function handle()
     {
+        /* In person (Stripe Terminal): recorded on payment_intent.succeeded, and nothing is logged */
+        if (CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
+            return;
+        }
+
         nlog($this->stripe_request);
         // The first payment will always be a PI payment - subsequent are PY
 

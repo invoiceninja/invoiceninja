@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 
 use App\DataMapper\InvoiceItem;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Services\AbstractService;
@@ -95,7 +96,9 @@ class CalculateGatewayFee extends AbstractService
         $item->cost = $net;
         $item->unit_code = $payment_hash_string;
         $item->product_key = $net > 0 ? ctrans('texts.surcharge') : ctrans('texts.discount');
-        $item->notes = $net > 0 ? ctrans('texts.online_payment_surcharge') : ctrans('texts.online_payment_discount');
+        $item->notes = $net > 0
+            ? ($gateway_type_id === GatewayType::CARD_PRESENT ? ctrans('texts.credit_card_surcharge') : ctrans('texts.online_payment_surcharge'))
+            : ctrans('texts.online_payment_discount');
 
         /** Matches the existing behaviour: no gateway type, no fee taxes. */
         if ($company_gateway && $gateway_type_id && $fees_and_limits = $company_gateway->getFeesAndLimits($gateway_type_id)) {

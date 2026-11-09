@@ -62,6 +62,11 @@ class AutoBillInvoice extends AbstractService
     {
         MultiDB::setDb($this->db);
 
+        /* An in person card payment is being taken for this invoice */
+        if ($this->invoice->hasOpenTerminalCollection()) {
+            return $this->invoice;
+        }
+
         /* @var \App\Modesl\Client $client */
 
         /* Mark the invoice as sent */

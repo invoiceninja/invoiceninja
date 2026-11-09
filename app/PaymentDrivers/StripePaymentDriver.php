@@ -52,6 +52,7 @@ use App\PaymentDrivers\Stripe\Utilities;
 use App\PaymentDrivers\Stripe\Jobs\RefundFailed;
 use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BrowserPay;
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\PromptPay;
@@ -741,6 +742,17 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
+        /* Interac taken in person can only be refunded in person, on the card reader */
+        if ($payment->gateway_type_id == GatewayType::CARD_PRESENT && ($payment->meta->method ?? null) == 'interac_present') {
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => null,
+                'success' => false,
+                'description' => ctrans('texts.terminal_interac_refund'),
+                'code' => 422,
+            ];
+        }
+
         $this->init();
 
         $meta = $this->stripe_connect_auth;
@@ -875,13 +887,13 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         if ($request->type === 'payment_intent.processing') {
-            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
+            PaymentIntentProcessingWebhook::dispatch($this->webhookData($request->data), $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
             return response()->json([], 200);
         }
 
         //payment_intent.succeeded - this will confirm or cancel the payment
         if ($request->type === 'payment_intent.succeeded') {
-            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
+            PaymentIntentWebhook::dispatch($this->webhookData($request->data), $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
         }
@@ -893,7 +905,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         if (in_array($request->type, ['payment_intent.payment_failed', 'charge.failed'])) {
-            PaymentIntentFailureWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(2));
+            PaymentIntentFailureWebhook::dispatch($this->webhookData($request->data), $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(2));
 
             return response()->json([], 200);
         }
@@ -1079,6 +1091,11 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      * Phone
      * Email
      */
+    public function cardPresent(): CardPresent
+    {
+        return new CardPresent($this);
+    }
+
     public function importCustomers()
     {
         return (new ImportCustomers($this))->run();
@@ -1245,4 +1262,22 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         return $this;
     }
+
+    /* An in person PaymentIntent carries a client secret and cardholder data: only what the job needs is queued */
+    private function webhookData(array $data): array
+    {
+        if (isset($data['object']) && CardPresent::isCardPresent($data['object'])) {
+            $object = $data['object'];
+
+            return ['object' => array_filter([
+                'id' => $object['id'] ?? null,
+                'object' => $object['object'] ?? null,
+                'payment_method_types' => $object['payment_method_types'] ?? null,
+                'payment_method_details' => isset($object['payment_method_details']['type']) ? ['type' => $object['payment_method_details']['type']] : null,
+            ])];
+        }
+
+        return $data;
+    }
+
 }

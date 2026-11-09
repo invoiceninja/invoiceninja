@@ -23,6 +23,7 @@ use App\Services\Email\EmailObject;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -48,7 +49,11 @@ class ChargeRefunded implements ShouldQueue
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
-        nlog($this->stripe_request);
+
+        /* An in person charge carries cardholder data */
+        if (!CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
+            nlog($this->stripe_request);
+        }
 
         $company = Company::query()->where('company_key', $this->company_key)->first();
 

@@ -24,6 +24,8 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Models\TerminalPaymentIntent;
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -77,6 +79,22 @@ class PaymentIntentWebhook implements ShouldQueue
 
     public function handle()
     {
+        /* In person (Stripe Terminal): recorded from our own collection, before anything logs the payload */
+        if (CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
+            MultiDB::findAndSetDbByCompanyKey($this->company_key);
+
+            $company = Company::query()->where('company_key', $this->company_key)->first();
+
+            $collection = TerminalPaymentIntent::query()
+                ->where('company_id', $company?->id)
+                ->where('payment_intent_id', $this->stripe_request['object']['id'] ?? '')
+                ->first();
+
+            $collection?->company_gateway->driver($collection->invoice?->client)->cardPresent()->record($collection);
+
+            return;
+        }
+
         nlog($this->stripe_request);
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
