@@ -34,24 +34,24 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('description', 'like', '%' . $filter . '%')
-                          ->orWhere("number", 'like', '%' . $filter . '%')
-                          ->orWhere('time_log', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value1', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value2', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value3', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value4', 'like', '%' . $filter . '%')
-                          ->orWhereHas('project', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('description', 'like', '%' . $word . '%')
+                          ->orWhere("number", 'like', '%' . $word . '%')
+                          ->orWhere('time_log', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value1', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value2', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value3', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value4', 'like', '%' . $word . '%')
+                          ->orWhereHas('project', function ($q) use ($word) {
+                              $q->where('name', 'like', '%' . $word . '%');
                           })
-                          ->orWhereHas('client', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%' . $filter . '%');
+                          ->orWhereHas('client', function ($q) use ($word) {
+                              $q->where('name', 'like', '%' . $word . '%');
                           })
-                            ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                                $q->where('first_name', 'like', '%' . $filter . '%')
-                                  ->orWhere('last_name', 'like', '%' . $filter . '%')
-                                  ->orWhere('email', 'like', '%' . $filter . '%');
+                            ->orWhereHas('client.contacts', function ($q) use ($word) {
+                                $q->where('first_name', 'like', '%' . $word . '%')
+                                  ->orWhere('last_name', 'like', '%' . $word . '%')
+                                  ->orWhere('email', 'like', '%' . $word . '%');
                             });
         });
     }

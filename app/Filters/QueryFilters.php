@@ -210,6 +210,46 @@ abstract class QueryFilters
     }
 
     /**
+     * Constrain the builder so every word of the search text matches.
+     *
+     * The text is split on spaces and each word must match at least one of
+     * the columns that $matchWord checks: an AND across the words, an OR
+     * across the columns. Word order doesn't matter, so "s22 120hz" finds
+     * "Samsung Galaxy S22 5G OLED 120Hz Screen", and the words may match
+     * different columns. Words are deduped case-insensitively (LIKE ignores
+     * case), the first 8 distinct words are used, and the longest is
+     * constrained first, since it rejects the most rows.
+     *
+     * Kept protected: apply() calls any public method named by a request key.
+     *
+     * @param  string   $filter     search text, already normalized by cleanFilterString()
+     * @param  \Closure $matchWord  fn (Builder $query, string $word): adds one word's OR chain
+     * @return Builder
+     */
+    protected function whereEveryWord(string $filter, \Closure $matchWord): Builder
+    {
+        $words = [];
+
+        foreach (explode(' ', $filter) as $word) {
+            $key = mb_strtolower($word);
+
+            if ($word !== '' && ! isset($words[$key])) {
+                $words[$key] = $word;
+            }
+        }
+
+        $words = array_slice(array_values($words), 0, 8);
+
+        usort($words, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
+
+        foreach ($words as $word) {
+            $this->builder->where(fn ($query) => $matchWord($query, $word));
+        }
+
+        return $this->builder;
+    }
+
+    /**
      * Explodes the value by delimiter.
      *
      * @param  string $value

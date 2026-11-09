@@ -32,7 +32,9 @@ class LocationFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where('name', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('name', 'like', '%' . $word . '%');
+        });
     }
 
     /**

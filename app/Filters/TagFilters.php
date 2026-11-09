@@ -27,8 +27,8 @@ class TagFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where(function ($query) use ($filter) {
-            $query->where('name', 'like', '%'.$filter.'%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('name', 'like', '%' . $word . '%');
         });
     }
 

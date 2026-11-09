@@ -194,31 +194,23 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        $searchTerms = array_filter(explode(' ', $filter));
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $like_term = '%' . $word . '%';
 
-        return $this->builder->where(function ($query) use ($searchTerms) {
-            foreach ($searchTerms as $term) {
-                $like_term = '%' . $term . '%';
-
-                $query->where(function ($subQuery) use ($like_term) {
-                    $subQuery->where('name', 'like', $like_term)
-                        ->orWhere('id_number', 'like', $like_term)
-                        ->orWhere('number', 'like', $like_term)
-                        ->orWhereHas('contacts', function ($contactQuery) use ($like_term) {
-                            $contactQuery->where('first_name', 'like', $like_term)
-                                ->orWhere('last_name', 'like', $like_term)
-                                ->orWhere('email', 'like', $like_term)
-                                ->orWhere('phone', 'like', $like_term);
-                        })
-                        ->orWhere('custom_value1', 'like', $like_term)
-                        ->orWhere('custom_value2', 'like', $like_term)
-                        ->orWhere('custom_value3', 'like', $like_term)
-                        ->orWhere('custom_value4', 'like', $like_term);
-                });
-            }
+            $query->where('name', 'like', $like_term)
+                ->orWhere('id_number', 'like', $like_term)
+                ->orWhere('number', 'like', $like_term)
+                ->orWhereHas('contacts', function ($contactQuery) use ($like_term) {
+                    $contactQuery->where('first_name', 'like', $like_term)
+                        ->orWhere('last_name', 'like', $like_term)
+                        ->orWhere('email', 'like', $like_term)
+                        ->orWhere('phone', 'like', $like_term);
+                })
+                ->orWhere('custom_value1', 'like', $like_term)
+                ->orWhere('custom_value2', 'like', $like_term)
+                ->orWhere('custom_value3', 'like', $like_term)
+                ->orWhere('custom_value4', 'like', $like_term);
         });
-
-
     }
 
     /**

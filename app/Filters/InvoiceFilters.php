@@ -112,26 +112,26 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder->where(function ($query) use ($filter) {
-            $query->where('number', 'like', '%' . $filter . '%')
-                          ->orWhere('po_number', 'like', '%' . $filter . '%')
-                          ->orWhere('date', 'like', '%' . $filter . '%')
-                          ->orWhere('amount', 'like', '%' . $filter . '%')
-                          ->orWhere('balance', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value1', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value2', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value3', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value4', 'like', '%' . $filter . '%')
-                          ->orWhereHas('client', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('number', 'like', '%' . $word . '%')
+                          ->orWhere('po_number', 'like', '%' . $word . '%')
+                          ->orWhere('date', 'like', '%' . $word . '%')
+                          ->orWhere('amount', 'like', '%' . $word . '%')
+                          ->orWhere('balance', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value1', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value2', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value3', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value4', 'like', '%' . $word . '%')
+                          ->orWhereHas('client', function ($q) use ($word) {
+                              $q->where('name', 'like', '%' . $word . '%');
                           })
-                          ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                              $q->where('first_name', 'like', '%' . $filter . '%')
-                                ->orWhere('last_name', 'like', '%' . $filter . '%')
-                                ->orWhere('email', 'like', '%' . $filter . '%');
+                          ->orWhereHas('client.contacts', function ($q) use ($word) {
+                              $q->where('first_name', 'like', '%' . $word . '%')
+                                ->orWhere('last_name', 'like', '%' . $word . '%')
+                                ->orWhere('email', 'like', '%' . $word . '%');
                           })
-                          ->orWhereHas('project', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%' . $filter . '%');
+                          ->orWhereHas('project', function ($q) use ($word) {
+                              $q->where('name', 'like', '%' . $word . '%');
                           })
                           ->orWhereRaw("
                             JSON_UNQUOTE(JSON_EXTRACT(
@@ -139,7 +139,7 @@ class InvoiceFilters extends QueryFilters
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                                 ), '$[*]')
-                            ) LIKE ?", ['%' . $filter . '%']);
+                            ) LIKE ?", ['%' . $word . '%']);
             //   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }

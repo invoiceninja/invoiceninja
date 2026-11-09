@@ -32,22 +32,22 @@ class ExpenseFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('number', 'like', '%' . $filter . '%')
-                ->orWhere('amount', 'like', '%' . $filter . '%')
-                ->orWhere('public_notes', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value4', 'like', '%' . $filter . '%')
-                ->orWhereHas('category', function ($q) use ($filter) {
-                    $q->where('name', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('number', 'like', '%' . $word . '%')
+                ->orWhere('amount', 'like', '%' . $word . '%')
+                ->orWhere('public_notes', 'like', '%' . $word . '%')
+                ->orWhere('custom_value1', 'like', '%' . $word . '%')
+                ->orWhere('custom_value2', 'like', '%' . $word . '%')
+                ->orWhere('custom_value3', 'like', '%' . $word . '%')
+                ->orWhere('custom_value4', 'like', '%' . $word . '%')
+                ->orWhereHas('category', function ($q) use ($word) {
+                    $q->where('name', 'like', '%' . $word . '%');
                 })
-                ->orWhereHas('vendor', function ($q) use ($filter) {
-                    $q->where('name', 'like', '%' . $filter . '%');
+                ->orWhereHas('vendor', function ($q) use ($word) {
+                    $q->where('name', 'like', '%' . $word . '%');
                 })
-                ->orWhereHas('client', function ($q) use ($filter) {
-                    $q->where('name', 'like', '%' . $filter . '%');
+                ->orWhereHas('client', function ($q) use ($word) {
+                    $q->where('name', 'like', '%' . $word . '%');
                 });
         });
     }

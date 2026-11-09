@@ -34,21 +34,21 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('date', 'like', '%' . $filter . '%')
-                  ->orWhere('amount', 'like', '%' . $filter . '%')
-                  ->orWhere('number', 'like', '%' . $filter . '%')
-                  ->orWhere('custom_value1', 'like', '%' . $filter . '%')
-                  ->orWhere('custom_value2', 'like', '%' . $filter . '%')
-                  ->orWhere('custom_value3', 'like', '%' . $filter . '%')
-                  ->orWhere('custom_value4', 'like', '%' . $filter . '%')
-                  ->orWhereHas('client', function ($q) use ($filter) {
-                      $q->where('name', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('date', 'like', '%' . $word . '%')
+                  ->orWhere('amount', 'like', '%' . $word . '%')
+                  ->orWhere('number', 'like', '%' . $word . '%')
+                  ->orWhere('custom_value1', 'like', '%' . $word . '%')
+                  ->orWhere('custom_value2', 'like', '%' . $word . '%')
+                  ->orWhere('custom_value3', 'like', '%' . $word . '%')
+                  ->orWhere('custom_value4', 'like', '%' . $word . '%')
+                  ->orWhereHas('client', function ($q) use ($word) {
+                      $q->where('name', 'like', '%' . $word . '%');
                   })
-                  ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                      $q->where('first_name', 'like', '%' . $filter . '%')
-                        ->orWhere('last_name', 'like', '%' . $filter . '%')
-                        ->orWhere('email', 'like', '%' . $filter . '%');
+                  ->orWhereHas('client.contacts', function ($q) use ($word) {
+                      $q->where('first_name', 'like', '%' . $word . '%')
+                        ->orWhere('last_name', 'like', '%' . $word . '%')
+                        ->orWhere('email', 'like', '%' . $word . '%');
                   })
                     ->orWhereRaw("
                             JSON_UNQUOTE(JSON_EXTRACT(
@@ -56,7 +56,7 @@ class RecurringInvoiceFilters extends QueryFilters
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                                 ), '$[*]')
-                            ) LIKE ?", ['%' . $filter . '%']);
+                            ) LIKE ?", ['%' . $word . '%']);
             //->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }

@@ -32,11 +32,11 @@ class UserFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('first_name', 'like', '%' . $filter . '%')
-                          ->orWhere('last_name', 'like', '%' . $filter . '%')
-                          ->orWhere('email', 'like', '%' . $filter . '%')
-                          ->orWhere('signature', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('first_name', 'like', '%' . $word . '%')
+                ->orWhere('last_name', 'like', '%' . $word . '%')
+                ->orWhere('email', 'like', '%' . $word . '%')
+                ->orWhere('signature', 'like', '%' . $word . '%');
         });
     }
 

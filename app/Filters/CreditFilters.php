@@ -80,23 +80,22 @@ class CreditFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('credits.number', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.number', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.date', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.amount', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.balance', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.custom_value1', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.custom_value2', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.custom_value3', 'like', '%' . $filter . '%')
-                          ->orWhere('credits.custom_value4', 'like', '%' . $filter . '%')
-                          ->orWhereHas('client', function ($q) use ($filter) {
-                              $q->where('name', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('credits.number', 'like', '%' . $word . '%')
+                          ->orWhere('credits.date', 'like', '%' . $word . '%')
+                          ->orWhere('credits.amount', 'like', '%' . $word . '%')
+                          ->orWhere('credits.balance', 'like', '%' . $word . '%')
+                          ->orWhere('credits.custom_value1', 'like', '%' . $word . '%')
+                          ->orWhere('credits.custom_value2', 'like', '%' . $word . '%')
+                          ->orWhere('credits.custom_value3', 'like', '%' . $word . '%')
+                          ->orWhere('credits.custom_value4', 'like', '%' . $word . '%')
+                          ->orWhereHas('client', function ($q) use ($word) {
+                              $q->where('name', 'like', '%' . $word . '%');
                           })
-                          ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                              $q->where('first_name', 'like', '%' . $filter . '%')
-                                ->orWhere('last_name', 'like', '%' . $filter . '%')
-                                ->orWhere('email', 'like', '%' . $filter . '%');
+                          ->orWhereHas('client.contacts', function ($q) use ($word) {
+                              $q->where('first_name', 'like', '%' . $word . '%')
+                                ->orWhere('last_name', 'like', '%' . $word . '%')
+                                ->orWhere('email', 'like', '%' . $word . '%');
                           })
                                                     ->orWhereRaw("
                             JSON_UNQUOTE(JSON_EXTRACT(
@@ -104,7 +103,7 @@ class CreditFilters extends QueryFilters
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                                 ), '$[*]')
-                            ) LIKE ?", ['%' . $filter . '%']);
+                            ) LIKE ?", ['%' . $word . '%']);
             //   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }

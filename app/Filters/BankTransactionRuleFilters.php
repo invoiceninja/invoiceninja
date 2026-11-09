@@ -47,8 +47,8 @@ class BankTransactionRuleFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('bank_transaction_rules.name', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('bank_transaction_rules.name', 'like', '%' . $word . '%');
         });
     }
 

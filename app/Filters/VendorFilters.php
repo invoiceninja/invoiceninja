@@ -32,18 +32,18 @@ class VendorFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('name', 'like', '%' . $filter . '%')
-                          ->orWhere('id_number', 'like', '%' . $filter . '%')
-                          ->orWhereHas('contacts', function ($query) use ($filter) {
-                              $query->where('first_name', 'like', '%' . $filter . '%');
-                              $query->orWhere('last_name', 'like', '%' . $filter . '%');
-                              $query->orWhere('email', 'like', '%' . $filter . '%');
+        return $this->whereEveryWord($filter, function ($query, $word) {
+            $query->where('name', 'like', '%' . $word . '%')
+                          ->orWhere('id_number', 'like', '%' . $word . '%')
+                          ->orWhereHas('contacts', function ($query) use ($word) {
+                              $query->where('first_name', 'like', '%' . $word . '%');
+                              $query->orWhere('last_name', 'like', '%' . $word . '%');
+                              $query->orWhere('email', 'like', '%' . $word . '%');
                           })
-                          ->orWhere('custom_value1', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value2', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value3', 'like', '%' . $filter . '%')
-                          ->orWhere('custom_value4', 'like', '%' . $filter . '%');
+                          ->orWhere('custom_value1', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value2', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value3', 'like', '%' . $word . '%')
+                          ->orWhere('custom_value4', 'like', '%' . $word . '%');
         });
     }
 
