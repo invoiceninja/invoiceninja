@@ -19,8 +19,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 
 class TerminalRequest extends Request
 {
-    protected string $error_message = '';
-
     protected ?string $error_code = null;
 
     /* The platform switch, and Pro or Enterprise on hosted */
@@ -47,9 +45,9 @@ class TerminalRequest extends Request
     protected function failedAuthorization()
     {
         if ($this->error_code) {
-            throw new TerminalException($this->error_code, $this->error_code == 'disabled' ? 503 : 403);
+            throw new TerminalException($this->error_code, 403);
         }
 
-        throw new AuthorizationException($this->error_message ?: ctrans('texts.authorization_failure'));
+        throw new AuthorizationException(ctrans('texts.authorization_failure'));
     }
 }

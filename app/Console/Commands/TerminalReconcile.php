@@ -23,7 +23,7 @@ class TerminalReconcile extends Command
                             {--pi= : A Stripe PaymentIntent id (pi_...) to record}
                             {--db= : Limit to one database connection name (default: all shards)}';
 
-    protected $description = 'Record in person (Stripe Terminal) card payments that were charged but not recorded';
+    protected $description = 'Record in-person (Stripe Terminal) card payments that were charged but not recorded';
 
     public function handle(): int
     {
@@ -43,7 +43,7 @@ class TerminalReconcile extends Command
             $collection = TerminalPaymentIntent::query()->where('payment_intent_id', $this->option('pi'))->first();
 
             if ($collection) {
-                $result = $collection->company_gateway->driver($collection->invoice?->client)->cardPresent()->record($collection);
+                $result = $collection->cardPresent()->record($collection);
                 $this->info($this->option('pi') . ": {$result['status']}");
 
                 return self::SUCCESS;

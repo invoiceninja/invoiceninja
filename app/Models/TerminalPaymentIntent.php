@@ -12,12 +12,13 @@
 
 namespace App\Models;
 
+use App\PaymentDrivers\Stripe\CardPresent;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * App\Models\TerminalPaymentIntent
  *
- * One in person (Stripe Terminal) collection and the PaymentIntent we created for it.
+ * One in-person (Stripe Terminal) collection and the PaymentIntent we created for it.
  *
  * @property int $id
  * @property int $company_id
@@ -35,7 +36,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $fee_net
  * @property bool $apply_fee
  * @property string|null $surcharge_path
- * @property string $status
+ * @property int $surcharge_refunded
+ * @property int $status_id
  * @property \Illuminate\Support\Carbon|null $claimed_at
  * @property \Illuminate\Support\Carbon|null $touched_at
  * @property \Illuminate\Support\Carbon $created_at
@@ -45,30 +47,29 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\CompanyGateway|null $company_gateway
  * @property-read \App\Models\PaymentHash|null $payment_hash
+ * @property-read \App\Models\Payment|null $payment
  * @mixin \Eloquent
  */
 class TerminalPaymentIntent extends Model
 {
-    public const STATUS_CREATING = 'creating';
+    public const STATUS_CREATING = 1;
 
-    public const STATUS_OPEN = 'open';
+    public const STATUS_OPEN = 2;
 
-    public const STATUS_RECORDING = 'recording';
+    public const STATUS_RECORDING = 3;
 
-    public const STATUS_RECORDED = 'recorded';
+    public const STATUS_RECORDED = 4;
 
-    public const STATUS_CANCELED = 'canceled';
+    public const STATUS_CANCELLED = 5;
 
-    public const STATUS_FAILED = 'failed';
+    public const STATUS_FAILED = 6;
 
-    public const STATUS_ORPHANED = 'orphaned';
+    public const STATUS_ORPHANED = 7;
 
-    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_REJECTED = 8;
 
-    /* Statuses that hold the invoice: no second collection while one exists */
+    /* No second collection on an invoice while one of these exists */
     public const OPEN_STATUSES = [self::STATUS_CREATING, self::STATUS_OPEN, self::STATUS_RECORDING];
-
-    public const SURCHARGE_PATH_STRIPE = 'stripe';
 
     public const SURCHARGE_PATH_RECOLLECT = 'recollect';
 
@@ -111,9 +112,19 @@ class TerminalPaymentIntent extends Model
         return $this->belongsTo(PaymentHash::class);
     }
 
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class)->withTrashed();
+    }
+
+    public function cardPresent(): CardPresent
+    {
+        return $this->company_gateway->driver($this->invoice?->client)->cardPresent();
+    }
+
     public function isFinal(): bool
     {
-        return in_array($this->status, [self::STATUS_RECORDED, self::STATUS_CANCELED, self::STATUS_FAILED, self::STATUS_ORPHANED, self::STATUS_REJECTED]);
+        return !in_array($this->status_id, self::OPEN_STATUSES);
     }
 
     /* Untouched for 20 minutes: abandoned, unless Stripe says it was charged */

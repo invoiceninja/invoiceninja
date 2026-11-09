@@ -26,7 +26,7 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Utils\Ninja;
 
-/* In person card payments (Stripe Terminal) for the mobile apps */
+/* In-person card payments (Stripe Terminal) for the mobile apps */
 class TerminalController extends BaseController
 {
     public function config(ShowTerminalConfigRequest $request)
@@ -51,7 +51,7 @@ class TerminalController extends BaseController
                     return null;
                 }
 
-                $policy = $card_present->surchargePolicy(null, $account);
+                $policy = $card_present->surcharge()->check(null, $account);
                 $fees_and_limits = $company_gateway->getFeesAndLimits(GatewayType::CARD_PRESENT);
 
                 return [
@@ -102,7 +102,7 @@ class TerminalController extends BaseController
     public function quote(QuoteTerminalPaymentRequest $request, Invoice $invoice)
     {
         return response()->json(
-            $request->companyGateway()->driver($invoice->client)->cardPresent()->quote($invoice, $request->input('amount'), $request->input('apply_fee'))
+            $request->companyGateway()->driver($invoice->client)->cardPresent()->surcharge()->quote($invoice, $request->input('amount'), $request->input('apply_fee'))
         );
     }
 
@@ -122,28 +122,28 @@ class TerminalController extends BaseController
     {
         $collection = $request->collection();
 
-        return response()->json($collection->company_gateway->driver($collection->invoice?->client)->cardPresent()->finalize($collection));
+        return response()->json($collection->cardPresent()->finalize($collection));
     }
 
     public function complete(ActionTerminalPaymentIntentRequest $request)
     {
         $collection = $request->collection();
 
-        return response()->json($collection->company_gateway->driver($collection->invoice?->client)->cardPresent()->record($collection));
+        return response()->json($collection->cardPresent()->record($collection));
     }
 
     public function cancel(ActionTerminalPaymentIntentRequest $request)
     {
         $collection = $request->collection();
 
-        return response()->json($collection->company_gateway->driver($collection->invoice?->client)->cardPresent()->cancel($collection));
+        return response()->json($collection->cardPresent()->cancel($collection));
     }
 
     public function receipt(SendTerminalReceiptRequest $request)
     {
         $collection = $request->collection();
 
-        $collection->company_gateway->driver($collection->invoice?->client)->cardPresent()->receipt($collection, $request->input('email'));
+        $collection->cardPresent()->receipt($collection, $request->input('email'));
 
         return response()->json(['message' => ctrans('texts.emailed_payment')]);
     }

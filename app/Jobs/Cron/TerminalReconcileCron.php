@@ -13,12 +13,11 @@
 namespace App\Jobs\Cron;
 
 use App\Libraries\MultiDB;
-use App\Models\SystemLog;
 use App\Models\TerminalPaymentIntent;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Auth;
 
-/* Records in person card payments Stripe charged but nobody recorded, and cancels abandoned collections */
+/* Records in-person card payments Stripe charged but nobody recorded, and cancels abandoned ones */
 class TerminalReconcileCron
 {
     use Dispatchable;
@@ -32,7 +31,7 @@ class TerminalReconcileCron
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $this->run();
+            $this->run(null);
 
             return;
         }
@@ -41,7 +40,7 @@ class TerminalReconcileCron
             MultiDB::setDB($db);
 
             try {
-                $this->run();
+                $this->run($db);
             } catch (\Throwable $e) {
                 nlog("Error reconciling terminal payments: " . $e->getMessage());
                 app('sentry')->captureException($e);
@@ -49,33 +48,13 @@ class TerminalReconcileCron
         }
     }
 
-    private function run(): void
+    private function run(?string $db): void
     {
         TerminalPaymentIntent::query()
-            ->whereIn('status', TerminalPaymentIntent::OPEN_STATUSES)
-            ->where('created_at', '>', now()->subHours(48))
+            ->whereIn('status_id', TerminalPaymentIntent::OPEN_STATUSES)
+            ->where('created_at', '>', now()->subDays(30))
+            ->select('id')
             ->lazyById()
-            ->each(function (TerminalPaymentIntent $collection) {
-                if (! $collection->payment_intent_id) {
-                    if ($collection->isStale()) {
-                        $collection->update(['status' => TerminalPaymentIntent::STATUS_FAILED]);
-                    }
-
-                    return;
-                }
-
-                try {
-                    $card_present = $collection->company_gateway->driver($collection->invoice?->client)->cardPresent();
-                    $result = $card_present->record($collection);
-
-                    if (in_array($result['status'], ['recorded', 'unapplied'])) {
-                        $card_present->log($collection, SystemLog::EVENT_PAYMENT_RECONCILIATION_SUCCESS, 'recorded by reconciliation');
-                    } elseif ($collection->fresh()->isStale() && ! $collection->fresh()->isFinal()) {
-                        $card_present->cancel($collection->fresh());
-                    }
-                } catch (\Throwable $e) {
-                    nlog("Error reconciling terminal payment {$collection->payment_intent_id}: " . $e->getMessage());
-                }
-            });
+            ->each(fn ($collection) => ReconcileTerminalPayment::dispatch($collection->id, $db));
     }
 }

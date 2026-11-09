@@ -72,7 +72,7 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
     /* Stub processing payment intents with a pending payment */
     public function handle()
     {
-        /* In person (Stripe Terminal): recorded on payment_intent.succeeded, and nothing is logged */
+        /* In-person (Stripe Terminal): recorded on payment_intent.succeeded, and nothing is logged */
         if (CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
             return;
         }

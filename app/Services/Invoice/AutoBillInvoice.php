@@ -62,7 +62,7 @@ class AutoBillInvoice extends AbstractService
     {
         MultiDB::setDb($this->db);
 
-        /* An in person card payment is being taken for this invoice */
+        /* An in-person card payment is being taken for this invoice */
         if ($this->invoice->hasOpenTerminalCollection()) {
             return $this->invoice;
         }

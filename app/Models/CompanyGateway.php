@@ -372,10 +372,10 @@ class CompanyGateway extends BaseModel
         return $this->getConfigField('publishableKey');
     }
 
-    /* Stripe / Stripe Connect with in person card payments switched on */
+    /* In-person card payments (Stripe Terminal) are switched on for this gateway */
     public function supportsCardPresent(): bool
     {
-        if ($this->is_deleted || !in_array($this->gateway_key, ['d14dd26a37cecc30fdd65700bfb55b23', 'd14dd26a47cecc30fdd65700bfb67b34'])) {
+        if ($this->is_deleted || $this->deleted_at || !array_key_exists(GatewayType::CARD_PRESENT, $this->gateway->getMethods())) {
             return false;
         }
 

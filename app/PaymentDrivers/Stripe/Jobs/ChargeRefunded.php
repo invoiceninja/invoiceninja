@@ -23,6 +23,7 @@ use App\Services\Email\EmailObject;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
+use App\Models\TerminalPaymentIntent;
 use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Queue\InteractsWithQueue;
@@ -50,7 +51,7 @@ class ChargeRefunded implements ShouldQueue
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        /* An in person charge carries cardholder data */
+        /* An in-person charge carries cardholder data */
         if (!CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
             nlog($this->stripe_request);
         }
@@ -61,6 +62,15 @@ class ChargeRefunded implements ShouldQueue
         $charge_id = $source['id'] ?? null;
         $payment_intent = $source['payment_intent'] ?? null;
         $amount_refunded = $source['amount_refunded'] ?? 0;
+
+        /* A surcharge we refunded when an in-person payment was recorded is not a refund of that payment */
+        if (CardPresent::isCardPresent($source)) {
+            $amount_refunded -= (int) TerminalPaymentIntent::query()->where('company_id', $company->id)->where('payment_intent_id', $payment_intent)->value('surcharge_refunded');
+
+            if ($amount_refunded <= 0) {
+                return;
+            }
+        }
 
         $payment_hash_key = $source['metadata']['payment_hash'] ?? null;
 

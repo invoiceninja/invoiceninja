@@ -29,6 +29,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Models\TerminalPaymentIntent;
 use App\Models\User;
+use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
 use App\Repositories\InvoiceRepository;
@@ -115,10 +116,26 @@ class StripeTerminalTest extends TestCase
         return $gateway;
     }
 
-    private function surcharged(): void
+    private function companyState(string $state): void
     {
+        $settings = $this->company->settings;
+        $settings->state = $state;
+        $this->company->settings = $settings;
+        $this->company->save();
+    }
+
+    private function surcharged(): array
+    {
+        $this->companyState('NY');
         $this->company_gateway = $this->stripeGateway(['is_enabled' => true, 'fee_percent' => 3]);
         $this->company_gateway->driver($this->client)->cardPresent()->acknowledgeSurcharge($this->user);
+
+        return $this->quote(true);
+    }
+
+    private function quote(bool $apply_fee): array
+    {
+        return $this->company_gateway->fresh()->driver($this->client)->cardPresent()->surcharge()->quote($this->invoice->fresh(), (float) $this->invoice->balance, $apply_fee);
     }
 
     private function api(?string $token = null): self
@@ -155,6 +172,11 @@ class StripeTerminalTest extends TestCase
     private function terminalPayments()
     {
         return Payment::query()->where('company_id', $this->company->id)->where('gateway_type_id', GatewayType::CARD_PRESENT);
+    }
+
+    private function refunds()
+    {
+        return collect($this->stripe->requests)->where('path', '/v1/refunds');
     }
 
     private function userToken(string $permissions): string
@@ -256,7 +278,7 @@ class StripeTerminalTest extends TestCase
         TerminalPaymentIntent::query()->update(['touched_at' => now()->subMinutes(30)]);
         (new TerminalReconcileCron())->handle();
 
-        $this->assertSame(TerminalPaymentIntent::STATUS_OPEN, TerminalPaymentIntent::query()->where('payment_intent_id', $intent['payment_intent_id'])->sole()->status);
+        $this->assertSame(TerminalPaymentIntent::STATUS_OPEN, TerminalPaymentIntent::query()->where('payment_intent_id', $intent['payment_intent_id'])->sole()->status_id);
 
         $this->stripe->charge($intent['payment_intent_id']);
         $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
@@ -296,7 +318,7 @@ class StripeTerminalTest extends TestCase
         TerminalPaymentIntent::query()->update(['touched_at' => now()->subMinutes(21), 'created_at' => now()->subMinutes(21)]);
 
         $this->collect()->assertOk();
-        $this->assertSame(1, TerminalPaymentIntent::query()->where('status', TerminalPaymentIntent::STATUS_CANCELED)->count());
+        $this->assertSame(1, TerminalPaymentIntent::query()->where('status_id', TerminalPaymentIntent::STATUS_CANCELLED)->count());
     }
 
     public function testAChargedCollectionIsRecordedInsteadOfStartingAnother(): void
@@ -335,6 +357,28 @@ class StripeTerminalTest extends TestCase
         $this->assertSame(Invoice::STATUS_SENT, $draft->fresh()->status_id);
     }
 
+    public function testADraftThatLocksOnSendStillTakesItsSurcharge(): void
+    {
+        $this->surcharged();
+
+        $settings = $this->company->settings;
+        $settings->lock_invoices = 'when_sent';
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $draft = InvoiceFactory::create($this->company->id, $this->user->id);
+        $draft->client_id = $this->client->id;
+        $draft->line_items = $this->buildLineItems();
+        $draft->save();
+        $draft = $draft->calc()->getInvoice();
+        $draft->save();
+
+        $quote = $this->company_gateway->fresh()->driver($this->client)->cardPresent()->surcharge()->quote($draft, (float) $draft->amount, true);
+        $this->assertTrue($quote['surcharge_allowed']);
+
+        $this->collect(['amount' => (float) $draft->amount, 'apply_fee' => true, 'expected_total' => $quote['total']], $draft)->assertOk();
+    }
+
     public function testAnAmountOverTheBalanceIsRefused(): void
     {
         $this->collect(['amount' => (float) $this->invoice->balance + 1, 'expected_total' => (float) $this->invoice->balance + 1])
@@ -361,7 +405,7 @@ class StripeTerminalTest extends TestCase
         TerminalPaymentIntent::query()->create([
             'company_id' => $other_company->id, 'user_id' => $this->user->id, 'invoice_id' => $other_invoice->id,
             'company_gateway_id' => $other_gateway->id, 'collection_id' => (string) Str::uuid(), 'payment_intent_id' => 'pi_other_company',
-            'currency' => 'usd', 'amount' => 10, 'status' => TerminalPaymentIntent::STATUS_OPEN,
+            'currency' => 'usd', 'amount' => 10, 'status_id' => TerminalPaymentIntent::STATUS_OPEN,
         ]);
 
         $this->complete('pi_other_company')->assertStatus(400);
@@ -379,6 +423,7 @@ class StripeTerminalTest extends TestCase
         $config = $this->api($collector)->getJson('/api/v1/terminal/config')->assertOk()->json();
         $this->assertSame($this->company_gateway->hashed_id, $config['gateways'][0]['company_gateway_id']);
         $this->api($collector)->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/locations")->assertStatus(401);
+        $this->api($collector)->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/surcharge_acknowledgement")->assertStatus(401);
     }
 
     public function testFinishingIgnoresThePlanAndTheKillSwitch(): void
@@ -390,7 +435,7 @@ class StripeTerminalTest extends TestCase
         $this->account->save();
         config(['ninja.terminal_enabled' => false, 'ninja.production' => true]);
 
-        $this->collect()->assertStatus(503)->assertJson(['error_code' => 'disabled']);
+        $this->collect()->assertStatus(403)->assertJson(['error_code' => 'disabled']);
         config(['ninja.terminal_enabled' => true]);
         $this->collect()->assertStatus(403)->assertJson(['error_code' => 'plan_required']);
         config(['ninja.terminal_enabled' => false]);
@@ -469,12 +514,11 @@ class StripeTerminalTest extends TestCase
 
     public function testACreditCardTakesTheSurchargeOnASecondTap(): void
     {
-        $this->surcharged();
+        $quote = $this->surcharged();
         $balance = (float) $this->invoice->balance;
 
-        $quote = $this->api()->getJson("/api/v1/invoices/{$this->invoice->hashed_id}/terminal/quote?company_gateway_id={$this->company_gateway->hashed_id}&amount={$balance}&apply_fee=1")
-            ->assertOk()->json();
-        $this->assertTrue($quote['surcharge_allowed']);
+        $this->api()->getJson("/api/v1/invoices/{$this->invoice->hashed_id}/terminal/quote?company_gateway_id={$this->company_gateway->hashed_id}&amount={$balance}&apply_fee=1")
+            ->assertOk()->assertJson(['surcharge_allowed' => true, 'total' => $quote['total']]);
 
         $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->assertOk()->json();
         $this->assertSame((int) round($balance * 100), $this->stripe->intents[$intent['payment_intent_id']]['amount']);
@@ -493,13 +537,13 @@ class StripeTerminalTest extends TestCase
         $this->assertCount(1, $fee_lines);
         $this->assertSame(ctrans('texts.credit_card_surcharge'), $fee_lines->first()->notes);
         $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertCount(0, $this->refunds());
     }
 
     public function testADebitCardOnTheSecondTapDropsTheSurcharge(): void
     {
-        $this->surcharged();
+        $quote = $this->surcharged();
         $balance = (float) $this->invoice->balance;
-        $quote = $this->company_gateway->driver($this->client)->cardPresent()->quote($this->invoice, $balance, true);
 
         $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
         $this->stripe->collect($intent['payment_intent_id'], 'credit');
@@ -513,9 +557,8 @@ class StripeTerminalTest extends TestCase
 
     public function testADebitCardIsNeverSurcharged(): void
     {
-        $this->surcharged();
+        $quote = $this->surcharged();
         $balance = (float) $this->invoice->balance;
-        $quote = $this->company_gateway->driver($this->client)->cardPresent()->quote($this->invoice, $balance, true);
 
         $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
         $this->stripe->collect($intent['payment_intent_id'], 'debit');
@@ -528,67 +571,60 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals($balance, $this->terminalPayments()->sole()->amount);
     }
 
-    public function testASurchargeChargedToADebitCardIsRefunded(): void
+    public function testASurchargeChargedToADebitCardIsRefundedOnceAndNotCountedTwice(): void
     {
-        $this->surcharged();
+        $quote = $this->surcharged();
         $balance = (float) $this->invoice->balance;
-        $quote = $this->company_gateway->driver($this->client)->cardPresent()->quote($this->invoice, $balance, true);
 
         $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
-        $this->stripe->collect($intent['payment_intent_id'], 'credit', surcharge_available: true);
-        $final = $this->finalize($intent['payment_intent_id'])->assertJson(['path' => 'stripe'])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
 
-        $this->stripe->charge($intent['payment_intent_id'], surcharge_minor: $final['surcharge_minor'], funding: 'debit');
+        /* The second read was skipped and a debit card charged the raised amount */
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
         $this->complete($intent['payment_intent_id'])->assertOk();
+        (new TerminalReconcileCron())->handle();
 
-        $refund = collect($this->stripe->requests)->first(fn ($request) => $request['path'] == '/v1/refunds');
-        $this->assertSame($final['surcharge_minor'], (int) $refund['params']['amount']);
+        $this->assertCount(1, $this->refunds());
+        $this->assertSame((int) round($quote['fee_gross'] * 100), (int) $this->refunds()->first()['params']['amount']);
+        $this->assertSame("in_terminal_surcharge_{$intent['payment_intent_id']}", $this->refunds()->first()['headers']['Idempotency-Key']);
         $this->assertEquals($balance, $this->terminalPayments()->sole()->amount);
-        $this->assertCount(0, collect($this->invoice->fresh()->line_items)->where('type_id', '4'));
-    }
 
-    public function testStripesOwnSurchargeIsUsedWhenStripeOffersIt(): void
-    {
-        $this->surcharged();
-        $balance = (float) $this->invoice->balance;
-        $quote = $this->company_gateway->driver($this->client)->cardPresent()->quote($this->invoice, $balance, true);
+        $charge = $this->stripe->intents[$intent['payment_intent_id']]['latest_charge'];
+        (new ChargeRefunded(['object' => $charge], $this->company->company_key))->handle();
 
-        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
-        $this->stripe->collect($intent['payment_intent_id'], 'credit', surcharge_available: true);
-
-        $final = $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['path' => 'stripe', 'recollect' => false])->json();
-        $this->assertSame((int) round($quote['fee_gross'] * 100), $final['surcharge_minor']);
-
-        $retrieve = collect($this->stripe->requests)->last(fn ($request) => $request['method'] == 'get' && str_starts_with($request['path'], '/v1/payment_intents/'));
-        $this->assertSame('2026-03-25.preview', $retrieve['headers']['Stripe-Version']);
-
-        $this->stripe->charge($intent['payment_intent_id'], surcharge_minor: $final['surcharge_minor']);
-        $this->complete($intent['payment_intent_id'])->assertOk();
-
-        $this->assertCount(1, collect($this->invoice->fresh()->line_items)->where('type_id', '4'));
         $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertEquals(0, (float) $this->terminalPayments()->sole()->refunded);
+        $this->assertCount(0, collect($this->invoice->fresh()->line_items)->where('type_id', '4'));
     }
 
     public function testTheSurchargePolicy(): void
     {
         $this->company_gateway = $this->stripeGateway(['is_enabled' => true, 'fee_percent' => 3]);
-        $card_present = $this->company_gateway->driver($this->client)->cardPresent();
-        $balance = (float) $this->invoice->balance;
+        $this->companyState('NY');
 
-        $this->assertSame('not_acknowledged', $card_present->quote($this->invoice, $balance, true)['reason']);
+        $this->assertSame('not_acknowledged', $this->quote(true)['reason']);
 
-        $card_present->acknowledgeSurcharge($this->user);
-        $this->assertTrue($card_present->quote($this->invoice, $balance, true)['surcharge_allowed']);
+        $this->api()->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/surcharge_acknowledgement")->assertOk();
+        $this->assertTrue($this->quote(true)['surcharge_allowed']);
 
-        $settings = $this->company->settings;
-        $settings->state = 'CT';
-        $this->company->settings = $settings;
-        $this->company->save();
-        $this->assertSame('region', $this->company_gateway->fresh()->driver($this->client)->cardPresent()->quote($this->invoice, $balance, true)['reason']);
+        foreach (['Connecticut' => 'region', 'ct' => 'region', 'Colorado' => 'over_cap', 'Narnia' => 'region', '' => 'region'] as $state => $reason) {
+            $this->companyState($state);
+            $this->assertSame($reason, $this->quote(true)['reason'], $state);
+        }
+
+        $this->stripe->account['country'] = 'CA';
+        $this->stripe->account['default_currency'] = 'cad';
+        Cache::flush();
+
+        $this->companyState('Québec');
+        $this->assertSame('region', $this->quote(true)['reason']);
 
         $this->stripe->account['country'] = 'GB';
         Cache::flush();
-        $this->assertSame('region', $this->company_gateway->fresh()->driver($this->client)->cardPresent()->quote($this->invoice, $balance, true)['reason']);
+        $this->assertSame('region', $this->quote(true)['reason']);
     }
 
     public function testACurrencyTheAccountDoesNotUseIsRefused(): void
@@ -607,13 +643,14 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals(0, (int) $this->invoice->fresh()->auto_bill_tries);
     }
 
-    public function testNothingLogsAnInPersonPaymentIntentOrCharge(): void
+    public function testNothingLogsOrQueuesCardholderData(): void
     {
         $intent = $this->collect()->json();
         $object = $this->stripe->intents[$intent['payment_intent_id']];
+        $charge = ['id' => 'ch_failed', 'object' => 'charge', 'payment_intent' => $intent['payment_intent_id'], 'payment_method_details' => ['type' => 'card_present', 'card_present' => ['cardholder_name' => 'SECRET NAME']]];
 
         (new PaymentIntentFailureWebhook(['object' => $object], $this->company->company_key, $this->company_gateway->id))->handle();
-        (new PaymentIntentFailureWebhook(['object' => ['id' => 'ch_failed', 'object' => 'charge', 'payment_method_details' => ['type' => 'card_present', 'card_present' => ['cardholder_name' => 'SECRET NAME']]]], $this->company->company_key, $this->company_gateway->id))->handle();
+        (new PaymentIntentFailureWebhook(['object' => $charge], $this->company->company_key, $this->company_gateway->id))->handle();
         (new PaymentIntentWebhook(['object' => $object], $this->company->company_key, $this->company_gateway->id))->handle();
 
         foreach (SystemLog::query()->where('company_id', $this->company->id)->get() as $log) {
@@ -621,7 +658,52 @@ class StripeTerminalTest extends TestCase
             $this->assertStringNotContainsString('SECRET NAME', json_encode($log->log));
         }
 
+        $webhook_data = new \ReflectionMethod($this->company_gateway->driver(), 'webhookData');
+
+        foreach ([$object, $charge] as $payload) {
+            $queued = json_encode($webhook_data->invoke($this->company_gateway->driver(), ['object' => $payload]));
+            $this->assertStringNotContainsString('_secret_', $queued);
+            $this->assertStringNotContainsString('SECRET NAME', $queued);
+        }
+
         $this->assertSame(0, $this->terminalPayments()->count());
+    }
+
+    public function testLocationsAndReceipts(): void
+    {
+        $this->companyState('NY');
+        $settings = $this->company->settings;
+        $settings->address1 = '';
+        $settings->country_id = '840';
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->api()->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/locations")
+            ->assertStatus(422)->assertJson(['error_code' => 'location_address_required']);
+
+        $settings = $this->company->settings;
+        $settings->address1 = '1 Main St';
+        $settings->city = 'New York';
+        $settings->state = 'NY';
+        $settings->postal_code = '10001';
+        $settings->country_id = '840';
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->api()->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/locations")->assertOk();
+
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+
+        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'client@example.com'])
+            ->assertStatus(409)->assertJson(['error_code' => 'collection_closed']);
+
+        $this->complete($intent['payment_intent_id'])->assertOk();
+
+        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'client@example.com'])->assertOk();
+
+        $update = collect($this->stripe->requests)->first(fn ($request) => str_starts_with($request['path'], '/v1/charges/') && $request['method'] == 'post');
+        $this->assertSame('client@example.com', $update['params']['receipt_email']);
     }
 
     public function testAnInteracPaymentIsNotRefundedThroughTheGateway(): void
@@ -644,11 +726,11 @@ class StripeTerminalTest extends TestCase
             'invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => (float) $payment->amount]],
         ])->assertJsonFragment(['message' => ctrans('texts.terminal_interac_refund')]);
 
-        $this->assertFalse(collect($this->stripe->requests)->contains(fn ($request) => $request['path'] == '/v1/refunds'));
+        $this->assertCount(0, $this->refunds());
     }
 }
 
-/* Stripe in memory: PaymentIntents, idempotency keys, and every request's headers */
+/* Stripe in memory: PaymentIntents, charges, refunds, idempotency keys, and every request's headers */
 final class TerminalStripeFake implements ClientInterface
 {
     public array $intents = [];
@@ -685,7 +767,7 @@ final class TerminalStripeFake implements ClientInterface
             $path == '/v1/terminal/connection_tokens' => ['object' => 'terminal.connection_token', 'secret' => 'pst_test_' . (++$this->sequence)],
             $path == '/v1/terminal/locations' && $method == 'get' => ['object' => 'list', 'data' => [['id' => 'tml_1', 'object' => 'terminal.location', 'display_name' => 'Main']], 'has_more' => false, 'url' => '/v1/terminal/locations'],
             $path == '/v1/terminal/locations' => ['id' => 'tml_' . (++$this->sequence), 'object' => 'terminal.location', 'display_name' => $params['display_name'] ?? ''],
-            $path == '/v1/refunds' => ['id' => 're_' . (++$this->sequence), 'object' => 'refund', 'status' => 'succeeded', 'amount' => (int) $params['amount']],
+            $path == '/v1/refunds' => $this->refund($params, $named['Idempotency-Key'] ?? null),
             $path == '/v1/payment_intents' => $this->createIntent($params, $named['Idempotency-Key'] ?? null),
             (bool) preg_match('#^/v1/payment_intents/(pi_\w+)/cancel$#', $path, $m) => $this->setStatus($m[1], 'canceled'),
             (bool) preg_match('#^/v1/payment_intents/(pi_\w+)$#', $path, $m) && $method == 'post' => $this->updateIntent($m[1], $params),
@@ -698,7 +780,7 @@ final class TerminalStripeFake implements ClientInterface
     }
 
     /* The card was read (collect with updatePaymentIntent) */
-    public function collect(string $id, string $funding, bool $surcharge_available = false): void
+    public function collect(string $id, string $funding): void
     {
         $this->intents[$id]['status'] = 'requires_confirmation';
         $this->intents[$id]['payment_method'] = [
@@ -707,33 +789,44 @@ final class TerminalStripeFake implements ClientInterface
             'type' => 'card_present',
             'card_present' => ['brand' => 'visa', 'last4' => '4242', 'funding' => $funding],
         ];
-
-        if ($surcharge_available) {
-            $this->intents[$id]['amount_details']['surcharge'] = ['status' => 'available', 'maximum_amount' => 100000];
-        }
     }
 
     /* Confirmed and charged */
-    public function charge(string $id, ?int $received = null, int $surcharge_minor = 0, string $funding = 'credit'): void
+    public function charge(string $id, ?int $received = null, string $funding = 'credit'): void
     {
         $intent = &$this->intents[$id];
         $intent['status'] = 'succeeded';
-        $intent['amount_received'] = $received ?? ($intent['amount'] + $surcharge_minor);
-
-        if ($surcharge_minor > 0) {
-            $intent['amount_details']['surcharge']['amount'] = $surcharge_minor;
-        }
-
+        $intent['amount_received'] = $received ?? $intent['amount'];
         $intent['latest_charge'] = [
             'id' => 'ch_' . substr($id, 3),
             'object' => 'charge',
+            'status' => 'succeeded',
             'payment_intent' => $id,
+            'amount_refunded' => 0,
+            'metadata' => $intent['metadata'],
             'receipt_url' => 'https://pay.stripe.com/receipts/test',
             'payment_method_details' => [
                 'type' => 'card_present',
                 'card_present' => ['brand' => 'visa', 'last4' => '4242', 'funding' => $funding, 'exp_month' => 12, 'exp_year' => 2030],
             ],
         ];
+    }
+
+    private function refund(array $params, ?string $key): array
+    {
+        if ($key && isset($this->idempotency[$key])) {
+            return $this->idempotency[$key];
+        }
+
+        $this->intents[$params['payment_intent']]['latest_charge']['amount_refunded'] += (int) $params['amount'];
+
+        $refund = ['id' => 're_' . (++$this->sequence), 'object' => 'refund', 'status' => 'succeeded', 'amount' => (int) $params['amount']];
+
+        if ($key) {
+            $this->idempotency[$key] = $refund;
+        }
+
+        return $refund;
     }
 
     private function createIntent(array $params, ?string $key): array
@@ -757,7 +850,6 @@ final class TerminalStripeFake implements ClientInterface
             'metadata' => $params['metadata'] ?? [],
             'status' => 'requires_payment_method',
             'livemode' => false,
-            'amount_details' => ['tip' => []],
         ];
 
         if ($key) {

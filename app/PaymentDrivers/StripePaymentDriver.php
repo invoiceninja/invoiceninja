@@ -899,7 +899,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         if ($request->type === 'payment_intent.partially_funded') {
-            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
+            PaymentIntentPartiallyFundedWebhook::dispatch($this->webhookData($request->data), $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
         }
@@ -921,7 +921,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         }
 
         if ($request->type === 'charge.refunded' && $request->data['object']['status'] == 'succeeded') {
-            ChargeRefunded::dispatch($request->data, $request->company_key)->delay(now()->addSeconds(5));
+            ChargeRefunded::dispatch($this->webhookData($request->data), $request->company_key)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
         }
@@ -1091,15 +1091,15 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
      * Phone
      * Email
      */
-    public function cardPresent(): CardPresent
-    {
-        return new CardPresent($this);
-    }
-
     public function importCustomers()
     {
         return (new ImportCustomers($this))->run();
         //match clients based on the gateway_customer_reference column
+    }
+
+    public function cardPresent(): CardPresent
+    {
+        return new CardPresent($this);
     }
 
     public function importMatchedClients()
@@ -1263,21 +1263,20 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         return $this;
     }
 
-    /* An in person PaymentIntent carries a client secret and cardholder data: only what the job needs is queued */
+    /* An in-person PaymentIntent or charge carries a client secret and cardholder data: only what the jobs read is queued */
     private function webhookData(array $data): array
     {
-        if (isset($data['object']) && CardPresent::isCardPresent($data['object'])) {
-            $object = $data['object'];
-
-            return ['object' => array_filter([
-                'id' => $object['id'] ?? null,
-                'object' => $object['object'] ?? null,
-                'payment_method_types' => $object['payment_method_types'] ?? null,
-                'payment_method_details' => isset($object['payment_method_details']['type']) ? ['type' => $object['payment_method_details']['type']] : null,
-            ])];
+        if (!isset($data['object']) || !CardPresent::isCardPresent($data['object'])) {
+            return $data;
         }
 
-        return $data;
+        $object = array_intersect_key($data['object'], array_flip(['id', 'object', 'status', 'amount', 'amount_received', 'amount_refunded', 'currency', 'payment_intent', 'payment_method_types', 'metadata', 'livemode']));
+
+        if (isset($data['object']['payment_method_details']['type'])) {
+            $object['payment_method_details'] = ['type' => $data['object']['payment_method_details']['type']];
+        }
+
+        return ['object' => $object];
     }
 
 }

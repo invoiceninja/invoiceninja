@@ -40,7 +40,8 @@ return new class extends Migration {
             $table->decimal('fee_net', 20, 6)->default(0);
             $table->boolean('apply_fee')->default(false);
             $table->string('surcharge_path')->nullable();
-            $table->string('status', 32)->index();
+            $table->unsignedInteger('surcharge_refunded')->default(0);
+            $table->unsignedInteger('status_id')->index();
             $table->timestamp('claimed_at')->nullable();
             $table->timestamp('touched_at')->nullable();
             $table->timestamps(6);
