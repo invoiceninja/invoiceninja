@@ -115,14 +115,18 @@ class TaskTransformer extends EntityTransformer
 
     public function includeProject(Task $task): ?Item
     {
-        if ($task->project && $this->user?->can('view', $task->project)) {
-            return $this->includeItem($task->project, new ProjectTransformer($this->serializer, $this->user), Project::class);
+        
+        if(!$task->project) {
+            return null;
         }
-        elseif($task->project && $this->user?->cannot('view', $task->project)) {
+
+        if($this->user?->cannot('view', $task->project)) {
             return $this->includeItem($task->project, new ProjectProfileTransformer($this->serializer, $this->user), Project::class);
         }
 
-        return null;
+        return $this->includeItem($task->project, new ProjectTransformer($this->serializer, $this->user), Project::class);
+        
+        
     }
 
     public function transform(Task $task)
