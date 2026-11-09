@@ -19,6 +19,14 @@ use App\Models\CompanyUser;
 
 class AuthenticatedCompanyUserTransformer extends CompanyUserTransformer
 {
+    /** Relations available on authentication and company creation responses. */
+    protected array $availableIncludes = [
+        'user',
+        'company',
+        'token',
+        'account',
+    ];
+
     public function __construct($serializer = null, ?User $user = null, private ?int $active_company_id = null)
     {
         parent::__construct($serializer, $user);

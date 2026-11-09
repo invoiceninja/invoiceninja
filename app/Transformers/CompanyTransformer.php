@@ -371,6 +371,10 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new CompanyGatewayTransformer($this->serializer, $this->user);
 
+        if($this->user && !$this->user->isAdmin()){
+            return $this->includeCollection(collect(), $transformer, CompanyGateway::class);
+        }
+
         return $this->includeCollection($company->company_gateways, $transformer, CompanyGateway::class);
     }
 

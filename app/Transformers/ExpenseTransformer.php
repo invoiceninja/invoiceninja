@@ -61,6 +61,10 @@ class ExpenseTransformer extends EntityTransformer
             return null;
         }
 
+        if($this->user?->cannot('view', $expense->project)) {
+            $transformer = new ProjectProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($expense->project, $transformer, Project::class);
     }
 
@@ -72,6 +76,10 @@ class ExpenseTransformer extends EntityTransformer
             return null;
         }
 
+        if($this->user?->cannot('view', $expense->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($expense->client, $transformer, Client::class);
     }
 
@@ -79,7 +87,7 @@ class ExpenseTransformer extends EntityTransformer
     {
         $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
-        if (!$expense->invoice) {
+        if (!$expense->invoice || $this->user?->cannot('view', $expense->invoice)) {
             return null;
         }
 
