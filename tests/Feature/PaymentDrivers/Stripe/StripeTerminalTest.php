@@ -18,6 +18,7 @@ use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Jobs\Cron\ReconcileTerminalPayment;
 use App\Jobs\Cron\TerminalReconcileCron;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -907,6 +908,7 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals(1, (float) $this->terminalPayments()->sole()->refunded);
         $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
         $this->assertEquals($paid_to_date + $balance - 1, (float) $this->client->fresh()->paid_to_date);
+        $this->assertTrue(Activity::query()->where('payment_id', $this->terminalPayments()->sole()->id)->where('activity_type_id', Activity::REFUNDED_PAYMENT)->exists());
 
         /* Past it: the rest of the unapplied part, then 2 off the invoice */
         $this->stripe->refundInDashboard($intent['payment_intent_id'], (int) round(($balance - 3) * 100));

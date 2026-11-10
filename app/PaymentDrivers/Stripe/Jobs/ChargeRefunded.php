@@ -129,7 +129,6 @@ class ChargeRefunded implements ShouldQueue
                 $payment->refund([
                     'id' => $payment->id,
                     'amount' => $unapplied_refund,
-                    'invoices' => [],
                     'date' => now()->format('Y-m-d'),
                     'gateway_refund' => false,
                     'email_receipt' => false,
