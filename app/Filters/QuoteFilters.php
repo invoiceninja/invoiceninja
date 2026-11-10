@@ -12,7 +12,7 @@
 
 namespace App\Filters;
 
-use App\Models\Quote;
+use App\Utils\Traits\FiltersQuoteStatus;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class QuoteFilters extends QueryFilters
 {
+    use FiltersQuoteStatus;
+
     /**
      * Filter based on search text.
      *
@@ -72,74 +74,14 @@ class QuoteFilters extends QueryFilters
      */
     public function client_status(string $value = ''): Builder
     {
-        if (strlen($value) == 0) {
+        if ($value === '' || in_array('all', explode(',', $value), true)) {
             return $this->builder;
         }
 
-        $status_parameters = explode(',', $value);
+        $company = auth()->user()->company();
+        $today = now($company->timezone()?->name ?: config('app.timezone'))->toDateString();
 
-        if (in_array('all', $status_parameters)) {
-            return $this->builder;
-        }
-
-        $this->builder->where(function ($query) use ($status_parameters) {
-
-            $quote_filters = [];
-
-            if (in_array('draft', $status_parameters)) {
-                $quote_filters[] = Quote::STATUS_DRAFT;
-            }
-
-            if (in_array('approved', $status_parameters)) {
-                $quote_filters[] = Quote::STATUS_APPROVED;
-            }
-
-            if (in_array('cancelled', $status_parameters)) {
-                $quote_filters[] = Quote::STATUS_CANCELLED;
-            }
-
-            if (in_array('rejected', $status_parameters)) {
-                $quote_filters[] = Quote::STATUS_REJECTED;
-            }
-
-            if (count($quote_filters) > 0) {
-                $query->whereIn('status_id', $quote_filters);
-            }
-
-            if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', Quote::STATUS_SENT)
-                    ->where(function ($q) {
-                        $q->whereNull('due_date')
-                        ->orWhere('due_date', '>=', now()->toDateString());
-                    });
-                });
-            }
-
-            if (in_array('expired', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', Quote::STATUS_SENT)
-                    ->whereNotNull('due_date')
-                    ->where('due_date', '<=', now()->toDateString());
-                });
-            }
-
-            if (in_array('upcoming', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', Quote::STATUS_SENT)
-                      ->where('due_date', '>=', now()->toDateString())
-                      ->orderBy('due_date', 'DESC');
-                });
-            }
-
-            if (in_array('converted', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->whereNotNull('invoice_id');
-                });
-            }
-        });
-
-        return $this->builder;
+        return $this->filterQuoteStatus($this->builder, $value, $today);
     }
 
     /**
