@@ -30,10 +30,89 @@
           type: boolean
           example: true
         fees_and_limits:
-          description: 'A mapped collection of the fees and limits for the configured gateway'
-          type: array
-          items:
+          description: 'The fees and limits for the configured gateway, keyed by gateway type id'
+          type: object
+          additionalProperties:
             $ref: '#/components/schemas/FeesAndLimits'
+        always_show_required_fields:
+          description: 'Whether the client portal shows the required fields form before payment even when the client''s details already fill them'
+          type: boolean
+        archived_at:
+          description: 'When the gateway was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        created_at:
+          description: 'When the gateway was created, as a Unix timestamp in seconds'
+          type: integer
+        custom_value1:
+          description: 'Free-form custom value 1 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
+          type: string
+        custom_value2:
+          description: 'Free-form custom value 2 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
+          type: string
+        custom_value3:
+          description: 'Free-form custom value 3 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
+          type: string
+        custom_value4:
+          description: 'Free-form custom value 4 stored on the gateway configuration. It is saved and returned as is; the payment drivers do not read it'
+          type: string
+        is_deleted:
+          description: 'Whether the company gateway has been deleted'
+          type: boolean
+        label:
+          description: 'The name of this gateway configuration, defaults to the gateway''s name'
+          type: string
+        require_client_name:
+          description: 'Whether the client must enter the client name before paying with this gateway'
+          type: boolean
+        require_client_phone:
+          description: 'Whether the client must enter the client phone number before paying with this gateway'
+          type: boolean
+        require_contact_email:
+          description: 'Whether the client must enter the contact email before paying with this gateway'
+          type: boolean
+        require_contact_name:
+          description: 'Whether the client must enter the contact name before paying with this gateway'
+          type: boolean
+        require_custom_value1:
+          description: 'Whether the client must fill in client custom field 1 before paying with this gateway'
+          type: boolean
+        require_custom_value2:
+          description: 'Whether the client must fill in client custom field 2 before paying with this gateway'
+          type: boolean
+        require_custom_value3:
+          description: 'Whether the client must fill in client custom field 3 before paying with this gateway'
+          type: boolean
+        require_custom_value4:
+          description: 'Whether the client must fill in client custom field 4 before paying with this gateway'
+          type: boolean
+        require_cvv:
+          description: 'Whether the Authorize.net card form asks for the card''s CVV'
+          type: boolean
+        require_postal_code:
+          description: 'Whether the client must enter a postal code before paying with this gateway'
+          type: boolean
+        require_zip:
+          description: 'Legacy flag, not used by the payment flow. require_postal_code is used instead'
+          type: boolean
+        settings:
+          description: 'Gateway settings that override the company settings'
+          type: object
+          additionalProperties: true
+        show_billing_address:
+          description: 'Deprecated and not used. require_billing_address is used instead'
+          type: boolean
+        show_shipping_address:
+          description: 'Deprecated and not used. require_shipping_address is used instead'
+          type: boolean
+        test_mode:
+          description: 'Whether the gateway runs in test mode'
+          type: boolean
+        token_billing:
+          description: 'When card details are saved: always, optin, optout or off'
+          type: string
+        updated_at:
+          description: 'When the gateway was last changed, as a Unix timestamp in seconds'
+          type: integer
       type: object
     
     

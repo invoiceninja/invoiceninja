@@ -147,39 +147,28 @@
           format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the invoice was sent out'
+          description: 'The last date the invoice was sent out (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The Next date for a reminder to be sent'
+          description: 'The next date a reminder is sent (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the deposit/partial amount'
+          description: 'The due date for the deposit/partial amount (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date of the invoice'
+          description: 'The due date of the invoice (YYYY-MM-DD), an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
@@ -221,11 +210,6 @@
           description: 'The project associated with this invoice'
           type: string
           example: Opnel5aKBz
-        auto_bill_tries:
-          description: 'The number of times the invoice has attempted to be auto billed'
-          type: integer
-          example: 1
-          readOnly: true
         auto_bill_enabled:
           description: 'Boolean flag determining if the invoice is set to auto bill'
           type: boolean
@@ -246,6 +230,17 @@
           description: 'E-invoice configuration and data'
           type: object
           additionalProperties: true
+        recurring_id:
+          description: 'The hashed id of the recurring invoice that generated this invoice, an empty string when there is none'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        documents:
+          description: 'The documents attached to this invoice'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+          readOnly: true
         exchange_rate:
           description: 'The exchange rate used for currency conversion'
           type: number
@@ -283,9 +278,8 @@
           example: false
           deprecated: true
         created_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the invoice was created, as a Unix timestamp in seconds'
+          type: integer
           example: 1434342123
           readOnly: true
         backup:
@@ -309,4 +303,25 @@
           description: 'Date the last reminder was sent'
           type: string
           example: '2024-01-29'
+        reminder_schedule:
+          description: 'A description of the reminder schedule, only returned with ?reminder_schedule=true'
+          type: string
+        is_locked:
+          description: 'Whether the invoice is locked by the lock_invoices setting, only returned with ?is_locked=true'
+          type: boolean
+        schedule:
+          description: 'The payment schedule, only returned with ?show_schedule=true'
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                description: 'The payment date, formatted in the client date format'
+                type: string
+              amount:
+                description: 'The formatted amount, or a percentage such as "50 %"'
+                type: string
+              auto_bill:
+                description: 'Whether the scheduled payment is auto billed'
+                type: boolean
       type: object

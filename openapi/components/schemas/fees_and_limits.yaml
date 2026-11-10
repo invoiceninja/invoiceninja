@@ -55,4 +55,8 @@
           description: 'Adjusts the fee to match the exact gateway fee.'
           type: boolean
           example: true
+        is_enabled:
+          description: 'Whether this payment type is enabled on the gateway'
+          type: boolean
+          example: true
       type: object

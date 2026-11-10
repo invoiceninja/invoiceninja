@@ -268,7 +268,7 @@
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/Tag'
+                    $ref: "#/components/schemas/Tag"
         401:
           $ref: '#/components/responses/401'
         403:
@@ -358,7 +358,7 @@
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Tag'
+                      $ref: "#/components/schemas/Tag"
         401:
           $ref: '#/components/responses/401'
         403:

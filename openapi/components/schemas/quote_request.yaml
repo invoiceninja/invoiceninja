@@ -1,8 +1,6 @@
     QuoteRequest:
       required:
         - client_id
-        - date
-        - due_date
       properties:
         client_id:
           description: 'The hashed ID of the client'

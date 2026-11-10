@@ -9,18 +9,6 @@
           description: Unique identifier for the user associated with the subscription
           type: string
           example: Ua6Rw4pVbS
-        product_id:
-          description: Unique identifier for the product associated with the subscription
-          type: string
-          example: Pr5Ft7yBmC
-        recurring_invoice_id:
-          description: Unique identifier for the recurring invoice associated with the subscription
-          type: string
-          example: Ri2Yt8zJkP
-        is_recurring:
-          description: Indicates whether the subscription is recurring
-          type: boolean
-          example: true
         frequency_id:
           description: 'integer const representation of the frequency'
           type: string
@@ -50,9 +38,9 @@
           type: boolean
           example: true
         currency_id:
-          description: Unique identifier for the currency used in the subscription
-          type: integer
-          example: 1
+          description: 'Unique identifier for the currency used in the subscription, an empty string when not set'
+          type: string
+          example: '1'
         max_seats_limit:
           description: Maximum number of seats allowed for the subscription
           type: integer
@@ -78,28 +66,73 @@
           type: integer
           example: 30
         webhook_configuration:
-          description: Webhook configuration for the subscription
-          type: string
-          example: 'expand reference for this'
+          description: 'The webhook called after a purchase: post_purchase_url, post_purchase_rest_method (post or put), post_purchase_headers and post_purchase_body'
+          type: object
+          additionalProperties: true
         is_deleted:
           description: Indicates whether the subscription has been deleted
           type: boolean
           example: false
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
+        assigned_user_id:
+          description: 'The hashed id of the user the subscription is assigned to; empty if none'
+          type: string
+        company_id:
+          description: 'The hashed id of the company the subscription belongs to'
+          type: string
+        group_id:
+          description: 'The hashed id of the group settings applied to clients who subscribe'
+          type: string
+        name:
+          description: 'The name of the subscription, shown in the billing portal'
+          type: string
+        optional_product_ids:
+          description: 'A comma separated list of the hashed ids of optional one-off products'
+          type: string
+        optional_recurring_product_ids:
+          description: 'A comma separated list of the hashed ids of optional recurring products'
+          type: string
+        plan_map:
+          description: 'Deprecated, always an empty string'
+          type: string
+        price:
+          description: 'The price charged in the billing portal when no promo code is applied'
+          type: number
+        product_ids:
+          description: 'A comma separated list of the hashed ids of one-off products'
+          type: string
+        promo_price:
+          description: 'The price charged in the billing portal once the promo_code is entered'
+          type: number
+        purchase_page:
+          description: 'The client portal URL to purchase the subscription'
+          type: string
+        recurring_product_ids:
+          description: 'A comma separated list of the hashed ids of recurring products'
+          type: string
+        registration_required:
+          description: 'Whether clients have to register before purchasing'
+          type: boolean
+        remaining_cycles:
+          description: 'The number of billing cycles, -1 for endless'
+          type: integer
+        steps:
+          description: 'A comma separated list of the billing portal purchase steps, in order (see /api/v1/subscriptions/steps)'
+          type: string
+        use_inventory_management:
+          description: 'Whether the billing portal checks product stock and blocks products that are out of stock'
+          type: boolean
       type: object
     BulkAction:
       type: array

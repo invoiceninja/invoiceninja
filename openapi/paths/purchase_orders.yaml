@@ -143,7 +143,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -189,7 +192,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -264,7 +270,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -305,6 +314,13 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -349,7 +365,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -387,7 +406,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -412,16 +434,12 @@
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Purchase Order IDS"
+        description: "The action and the hashed ids to apply it to"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: 0
+              $ref: "#/components/schemas/GenericBulkAction"
       responses:
         200:
           description: "The Bulk Action response"
@@ -432,6 +450,15 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -485,7 +512,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PurchaseOrder'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -547,7 +577,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PurchaseOrder"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/PurchaseOrder"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -589,6 +622,11 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:

@@ -55,17 +55,36 @@
           example: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
-        deleted_at:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 134341234234
+        archived_at:
+          description: 'When the document was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        height:
+          description: 'The image height in pixels, 0 for other files'
+          type: integer
+        is_public:
+          description: 'Whether the document is shared with the client in the client portal and on the PDF. Defaults to the documents_public_by_default setting'
+          type: boolean
+        link:
+          description: 'The URL to download the document'
+          type: string
+        size:
+          description: 'The file size in bytes'
+          type: integer
+        width:
+          description: 'The image width in pixels, 0 for other files'
+          type: integer
+        documentable_id:
+          description: 'The hashed id of the record the document is attached to'
+          type: string
+          example: AS3df3A
+        documentable_type:
+          description: 'The type of the record the document is attached to, in snake case'
+          type: string
+          example: invoice
       type: object

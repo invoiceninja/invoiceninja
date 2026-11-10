@@ -136,7 +136,7 @@ class TaxPeriodReport extends BaseExport
      */
     private function setAccountingType(): self
     {
-        $this->cash_accounting = $this->input['is_income_billed'] ? false : true;
+        $this->cash_accounting = ($this->input['is_income_billed'] ?? false) ? false : true;
 
         return $this;
     }

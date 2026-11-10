@@ -20,31 +20,35 @@
           example: 'https://www.example.com/invitations/Opnel5aKBz4343343566236gvbb'
           readOnly: true
         sent_date:
-          description: 'The invitation sent date'
+          description: 'The invitation sent date (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         viewed_date:
-          description: 'The invitation viewed date'
+          description: 'The invitation viewed date (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         opened_date:
-          description: 'The invitation opened date'
+          description: 'The invitation opened date (YYYY-MM-DD HH:MM:SS), an empty string when not set'
           type: string
-          format: date-time
           readOnly: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
+          readOnly: true
+        created_at:
+          description: 'When the invitation was created, as a Unix timestamp in seconds'
+          type: integer
+          example: 1434342123
+          readOnly: true
+        message_id:
+          description: 'The message id the mail provider returned for the last email sent for this invitation'
+          type: string
           readOnly: true
         email_error:
           description: 'The email error'

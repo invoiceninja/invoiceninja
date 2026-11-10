@@ -41,10 +41,6 @@
           description: 'The group setting hashed id'
           type: string
           example: Opnel5aKBz
-        user_id:
-          description: 'The user hashed id'
-          type: string
-          example: Opnel5aKBz
         name:
           description: 'The name of the group'
           type: string
@@ -53,6 +49,23 @@
           description: 'The settings object'
           type: object
           example: {}
+        archived_at:
+          description: 'When the group setting was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        created_at:
+          description: 'When the group setting was created, as a Unix timestamp in seconds'
+          type: integer
+        documents:
+          description: 'The documents attached to the group setting'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        is_deleted:
+          description: 'Whether the group setting has been deleted'
+          type: boolean
+        updated_at:
+          description: 'When the group setting was last changed, as a Unix timestamp in seconds'
+          type: integer
       type: object
     InvoicePaymentable:
       properties:
@@ -71,6 +84,62 @@
 
 
 
+    TaskScheduler:
+      properties:
+        id:
+          description: 'The scheduled task hashed id'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        name:
+          description: 'The name the user gave the scheduled task'
+          type: string
+          example: 'Monthly statements'
+        frequency_id:
+          description: 'How often the task runs, as a frequency id string: 1 daily, 2 weekly, 3 every two weeks, 4 every four weeks, 5 monthly, 6 every two months, 7 every three months, 8 every four months, 9 every six months, 10 yearly, 11 every two years, 12 every three years'
+          type: string
+          example: '5'
+        next_run:
+          description: 'The next date the task runs (YYYY-MM-DD), in the company time zone'
+          type: string
+          example: '2030-01-01'
+        template:
+          description: 'What the task does: email_statement, email_record, email_report, invoice_outstanding_tasks or payment_schedule'
+          type: string
+          example: client_statement
+        is_paused:
+          description: 'Whether the task is paused and skipped until it is resumed'
+          type: boolean
+          example: false
+        parameters:
+          description: 'The options for the template, for example clients, date_range and entity for email_statement, or report_name for email_report'
+          type: object
+          additionalProperties: true
+        remaining_cycles:
+          description: 'The number of runs left, -1 for endless'
+          type: integer
+          example: -1
+        is_deleted:
+          description: 'Whether the scheduled task has been deleted'
+          type: boolean
+          example: false
+          readOnly: true
+        updated_at:
+          description: 'When the scheduled task was last changed, as a Unix timestamp in seconds'
+          type: integer
+          example: 1434342123
+          readOnly: true
+        created_at:
+          description: 'When the scheduled task was created, as a Unix timestamp in seconds'
+          type: integer
+          example: 1434342123
+          readOnly: true
+        archived_at:
+          description: 'When the scheduled task was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+          example: 1434342123
+          readOnly: true
+      type: object
     TaskSchedulerSchema:
       properties:
         paused:
@@ -170,14 +239,9 @@
           description: 'The task status color - hex value'
           type: string
           example: '#000000'
-        task_status_order:
-          description: 'The order of the task status'
-          type: integer
-          example: 4
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         is_deleted:
@@ -187,16 +251,19 @@
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
+        status_order:
+          description: 'The sort order of the status, null when the statuses have not been sorted'
+          type: integer
+          nullable: true
+          example: 1
       type: object
     TaxRate:
       properties:
@@ -217,6 +284,15 @@
           description: 'Boolean flag determining if the tax has been deleted'
           type: boolean
           example: true
+        archived_at:
+          description: 'When the tax rate was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        created_at:
+          description: 'When the tax rate was created, as a Unix timestamp in seconds'
+          type: integer
+        updated_at:
+          description: 'When the tax rate was last changed, as a Unix timestamp in seconds'
+          type: integer
       type: object
     Template:
       properties:
@@ -307,6 +383,37 @@
           description: 'JSON or UBL'
           type: string
           example: JSON
+        archived_at:
+          description: 'When the webhook was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
+        company_id:
+          description: 'The hashed id of the company the webhook belongs to'
+          type: string
+        created_at:
+          description: 'When the webhook was created, as a Unix timestamp in seconds'
+          type: integer
+        headers:
+          description: 'Additional HTTP headers sent with the webhook request, as a map of header name to value. An empty array when there are none'
+          anyOf:
+            - type: object
+              additionalProperties:
+                type: string
+            - type: array
+              maxItems: 0
+          example:
+            X-Custom-Header: value
+        is_deleted:
+          description: 'Whether the webhook has been deleted'
+          type: boolean
+        rest_method:
+          description: 'The HTTP method used to call the target URL, post or put'
+          type: string
+        updated_at:
+          description: 'When the webhook was last changed, as a Unix timestamp in seconds'
+          type: integer
+        user_id:
+          description: 'The hashed id of the user who created the webhook'
+          type: string
       type: object
 
     PaymentType:

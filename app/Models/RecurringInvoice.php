@@ -243,6 +243,7 @@ class RecurringInvoice extends BaseModel
     protected $casts = [
         'settings' => 'object',
         'line_items' => 'object',
+        'is_amount_discount' => 'bool',
         'backup' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
