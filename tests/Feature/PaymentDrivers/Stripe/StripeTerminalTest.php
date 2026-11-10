@@ -37,6 +37,7 @@ use App\Services\Client\PaymentMethod;
 use App\Services\Invoice\AutoBillInvoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Stripe\ApiRequestor;
@@ -429,6 +430,17 @@ class StripeTerminalTest extends TestCase
         $this->collect(['amount' => (float) $this->invoice->balance + 1, 'expected_total' => (float) $this->invoice->balance + 1])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['amount']);
+    }
+
+    public function testTheTerminalLimitsAreTheirOwn(): void
+    {
+        /* Twenty reports this minute: an unprefixed limit counts by the user alone */
+        foreach (range(1, 20) as $attempt) {
+            RateLimiter::hit(sha1((string) $this->user->id));
+        }
+
+        $this->api()->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/connection_token", ['location_id' => 'tml_1'])->assertOk();
+        $this->collect()->assertOk();
     }
 
     public function testAnotherCompanysRecordsAreOutOfReach(): void
