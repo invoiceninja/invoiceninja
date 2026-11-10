@@ -291,6 +291,9 @@ class StripeTerminalTest extends TestCase
         /* Recording fails for a reason that is not Stripe's, every run */
         ClientContact::query()->where('client_id', $this->client->id)->delete();
 
+        /* Another database's collection with the same id was alerted already */
+        Cache::put("terminal_reconcile_failed:{$collection->id}", true);
+
         foreach (range(1, 2) as $run) {
             try {
                 (new ReconcileTerminalPayment($collection->id, null))->handle();

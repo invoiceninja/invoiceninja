@@ -82,8 +82,8 @@ class ReconcileTerminalPayment implements ShouldQueue
 
             return;
         } catch (\Throwable $e) {
-            /* Not Stripe: it fails the same way every run, so support hears of it once */
-            if (Cache::add("terminal_reconcile_failed:{$collection->id}", true, now()->addDays(31))) {
+            /* Not Stripe: it fails the same way every run, so support is alerted once, though the job fails each time */
+            if (Cache::add('terminal_reconcile_failed:' . config('database.default') . ':' . $collection->id, true, now()->addDays(31))) {
                 $card_present->alert($collection, 'reconciliation could not record it: ' . $e->getMessage());
             }
 
