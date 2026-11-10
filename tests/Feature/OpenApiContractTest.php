@@ -543,6 +543,7 @@ class OpenApiContractTest extends TestCase
         $this->user->forceFill(['email_verified_at' => null])->save();
 
         $response = $this->apiRequest('post', '/api/v1/refresh', ['updated_at' => self::NOTHING_CHANGED['updated_at']]);
+        $this->assertArrayHasKey('email_verified_at', $response->json('data.0.user') ?? []);
         $this->assertNull($response->json('data.0.user.email_verified_at'));
 
         $mismatch = $this->specMismatch('post', '/api/v1/refresh', $response, null);
