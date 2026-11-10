@@ -169,7 +169,7 @@ class RecordTerminalPayment
         $card = $charge->payment_method_details->{$method} ?? null;
         $received = $pi->amount_received;
         $base = $this->card_present->toStripe($invoice, $collection->amount);
-        $fee = $collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT ? $this->card_present->toStripe($invoice, $collection->fee_gross) : 0;
+        $fee = $this->card_present->toStripe($invoice, $collection->fee_gross);
         $closed = $invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED, Invoice::STATUS_DRAFT]);
         $paid_elsewhere = !$closed && $this->card_present->toStripe($invoice, $invoice->balance) < $base;
 
@@ -177,7 +177,7 @@ class RecordTerminalPayment
         $closed = $closed || ($paid_elsewhere && $this->card_present->toStripe($invoice, $invoice->balance) <= 0);
 
         /* A surcharge is only kept on a credit card, itemised on the invoice it paid */
-        $keep_fee = $method == 'card_present' && ($card->funding ?? null) == 'credit' && !$closed && !$paid_elsewhere;
+        $keep_fee = $collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT && $method == 'card_present' && ($card->funding ?? null) == 'credit' && !$closed && !$paid_elsewhere;
 
         if ($fee > 0 && $received >= $base + $fee && !$keep_fee) {
             $received -= $this->refundSurcharge($collection, $pi, $charge, $method, $fee);

@@ -659,6 +659,54 @@ class StripeTerminalTest extends TestCase
         $this->assertSame((int) round($balance * 100), $this->stripe->intents[$intent['payment_intent_id']]['amount']);
     }
 
+    public function testAPaymentIntentLeftAtAnotherAmountIsSetBackAndReadAgain(): void
+    {
+        $quote = $this->surcharged();
+        $base = (int) round((float) $this->invoice->balance * 100);
+        $total = (int) round($quote['total'] * 100);
+
+        /* Raised for a credit card, but the response was lost before the surcharge was saved */
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->intents[$intent['payment_intent_id']]['amount'] = $total;
+
+        $this->stripe->collect($intent['payment_intent_id'], 'debit');
+        $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['path' => 'none', 'recollect' => true, 'amount_minor' => $base]);
+        $this->assertSame($base, $this->stripe->intents[$intent['payment_intent_id']]['amount']);
+
+        $this->stripe->collect($intent['payment_intent_id'], 'debit');
+        $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['recollect' => false, 'amount_minor' => $base]);
+
+        /* Raised, then lowered for a debit card whose response was lost */
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['path' => 'recollect', 'recollect' => true]);
+        $this->stripe->intents[$intent['payment_intent_id']]['amount'] = $base;
+
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['path' => 'recollect', 'recollect' => true, 'amount_minor' => $total]);
+        $this->assertSame($total, $this->stripe->intents[$intent['payment_intent_id']]['amount']);
+
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['recollect' => false, 'amount_minor' => $total]);
+    }
+
+    public function testASurchargeChargedWithoutItsPathIsRefunded(): void
+    {
+        $quote = $this->surcharged();
+        $balance = (float) $this->invoice->balance;
+
+        /* Raised for a credit card, the surcharge never saved, and the card charged anyway */
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->intents[$intent['payment_intent_id']]['amount'] = (int) round($quote['total'] * 100);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'credit');
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+
+        $this->assertCount(1, $this->refunds());
+        $this->assertSame((int) round($quote['fee_gross'] * 100), (int) $this->refunds()->first()['params']['amount']);
+        $this->assertEquals($balance, (float) $this->terminalPayments()->sole()->amount);
+        $this->assertCount(0, collect($this->invoice->fresh()->line_items)->where('type_id', '4'));
+    }
+
     public function testADebitCardIsNeverSurcharged(): void
     {
         $quote = $this->surcharged();

@@ -292,7 +292,7 @@ class CardPresent
 
         /* After the amount was raised: confirm a credit card, otherwise drop the surcharge and read again */
         if ($collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT) {
-            if (!$collected || $pi->amount != $this->toStripe($invoice, $collection->amount + $collection->fee_gross)) {
+            if ($this->amountChanged($collection, $pi, $collection->fee_gross) || !$collected) {
                 return $this->finalizeResponse($collection, true);
             }
 
@@ -313,7 +313,7 @@ class CardPresent
         if ($funding != 'credit' || !$surcharge_allowed) {
             $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_NONE, 0);
 
-            return $this->finalizeResponse($collection, false, $funding);
+            return $this->finalizeResponse($collection, $this->amountChanged($collection, $pi, 0), $funding);
         }
 
         PaymentIntent::update($pi->id, [
@@ -567,6 +567,20 @@ class CardPresent
             || ($min > 0 && $amount < $min) || ($max > 0 && $amount > $max)) {
             throw ValidationException::withMessages(['amount' => ctrans('texts.terminal_invalid_amount')]);
         }
+    }
+
+    /* The device confirms the amount we answer: a PaymentIntent left at another one, by an update whose response was lost, is set back and the card read again */
+    private function amountChanged(TerminalPaymentIntent $collection, PaymentIntent $pi, float $surcharge): bool
+    {
+        $amount = $this->toStripe($collection->invoice, $collection->amount + $surcharge);
+
+        if ($pi->amount == $amount) {
+            return false;
+        }
+
+        PaymentIntent::update($pi->id, ['amount' => $amount, 'description' => $this->description($collection->invoice, $surcharge)], $this->stripe->stripe_connect_auth);
+
+        return true;
     }
 
     private function setSurcharge(TerminalPaymentIntent $collection, string $path, float $fee): void
