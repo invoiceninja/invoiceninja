@@ -35,6 +35,8 @@ class TerminalException extends Exception
         'send_invoice_first' => 'texts.terminal_send_invoice_first',
         'not_collected' => 'texts.terminal_not_collected',
         'location_address_required' => 'texts.terminal_location_address_required',
+        'location_required' => 'texts.terminal_location_required',
+        'receipt_limit' => 'texts.terminal_receipt_limit',
     ];
 
     public function __construct(public string $error_code, int $status = 409, public array $data = [], array $replace = [])

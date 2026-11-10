@@ -69,11 +69,16 @@ class CardPresent
         return (new RecordTerminalPayment($this))->run($collection, $pi);
     }
 
-    public function connectionToken(?string $location_id): string
+    /* Scoped to one of the gateway's own Locations: an unscoped token reaches every reader on the account */
+    public function connectionToken(string $location_id): string
     {
+        if (!collect($this->locations())->contains('id', $location_id)) {
+            throw new TerminalException('location_required', 422);
+        }
+
         $this->stripe->init();
 
-        return ConnectionToken::create($location_id ? ['location' => $location_id] : [], $this->stripe->stripe_connect_auth)->secret;
+        return ConnectionToken::create(['location' => $location_id], $this->stripe->stripe_connect_auth)->secret;
     }
 
     public function locations(): array
@@ -259,13 +264,14 @@ class CardPresent
 
         $invoice = $collection->invoice;
 
-        /* No surcharge asked for: nothing to read from Stripe, but the invoice must still take it */
-        if (!$collection->apply_fee) {
-            if ($invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
-                || $this->toStripe($invoice, $invoice->balance) < $this->toStripe($invoice, $collection->amount)) {
-                throw new TerminalException('balance_changed', 409, ['balance' => $invoice->balance]);
-            }
+        /* Before every decision, for every card: the invoice must still take the amount */
+        if ($invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
+            || $this->toStripe($invoice, $invoice->balance) < $this->toStripe($invoice, $collection->amount)) {
+            throw new TerminalException('balance_changed', 409, ['balance' => $invoice->balance]);
+        }
 
+        /* No surcharge asked for: nothing to read from Stripe */
+        if (!$collection->apply_fee) {
             $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_NONE, 0);
 
             return $this->finalizeResponse($collection, false);
@@ -277,13 +283,20 @@ class CardPresent
         $collected = $pi->status == 'requires_confirmation';
         $funding = ($pi->payment_method->type ?? null) == 'card_present' ? ($pi->payment_method->card_present->funding ?? null) : null;
 
+        /*
+         * The invoice's own rules were checked when the surcharge was quoted and the
+         * PaymentIntent created: creating it sent a draft, which may have locked it. Only what
+         * can change by now is checked again: the card, and the admin's settings.
+         */
+        $surcharge_allowed = $this->surcharge()->check()['allowed'];
+
         /* After the amount was raised: confirm a credit card, otherwise drop the surcharge and read again */
         if ($collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT) {
             if (!$collected || $pi->amount != $this->toStripe($invoice, $collection->amount + $collection->fee_gross)) {
                 return $this->finalizeResponse($collection, true);
             }
 
-            if ($funding == 'credit') {
+            if ($funding == 'credit' && $surcharge_allowed) {
                 return $this->finalizeResponse($collection, false, $funding);
             }
 
@@ -297,12 +310,7 @@ class CardPresent
             throw new TerminalException('not_collected', 409, ['status' => $pi->status]);
         }
 
-        if ($invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
-            || $this->toStripe($invoice, $invoice->balance) < $this->toStripe($invoice, $collection->amount)) {
-            throw new TerminalException('balance_changed', 409, ['balance' => $invoice->balance]);
-        }
-
-        if (!$collection->apply_fee || $funding != 'credit' || !$this->surcharge()->check($invoice)['allowed']) {
+        if ($funding != 'credit' || !$surcharge_allowed) {
             $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_NONE, 0);
 
             return $this->finalizeResponse($collection, false, $funding);
@@ -359,9 +367,16 @@ class CardPresent
             throw new TerminalException('collection_closed');
         }
 
+        /* Stripe sends it, outside the account's email limits: a few per payment */
+        if ($collection->receipts_sent >= 3) {
+            throw new TerminalException('receipt_limit', 429);
+        }
+
         $this->stripe->init();
 
         Charge::update($collection->payment->transaction_reference, ['receipt_email' => $email], $this->stripe->stripe_connect_auth);
+
+        $collection->increment('receipts_sent');
     }
 
     public static function isCardPresent(array $object): bool
@@ -375,7 +390,8 @@ class CardPresent
     {
         $currency = $invoice->client->currency();
 
-        return (int) $this->stripe->convertToStripeAmount($amount, $currency->precision, $currency);
+        /* Rounded, not truncated: a zero-decimal currency comes back as the raw float */
+        return (int) round($this->stripe->convertToStripeAmount($amount, $currency->precision, $currency));
     }
 
     /* Charged money that was not recorded as expected */
@@ -490,7 +506,8 @@ class CardPresent
             ->get();
 
         foreach ($collections as $collection) {
-            if (!$collection->payment_intent_id && $collection->isStale()) {
+            /* Stripe never answered its create: after two minutes it isn't coming */
+            if (!$collection->payment_intent_id && $collection->created_at->lt(now()->subMinutes(2))) {
                 $collection->update(['status_id' => TerminalPaymentIntent::STATUS_FAILED]);
 
                 continue;
@@ -502,7 +519,7 @@ class CardPresent
                 throw $this->collectionOpen($collection);
             }
 
-            if (in_array($result['status'], ['recorded', 'unapplied', 'processing'])) {
+            if (in_array($result['status'], ['recorded', 'unapplied', 'recording', 'processing'])) {
                 throw new TerminalException('already_paid');
             }
 

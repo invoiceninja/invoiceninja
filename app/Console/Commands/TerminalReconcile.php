@@ -28,6 +28,10 @@ class TerminalReconcile extends Command
     public function handle(): int
     {
         if (! $this->option('pi')) {
+            if ($this->option('db')) {
+                MultiDB::setDB($this->option('db'));
+            }
+
             (new TerminalReconcileCron())->handle();
 
             return self::SUCCESS;

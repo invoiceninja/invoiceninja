@@ -366,6 +366,11 @@ class StripeTerminalTest extends TestCase
         $this->company->settings = $settings;
         $this->company->save();
 
+        $client_settings = $this->client->settings;
+        $client_settings->lock_invoices = 'when_sent';
+        $this->client->settings = $client_settings;
+        $this->client->save();
+
         $draft = InvoiceFactory::create($this->company->id, $this->user->id);
         $draft->client_id = $this->client->id;
         $draft->line_items = $this->buildLineItems();
@@ -376,7 +381,47 @@ class StripeTerminalTest extends TestCase
         $quote = $this->company_gateway->fresh()->driver($this->client)->cardPresent()->surcharge()->quote($draft, (float) $draft->amount, true);
         $this->assertTrue($quote['surcharge_allowed']);
 
-        $this->collect(['amount' => (float) $draft->amount, 'apply_fee' => true, 'expected_total' => $quote['total']], $draft)->assertOk();
+        $intent = $this->collect(['amount' => (float) $draft->amount, 'apply_fee' => true, 'expected_total' => $quote['total']], $draft)->assertOk()->json();
+
+        /* Creating it sent the draft, which locked it: the surcharge it was shown still stands */
+        $this->assertTrue($draft->fresh()->isLocked());
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['path' => 'recollect', 'recollect' => true]);
+        $this->assertSame((int) round($quote['total'] * 100), $this->stripe->intents[$intent['payment_intent_id']]['amount']);
+    }
+
+    public function testACreditCardOnTheSecondReadStillChecksTheInvoice(): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+
+        $this->invoice->fresh()->forceFill(['status_id' => Invoice::STATUS_CANCELLED])->saveQuietly();
+
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertStatus(409)->assertJson(['error_code' => 'balance_changed']);
+    }
+
+    public function testAConnectionTokenNamesOneOfTheGatewaysLocations(): void
+    {
+        $url = "/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/connection_token";
+
+        $this->api()->postJson($url)->assertStatus(422);
+        $this->api()->postJson($url, ['location_id' => 'tml_someone_elses'])->assertStatus(422)->assertJson(['error_code' => 'location_required']);
+        $this->api()->postJson($url, ['location_id' => 'tml_1'])->assertOk()->assertJsonStructure(['secret']);
+    }
+
+    public function testACreateStripeNeverAnsweredFreesTheInvoiceAfterTwoMinutes(): void
+    {
+        $this->collect()->assertOk();
+        $stuck = TerminalPaymentIntent::query()->where('invoice_id', $this->invoice->id)->sole();
+        $stuck->forceFill(['status_id' => TerminalPaymentIntent::STATUS_CREATING, 'payment_intent_id' => null, 'created_at' => now()->subMinutes(3)])->save();
+
+        $this->collect()->assertOk();
+
+        $this->assertSame(TerminalPaymentIntent::STATUS_FAILED, $stuck->fresh()->status_id);
     }
 
     public function testAnAmountOverTheBalanceIsRefused(): void
@@ -796,6 +841,11 @@ class StripeTerminalTest extends TestCase
 
         $update = collect($this->stripe->requests)->first(fn ($request) => str_starts_with($request['path'], '/v1/charges/') && $request['method'] == 'post');
         $this->assertSame('client@example.com', $update['params']['receipt_email']);
+        /* Stripe sends these outside the account's email limits: three per payment */
+        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'b@example.com'])->assertOk();
+        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'c@example.com'])->assertOk();
+        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'd@example.com'])
+            ->assertStatus(429)->assertJson(['error_code' => 'receipt_limit']);
     }
 
     public function testAnInteracPaymentIsNotRefundedThroughTheGateway(): void

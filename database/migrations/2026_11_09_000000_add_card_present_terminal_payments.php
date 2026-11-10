@@ -41,12 +41,15 @@ return new class extends Migration {
             $table->boolean('apply_fee')->default(false);
             $table->string('surcharge_path')->nullable();
             $table->unsignedInteger('surcharge_refunded')->default(0);
+            $table->unsignedTinyInteger('receipts_sent')->default(0);
             $table->unsignedInteger('status_id')->index();
             $table->timestamp('claimed_at')->nullable();
             $table->timestamp('touched_at')->nullable();
             $table->timestamps(6);
 
             $table->unique(['company_id', 'collection_id']);
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 };

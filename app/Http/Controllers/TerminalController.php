@@ -34,6 +34,11 @@ class TerminalController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        /* Switched off: nothing to ask Stripe */
+        if (!config('ninja.terminal_enabled')) {
+            return response()->json(['enabled' => false, 'plan_ok' => false, 'gateways' => []]);
+        }
+
         $gateways = CompanyGateway::query()
             ->where('company_id', $user->company()->id)
             ->where('is_deleted', 0)

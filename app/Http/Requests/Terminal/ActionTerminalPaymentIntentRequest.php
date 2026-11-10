@@ -25,7 +25,11 @@ class ActionTerminalPaymentIntentRequest extends TerminalRequest
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $this->collection()->user_id == $user->id || $user->can('create', Payment::class);
+        $collection = $this->collection();
+
+        /* Whoever started it, or anyone who may take payments on an invoice they can see */
+        return $collection->user_id == $user->id
+            || ($user->can('create', Payment::class) && $collection->invoice && $user->can('view', $collection->invoice));
     }
 
     public function collection(): TerminalPaymentIntent

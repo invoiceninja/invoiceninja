@@ -30,7 +30,7 @@ class StoreTerminalConnectionTokenRequest extends TerminalRequest
     public function rules()
     {
         return [
-            'location_id' => 'sometimes|nullable|string',
+            'location_id' => 'required|string',
         ];
     }
 }

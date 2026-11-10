@@ -15,6 +15,7 @@ namespace App\PaymentDrivers\Stripe\Terminal;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Models\TerminalPaymentIntent;
@@ -81,13 +82,13 @@ class RecordTerminalPayment
         $claimed = TerminalPaymentIntent::query()
             ->where('id', $collection->id)
             ->whereIn('status_id', TerminalPaymentIntent::OPEN_STATUSES)
-            ->where(fn ($query) => $query->where('status_id', '!=', TerminalPaymentIntent::STATUS_RECORDING)->orWhere('claimed_at', '<', now()->subMinutes(2)))
+            ->where(fn ($query) => $query->where('status_id', '!=', TerminalPaymentIntent::STATUS_RECORDING)->orWhere('claimed_at', '<', now()->subMinutes(5)))
             ->update(['status_id' => TerminalPaymentIntent::STATUS_RECORDING, 'claimed_at' => $claimed_at]);
 
         if (!$claimed) {
             $collection->refresh();
 
-            return $collection->status_id == TerminalPaymentIntent::STATUS_RECORDED ? $this->response($collection) : ['status' => 'processing'];
+            return $collection->status_id == TerminalPaymentIntent::STATUS_RECORDED ? $this->response($collection) : ['status' => 'recording'];
         }
 
         try {
@@ -113,9 +114,14 @@ class RecordTerminalPayment
                 TerminalPaymentIntent::STATUS_FAILED => 'failed',
                 TerminalPaymentIntent::STATUS_ORPHANED => 'orphaned',
                 TerminalPaymentIntent::STATUS_REJECTED => 'rejected',
+                /* Charged and being recorded; Stripe's own statuses pass through as they are */
+                TerminalPaymentIntent::STATUS_RECORDING => 'recording',
                 default => 'processing',
             }];
         }
+
+        /* Money the invoice didn't take, whichever path recorded it */
+        $unapplied = $unapplied || round($payment->amount - $payment->applied, 6) > 0;
 
         return [
             'status' => $unapplied ? 'unapplied' : 'recorded',
@@ -185,6 +191,15 @@ class RecordTerminalPayment
         }
 
         $response = DB::transaction(function () use ($collection, $pi, $charge, $payment_hash, $invoice, $client, $method, $card, $received, $fee, $invoice_amount, $closed) {
+            /* A slow recorder may have been overtaken: whoever holds the hash records, once */
+            $payment_id = PaymentHash::query()->whereKey($payment_hash->id)->lockForUpdate()->value('payment_id');
+
+            if ($payment_id) {
+                $collection->update(['status_id' => TerminalPaymentIntent::STATUS_RECORDED, 'payment_id' => $payment_id]);
+
+                return $this->response($collection->fresh(), $charge);
+            }
+
             $data = $payment_hash->data;
             $data->invoices = $closed ? [] : [(object) [
                 'invoice_id' => $invoice->hashed_id,
@@ -242,7 +257,8 @@ class RecordTerminalPayment
         if (($charge->amount_refunded ?? 0) > 0) {
             $charge = Charge::retrieve($charge->id, $stripe->stripe_connect_auth);
 
-            ChargeRefunded::dispatch($stripe->webhookData(['object' => $charge->toArray()]), $collection->company->company_key);
+            /* After the webhook's own copy: ChargeRefunded drops one that overlaps another */
+            ChargeRefunded::dispatch($stripe->webhookData(['object' => $charge->toArray()]), $collection->company->company_key)->delay(now()->addSeconds(15));
         }
 
         return $response;

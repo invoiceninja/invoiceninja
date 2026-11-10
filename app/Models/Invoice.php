@@ -527,6 +527,7 @@ class Invoice extends BaseModel
             ->where('company_id', $this->company_id)
             ->where('invoice_id', $this->id)
             ->whereIn('status_id', TerminalPaymentIntent::OPEN_STATUSES)
+            ->where('created_at', '>', now()->subDays(30))
             ->exists();
     }
 

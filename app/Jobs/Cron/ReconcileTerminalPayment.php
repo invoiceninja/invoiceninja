@@ -20,6 +20,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\InvalidRequestException;
 
 /* Records an in-person card payment Stripe charged but nobody recorded, or cancels an abandoned one */
 class ReconcileTerminalPayment implements ShouldQueue
@@ -55,8 +57,30 @@ class ReconcileTerminalPayment implements ShouldQueue
             return;
         }
 
+        if (!$collection->company_gateway) {
+            $collection->update(['status_id' => TerminalPaymentIntent::STATUS_FAILED]);
+
+            return;
+        }
+
         $card_present = $collection->cardPresent();
-        $result = $card_present->record($collection);
+
+        try {
+            $result = $card_present->record($collection);
+        } catch (InvalidRequestException $e) {
+            /* The PaymentIntent is gone (other keys, a disconnected account): it can't be charged now */
+            if ($e->getStripeCode() == 'resource_missing' && $collection->isStale()) {
+                $collection->update(['status_id' => TerminalPaymentIntent::STATUS_FAILED]);
+                $card_present->alert($collection, 'payment intent no longer found at Stripe');
+            }
+
+            return;
+        } catch (ApiErrorException $e) {
+            /* Stripe is unreachable or refusing: the next run tries again */
+            nlog("terminal: reconcile {$collection->payment_intent_id} - " . $e->getMessage());
+
+            return;
+        }
 
         if (in_array($result['status'], ['recorded', 'unapplied'])) {
             $card_present->log($collection, SystemLog::EVENT_PAYMENT_RECONCILIATION_SUCCESS, 'recorded by reconciliation');
