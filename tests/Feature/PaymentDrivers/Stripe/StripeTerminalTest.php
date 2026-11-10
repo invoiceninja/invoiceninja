@@ -176,7 +176,7 @@ class StripeTerminalTest extends TestCase
 
     private function refunds()
     {
-        return collect($this->stripe->requests)->where('path', '/v1/refunds');
+        return collect($this->stripe->requests)->where('path', '/v1/refunds')->where('method', 'post');
     }
 
     private function userToken(string $permissions): string
@@ -600,6 +600,51 @@ class StripeTerminalTest extends TestCase
         $this->assertCount(0, collect($this->invoice->fresh()->line_items)->where('type_id', '4'));
     }
 
+    public function testARefundIsCountedOnceWhicheverArrivesFirst(): void
+    {
+        $balance = (float) $this->invoice->balance;
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+
+        /* Refunded in Stripe before the payment was recorded: the webhook finds no payment */
+        $this->stripe->refundInDashboard($intent['payment_intent_id'], 500);
+        $refunded = fn () => new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key);
+        $refunded()->handle();
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+        $refunded()->handle();
+
+        $payment = $this->terminalPayments()->sole();
+        $this->assertEquals($balance, $payment->amount);
+        $this->assertEquals(5, (float) $payment->refunded);
+        $this->assertEquals(5, (float) $this->invoice->fresh()->balance);
+    }
+
+    public function testASurchargeRefundWhoseResponseWasLostIsNotRefundedOrCountedAgain(): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        $this->stripe->lose_refund_response = true;
+        $this->complete($intent['payment_intent_id'])->assertStatus(500);
+        $this->assertSame(0, $this->terminalPayments()->count());
+
+        $refunded = fn () => new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key);
+        $refunded()->handle();
+
+        (new TerminalReconcileCron())->handle();
+        $refunded()->handle();
+
+        $this->assertCount(1, $this->refunds());
+        $this->assertEquals(0, (float) $this->terminalPayments()->sole()->refunded);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertSame(Invoice::STATUS_PAID, $this->invoice->fresh()->status_id);
+    }
+
     public function testTheSurchargePolicy(): void
     {
         $this->company_gateway = $this->stripeGateway(['is_enabled' => true, 'fee_percent' => 3]);
@@ -745,6 +790,11 @@ final class TerminalStripeFake implements ClientInterface
         'charges_enabled' => true,
     ];
 
+    public array $refunds = [];
+
+    /* Stripe refunds, but the response never arrives */
+    public bool $lose_refund_response = false;
+
     private array $idempotency = [];
 
     private int $sequence = 0;
@@ -767,12 +817,13 @@ final class TerminalStripeFake implements ClientInterface
             $path == '/v1/terminal/connection_tokens' => ['object' => 'terminal.connection_token', 'secret' => 'pst_test_' . (++$this->sequence)],
             $path == '/v1/terminal/locations' && $method == 'get' => ['object' => 'list', 'data' => [['id' => 'tml_1', 'object' => 'terminal.location', 'display_name' => 'Main']], 'has_more' => false, 'url' => '/v1/terminal/locations'],
             $path == '/v1/terminal/locations' => ['id' => 'tml_' . (++$this->sequence), 'object' => 'terminal.location', 'display_name' => $params['display_name'] ?? ''],
+            $path == '/v1/refunds' && $method == 'get' => ['object' => 'list', 'data' => array_values($this->refunds[$params['payment_intent']] ?? []), 'has_more' => false, 'url' => '/v1/refunds'],
             $path == '/v1/refunds' => $this->refund($params, $named['Idempotency-Key'] ?? null),
             $path == '/v1/payment_intents' => $this->createIntent($params, $named['Idempotency-Key'] ?? null),
             (bool) preg_match('#^/v1/payment_intents/(pi_\w+)/cancel$#', $path, $m) => $this->setStatus($m[1], 'canceled'),
             (bool) preg_match('#^/v1/payment_intents/(pi_\w+)$#', $path, $m) && $method == 'post' => $this->updateIntent($m[1], $params),
             (bool) preg_match('#^/v1/payment_intents/(pi_\w+)$#', $path, $m) => $this->intents[$m[1]],
-            (bool) preg_match('#^/v1/charges/(ch_\w+)$#', $path, $m) => ['id' => $m[1], 'object' => 'charge'],
+            (bool) preg_match('#^/v1/charges/ch_(\w+)$#', $path, $m) => $this->intents["pi_{$m[1]}"]['latest_charge'],
             default => throw new \RuntimeException("Unexpected Stripe request: {$method} {$absUrl}"),
         };
 
@@ -812,6 +863,12 @@ final class TerminalStripeFake implements ClientInterface
         ];
     }
 
+    /* A refund made in the Stripe dashboard */
+    public function refundInDashboard(string $id, int $amount): void
+    {
+        $this->refund(['payment_intent' => $id, 'amount' => $amount], null);
+    }
+
     private function refund(array $params, ?string $key): array
     {
         if ($key && isset($this->idempotency[$key])) {
@@ -820,10 +877,17 @@ final class TerminalStripeFake implements ClientInterface
 
         $this->intents[$params['payment_intent']]['latest_charge']['amount_refunded'] += (int) $params['amount'];
 
-        $refund = ['id' => 're_' . (++$this->sequence), 'object' => 'refund', 'status' => 'succeeded', 'amount' => (int) $params['amount']];
+        $refund = ['id' => 're_' . (++$this->sequence), 'object' => 'refund', 'status' => 'succeeded', 'amount' => (int) $params['amount'], 'metadata' => $params['metadata'] ?? []];
+        $this->refunds[$params['payment_intent']][] = $refund;
 
         if ($key) {
             $this->idempotency[$key] = $refund;
+        }
+
+        if ($this->lose_refund_response) {
+            $this->lose_refund_response = false;
+
+            throw new \Stripe\Exception\ApiConnectionException('Could not connect to Stripe');
         }
 
         return $refund;

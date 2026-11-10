@@ -19,6 +19,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Models\TerminalPaymentIntent;
 use App\PaymentDrivers\Stripe\CardPresent;
+use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\PaymentDrivers\StripePaymentDriver;
 use Illuminate\Support\Facades\DB;
 use Stripe\Charge;
@@ -29,6 +30,9 @@ use Stripe\Refund;
  * Records a charged in-person PaymentIntent. The app's complete, the webhook and
  * reconciliation all land here, so it is idempotent, and it never re-checks the plan,
  * the gateway or the invoice: once a card is charged, the money is recorded.
+ *
+ * It records what Stripe received. Refunds are ChargeRefunded's, apart from a surcharge
+ * refunded here, which ChargeRefunded leaves out (surcharge_refunded).
  */
 class RecordTerminalPayment
 {
@@ -155,7 +159,7 @@ class RecordTerminalPayment
 
         $method = $charge->payment_method_details->type ?? 'card_present';
         $card = $charge->payment_method_details->{$method} ?? null;
-        $received = $pi->amount_received - ($charge->amount_refunded ?? 0);
+        $received = $pi->amount_received;
         $base = $this->card_present->toStripe($invoice, $collection->amount);
         $fee = $collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT ? $this->card_present->toStripe($invoice, $collection->fee_gross) : 0;
         $closed = $invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED, Invoice::STATUS_DRAFT]);
@@ -163,7 +167,7 @@ class RecordTerminalPayment
 
         /* A surcharge is only kept on a credit card, itemised on the invoice it paid */
         if ($fee > 0 && $received >= $base + $fee && (($card->funding ?? null) != 'credit' || $closed || $paid_elsewhere)) {
-            $received -= $this->refundSurcharge($collection, $pi, $method, $fee);
+            $received -= $this->refundSurcharge($collection, $pi, $charge, $method, $fee);
         }
 
         $fee = $fee > 0 && $received == $base + $fee ? $collection->fee_gross : 0;
@@ -172,7 +176,7 @@ class RecordTerminalPayment
         $received = round($stripe->convertFromStripeAmount($received, $currency->precision, $currency), $currency->precision);
         $invoice_amount = min($collection->amount, round($received - $fee, $currency->precision));
 
-        return DB::transaction(function () use ($collection, $pi, $charge, $payment_hash, $invoice, $client, $method, $card, $received, $fee, $invoice_amount, $closed) {
+        $response = DB::transaction(function () use ($collection, $pi, $charge, $payment_hash, $invoice, $client, $method, $card, $received, $fee, $invoice_amount, $closed) {
             $data = $payment_hash->data;
             $data->invoices = $closed ? [] : [(object) [
                 'invoice_id' => $invoice->hashed_id,
@@ -225,10 +229,22 @@ class RecordTerminalPayment
 
             return $this->response($collection->fresh(), $charge, $closed);
         });
+
+        /* A refund made before the payment existed found nothing to refund: apply it as the webhook would */
+        if (($charge->amount_refunded ?? 0) > 0) {
+            $charge = Charge::retrieve($charge->id, $stripe->stripe_connect_auth);
+
+            ChargeRefunded::dispatch($stripe->webhookData(['object' => $charge->toArray()]), $collection->company->company_key);
+        }
+
+        return $response;
     }
 
-    /* Idempotent, and remembered so ChargeRefunded does not take it off the payment again */
-    private function refundSurcharge(TerminalPaymentIntent $collection, PaymentIntent $pi, string $method, int $fee): int
+    /*
+     * Remembered before the payment exists, so ChargeRefunded never takes it off the payment.
+     * An earlier attempt whose response was lost is found on Stripe, not refunded again.
+     */
+    private function refundSurcharge(TerminalPaymentIntent $collection, PaymentIntent $pi, Charge $charge, string $method, int $fee): int
     {
         if ($method == 'interac_present') {
             $this->card_present->alert($collection, 'a surcharge was charged to an Interac card: refund it on the reader');
@@ -236,17 +252,32 @@ class RecordTerminalPayment
             return 0;
         }
 
-        Refund::create([
-            'payment_intent' => $pi->id,
-            'amount' => $fee,
-            'metadata' => ['in_terminal_surcharge_refund' => '1'],
-        ], array_merge($this->card_present->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_surcharge_{$pi->id}"]));
+        $refund = $this->surchargeRefund($pi, $charge);
 
-        $collection->update(['surcharge_refunded' => $fee]);
+        if (!$refund) {
+            $refund = Refund::create([
+                'payment_intent' => $pi->id,
+                'amount' => $fee,
+                'metadata' => ['in_terminal_surcharge_refund' => '1'],
+            ], array_merge($this->card_present->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_surcharge_{$pi->id}"]));
 
-        $this->card_present->alert($collection, 'surcharge refunded: it was charged to a card it does not apply to');
+            $this->card_present->alert($collection, 'surcharge refunded: it was charged to a card it does not apply to');
+        }
 
-        return $fee;
+        $collection->update(['surcharge_refunded' => $refund->amount]);
+
+        return $refund->amount;
+    }
+
+    private function surchargeRefund(PaymentIntent $pi, Charge $charge): ?Refund
+    {
+        if (($charge->amount_refunded ?? 0) == 0) {
+            return null;
+        }
+
+        $refunds = Refund::all(['payment_intent' => $pi->id, 'limit' => 100], $this->card_present->stripe->stripe_connect_auth);
+
+        return collect($refunds->data)->first(fn (Refund $refund) => ($refund->metadata->in_terminal_surcharge_refund ?? null) && !in_array($refund->status, ['failed', 'canceled']));
     }
 
     private function reject(TerminalPaymentIntent $collection, string $reason): array

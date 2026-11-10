@@ -1264,7 +1264,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     }
 
     /* An in-person PaymentIntent or charge carries a client secret and cardholder data: only what the jobs read is queued */
-    private function webhookData(array $data): array
+    public function webhookData(array $data): array
     {
         if (!isset($data['object']) || !CardPresent::isCardPresent($data['object'])) {
             return $data;

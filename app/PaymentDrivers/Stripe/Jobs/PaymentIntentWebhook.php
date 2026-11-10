@@ -79,7 +79,8 @@ class PaymentIntentWebhook implements ShouldQueue
 
     public function handle()
     {
-        /* In-person (Stripe Terminal): recorded from our own collection, before anything logs the payload */
+        /* In-person (Stripe Terminal): recovery only, for a payment the app did not complete.
+         * Recorded from our own collection, before anything logs the payload */
         if (CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
             MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
@@ -90,7 +91,9 @@ class PaymentIntentWebhook implements ShouldQueue
                 ->where('payment_intent_id', $this->stripe_request['object']['id'] ?? '')
                 ->first();
 
-            $collection?->cardPresent()->record($collection);
+            if ($collection && !$collection->isFinal()) {
+                $collection->cardPresent()->record($collection);
+            }
 
             return;
         }
