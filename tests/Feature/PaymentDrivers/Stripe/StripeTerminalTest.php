@@ -921,6 +921,32 @@ class StripeTerminalTest extends TestCase
         $this->assertSame(Invoice::STATUS_PAID, $this->invoice->fresh()->status_id);
     }
 
+    public function testASurchargeRefundStripeAnsweredWithAServerErrorIsFoundOnTheNextAttempt(): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        $this->stripe->refuse_refund = 500;
+        $this->complete($intent['payment_intent_id'])->assertStatus(500);
+        $this->assertSame(0, $this->terminalPayments()->count());
+        $this->assertSame(TerminalPaymentIntent::STATUS_OPEN, TerminalPaymentIntent::query()->where('payment_intent_id', $intent['payment_intent_id'])->value('status_id'));
+
+        $refunded = fn () => new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key);
+        $refunded()->handle();
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+        $refunded()->handle();
+
+        $this->assertCount(1, $this->refunds());
+        $this->assertEquals(0, (float) $this->terminalPayments()->sole()->refunded);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertSame(Invoice::STATUS_PAID, $this->invoice->fresh()->status_id);
+    }
+
     public function testASurchargeStripeWillNotRefundIsRecordedAsTheClientsMoney(): void
     {
         $quote = $this->surcharged();
@@ -932,7 +958,7 @@ class StripeTerminalTest extends TestCase
         $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
         $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
 
-        $this->stripe->refuse_refund = true;
+        $this->stripe->refuse_refund = 400;
         $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'unapplied', 'unapplied' => $quote['fee_gross']]);
 
         $payment = $this->terminalPayments()->sole();
@@ -943,7 +969,7 @@ class StripeTerminalTest extends TestCase
         $this->assertSame(1, SystemLog::query()->where('company_id', $this->company->id)->where('event_id', SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE)->count());
 
         /* Refunded in Stripe by hand: it comes out of that money, not the invoice */
-        $this->stripe->refuse_refund = false;
+        $this->stripe->refuse_refund = null;
         $this->stripe->refundInDashboard($intent['payment_intent_id'], (int) round($quote['fee_gross'] * 100));
         (new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key))->handle();
 
@@ -1125,8 +1151,8 @@ final class TerminalStripeFake implements ClientInterface
     /* Stripe refunds, but the response never arrives */
     public bool $lose_refund_response = false;
 
-    /* Stripe answers a refund with an error */
-    public bool $refuse_refund = false;
+    /* Stripe answers a refund with this HTTP status: a 4xx refused it, a 5xx refunded it anyway */
+    public ?int $refuse_refund = null;
 
     private array $idempotency = [];
 
@@ -1146,7 +1172,13 @@ final class TerminalStripeFake implements ClientInterface
         $this->requests[] = ['method' => $method, 'path' => $path, 'headers' => $named, 'params' => $params];
 
         if ($this->refuse_refund && $path == '/v1/refunds' && $method == 'post') {
-            return [json_encode(['error' => ['type' => 'api_error', 'message' => 'An unknown error occurred']]), 500, []];
+            if ($this->refuse_refund >= 500) {
+                $this->refund($params, $named['Idempotency-Key'] ?? null);
+
+                return [json_encode(['error' => ['type' => 'api_error', 'message' => 'An unknown error occurred']]), $this->refuse_refund, []];
+            }
+
+            return [json_encode(['error' => ['type' => 'invalid_request_error', 'code' => 'charge_disputed', 'message' => 'This charge is disputed']]), $this->refuse_refund, []];
         }
 
         $response = match (true) {

@@ -24,8 +24,10 @@ use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\PaymentDrivers\StripePaymentDriver;
 use Illuminate\Support\Facades\DB;
 use Stripe\Charge;
-use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\CardException;
+use Stripe\Exception\InvalidRequestException;
+use Stripe\Exception\PermissionException;
 use Stripe\PaymentIntent;
 use Stripe\Refund;
 
@@ -293,9 +295,8 @@ class RecordTerminalPayment
                     'amount' => $fee,
                     'metadata' => ['in_terminal_surcharge_refund' => '1'],
                 ], array_merge($this->card_present->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_surcharge_{$pi->id}"]));
-            } catch (ApiConnectionException $e) {
-                throw $e; // Stripe may have refunded it: the next attempt finds it
-            } catch (ApiErrorException $e) {
+            } catch (InvalidRequestException|CardException|PermissionException $e) {
+                /* Refused. Anything else (no answer, a 409, a 5xx) may have refunded it: the next attempt finds it */
                 $this->card_present->alert($collection, 'the surcharge could not be refunded, so it is recorded as the client\'s: refund it in Stripe');
 
                 return 0;
