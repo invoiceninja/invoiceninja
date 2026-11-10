@@ -24,6 +24,8 @@ use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\PaymentDrivers\StripePaymentDriver;
 use Illuminate\Support\Facades\DB;
 use Stripe\Charge;
+use Stripe\Exception\ApiConnectionException;
+use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\Refund;
 
@@ -175,11 +177,14 @@ class RecordTerminalPayment
         $closed = $closed || ($paid_elsewhere && $this->card_present->toStripe($invoice, $invoice->balance) <= 0);
 
         /* A surcharge is only kept on a credit card, itemised on the invoice it paid */
-        if ($fee > 0 && $received >= $base + $fee && (($card->funding ?? null) != 'credit' || $closed || $paid_elsewhere)) {
+        $keep_fee = $method == 'card_present' && ($card->funding ?? null) == 'credit' && !$closed && !$paid_elsewhere;
+
+        if ($fee > 0 && $received >= $base + $fee && !$keep_fee) {
             $received -= $this->refundSurcharge($collection, $pi, $charge, $method, $fee);
         }
 
-        $fee = $fee > 0 && $received == $base + $fee ? $collection->fee_gross : 0;
+        /* One that could not be refunded is the client's money, not a fee */
+        $fee = $keep_fee && $fee > 0 && $received == $base + $fee ? $collection->fee_gross : 0;
 
         $currency = $client->currency();
         $received = round($stripe->convertFromStripeAmount($received, $currency->precision, $currency), $currency->precision);
@@ -279,11 +284,19 @@ class RecordTerminalPayment
         $refund = $this->surchargeRefund($pi, $charge);
 
         if (!$refund) {
-            $refund = Refund::create([
-                'payment_intent' => $pi->id,
-                'amount' => $fee,
-                'metadata' => ['in_terminal_surcharge_refund' => '1'],
-            ], array_merge($this->card_present->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_surcharge_{$pi->id}"]));
+            try {
+                $refund = Refund::create([
+                    'payment_intent' => $pi->id,
+                    'amount' => $fee,
+                    'metadata' => ['in_terminal_surcharge_refund' => '1'],
+                ], array_merge($this->card_present->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_surcharge_{$pi->id}"]));
+            } catch (ApiConnectionException $e) {
+                throw $e; // Stripe may have refunded it: the next attempt finds it
+            } catch (ApiErrorException $e) {
+                $this->card_present->alert($collection, 'the surcharge could not be refunded, so it is recorded as the client\'s: refund it in Stripe');
+
+                return 0;
+            }
 
             $this->card_present->alert($collection, 'surcharge refunded: it was charged to a card it does not apply to');
         }

@@ -794,6 +794,55 @@ class StripeTerminalTest extends TestCase
         $this->assertSame(Invoice::STATUS_PAID, $this->invoice->fresh()->status_id);
     }
 
+    public function testASurchargeStripeWillNotRefundIsRecordedAsTheClientsMoney(): void
+    {
+        $quote = $this->surcharged();
+        $balance = (float) $this->invoice->balance;
+        $paid_to_date = (float) $this->client->fresh()->paid_to_date;
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        $this->stripe->refuse_refund = true;
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'unapplied', 'unapplied' => $quote['fee_gross']]);
+
+        $payment = $this->terminalPayments()->sole();
+        $this->assertEquals($quote['total'], (float) $payment->amount);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertCount(0, collect($this->invoice->fresh()->line_items)->where('type_id', '4'));
+        $this->assertEquals($paid_to_date + $quote['total'], (float) $this->client->fresh()->paid_to_date);
+        $this->assertSame(1, SystemLog::query()->where('company_id', $this->company->id)->where('event_id', SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE)->count());
+
+        /* Refunded in Stripe by hand: it comes out of that money, not the invoice */
+        $this->stripe->refuse_refund = false;
+        $this->stripe->refundInDashboard($intent['payment_intent_id'], (int) round($quote['fee_gross'] * 100));
+        (new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key))->handle();
+
+        $this->assertEquals($quote['fee_gross'], (float) $this->terminalPayments()->sole()->refunded);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertEquals($paid_to_date + $balance, (float) $this->client->fresh()->paid_to_date);
+    }
+
+    public function testASurchargeChargedToAnInteracCardIsTheClientsMoney(): void
+    {
+        $quote = $this->surcharged();
+        $paid_to_date = (float) $this->client->fresh()->paid_to_date;
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'credit', method: 'interac_present');
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'unapplied', 'unapplied' => $quote['fee_gross']]);
+
+        $this->assertCount(0, $this->refunds());
+        $this->assertCount(0, collect($this->invoice->fresh()->line_items)->where('type_id', '4'));
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertEquals($paid_to_date + $quote['total'], (float) $this->client->fresh()->paid_to_date);
+    }
+
     public function testTheSurchargePolicy(): void
     {
         $this->company_gateway = $this->stripeGateway(['is_enabled' => true, 'fee_percent' => 3]);
@@ -949,6 +998,9 @@ final class TerminalStripeFake implements ClientInterface
     /* Stripe refunds, but the response never arrives */
     public bool $lose_refund_response = false;
 
+    /* Stripe answers a refund with an error */
+    public bool $refuse_refund = false;
+
     private array $idempotency = [];
 
     private int $sequence = 0;
@@ -965,6 +1017,10 @@ final class TerminalStripeFake implements ClientInterface
         }
 
         $this->requests[] = ['method' => $method, 'path' => $path, 'headers' => $named, 'params' => $params];
+
+        if ($this->refuse_refund && $path == '/v1/refunds' && $method == 'post') {
+            return [json_encode(['error' => ['type' => 'api_error', 'message' => 'An unknown error occurred']]), 500, []];
+        }
 
         $response = match (true) {
             $path == '/v1/account' => $this->account,
@@ -997,7 +1053,7 @@ final class TerminalStripeFake implements ClientInterface
     }
 
     /* Confirmed and charged */
-    public function charge(string $id, ?int $received = null, string $funding = 'credit'): void
+    public function charge(string $id, ?int $received = null, string $funding = 'credit', string $method = 'card_present'): void
     {
         $intent = &$this->intents[$id];
         $intent['status'] = 'succeeded';
@@ -1011,8 +1067,8 @@ final class TerminalStripeFake implements ClientInterface
             'metadata' => $intent['metadata'],
             'receipt_url' => 'https://pay.stripe.com/receipts/test',
             'payment_method_details' => [
-                'type' => 'card_present',
-                'card_present' => ['brand' => 'visa', 'last4' => '4242', 'funding' => $funding, 'exp_month' => 12, 'exp_year' => 2030],
+                'type' => $method,
+                $method => ['brand' => 'visa', 'last4' => '4242', 'funding' => $funding, 'exp_month' => 12, 'exp_year' => 2030],
             ],
         ];
     }
