@@ -168,13 +168,17 @@ class RecordTerminalPayment
         $method = $charge->payment_method_details->type ?? 'card_present';
         $card = $charge->payment_method_details->{$method} ?? null;
         $received = $pi->amount_received;
-        $base = $this->card_present->toStripe($invoice, $collection->amount);
-        $fee = $this->card_present->toStripe($invoice, $collection->fee_gross);
+
+        /* The currency it was taken in, should the client's have changed since */
+        $currency = app('currencies')->first(fn ($currency) => strtolower($currency->code) == $collection->currency);
+
+        $base = $this->card_present->toStripe($invoice, $collection->amount, $currency);
+        $fee = $this->card_present->toStripe($invoice, $collection->fee_gross, $currency);
         $closed = $invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED, Invoice::STATUS_DRAFT]);
-        $paid_elsewhere = !$closed && $this->card_present->toStripe($invoice, $invoice->balance) < $base;
+        $paid_elsewhere = !$closed && $this->card_present->toStripe($invoice, $invoice->balance, $currency) < $base;
 
         /* Paid in full meanwhile: nothing is left to apply it to */
-        $closed = $closed || ($paid_elsewhere && $this->card_present->toStripe($invoice, $invoice->balance) <= 0);
+        $closed = $closed || ($paid_elsewhere && $this->card_present->toStripe($invoice, $invoice->balance, $currency) <= 0);
 
         /* A surcharge is only kept on a credit card, itemised on the invoice it paid */
         $keep_fee = $collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT && $method == 'card_present' && ($card->funding ?? null) == 'credit' && !$closed && !$paid_elsewhere;
@@ -186,7 +190,6 @@ class RecordTerminalPayment
         /* One that could not be refunded is the client's money, not a fee */
         $fee = $keep_fee && $fee > 0 && $received == $base + $fee ? $collection->fee_gross : 0;
 
-        $currency = $client->currency();
         $received = round($stripe->convertFromStripeAmount($received, $currency->precision, $currency), $currency->precision);
         $invoice_amount = min($collection->amount, round($received - $fee, $currency->precision));
 
@@ -195,7 +198,7 @@ class RecordTerminalPayment
             $invoice_amount = min($invoice_amount, round($invoice->balance, $currency->precision));
         }
 
-        $response = DB::transaction(function () use ($collection, $pi, $charge, $payment_hash, $invoice, $client, $method, $card, $received, $fee, $invoice_amount, $closed) {
+        $response = DB::transaction(function () use ($collection, $pi, $charge, $payment_hash, $invoice, $client, $method, $card, $received, $fee, $invoice_amount, $closed, $currency) {
             /* A slow recorder may have been overtaken: whoever holds the hash records, once */
             $payment_id = PaymentHash::query()->whereKey($payment_hash->id)->lockForUpdate()->value('payment_id');
 
@@ -228,7 +231,7 @@ class RecordTerminalPayment
             ], Payment::STATUS_COMPLETED);
 
             /* createPayment counts the invoice and fee towards paid to date: the rest was received too */
-            $unapplied = $closed ? $received : round($received - $invoice_amount - $fee, $client->currency()->precision);
+            $unapplied = $closed ? $received : round($received - $invoice_amount - $fee, $currency->precision);
 
             if ($unapplied > 0) {
                 $client->service()->updatePaidToDate($unapplied)->save();

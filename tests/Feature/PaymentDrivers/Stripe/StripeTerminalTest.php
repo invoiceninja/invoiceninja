@@ -592,6 +592,24 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals($paid_to_date + $balance, (float) $this->client->fresh()->paid_to_date);
     }
 
+    public function testAChargeIsCountedInTheCurrencyItWasTakenIn(): void
+    {
+        $balance = (float) $this->invoice->balance;
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+
+        /* The client moved to a zero-decimal currency while the card was read */
+        $settings = $this->client->settings;
+        $settings->currency_id = '45';
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+
+        $this->assertEquals($balance, (float) $this->terminalPayments()->sole()->amount);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+    }
+
     public function testFinalizeStillChecksTheInvoiceWithoutASurcharge(): void
     {
         $intent = $this->collect()->json();

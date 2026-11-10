@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\TerminalException;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Currency;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
@@ -386,9 +387,9 @@ class CardPresent
         return in_array('card_present', $types) || in_array('interac_present', $types);
     }
 
-    public function toStripe(Invoice $invoice, float $amount): int
+    public function toStripe(Invoice $invoice, float $amount, ?Currency $currency = null): int
     {
-        $currency = $invoice->client->currency();
+        $currency ??= $invoice->client->currency();
 
         /* Rounded, not truncated: a zero-decimal currency comes back as the raw float */
         return (int) round($this->stripe->convertToStripeAmount($amount, $currency->precision, $currency));
