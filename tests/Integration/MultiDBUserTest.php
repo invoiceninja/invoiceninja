@@ -12,6 +12,7 @@
 
 namespace Tests\Integration;
 
+use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
 use App\Libraries\MultiDB;
 use App\Models\Account;
@@ -214,6 +215,40 @@ class MultiDBUserTest extends TestCase
 
         $response->assertStatus(422);
 
+    }
+
+    public function test_attach_without_account_id_sets_pivot_account_from_company_on_shard(): void
+    {
+        if (! config('ninja.db.multi_db_enabled')) {
+            $this->markTestSkipped('Multi DB not enabled - skipping');
+        }
+
+        $user = User::on('db-ninja-01')->where('email', 'db1@gmail.com')->firstOrFail();
+        $account = Account::on('db-ninja-01')->findOrFail($user->account_id);
+
+        $company_payload = Company::factory()->make([
+            'account_id' => $account->id,
+        ]);
+        $company_payload->setHidden(['settings', 'settings_object', 'hashed_id']);
+
+        $company = Company::on('db-ninja-01')->create($company_payload->toArray());
+
+        $user->setConnection('db-ninja-01');
+        $user->companies()->attach($company->id, [
+            'is_owner' => 0,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'settings' => null,
+        ]);
+
+        $company_user = CompanyUser::on('db-ninja-01')
+            ->whereUserId($user->id)
+            ->whereCompanyId($company->id)
+            ->firstOrFail();
+
+        $this->assertSame($account->id, $company_user->account_id);
+        $this->assertSame($company->account_id, $company_user->account_id);
     }
 
     protected function tearDown(): void

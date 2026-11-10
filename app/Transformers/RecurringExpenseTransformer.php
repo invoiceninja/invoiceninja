@@ -43,14 +43,18 @@ class RecurringExpenseTransformer extends EntityTransformer
 
     public function includeDocuments(RecurringExpense $recurring_expense)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($recurring_expense->documents, $transformer, Document::class);
     }
 
     public function includeClient(RecurringExpense $recurring_expense): ?Item
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
+
+        if($this->user?->cannot('view', $recurring_expense->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
 
         if (!$recurring_expense->client) {
             return null;
@@ -61,7 +65,7 @@ class RecurringExpenseTransformer extends EntityTransformer
 
     public function includeVendor(RecurringExpense $recurring_expense): ?Item
     {
-        $transformer = new VendorTransformer($this->serializer);
+        $transformer = new VendorTransformer($this->serializer, $this->user);
 
         if (!$recurring_expense->vendor) {
             return null;

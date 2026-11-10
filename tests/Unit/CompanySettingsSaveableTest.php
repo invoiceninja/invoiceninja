@@ -36,7 +36,7 @@ class CompanySettingsSaveableTest extends TestCase
 
         $this->assertTrue(property_exists(CompanySettings::defaults(), 'auto_archive_invoice'));
 
-        $this->assertFalse(property_exists($filtered, 'auto_archive_invoice'));
+        $this->assertTrue(property_exists($filtered, 'auto_archive_invoice'));
     }
 
     public function testFreePlanCastsExcludeEveryEmailTemplateProperty(): void

@@ -232,7 +232,7 @@ class UpdateClientRequest extends Request
      * are saveable
      *
      * @param  mixed $settings
-     * @return \stdClass $settings
+     * @return array $settings
      */
     private function filterSaveableSettings($settings)
     {

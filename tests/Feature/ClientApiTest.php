@@ -76,10 +76,9 @@ class ClientApiTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonMissingValidationErrors();
 
-        // e_invoice is not fillable, so accepting the request does not persist it.
         $client = Client::findOrFail($this->decodePrimaryKey($response->json('data.id')));
-        $this->assertNull($client->e_invoice);
-        $this->assertSame([], $response->json('data.e_invoice'));
+        $this->assertSame($e_invoice, json_decode(json_encode($client->e_invoice), true));
+        $this->assertSame($e_invoice, $response->json('data.e_invoice'));
     }
 
     public function testClientUpdateAcceptsPaymentMeansWithoutBankDetails(): void
@@ -105,8 +104,8 @@ class ClientApiTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonMissingValidationErrors();
 
-        $this->assertNull($this->client->fresh()->e_invoice);
-        $this->assertSame([], $response->json('data.e_invoice'));
+        $this->assertSame($e_invoice, json_decode(json_encode($this->client->fresh()->e_invoice), true));
+        $this->assertSame($e_invoice, $response->json('data.e_invoice'));
     }
 
     public function testClientUpdatePersistsNullSettingsKeysAndFallsBackToCompany(): void

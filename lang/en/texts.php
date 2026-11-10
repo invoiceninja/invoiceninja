@@ -6581,6 +6581,7 @@ $lang = array(
     'terminal_location_required' => 'Choose one of the gateway\'s card reader locations.',
     'terminal_receipt_limit' => 'The receipt for this payment has already been sent the maximum number of times.',
     'terminal_interac_refund' => 'Interac payments must be refunded on the card reader. The refund has been recorded but not processed by the payment gateway.',
+    'paid_in_full' => 'Paid in full',
 
 );
 

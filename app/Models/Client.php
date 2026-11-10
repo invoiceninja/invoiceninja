@@ -196,6 +196,7 @@ class Client extends BaseModel implements HasLocalePreference
         'is_tax_exempt',
         'has_valid_vat_number',
         'classification',
+        'e_invoice',
     ];
 
     protected $with = [

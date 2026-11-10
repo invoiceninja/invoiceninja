@@ -804,7 +804,7 @@ class Company extends BaseModel
     /**
      * tokens
      *
-     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

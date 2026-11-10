@@ -67,6 +67,7 @@ class LogoutController extends BaseController
             ->where('is_system', true)
             ->cursor()
             ->each(function ($company_token) {
+                /** @var \App\Models\CompanyToken $company_token */
                 $company_token->token = \Illuminate\Support\Str::random(64);
                 $company_token->save();
             });

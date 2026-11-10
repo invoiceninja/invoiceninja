@@ -53,7 +53,7 @@ class GroupSettingTransformer extends EntityTransformer
 
     public function includeDocuments(GroupSetting $group_setting)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($group_setting->documents, $transformer, Document::class);
     }

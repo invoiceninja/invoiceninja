@@ -22,11 +22,14 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\Timezone;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class QuoteApprovalLivewireTest extends TestCase
@@ -167,5 +170,91 @@ class QuoteApprovalLivewireTest extends TestCase
         $this->assertTrue((bool) $this->quote->fresh()->sync?->dn_completed);
 
         Cache::forget($invitation->key);
+    }
+
+    #[DataProvider('signedQuoteExpiryCases')]
+    public function testSignedQuoteApprovalRespectsClientCalendarDate(
+        string $serverTimezone,
+        string $clientTimezone,
+        string $clientNow,
+        ?string $dueDate,
+        bool $expectedApproved,
+    ): void {
+        $originalTimezone = date_default_timezone_get();
+        $requestHash = Str::random(64);
+
+        try {
+            config(['app.timezone' => $serverTimezone]);
+            date_default_timezone_set($serverTimezone);
+            $this->travelTo(Carbon::parse($clientNow, $clientTimezone));
+
+            $settings = $this->client->settings;
+            $settings->timezone_id = Timezone::where('name', $clientTimezone)->firstOrFail()->id;
+            $this->client->settings = $settings;
+            $this->client->save();
+
+            // Start where DocuNinja leaves the flow: signed, but not yet approved.
+            $sync = new QuoteSync();
+            $sync->dn_completed = true;
+            $this->quote->forceFill(['due_date' => $dueDate, 'sync' => $sync])->saveQuietly();
+
+            Cache::put($requestHash, [
+                'client_contact_id' => $this->contact->id,
+                'request' => [
+                    'action' => 'approve',
+                    'process' => 'true',
+                    'quotes' => [$this->quote->hashed_id],
+                ],
+            ], now()->addHour());
+
+            // Exercise the approval endpoint without unrelated portal login middleware.
+            $response = $this->withoutMiddleware()->post(route('client.quotes.bulk'), [
+                'request_hash' => $requestHash,
+            ]);
+
+            $response->assertSessionHasNoErrors();
+            $response->assertRedirect($expectedApproved
+                ? route('client.quote.show', $this->quote->hashed_id)
+                : route('client.quotes.index'));
+            $quote = $this->quote->fresh();
+            $this->assertSame(
+                $expectedApproved ? Quote::STATUS_APPROVED : Quote::STATUS_SENT,
+                $quote->getRawOriginal('status_id'),
+            );
+            $this->assertTrue($quote->sync->dn_completed);
+            $this->assertFalse(Cache::has($requestHash));
+        } finally {
+            Cache::forget($requestHash);
+            $this->travelBack();
+            date_default_timezone_set($originalTimezone);
+        }
+    }
+
+    public static function signedQuoteExpiryCases(): iterable
+    {
+        yield 'Sydney due date at noon, UTC server' => [
+            'UTC', 'Australia/Sydney', '2026-09-09 12:00:00', '2026-09-09', true,
+        ];
+        yield 'Sydney due date at last second, UTC server' => [
+            'UTC', 'Australia/Sydney', '2026-09-09 23:59:59', '2026-09-09', true,
+        ];
+        yield 'Sydney midnight after due date, UTC server' => [
+            'UTC', 'Australia/Sydney', '2026-09-10 00:00:00', '2026-09-09', false,
+        ];
+        yield 'Sydney midnight after due date, Sydney server' => [
+            'Australia/Sydney', 'Australia/Sydney', '2026-09-10 00:00:00', '2026-09-09', false,
+        ];
+        yield 'Los Angeles due date at last second, Sydney server' => [
+            'Australia/Sydney', 'America/Los_Angeles', '2026-09-09 23:59:59', '2026-09-09', true,
+        ];
+        yield 'Los Angeles midnight after due date, UTC server' => [
+            'UTC', 'America/Los_Angeles', '2026-09-10 00:00:00', '2026-09-09', false,
+        ];
+        yield 'Sydney future due date' => [
+            'UTC', 'Australia/Sydney', '2026-09-08 12:00:00', '2026-09-09', true,
+        ];
+        yield 'Sydney no due date' => [
+            'UTC', 'Australia/Sydney', '2026-09-10 00:00:00', null, true,
+        ];
     }
 }

@@ -24,10 +24,6 @@ use Tests\TestCase;
 /**
  * Expectation: hosted free accounts cannot persist settings outside
  * CompanySettings::$free_plan_casts on company or client settings.
- *
- * These tests currently fail: UpdateCompanyRequest / UpdateClientRequest
- * unset filtered keys with object syntax on JSON arrays, and
- * StoreClientRequest does not apply the free-plan filter at all.
  */
 class FreeHostedEmailTemplateSettingsTest extends TestCase
 {
@@ -61,14 +57,20 @@ class FreeHostedEmailTemplateSettingsTest extends TestCase
     {
         $this->becomeFreeHostedClient();
 
+        $settings = $this->restrictedSettingsPayload((array) $this->company->settings);
+        $settings['auto_archive_invoice'] = true;
+        $settings['invoice_terms'] = 'Free plan invoice terms';
+
         $response = $this->withHeaders($this->apiHeaders())
             ->putJson('/api/v1/companies/'.$this->company->hashed_id, [
-                'settings' => $this->restrictedSettingsPayload((array) $this->company->settings),
+                'settings' => $settings,
             ]);
 
         $response->assertStatus(200);
 
         $this->company->refresh();
+        $this->assertTrue($this->company->settings->auto_archive_invoice);
+        $this->assertSame('Free plan invoice terms', $this->company->settings->invoice_terms);
         $this->assertRestrictedSettingsWereFiltered($this->company->settings);
         $this->assertRestrictedSettingsWereFiltered($response->json('data.settings'));
     }
@@ -229,17 +231,12 @@ class FreeHostedEmailTemplateSettingsTest extends TestCase
      */
     private function restrictedSettingKeys(): array
     {
-        $email_template_keys = array_values(array_filter(
+        return array_values(array_filter(
             array_keys(CompanySettings::$casts),
             fn (string $key): bool => str_starts_with($key, 'email_template_')
                 || str_starts_with($key, 'email_subject_')
                 || $key === 'email_style_custom'
         ));
-
-        return array_values(array_unique(array_merge($email_template_keys, [
-            'auto_archive_invoice',
-            'invoice_terms',
-        ])));
     }
 
     private function isBooleanSetting(string $key): bool

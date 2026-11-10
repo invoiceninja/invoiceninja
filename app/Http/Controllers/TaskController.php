@@ -674,30 +674,30 @@ class TaskController extends BaseController
      */
     public function sort(SortTaskRequest $request)
     {
-        $task_statuses = $request->input('status_ids');
-        $tasks = $request->input('task_ids');
+        $status_ids = $request->input('status_ids');
+        $task_ids = $request->input('task_ids');
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
+        $company_id = $user->company()->id;
 
-        collect($task_statuses)->each(function ($task_status_hashed_id, $key) use ($user) {
-            $task_status = TaskStatus::query()->where('id', $this->decodePrimaryKey($task_status_hashed_id))
-                                     ->where('company_id', $user->company()->id)
-                                     ->withTrashed()
-                                     ->first();
+        collect($status_ids)->each(function ($task_status_id, $key) use ($company_id) {
+            $task_status = TaskStatus::query()
+                ->where('id', $task_status_id)
+                ->where('company_id', $company_id)
+                ->firstOrFail();
 
             $task_status->status_order = $key;
             $task_status->save();
         });
 
-        foreach ($tasks as $key => $task_list) {
-            $sort_status_id = $this->decodePrimaryKey($key);
-
-            foreach ($task_list as $_key => $task) {
-                $task_record = Task::query()->where('id', $this->decodePrimaryKey($task))
-                             ->where('company_id', $user->company()->id)
-                             ->withTrashed()
-                             ->first();
+        foreach ($task_ids as $sort_status_id => $task_list) {
+            foreach ($task_list as $_key => $task_id) {
+                $task_record = Task::query()
+                    ->where('id', $task_id)
+                    ->where('company_id', $company_id)
+                    ->withTrashed()
+                    ->firstOrFail();
 
                 $task_record->status_order = $_key;
                 $task_record->status_id = $sort_status_id;

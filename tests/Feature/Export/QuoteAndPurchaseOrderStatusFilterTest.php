@@ -74,10 +74,12 @@ class QuoteAndPurchaseOrderStatusFilterTest extends TestCase
         $this->withoutMiddleware(ThrottleRequests::class);
 
         $this->filters = new ExportStatusFilterHarness();
+        $this->filters->company = $this->company;
 
-        $today = now()->toDateString();
-        $yesterday = now()->subDay()->toDateString();
-        $tomorrow = now()->addDay()->toDateString();
+        $companyNow = now($this->company->timezone()->name);
+        $today = $companyNow->toDateString();
+        $yesterday = $companyNow->copy()->subDay()->toDateString();
+        $tomorrow = $companyNow->copy()->addDay()->toDateString();
 
         $this->quotes = [
             'draft' => $this->createQuote(Quote::STATUS_DRAFT, null),
@@ -184,7 +186,7 @@ class QuoteAndPurchaseOrderStatusFilterTest extends TestCase
             return true;
         }
 
-        $today = now()->toDateString();
+        $today = now($this->company->timezone()->name)->toDateString();
 
         if (in_array('draft', $filters, true) && $record['status_id'] === Quote::STATUS_DRAFT) {
             return true;
@@ -214,7 +216,7 @@ class QuoteAndPurchaseOrderStatusFilterTest extends TestCase
             in_array('expired', $filters, true)
             && $record['status_id'] === Quote::STATUS_SENT
             && $record['due_date'] !== null
-            && $record['due_date'] <= $today
+            && $record['due_date'] < $today
         ) {
             return true;
         }

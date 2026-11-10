@@ -160,7 +160,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             Log::warning('Checkout.com Apple Pay enrollment request failed.', array_merge($log_context, [
                 'exception_class' => get_class($e),
                 'exception_code' => $e->getCode(),
-                'http_status' => $e instanceof CheckoutApiException ? $e->http_metadata?->getStatusCode() : null,
+                'http_status' => $e instanceof CheckoutApiException ? $e->http_metadata->getStatusCode() : null,
                 'request_id' => $e instanceof CheckoutApiException ? ($e->error_details['request_id'] ?? null) : null,
                 'error_type' => $e instanceof CheckoutApiException ? ($e->error_details['error_type'] ?? null) : null,
                 'error_codes' => $e instanceof CheckoutApiException ? ($e->error_details['error_codes'] ?? []) : [],

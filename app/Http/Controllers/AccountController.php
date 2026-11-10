@@ -111,7 +111,7 @@ class AccountController extends BaseController
         $truth->setCompany($company_user->company);
         $truth->setCompanyToken($company_user->tokens()->where('user_id', $company_user->user_id)->where('company_id', $company_user->company_id)->first());
 
-        return $this->listResponse($cu);
+        return $this->miniLoadResponse($cu);
     }
 
     public function update(UpdateAccountRequest $request, Account $account)

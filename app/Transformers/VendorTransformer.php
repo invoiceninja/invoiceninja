@@ -46,7 +46,7 @@ class VendorTransformer extends EntityTransformer
      */
     public function includeActivities(Vendor $vendor)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($vendor->activities, $transformer, Activity::class);
     }
@@ -58,14 +58,14 @@ class VendorTransformer extends EntityTransformer
      */
     public function includeContacts(Vendor $vendor)
     {
-        $transformer = new VendorContactTransformer($this->serializer);
+        $transformer = new VendorContactTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($vendor->contacts, $transformer, VendorContact::class);
     }
 
     public function includeDocuments(Vendor $vendor)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($vendor->documents, $transformer, Document::class);
     }
@@ -77,7 +77,7 @@ class VendorTransformer extends EntityTransformer
      */
     public function includeLocations(Vendor $vendor)
     {
-        $transformer = new LocationTransformer($this->serializer);
+        $transformer = new LocationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($vendor->locations, $transformer, Location::class);
     }

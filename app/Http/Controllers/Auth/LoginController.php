@@ -90,8 +90,6 @@ class LoginController extends BaseController
      */
     public function apiLogin(LoginRequest $request)
     {
-        $this->forced_includes = ['company_users'];
-
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
@@ -268,7 +266,7 @@ class LoginController extends BaseController
 
         event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
-        return $this->timeConstrainedResponse($cu);
+        return $this->miniLoadResponse($cu);
     }
 
     /**
@@ -356,31 +354,7 @@ class LoginController extends BaseController
 
     public function refreshReact(Request $request)
     {
-        $company_token = app(TruthSource::class)->getCompanyToken()
-            ?? CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
-
-        $cu = CompanyUser::query()
-            ->where('user_id', $company_token->user_id);
-
-        if ($cu->count() == 0) {
-            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-        }
-
-        $cu->each(function ($company_user) use ($request) {
-            if ($company_user->tokens()->where('company_id', $company_user->company_id)->where('is_system', true)->doesntExist()) {
-                (new CreateCompanyToken($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT')))->handle();
-            }
-        });
-
-        if ($request->has('current_company') && $request->input('current_company') == 'true') {
-            $cu->where('company_id', $company_token->company_id);
-        }
-
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterprisePaidClient()) {
-            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
-        }
-
-        return $this->refreshReactResponse($cu);
+        return $this->refresh($request);
     }
 
     /**
@@ -408,12 +382,7 @@ class LoginController extends BaseController
         });
 
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
-            $cu->where('company_id', $company_token->company_id)
-                ->with([
-                    'company.users.company_users' => fn ($query) => $query
-                        ->where('company_id', $company_token->company_id)
-                        ->without(['user', 'account']),
-                ]);
+            $cu->where('company_id', $company_token->company_id);
         }
 
         if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterprisePaidClient()) {
@@ -509,7 +478,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
-            return $this->timeConstrainedResponse($cu);
+            return $this->miniLoadResponse($cu);
         }
         //If this is a result user/email combo - lets add their OAuth details details
         if ($existing_login_user = MultiDB::hasUser(['email' => $user->email])) {
@@ -542,7 +511,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
-            return $this->timeConstrainedResponse($cu);
+            return $this->miniLoadResponse($cu);
         }
 
         // nlog("socialite");
@@ -589,7 +558,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
-        return $this->timeConstrainedResponse($cu);
+        return $this->miniLoadResponse($cu);
     }
 
     private function hydrateCompanyUser(User $user): Builder
@@ -616,7 +585,7 @@ class LoginController extends BaseController
         $this->setLoginCache($user);
 
         $truth = app()->make(TruthSource::class);
-        $truth->setCompanyUser($cu->first());
+        $truth->setCompanyUser((clone $cu)->where('company_id', $set_company->id)->firstOrFail());
         $truth->setUser($user);
         $truth->setCompany($set_company);
 
@@ -736,7 +705,7 @@ class LoginController extends BaseController
 
         event(new UserLoggedIn($existing_user, $existing_user->account->default_company, Ninja::eventVars($existing_user->id)));
 
-        return $this->timeConstrainedResponse($cu);
+        return $this->miniLoadResponse($cu);
     }
 
     private function existingLoginUser($user)
@@ -753,7 +722,7 @@ class LoginController extends BaseController
 
         event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
-        return $this->timeConstrainedResponse($cu);
+        return $this->miniLoadResponse($cu);
     }
 
     private function handleGoogleOauth()
@@ -863,7 +832,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
-        return $this->timeConstrainedResponse($cu);
+        return $this->miniLoadResponse($cu);
     }
 
     public function redirectToProvider(string $provider)

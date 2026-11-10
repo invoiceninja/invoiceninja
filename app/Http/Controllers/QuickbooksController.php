@@ -77,7 +77,7 @@ class QuickbooksController extends BaseController
 
             $quickbooks = new QuickbooksService($company);
             $invoice = $quickbooks->invoice->check($invoice);
-            $transformer = new InvoiceTransformer($request->input('serializer'));
+            $transformer = new InvoiceTransformer($request->input('serializer'), $user);
 
             return $this->response([
                 ...$transformer->transform($invoice),
