@@ -74,7 +74,7 @@ class CompanyTransformer extends EntityTransformer
         'designs',
         'account',
         'clients',
-        'contacts',
+        // 'contacts', this should not be exposed/used.
         'invoices',
         'recurring_invoices',
         'tax_rates',
