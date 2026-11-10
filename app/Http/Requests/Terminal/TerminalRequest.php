@@ -14,6 +14,7 @@ namespace App\Http\Requests\Terminal;
 
 use App\Exceptions\TerminalException;
 use App\Http\Requests\Request;
+use App\Models\CompanyGateway;
 use App\Utils\Ninja;
 use Illuminate\Auth\Access\AuthorizationException;
 
@@ -35,6 +36,18 @@ class TerminalRequest extends Request
 
         if (Ninja::isHosted() && $user->account->isFreeHostedClient()) {
             $this->error_code = 'plan_required';
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /* Card present switched off on the gateway while the app still holds its config: not a reason to sign out */
+    protected function cardPresentEnabled(CompanyGateway $company_gateway): bool
+    {
+        if (!$company_gateway->supportsCardPresent()) {
+            $this->error_code = 'not_enabled';
 
             return false;
         }

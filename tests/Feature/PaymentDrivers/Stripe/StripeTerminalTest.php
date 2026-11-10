@@ -483,6 +483,20 @@ class StripeTerminalTest extends TestCase
         $this->api($collector)->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/surcharge_acknowledgement")->assertStatus(401);
     }
 
+    public function testCardPresentSwitchedOffOnTheGatewayIsNotAnAuthFailure(): void
+    {
+        $this->company_gateway->fees_and_limits = (object) [];
+        $this->company_gateway->save();
+
+        $this->api()->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/connection_token", ['location_id' => 'tml_1'])
+            ->assertStatus(403)->assertJson(['error_code' => 'not_enabled']);
+        $this->api()->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/locations")
+            ->assertStatus(403)->assertJson(['error_code' => 'not_enabled']);
+
+        $viewer = $this->userToken('["view_invoice"]');
+        $this->api($viewer)->postJson("/api/v1/company_gateways/{$this->company_gateway->hashed_id}/terminal/connection_token", ['location_id' => 'tml_1'])->assertStatus(401);
+    }
+
     public function testFinishingIgnoresThePlanAndTheKillSwitch(): void
     {
         $intent = $this->collect()->json();

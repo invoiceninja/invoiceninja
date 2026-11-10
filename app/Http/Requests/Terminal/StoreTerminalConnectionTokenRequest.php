@@ -24,7 +24,7 @@ class StoreTerminalConnectionTokenRequest extends TerminalRequest
         return $this->terminalAvailable()
             && $user->can('create', Payment::class)
             && $this->company_gateway->company_id == $user->companyId()
-            && $this->company_gateway->supportsCardPresent();
+            && $this->cardPresentEnabled($this->company_gateway);
     }
 
     public function rules()

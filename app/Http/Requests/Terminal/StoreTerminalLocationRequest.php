@@ -22,6 +22,6 @@ class StoreTerminalLocationRequest extends TerminalRequest
         return $this->terminalAvailable()
             && $user->isAdmin()
             && $this->company_gateway->company_id == $user->companyId()
-            && $this->company_gateway->supportsCardPresent();
+            && $this->cardPresentEnabled($this->company_gateway);
     }
 }
