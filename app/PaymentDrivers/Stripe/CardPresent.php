@@ -265,6 +265,11 @@ class CardPresent
 
         $invoice = $collection->invoice;
 
+        /* The client's currency changed since: the PaymentIntent is in one the invoice no longer is */
+        if (strtolower($invoice->client->currency()->code) != $collection->currency) {
+            throw new TerminalException('unsupported_currency', 422, [], ['currency' => strtoupper($collection->currency)]);
+        }
+
         /* Before every decision, for every card: the invoice must still take the amount */
         if ($invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
             || $this->toStripe($invoice, $invoice->balance) < $this->toStripe($invoice, $collection->amount)) {

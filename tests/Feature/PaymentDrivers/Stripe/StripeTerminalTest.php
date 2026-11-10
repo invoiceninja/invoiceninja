@@ -637,6 +637,24 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
     }
 
+    public function testACollectionIsNotChargedOnceTheClientsCurrencyChanged(): void
+    {
+        $quote = $this->surcharged();
+        $base = (int) round((float) $this->invoice->balance * 100);
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+
+        /* The client moved to a zero-decimal currency while the card was read */
+        $settings = $this->client->settings;
+        $settings->currency_id = '45';
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $this->finalize($intent['payment_intent_id'])->assertStatus(422)->assertJson(['error_code' => 'unsupported_currency']);
+        $this->assertSame($base, $this->stripe->intents[$intent['payment_intent_id']]['amount']);
+    }
+
     public function testFinalizeStillChecksTheInvoiceWithoutASurcharge(): void
     {
         $intent = $this->collect()->json();
