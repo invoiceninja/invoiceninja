@@ -67,6 +67,12 @@ class PurchaseOrderRepository extends BaseRepository
                                             ->first();
 
                         if ($new_invitation && $new_invitation->trashed()) {
+                            // A restored invitation keeps its stored can_sign
+                            // unless the request says otherwise.
+                            if ($dn_enabled && isset($invitation['can_sign'])) {
+                                $new_invitation->can_sign = (bool) $invitation['can_sign'];
+                            }
+
                             $new_invitation->restore();
                         } else {
                             $new_invitation = PurchaseOrderInvitationFactory::create($purchase_order->company_id, $purchase_order->user_id);

@@ -114,6 +114,7 @@ class MobilePayment implements MethodInterface, LivewireMethodInterface
             $this->driver->payment_hash->save();
 
             $data['transaction_id'] = $result['transactionId'];
+            $data['payware_link'] = $api->linkFor($result['transactionId']);
             $data['time_to_live'] = $timeToLive;
 
         } catch (\Exception $e) {

@@ -1,0 +1,156 @@
+
+  '/api/v1/documents/{document}':
+    get:
+      tags:
+        - documents
+      summary: 'Show document metadata'
+      description: 'Requires view access to the document through its related entity.'
+      operationId: showDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+    put:
+      tags:
+        - documents
+      summary: 'Update document metadata'
+      description: 'Requires edit access to the document. Updates metadata and touches its related entity.'
+      operationId: updateDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpdateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/documents/{document}/edit':
+    get:
+      tags:
+        - documents
+      summary: 'Get document metadata for editing'
+      description: 'Requires edit access to the document.'
+      operationId: editDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/documents/bulk:
+    post:
+      tags:
+        - documents
+      summary: 'Apply an action to documents'
+      description: 'Archive, restore and delete require edit access to each related entity. Download requires document view access and queues ZIP delivery.'
+      operationId: bulkDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentBulkRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  -
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Document'
+                      meta:
+                        $ref: '#/components/schemas/Meta'
+                  -
+                    type: object
+                    properties:
+                      message:
+                        type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
