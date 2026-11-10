@@ -17,6 +17,7 @@ use App\Models\SystemLog;
 use App\Models\TerminalPaymentIntent;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -80,6 +81,13 @@ class ReconcileTerminalPayment implements ShouldQueue
             nlog("terminal: reconcile {$collection->payment_intent_id} - " . $e->getMessage());
 
             return;
+        } catch (\Throwable $e) {
+            /* Not Stripe: it fails the same way every run, so support hears of it once */
+            if (Cache::add("terminal_reconcile_failed:{$collection->id}", true, now()->addDays(31))) {
+                $card_present->alert($collection, 'reconciliation could not record it: ' . $e->getMessage());
+            }
+
+            throw $e;
         }
 
         if (in_array($result['status'], ['recorded', 'unapplied'])) {

@@ -16,8 +16,10 @@ use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
+use App\Jobs\Cron\ReconcileTerminalPayment;
 use App\Jobs\Cron\TerminalReconcileCron;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
@@ -278,6 +280,28 @@ class StripeTerminalTest extends TestCase
 
         $this->assertSame(1, $this->terminalPayments()->count());
         $this->assertTrue(SystemLog::query()->where('company_id', $this->company->id)->where('event_id', SystemLog::EVENT_PAYMENT_RECONCILIATION_SUCCESS)->exists());
+    }
+
+    public function testAChargeReconciliationCannotRecordIsAlertedOnce(): void
+    {
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+        $collection = TerminalPaymentIntent::query()->where('payment_intent_id', $intent['payment_intent_id'])->sole();
+
+        /* Recording fails for a reason that is not Stripe's, every run */
+        ClientContact::query()->where('client_id', $this->client->id)->delete();
+
+        foreach (range(1, 2) as $run) {
+            try {
+                (new ReconcileTerminalPayment($collection->id, null))->handle();
+                $this->fail('recording should have failed');
+            } catch (\Throwable $e) {
+                $this->assertStringNotContainsString('recording should have failed', $e->getMessage());
+            }
+        }
+
+        $this->assertSame(0, $this->terminalPayments()->count());
+        $this->assertSame(1, SystemLog::query()->where('company_id', $this->company->id)->where('event_id', SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE)->count());
     }
 
     public function testAPaymentIntentInFlightIsNeverMarkedCancelled(): void
