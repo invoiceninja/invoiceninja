@@ -257,11 +257,19 @@ class CardPresent
             throw new TerminalException('collection_closed');
         }
 
-        if ($collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_NONE) {
+        $invoice = $collection->invoice;
+
+        /* No surcharge asked for: nothing to read from Stripe, but the invoice must still take it */
+        if (!$collection->apply_fee) {
+            if ($invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
+                || $this->toStripe($invoice, $invoice->balance) < $this->toStripe($invoice, $collection->amount)) {
+                throw new TerminalException('balance_changed', 409, ['balance' => $invoice->balance]);
+            }
+
+            $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_NONE, 0);
+
             return $this->finalizeResponse($collection, false);
         }
-
-        $invoice = $collection->invoice;
 
         $this->stripe->init();
 

@@ -490,6 +490,53 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
     }
 
+    public function testAnInvoicePartlyPaidMeanwhileTakesOnlyItsBalance(): void
+    {
+        $balance = (float) $this->invoice->balance;
+        $paid_to_date = (float) $this->client->fresh()->paid_to_date;
+
+        $intent = $this->collect()->json();
+
+        /* Another payment took all but 4 of it while the card was being read */
+        $this->invoice->fresh()->forceFill(['balance' => 4])->saveQuietly();
+
+        $this->stripe->charge($intent['payment_intent_id']);
+        $this->complete($intent['payment_intent_id'])->assertOk();
+
+        $payment = $this->terminalPayments()->sole();
+        $this->assertEquals($balance, (float) $payment->amount);
+        $this->assertEquals(4, (float) $payment->applied);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertEquals($paid_to_date + $balance, (float) $this->client->fresh()->paid_to_date);
+    }
+
+    public function testFinalizeStillChecksTheInvoiceWithoutASurcharge(): void
+    {
+        $intent = $this->collect()->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'debit');
+        $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['recollect' => false]);
+
+        $this->invoice->fresh()->forceFill(['status_id' => Invoice::STATUS_CANCELLED])->saveQuietly();
+
+        $this->finalize($intent['payment_intent_id'])->assertStatus(409)->assertJson(['error_code' => 'balance_changed']);
+    }
+
+    public function testASurchargeIsDecidedAgainForTheNextCard(): void
+    {
+        $quote = $this->surcharged();
+        $balance = (float) $this->invoice->balance;
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'debit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['path' => 'none', 'recollect' => false]);
+
+        /* That card was declined; the customer presents a credit card */
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertOk()->assertJson(['path' => 'recollect', 'recollect' => true]);
+        $this->assertSame((int) round($quote['total'] * 100), $this->stripe->intents[$intent['payment_intent_id']]['amount']);
+        $this->assertGreaterThan((int) round($balance * 100), $this->stripe->intents[$intent['payment_intent_id']]['amount']);
+    }
+
     public function testAPaymentIntentTheDeviceCreatedIsRejected(): void
     {
         $intent = $this->collect()->json();

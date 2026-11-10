@@ -165,6 +165,9 @@ class RecordTerminalPayment
         $closed = $invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED, Invoice::STATUS_DRAFT]);
         $paid_elsewhere = !$closed && $this->card_present->toStripe($invoice, $invoice->balance) < $base;
 
+        /* Paid in full meanwhile: nothing is left to apply it to */
+        $closed = $closed || ($paid_elsewhere && $this->card_present->toStripe($invoice, $invoice->balance) <= 0);
+
         /* A surcharge is only kept on a credit card, itemised on the invoice it paid */
         if ($fee > 0 && $received >= $base + $fee && (($card->funding ?? null) != 'credit' || $closed || $paid_elsewhere)) {
             $received -= $this->refundSurcharge($collection, $pi, $charge, $method, $fee);
@@ -175,6 +178,11 @@ class RecordTerminalPayment
         $currency = $client->currency();
         $received = round($stripe->convertFromStripeAmount($received, $currency->precision, $currency), $currency->precision);
         $invoice_amount = min($collection->amount, round($received - $fee, $currency->precision));
+
+        /* Partly paid meanwhile: the invoice takes its balance, the rest is the client's */
+        if ($paid_elsewhere && !$closed) {
+            $invoice_amount = min($invoice_amount, round($invoice->balance, $currency->precision));
+        }
 
         $response = DB::transaction(function () use ($collection, $pi, $charge, $payment_hash, $invoice, $client, $method, $card, $received, $fee, $invoice_amount, $closed) {
             $data = $payment_hash->data;
