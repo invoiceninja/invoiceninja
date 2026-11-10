@@ -60,6 +60,7 @@ class UpdateCompanyRequest extends Request
         $rules = [];
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
+        $rules['company_logo_dark'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
         $rules['settings'] = new ValidSettingsRule();
         $rules['industry_id'] = 'integer|nullable';
         $rules['size_id'] = 'integer|nullable';
@@ -261,6 +262,12 @@ class UpdateCompanyRequest extends Request
         // Logo changes are handled exclusively by file upload.
         if (isset($settings['company_logo']) && $settings['company_logo'] !== '') {
             $settings['company_logo'] = $this->company->settings->company_logo ?? '';
+        }
+
+        // Only allow company_logo_dark to be cleared via settings.
+        // Dark logo changes are handled exclusively by file upload.
+        if (isset($settings['company_logo_dark']) && $settings['company_logo_dark'] !== '') {
+            $settings['company_logo_dark'] = $this->company->settings->company_logo_dark ?? '';
         }
 
         if (!$account->isFreeHostedClient()) {
