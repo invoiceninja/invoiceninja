@@ -14,6 +14,7 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\PasswordProtection;
 use App\Models\Gateway;
+use App\Models\Task;
 use App\Models\User;
 use cebe\openapi\spec\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -525,6 +526,28 @@ class OpenApiContractTest extends TestCase
         $this->assertEmpty($mismatch, "POST /api/v1/companies does not match the spec:\n  - ".implode("\n  - ", $mismatch));
     }
 
+    /** The factory verifies every user's email; the user nested in a company user is null until verified. */
+    public function testUnverifiedUserMatchesSpec(): void
+    {
+        $this->user->forceFill(['email_verified_at' => null])->save();
+
+        $response = $this->apiRequest('post', '/api/v1/refresh', ['updated_at' => self::NOTHING_CHANGED['updated_at']]);
+        $this->assertNull($response->json('data.0.user.email_verified_at'));
+
+        $mismatch = $this->specMismatch('post', '/api/v1/refresh', $response, null);
+
+        $this->assertEmpty($mismatch, "POST /api/v1/refresh does not match the spec:\n  - ".implode("\n  - ", $mismatch));
+    }
+
+    /** The sort body's map keys are placeholders too, so the task has to end up in the created status. */
+    public function testSortTasksAssignsStatus(): void
+    {
+        $this->apiRequest('post', '/api/v1/tasks/sort', self::OTHER['sort tasks'][3])->assertSuccessful();
+
+        $task = Task::find($this->decodePrimaryKey($this->created('task')));
+        $this->assertSame($this->decodePrimaryKey($this->created('task_status')), $task->status_id);
+    }
+
     /** Seeded data leaves out values real installations have: a license key, and gateways without a site_url. */
     public function testStaticsOfAConfiguredInstallationMatchSpec(): void
     {
@@ -554,16 +577,25 @@ class OpenApiContractTest extends TestCase
     /**
      * Replaces placeholder values: '{invoice}' is the hashed id of that entity (created when needed),
      * '{invoice.number}' a field of it and '{me.hashed_id}' a field of the MockAccountData user.
+     * Map keys are replaced too, as in the task sort body's status id → task ids map.
      */
     private function resolve(array $body): array
     {
-        array_walk_recursive($body, function (&$value) {
-            if (is_string($value) && preg_match('/^\{(\w+)(?:\.([\w.]+))?\}$/', $value, $match)) {
-                $value = $this->placeholder($match[1], $match[2] ?? null);
-            }
-        });
+        $resolved = [];
+        foreach ($body as $key => $value) {
+            $resolved[$this->resolveValue($key)] = is_array($value) ? $this->resolve($value) : $this->resolveValue($value);
+        }
 
-        return $body;
+        return $resolved;
+    }
+
+    private function resolveValue(mixed $value): mixed
+    {
+        if (is_string($value) && preg_match('/^\{(\w+)(?:\.([\w.]+))?\}$/', $value, $match)) {
+            return $this->placeholder($match[1], $match[2] ?? null);
+        }
+
+        return $value;
     }
 
     private function placeholder(string $name, ?string $field): mixed

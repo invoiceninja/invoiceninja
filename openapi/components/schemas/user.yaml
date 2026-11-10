@@ -228,6 +228,7 @@
         email_verified_at:
           description: 'When the user verified their email address, as a Unix timestamp in seconds; null when not verified'
           type: integer
+          nullable: true
         last_login:
           description: 'When the user last logged in, as a Unix timestamp in seconds; 0 when never'
           type: integer
