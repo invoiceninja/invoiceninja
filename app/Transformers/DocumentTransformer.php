@@ -21,16 +21,9 @@ class DocumentTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $serializer;
-
     protected array $defaultIncludes = [];
 
     protected array $availableIncludes = [];
-
-    public function __construct($serializer = null)
-    {
-        $this->serializer = $serializer;
-    }
 
     public function transform(Document $document)
     {

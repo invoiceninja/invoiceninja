@@ -125,14 +125,21 @@ final class CashTaxEventProjector
 
     /**
      * @param iterable<int, TransactionEvent> $events
+     * @param array<int, float> $payment_exchange_rates
      * @return array<int, array<string, mixed>>
      */
-    public function project(iterable $events, ?string $start_date = null, ?string $end_date = null): array
-    {
+    public function project(
+        iterable $events,
+        ?string $start_date = null,
+        ?string $end_date = null,
+        array $payment_exchange_rates = [],
+    ): array {
         $rows = [];
 
         foreach ($events as $event) {
-            foreach ($this->eventComponents($event) as $component) {
+            $exchange_rate = $payment_exchange_rates[$event->payment_id] ?? null;
+
+            foreach ($this->eventComponents($event, $exchange_rate) as $component) {
                 $effective_date = $component['effective_date'];
 
                 if (($start_date && $effective_date < $start_date)
@@ -150,7 +157,7 @@ final class CashTaxEventProjector
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function eventComponents(TransactionEvent $event): array
+    private function eventComponents(TransactionEvent $event, ?float $exchange_rate = null): array
     {
         $payment_history = $event->metadata->tax_report->payment_history ?? collect();
         $schema_version = (int) data_get($event->payment_request, 'schema_version');
@@ -162,7 +169,7 @@ final class CashTaxEventProjector
             return [$this->component(
                 $event,
                 $effective_date,
-                (float) ($payment?->exchange_rate ?: 1),
+                $exchange_rate ?? (float) ($payment?->exchange_rate ?: 1),
                 1.0,
             )];
         }

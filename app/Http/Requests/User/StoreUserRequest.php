@@ -90,6 +90,8 @@ class StoreUserRequest extends Request
             ];
         }
 
+        $input['company_user']['account_id'] = auth()->user()->account_id;
+        
         if (array_key_exists('first_name', $input)) {
             $input['first_name'] = strip_tags($input['first_name']);
         }
@@ -108,7 +110,7 @@ class StoreUserRequest extends Request
         $user = MultiDB::hasUser(['email' => $this->input('email')]);
 
         if (! $user) {
-            $user = UserFactory::create(auth()->user()->account->id);
+            $user = UserFactory::create(auth()->user()->account_id);
         }
 
         return $user;

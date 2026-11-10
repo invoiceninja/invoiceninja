@@ -38,28 +38,28 @@ class RecurringQuoteTransformer extends EntityTransformer
 
     public function includeHistory(RecurringQuote $quote)
     {
-        $transformer = new QuoteHistoryTransformer($this->serializer);
+        $transformer = new QuoteHistoryTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->history, $transformer, Backup::class);
     }
 
     public function includeActivities(RecurringQuote $quote)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->activities, $transformer, Activity::class);
     }
 
     public function includeInvitations(RecurringQuote $quote)
     {
-        $transformer = new RecurringQuoteInvitationTransformer($this->serializer);
+        $transformer = new RecurringQuoteInvitationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->invitations, $transformer, RecurringQuoteInvitation::class);
     }
 
     public function includeDocuments(RecurringQuote $quote)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($quote->documents, $transformer, Document::class);
     }

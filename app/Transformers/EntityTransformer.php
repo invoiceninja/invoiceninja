@@ -12,6 +12,7 @@
 
 namespace App\Transformers;
 
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\TransformerAbstract;
 
@@ -25,7 +26,7 @@ class EntityTransformer extends TransformerAbstract
 
     public const API_SERIALIZER_JSON = 'json';
 
-    public function __construct($serializer = null)
+    public function __construct($serializer = null, protected ?User $user = null)
     {
         $this->serializer = $serializer;
     }
@@ -76,5 +77,16 @@ class EntityTransformer extends TransformerAbstract
             'name' => (string) $tag->name,
             'color' => $tag->color,
         ])->values()->all();
+    }
+
+    protected function includeAuthorizedCollection($data, $transformer, $entity_type)
+    {
+        if ($this->user) {
+            $data = $data
+                ->filter(fn ($entity) => $this->user->can('view', $entity))
+                ->values();
+        }
+
+        return $this->includeCollection($data, $transformer, $entity_type);
     }
 }

@@ -58,6 +58,8 @@ class StoreTaskRequest extends Request
             $rules['project_id'] = 'bail|required|exists:projects,id,company_id,' . $user->company()->id . ',is_deleted,0';
         }
 
+        $rules['status_id'] = 'bail|sometimes|nullable|integer|exists:task_statuses,id,company_id,' . $user->company()->id . ',is_deleted,0';
+
         $rules['hash'] = 'bail|sometimes|string|nullable';
         $rules['due_date'] = 'bail|sometimes|nullable|date:Y-m-d';
         $rules['estimated_duration'] = 'bail|sometimes|nullable|integer|min:0';
