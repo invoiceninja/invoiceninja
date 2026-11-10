@@ -90,7 +90,7 @@ class RecordTerminalPayment
         if (!$claimed) {
             $collection->refresh();
 
-            return $collection->status_id == TerminalPaymentIntent::STATUS_RECORDED ? $this->response($collection) : ['status' => 'recording'];
+            return $collection->status_id == TerminalPaymentIntent::STATUS_RECORDED ? $this->response($collection, $pi->latest_charge instanceof Charge ? $pi->latest_charge : null) : ['status' => 'recording'];
         }
 
         try {
@@ -133,7 +133,7 @@ class RecordTerminalPayment
             'invoice_balance' => $collection->invoice?->balance,
             'brand' => $payment->meta->brand ?? null,
             'last4' => $payment->meta->last4 ?? null,
-            'receipt_url' => $charge->receipt_url ?? null,
+            'receipt_url' => ($charge ?? $this->charge($payment))?->receipt_url,
         ];
     }
 
@@ -315,6 +315,18 @@ class RecordTerminalPayment
         $refunds = Refund::all(['payment_intent' => $pi->id, 'limit' => 100], $this->card_present->stripe->stripe_connect_auth);
 
         return collect($refunds->data)->first(fn (Refund $refund) => ($refund->metadata->in_terminal_surcharge_refund ?? null) && !in_array($refund->status, ['failed', 'canceled']));
+    }
+
+    /* Answering again, however it was recorded: the app shows Stripe's receipt */
+    private function charge(Payment $payment): ?Charge
+    {
+        try {
+            $this->card_present->stripe->init();
+
+            return Charge::retrieve($payment->transaction_reference, $this->card_present->stripe->stripe_connect_auth);
+        } catch (ApiErrorException $e) {
+            return null;
+        }
     }
 
     private function reject(TerminalPaymentIntent $collection, string $reason): array

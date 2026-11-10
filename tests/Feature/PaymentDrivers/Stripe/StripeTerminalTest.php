@@ -248,6 +248,17 @@ class StripeTerminalTest extends TestCase
         $this->assertSame(1, $this->terminalPayments()->count());
     }
 
+    public function testEveryAnswerForARecordedPaymentCarriesTheReceipt(): void
+    {
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+
+        (new PaymentIntentWebhook(['object' => $this->stripe->intents[$intent['payment_intent_id']]], $this->company->company_key, $this->company_gateway->id))->handle();
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded', 'receipt_url' => 'https://pay.stripe.com/receipts/test']);
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['receipt_url' => 'https://pay.stripe.com/receipts/test']);
+    }
+
     public function testTheWebhookRecordsWithoutTheDevice(): void
     {
         $intent = $this->collect()->json();
