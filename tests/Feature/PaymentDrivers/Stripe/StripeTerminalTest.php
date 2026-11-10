@@ -712,6 +712,63 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals(5, (float) $this->invoice->fresh()->balance);
     }
 
+    public function testARefundOfAPaymentNoInvoiceTookComesOutOfTheClientsMoney(): void
+    {
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+        (new InvoiceRepository())->delete($this->invoice->fresh());
+
+        $paid_to_date = (float) $this->client->fresh()->paid_to_date;
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'unapplied']);
+        $amount = (float) $this->terminalPayments()->sole()->amount;
+
+        $refunded = fn () => new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key);
+
+        $this->stripe->refundInDashboard($intent['payment_intent_id'], 300);
+        $refunded()->handle();
+
+        $this->assertEquals(3, (float) $this->terminalPayments()->sole()->refunded);
+        $this->assertEquals($paid_to_date + $amount - 3, (float) $this->client->fresh()->paid_to_date);
+
+        $this->stripe->refundInDashboard($intent['payment_intent_id'], (int) round($amount * 100) - 300);
+        $refunded()->handle();
+
+        $payment = $this->terminalPayments()->sole();
+        $this->assertSame(Payment::STATUS_REFUNDED, $payment->status_id);
+        $this->assertEquals($amount, (float) $payment->refunded);
+        $this->assertEquals($paid_to_date, (float) $this->client->fresh()->paid_to_date);
+        $this->assertTrue($this->invoice->fresh()->is_deleted);
+    }
+
+    public function testARefundComesOutOfTheMoneyTheInvoiceDidNotTakeFirst(): void
+    {
+        $balance = (float) $this->invoice->balance;
+        $paid_to_date = (float) $this->client->fresh()->paid_to_date;
+
+        $intent = $this->collect()->json();
+        $this->invoice->fresh()->forceFill(['balance' => 4])->saveQuietly();
+        $this->stripe->charge($intent['payment_intent_id']);
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'unapplied']);
+
+        $refunded = fn () => new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key);
+
+        /* Within the unapplied part: the invoice stays paid */
+        $this->stripe->refundInDashboard($intent['payment_intent_id'], 100);
+        $refunded()->handle();
+
+        $this->assertEquals(1, (float) $this->terminalPayments()->sole()->refunded);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertEquals($paid_to_date + $balance - 1, (float) $this->client->fresh()->paid_to_date);
+
+        /* Past it: the rest of the unapplied part, then 2 off the invoice */
+        $this->stripe->refundInDashboard($intent['payment_intent_id'], (int) round(($balance - 3) * 100));
+        $refunded()->handle();
+
+        $this->assertEquals($balance - 2, (float) $this->terminalPayments()->sole()->refunded);
+        $this->assertEquals(2, (float) $this->invoice->fresh()->balance);
+        $this->assertEquals($paid_to_date + 2, (float) $this->client->fresh()->paid_to_date);
+    }
+
     public function testASurchargeRefundWhoseResponseWasLostIsNotRefundedOrCountedAgain(): void
     {
         $quote = $this->surcharged();

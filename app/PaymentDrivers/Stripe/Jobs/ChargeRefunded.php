@@ -119,6 +119,34 @@ class ChargeRefunded implements ShouldQueue
 
         }
 
+        /* An in-person payment can carry money no invoice took: a refund comes out of that first */
+        if (CardPresent::isCardPresent($source)) {
+            $precision = $payment->client->currency()->precision;
+            $unapplied = round($payment->amount - $payment->applied - $payment->refunded + $payment->paymentables->where('paymentable_type', 'invoices')->sum('refunded'), $precision);
+            $unapplied_refund = min($amount_refunded, max(0, $unapplied));
+
+            if ($unapplied_refund > 0) {
+                $payment->refund([
+                    'id' => $payment->id,
+                    'amount' => $unapplied_refund,
+                    'invoices' => [],
+                    'date' => now()->format('Y-m-d'),
+                    'gateway_refund' => false,
+                    'email_receipt' => false,
+                    'via_webhook' => true,
+                ]);
+
+                $amount_refunded = round($amount_refunded - $unapplied_refund, $precision);
+            }
+
+            if ($amount_refunded <= 0) {
+                $payment->private_notes .= 'Refunded via Stripe  ';
+                $payment->saveQuietly();
+
+                return;
+            }
+        }
+
         $invoice_collection = $payment->paymentables
                     ->where('paymentable_type', 'invoices')
                     ->map(function ($pivot) {
