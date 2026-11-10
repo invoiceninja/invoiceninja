@@ -551,6 +551,8 @@ class ChartService
 
     private function firstAnalyticsDate(string $end_date): string
     {
+        $today = $this->companyToday();
+
         return $this->firstDate([
             Invoice::query()
                 ->withTrashed()
@@ -567,7 +569,7 @@ class ChartService
                 ->where('is_deleted', false)
                 ->whereIn('status_id', [Quote::STATUS_SENT, Quote::STATUS_APPROVED])
                 ->whereNull('invoice_id')
-                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', $this->companyToday()))
+                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', $today))
                 ->where('date', '!=', '0000-00-00')
                 ->where('date', '<=', $end_date)
                 ->whereHas('client', fn ($query) => $query
@@ -590,6 +592,8 @@ class ChartService
 
     private function firstForecastDate(string $end_date): string
     {
+        $today = $this->companyToday();
+
         return $this->firstDate([
             Invoice::query()
                 ->withTrashed()
@@ -616,7 +620,7 @@ class ChartService
                 ->where('is_deleted', false)
                 ->whereIn('status_id', [Quote::STATUS_SENT, Quote::STATUS_APPROVED])
                 ->whereNull('invoice_id')
-                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', $this->companyToday()))
+                ->where(fn ($query) => $query->whereNull('due_date')->orWhere('due_date', '>=', $today))
                 ->where('date', '!=', '0000-00-00')
                 ->where('date', '<=', $end_date)
                 ->whereHas('client', fn ($query) => $query

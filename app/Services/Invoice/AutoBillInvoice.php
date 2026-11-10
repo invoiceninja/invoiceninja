@@ -29,6 +29,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\PaymentDrivers\Stripe\ACH;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
 use App\Services\AbstractService;
@@ -563,7 +564,8 @@ class AutoBillInvoice extends AbstractService
             return true;
         }
 
-        return ($gateway_token->meta->state ?? null) === 'authorized';
+        return (new ACH($driver))->validatePaymentMethod($gateway_token)
+            && ($gateway_token->meta->state ?? null) === 'authorized';
     }
 
 }

@@ -21,6 +21,9 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\Timezone;
+use Carbon\Carbon;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -29,6 +32,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Bus;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -326,6 +331,60 @@ class QuoteTest extends TestCase
         $response->assertStatus(200);
         $this->assertEmpty($response->json('data.due_date'));
         $this->assertEquals('cleared due date', $response->json('data.terms'));
+    }
+
+    #[DataProvider('submittedExpiryCases')]
+    public function testSendingValidatesTheSubmittedExpiry(string $action, array $input, bool $expectedValid): void
+    {
+        Bus::fake();
+        $this->travelTo(Carbon::parse('2026-09-09 14:00:00', 'UTC'));
+
+        $settings = $this->client->settings;
+        $settings->timezone_id = Timezone::where('name', 'Australia/Sydney')->firstOrFail()->id;
+        $settings->valid_until = null;
+        $this->client->settings = $settings;
+        $this->client->save();
+        $settings = $this->company->settings;
+        $settings->valid_until = '';
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $quote = $this->makeDraftQuote('2026-09-01');
+        QuoteInvitation::factory()->create([
+            'quote_id' => $quote->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_contact_id' => $this->contact->id,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/quotes/'.$quote->hashed_id.'?'.$action.'=true', $input);
+
+        if (! $expectedValid) {
+            $response->assertStatus(422)->assertJsonValidationErrors(['due_date']);
+            $this->assertSame('2026-09-01', $quote->fresh()->due_date->toDateString());
+            $this->assertSame(Quote::STATUS_DRAFT, $quote->fresh()->getRawOriginal('status_id'));
+            return;
+        }
+
+        $response->assertOk();
+        $this->assertSame($input['due_date'], $quote->fresh()->due_date?->toDateString());
+        // TriggeredActions transitions only for mark_sent and send_email.
+        $expectedStatus = $action === 'email' ? Quote::STATUS_DRAFT : Quote::STATUS_SENT;
+        $this->assertSame($expectedStatus, $quote->fresh()->getRawOriginal('status_id'));
+    }
+
+    public static function submittedExpiryCases(): iterable
+    {
+        foreach (['mark_sent', 'send_email', 'email'] as $action) {
+            yield "$action retaining expired date" => [$action, [], false];
+            yield "$action clearing expired date" => [$action, ['due_date' => null], true];
+            yield "$action extending to client today" => [$action, ['due_date' => '2026-09-10'], true];
+            yield "$action extending to future date" => [$action, ['due_date' => '2026-09-11'], true];
+            yield "$action changing to client yesterday" => [$action, ['due_date' => '2026-09-09'], false];
+        }
     }
 
     public function testUpdateWithoutDueDateDoesNotRequireClientId()

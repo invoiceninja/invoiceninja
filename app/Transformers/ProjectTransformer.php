@@ -49,7 +49,7 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeUser(Project $project): ?Item
     {
-        $transformer = new UserTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer, $this->user);
 
         if (!$project->user) { //@phpstan-ignore-line
             return null;
@@ -60,7 +60,7 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeAssignedUser(Project $project): ?Item
     {
-        $transformer = new UserTransformer($this->serializer);
+        $transformer = new UserProfileTransformer($this->serializer, $this->user);
 
         if (!$project->assigned_user) { //@phpstan-ignore-line
             return null;
@@ -71,13 +71,11 @@ class ProjectTransformer extends EntityTransformer
 
     public function includeDocuments(Project $project)
     {
-        $transformer = new DocumentTransformer($this->serializer);
 
-        // if($project->documents->count() > 0) {
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
+
         return $this->includeCollection($project->documents, $transformer, Document::class);
-        // }
 
-        // return null;
     }
 
     public function includeClient(Project $project): ?\League\Fractal\Resource\Item
@@ -88,7 +86,11 @@ class ProjectTransformer extends EntityTransformer
             return null;
         }
 
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
+
+        if($this->user?->cannot('view', $project->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
 
         return $this->includeItem($project->client, $transformer, Client::class);
     }
@@ -102,31 +104,52 @@ class ProjectTransformer extends EntityTransformer
             'tasks.project.documents',
         ]);
         
-        $transformer = new TaskTransformer($this->serializer);
+        $transformer = new TaskTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->tasks, $transformer, Task::class);
+        return $this->includeAuthorizedCollection(
+            $project->tasks,
+            $transformer,
+            Task::class
+        );
+        // return $this->includeCollection($project->tasks, $transformer, Task::class);
     }
 
     public function includeInvoices(Project $project): \League\Fractal\Resource\Collection
     {
        
-        $transformer = new InvoiceTransformer($this->serializer);
+        $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->invoices, $transformer, Invoice::class);
+        return $this->includeAuthorizedCollection(
+            $project->invoices,
+            $transformer,
+            Invoice::class
+        );
+
+        // return $this->includeCollection($project->invoices, $transformer, Invoice::class);
     }
 
     public function includeExpenses(Project $project): \League\Fractal\Resource\Collection
     {
-        $transformer = new ExpenseTransformer($this->serializer);
+        $transformer = new ExpenseTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->expenses, $transformer, Expense::class);
+        return $this->includeAuthorizedCollection(
+            $project->expenses,
+            $transformer,
+            Expense::class
+        );
+        // return $this->includeCollection($project->expenses, $transformer, Expense::class);
     }
 
     public function includeQuotes(Project $project): \League\Fractal\Resource\Collection
     {
-        $transformer = new QuoteTransformer($this->serializer);
+        $transformer = new QuoteTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($project->quotes, $transformer, Quote::class);
+        return $this->includeAuthorizedCollection(
+            $project->quotes,
+            $transformer,
+            Quote::class
+        );
+        // return $this->includeCollection($project->quotes, $transformer, Quote::class);
     }
 
     public function transform(Project $project)

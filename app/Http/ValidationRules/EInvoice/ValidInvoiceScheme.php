@@ -39,7 +39,7 @@ class ValidInvoiceScheme implements ValidationRule, ValidatorAwareRule
 
             $r = new EInvoice();
 
-            $errors = $r->validateRequest($value['Invoice'], InvoiceLevel::class);
+            $errors = $r->validatePayload($value['Invoice'], InvoiceLevel::class);
 
             foreach ($errors as $key => $msg) {
 

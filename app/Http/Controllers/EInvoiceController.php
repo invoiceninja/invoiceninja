@@ -16,9 +16,11 @@ use App\Http\Requests\EInvoice\HealthcheckRequest;
 use App\Http\Requests\EInvoice\ShowQuotaRequest;
 use App\Http\Requests\EInvoice\UpdateEInvoiceConfiguration;
 use App\Http\Requests\EInvoice\ValidateEInvoiceRequest;
+use App\Models\Invoice;
 use App\Services\EDocument\Gateway\Storecove\StorecoveDeliveryMap;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
+use InvoiceNinja\EInvoice\EInvoice;
 use InvoiceNinja\EInvoice\Models\Peppol\BranchType\FinancialInstitutionBranch;
 use InvoiceNinja\EInvoice\Models\Peppol\CardAccountType\CardAccount;
 use InvoiceNinja\EInvoice\Models\Peppol\CodeType\CardTypeCode;
@@ -84,8 +86,16 @@ class EInvoiceController extends BaseController
      */
     public function configurations(UpdateEInvoiceConfiguration $request)
     {
-        $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+        $entity = $request->getEntity();
 
+        if ($entity instanceof Invoice && isset($entity->e_invoice->Invoice)) {
+            $e = new EInvoice();
+            $einvoice = $e->decode('Peppol', json_encode($entity->e_invoice->Invoice), 'json');
+        }
+        else {
+            $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+        }
+        
         $payment_means_array = $request->input('payment_means', []);
 
         $einvoice->PaymentMeans = [];
@@ -153,9 +163,11 @@ class EInvoiceController extends BaseController
         $stub = new \stdClass();
         $stub->Invoice = $einvoice;
 
-        $company = auth()->user()->company();
-        $company->e_invoice = $stub;
-        $company->save();
+        
+        $entity->e_invoice = $entity->filterNullsRecursive(
+            json_decode(json_encode($stub), true)
+        );
+        $entity->saveQuietly();
     }
 
     /**

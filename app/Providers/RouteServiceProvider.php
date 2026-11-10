@@ -125,7 +125,7 @@ class RouteServiceProvider extends ServiceProvider
                 return Limit::none();
             }
 
-            $identity = $request->user()?->email
+            $identity = $request->user()->email
                 ?? $request->input('email')
                 ?? $request->ip();
 
@@ -136,7 +136,7 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('support-messages', function (Request $request) {
-            $identity = $request->user()?->email
+            $identity = $request->user()->email
                 ?? $request->input('email')
                 ?? $request->ip();
 

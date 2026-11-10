@@ -36,13 +36,15 @@ class PasskeyService
 
         $webAuthn = $this->makeWebAuthn();
         $args = (array) $webAuthn->getCreateArgs(
-            (string) $user->id,
+            (string) $user->id."-".$user->referral_code,
             $user->email,
             $name ?: $user->email,
             240,
             true,
             'required',
-            null
+            null,
+            // Without these, iCloud Keychain and Google Password Manager silently replace the account's passkey.
+            $user->passkey_credentials->pluck('credential_id')->map(fn (string $id) => base64_decode($id))->filter()->values()->toArray()
         );
 
         $token = $this->storeChallenge($webAuthn->getChallenge(), [
@@ -50,7 +52,7 @@ class PasskeyService
             'user_id' => $user->id,
         ]);
 
-        return ['data' => array_merge($args, ['challenge_token' => $token])];
+        return ['data' => array_merge($args, ['challenge_token' => $token, 'android_origins' => $this->androidOrigins()])];
     }
 
     public function registerCredential(User $user, string $challengeToken, array $payload, ?string $name = null): ?PasskeyCredential
@@ -128,7 +130,7 @@ class PasskeyService
             'passwordless' => $passwordless,
         ]);
 
-        return ['data' => array_merge($args, ['challenge_token' => $token])];
+        return ['data' => array_merge($args, ['challenge_token' => $token, 'android_origins' => $this->androidOrigins()])];
 
     }
 
@@ -173,9 +175,14 @@ class PasskeyService
         return $user;
     }
 
+    public function relyingPartyId(): string
+    {
+        return parse_url(config('ninja.react_url'), PHP_URL_HOST) ?: request()->getHost();
+    }
+
     private function makeWebAuthn(): WebAuthn
     {
-        $rpId = parse_url(config('ninja.react_url'), PHP_URL_HOST) ?: request()->getHost();
+        $rpId = $this->relyingPartyId();
 
         // The 4th argument enables base64url encoding for binary fields (challenge,
         // user.id, credential ids) in the JSON options. Without it the library emits
@@ -183,7 +190,42 @@ class PasskeyService
         // JSON the client decodes cannot parse. NOTE: the WebAuthn constructor assigns
         // ByteBuffer::$useBase64UrlEncoding from this flag, so it must be passed here —
         // setting the static separately is overwritten by every new WebAuthn().
-        return new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm'], true);
+        $webAuthn = new WebAuthn(config('ninja.app_name'), $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm'], true);
+
+        // The Android app's origin is `android:apk-key-hash:<hash>`, accepted only for hashes added here.
+        $webAuthn->addAndroidKeyHashes(self::androidKeyHashes((string) config('ninja.app_links.android_fingerprints')));
+
+        return $webAuthn;
+    }
+
+    /**
+     * Unpadded base64url SHA-256 of each app-links signing certificate, as Android puts it after `android:apk-key-hash:`.
+     *
+     * @return array<int, string>
+     */
+    public static function androidKeyHashes(string $fingerprints): array
+    {
+        $hashes = [];
+
+        foreach (explode(',', $fingerprints) as $fingerprint) {
+            $hex = str_replace(':', '', trim($fingerprint));
+
+            if (preg_match('/\A[0-9A-Fa-f]{64}\z/', $hex) === 1) {
+                $hashes[] = rtrim(strtr(base64_encode((string) hex2bin($hex)), '+/', '-_'), '=');
+            }
+        }
+
+        return array_values(array_unique($hashes));
+    }
+
+    /**
+     * Sent with the options, so an app can avoid a ceremony this server would reject.
+     *
+     * @return array<int, string>
+     */
+    private function androidOrigins(): array
+    {
+        return array_map(fn (string $hash) => 'android:apk-key-hash:'.$hash, self::androidKeyHashes((string) config('ninja.app_links.android_fingerprints')));
     }
 
     private function storeChallenge(ByteBuffer|string $challenge, array $meta): string

@@ -105,12 +105,4 @@
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer
           example: 1231232312321
-        account:
-          $ref: '#/components/schemas/Account'
-        company:
-          $ref: '#/components/schemas/Company'
-        user:
-          $ref: '#/components/schemas/UserRef'
-        token:
-          $ref: '#/components/schemas/CompanyToken'
       type: object

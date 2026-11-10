@@ -55,6 +55,10 @@ class UpdateCompanyUserRequest extends Request
             unset($input['company_user']['user']);
         }
 
+        if (isset($input['company_user']['account_id'])) {
+            unset($input['company_user']['account_id']);
+        }
+
         $this->replace($input);
     }
 }

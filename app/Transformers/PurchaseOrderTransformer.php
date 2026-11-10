@@ -44,38 +44,42 @@ class PurchaseOrderTransformer extends EntityTransformer
 
     public function includeActivities(PurchaseOrder $purchase_order)
     {
-        $transformer = new ActivityTransformer($this->serializer);
+        $transformer = new ActivityTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($purchase_order->activities, $transformer, Activity::class);
     }
 
     public function includeInvitations(PurchaseOrder $purchase_order)
     {
-        $transformer = new PurchaseOrderInvitationTransformer($this->serializer);
+        $transformer = new PurchaseOrderInvitationTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($purchase_order->invitations, $transformer, PurchaseOrderInvitation::class);
     }
 
     public function includeHistory(PurchaseOrder $purchase_order)
     {
-        $transformer = new PurchaseOrderHistoryTransformer($this->serializer);
+        $transformer = new PurchaseOrderHistoryTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($purchase_order->history, $transformer, Backup::class);
     }
 
     public function includeDocuments(PurchaseOrder $purchase_order)
     {
-        $transformer = new DocumentTransformer($this->serializer);
+        $transformer = new DocumentTransformer($this->serializer, $this->user);
 
         return $this->includeCollection($purchase_order->documents, $transformer, Document::class);
     }
 
     public function includeClient(PurchaseOrder $purchase_order)
     {
-        $transformer = new ClientTransformer($this->serializer);
+        $transformer = new ClientTransformer($this->serializer, $this->user);
 
         if (!$purchase_order->client) {
             return null;
+        }
+
+        if($this->user?->cannot('view', $purchase_order->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
         }
 
         return $this->includeItem($purchase_order->client, $transformer, Client::class);
@@ -83,9 +87,9 @@ class PurchaseOrderTransformer extends EntityTransformer
 
     public function includeInvoice(PurchaseOrder $purchase_order)
     {
-        $transformer = new InvoiceTransformer($this->serializer);
+        $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
-        if (!$purchase_order->invoice) {
+        if (!$purchase_order->invoice || $this->user?->cannot('view', $purchase_order->invoice)) {
             return null;
         }
 
@@ -94,9 +98,9 @@ class PurchaseOrderTransformer extends EntityTransformer
 
     public function includeQuote(PurchaseOrder $purchase_order)
     {
-        $transformer = new QuoteTransformer($this->serializer);
+        $transformer = new QuoteTransformer($this->serializer, $this->user);
 
-        if (!$purchase_order->quote) {
+        if (!$purchase_order->quote || $this->user?->cannot('view', $purchase_order->quote)) {
             return null;
         }
 
@@ -105,9 +109,9 @@ class PurchaseOrderTransformer extends EntityTransformer
 
     public function includeExpense(PurchaseOrder $purchase_order)
     {
-        $transformer = new ExpenseTransformer($this->serializer);
+        $transformer = new ExpenseTransformer($this->serializer, $this->user);
 
-        if (!$purchase_order->expense) {
+        if (!$purchase_order->expense || $this->user?->cannot('view', $purchase_order->expense)) {
             return null;
         }
 
@@ -116,7 +120,7 @@ class PurchaseOrderTransformer extends EntityTransformer
 
     public function includeVendor(PurchaseOrder $purchase_order)
     {
-        $transformer = new VendorTransformer($this->serializer);
+        $transformer = new VendorTransformer($this->serializer, $this->user);
 
         if (!$purchase_order->vendor) {//@phpstan-ignore-line
             return null;

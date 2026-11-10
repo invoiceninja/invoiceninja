@@ -14,6 +14,7 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\PasswordProtection;
 use App\Models\Gateway;
+use App\Models\SystemLog;
 use App\Models\Task;
 use App\Models\User;
 use cebe\openapi\spec\Schema;
@@ -191,7 +192,7 @@ class OpenApiContractTest extends TestCase
         'chart client payment analytics' => ['post', '/api/v1/charts/client_payment_analytics', [], self::RANGE],
         'chart project analytics' => ['post', '/api/v1/charts/project_analytics/{project}', ['project' => '{project}'], self::RANGE],
         'chart project burnup' => ['post', '/api/v1/charts/project_burnup/{project}', ['project' => '{project}'], self::RANGE],
-        'credit action' => ['get', '/api/v1/credits/{id}/{action}', ['id' => '{credit}', 'action' => 'mark_sent']],
+        'credit action' => ['get', '/api/v1/credits/{credit}/{action}', ['credit' => '{credit}', 'action' => 'mark_sent']],
         'default design' => ['post', '/api/v1/designs/set/default', [], ['entity' => 'invoice', 'design_id' => '{design}', 'settings_level' => 'company']],
         'client settings' => ['post', '/api/v1/clients/{client}/show_settings', ['client' => '{client}']],
         'update reminders' => ['post', '/api/v1/invoices/update_reminders'],
@@ -205,6 +206,13 @@ class OpenApiContractTest extends TestCase
         'payment schedule' => ['post', '/api/v1/invoices/{invoice}/payment_schedule', ['invoice' => '{invoice}'], ['frequency_id' => 5, 'remaining_cycles' => 2, 'next_run' => '2030-01-01']],
         'company logo' => ['get', '/api/v1/companies/{company}/logo', ['company' => '{company}']],
         'show document' => ['get', '/api/v1/documents/{document}', ['document' => '{uploaded.documents.0.id}']],
+        'edit document' => ['get', '/api/v1/documents/{document}/edit', ['document' => '{uploaded.documents.0.id}']],
+        'bulk documents' => ['post', '/api/v1/documents/bulk', [], ['action' => 'archive', 'ids' => ['{uploaded.documents.0.id}']]],
+        'client documents' => ['post', '/api/v1/clients/{client}/documents', ['client' => '{uploaded.client_id}']],
+        'client vat status' => ['get', '/api/v1/clients/{client}/vat_status', ['client' => '{client}']],
+        'delete payment schedule' => ['delete', '/api/v1/invoices/{invoice}/payment_schedule', ['invoice' => '{scheduled}']],
+        'client email history' => ['post', '/api/v1/emails/clientHistory/{client}', ['client' => '{emailed.client_id}']],
+        'entity email history' => ['post', '/api/v1/emails/entityHistory', [], ['entity' => 'invoice', 'entity_id' => '{emailed}']],
         'update document' => ['put', '/api/v1/documents/{document}', ['document' => '{uploaded.documents.0.id}'], ['name' => 'contract-renamed.png', 'is_public' => true]],
         'download document' => ['get', '/api/v1/documents/{document}/download', ['document' => '{uploaded.documents.0.id}']],
         'delete document' => ['delete', '/api/v1/documents/{document}', ['document' => '{uploaded.documents.0.id}']],
@@ -248,7 +256,7 @@ class OpenApiContractTest extends TestCase
      */
     private const UNDOCUMENTED = [
         'e-invoicing network, needs a provider account' => [
-            'einvoice/', 'clients/{client}/peppol_discovery', 'clients/{client}/check_vat', 'clients/{client}/vat_status',
+            'einvoice/', 'clients/{client}/peppol_discovery', 'clients/{client}/check_vat',
         ],
         'third party integration, needs an account there' => [
             'quickbooks/', 'calendar_connection', 'stripe/', 'yodlee/', 'nordigen/', 'oidc/', 'oauth_login', 'connected_account/gmail',
@@ -261,6 +269,9 @@ class OpenApiContractTest extends TestCase
         'hosted platform only' => [
             'signup', 'check_subdomain', 'check_license', 'accounts/{account}', 'sms_reset', 'verify', 'feedback',
         ],
+        'MCP server: JSON-RPC over one endpoint, described by its own tool list' => [
+            'mcp',
+        ],
         'client portal and shop API, authenticated separately' => [
             'shop/', 'contact/',
         ],
@@ -269,9 +280,9 @@ class OpenApiContractTest extends TestCase
             'purchase_order/{invitation_key}/download_e_purchase_order', 'quote/{invitation_key}/download_e_quote', 'password_timeout',
             'settings/enable_two_factor', 'settings/disable_two_factor', 'reset_password', 'users/{user}/disconnect_mailer',
             'users/{user}/disconnect_oauth', 'users/{user}/purge', 'vendors/{vendor}/{mergeable_vendor}/merge', 'live_design',
-            'live_preview/purchase_order', 'protected_download/{hash}', 'emails/clientHistory/{client}', 'emails/entityHistory',
-            'subscriptions/steps/check', 'clients/{client}/documents', 'client_gateway_tokens/{client_gateway_token}/setAsDefault',
-            'company_users/{user}/preferences', 'invoices/{invoice}/payment_schedule', 'edocument/upload',
+            'live_preview/purchase_order', 'protected_download/{hash}',
+            'subscriptions/steps/check', 'client_gateway_tokens/{client_gateway_token}/setAsDefault',
+            'company_users/{user}/preferences', 'edocument/upload',
         ],
     ];
 
@@ -598,10 +609,50 @@ class OpenApiContractTest extends TestCase
         return $value;
     }
 
+    private function emailed(string $invoice_id): array
+    {
+        $invoice = $this->stored['invoice'];
+
+        SystemLog::create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->decodePrimaryKey($invoice['client_id']),
+            'category_id' => SystemLog::CATEGORY_MAIL,
+            'event_id' => SystemLog::EVENT_MAIL_DELIVERY,
+            'type_id' => SystemLog::TYPE_WEBHOOK_RESPONSE,
+            'log' => ['history' => [
+                'recipients' => 'contract-test@example.com',
+                'subject' => 'Contract test',
+                'entity' => 'invoice',
+                'entity_id' => $invoice_id,
+                'events' => [[
+                    'bounce_id' => '', 'recipient' => 'contract-test@example.com', 'status' => 'delivered', 'delivery_message' => '',
+                    'server' => 'example.com', 'server_ip' => '', 'date' => '2026-01-02 10:00:00',
+                ]],
+            ]],
+        ]);
+
+        return $invoice;
+    }
+
     private function placeholder(string $name, ?string $field): mixed
     {
         if ($name === 'me') {
             return data_get($this->user, $field);
+        }
+
+        // An invoice with a payment schedule.
+        if ($name === 'scheduled') {
+            $this->stored[$name] ??= $this->apiRequest('post', '/api/v1/invoices/'.$this->created('invoice').'/payment_schedule', self::OTHER['payment schedule'][3])->assertSuccessful()->json('data');
+
+            return $field ? data_get($this->stored[$name], $field) : $this->stored[$name]['id'];
+        }
+
+        // An invoice whose email delivery was logged, as the mail webhooks log it.
+        if ($name === 'emailed') {
+            $this->stored[$name] ??= $this->emailed($this->created('invoice'));
+
+            return $field ? data_get($this->stored[$name], $field) : $this->stored[$name]['id'];
         }
 
         // An invoice with an uploaded document.
@@ -712,6 +763,14 @@ class OpenApiContractTest extends TestCase
 
         $schema = $this->validator->getSchema()->paths->getPath($path)->{$method}->responses->getResponse('200')->content['application/json']->schema;
         $enveloped = is_object($content) && property_exists($content, 'data');
+
+        // A oneOf response, such as a bulk action returning the rows or a message: use the alternative it matched.
+        foreach ($schema->oneOf ?? [] as $option) {
+            if (isset($option->properties['data']) === $enveloped) {
+                $schema = $option;
+                break;
+            }
+        }
 
         if ($enveloped && ! isset($schema->properties['data'])) {
             return ['wraps the response in data, which the spec does not'];

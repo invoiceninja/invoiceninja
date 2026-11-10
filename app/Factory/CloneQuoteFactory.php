@@ -30,7 +30,7 @@ class CloneQuoteFactory
         $clone_quote->line_items = $quote->line_items;
 
         $clone_quote->sync = null;
-        $clone_quote->backup = null; // @phpstan-ignore-line
+        $clone_quote->backup = $quote->backup?->forClone();
         
         return $clone_quote;
     }

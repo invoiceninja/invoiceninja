@@ -14,10 +14,12 @@ namespace Tests\Feature\Export;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Events\Payment\PaymentApplicationDateChanged;
 use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ExpenseFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
+use App\Listeners\Payment\ReconcilePaymentApplicationDateChange;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -31,8 +33,10 @@ use App\Models\User;
 use App\Repositories\PaymentRepository;
 use App\Services\Payment\PaymentApplicationDateResolver;
 use App\Services\Report\ProfitLoss;
+use App\Services\Report\TaxPeriod\CashTaxEventProjector;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -718,6 +722,244 @@ class ProfitAndLossReportTest extends TestCase
 
         $this->travelBack();
         $this->account->delete();
+    }
+
+    #[DataProvider('correctedPaymentExchangeRateProvider')]
+    public function testCashProfitLossUsesTheEditedV2PaymentRateWithoutChangingTheSource(
+        float $exchange_rate,
+        float $expected_income,
+    ): void {
+        $this->buildData();
+        [, $payment] = $this->createForeignCashPayment();
+
+        $this->assertSame(110.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+        $source = TransactionEvent::query()
+            ->where('payment_id', $payment->id)
+            ->where('event_id', TransactionEvent::PAYMENT_CASH)
+            ->sole();
+        $this->assertSame(2, data_get($source->payment_request, 'schema_version'));
+        $source_attributes = $source->getRawOriginal();
+        $accrual_income = (new ProfitLoss($this->company, $this->payload))->build()->getIncome();
+
+        // Repeated edits, no-op saves, and fresh reports must not accumulate revenue.
+        foreach ([$exchange_rate, $exchange_rate, 1.4, $exchange_rate] as $rate) {
+            $payment = app(PaymentRepository::class)->save(['exchange_rate' => $rate], $payment);
+
+            $this->assertSame($rate, $payment->fresh()->exchange_rate);
+            $this->assertSame(round(100 * $rate, 2), $this->cashIncome('2026-01-01', '2026-01-31'));
+        }
+
+        $report = (new ProfitLoss($this->company, [
+            ...$this->payload,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'is_income_billed' => false,
+        ]))->build();
+        $csv_rows = iterator_to_array(\League\Csv\Reader::fromString($report->getCsv())->getRecords());
+        $revenue_row = collect($csv_rows)->first(
+            fn (array $row): bool => ($row[0] ?? null) === $this->company->currency()->code,
+        );
+
+        $this->assertSame($expected_income, $report->getIncome());
+        $this->assertNotNull($revenue_row);
+        $this->assertSame($expected_income, (float) $revenue_row[1]);
+        $this->assertSame($source_attributes, $source->fresh()->getRawOriginal());
+        $this->assertSame(1, TransactionEvent::query()->where('payment_id', $payment->id)->count());
+        $this->assertSame(1, Paymentable::query()->where('payment_id', $payment->id)->count());
+        $this->assertSame($accrual_income, (new ProfitLoss($this->company, $this->payload))->build()->getIncome());
+
+        // Other callers keep the snapshot conversion when no override is supplied.
+        $snapshot_rows = app(CashTaxEventProjector::class)->project(collect([$source->fresh()]));
+        $this->assertEqualsWithDelta(110.0, $snapshot_rows[0]['gross_amount'], 0.000001);
+        $this->assertEqualsWithDelta(110.0, app(CashTaxEventProjector::class)->reportingEvent($source->fresh())->payment_applied, 0.000001);
+
+        $this->account->delete();
+    }
+
+    public static function correctedPaymentExchangeRateProvider(): array
+    {
+        return [
+            'higher rate' => [1.25, 125.0],
+            'lower rate' => [0.8, 80.0],
+            'explicit unity rate' => [1.0, 100.0],
+        ];
+    }
+
+    #[DataProvider('refundRateEditOrderProvider')]
+    public function testCashProfitLossUsesTheEditedV2RateForCrossPeriodRefunds(bool $edit_before_refund): void
+    {
+        $this->buildData();
+        [$invoice, $payment] = $this->createForeignCashPayment();
+        $this->assertSame(110.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+
+        if ($edit_before_refund) {
+            $payment = app(PaymentRepository::class)->save(['exchange_rate' => 1.25], $payment);
+        }
+
+        $payment = $payment->refund([
+            'id' => $payment->id,
+            'amount' => 20,
+            'invoices' => [['invoice_id' => $invoice->id, 'amount' => 20]],
+            'date' => '2026-02-05',
+            'gateway_refund' => false,
+            'email_receipt' => false,
+        ]);
+
+        if (! $edit_before_refund) {
+            $this->assertSame(-22.0, $this->cashIncome('2026-02-01', '2026-02-28'));
+            $payment = app(PaymentRepository::class)->save(['exchange_rate' => 1.25], $payment);
+        }
+
+        $this->assertSame(125.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+        $this->assertSame(-25.0, $this->cashIncome('2026-02-01', '2026-02-28'));
+        $this->assertSame(100.0, $this->cashIncome('2026-01-01', '2026-02-28'));
+        $events = TransactionEvent::query()->where('payment_id', $payment->id)->get();
+        $this->assertCount(2, $events);
+        foreach ($events as $event) {
+            $this->assertSame(2, data_get($event->payment_request, 'schema_version'));
+            $this->assertSame(1.1, $event->metadata->tax_report->payment_history->first()->exchange_rate);
+        }
+
+        $this->account->delete();
+    }
+
+    public static function refundRateEditOrderProvider(): array
+    {
+        return [
+            'edit before refund' => [true],
+            'edit after refund' => [false],
+        ];
+    }
+
+    public function testCashProfitLossUsesTheEditedV2RateWhenTheApplicationDateAlsoChanges(): void
+    {
+        $this->buildData();
+        [, $payment] = $this->createForeignCashPayment();
+        $this->assertSame(110.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+        Event::fake([PaymentApplicationDateChanged::class]);
+
+        $payment = app(PaymentRepository::class)->save([
+            'date' => '2026-02-05',
+            'exchange_rate' => 1.25,
+        ], $payment);
+        Event::assertDispatched(PaymentApplicationDateChanged::class);
+        $event = Event::dispatched(PaymentApplicationDateChanged::class)->sole()[0];
+        app(ReconcilePaymentApplicationDateChange::class)->handle($event);
+        app(ReconcilePaymentApplicationDateChange::class)->handle($event);
+
+        $this->assertSame('2026-02-05', $payment->fresh()->date);
+        $this->assertSame(0.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+        $this->assertSame(125.0, $this->cashIncome('2026-02-01', '2026-02-28'));
+        $this->assertSame(125.0, $this->cashIncome('2026-01-01', '2026-02-28'));
+        $this->assertSame(3, TransactionEvent::query()->where('payment_id', $payment->id)->count());
+
+        $this->account->delete();
+    }
+
+    public function testCashProfitLossConvertsV2RevenueAndTaxUsingTheEditedRate(): void
+    {
+        $this->buildData();
+        [$invoice, $payment] = $this->createForeignCashPayment(tax_rate: 20);
+        $this->assertSame(110.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+        app(PaymentRepository::class)->save(['exchange_rate' => 1.25], $payment);
+
+        $report = (new ProfitLoss($this->company, [
+            ...$this->payload,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+            'is_income_billed' => false,
+        ]))->build();
+
+        $this->assertSame(120.0, (float) $invoice->amount);
+        $this->assertSame(125.0, $report->getIncome());
+        $this->assertSame(25.0, $report->getIncomeTaxes());
+        $this->assertSame(150.0, $report->getIncomeMap()[0]->amount_payment_paid_converted);
+
+        $this->account->delete();
+    }
+
+    public function testCashProfitLossKeepsV2PaymentExchangeRatesSeparate(): void
+    {
+        $this->buildData();
+        [, $payment] = $this->createForeignCashPayment();
+        [, $other_payment] = $this->createForeignCashPayment(exchange_rate: 0.9);
+        $this->assertSame(200.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+
+        app(PaymentRepository::class)->save(['exchange_rate' => 1.25], $payment);
+
+        $this->assertSame(215.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+        $this->assertSame(0.9, $other_payment->fresh()->exchange_rate);
+
+        $this->account->delete();
+    }
+
+    public function testCashProfitLossChangesOnlyTheEditedV2PartialPaymentOnAnInvoice(): void
+    {
+        $this->buildData();
+        [$invoice, $payment] = $this->createForeignCashPayment(payment_amount: 40);
+        $other_payment = app(PaymentRepository::class)->save([
+            'amount' => 60,
+            'client_id' => $invoice->client_id,
+            'currency_id' => 3,
+            'exchange_currency_id' => 1,
+            'exchange_rate' => 0.9,
+            'date' => '2026-01-15',
+            'invoices' => [['invoice_id' => $invoice->id, 'amount' => 60]],
+        ], PaymentFactory::create($this->company->id, $this->user->id, $invoice->client_id));
+        $this->assertSame(98.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+
+        app(PaymentRepository::class)->save(['exchange_rate' => 1.25], $payment);
+
+        $this->assertSame(104.0, $this->cashIncome('2026-01-01', '2026-01-31'));
+        $this->assertSame(0.9, $other_payment->fresh()->exchange_rate);
+        $this->assertSame(2, TransactionEvent::query()->where('invoice_id', $invoice->id)->count());
+
+        $this->account->delete();
+    }
+
+    /** @return array{Invoice, Payment} */
+    private function createForeignCashPayment(
+        float $exchange_rate = 1.1,
+        float $tax_rate = 0,
+        ?float $payment_amount = null,
+    ): array {
+        $client_settings = ClientSettings::defaults();
+        $client_settings->currency_id = '3'; // EUR; the company uses USD.
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => false,
+            'settings' => $client_settings,
+        ]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => true,
+        ]);
+        $invoice = $this->createZeroTaxInvoice($client, '2026-01-10', 100);
+
+        if ($tax_rate > 0) {
+            $line_items = $invoice->line_items;
+            $line_items[0]->tax_name1 = 'VAT';
+            $line_items[0]->tax_rate1 = $tax_rate;
+            $invoice->line_items = $line_items;
+            $invoice = $invoice->calc()->getInvoice();
+            $invoice->save();
+        }
+
+        $payment_amount ??= (float) $invoice->amount;
+        $payment = app(PaymentRepository::class)->save([
+            'amount' => $payment_amount,
+            'client_id' => $client->id,
+            'currency_id' => 3,
+            'exchange_currency_id' => 1,
+            'exchange_rate' => $exchange_rate,
+            'date' => '2026-01-10',
+            'invoices' => [['invoice_id' => $invoice->id, 'amount' => $payment_amount]],
+        ], PaymentFactory::create($this->company->id, $this->user->id, $client->id));
+
+        return [$invoice, $payment];
     }
 
     private function createZeroTaxInvoice(Client $client, string $date, float $amount): Invoice

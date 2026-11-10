@@ -39,6 +39,7 @@ class OpenApiTransformerTest extends TestCase
     /** Transformer => the component schema documenting its output. */
     private const SCHEMAS = [
         'AccountTransformer' => 'Account',
+        'AuthenticatedCompanyUserTransformer' => 'CompanyUser',
         'ActivityTransformer' => 'Activity',
         'BankIntegrationTransformer' => 'BankIntegration',
         'BankTransactionRuleTransformer' => 'BankTransactionRule',
@@ -50,7 +51,6 @@ class OpenApiTransformerTest extends TestCase
         'CompanyLedgerTransformer' => 'CompanyLedger',
         'CompanyTokenTransformer' => 'CompanyToken',
         'CompanyTransformer' => 'Company',
-        'CompanyUserTransformer' => 'CompanyUser',
         'CreditInvitationTransformer' => 'CreditInvitation',
         'CreditTransformer' => 'Credit',
         'DesignTransformer' => 'Design',
@@ -84,10 +84,18 @@ class OpenApiTransformerTest extends TestCase
         'WebhookTransformer' => 'Webhook',
     ];
 
-    /** Further schemas documenting a transformer's output: schema => transformer. */
+    /**
+     * Further schemas documenting a transformer's output: schema => transformer.
+     * The *Profile transformers redact the values of nested users, clients, contacts
+     * and projects but return the same keys, so the full schema documents them too.
+     */
     private const ALSO_DOCUMENTED = [
         'CompanyUserRef' => 'CompanyUserTransformer',
         'UserRef' => 'UserTransformer',
+        'User (profile)' => 'UserProfileTransformer',
+        'Client (profile)' => 'ClientProfileTransformer',
+        'ClientContact (profile)' => 'ClientContactProfileTransformer',
+        'Project (profile)' => 'ProjectProfileTransformer',
     ];
 
     /**
@@ -106,7 +114,6 @@ class OpenApiTransformerTest extends TestCase
     private const UNDOCUMENTED = [
         'ArraySerializer' => 'serializer, not a transformer',
         'EntityTransformer' => 'base class',
-        'AuthenticatedCompanyUserTransformer' => 'login/refresh payload, documented by the CompanyUser schema',
         'ClientContactLoginTransformer' => 'client portal only',
         'CompanyTokenHashedTransformer' => 'CompanyToken with the token masked',
         'GatewayTransformer' => 'statics only',
@@ -183,13 +190,13 @@ class OpenApiTransformerTest extends TestCase
     {
         $files = array_map(fn ($f) => basename($f, '.php'), glob(dirname(__DIR__, 2) . '/app/Transformers/*.php'));
 
-        $this->assertEqualsCanonicalizing($files, array_merge(array_keys(self::SCHEMAS), array_keys(self::UNDOCUMENTED)));
+        $this->assertEqualsCanonicalizing($files, array_unique(array_merge(array_keys(self::SCHEMAS), array_values(self::ALSO_DOCUMENTED), array_keys(self::UNDOCUMENTED))));
     }
 
     #[DataProvider('transformers')]
     public function testSchemaMatchesTransformer(string $transformer, string $schema_name): void
     {
-        $properties = $this->schemas()[$schema_name]['properties'] ?? [];
+        $properties = $this->schemas()[preg_replace('/ \(.*\)$/', '', $schema_name)]['properties'] ?? [];
         [$fields, $default_includes, $available_includes] = $this->parse($transformer);
         $fields += array_fill_keys(self::DYNAMIC_KEYS[$transformer] ?? [], 'string');
 
@@ -202,7 +209,8 @@ class OpenApiTransformerTest extends TestCase
         }
 
         // Request-only inputs belong in the {Schema}Request schemas, not here.
-        foreach (array_keys($properties) as $property) {
+        // A profile transformer offers fewer includes than the one whose schema it shares.
+        foreach (str_ends_with($schema_name, ' (profile)') ? [] : array_keys($properties) as $property) {
             if (! array_key_exists($property, $fields) && ! in_array($property, $default_includes) && ! in_array($property, $available_includes)) {
                 $problems[] = "{$property} is documented but {$transformer} never returns it";
             }
@@ -255,14 +263,36 @@ class OpenApiTransformerTest extends TestCase
 
         $class = $finder->findFirstInstanceOf($ast, Stmt\Class_::class);
         $transform = $class->getMethod('transform');
-        $fields = [];
 
-        // Arrays built in transform(): the returned literal, or $data = [...] plus $data['key'] = ... assignments
-        foreach ($finder->find($transform->stmts, fn (Node $n) => $n instanceof Stmt\Return_ || $n instanceof Expr\Assign) as $node) {
+        // A subclass such as ClientProfileTransformer inherits transform() and the includes it doesn't redeclare.
+        $parent_name = $class->extends?->toString();
+        $parent = $parent_name && $parent_name !== 'EntityTransformer' ? $this->parse($parent_name) : [[], [], []];
+
+        $fields = $transform ? [] : $parent[0];
+
+        // Arrays built in transform(): the returned literal, or $data = [...] plus $data['key'] = ... assignments,
+        // or array_merge(parent::transform(...), [...]) overriding some of the parent's values.
+        foreach ($transform ? $finder->find($transform->stmts, fn (Node $n) => $n instanceof Stmt\Return_ || $n instanceof Expr\Assign) : [] as $node) {
             if ($node instanceof Expr\Assign && $node->var instanceof Expr\ArrayDimFetch && $node->var->dim instanceof Node\Scalar\String_) {
                 $fields[$node->var->dim->value] = $this->type($node->expr);
-            } elseif ($node->expr instanceof Expr\Array_ && ($node instanceof Stmt\Return_ || $node->var instanceof Expr\Variable)) {
-                foreach ($node->expr->items as $item) {
+                continue;
+            }
+
+            $arrays = [];
+            if ($node->expr instanceof Expr\Array_ && ($node instanceof Stmt\Return_ || $node->var instanceof Expr\Variable)) {
+                $arrays = [$node->expr];
+            } elseif ($node instanceof Stmt\Return_ && $node->expr instanceof Expr\FuncCall && $node->expr->name instanceof Node\Name && $node->expr->name->toString() === 'array_merge') {
+                foreach ($node->expr->args as $arg) {
+                    if ($arg->value instanceof Expr\StaticCall && $arg->value->class instanceof Node\Name && $arg->value->class->toString() === 'parent') {
+                        $fields += $parent[0];
+                    } elseif ($arg->value instanceof Expr\Array_) {
+                        $arrays[] = $arg->value;
+                    }
+                }
+            }
+
+            foreach ($arrays as $array) {
+                foreach ($array->items as $item) {
                     if ($item?->key instanceof Node\Scalar\String_) {
                         $fields[$item->key->value] = $this->type($item->value);
                     }
@@ -270,12 +300,11 @@ class OpenApiTransformerTest extends TestCase
             }
         }
 
-        $includes = fn (string $name) => array_map(
-            fn ($item) => $item->value->value,
-            $class->getProperty($name)?->props[0]->default?->items ?? []
-        );
+        $includes = fn (string $name, int $inherited) => ($property = $class->getProperty($name))
+            ? array_map(fn ($item) => $item->value->value, $property->props[0]->default?->items ?? [])
+            : $parent[$inherited];
 
-        return [$fields, $includes('defaultIncludes'), $includes('availableIncludes')];
+        return [$fields, $includes('defaultIncludes', 1), $includes('availableIncludes', 2)];
     }
 
     private function type(Expr $expr): ?string

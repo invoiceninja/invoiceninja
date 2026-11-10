@@ -1,0 +1,7 @@
+    DocumentUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        is_public:
+          type: boolean

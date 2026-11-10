@@ -289,11 +289,9 @@ class QuoteController extends Controller
             ->where('company_id', auth()->guard('contact')->user()->client->company_id)
             ->whereIn('status_id', [Quote::STATUS_DRAFT, Quote::STATUS_SENT])
             ->whereNull('invoice_id')
-            ->where(function ($q) {
-                $q->whereNull('due_date')->orWhere('due_date', '>=', now());
-            })
             ->withTrashed()
-            ->get();
+            ->get()
+            ->reject(fn (Quote $quote) => $quote->hasLapsedValidUntil());
 
         if ($quotes->isEmpty()) {
             return redirect()

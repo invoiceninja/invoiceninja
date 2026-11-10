@@ -137,4 +137,15 @@ class UpdateEInvoiceConfiguration extends Request
             default => $user->company(),
         };
     }
+
+    public function getEntity()
+    {
+        return match ($this->entity) {
+            'company' => auth()->user()->company(),
+            'invoice' => Invoice::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first(),
+            'client' => Client::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first(),
+            default => auth()->user()->company(),
+        };
+
+    }
 }

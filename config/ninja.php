@@ -28,7 +28,7 @@ return [
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
     'app_version' => env('APP_VERSION', '5.13.53'),
     'app_tag' => env('APP_TAG', '5.13.53'),
-    'minimum_client_version' => '5.0.16',
+    'minimum_client_version' => '5.0.203',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),

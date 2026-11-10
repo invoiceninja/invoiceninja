@@ -6561,6 +6561,7 @@ $lang = array(
     'oidc_missing_code' => 'The sign-in code is missing. Please return to the login page and try again.',
     'oidc_no_token' => 'No authentication token was returned. Please return to the login page and try again.',
     'back_to_login' => 'Back to login',
+    'paid_in_full' => 'Paid in full',
 
 );
 

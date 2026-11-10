@@ -199,6 +199,7 @@ class SendRecurring implements ShouldQueue
             $ii->key = $this->createDbHash($invoice->company->db);
             $ii->invoice_id = $invoice->id;
             $ii->client_contact_id = $recurring_invitation->client_contact_id;
+            $ii->can_sign = $recurring_invitation->can_sign;
             $ii->save();
         });
 

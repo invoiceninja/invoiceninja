@@ -324,7 +324,19 @@ class ProfitLoss
             ->orderBy('period')
             ->orderBy('id')
             ->get();
-        $rows = app(CashTaxEventProjector::class)->project($events, $start_date, $end_date);
+        $payment_exchange_rates = Payment::query()
+            ->withTrashed()
+            ->where('company_id', $this->company->id)
+            ->whereIn('id', $events->pluck('payment_id')->filter()->unique())
+            ->pluck('exchange_rate', 'id')
+            ->map(fn ($exchange_rate): float => (float) ($exchange_rate ?: 1))
+            ->all();
+        $rows = app(CashTaxEventProjector::class)->project(
+            $events,
+            $start_date,
+            $end_date,
+            $payment_exchange_rates,
+        );
 
         foreach ($rows as $row) {
             $map = new \stdClass();

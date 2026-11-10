@@ -1,0 +1,68 @@
+
+  '/api/v1/emails/clientHistory/{client}':
+    post:
+      tags:
+        - emails
+      summary: 'Get client email history'
+      description: 'Read-only POST. Requires view access to the client.'
+      operationId: getClientEmailHistory
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/emails/entityHistory:
+    post:
+      tags:
+        - emails
+      summary: 'Get entity email history'
+      description: 'Read-only POST. The entity must belong to the authenticated company.'
+      operationId: getEntityEmailHistory
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityEmailHistoryRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'

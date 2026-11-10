@@ -1,0 +1,17 @@
+    EntityEmailHistoryRequest:
+      type: object
+      properties:
+        entity:
+          type: string
+          enum:
+            - invoice
+            - quote
+            - credit
+            - recurring_invoice
+            - purchase_order
+        entity_id:
+          type: string
+          description: 'Entity hashed ID belonging to the authenticated company.'
+      required:
+        - entity
+        - entity_id

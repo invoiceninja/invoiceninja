@@ -133,8 +133,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\WebCronController;
 use App\Http\Controllers\WebhookController;
-use App\Models\Location;
-use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\PaymentDrivers\PayPalPPCPPaymentDriver;
 use Illuminate\Support\Facades\Route;
 
@@ -566,3 +564,8 @@ Route::get('/health', function () {
         'message' => 'API is healthy',
     ]);
 })->middleware('throttle:20,1');
+
+// Native, opt-in, stateless Streamable HTTP. All verbs are authenticated.
+Route::middleware([\App\Mcp\Authenticate::class, 'throttle:api'])->group(function () {
+    \Laravel\Mcp\Facades\Mcp::web('api/v1/mcp', \App\Mcp\InvoiceNinjaServer::class)->name('api.mcp');
+});
