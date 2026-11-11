@@ -78,6 +78,77 @@ class MerchantApi
     }
 
     /**
+     * @see https://developer.revolut.com/docs/api/merchant#update-an-order
+     */
+    public function updateOrder(string $order_id, array $payload): bool
+    {
+        return (bool) $this->send('patch', '/api/orders/' . rawurlencode($order_id), $payload)?->successful();
+    }
+
+    /**
+     * Pay an order with a saved payment method.
+     *
+     * @see https://developer.revolut.com/docs/api/merchant#pay-for-an-order
+     */
+    public function payOrder(string $order_id, array $saved_payment_method): ?Response
+    {
+        return $this->send('post', '/api/orders/' . rawurlencode($order_id) . '/payments', [
+            'saved_payment_method' => $saved_payment_method,
+        ]);
+    }
+
+    /**
+     * The new customer's id, or null when it could not be created.
+     *
+     * @see https://developer.revolut.com/docs/api/merchant#create-a-customer
+     */
+    public function createCustomer(array $payload): ?string
+    {
+        $response = $this->send('post', '/api/customers', $payload);
+
+        if (! $response?->successful() || ! $response->json('id')) {
+            nlog('Revolut: could not create customer: ' . ($response ? $response->body() : 'no response'));
+
+            return null;
+        }
+
+        return (string) $response->json('id');
+    }
+
+    /**
+     * The payment methods saved on a customer.
+     *
+     * @see https://developer.revolut.com/docs/api/merchant#retrieve-payment-method-list
+     */
+    public function savedPaymentMethods(string $customer_id): array
+    {
+        return $this->send('get', '/api/customers/' . rawurlencode($customer_id) . '/payment-methods')?->json('payment_methods') ?? [];
+    }
+
+    /**
+     * @see https://developer.revolut.com/docs/api/merchant#delete-a-customers-payment-method
+     */
+    public function deleteSavedPaymentMethod(string $customer_id, string $payment_method_id): bool
+    {
+        $response = $this->send('delete', '/api/customers/' . rawurlencode($customer_id) . '/payment-methods/' . rawurlencode($payment_method_id));
+
+        return $response?->successful() || $response?->status() === 404;
+    }
+
+    /**
+     * Revolut's checkout script and the mode it expects, for the selected environment.
+     */
+    public function embedScriptUrl(): string
+    {
+        return $this->baseUrl() . '/embed.js';
+    }
+
+    public function mode(): string
+    {
+        return $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'prod';
+    }
+
+    /**
      * Whether the API key is accepted in the selected environment.
      */
     public function credentialsWork(): bool
