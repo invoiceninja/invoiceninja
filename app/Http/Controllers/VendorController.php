@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,6 +26,7 @@ use App\Repositories\VendorRepository;
 use App\Events\Vendor\VendorWasCreated;
 use App\Events\Vendor\VendorWasUpdated;
 use App\Transformers\VendorTransformer;
+use App\Http\Requests\Vendor\BulkVendorRequest;
 use App\Http\Requests\Vendor\EditVendorRequest;
 use App\Http\Requests\Vendor\ShowVendorRequest;
 use App\Http\Requests\Vendor\PurgeVendorRequest;
@@ -102,7 +103,7 @@ class VendorController extends BaseController
      */
     public function index(VendorFilters $filters)
     {
-        $vendors = Vendor::filter($filters);
+        $vendors = Vendor::filter($filters)->with('tags');
 
         return $this->listResponse($vendors);
     }
@@ -495,12 +496,12 @@ class VendorController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkVendorRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
-        $vendors = Vendor::withTrashed()->find($this->transformKeys($ids));
+        $ids = $request->input('ids');
+        $vendors = Vendor::withTrashed()->company()->find($ids);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -511,7 +512,7 @@ class VendorController extends BaseController
             }
         });
 
-        return $this->listResponse(Vendor::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Vendor::withTrashed()->company()->whereIn('id', $ids));
     }
 
     /**
@@ -581,7 +582,7 @@ class VendorController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $vendor, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $vendor, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($vendor->fresh());

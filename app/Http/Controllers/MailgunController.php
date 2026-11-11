@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,9 +28,7 @@ class MailgunController extends BaseController
 {
     use SavesDocuments;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Process Mailgun Webhook.
@@ -71,13 +69,15 @@ class MailgunController extends BaseController
 
         $input = $request->all();
 
-        nlog($input);
-
         if (\abs(\time() - $request['signature']['timestamp']) > 15) {
             return response()->json(['message' => 'Success'], 200);
         }
 
-        if (\hash_equals(\hash_hmac('sha256', $input['signature']['timestamp'] . $input['signature']['token'], config('services.mailgun.webhook_signing_key')), $input['signature']['signature'])) {
+        if ($this->isAuthorizedByMailgunHash(
+            $input['signature']['timestamp'] ?? null,
+            $input['signature']['token'] ?? null,
+            $input['signature']['signature'] ?? null,
+        )) {
             ProcessMailgunWebhook::dispatch($request->all())->delay(rand(2, 10));
         }
 
@@ -126,8 +126,20 @@ class MailgunController extends BaseController
     {
         $input = $request->all();
 
-        $authorizedByHash = \hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature']);
-        $authorizedByToken = $request->has('token') && $request->get('token') == config('ninja.inbound_mailbox.inbound_webhook_token');
+        $authorizedByHash = $this->isAuthorizedByMailgunHash(
+            $input['timestamp'] ?? null,
+            $input['token'] ?? null,
+            $input['signature'] ?? null,
+        );
+        // Mailgun also posts a HMAC nonce as `token`; the inbound mailbox
+        // shared secret is expected as a query parameter, so do not fall back
+        // to the body field.
+        $inbound_token = config('ninja.inbound_mailbox.inbound_webhook_token');
+        $provided_token = $request->query('token');
+        $authorizedByToken = filled($inbound_token)
+            && is_string($provided_token)
+            && \hash_equals((string) $inbound_token, $provided_token);
+
         if (!$authorizedByHash && !$authorizedByToken) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -150,5 +162,19 @@ class MailgunController extends BaseController
         ProcessMailgunInboundWebhook::dispatch($input["sender"], $input["recipient"], $input["message-url"])->delay(rand(2, 10));
 
         return response()->json(['message' => 'Success.'], 200);
+    }
+
+    private function isAuthorizedByMailgunHash(mixed $timestamp, mixed $token, mixed $signature): bool
+    {
+        $signing_key = config('services.mailgun.webhook_signing_key');
+
+        if (!filled($signing_key) || $timestamp === null || $token === null || $signature === null || is_array($signature)) {
+            return false;
+        }
+
+        return \hash_equals(
+            \hash_hmac('sha256', (string) $timestamp . (string) $token, $signing_key),
+            (string) $signature
+        );
     }
 }

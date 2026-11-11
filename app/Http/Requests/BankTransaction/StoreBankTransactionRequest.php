@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -19,6 +19,9 @@ use App\Utils\Traits\MakesHash;
 class StoreBankTransactionRequest extends Request
 {
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = BankTransaction::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -41,11 +44,11 @@ class StoreBankTransactionRequest extends Request
 
         $rules = [];
 
-        $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,' . $user->company()->id . ',is_deleted,0';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'nullable', 'max:99999999999999'];
         $rules['base_type'] = ['required','in:debit,credit,DEBIT,CREDIT', 'bail'];
-        
-        return $rules;
+
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -58,6 +61,7 @@ class StoreBankTransactionRequest extends Request
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
 
+        $input = $this->decodePrimaryKeys($input);
 
         $this->replace($input);
     }

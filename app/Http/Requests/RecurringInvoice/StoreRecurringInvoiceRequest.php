@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,6 +24,9 @@ class StoreRecurringInvoiceRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = RecurringInvoice::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -51,12 +54,12 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
+        $rules['client_id'] = 'required|integer|exists:clients,id,company_id,' . $user->company()->id;
 
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
-        $rules['frequency_id'] = 'required|integer|digits_between:1,12';
+        $rules['frequency_id'] = 'required|integer|between:1,12';
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
@@ -73,14 +76,15 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['next_send_date'] = 'bail|required|date|after_or_equal:yesterday';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
-        $rules['vendor_id'] = ['nullable', 'sometimes','bail', Rule::exists('vendors', 'id')->where('company_id', $user->company()->id)];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
+        $input = $this->decodePrimaryKeys($input);
+
         $input['amount'] = 0;
         $input['balance'] = 0;
 
@@ -105,55 +109,6 @@ class StoreRecurringInvoiceRequest extends Request
             $input['next_send_date_client'] = $input['next_send_date'];
         }
 
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (array_key_exists('vendor_id', $input) && is_string($input['vendor_id'])) {
-            $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
-        }
-
-
-        if (array_key_exists('location_id', $input) && is_string($input['location_id'])) {
-            $input['location_id'] = $this->decodePrimaryKey($input['location_id']);
-        }
-
-        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
-            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
-        }
-
-        if (isset($input['client_contacts'])) {
-            foreach ($input['client_contacts'] as $key => $contact) {
-                if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {
-                    unset($input['client_contacts'][$key]);
-                }
-            }
-        }
-
-        if (isset($input['invitations'])) {
-            foreach ($input['invitations'] as $key => $value) {
-                if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
-                    unset($input['invitations'][$key]['id']);
-                }
-
-                if (isset($input['invitations'][$key]['id']) && is_string($input['invitations'][$key]['id'])) {
-                    $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
-                }
-
-                if (is_string($input['invitations'][$key]['client_contact_id'])) {
-                    $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
-                }
-            }
-        }
-
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['line_items'] = $this->cleanFeeItems($input['line_items']);
 
@@ -170,14 +125,14 @@ class StoreRecurringInvoiceRequest extends Request
         }
 
         /* If there is no number, just unset it here. */
-        if (array_key_exists('number', $input) && (is_null($input['number']) || empty($input['number']))) {
+        if (array_key_exists('number', $input) && ($input['number'] === null || $input['number'] === '')) {
             unset($input['number']);
         }
 
         if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0)) {
             $input['exchange_rate'] = 1;
         }
-        
+
         $this->replace($input);
     }
 

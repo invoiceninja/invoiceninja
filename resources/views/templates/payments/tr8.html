@@ -129,6 +129,7 @@
             {% if payments is defined and payments is not empty %}
             {% set totalInvoices = 0 %}
             {% set totalRefunds = 0 %}
+            {% set first_payment = payments|first %}
             {% for payment in payments %}
             {% for pivot in payment.paymentables|filter((pivot) => (pivot.is_credit == '0'
             and pivot.refunded_raw > 0)) %}
@@ -158,13 +159,13 @@
                     <p class="primary-color-highlight">$invoices_label:</p>
                 </div>
                 <div style="display:flex; margin-top:1rem;">
-                    <p style="">{{ totalInvoices|format_currency(currency_code) }}</p>
+                    <p style="">{{ totalInvoices|format_currency(first_payment.currency) }}</p>
                 </div>
                 <div style="display:flex; margin-top:1rem">
                     <p class="primary-color-highlight">$refund_label:</p>
                 </div>
                 <div style="display:flex; margin-top:1rem;">
-                    <p style="">{{ totalRefunds|format_currency(currency_code) }}</p>
+                    <p style="">{{ totalRefunds|format_currency(first_payment.currency) }}</p>
                 </div>
             </div>
 

@@ -23,6 +23,12 @@ class CompareCollectionTest extends TestCase
 {
     use MakesHash;
 
+    public $map;
+    public $view_permission;
+    public $edit_permission;
+    public $is_admin;
+    public $is_not_admin;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,6 +50,17 @@ class CompareCollectionTest extends TestCase
         $this->is_admin = true;
 
         $this->is_not_admin = false;
+    }
+
+    public function testCollectionDistinct()
+    {
+
+        $map = collect(['abba','abba','abba']);
+
+        $this->assertCount(3, $map);
+
+        $this->assertCount(1, $map->unique());
+
     }
 
     public function testCollectionCreation()

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,7 +50,7 @@ class ProductExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($resource) {
 
                     /** @var \App\Models\Product $resource */
@@ -75,6 +75,7 @@ class ProductExport extends BaseExport
         }
 
         $query = Product::query()
+                        ->with('tags')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
 
@@ -83,6 +84,7 @@ class ProductExport extends BaseExport
         }
 
         $query = $this->addDateRange($query, 'products');
+        $query = $this->addTagFilter($query);
         $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {
@@ -105,7 +107,7 @@ class ProductExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($entity) {
 
                   /** @var \App\Models\Product $entity */
@@ -115,7 +117,7 @@ class ProductExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Product $product): array
+    protected function buildRow(Product $product): array
     {
         $transformed_entity = $this->entity_transformer->transform($product);
 

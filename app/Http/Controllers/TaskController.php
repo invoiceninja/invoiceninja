@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,7 +105,7 @@ class TaskController extends BaseController
      */
     public function index(TaskFilters $filters)
     {
-        $tasks = Task::filter($filters);
+        $tasks = Task::filter($filters)->with(['tags', 'project.tags']);
 
         return $this->listResponse($tasks);
     }
@@ -281,14 +281,13 @@ class TaskController extends BaseController
         //2025-07-31 - if the start or stop query parameter is not present, then we need to save the task
         if (!($request->query('start', false) || $request->query('stop', false))) {
             $task = $this->task_repo->save($request_data, $task);
-        }
-        else {
-            
+        } else {
+
             $task = $this->task_repo->triggeredActions($request, $task);
-        
+
             /*
             *
-            *  2025-10-30 - if the start or stop query parameter is present, 
+            *  2025-10-30 - if the start or stop query parameter is present,
             * then we need to trigger the actions and save the task
             * but we need to remove the time_log from the request data
             * because it will be updated by the triggeredActions method.
@@ -296,7 +295,7 @@ class TaskController extends BaseController
             * Handles the scenario where the description is updated and then start/stop is pressed
             */
 
-            if(isset($request_data['time_log'])) {
+            if (isset($request_data['time_log'])) {
                 unset($request_data['time_log']);
             }
 
@@ -536,7 +535,7 @@ class TaskController extends BaseController
 
         $_tasks = (clone $tasks);
 
-        if ($request->action == 'bulk_update' && $user->can('edit', $_tasks->first())) {
+        if ($request->action == 'bulk_update') {
 
             $this->task_repo->bulkUpdate($tasks, $request->column, $request->new_value);
 
@@ -570,7 +569,7 @@ class TaskController extends BaseController
             }
         });
 
-        return $this->listResponse(Task::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Task::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**
@@ -630,7 +629,7 @@ class TaskController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $task, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $task, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($task->fresh());
@@ -694,13 +693,13 @@ class TaskController extends BaseController
         foreach ($tasks as $key => $task_list) {
             $sort_status_id = $this->decodePrimaryKey($key);
 
-            foreach ($task_list as $key => $task) {
+            foreach ($task_list as $_key => $task) {
                 $task_record = Task::query()->where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', $user->company()->id)
                              ->withTrashed()
                              ->first();
 
-                $task_record->status_order = $key;
+                $task_record->status_order = $_key;
                 $task_record->status_id = $sort_status_id;
                 $task_record->save();
             }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,6 +23,8 @@ class BankTransactionRepository extends BaseRepository
 {
     public function save($data, BankTransaction $bank_transaction)
     {
+        $tag_ids = $this->resolveTagIdsForSync($data, $bank_transaction);
+
         if (array_key_exists('bank_integration_id', $data)) {
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
         }
@@ -31,6 +33,8 @@ class BankTransactionRepository extends BaseRepository
         $bank_transaction->save();
 
         $bank_transaction->service()->processRules();
+
+        $this->syncResolvedTags($bank_transaction, $tag_ids);
 
         return $bank_transaction->fresh();
     }
@@ -67,9 +71,10 @@ class BankTransactionRepository extends BaseRepository
             $bt->payment_id = null;
         }
 
-        $e = Expense::query()->whereIn('id', $this->transformKeys(explode(",", $bt->expense_id)))
-        ->cursor()
-        ->each(function ($expense) {
+        $e = Expense::query()
+                    ->whereIn('id', $this->transformKeys(explode(",", $bt->expense_id ?? '')))
+                    ->cursor()
+                    ->each(function ($expense) {
 
             $expense->transaction_id = null;
             $expense->saveQuietly();

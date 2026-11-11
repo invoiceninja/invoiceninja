@@ -8,7 +8,6 @@
     }
 
     html {
-        width: 210mm;
         height: 200mm;
     }
 
@@ -38,6 +37,10 @@
     p {
         margin: 0;
         padding: 0;
+    }
+
+    [data-state="encoded-html"] > p + p {
+        margin-top: 1em;
     }
 
     #qr-bill {

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -78,9 +78,7 @@ class WePayPaymentDriver extends BaseDriver
      * @param  array $data user_id + company
      * @return void
      */
-    public function setup(array $data)
-    {
-    }
+    public function setup(array $data) {}
 
     /**
      * Set the payment method
@@ -151,7 +149,7 @@ class WePayPaymentDriver extends BaseDriver
         return $this->payment_method->tokenBilling($cgt, $payment_hash);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentWebhookRequest $request, ?Payment $payment = null)
     {
         $this->init();
     }

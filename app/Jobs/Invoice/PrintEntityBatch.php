@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,9 +40,7 @@ class PrintEntityBatch implements ShouldQueue
     use SerializesModels;
     use Batchable;
 
-    public function __construct(private mixed $class, private array $entity_ids, private string $db)
-    {
-    }
+    public function __construct(private mixed $class, private array $entity_ids, private string $db) {}
 
     public function handle()
     {
@@ -51,13 +49,25 @@ class PrintEntityBatch implements ShouldQueue
 
         $batch_key = Str::uuid();
 
-        $invites = $this->class::with('invitations')->withTrashed()
+        $invites = $this->class::with('invitations')
+                        ->withTrashed()
                         ->whereIn('id', $this->entity_ids)
                         ->get()
                         ->map(function ($entity) use ($batch_key) {
-                            return new CreateBatchablePdf($entity->invitations->first(), "{$batch_key}-{$entity->id}");
-                        })->toArray();
 
+                            $invitation = $entity->invitations->first() ?? $entity->invitations()->withTrashed()->first();
+                            
+                            if (!$invitation) {
+                                return null;
+                            }
+
+                            return new CreateBatchablePdf($invitation, "{$batch_key}-{$entity->id}");
+
+                        })
+                        ->filter()
+                        ->values()
+                        ->toArray();
+                                    
         $mergedPdf = null;
 
         $batch = Bus::batch($invites)

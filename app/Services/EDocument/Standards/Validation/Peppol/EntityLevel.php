@@ -5,14 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
-use XSLTProcessor;
+use App\Services\EDocument\Support\GlnIdentifier;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -22,46 +22,18 @@ use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\RecurringInvoice;
 use Illuminate\Support\Facades\App;
+use App\Services\EDocument\UblDocumentKind;
 use App\Services\EDocument\Standards\Peppol;
 use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
+use App\Services\EDocument\Standards\Peppol\FI as FinlandCountryHandler;
+use App\Services\EDocument\Standards\Peppol\CountryFactory;
+use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 
 class EntityLevel implements EntityLevelInterface
 {
-    private array $eu_country_codes = [
-            'AT', // Austria
-            'BE', // Belgium
-            'BG', // Bulgaria
-            'CY', // Cyprus
-            'CZ', // Czech Republic
-            'DE', // Germany
-            'DK', // Denmark
-            'EE', // Estonia
-            'ES', // Spain
-            'ES-CN', // Canary Islands
-            'ES-CE', // Ceuta
-            'ES-ML', // Melilla
-            'FI', // Finland
-            'FR', // France
-            'GR', // Greece
-            'HR', // Croatia
-            'HU', // Hungary
-            'IE', // Ireland
-            'IT', // Italy
-            'LT', // Lithuania
-            'LU', // Luxembourg
-            'LV', // Latvia
-            'MT', // Malta
-            'NL', // Netherlands
-            'PL', // Poland
-            'PT', // Portugal
-            'RO', // Romania
-            'SE', // Sweden
-            'SI', // Slovenia
-            'SK', // Slovakia
-    ];
-
     private array $client_fields = [
         'address1',
         'city',
@@ -89,7 +61,7 @@ class EntityLevel implements EntityLevelInterface
 
     private array $errors = [];
 
-    public function __construct()
+    public function __construct(private ?StorecoveIdentifierValidator $identifierValidator = null)
     {
     }
 
@@ -107,6 +79,7 @@ class EntityLevel implements EntityLevelInterface
     public function checkClient(Client $client): array
     {
         $this->init($client->locale());
+
         $this->errors['client'] = $this->testClientState($client);
         $this->errors['passes'] = count($this->errors['client']) == 0;
 
@@ -130,7 +103,19 @@ class EntityLevel implements EntityLevelInterface
         return ['passes' => true];
     }
 
-    public function checkInvoice(Invoice | Credit $invoice): array
+    public function checkCredit(Credit $credit): array
+    {
+        $result = $this->checkInvoice($credit);
+
+        $result['credit'] = $result['invoice'] ?? [];
+        $result['invoice'] = [];
+        $result['client'] = $result['client'] ?? [];
+        $result['company'] = $result['company'] ?? [];
+
+        return $result;
+    }
+
+    public function checkInvoice(Invoice|Credit $invoice): array
     {
         $this->init($invoice->client->locale());
 
@@ -140,6 +125,21 @@ class EntityLevel implements EntityLevelInterface
 
         if (count($this->errors['client']) > 0) {
 
+            $this->errors['passes'] = false;
+            return $this->errors;
+
+        }
+
+        // Line item prices may never be negative for Peppol (schematron
+        // BR-27/BR-28), for invoices and credit notes alike. Reductions must be
+        // expressed with a negative quantity or a discount/allowance, so we
+        // reject negative prices up front with a clear, actionable message
+        // instead of letting them fail deep in the schematron.
+        $negative_price_errors = $this->testNegativeLinePrices($invoice);
+
+        if (count($negative_price_errors) > 0) {
+
+            $this->errors['invoice'] = $negative_price_errors;
             $this->errors['passes'] = false;
             return $this->errors;
 
@@ -160,7 +160,7 @@ class EntityLevel implements EntityLevelInterface
             }
 
         } catch (PeppolValidationException $e) {
-            $this->errors['invoice'] = ['field' => $e->getInvalidField(), 'label' => $e->getInvalidField()];
+            $this->errors['invoice'][] = $e->getInvalidField();
         } catch (\Throwable $th) {
 
         }
@@ -192,6 +192,53 @@ class EntityLevel implements EntityLevelInterface
 
     }
 
+    /**
+     * A Peppol item net/gross price may never be negative (schematron
+     * BR-27/BR-28), for both invoices and credit notes. When a line carries a
+     * negative price the document only fails deep in the schematron with an
+     * opaque message, so we surface a clear error here instead.
+     *
+     * Blank rows are skipped: they are dropped from the Peppol document by
+     * PeppolLineBuilder::isBlankItem() and never emit a price, so their sign is
+     * irrelevant and flagging them would be a false positive.
+     *
+     * @param  Invoice|Credit $invoice
+     * @return array
+     */
+    private function testNegativeLinePrices(Invoice|Credit $invoice): array
+    {
+        foreach ((array) $invoice->line_items as $item) {
+
+            if ($this->isBlankLineItem($item)) {
+                continue;
+            }
+
+            if ((float) ($item->cost ?? 0) < 0) {
+                // Credit notes (and negative invoices emitted as credit notes) project
+                // negative cost into CreditedQuantity sign — PriceAmount stays ≥ 0.
+                if (!UblDocumentKind::fromEntity($invoice)->isCreditNote()) {
+                    return [ctrans('texts.peppol_negative_line_price')];
+                }
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Mirrors PeppolLineBuilder::isBlankItem() - a row with a near-zero cost and
+     * no usable tax name is dropped from the Peppol document, so it never emits
+     * a price to validate against.
+     *
+     * @param  object $item
+     * @return bool
+     */
+    private function isBlankLineItem(object $item): bool
+    {
+        return abs((float) ($item->cost ?? 0)) < 0.005
+            && strlen((string) ($item->tax_name1 ?? '')) <= 1;
+    }
+
     private function testClientState(Client $client): array
     {
 
@@ -203,7 +250,8 @@ class EntityLevel implements EntityLevelInterface
                 continue;
             }
 
-            if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->address1 ?? '') < 2) {
+            if (in_array($field, ['address1', 'address2', 'city', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
+                // if (in_array($field, ['address1', 'address2', 'city', 'state', 'postal_code']) && strlen($client->{$field} ?? '') < 2) {
                 $errors[] = ['field' => $field, 'label' => ctrans("texts.{$field}")];
             }
 
@@ -213,9 +261,9 @@ class EntityLevel implements EntityLevelInterface
 
         }
 
-        //If not an individual, you MUST have a VAT number if you are in the EU
-        if (!in_array($client->classification, ['government', 'individual']) && in_array($client->country->iso_3166_2, $this->eu_country_codes) && !$this->validString($client->vat_number)) {
-            $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
+        if (!$client->country) {
+            $errors[] = ['field' => 'country_id', 'label' => ctrans("texts.country")];
+            return $errors;
         }
 
         //Primary contact email is present.
@@ -223,16 +271,166 @@ class EntityLevel implements EntityLevelInterface
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
 
-        $delivery_network_supported = $client->checkDeliveryNetwork();
+        if ($client->country_id && $client->country) { //@phpstan-ignore-line
+            $non_routable = $client->checkDeliveryNetwork();
 
-        if (is_string($delivery_network_supported)) {
-            $errors[] = ['field' => ctrans("texts.country"), 'label' => $delivery_network_supported];
+            if (is_string($non_routable)) {
+                $errors[] = ['field' => 'classification', 'label' => $non_routable];
+            }
         }
 
+        // Identifier validation — offline (no network I/O).
+        // Only runs once all earlier checks pass AND the client's country is on the Peppol network.
+        $peppolCountries = config('einvoice.peppol_network', []);
+        if (count($errors) === 0
+            && is_array($peppolCountries)
+            && in_array($client->country->iso_3166_2, $peppolCountries, true)) {
 
+            $errors = array_merge($errors, $this->testClientIdentifiers($client));
+        }
 
         return $errors;
 
+    }
+
+    /**
+     * Validates that the client can be routed on the Peppol network.
+     *
+     * Country handlers implement receiver-side rules (e.g. OR over candidates for BE,
+     * combined IT:IVA + IT:CUUO for Italy B2B/B2G). Explicit routing_id values are
+     * validated for format first; valid scheme:id fields still delegate to the handler
+     * for composite requirements.
+     *
+     * Offline validation only — no SMP discovery; that is the send-time
+     * RoutingResolver's responsibility.
+     *
+     * @return array<int, array{field: string, label: string}>
+     */
+    private function testClientIdentifiers(Client $client): array
+    {
+        $router         = new StorecoveRouter();
+        $country        = $client->country->iso_3166_2;
+        $classification = $client->classification ?? 'business';
+
+        // FIRST: explicit routing_id override (scheme:id form). If set, it must
+        // validate — malformed routing_id fails here. Valid explicit scheme:id ([]).
+        // ends identifier checks (same as send-time GLN / explicit routing). Bare
+        // routing_id on IT/DE is deferred (null) so composite IT rules still run.
+        $routingError = $this->validateExplicitRoutingId($client);
+        if ($routingError !== null && $routingError !== []) {
+            return [$routingError];
+        }
+
+        if ($routingError === []) {
+            return [];
+        }
+
+        $senderCountry = $client->company?->country()?->iso_3166_2;
+
+        return CountryFactory::make($country)
+            ->validateReceiverRoutingIdentifiers($client, $classification, $router, $senderCountry);
+    }
+
+    /**
+     * Validates an explicit routing_id override on the client.
+     *
+     * Returns:
+     *   - []    → routing_id is set AND valid — caller should return empty (pass).
+     *   - array → routing_id is set AND invalid — caller should return this single error.
+     *   - null  → no routing_id set — caller should fall through to handler candidates.
+     *
+     * A scheme-prefixed routing_id (e.g. "0088:1234567890123") short-circuits
+     * validation: it is what the send-time RoutingResolver tries first.
+     *
+     * @return array{field: string, label: string}|array{}|null
+     */
+    private function validateExplicitRoutingId(Client $client): ?array
+    {
+        $value = trim($client->routing_id ?? '');
+
+        if ($value === '') {
+            return null;
+        }
+
+        // scheme:id form — always validated strictly.
+        if (strpos($value, ':') !== false) {
+            $country = $client->country->iso_3166_2;
+            $classification = $client->classification ?? 'business';
+
+            if ($country === 'FI'
+                && in_array($classification, ['business', 'government'], true)
+                && FinlandCountryHandler::isOvtEndpointRoutingId($value)) {
+                return null;
+            }
+
+            return $this->validateSchemeColonId($value);
+        }
+
+        // Bare value. For countries whose handler natively consumes routing_id
+        // (IT wraps as IT:CUUO; DE government wraps as DE:LWID), let the
+        // handler interpret the raw value — don't guess here.
+        if (CountryFactory::make($client->country->iso_3166_2)
+            ->consumesBareRoutingId($client->classification ?? 'business')) {
+            return null;
+        }
+
+        // Bare value on a country that doesn't natively use routing_id. The
+        // user is attempting an override. Numeric values look like GLN
+        // attempts; give a GLN-specific error so the user knows what to fix.
+        if (ctype_digit($value)) {
+            return [
+                'field' => 'routing_id',
+                'label' => 'For GLN (ICD 0088) use routing_id in the form 0088: followed by exactly 13 digits.',
+            ];
+        }
+
+        return [
+            'field' => 'routing_id',
+            'label' => "routing_id \"{$value}\" must be in scheme:id format (e.g. 0088:5401205000102 for GLN).",
+        ];
+    }
+
+    /**
+     * Validates a "scheme:id" routing_id value.
+     *
+     * @return array{field: string, label: string}|array{} error or [] on pass
+     */
+    private function validateSchemeColonId(string $value): array
+    {
+        $parts = explode(':', $value, 2);
+
+        if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
+            return [
+                'field' => 'routing_id',
+                'label' => ctrans('texts.routing_id') . "'{$value}' must be in scheme:id format (e.g. 0088:5401205000102 for GLN).",
+            ];
+        }
+
+        [$scheme, $id] = $parts;
+        $id = trim($id);
+
+        if ($scheme === '0088') {
+            return GlnIdentifier::tryParse('0088:'.$id) !== null
+                ? []
+                : [
+                    'field' => 'routing_id',
+                    'label' => "routing_id GLN must be 0088: followed by exactly 13 digits. Got \"{$scheme}:{$id}\".",
+                ];
+        }
+
+        if (!$this->identifierValidator()->validFormat($scheme, $id, checkDigit: false)) {
+            return [
+                'field' => 'routing_id',
+                'label' => ctrans('texts.routing_id') . " {$scheme}:{$id} does not match the expected format for {$scheme}.",
+            ];
+        }
+
+        return []; // valid
+    }
+
+    private function identifierValidator(): StorecoveIdentifierValidator
+    {
+        return $this->identifierValidator ??= new StorecoveIdentifierValidator();
     }
 
     private function testCompanyState(mixed $entity): array
@@ -277,22 +475,14 @@ class EntityLevel implements EntityLevelInterface
         }
 
         //test legal entity id present
-        if(intval($company->legal_entity_id) == 0){
+        if (intval($company->legal_entity_id) == 0) {
             $errors[] = ['field' => "You have not registered a legal entity id as yet."];
         }
 
         //If not an individual, you MUST have a VAT number
-        if ($company->getSetting('classification') != 'individual' && !$this->validString($company->getSetting('vat_number'))) {
+        if (!in_array($company->getSetting('classification'), ['other', 'individual']) && !$this->validString($company->getSetting('vat_number'))) {
             $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
-        } elseif ($company->getSetting('classification') == 'individual' && !$this->validString($company->getSetting('id_number'))) {
-            $errors[] = ['field' => 'id_number', 'label' => ctrans("texts.id_number")];
         }
-
-
-        // foreach($this->company_fields as $field)
-        // {
-
-        // }
 
         return $errors;
 
@@ -335,13 +525,13 @@ class EntityLevel implements EntityLevelInterface
         } elseif (in_array($client_country_code, $eu_countries)) {
 
             // First, determine if we're over threshold
-            $is_over_threshold = isset($client->company->tax_data->regions->EU->has_sales_above_threshold) &&
-                                $client->company->tax_data->regions->EU->has_sales_above_threshold;
+            $is_over_threshold = isset($client->company->tax_data->regions->EU->has_sales_above_threshold)
+                               && $client->company->tax_data->regions->EU->has_sales_above_threshold;
 
             // Is this B2B or B2C?
-            $is_b2c = strlen($client->vat_number ?? '') < 2 ||
-                    !($client->has_valid_vat_number ?? false) ||
-                    $client->classification == 'individual';
+            $is_b2c = strlen($client->vat_number ?? '') < 2
+                    || !($client->has_valid_vat_number ?? false)
+                    || $client->classification == 'individual';
 
             // B2C, under threshold, no Company VAT Registerd - must charge origin country VAT
             if ($is_b2c && !$is_over_threshold && strlen($client->company->settings->vat_number ?? '') < 2) {

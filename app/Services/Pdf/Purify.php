@@ -1,9 +1,22 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\Pdf;
 
 class Purify
 {
+    /**
+     * 1×1 transparent PNG used when a remote image cannot be inlined.
+     */
+    private const TRANSPARENT_PNG_DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
     private static array $allowed_elements = [
         // Document structure
         'html', 'head', 'body', 'meta', 'title', 'style',
@@ -18,7 +31,8 @@ class Purify
 
         // Text Elements
         'span', 'strong', 'em', 'b', 'i', 'u', 'small',
-        'sub', 'sup', 'del', 'ins',
+        'sub', 'sup', 'del', 'ins', 'code', 's', 'mark',
+        'abbr', 'q', 'cite',
 
         // Line Breaks
         'br', 'hr',
@@ -28,9 +42,16 @@ class Purify
 
         // Tables
         'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+        'caption', 'colgroup', 'col',
 
         // Media & Links
         'img', 'a',
+
+        // Figures
+        'figure', 'figcaption',
+
+        // Address
+        'address',
 
         // Template specific
         'ninja',
@@ -58,6 +79,7 @@ class Purify
         //SVG
         'd' => ['*'],
         'viewBox' => ['*'],
+        'viewbox' => ['*'], // DOMDocument lowercases viewBox
         'xmlns' => ['http://www.w3.org/2000/svg'],
         'fill' => ['*'],
         'stroke' => ['*'],
@@ -70,6 +92,7 @@ class Purify
         'transform' => ['*'],
         'points' => ['*'],
         'preserveAspectRatio' => ['*'],
+        'preserveaspectratio' => ['*'], // DOMDocument lowercases preserveAspectRatio
         'version' => ['*'],
         'xlink:href' => ['#*'], // Only allow internal references
         'fill-rule' => ['nonzero', 'evenodd'],
@@ -116,43 +139,46 @@ class Purify
         'content' => ['*'],
         'http-equiv' => ['cache-control'],
         'viewport' => ['*'],
-        'xmlns' => ['http://www.w3.org/2000/svg']
+    ];
+
+    private static array $allowed_href_template_variables = [
+        '$view_url',
     ];
 
     private static array $dangerous_css_patterns = [
-            // JavaScript execution patterns
-            '/expression\s*\(/', // CSS expressions
-            '/javascript\s*:/',  // JavaScript protocol
-            '/behaviour\s*:/',   // IE behavior
-            '/-moz-binding\s*:/', // Mozilla binding
+        // JavaScript execution patterns
+        '/expression\s*\(/', // CSS expressions
+        '/javascript\s*:/',  // JavaScript protocol
+        '/behaviour\s*:/',   // IE behavior
+        '/-moz-binding\s*:/', // Mozilla binding
 
-            // URL patterns that might lead to script execution
-            '/url\s*\(\s*[^)]*(?:javascript|data|vbscript)/i',
+        // URL patterns that might lead to script execution
+        '/url\s*\(\s*[^)]*(?:javascript|data|vbscript)/i',
 
-            // Import directives
-            '/@import\s/',           // Added proper delimiters
+        // Import directives
+        '/@import\s/',           // Added proper delimiters
 
-            // Other potentially dangerous properties
-            '/-o-link\s*:/',
-            '/-o-link-source\s*:/',
-            '/-o-replace\s*:/',
-            '/call\s*\(/',
-            '/position\s*:\s*fixed/i',
+        // Other potentially dangerous properties
+        '/-o-link\s*:/',
+        '/-o-link-source\s*:/',
+        '/-o-replace\s*:/',
+        '/call\s*\(/',
+        '/position\s*:\s*fixed/i',
 
-            // Common attack vectors
-            '/background(?:-image)?\s*:\s*[^;]*(?:url|expression|javascript|data|vbscript)/i',
+        // Common attack vectors
+        '/background(?:-image)?\s*:\s*[^;]*(?:url|expression|javascript|data|vbscript)/i',
 
-            // IE-specific expressions
-            '/progid\s*:/',
-            '/setExpression\s*\(/',
-            '/AlphaImageLoader\s*\(/',
-            '/chrome-extension\s*:/',
-            '/file\s*:/',
-            '/ftp\s*:/',
-            '/gopher\s*:/',
-            '/ws\s*:/',
-            '/wss\s*:/',
-        ];
+        // IE-specific expressions
+        '/progid\s*:/',
+        '/setExpression\s*\(/',
+        '/AlphaImageLoader\s*\(/',
+        '/chrome-extension\s*:/',
+        '/file\s*:/',
+        '/ftp\s*:/',
+        '/gopher\s*:/',
+        '/ws\s*:/',
+        '/wss\s*:/',
+    ];
 
     private static array $dangerous_css_properties = [
         'behavior',
@@ -216,6 +242,69 @@ class Purify
         return implode('; ', $safe_declarations);
     }
 
+    /**
+     * Sanitize CSS inside <style> blocks to remove rules targeting the whitelabel logo.
+     */
+    private static function sanitizeStyleBlockContent(string $css): string
+    {
+
+        $css = preg_replace('/\/\*.*?\*\//s', '', $css);
+
+        $css = self::stripWhitelabelCssRules($css);
+
+        // Normalize CSS unicode escapes before filtering
+        $css = preg_replace_callback(
+            '/\\\\([0-9a-fA-F]{1,6})\s?/',
+            fn($m) => mb_chr(intval($m[1], 16)),
+            $css
+        );
+
+        // Block http:// (SSRF vector to internal services) and file:// (local file access)
+        $css = preg_replace('/http\s*:\s*\/\//i', '', $css);
+        $css = preg_replace('/file\s*:\s*\/\//i', '', $css);
+
+        // Escape closing style tags after normalization without changing other CSS syntax.
+        return preg_replace_callback(
+            '~</style~i',
+            static fn(array $match): string => '\\3C ' . substr($match[0], 1),
+            $css
+        );
+    }
+
+    /**
+     * Drop CSS rules that mention the Invoice Ninja whitelabel logo.
+     *
+     * Tokenises on '}' so each rule is examined once (O(n)). The previous
+     * unanchored `[^{}]*invoiceninja[\-_]whitelabel` regex restarts at every
+     * offset and is quadratic on brace-free input that repeats the needle.
+     */
+    private static function stripWhitelabelCssRules(string $css): string
+    {
+        if (stripos($css, 'invoiceninja-whitelabel') === false
+            && stripos($css, 'invoiceninja_whitelabel') === false) {
+            return $css;
+        }
+
+        $parts = explode('}', $css);
+        $count = count($parts);
+        $kept = [];
+
+        foreach ($parts as $i => $part) {
+            $rule = ($i === $count - 1) ? $part : $part . '}';
+
+            if ($rule === '') {
+                continue;
+            }
+
+            if (stripos($rule, 'invoiceninja-whitelabel') === false
+                && stripos($rule, 'invoiceninja_whitelabel') === false) {
+                $kept[] = $rule;
+            }
+        }
+
+        return implode('', $kept);
+    }
+
     private static array $dangerous_svg_elements = [
         'script',
         'handler',
@@ -226,7 +315,7 @@ class Purify
         'onload',
         'onerror',
         'onunload',
-        'onabort'
+        'onabort',
     ];
 
     private static function isDangerousSvgElement(string $tagName): bool
@@ -234,22 +323,136 @@ class Purify
         return in_array(strtolower($tagName), self::$dangerous_svg_elements);
     }
 
-    public static function clean(string $html): string
+    /**
+     * Reject host strings that signal SSRF intent without DNS resolution.
+     *
+     * Caller must ensure the URL has already passed the http(s)://host.tld
+     * pattern in the src/href validation block, so this helper does not need
+     * to handle ports, IP literals, IPv6 brackets, userinfo, or non-ASCII
+     * hosts — those are filtered upstream.
+     */
+    private static function isHostSafe(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (!is_string($host) || $host === '') {
+            return false;
+        }
+
+        $host = strtolower($host);
+
+        // IP-shape prefix: e.g. 127.0.0.1.attacker.com, 169.254.169.254.foo.test.
+        // Four numeric octets at the start signal intent to imply an IP target.
+        if (preg_match('/^\d{1,3}(\.\d{1,3}){3}\./', $host) === 1) {
+            return false;
+        }
+
+        static $internal_suffixes = [
+            '.local',         // mDNS / RFC 6762
+            '.localhost',     // RFC 6761
+            '.localdomain',   // common /etc/hosts entry
+            '.internal',      // GCP, common corp networks
+            '.intranet',
+            '.lan',
+            '.private',
+            '.corp',          // ICANN reserved (undelegated)
+            '.home',          // ICANN reserved (undelegated)
+        ];
+        foreach ($internal_suffixes as $suffix) {
+            if (str_ends_with($host, $suffix)) {
+                return false;
+            }
+        }
+
+        // Public DNS-rebinding services that resolve subdomains to caller-chosen IPs.
+        static $rebinding_suffixes = [
+            '.nip.io',
+            '.sslip.io',
+            '.xip.io',
+            '.traefik.me',
+            '.localtest.me',
+            '.lvh.me',
+            '.vcap.me',
+            '.1u.ms',
+        ];
+        foreach ($rebinding_suffixes as $suffix) {
+            if (str_ends_with($host, $suffix)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * clean
+     *
+     * @param  string $html
+     * @param  bool $is_fragment
+     * @param  bool $inline_pdf_images When true, remote image URLs are fetched
+     *                                 server-side and replaced with data: URIs
+     *                                 before PDF render.
+     * @return string
+     */
+    public static function clean(string $html, bool $is_fragment = false, bool $inline_pdf_images = false): string
     {
 
         if (config('ninja.disable_purify_html') || strlen($html) <= 1) {
+            $html = str_replace('%24', '$', $html);
+        } else {
+            $html = self::sanitizeHtml($html, $is_fragment, $inline_pdf_images);
+        }
+
+        return $html;
+    }
+
+    /**
+     * Sanitize HTML originating from an untrusted external document.
+     *
+     * This trust boundary must not be bypassed by the configurable sanitizer
+     * opt-out used for application-authored templates.
+     */
+    public static function cleanUntrustedDocument(string $html, bool $is_fragment = false): string
+    {
+        if (strlen($html) <= 1) {
             return str_replace('%24', '$', $html);
         }
 
+        return self::sanitizeHtml($html, $is_fragment);
+    }
+
+    private static function sanitizeHtml(string $html, bool $is_fragment, bool $inline_pdf_images = false): string
+    {
+
         $html = str_replace('%24', '$', $html);
+
+        // Strip null bytes — no legitimate use in text, and they can be used
+        // to bypass HTML tag detection (e.g. "<\x00script>")
+        $html = str_replace("\x00", '', $html);
+
+        // If the string contains no actual HTML tags, return it unchanged.
+        // This avoids DOMDocument wrapping plain text like "< i am text" in <p> tags.
+        // Real HTML tags start with < followed by a letter, / or !
+        if (!preg_match('/<[a-zA-Z\/!]/', $html)) {
+            return $html;
+        }
+
         libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
-        $html = '<?xml encoding="UTF-8">' . $html;
+
+        // Wrap fragments in a <div> container so DOMDocument does not inject
+        // <p> tags around loose text that precedes block-level elements.
+        $html = $is_fragment
+            ? '<?xml encoding="UTF-8"><div>' . $html . '</div>'
+            : '<?xml encoding="UTF-8">' . $html;
+
         @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')), LIBXML_NONET);
 
+        $imageFetcher = $inline_pdf_images ? new ImageFetcher() : null;
+
         // Function to recursively check nodes
-        $cleanNodes = function ($node) use (&$cleanNodes) {
+        $cleanNodes = function ($node) use (&$cleanNodes, $imageFetcher) {
 
             $allowed_elements = self::$allowed_elements;
             $allowed_attributes = self::$allowed_attributes;
@@ -287,44 +490,30 @@ class Purify
                     $current_attributes[$attr->name] = $attr->value;
                 }
 
-                // Handle SVG node separately
-                if ($node->tagName === 'svg') {
-                    // Keep only allowed SVG attributes
-                    $current_attributes = [];
-                    foreach ($node->attributes as $attr) {
+                // Remove ALL attributes from the node, then re-add only allowed ones below
+                $attributes_to_remove = [];
+                foreach ($node->attributes as $attr) {
+                    $attributes_to_remove[] = $attr->nodeName;
+                }
+                foreach ($attributes_to_remove as $attr_name) {
+                    $node->removeAttribute($attr_name);
+                }
 
-                        if (in_array($attr->name, self::$dangerous_svg_elements)) {
-                            $node->removeAttribute($attr->name);
-                        }
-
-                    }
-
-                } else {
-                    // First, remove ALL attributes from the node
-                    // while ($node->attributes->length > 0) {
-                    //     $attr = $node->attributes->item(0);
-                    //     $node->removeAttribute($attr->nodeName);
-                    // }
-
-
-                    if ($node instanceof \DOMElement) {
-                        // Create a list of attributes to remove
-                        $attributes_to_remove = [];
-                        foreach ($node->attributes as $attr) {
-                            $attributes_to_remove[] = $attr->nodeName;
-                        }
-
-                        // Remove the attributes
-                        foreach ($attributes_to_remove as $attr_name) {
-                            $node->removeAttribute($attr_name);
-                        }
-                    }
-
+                // Style blocks must also pass through the attribute allowlist below.
+                if (strtolower($node->tagName) === 'style') {
+                    $node->textContent = self::sanitizeStyleBlockContent($node->textContent);
                 }
 
                 // Then add back only the allowed attributes
                 foreach ($current_attributes as $name => $value) {
                     $attr_name = strtolower($name);
+
+                    // Preserve stylesheet scope for PDF designs; portal styles use a stricter second pass.
+                    if (strtolower($node->tagName) === 'style'
+                        && ($attr_name === 'media' || ($attr_name === 'type' && strtolower($value) === 'text/css'))) {
+                        $node->setAttribute($name, $value);
+                        continue;
+                    }
 
                     // Add special handling for style attributes
                     if ($attr_name === 'style') {
@@ -356,6 +545,11 @@ class Purify
 
                     // Special handling for URLs (src and href)
                     if (($attr_name === 'src' || $attr_name === 'href') && !empty($allowed_values)) {
+                        if ($attr_name === 'href' && in_array($value, self::$allowed_href_template_variables, true)) {
+                            $node->setAttribute($name, $value);
+                            continue;
+                        }
+
                         $is_allowed = false;
 
                         // Debug log
@@ -373,7 +567,7 @@ class Purify
                                 // nlog("data:image/* regex");
                                 $regex = '^data\:image\/[a-zA-Z0-9\+]+;base64,.*$';
                             } else {
-                                $regex = preg_quote($pattern, '/');
+                                $regex = '^' . preg_quote($pattern, '/') . '$';
                                 $regex = str_replace('\*', '.*', $regex);
                             }
 
@@ -384,8 +578,14 @@ class Purify
                         }
 
                         if ($is_allowed) {
-                            $node->setAttribute($name, $value);
-                        } else {
+                            $is_http = str_starts_with($value, 'http://') || str_starts_with($value, 'https://');
+                            if (!$is_http || self::isHostSafe($value)) {
+                                if ($attr_name === 'src' && $imageFetcher !== null && self::isRemoteImageUrl($value)) {
+                                    $value = $imageFetcher->inline($value) ?? self::TRANSPARENT_PNG_DATA_URI;
+                                }
+
+                                $node->setAttribute($name, $value);
+                            }
                         }
                         continue;
                     }
@@ -408,7 +608,32 @@ class Purify
 
             $cleanNodes($document->documentElement);
 
-            $html = str_replace('%24', '$', $document->saveHTML());
+            if ($is_fragment) {
+                // Extract content from inside the wrapper <div> we added before parsing.
+                $body = $document->getElementsByTagName('body')->item(0);
+                $html = '';
+                if ($body) {
+                    $wrapper = $body->firstChild;
+                    if ($wrapper && $wrapper->nodeName === 'div') {
+                        // Malformed fragments can close the wrapper early. Preserve
+                        // the sanitized siblings as well as the wrapper's children.
+                        foreach ($body->childNodes as $child) {
+                            $nodes = $child === $wrapper ? $wrapper->childNodes : [$child];
+                            foreach ($nodes as $node) {
+                                $html .= $document->saveHTML($node);
+                            }
+                        }
+                    } else {
+                        foreach ($body->childNodes as $child) {
+                            $html .= $document->saveHTML($child);
+                        }
+                    }
+                }
+            } else {
+                $html = $document->saveHTML();
+            }
+
+            $html = str_replace('%24', '$', $html);
 
             // nlog("post purify => {$html}");
             return $html;
@@ -424,6 +649,11 @@ class Purify
             libxml_clear_errors();
         }
 
+    }
+
+    private static function isRemoteImageUrl(string $url): bool
+    {
+        return str_starts_with($url, 'http://') || str_starts_with($url, 'https://');
     }
 
 }

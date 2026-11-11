@@ -14,12 +14,7 @@
 <div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
     id="paypal-credit-card-payment">
 
-    <meta http-equiv="Content-Security-Policy" content="
-        img-src 'self' https://c.paypal.com https://b.stats.paypal.com; 
-        frame-src 'self' https://c.paypal.com; 
-        script-src 'self' https://c.paypal.com;">
-
-        <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
+    <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
@@ -37,22 +32,27 @@
    <div id="paypal-button-container" class="paypal-button-container"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+    <ul class="payment-method-list">
         @if (count($tokens) > 0)
             @foreach ($tokens as $token)
-                <label class="mr-4">
-                    <input type="radio" data-token="{{ $token->token }}" name="payment-type"
-                        class="form-radio cursor-pointer toggle-payment-with-token" />
-                    <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
-                </label>
+                <li class="payment-method-item">
+                <label class="payment-method-label">
+                <input type="radio" data-token="{{ $token->token }}" name="payment-type"
+                            class="form-radio cursor-pointer toggle-payment-with-token" />
+                        <span class="ml-1">**** {{ $token->meta?->last4 }}</span>
+                    </label>
+                </li>
             @endforeach
         @endisset
 
-        <label>
-            <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
-                checked />
-            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
-        </label>
-
+        <li class="payment-method-item">
+            <label class="payment-method-label">
+                <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
+                    checked />
+                <span class="ml-1">{{ __('texts.new_card') }}</span>
+            </label>
+        </li>
+    </ul>
     @endcomponent
       
     <div id="checkout-form">
@@ -68,7 +68,9 @@
       @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now'])
     </div>
 
-    @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-token'])
+    <div id="pay-now-token--container" class="hidden">
+        @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-token'])
+    </div>
 
     <script type="application/json" fncls="fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99">
     {
@@ -96,9 +98,8 @@
     const orderId = "{!! $order_id !!}";
 
     const cardField = paypal.CardFields({
-        client: clientId,
         createOrder: function(data, actions) {
-            return orderId;  
+            return orderId;
         },
         onApprove: function(data, actions) {
 
@@ -169,6 +170,14 @@
 
             window.location.href = "/client/invoices/{{ $invoice_hash }}";
         },
+
+        onError: function(error) {
+            if (error && typeof error === 'object' && error.details) {
+                throw error;
+            }
+
+            throw new Error(typeof error === 'string' ? error : JSON.stringify(error));
+        },
         
         onClick: function (){
            
@@ -219,33 +228,11 @@
         cardField.submit().then(() => {
 
         }).catch((error) => {
-
-            console.log(error);
-            
-            let msg;
-
-            if(!['INVALID_NUMBER','INVALID_CVV','INVALID_EXPIRY'].includes(error.message))
-            {
-                const errorM = parseError(error.message);
-                msg = handle422Error(errorM);
-            }
-
             document.getElementById('pay-now').disabled = false;
             document.querySelector('#pay-now > svg').classList.add('hidden');
             document.querySelector('#pay-now > span').classList.remove('hidden');
-            
-            if(error.message == 'INVALID_NUMBER'){
-              document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_card_number') }}";
-            }
-            else if(error.message == 'INVALID_CVV') {
-              document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_cvv') }}";
-            }
-            else if(error.message == 'INVALID_EXPIRY') {
-              document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_cvv') }}";
-            }
-            else if(msg.description){
-                document.getElementById('errors').textContent = msg?.description;
-            }
+
+            document.getElementById('errors').textContent = resolveCardFieldErrorMessage(error);
             document.getElementById('errors').hidden = false;
 
         });
@@ -258,43 +245,108 @@
   }
 
     function handle422Error(errorData) {
-        const errorDetails = errorData.details || [];
-        const detail = errorDetails[0];        
-        return detail;
+        const errorDetails = errorData?.details || [];
+        return errorDetails[0] ?? null;
     }
 
-
-    function parseError(errorMessage)
+    function parseError(error)
     {
+        if (error && typeof error === 'object' && error.details) {
+            return error;
+        }
+
+        const errorMessage = typeof error === 'string'
+            ? error
+            : (typeof error?.message === 'string' ? error.message : String(error ?? ''));
+
         try {
-            JSON.parse(errorMessage);
-            return errorMessage;
+            const parsed = JSON.parse(errorMessage);
+            if (parsed && typeof parsed === 'object') {
+                return parsed;
+            }
         } catch (e) {
-            
         }
 
         const startIndex = errorMessage.indexOf('{');
         const endIndex = errorMessage.lastIndexOf('}');
-        
+
         if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-            const jsonString = errorMessage.substring(startIndex, endIndex + 1);
             try {
-                const json = JSON.parse(jsonString);
-                return json;
-            } catch (error) {
-                return null;
+                return JSON.parse(errorMessage.substring(startIndex, endIndex + 1));
+            } catch (e) {
             }
-        } else {
-            return null;
         }
 
+        return null;
     }
+
+    function isPayPalTechnicalErrorLabel(value)
+    {
+        return typeof value === 'string'
+            && ['UNPROCESSABLE_ENTITY', 'INTERNAL_SERVER_ERROR', 'INVALID_REQUEST'].includes(value.trim());
+    }
+
+    function isCardNumberPayPalError(detail)
+    {
+        if (!detail) {
+            return false;
+        }
+
+        const field = detail.field ?? '';
+        const issue = detail.issue ?? '';
+        const description = detail.description ?? '';
+
+        return field.includes('/payment_source/card/number')
+            || /invalid card number|card number/i.test(description)
+            || /CARD.*NUMBER|INVALID.*NUMBER|VALIDATION_ERROR/i.test(issue);
+    }
+
+    function resolveCardFieldErrorMessage(error)
+    {
+        if (error?.message === 'INVALID_NUMBER') {
+            return "{{ ctrans('texts.invalid_card_number') }}";
+        }
+
+        if (error?.message === 'INVALID_CVV' || error?.message === 'INVALID_EXPIRY') {
+            return "{{ ctrans('texts.invalid_cvv') }}";
+        }
+
+        const parsed = parseError(error);
+        const detail = handle422Error(parsed);
+
+        if (isCardNumberPayPalError(detail)) {
+            return "{{ ctrans('texts.invalid_card_number') }}";
+        }
+
+        if (detail?.description && !isPayPalTechnicalErrorLabel(detail.description)) {
+            return detail.description;
+        }
+
+        if (
+            isPayPalTechnicalErrorLabel(parsed?.name)
+            || isPayPalTechnicalErrorLabel(error?.message)
+        ) {
+            return "{{ ctrans('texts.invalid_card_number') }}";
+        }
+
+        if (typeof error?.message === 'string' && error.message.length > 0) {
+            const firstLine = error.message.split('\n')[0];
+
+            if (!isPayPalTechnicalErrorLabel(firstLine)) {
+                return firstLine;
+            }
+        }
+
+        return "{{ ctrans('texts.payment_failed') }}";
+    }
+
 
 </script>
 @endscript
 
 @script
 <script>
+
   Array
       .from(document.getElementsByClassName('toggle-payment-with-token'))
       .forEach((element) => element.addEventListener('click', (e) => {
@@ -303,7 +355,7 @@
           document
               .getElementById('checkout-form').classList.add('hidden');
         document
-              .getElementById('pay-now-token').classList.remove('hidden');
+              .getElementById('pay-now-token--container').classList.remove('hidden');
 
           document
               .getElementById('token').value = e.target.dataset.token;
@@ -320,13 +372,11 @@
               .getElementById('checkout-form').classList.remove('hidden');
 
             document
-              .getElementById('pay-now-token').classList.add('hidden');
+              .getElementById('pay-now-token--container').classList.add('hidden');
 
               document
                   .getElementById('token').value = null;
           });
-
-    payWithCreditCardToggle.click();
   }
 
   let payNowButton = document.getElementById('pay-now-token');
@@ -356,6 +406,5 @@
 
           });
   }
-
 </script>
 @endscript

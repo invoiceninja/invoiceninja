@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
@@ -24,7 +32,7 @@ class EDocumentRequest extends Request
     {
         $rules = [];
 
-        $rules['documents.*'] = 'required|file|max:1000000';
+        $rules['documents.*'] = 'required|file|max:1000000|mimes:xml,pdf,json,p7s,p7m,html,txt,csv,zip,ods';
 
         return $rules;
     }

@@ -53,7 +53,7 @@ class TaxRuleConsistencyTest extends TestCase
         $settings = CompanySettings::defaults();
         $settings->vat_number = $params['company_vat'] ?? 'DE123456789';
         $settings->country_id = (string)Country::where('iso_3166_2', $company_iso)->first()->id;
-        $settings->email = $this->faker->safeEmail();
+        $settings->email = uniqid('testuser') . '@gmail.com';
 
         $tax_data = new TaxModel();
         $tax_data->regions->EU->has_sales_above_threshold = $params['over_threshold'] ?? false;
@@ -80,7 +80,7 @@ class TaxRuleConsistencyTest extends TestCase
             'user_id' => $client->user_id,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'email' => $this->faker->safeEmail()
+            'email' => uniqid('testuser') . '@gmail.com'
         ]);
 
         $invoice = Invoice::factory()->create([

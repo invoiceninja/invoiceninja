@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,16 +14,14 @@ namespace App\Export\Decorators;
 
 class Decorator implements DecoratorInterface
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function transform(string $key, mixed $entity): mixed
     {
         $index = $this->getKeyPart(0, $key);
         $column = $this->getKeyPart(1, $key);
 
-        if (method_exists($this, $index)) {
+        if ($column !== null && $index !== null && method_exists($this, $index)) {
             return $this->{$index}()->transform($column, $entity);
         }
 
@@ -101,10 +99,24 @@ class Decorator implements DecoratorInterface
         return new PurchaseOrderDecorator();
     }
 
+    public function location(): LocationDecorator
+    {
+        return new LocationDecorator();
+    }
+
     public function getKeyPart(int $index, string $key): ?string
     {
         $parts = explode('.', $key);
 
         return $parts[$index] ?? null;
+    }
+
+    public function tags(mixed $entity): string
+    {
+        if (! is_object($entity) || ! method_exists($entity, 'tags')) {
+            return '';
+        }
+
+        return $entity->tags->pluck('name')->implode(', ');
     }
 }

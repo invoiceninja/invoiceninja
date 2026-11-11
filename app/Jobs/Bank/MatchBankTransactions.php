@@ -26,6 +26,9 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
+use App\Models\Project;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
@@ -109,13 +112,13 @@ class MatchBankTransactions implements ShouldQueue
         }
 
         foreach ($this->input as $input) {
-            if (array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) >= 1) {
+            if (! empty($input['invoice_ids'])) {
                 $this->matchInvoicePayment($input);
-            } elseif (array_key_exists('payment_id', $input) && strlen($input['payment_id']) >= 1) {
+            } elseif (! empty($input['payment_id'])) {
                 $this->linkPayment($input);
-            } elseif (array_key_exists('expense_id', $input) && strlen($input['expense_id']) >= 1) {
+            } elseif (! empty($input['expense_id'])) {
                 $this->linkExpense($input);
-            } elseif ((array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) >= 1) || (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1)) {
+            } elseif (! empty($input['vendor_id']) || ! empty($input['ninja_category_id'])) {
                 $this->matchExpense($input);
             }
         }
@@ -272,13 +275,30 @@ class MatchBankTransactions implements ShouldQueue
         $expense->payment_date = Carbon::parse($this->bt->date);
         $expense->transaction_reference = $this->bt->description;
         $expense->transaction_id = $this->bt->id;
+        $expense->should_be_invoiced = $this->company->mark_expenses_invoiceable;
 
         if (array_key_exists('vendor_id', $input)) {
             $expense->vendor_id = $input['vendor_id'];
         }
 
+        if (array_key_exists('should_be_invoiced', $input)) {
+            $expense->should_be_invoiced = filter_var($input['should_be_invoiced'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $project = null;
+
+        if (isset($input['project_id'])) {
+            $project = Project::withTrashed()->where('id', $input['project_id'])->first();
+        }
+
+        if ($project) {
+            $expense->project_id = $project->id;
+            $expense->client_id = $project->client_id;
+        } elseif (isset($input['client_id'])) {
+            $expense->client_id = $input['client_id'];
+        }
+
         $expense->invoice_documents = $this->company->invoice_expense_documents;
-        $expense->should_be_invoiced = $this->company->mark_expenses_invoiceable;
         $expense->save();
 
         $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
@@ -378,6 +398,33 @@ class MatchBankTransactions implements ShouldQueue
             $payment->invoices()->attach($attachable_invoice['id'], [
                 'amount' => $attachable_invoice['amount'],
             ]);
+
+            $invoice = Invoice::withTrashed()->find($attachable_invoice['id']);
+
+            if ($invoice) {
+                try {
+                    $invoice->loadMissing(['client.country', 'client.company']);
+
+                    if ($invoice->client->reportableFrTransaction()) {
+                        $paymentable = Paymentable::withTrashed()
+                            ->where('payment_id', $payment->id)
+                            ->where('paymentable_id', $attachable_invoice['id'])
+                            ->where('paymentable_type', 'invoices')
+                            ->latest('id')
+                            ->first();
+
+                        app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                            payment: $payment,
+                            invoice: $invoice,
+                            paymentable: $paymentable,
+                            movementAmount: $attachable_invoice['amount'],
+                            movementDate: $payment->date ? Carbon::parse($payment->date)->toDateString() : now()->toDateString(),
+                        );
+                    }
+                } catch (\Throwable $exception) {
+                    report($exception);
+                }
+            }
         }
 
         event('eloquent.created: App\Models\Payment', $payment);

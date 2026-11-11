@@ -19,6 +19,7 @@ use App\Models\Vendor;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Country;
+use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Support\Facades\Artisan;
@@ -58,7 +59,7 @@ class VendorMergeTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $this->company = Company::factory()->create([
@@ -106,7 +107,7 @@ class VendorMergeTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
         ]);
 
         $company = Company::factory()->create([
@@ -172,5 +173,42 @@ class VendorMergeTest extends TestCase
 
         // nlog($vendor->contacts->fresh()->toArray());
         // $this->assertEquals(7, $vendor->fresh()->contacts->count());
+    }
+
+    public function testMergeReassignsPurchaseOrders(): void
+    {
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => uniqid('testuser') . '@gmail.com',
+        ]);
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $vendor = Vendor::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $mergable_vendor = Vendor::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $purchase_order = PurchaseOrder::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'vendor_id' => $mergable_vendor->id,
+        ]);
+
+        $merged = $vendor->service()->merge($mergable_vendor)->save();
+
+        $this->assertEquals(
+            $merged->id,
+            PurchaseOrder::withTrashed()->find($purchase_order->id)->vendor_id,
+        );
     }
 }

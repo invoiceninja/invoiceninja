@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,6 +29,8 @@ class ExpenseObserver
     public function created(Expense $expense)
     {
         $subscriptions = Webhook::where('company_id', $expense->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_CREATE_EXPENSE)
                             ->exists();
 
@@ -57,6 +59,8 @@ class ExpenseObserver
 
 
         $subscriptions = Webhook::where('company_id', $expense->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -78,6 +82,8 @@ class ExpenseObserver
         }
 
         $subscriptions = Webhook::where('company_id', $expense->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_ARCHIVE_EXPENSE)
                             ->exists();
 

@@ -20,7 +20,7 @@ return new class extends Migration
                 ->cursor()
                 ->each(function ($company) {
 
-                    if($company->tax_data?->version == 'alpha' && ($company->tax_data->seller_subregion ?? false)) {
+                    if($company->tax_data->version == 'alpha' && ($company->tax_data->seller_subregion ?? false)) {
 
                         $company->update(['tax_data' => new \App\DataMapper\Tax\TaxModel($company->tax_data)]);
 

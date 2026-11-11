@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,17 +18,13 @@ use App\Models\Company;
 use App\Models\Expense;
 use App\Services\AbstractService;
 use Illuminate\Http\UploadedFile;
-use App\Services\EDocument\Imports\UblEDocument;
 
 class ParseEDocument extends AbstractService
 {
     /**
      * @throws Exception
      */
-    public function __construct(private UploadedFile $file, private Company $company)
-    {
-
-    }
+    public function __construct(private UploadedFile $file, private Company $company) {}
 
     /**
      * Execute the service.
@@ -41,33 +37,33 @@ class ParseEDocument extends AbstractService
      */
     public function run(): Expense
     {
-        nlog("starting");
-        nlog($this->company->id);
-        // nlog($this->file->get());
-
         /** @var \App\Models\Account $account */
         $account = $this->company->owner()->account;
 
-        $extension = $this->file->getClientOriginalExtension() ?: $this->file->getExtension();
-        $mimetype = $this->file->getClientMimeType() ?: $$this->file->getMimeType();
+        $content = $this->file->get();
+        $extension = strtolower($this->file->getClientOriginalExtension() ?: $this->file->getExtension());
+        $mimetype = strtolower($this->file->getClientMimeType() ?: $this->file->getMimeType());
+        $isPdf = $extension === 'pdf' || $mimetype === 'application/pdf';
+        $isXml = $extension === 'xml'
+            || in_array($mimetype, ['application/xml', 'text/xml'], true)
+            || str_ends_with($mimetype, '+xml');
 
-        // ZUGFERD - try to parse via Zugferd lib
-        switch (true) {
-            case ($extension == 'pdf' || $mimetype == 'application/pdf'):
-            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "<rsm:CrossIndustryInvoice"):
-                try {
-                    return (new ZugferdEDocument($this->file, $this->company))->run();
-                } catch (\Throwable $e) {
-                    nlog("Zugferd Exception: " . $e->getMessage());
-                    break;
-                }
-            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "<Invoice"):
-                try {
-                    return (new UblEDocument($this->file, $this->company))->run();
-                } catch (\Throwable $e) {
-                    nlog("UBL Import Exception: " . $e->getMessage());
-                    break;
-                }
+        if ($isPdf || $isXml) {
+            try {
+                (new FacturXXmlExtractor())->extract($content);
+
+                return (new ZugferdEDocument($this->file, $this->company))->run();
+            } catch (\Throwable $e) {
+                nlog('Factur-X/ZUGFeRD import exception: ' . $e->getMessage());
+            }
+        }
+
+        if ($isXml) {
+            try {
+                return (new UblEDocument($this->file, $this->company))->run();
+            } catch (\Throwable $e) {
+                nlog('UBL import exception: ' . $e->getMessage());
+            }
         }
 
         // MINDEE OCR - try to parse via mindee external service

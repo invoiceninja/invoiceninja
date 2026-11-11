@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,8 +15,11 @@ namespace App\Services\Payment;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Models\BankTransaction;
 use App\Listeners\Payment\PaymentTransactionEventEntry;
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
+use App\Utils\BcMath;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
@@ -29,13 +32,14 @@ class DeletePayment
     private float $_paid_to_date_deleted = 0;
 
     private float $total_payment_amount = 0;
+
+    /** @var array<int, array<string, mixed>> */
+    private array $tax_event_snapshots = [];
     /**
      * @param Payment $payment
      * @return void
      */
-    public function __construct(public Payment $payment, private bool $update_client_paid_to_date)
-    {
-    }
+    public function __construct(public Payment $payment, private bool $update_client_paid_to_date) {}
 
     /**
      * @return Payment
@@ -95,11 +99,12 @@ class DeletePayment
 
         if ($this->payment->invoices()->exists()) {
 
-            $invoice_ids = $this->payment->invoices()->pluck('invoices.id')->toArray();
+            $this->captureTaxEventSnapshots();
 
             $this->total_payment_amount = ($this->payment->amount - $this->payment->refunded) + ($this->payment->paymentables->where('paymentable_type', 'App\Models\Credit')->sum('amount') - $this->payment->paymentables->where('paymentable_type', 'App\Models\Credit')->sum('refunded'));
 
             $this->payment->invoices()->each(function ($paymentable_invoice) {
+                /** @var \App\Models\Invoice $paymentable_invoice */
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
 
                 $this->_paid_to_date_deleted += $net_deletable;
@@ -172,11 +177,17 @@ class DeletePayment
 
                 }
 
-                PaymentTransactionEventEntry::dispatch($this->payment, [$paymentable_invoice->id], $this->payment->company->db, $net_deletable, true);
-
             });
 
-        } elseif (floatval($this->payment->amount) == floatval($this->payment->applied)) {
+            if ($this->tax_event_snapshots !== []) {
+                PaymentTransactionEventEntry::dispatchSync(
+                    $this->payment->id,
+                    $this->tax_event_snapshots,
+                    $this->payment->company->db,
+                );
+            }
+
+        } elseif (BcMath::equal($this->payment->amount, $this->payment->applied)) {
             // If there are no invoices associated with the payment, we should not be updating the clients paid to date amount
             // The edge case handled here is when an invoice has been "reversed" an associated credit note is created, this is effectively the same
             // payment which can then be used _again_. So the first payment of a reversed invoice should NEVER reduce the paid to date amount.
@@ -190,7 +201,7 @@ class DeletePayment
             $reduced_paid_to_date = $this->payment->amount < 0 ? $this->payment->amount * -1 : min(0, ($this->payment->amount - $this->payment->refunded - $this->_paid_to_date_deleted) * -1);
 
             /** handle the edge case where a partial credit + unapplied payment is deleted */
-            if (floatval($this->total_payment_amount) != floatval($this->_paid_to_date_deleted)) {
+            if (!BcMath::equal($this->total_payment_amount, $this->_paid_to_date_deleted)) {
                 $reduced_paid_to_date = min(0, ($this->total_payment_amount - $this->_paid_to_date_deleted) * -1);
             }
 
@@ -207,6 +218,47 @@ class DeletePayment
         return $this;
     }
 
+    private function captureTaxEventSnapshots(): void
+    {
+        $effective_date = now($this->payment->company->timezone()?->name ?: config('app.timezone'))->toDateString();
+        $mutation_key = "payment_deleted:{$this->payment->id}";
+
+        Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('payment_id', $this->payment->id)
+            ->where('paymentable_type', 'invoices')
+            ->whereNull('deleted_at')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->each(function (Paymentable $paymentable) use ($effective_date, $mutation_key): void {
+                $amount = (float) $paymentable->amount - (float) $paymentable->refunded;
+                $invoice = Invoice::withTrashed()->find($paymentable->paymentable_id);
+
+                if (! $invoice || abs($amount) < 0.0001) {
+                    return;
+                }
+
+                $source = app(InvoiceTransactionEventEntryCash::class)
+                    ->runForPaymentable($invoice, $paymentable);
+
+                if (! $source) {
+                    return;
+                }
+
+                $this->tax_event_snapshots[] = [
+                    'source_event_id' => $source->id,
+                    'paymentable_id' => $paymentable->id,
+                    'invoice_id' => $invoice->id,
+                    'amount' => abs($amount),
+                    'effective_date' => $effective_date,
+                    'kind' => 'payment_deleted',
+                    'mutation_key' => $mutation_key,
+                    'correction_key' => sha1("{$mutation_key}|{$paymentable->id}"),
+                ];
+            });
+    }
+
     /** @return $this  */
     private function updateCreditables()
     {
@@ -214,6 +266,7 @@ class DeletePayment
             $this->payment->credits()->where('is_deleted', 0)->each(function ($paymentable_credit) {
                 $multiplier = 1;
 
+                /** @var \App\Models\Credit $paymentable_credit */
                 if ($paymentable_credit->pivot->amount < 0) {
                     $multiplier = -1;
                 }

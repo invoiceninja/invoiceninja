@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -84,6 +84,7 @@ class PaymentFailedMailer implements ShouldQueue
         $amount = 0;
         $invoice = false;
         $invitation = false;
+        $contact = false;
 
         if ($this->payment_hash) {
 
@@ -102,7 +103,7 @@ class PaymentFailedMailer implements ShouldQueue
 
                 $invitation = $invoice->invitations->first();
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash, $company_user->portalType()))->build();
+                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash))->build();
 
                 $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer($mail_obj);
@@ -114,10 +115,19 @@ class PaymentFailedMailer implements ShouldQueue
             }
         });
 
-        //add client payment failures here.
+        if ($this->payment_hash && 
+        $invitation && 
+        $invitation->contact->send_email &&
+        filter_var($invitation->contact->email, FILTER_VALIDATE_EMAIL) !== false) 
+        {
+            $contact = $invitation->contact;
+        }
+        elseif($this->client->contacts()->whereNotNull('email')->exists() && $this->payment_hash){
+            $contact = $this->client->contacts()->whereNotNull('email')->orderBy('is_primary', 'desc')->orderBy('send_email', 'desc')->first();
+        }
 
-        if ($this->client->contacts()->whereNotNull('email')->exists() && $this->payment_hash) {
-            $contact = $this->client->contacts()->whereNotNull('email')->first();
+        //add client payment failures here.
+        if ($contact) {
 
             $mail_obj = (new ClientPaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
 

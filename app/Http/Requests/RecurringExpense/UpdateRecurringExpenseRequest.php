@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Http\Requests\RecurringExpense;
 
 use App\Http\Requests\Request;
+use App\Models\RecurringExpense;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,9 @@ class UpdateRecurringExpenseRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = RecurringExpense::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -34,6 +38,9 @@ class UpdateRecurringExpenseRequest extends Request
 
     public function rules()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [];
 
@@ -47,10 +54,15 @@ class UpdateRecurringExpenseRequest extends Request
         $rules['tax_amount1'] = 'numeric';
         $rules['tax_amount2'] = 'numeric';
         $rules['tax_amount3'] = 'numeric';
-        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,' . auth()->user()->company()->id . ',is_deleted,0';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
-        
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
+
+        if ($this->client_id) {
+            $rules['client_id'] = 'bail|sometimes|integer|exists:clients,id,company_id,' . $user->company()->id;
+        }
 
         return $this->globalRules($rules);
     }
@@ -86,7 +98,7 @@ class UpdateRecurringExpenseRequest extends Request
             $input['next_send_date_client'] = $input['next_send_date'];
         }
 
-        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
+        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id'] ?? '') == 0) {
             $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 

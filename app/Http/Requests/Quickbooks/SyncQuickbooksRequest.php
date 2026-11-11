@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,12 +37,12 @@ class SyncQuickbooksRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'clients' => 'required_with:invoices,quotes,payments|in:email,name,always_create',
-            'products' => 'sometimes|in:product_key,always_create',
-            'invoices' => 'sometimes|in:number,always_create',
-            'quotes' => 'sometimes|in:number,always_create',
-            'payments' => 'sometimes|in:always_create',
-            'vendors' => 'sometimes|in:email,name,always_create',
+            'client' => 'required|boolean',
+            'product' => 'required|boolean',
+            'invoice' => 'required|boolean',
+            // 'quotes' => 'sometimes|in:number,always_create',
+            // 'payments' => 'sometimes|in:always_create',
+            // 'vendors' => 'sometimes|in:email,name,always_create',
         ];
     }
 

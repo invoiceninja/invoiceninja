@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Libraries\OAuth\Providers;
 
 use Google_Client;
@@ -9,8 +17,10 @@ class Google implements ProviderInterface
     public function getTokenResponse($token)
     {
         $client = new Google_Client();
+        $client->setClientId(config('ninja.auth.google.client_id'));
 
         return $client->verifyIdToken($token);
+
     }
 
     public function harvestEmail($payload)

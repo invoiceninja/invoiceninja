@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,7 +18,9 @@ use App\Factory\PaymentFactory;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -27,9 +29,7 @@ class ApplyPaymentAmount extends AbstractService
 {
     use GeneratesCounter;
 
-    public function __construct(private Invoice $invoice, private float $amount, private ?string $reference)
-    {
-    }
+    public function __construct(private Invoice $invoice, private float $amount, private ?string $reference) {}
 
     public function run()
     {
@@ -89,19 +89,19 @@ class ApplyPaymentAmount extends AbstractService
 
         $this->invoice = $invoice_service->save();
 
+        $this->invoice->loadMissing(['client.country', 'client.company']);
+
         $this->invoice
             ->client
             ->service()
             ->updateBalanceAndPaidToDate($payment->amount * -1, $payment->amount)
             ->save();
 
-
         if ($this->invoice->client->getSetting('client_manual_payment_notification')) {
             $payment->service()->sendEmail();
         }
 
         /* Update Invoice balance */
-
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1, "ApplyPaymentInvoice-");
 
@@ -110,6 +110,27 @@ class ApplyPaymentAmount extends AbstractService
         event('eloquent.created: App\Models\Payment', $payment);
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        try {
+            if ($this->invoice->client->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
+
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $payment->amount,
+                    movementDate: $payment->date ?: now()->toDateString(),
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         return $this->invoice;
     }

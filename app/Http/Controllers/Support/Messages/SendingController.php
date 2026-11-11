@@ -1,10 +1,18 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Http\Controllers\Support\Messages;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Support\Messages\SendMessageRequest;
 use App\Mail\SupportMessageSent;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class SendingController extends Controller
@@ -24,13 +32,19 @@ class SendingController extends Controller
      *         description="The message",
      *         required=true,
      *         @OA\MediaType(
-     *             mediaType="application/json",
+     *             mediaType="multipart/form-data",
      *             @OA\Schema(
-     *                 type="string",
+     *                 type="object",
      *                 @OA\Property(
      *                     property="message",
      *                     description="The support message",
      *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="attachments",
+     *                     description="Images with a combined size of no more than 10 MB",
+     *                     type="array",
+     *                     @OA\Items(type="string", format="binary"),
      *                 ),
      *             )
      *         ),
@@ -59,15 +73,11 @@ class SendingController extends Controller
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param Request $request
+     * @param SendMessageRequest $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function __invoke(Request $request)
+    public function __invoke(SendMessageRequest $request)
     {
-        $request->validate([
-            'message' => ['required'],
-        ]);
-
         $send_logs = false;
 
         if ($request->has('send_logs')) {

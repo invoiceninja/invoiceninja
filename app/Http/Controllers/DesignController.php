@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\DesignFactory;
 use App\Filters\DesignFilters;
+use App\Http\Requests\Design\BulkDesignRequest;
 use App\Http\Requests\Design\CreateDesignRequest;
 use App\Http\Requests\Design\DefaultDesignRequest;
 use App\Http\Requests\Design\DestroyDesignRequest;
@@ -464,7 +465,7 @@ class DesignController extends BaseController
     {
         //may not need these destroy routes as we are using actions to 'archive/delete'
         $design->is_deleted = true;
-        $design->name = $design->name.'_deleted_'.Str::random(5);
+        $design->name = $design->name . '_deleted_' . Str::random(5);
         $design->delete();
         $design->save();
 
@@ -521,40 +522,42 @@ class DesignController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkDesignRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
 
-        if($action == 'clone') {
+        if ($action == 'clone') {
             $design = Design::withTrashed()
-                            ->whereIn('id', $this->transformKeys($ids))
-                            ->where(function ($q){
-                                $q->where('company_id', auth()->user()->company()->id)
+                            ->whereIn('id', $ids)
+                            ->where(function ($q) use ($user) {
+                                $q->where('company_id', $user->company()->id)
                                   ->orWhereNull('company_id');
                             })->first();
 
-            if($design){
+            if ($design) {
                 $this->design_repo->clone($design, $user);
             }
 
             return response()->noContent();
         }
 
-        $designs = Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids));
+        Design::withTrashed()
+                ->company()
+                ->whereIn('id', $ids)
+                ->cursor()
+                ->each(function ($design, $key) use ($action, $user) {
+                    if ($user->can('edit', $design)) {
+                        $this->design_repo->{$action}($design);
+                    }
+                });
 
-        $designs->each(function ($design, $key) use ($action, $user) {
-            if ($user->can('edit', $design)) {
-                $this->design_repo->{$action}($design);
-            }
-        });
-
-        return $this->listResponse(Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Design::withTrashed()->company()->whereIn('id', $ids));
     }
 
     public function default(DefaultDesignRequest $request)

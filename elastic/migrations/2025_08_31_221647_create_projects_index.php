@@ -16,9 +16,12 @@ final class CreateProjectsIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'projects_v2'])) {
-            return; // Index already exists, skip creation
+        
+        $indexExistsResponse = $client->indices()->exists(['index' => 'projects']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
+
 
         $mapping = [
             'properties' => [
@@ -39,7 +42,7 @@ final class CreateProjectsIndex implements MigrationInterface
                 'task_rate' => ['type' => 'float'],
                 'due_date' => ['type' => 'date'],
                 'start_date' => ['type' => 'date'],
-                
+                'current_hours' => ['type' => 'float'],
                 // Custom fields
                 'custom_value1' => ['type' => 'keyword'],
                 'custom_value2' => ['type' => 'keyword'],
@@ -48,8 +51,6 @@ final class CreateProjectsIndex implements MigrationInterface
                 
                 // Additional fields
                 'company_key' => ['type' => 'keyword'],
-                'client_id' => ['type' => 'keyword'],
-                'assigned_user_id' => ['type' => 'keyword'],
                 'private_notes' => [
                     'type' => 'text',
                     'analyzer' => 'standard'
@@ -61,7 +62,7 @@ final class CreateProjectsIndex implements MigrationInterface
             ]
         ];
 
-        Index::createRaw('projects_v2', $mapping);
+        Index::createRaw('projects', $mapping);
     }
 
     /**
@@ -69,6 +70,6 @@ final class CreateProjectsIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('projects_v2');
+        Index::dropIfExists('projects');
     }
 }

@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\DataMapper\Schedule;
 
 class PaymentSchedule
@@ -12,13 +20,8 @@ class PaymentSchedule
     public string $template = 'payment_schedule';
 
     /**
-     * 
-     * @var array(
-     *  'id' => int,
-     *  'date' => string,
-     *  'amount' => float,
-     *  'is_amount' => bool
-     * )
+     *
+     * @var array<array{id: int, date: string, amount: float, is_amount: bool}>
      */
     public array $schedule = [];
 

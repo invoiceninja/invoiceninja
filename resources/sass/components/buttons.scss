@@ -1,5 +1,11 @@
 .button {
-    @apply rounded py-3 px-4 text-sm leading-4 transition duration-150 ease-in-out;
+    @apply rounded py-3 px-4 text-sm leading-4 transition-colors duration-150 ease-in-out;
+    border-radius: var(--portal-button-radius, 0.25rem);
+}
+
+button:focus-visible,
+.button:focus-visible {
+    @apply outline-none ring-2 ring-gray-500 ring-offset-2;
 }
 
 button:disabled {
@@ -9,8 +15,9 @@ button:disabled {
 .button-primary {
     @apply text-white;
 
-    &:hover {
-        @apply font-semibold;
+    &:hover:not(:disabled) {
+        // Darken the existing background without changing branded colors or text.
+        background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1));
     }
 }
 
@@ -21,7 +28,7 @@ button:disabled {
 .button-danger {
     @apply bg-red-500 text-white;
 
-    &:hover {
+    &:hover:not(:disabled) {
         @apply bg-red-600;
     }
 }
@@ -29,7 +36,7 @@ button:disabled {
 .button-secondary {
     @apply bg-gray-100;
 
-    &:hover {
+    &:hover:not(:disabled) {
         @apply bg-gray-200;
     }
 }
@@ -37,7 +44,7 @@ button:disabled {
 .button-link {
     @apply text-gray-700;
 
-    &:hover {
+    &:hover:not(:disabled) {
         @apply text-gray-900 underline;
     }
 

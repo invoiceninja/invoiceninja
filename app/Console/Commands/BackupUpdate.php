@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,6 +20,7 @@ use App\Models\Document;
 use App\Models\GroupSetting;
 use App\Utils\Ninja;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class BackupUpdate extends Command
@@ -90,7 +91,15 @@ class BackupUpdate extends Command
                        return;
                    }
 
-                   $logo = @file_get_contents($company_logo_path);
+                   $response = Http::withOptions([
+                       'allow_redirects' => false,
+                   ])->timeout(5)
+                   ->get($company_logo_path);
+                   if ($response->successful()) {
+                       $logo = $response->body();
+                   } else {
+                       return;
+                   }
                    $extension = @pathinfo($company->settings->company_logo, PATHINFO_EXTENSION);
 
                    if ($logo && $extension) {
@@ -116,7 +125,16 @@ class BackupUpdate extends Command
               ->each(function ($client) {
                   $company_logo_path = $client->settings->company_logo;
 
-                  $logo = @file_get_contents($company_logo_path);
+                  $response = Http::withOptions([
+                        'allow_redirects' => false,
+                    ])->timeout(5)
+                    ->get($company_logo_path);
+                  if ($response->successful()) {
+                      $logo = $response->body();
+                  } else {
+                      return;
+                  }
+
                   $extension = @pathinfo($company_logo_path, PATHINFO_EXTENSION);
 
                   if ($logo && $extension) {
@@ -131,7 +149,7 @@ class BackupUpdate extends Command
                       $settings = $client->settings;
                       $settings->company_logo = $url;
                       $client->settings = $settings;
-                      ;
+                      
                       $client->saveQuietly();
                   }
               });
@@ -147,7 +165,16 @@ class BackupUpdate extends Command
                       return;
                   }
 
-                  $logo = @file_get_contents($company_logo_path);
+                  $response = Http::withOptions([
+                      'allow_redirects' => false,
+                  ])
+                  ->timeout(5)
+                  ->get($company_logo_path);
+                  if ($response->successful()) {
+                      $logo = $response->body();
+                  } else {
+                      return;
+                  }
                   $extension = @pathinfo($company_logo_path, PATHINFO_EXTENSION);
 
                   if ($logo && $extension) {

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,7 +33,8 @@ class ShowPreviewRequest extends Request
     public function rules()
     {
         $rules = [
-            'design.design.body' => ['sometimes', 'required_if:design.design.is_template,true',  new TwigLint()],
+            'design.design.body' => ['sometimes', new TwigLint()],
+            'design.design.customCss' => 'sometimes|string',
         ];
 
         return $rules;
@@ -42,7 +43,7 @@ class ShowPreviewRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-
+        $input = $this->decodePrimaryKeys($input);
         $this->replace($input);
     }
 }

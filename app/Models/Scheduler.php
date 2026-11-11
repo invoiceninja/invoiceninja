@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,15 +27,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $company_id
  * @property bool $is_paused
  * @property int|null $frequency_id
- * @property \Carbon\Carbon|\Illuminate\Support\Carbon|null $next_run_client
- * @property \Carbon\Carbon|\Illuminate\Support\Carbon|null $next_run
+ * @property \Carbon\Carbon|\Illuminate\Support\Carbon|string|null $next_run_client
+ * @property \Carbon\Carbon|\Illuminate\Support\Carbon|string|null $next_run
  * @property int $user_id
  * @property string $name
  * @property string $template
  * @property int|null $remaining_cycles
  * @property-read \App\Models\Company $company
  * @property-read mixed $hashed_id
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\SchedulerFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler filter(\App\Filters\QueryFilters $filters)
@@ -166,9 +166,26 @@ class Scheduler extends BaseModel
                 $next_run =  null;
         }
 
+        if (is_numeric($this->remaining_cycles) && $this->remaining_cycles > 0) {
+            $this->remaining_cycles -= 1;
+        }
+
         $this->next_run_client = $next_run ?: null;
         $this->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
         $this->save();
+
+        if (is_numeric($this->remaining_cycles) && $this->remaining_cycles === 0) {
+            $this->archiveCompleted();
+        }
+    }
+
+    private function archiveCompleted(): void
+    {
+        $this->is_paused = true;
+        $this->next_run = null;
+        $this->next_run_client = null;
+        $this->save();
+        $this->delete();
     }
 
     public function adjustOffset(): void

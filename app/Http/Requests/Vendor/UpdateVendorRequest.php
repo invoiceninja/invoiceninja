@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Vendor;
 
 use App\Http\Requests\Request;
+use App\Models\Vendor;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,9 @@ class UpdateVendorRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Vendor::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -48,6 +52,8 @@ class UpdateVendorRequest extends Request
 
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
+        $rules['contacts.*.id'] = ['bail','nullable','sometimes', Rule::exists('vendor_contacts', 'id')->where('vendor_id', $this->vendor->id)->where('company_id', $user->company()->id)];
+
         $rules['contacts.*.password'] = [
             'bail',
             'nullable',
@@ -63,11 +69,13 @@ class UpdateVendorRequest extends Request
         $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
-        
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
+
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function messages()

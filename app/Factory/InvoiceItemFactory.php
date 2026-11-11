@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,7 +24,9 @@ class InvoiceItemFactory
         $item = new stdClass();
         $item->quantity = 0;
         $item->cost = 0;
+        $item->net_cost = 0;
         $item->product_key = '';
+        $item->tags = '';
         $item->notes = '';
         $item->discount = 0;
         $item->is_amount_discount = true;

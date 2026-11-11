@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,6 +20,9 @@ use Illuminate\Validation\Rule;
 class StoreVendorRequest extends Request
 {
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Vendor::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -40,6 +43,7 @@ class StoreVendorRequest extends Request
 
         $rules = [];
         $rules['name'] = 'bail|required|string';
+        $rules['number'] = ['bail', 'nullable', Rule::unique('vendors')->where('company_id', $user->company()->id)];
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
@@ -54,11 +58,6 @@ class StoreVendorRequest extends Request
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
 
-
-        if (isset($this->number)) {
-            $rules['number'] = Rule::unique('vendors')->where('company_id', $user->company()->id);
-        }
-
         $rules['currency_id'] = 'bail|required|exists:currencies,id';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
@@ -67,7 +66,7 @@ class StoreVendorRequest extends Request
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()

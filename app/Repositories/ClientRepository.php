@@ -5,19 +5,25 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Repositories;
 
+use App\Services\ClientPortal\PortalHtmlSanitizer;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Location;
+use App\Models\ClientContact;
+use App\Services\EDocument\Standards\France\FranceScopeInvalidationRecorder;
 use App\Factory\ClientFactory;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\Client\PurgeClientDocuments;
 
 /**
@@ -27,8 +33,6 @@ class ClientRepository extends BaseRepository
 {
     use GeneratesCounter;
     use SavesDocuments;
-
-    private bool $completed = true;
 
     /**
      * @var ClientContactRepository
@@ -59,11 +63,19 @@ class ClientRepository extends BaseRepository
         $contact_data = $data;
         unset($data['contacts']);
 
+        $tag_ids = $this->resolveTagIdsForSync($data, $client);
+        unset($contact_data['tags']);
+
         /* When uploading documents, only the document array is sent, so we must return early*/
         if (array_key_exists('documents', $data) && count($data['documents']) >= 1) {
             $this->saveDocuments($data['documents'], $client);
+            $this->syncResolvedTags($client, $tag_ids);
 
             return $client;
+        }
+
+        if (isset($data['settings'])) {
+            $data['settings'] = (new PortalHtmlSanitizer())->cleanSettings((array) $data['settings']);
         }
 
         $client->fill($data);
@@ -83,20 +95,29 @@ class ClientRepository extends BaseRepository
         if (! isset($client->number) || empty($client->number) || strlen($client->number ?? '') == 0) {//@phpstan-ignore-line
             $x = 1;
 
+            $completed = true;
+
             do {
                 try {
                     $client->number = $this->getNextClientNumber($client);
                     $client->saveQuietly();
 
-                    $this->completed = false;
+                    $completed = false;
                 } catch (QueryException $e) {
                     $x++;
 
                     if ($x > 10) {
-                        $this->completed = false;
+                        $completed = false;
+
+                        try {
+                            $client->number = $client->number . '_' . \Illuminate\Support\Str::random(5);
+                            $client->saveQuietly();
+                        } catch (QueryException $e) {
+                            $client->number = null;
+                        }
                     }
                 }
-            } while ($this->completed);
+            } while ($completed);
         }
 
         if (empty($data['name'])) {
@@ -109,6 +130,7 @@ class ClientRepository extends BaseRepository
             $this->contact_repo->save($contact_data, $client);
         }
 
+        $this->syncResolvedTags($client, $tag_ids);
 
         return $client;
     }
@@ -145,23 +167,63 @@ class ClientRepository extends BaseRepository
               ->update(['group_settings_id' => $group_settings_id]);
     }
 
-    public function purge($client)
+    public function bulkUpdate(Builder $model, string $column, mixed $new_value): void
     {
+        $clients = $column === 'country_id'
+            ? (clone $model)->get(['id', 'company_id'])
+            : collect();
+        $company = $clients->isNotEmpty()
+            ? Company::query()->find($clients->first()->company_id)
+            : null;
 
+        if (! $this->franceReportingEnabled($company) || $clients->isEmpty()) {
+            parent::bulkUpdate($model, $column, $new_value);
+
+            return;
+        }
+
+        DB::transaction(function () use ($model, $column, $new_value, $company, $clients): void {
+            parent::bulkUpdate($model, $column, $new_value);
+
+            $this->invalidateFranceReportingClients(
+                $company,
+                $clients->pluck('id')->map(fn($id): int => (int) $id)->all(),
+            );
+        }, attempts: 3);
+    }
+
+    /** @param array<int, int> $clientIds */
+    private function invalidateFranceReportingClients(?Company $company, array $clientIds): void
+    {
+        if (! $this->franceReportingEnabled($company) || $clientIds === []) {
+            return;
+        }
+
+        app(FranceScopeInvalidationRecorder::class)->recordAndDispatch(
+            company: $company,
+            clientIds: $clientIds,
+        );
+    }
+
+    private function franceReportingEnabled(?Company $company): bool
+    {
+        return $company instanceof Company
+            && (bool) $company->getSetting('france_reporting_enabled');
+    }
+
+    public function purge($client): void
+    {
         $purged_client = $client->present()->name();
         $purged_client_hash = $client->client_hash;
-
         $user = auth()->user() ?? $client->user;
         $company = $client->company;
 
         $event_vars = \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null);
         $event_vars['client_hash'] = $purged_client_hash;
-        
+
         event(new \App\Events\Client\ClientWasPurged($purged_client, $user, $company, $event_vars));
 
         nlog("Purging client id => {$client->id} => {$client->number}");
-
-        // Delete documents associated with client's related entities before deleting the entities
         $this->purgeClientDocuments($client);
 
         $client->contacts()->forceDelete();
@@ -177,11 +239,8 @@ class ClientRepository extends BaseRepository
         $client->expenses()->forceDelete();
         $client->recurring_expenses()->forceDelete();
         $client->system_logs()->forceDelete();
-        // $client->documents()->forceDelete();
         $client->payments()->forceDelete();
-
         $client->unsearchable();
-
         $client->forceDelete();
     }
 
@@ -192,7 +251,7 @@ class ClientRepository extends BaseRepository
     private function purgeClientDocuments($client)
     {
         // Get all entity IDs that belong to this client
-        $data =[
+        $data = [
             'invoices' => $client->invoices()->pluck('id')->toArray(),
             'App\Models\Quote' => $client->quotes()->pluck('id')->toArray(),
             'App\Models\Payment' => $client->payments()->pluck('id')->toArray(),
@@ -206,7 +265,45 @@ class ClientRepository extends BaseRepository
         ];
 
         PurgeClientDocuments::dispatch($data, $client->company);
-        
+
+    }
+
+    /**
+     * clone/duplicate a client
+     *
+     * @param  Client $client
+     * @return Client
+     */
+    public function clone(Client $client)
+    {
+        $clone_client = $client->replicate();
+        $clone_client->name = $clone_client->name . ' clone ' . date('Y-m-d H:i:s');
+        $clone_client->client_hash = \Illuminate\Support\Str::random(40);
+        $clone_client->sync = null;
+        $clone_client->number = null;
+        $clone_client->id_number = null;
+        $clone_client->balance = 0;
+        $clone_client->paid_to_date = 0;
+        $clone_client->credit_balance = 0;
+        $clone_client->payment_balance = 0;
+        $clone_client->save();
+
+        $clone_client->service()->applyNumber()->save();
+
+        $client->contacts->each(function (ClientContact $contact) use ($clone_client) {
+            $clone_contact = $contact->replicate();
+            $clone_contact->client_id = $clone_client->id;
+            $clone_contact->contact_key = \Illuminate\Support\Str::random(32);
+            $clone_contact->save();
+        });
+
+        $client->locations->each(function (Location $location) use ($clone_client) {
+            $clone_location = $location->replicate();
+            $clone_location->client_id = $clone_client->id;
+            $clone_location->save();
+        });
+
+        return $clone_client;
     }
 
 

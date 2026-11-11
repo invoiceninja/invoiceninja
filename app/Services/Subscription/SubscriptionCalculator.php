@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,10 @@
 namespace App\Services\Subscription;
 
 use App\Models\Invoice;
+use App\Models\Client;
+use App\DataMapper\ClientSettings;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Subscription;
 use Illuminate\Support\Carbon;
 use App\DataMapper\InvoiceItem;
@@ -28,9 +32,7 @@ class SubscriptionCalculator
 {
     use MakesHash;
 
-    public function __construct(public Subscription $subscription)
-    {
-    }
+    public function __construct(public Subscription $subscription) {}
 
     /**
      * BuildPurchaseInvoice
@@ -49,8 +51,9 @@ class SubscriptionCalculator
         $invoice->is_proforma = true;
         $invoice->number = "####" . ctrans('texts.subscription') . "_" . now()->format('Y-m-d') . "_" . rand(0, 100000);
         $invoice->line_items = $this->buildItems($context);
+        $invoice->uses_inclusive_taxes = $this->subscription->company->getSetting('inclusive_taxes');
 
-        if (isset($context['valid_coupon']) && $context['valid_coupon']) {
+        if ($this->hasValidCoupon($context)) {
             $invoice->discount = $this->subscription->promo_discount;
             $invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
@@ -66,13 +69,13 @@ class SubscriptionCalculator
      *
      * @return array
      */
-    private function buildItems(array $context): array
+    public function buildItems(array $context): array
     {
 
         $bundle = $context['bundle'];
 
-        $recurring = array_merge(isset($bundle['recurring_products']) ? $bundle['recurring_products'] : [], isset($bundle['optional_recurring_products']) ? $bundle['optional_recurring_products'] : []);
-        $one_time = array_merge(isset($bundle['one_time_products']) ? $bundle['one_time_products'] : [], isset($bundle['optional_one_time_products']) ? $bundle['optional_one_time_products'] : []);
+        $recurring = array_merge($bundle['recurring_products'] ?? [], $bundle['optional_recurring_products'] ?? []);
+        $one_time = array_merge($bundle['one_time_products'] ?? [], $bundle['optional_one_time_products'] ?? []);
 
         $items = [];
 
@@ -87,7 +90,11 @@ class SubscriptionCalculator
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
-            $line_item->tax_id = (string)$item['product']['tax_id'] ?? '1';
+            $line_item->tags = InvoiceItem::serializeTags($item['product']['tags'] ?? []);
+            $line_item->tax_id = (string) $item['product']['tax_id'] ?? '1';
+            foreach (ProductTaxes::from($item['product']) as $field => $value) {
+                $line_item->{$field} = $value;
+            }
             $items[] = $line_item;
 
         }
@@ -103,7 +110,11 @@ class SubscriptionCalculator
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
-            $line_item->tax_id = (string)$item['product']['tax_id'] ?? '1'; //@phpstan-ignore-line
+            $line_item->tags = InvoiceItem::serializeTags($item['product']['tags'] ?? []);
+            $line_item->tax_id = (string) $item['product']['tax_id'] ?? '1'; //@phpstan-ignore-line
+            foreach (ProductTaxes::from($item['product']) as $field => $value) {
+                $line_item->{$field} = $value;
+            }
             $items[] = $line_item;
 
         }
@@ -111,39 +122,76 @@ class SubscriptionCalculator
         return $items;
     }
 
+    public function buildV2Items(iterable $bundle): array
+    {
+        return collect($bundle)->map(function ($item) {
+            $line_item = new InvoiceItem();
+            $line_item->product_key = $item['product_key'];
+            $line_item->quantity = (float) $item['qty'];
+            $line_item->cost = (float) $item['unit_cost'];
+            $line_item->notes = $item['description'];
+            $line_item->tags = InvoiceItem::serializeTags($item['tags'] ?? '');
+            foreach (ProductTaxes::from($item) as $field => $value) {
+                $line_item->{$field} = $value;
+            }
 
+            return $line_item;
+        })->toArray();
+    }
 
+    public function resolveBundle(array $bundle): array
+    {
+        $service = $this->subscription->service();
 
+        foreach ([
+            'recurring_products' => 'recurring_products',
+            'optional_recurring_products' => 'optional_recurring_products',
+            'one_time_products' => 'products',
+            'optional_one_time_products' => 'optional_products',
+        ] as $category => $method) {
+            $products = $service->{$method}()->keyBy('hashed_id');
 
+            foreach (array_keys($bundle[$category] ?? []) as $id) {
+                abort_unless($products->has($id), 422);
+                $bundle[$category][$id]['product'] = $products[$id]->withoutRelations()->toArray();
+                $bundle[$category][$id]['product']['tags'] = InvoiceItem::tagsFromNames($products[$id]->tags);
+                $bundle[$category][$id]['product']['is_recurring'] = in_array($category, ['recurring_products', 'optional_recurring_products']);
+            }
+        }
 
+        return $bundle;
+    }
 
+    public function hasValidCoupon(array $context): bool
+    {
+        return !empty($context['valid_coupon'])
+            && $context['valid_coupon'] === $this->subscription->promo_code;
+    }
 
+    public function preview(array $items, ?Client $client = null, bool $valid_coupon = false): InvoiceSum|InvoiceSumInclusive
+    {
+        if (!$client) {
+            $client = new Client();
+            $client->settings = ClientSettings::defaults();
+            $client->setRelation('company', $this->subscription->company);
+            $client->setRelation('group_settings', $this->subscription->group_settings);
+            $client->setRelation('country', $this->subscription->company->country());
+        }
 
+        $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $invoice->setRelation('company', $this->subscription->company);
+        $invoice->setRelation('client', $client);
+        $invoice->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
+        // The line_items cast gives the calculator its own copy; it mutates taxes for exempt clients.
+        $invoice->line_items = $items;
 
+        if ($valid_coupon) {
+            $invoice->discount = $this->subscription->promo_discount;
+            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return $invoice->calc();
+    }
 
     /**
      * Tests if the user is currently up
@@ -195,9 +243,7 @@ class SubscriptionCalculator
         return $this->subscription->price;
     }
 
-    public function executeUpgradePlan()
-    {
-    }
+    public function executeUpgradePlan() {}
 
     private function getRefundInvoice(Invoice $invoice)
     {

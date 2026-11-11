@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -90,7 +90,7 @@ class ClientSettings extends BaseSettings
         }
 
         if (is_array($client_settings)) {
-            $client_settings = (object)$client_settings;
+            $client_settings = (object) $client_settings;
         }
 
         foreach ($company_settings as $key => $value) {
@@ -99,7 +99,7 @@ class ClientSettings extends BaseSettings
             */
             if (((property_exists($client_settings, $key) && is_string($client_settings->{$key}) && (iconv_strlen($client_settings->{$key}) < 1)))
                 || ! isset($client_settings->{$key})
-                && property_exists($company_settings, $key)) {
+               && property_exists($company_settings, $key)) {
                 $client_settings->{$key} = $company_settings->{$key};
             }
         }

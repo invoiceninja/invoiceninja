@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,6 +33,8 @@ class RecurringExpenseRepository extends BaseRepository
      */
     public function save(array $data, RecurringExpense $recurring_expense): ?RecurringExpense
     {
+        $tag_ids = $this->resolveTagIdsForSync($data, $recurring_expense);
+
         $recurring_expense->fill($data);
         $recurring_expense->number = empty($recurring_expense->number) ? $this->getNextRecurringExpenseNumber($recurring_expense) : $recurring_expense->number;
         $recurring_expense->save();
@@ -40,6 +42,8 @@ class RecurringExpenseRepository extends BaseRepository
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $recurring_expense);
         }
+
+        $this->syncResolvedTags($recurring_expense, $tag_ids);
 
         return $recurring_expense;
     }

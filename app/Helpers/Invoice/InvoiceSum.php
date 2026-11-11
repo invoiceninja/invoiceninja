@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,7 +31,7 @@ class InvoiceSum
     use Discounter;
     use NumberFormatter;
 
-    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
+    protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;
 
     public $tax_map;
 
@@ -53,7 +53,7 @@ class InvoiceSum
 
     private $precision;
 
-    private Client | Vendor $client;
+    private Client|Vendor $client;
 
     public InvoiceItemSum $invoice_items;
 
@@ -147,7 +147,12 @@ class InvoiceSum
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
 
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
+            $this->total_tax_map[] = [
+                'name' => $this->invoice->tax_name1 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client) . '%',
+                'total' => $tax,
+                'tax_rate' => $this->invoice->tax_rate1,
+                'base_amount' => $this->total,
+            ];
 
         }
 
@@ -156,7 +161,12 @@ class InvoiceSum
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name2, $this->invoice->tax_rate2);
 
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate2];
+            $this->total_tax_map[] = [
+                'name' => $this->invoice->tax_name2 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client) . '%',
+                'total' => $tax,
+                'tax_rate' => $this->invoice->tax_rate2,
+                'base_amount' => $this->total,
+            ];
         }
 
         if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) >= 2) {
@@ -164,7 +174,12 @@ class InvoiceSum
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name3, $this->invoice->tax_rate3);
 
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate3];
+            $this->total_tax_map[] = [
+                'name' => $this->invoice->tax_name3 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client) . '%',
+                'total' => $tax,
+                'tax_rate' => $this->invoice->tax_rate3,
+                'base_amount' => $this->total,
+            ];
         }
 
         return $this;
@@ -261,16 +276,21 @@ class InvoiceSum
         if ($this->invoice->status_id == Invoice::STATUS_CANCELLED) {
             $this->invoice->balance = 0;
         } elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
-            if ($this->invoice->amount != $this->invoice->balance) {
-                $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
-            } else {
-                $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
-            }
+            // if ($this->invoice->amount != $this->invoice->balance) {
+            //     $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
+            // } else {
+            //     $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
+            // }
+
+            // 2026-05-19 - This is a regression fix balance not decrementing after payments.
+            $new_total     = Number::roundValue($this->getTotal(), $this->precision);
+            $amount_delta  = $new_total - $this->invoice->amount;   // amount = persisted pre-edit value
+            $this->invoice->balance = Number::roundValue($this->invoice->balance + $amount_delta, $this->precision);
         }
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
-        $this->invoice->total_taxes = $this->getTotalTaxes();
+        $this->invoice->total_taxes = $this->formatValue($this->getTotalTaxes(), $this->precision);
 
         if ($this->rappen_rounding) {
             $this->invoice->amount = $this->roundRappen($this->invoice->amount);
@@ -286,7 +306,8 @@ class InvoiceSum
 
     public function roundRappen($value): float
     {
-        return round($value / .05, 0) * .05;
+        // return round($value / .05, 0) * .05;
+        return round(round($value / 0.05) * 0.05, 2);
     }
 
     public function getSubTotal()
@@ -372,7 +393,21 @@ class InvoiceSum
                 return $value['key'] == $key;
             })->sum('base_amount');
 
-            $tax_id = $values->first()['tax_id'] ?? '';
+            // $tax_id = $values->first()['tax_id'] ?? '';
+
+            /**
+             * Round the per-category tax total at the boundary so the InvoiceNinja
+             * invoice and the PEPPOL document agree:
+             *
+             *   - PEPPOL TaxSubtotal/TaxAmount (BT-117) is rounded to 2dp per category.
+             *   - PEPPOL TaxTotal/TaxAmount (BT-110) must equal the sum of BT-117 (BR-CO-15).
+             *   - Invoice total_taxes is the sum of these category totals.
+             *
+             * Without this round, calcAmountLineTax (unrounded for PEPPOL clients) lets
+             * fractional cents accumulate in total_taxes while the serializer rounds
+             * each category, producing a 1c drift between BT-110 and Σ BT-117.
+             */
+            $total_line_tax = round($total_line_tax, $this->precision);
 
             $this->tax_map[] = ['name' => $tax_name, 'total' => $total_line_tax, 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => round($base_amount, 2)];
 
@@ -385,21 +420,18 @@ class InvoiceSum
     private function getSurchargeTaxTotalForKey($key, $rate)
     {
         $tax_component = 0;
+        $is_peppol = $this->client->getSetting('e_invoice_type') === 'PEPPOL';
 
-        if ($this->invoice->custom_surcharge_tax1) {
-            $tax_component += round($this->invoice->custom_surcharge1 * ($rate / 100), 2);
-        }
+        foreach ([1, 2, 3, 4] as $i) {
+            $amount = $this->invoice->{"custom_surcharge{$i}"};
 
-        if ($this->invoice->custom_surcharge_tax2) {
-            $tax_component += round($this->invoice->custom_surcharge2 * ($rate / 100), 2);
-        }
+            if (! is_numeric($amount) || $amount <= 0) {
+                continue;
+            }
 
-        if ($this->invoice->custom_surcharge_tax3) {
-            $tax_component += round($this->invoice->custom_surcharge3 * ($rate / 100), 2);
-        }
-
-        if ($this->invoice->custom_surcharge_tax4) {
-            $tax_component += round($this->invoice->custom_surcharge4 * ($rate / 100), 2);
+            if ($is_peppol || $this->invoice->{"custom_surcharge_tax{$i}"}) {
+                $tax_component += round($amount * ($rate / 100), 2);
+            }
         }
 
         return $tax_component;

@@ -5,19 +5,33 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Policies;
 
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class DocumentPolicy extends EntityPolicy
 {
     use HandlesAuthorization;
+
+    /**
+     * view checks if the user can view the documentable entity
+     *
+     * @param  User $user
+     * @param  Document $entity
+     * @return bool
+     */
+    public function view(User $user, $entity): bool
+    {
+        return $entity->documentable !== null
+            && $user->can('view', $entity->documentable);
+    }
 
     public function create(User $user): bool
     {

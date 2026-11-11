@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,16 +18,21 @@ use App\Factory\ProjectFactory;
 use App\Factory\VendorFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Country;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\TaxRate;
+use App\Models\User;
 use App\Models\Vendor;
 use App\Repositories\ClientRepository;
 use App\Utils\Number;
@@ -51,7 +56,27 @@ class BaseTransformer
     public function parseDate($date)
     {
         if (stripos($date, "/") !== false && $this->company->settings->country_id != 840) {
-            $date = str_replace('/', '-', $date);
+            try {
+                $parsed_date = Carbon::createFromFormat('d/m/Y', $date);
+                return $parsed_date->format('Y-m-d');
+            } catch (\Exception $e) {
+                // Fall through to general parsing
+            }
+        }
+
+        /** Attempt to use the configured company date format.
+         *  hasFormat() enforces an exact match so that a loose createFromFormat()
+         *  cannot silently mis-parse non-conforming input (e.g. a two-digit year
+         *  becoming year 0024); anything that does not conform falls through to
+         *  the general parser below, preserving the prior behaviour. */
+        try {
+            $company_format = $this->company->date_format();
+
+            if (is_string($date) && strlen($date) > 0 && Carbon::hasFormat($date, $company_format)) {
+                return Carbon::createFromFormat($company_format, $date)->format('Y-m-d');
+            }
+        } catch (\Exception $e) {
+            // Fall through to general parsing
         }
 
         try {
@@ -100,12 +125,12 @@ class BaseTransformer
 
     public function getInvoiceTypeId($data, $field, $default = '1')
     {
-        return isset($data[$field]) && $data[$field] ? (string)$data[$field] : $default;
+        return isset($data[$field]) && $data[$field] ? (string) $data[$field] : $default;
     }
 
-    public function getNumber($data, $field, $default = 0)
+    public function getNumber(array $data, string $field, int $default = 0): int
     {
-        return (isset($data->$field) && $data->$field) ? (int)$data->$field : $default;
+        return (isset($data[$field]) && $data[$field]) ? (int) $data[$field] : $default;
     }
 
     public function getString($data, $field, $default = '')
@@ -143,7 +168,7 @@ class BaseTransformer
         // if(is_string($frequency)){
         //     $frequency = strtolower(trim($frequency));
         // }
-        
+
         switch ($frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
             case 'daily':
@@ -159,6 +184,7 @@ class BaseTransformer
                 return RecurringInvoice::FREQUENCY_FOUR_WEEKS;
             case RecurringInvoice::FREQUENCY_MONTHLY:
             case 'monthly':
+            case 'month':
                 return RecurringInvoice::FREQUENCY_MONTHLY;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
             case 'bimonthly':
@@ -174,6 +200,9 @@ class BaseTransformer
                 return RecurringInvoice::FREQUENCY_SIX_MONTHS;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
             case 'yearly':
+            case 'annually':
+            case 'annual':
+            case 'year':
                 return RecurringInvoice::FREQUENCY_ANNUALLY;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
             case '2years':
@@ -194,15 +223,17 @@ class BaseTransformer
             return -1;
         }
 
-        return (int)$remaining_cycles;
+        return (int) $remaining_cycles;
     }
 
     public function getAutoBillFlag(string $option): string
     {
         switch ($option) {
+            case 'no':
             case 'off':
             case 'false':
                 return 'off';
+            case 'yes':
             case 'always':
             case 'true':
                 return 'always';
@@ -259,6 +290,12 @@ class BaseTransformer
             ];
 
             throw new \App\Import\ImportException("Error, you are attempting to import more clients than your plan allows ({$hosted_client_count})");
+        }
+
+        // 2026-03-05: If we don't have a client name or email, we can't create a client.
+        if (empty(trim($client_name ?? '')) && empty(trim($client_email ?? ''))) {
+            nlog("A Client Name or Email is required, none provided! {$client_name}, {$client_email}");
+            throw new \App\Import\ImportException("A Client Name or Email is required, none provided!");
         }
 
         $client_repository = app()->make(ClientRepository::class);
@@ -366,7 +403,7 @@ class BaseTransformer
      */
     public function getFloat($data, $field)
     {
-        
+
         if (array_key_exists($field, $data)) {
 
             if ($this->company->use_comma_as_decimal_place) {
@@ -439,7 +476,7 @@ class BaseTransformer
     }
 
     /**
-     * @param $name
+     * @param $key
      *
      * @return string
      */
@@ -481,18 +518,33 @@ class BaseTransformer
      *
      * @return int|null
      */
-    public function getCountryId($name)
+    public function getCountryId($name): ?int
     {
+        $name = trim((string) $name);
 
-        if (strlen(trim($name)) == 2) {
+        if ($name === '') {
+            return null;
+        }
+
+        if (is_numeric($name)) {
+            $country_id = Country::query()->where('id', (int) $name)->value('id');
+
+            return $country_id ? (int) $country_id : null;
+        }
+
+        if (strlen($name) == 2) {
             return $this->getCountryIdBy2($name);
         }
 
-        $country = Country::query()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
-            strtolower(str_replace(' ', '', $name)),
-        ])->first();
+        $normalized_name = strtolower(str_replace(' ', '', $name));
 
-        return $country ? $country->id : null;
+        $country = Country::query()
+            ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [$normalized_name])
+            ->orWhereRaw("LOWER(REPLACE(`full_name`, ' ' ,''))  = ?", [$normalized_name])
+            ->orWhere('iso_3166_3', strtoupper($name))
+            ->first();
+
+        return $country ? (int) $country->id : null;
     }
 
     /**
@@ -500,11 +552,13 @@ class BaseTransformer
      *
      * @return int|null
      */
-    public function getCountryIdBy2($name)
+    public function getCountryIdBy2($name): ?int
     {
-        return Country::query()->where('iso_3166_2', $name)->exists()
-            ? Country::query()->where('iso_3166_2', $name)->first()->id
-            : null;
+        $country_id = Country::query()
+            ->where('iso_3166_2', strtoupper(trim((string) $name)))
+            ->value('id');
+
+        return $country_id ? (int) $country_id : null;
     }
 
     /**
@@ -653,6 +707,21 @@ class BaseTransformer
     }
 
     /**
+     * @param $purchase_order_number
+     *
+     * @return bool
+     */
+    public function hasPurchaseOrder($purchase_order_number)
+    {
+        return PurchaseOrder::query()->where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $purchase_order_number)),
+            ])
+            ->exists();
+    }
+
+    /**
      * @param $invoice_number
      *
      * @return int|null
@@ -768,17 +837,22 @@ class BaseTransformer
             ])
             ->first();
 
-        return $project ? $project->id : $this->createProject($name, $clientId);
+        if ($project) {
+            return $project->id;
+        }
+
+        if (! $clientId) {
+            return null;
+        }
+
+        return $this->createProject($name, $clientId);
     }
 
-    private function createProject($name, $clientId)
+    private function createProject(string $name, int $clientId): int
     {
         $project = ProjectFactory::create($this->company->id, $this->company->owner()->id);
         $project->name = $name;
-
-        if ($clientId) {
-            $project->client_id = $clientId;
-        }
+        $project->client_id = $clientId;
 
         $project->saveQuietly();
 
@@ -798,4 +872,64 @@ class BaseTransformer
 
         return $pt ? $pt->id : null;
     }
+    
+    /**
+     * getCustomFieldValue
+     *
+     * @param  string $custom_field_key
+     * @param  mixed $value
+     * @return mixed
+     */
+    public function getCustomFieldValue(string $custom_field_key, mixed $value): mixed
+    {
+        $company = $this->company;
+        $custom_fields = $company->custom_fields;
+
+        if(isset($custom_fields->{$custom_field_key})) {
+        
+            $custom_field = $custom_fields->{$custom_field_key};
+
+            $custom_field_parts = explode('|', $custom_field);
+
+            if(count($custom_field_parts) >= 2) {
+            
+                $field_type = $custom_field_parts[1];
+
+                switch($field_type) {
+                
+                    case 'date':
+                        return $this->parseDate($value);
+                    case 'switch':
+                        return $this->toBoolean($value);
+                    default:
+                        return $value;
+                }
+            }
+        }
+
+        return $value;
+
+    }
+
+    public function toBoolean($value)
+    {
+ 
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (bool) $value;
+        }
+
+        $value = strtolower(trim((string) $value));
+
+        return match ($value) {
+            '1', 'true', 'yes', 'y', 'on' => true,
+            '0', 'false', 'no', 'n', 'off', '' => false,
+            default => true,
+        };
+
+    }
+
 }

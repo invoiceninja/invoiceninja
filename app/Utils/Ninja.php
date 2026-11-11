@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,12 +48,12 @@ class Ninja
 
         $version = request()->input('version', 'No Version Supplied.');
 
-        $info = 'App Version: v'.config('ninja.app_version').'\\n'.
-            'White Label: '.'\\n'. // TODO: Implement white label with hasFeature.
-            'Server OS: '.php_uname('s').' '.php_uname('r').'\\n'.
-            'PHP Version: '.phpversion().'\\n'.
-            'MySQL Version: '.$mysql_version.'\\n'.
-            'Version: '.$version;
+        $info = 'App Version: v' . config('ninja.app_version') . '\\n'
+            . 'White Label: ' . '\\n' // TODO: Implement white label with hasFeature.
+            . 'Server OS: ' . php_uname('s') . ' ' . php_uname('r') . '\\n'
+            . 'PHP Version: ' . phpversion() . '\\n'
+            . 'MySQL Version: ' . $mysql_version . '\\n'
+            . 'Version: ' . $version;
 
         return $info;
     }
@@ -64,12 +64,14 @@ class Ninja
             return true;
         }
 
-        $data = [
-            'license' => config('ninja.license'),
-        ];
-
-        $data = trim(CurlUtils::post('https://license.invoicing.co/api/check', $data));
-        $data = json_decode($data);
+        try {
+            $response = Http::asForm()->post('https://license.invoicing.co/api/check', [
+                'license' => config('ninja.license'),
+            ]);
+            $data = json_decode(trim($response->body()));
+        } catch (\Throwable) {
+            return false;
+        }
 
         if ($data && property_exists($data, 'message') && $data->message == sha1(config('ninja.license'))) {
             return true;
@@ -95,26 +97,16 @@ class Ninja
         }
 
         $url = config('ninja.license_url').'/signup/register';
-        $data = '';
-        $fields = [
-            'first_name' => urlencode($user->first_name),
-            'last_name' => urlencode($user->last_name),
-            'email' => urlencode($user->email),
-        ];
 
-        foreach ($fields as $key => $value) {
-            $data .= $key.'='.$value.'&';
+        try {
+            Http::asForm()->post($url, [
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+            ]);
+        } catch (\Throwable) {
+            // Fire-and-forget registration ping; signup must not fail if license server is down.
         }
-
-        $data = rtrim($data, '&');
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, count($fields));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($ch);
-        curl_close($ch);
     }
 
     public static function eventVars($user_id = null)
@@ -148,7 +140,7 @@ class Ninja
         }
 
         foreach ($trans as $key => $value) {
-            $translations['texts.'.$key] = $value;
+            $translations['texts.' . $key] = $value;
         }
 
         return $translations;
@@ -159,7 +151,7 @@ class Ninja
         try {
             $x = Http::withHeaders([
                 'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
-            ])->post(config('ninja.license_url').'/api/v1/enable_forwarding', [
+            ])->post(config('ninja.license_url') . '/api/v1/enable_forwarding', [
                 'account_key' => $company_key,
                 'email' => $email,
             ]);

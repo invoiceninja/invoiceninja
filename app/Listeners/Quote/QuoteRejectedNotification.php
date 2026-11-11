@@ -26,9 +26,7 @@ class QuoteRejectedNotification implements ShouldQueue
 
     public $delay = 8;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -50,7 +48,7 @@ class QuoteRejectedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
-            if (! $user) {
+            if ($company_user->trashed() || ! $user ) {
                 continue;
             }
 
@@ -62,7 +60,7 @@ class QuoteRejectedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject();
-                $nmo->mailable = new NinjaMailer((new QuoteRejectedObject($quote, $event->company, $company_user->portalType(), $event->notes))->build());
+                $nmo->mailable = new NinjaMailer((new QuoteRejectedObject($quote, $event->company, $event->notes))->build());
                 $nmo->company = $quote->company;
                 $nmo->settings = $quote->company->settings;
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,31 +13,17 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Vendor;
-use App\Libraries\MultiDB;
-use App\Jobs\Util\PreviewPdf;
 use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
 use App\Services\Pdf\PdfMock;
 use App\Utils\Traits\MakesHash;
-use App\Utils\VendorHtmlEngine;
 use App\Services\Pdf\PdfService;
-use App\Utils\PhantomJS\Phantom;
-use App\Services\PdfMaker\Design;
-use App\Utils\HostedPDF\NinjaPdf;
-use Illuminate\Support\Facades\DB;
-use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
-use App\Factory\PurchaseOrderFactory;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Turbo124\Beacon\Facades\LightLogs;
 use App\Models\PurchaseOrderInvitation;
 use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use App\DataMapper\Analytics\LivePreview;
-use App\Repositories\PurchaseOrderRepository;
 use App\Http\Requests\Preview\ShowPreviewRequest;
 use App\Http\Requests\Preview\PreviewPurchaseOrderRequest;
 
@@ -87,9 +73,9 @@ class PreviewPurchaseOrderController extends BaseController
      */
     public function show(ShowPreviewRequest $request)
     {
-        if ($request->input('entity', false) &&
-            $request->input('entity_id', false) != '-1' &&
-            $request->has('body')) {
+        if ($request->input('entity', false)
+           && $request->input('entity_id', false) != '-1'
+           && $request->has('body')) {
 
             $design_object = json_decode(json_encode($request->input('design')), true);
 
@@ -97,7 +83,7 @@ class PreviewPurchaseOrderController extends BaseController
                 return response()->json(['message' => ctrans('texts.invalid_design_object')], 400);
             }
 
-            $entity_obj = PurchaseOrder::query()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
+            $entity_obj = PurchaseOrder::query()->with('vendor', 'vendor.tags')->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
 
             if (! $entity_obj) {
                 return $this->blankEntity();
@@ -113,7 +99,7 @@ class PreviewPurchaseOrderController extends BaseController
             $ps = new PdfService($invitation, 'product', [
                 'client' => $entity_obj->client ?? false,
                 'vendor' => $entity_obj->vendor ?? false,
-                $request->input('entity')."s" => [$entity_obj],
+                $request->input('entity') . "s" => [$entity_obj],
             ]);
 
             $ps->boot()
@@ -187,7 +173,7 @@ class PreviewPurchaseOrderController extends BaseController
             'Content-Disposition' => 'inline',
             'Content-Type' => 'application/pdf',
             'Cache-Control:' => 'no-cache',
-            'Server-Timing' => (string)(microtime(true) - $start)
+            'Server-Timing' => (string) (microtime(true) - $start),
         ]);
 
 
@@ -202,7 +188,7 @@ class PreviewPurchaseOrderController extends BaseController
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($user->company()->settings));
 
-        /** @var \App\Models\PurchaseOrderInvitation $invitation */
+        /** @var \App\Models\PurchaseOrderInvitation|null $invitation */
         $invitation = PurchaseOrderInvitation::where('company_id', $user->company()->id)->orderBy('id', 'desc')->first();
 
         /* If we don't have a valid invitation in the system - create a mock using transactions */
@@ -216,18 +202,28 @@ class PreviewPurchaseOrderController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
+        $requestDesign = $design_object['design'] ?? null;
+
+        if (! is_array($requestDesign)) {
+            return response()->json(['message' => 'Invalid custom design object'], 400);
+        }
+
         $ps = new PdfService($invitation, 'product', [
             'client' => $invitation->client ?? false,
             'vendor' => $invitation->vendor ?? false,
             "purchase_orders" => [$invitation->purchase_order],
         ]);
 
-        $ps->boot()
-        ->designer
-        ->buildFromPartials($design_object['design']);
+        $ps->bootForPreviewDesign($requestDesign);
 
-        $ps->builder
-        ->build();
+        if (isset($requestDesign['blocks'])) {
+            $ps->setJsonDesignHtml(
+                (new \App\Services\Pdf\JsonDesignService($ps, $requestDesign))->build()
+            );
+        } else {
+            $ps->designer->buildFromPartials($requestDesign);
+            $ps->builder->build();
+        }
 
 
         if (request()->query('html') == 'true') {

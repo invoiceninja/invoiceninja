@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -200,9 +200,7 @@ class Wave extends BaseImport implements ImportInterface
         $this->entity_count['expenses'] = $expense_count;
     }
 
-    public function transform(array $data)
-    {
-    }
+    public function transform(array $data) {}
 
     private function groupExpenses($csvData)
     {
@@ -210,7 +208,7 @@ class Wave extends BaseImport implements ImportInterface
         $key = 'Transaction ID';
 
         foreach ($csvData as $expense) {
-            if (isset($expense['Account Group']) &&$expense['Account Group'] == 'Expense') {
+            if (isset($expense['Account Group']) && $expense['Account Group'] == 'Expense') {
                 $grouped[$expense[$key]][] = $expense;
             }
         }
@@ -246,7 +244,7 @@ class Wave extends BaseImport implements ImportInterface
 
                     if (isset($raw_expense['Vendor Name']) || isset($raw_expense['Vendor'])) {
                         $vendor_repository->save(
-                            ['name' => isset($raw_expense['Vendor Name']) ? $raw_expense['Vendor Name'] : isset($raw_expense['Vendor'])],
+                            ['name' => $raw_expense['Vendor Name'] ?? isset($raw_expense['Vendor'])],
                             $vendor = VendorFactory::create(
                                 $this->company->id,
                                 $vendor_data['user_id']

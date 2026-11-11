@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -99,7 +99,7 @@ class CreditTransformer extends EntityTransformer
             'updated_at' => (int) $credit->updated_at,
             'archived_at' => (int) $credit->deleted_at,
             'is_deleted' => (bool) $credit->is_deleted,
-            'number' => $credit->number ?: '',
+            'number' => (string) ($credit->number ?? ''),
             'discount' => (float) $credit->discount,
             'po_number' => $credit->po_number ?: '',
             'date' => $credit->date ?: '',
@@ -148,7 +148,9 @@ class CreditTransformer extends EntityTransformer
             'tax_info' => $credit->tax_data ?: new \stdClass(),
             'e_invoice' => $credit->e_invoice ?: new \stdClass(),
             'location_id' => $this->encodePrimaryKey($credit->location_id),
-            'backup' => $credit->backup
+            'backup' => $credit->backup,
+            'tags' => $this->transformTags($credit),
+            'sync' => $credit->sync,
         ];
     }
 }

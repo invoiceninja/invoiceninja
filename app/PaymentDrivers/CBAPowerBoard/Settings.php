@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,9 +24,7 @@ class Settings
     protected const GATEWAY_PAYPAL = 'Paypal';
     protected const GATEWAY_ZIP = 'Zipmoney';
 
-    public function __construct(public CBAPowerBoardPaymentDriver $powerboard)
-    {
-    }
+    public function __construct(public CBAPowerBoardPaymentDriver $powerboard) {}
 
     /**
      * Returns the API response for the gateways
@@ -41,7 +39,7 @@ class Settings
             $r->throw();
         }
 
-        return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Gateway::class."[]", $r->object()->resource->data);
+        return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Gateway::class . "[]", $r->object()->resource->data);
 
     }
 
@@ -82,7 +80,7 @@ class Settings
     {
         $type = self::GATEWAY_CBA;
 
-        match($gateway_type_id) {
+        match ($gateway_type_id) {
             \App\Models\GatewayType::CREDIT_CARD => $type = self::GATEWAY_CBA,
             default => $type = self::GATEWAY_CBA,
         };
@@ -105,7 +103,7 @@ class Settings
             $settings = $this->getSettings();
         }
 
-        $gateways = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Gateway::class."[]", $settings->gateways);
+        $gateways = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Gateway::class . "[]", $settings->gateways);
 
         if ($gateway_type_const == self::GATEWAY_CBA && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1) {
 

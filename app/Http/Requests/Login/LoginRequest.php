@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,12 +13,13 @@
 namespace App\Http\Requests\Login;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Account\BlackListRule;
 use App\Http\ValidationRules\Account\EmailBlackListRule;
 use App\Utils\Ninja;
 
 class LoginRequest extends Request
 {
+    protected $stopOnFirstFailure = true;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -37,14 +38,33 @@ class LoginRequest extends Request
     public function rules()
     {
         if (Ninja::isHosted()) {
-            $email_rules = ['required', new EmailBlackListRule()];
+            $email_rules = ['required', 'bail', 'string',new EmailBlackListRule()];
         } else {
-            $email_rules = 'required';
+            $email_rules = 'required|bail|string';
         }
 
         return [
             'email' => $email_rules,
-            'password' => 'required|max:1000',
+            'password' => 'required_without:passkey_challenge_token|string|max:1000',
+            'passkey_challenge_token' => 'nullable|string|max:255',
+            'passkey_authentication' => 'nullable|array',
+            'passkey_authentication.id' => 'required_with:passkey_challenge_token|string',
+            'passkey_authentication.clientDataJSON' => 'required_with:passkey_challenge_token|string',
+            'passkey_authentication.authenticatorData' => 'required_with:passkey_challenge_token|string',
+            'passkey_authentication.signature' => 'required_with:passkey_challenge_token|string',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'password.required_without' => ctrans('texts.password') . ' ' . ctrans('texts.required'),
+        ];
+    }
+
+    public function isPasskeyLogin(): bool
+    {
+        return !$this->filled('password') && $this->filled('passkey_challenge_token');
+    }
+
 }

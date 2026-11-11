@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,15 +13,16 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Models\Invoice;
-use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Authorize\FDSReview;
-use net\authorize\api\contract\v1\OrderType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use net\authorize\api\contract\v1\ExtendedAmountType;
-use net\authorize\api\contract\v1\PaymentProfileType;
-use net\authorize\api\contract\v1\TransactionRequestType;
+use App\Utils\Traits\MakesHash;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
+use net\authorize\api\contract\v1\ExtendedAmountType;
+use net\authorize\api\contract\v1\OrderType;
+use net\authorize\api\contract\v1\PaymentProfileType;
+use net\authorize\api\contract\v1\SettingType;
+use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
 /**
@@ -41,7 +42,7 @@ class ChargePaymentProfile
         $this->authorize->init();
 
         // Set the transaction's refId
-        $refId = 'ref'.time();
+        $refId = 'ref' . time();
 
         $profileToCharge = new CustomerProfilePaymentType();
         $profileToCharge->setCustomerProfileId($profile_id);
@@ -55,6 +56,8 @@ class ChargePaymentProfile
         $invoiceTotal = 0;
         $invoiceTaxes = 0;
 
+        $amount = round($amount, 2);
+        
         if ($this->authorize->payment_hash->data) {
             $invoice_numbers = collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
             $invObj = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
@@ -83,6 +86,14 @@ class ChargePaymentProfile
         $tax->setName('tax');
         $tax->setAmount($taxAmount);
 
+        $duplicateWindowSetting = new SettingType();
+        $duplicateWindowSetting->setSettingName("duplicateWindow");
+        $duplicateWindowSetting->setSettingValue("3");
+
+        $emailSetting = new SettingType();
+        $emailSetting->setSettingName('emailCustomer');
+        $emailSetting->setSettingValue('false');
+
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
@@ -91,6 +102,8 @@ class ChargePaymentProfile
         $transactionRequestType->setOrder($order);
         $transactionRequestType->setProfile($profileToCharge);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
+        $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+        $transactionRequestType->addToTransactionSettings($emailSetting);
 
         $solution = new \net\authorize\api\contract\v1\SolutionType();
         $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');
@@ -107,24 +120,24 @@ class ChargePaymentProfile
             $tresponse = $response->getTransactionResponse();
 
             if ($tresponse != null && $tresponse->getMessages() != null) {
-                nlog(' Transaction Response code : '.$tresponse->getResponseCode());
+                nlog(' Transaction Response code : ' . $tresponse->getResponseCode());
                 nlog(' Charge Customer Profile APPROVED  :');
-                nlog(' Charge Customer Profile AUTH CODE : '.$tresponse->getAuthCode());
-                nlog(' Charge Customer Profile TRANS ID  : '.$tresponse->getTransId());
-                nlog(' Code : '.$tresponse->getMessages()[0]->getCode());
-                nlog(' Description : '.$tresponse->getMessages()[0]->getDescription());
+                nlog(' Charge Customer Profile AUTH CODE : ' . $tresponse->getAuthCode());
+                nlog(' Charge Customer Profile TRANS ID  : ' . $tresponse->getTransId());
+                nlog(' Code : ' . $tresponse->getMessages()[0]->getCode());
+                nlog(' Description : ' . $tresponse->getMessages()[0]->getDescription());
                 nlog(print_r($tresponse->getMessages()[0], 1));
 
                 if ($tresponse->getResponseCode() == "4" || $tresponse->getMessages()[0]->getCode() == "253") {
                     //notify user that this transaction is being held under FDS review:
-                    FDSReview::dispatch((string)$tresponse->getTransId(), $this->authorize?->payment_hash, $this->authorize->company_gateway->company->db);
+                    FDSReview::dispatch((string) $tresponse->getTransId(), $this->authorize?->payment_hash, $this->authorize->company_gateway->company->db);
                 }
 
             } else {
                 nlog('Transaction Failed ');
                 if ($tresponse->getErrors() != null) {
-                    nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode());
-                    nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText());
+                    nlog(' Error code  : ' . $tresponse->getErrors()[0]->getErrorCode());
+                    nlog(' Error message : ' . $tresponse->getErrors()[0]->getErrorText());
                     nlog(print_r($tresponse->getErrors()[0], 1));
                 }
             }
@@ -132,12 +145,12 @@ class ChargePaymentProfile
             nlog('Transaction Failed ');
             $tresponse = $response->getTransactionResponse();
             if ($tresponse != null && $tresponse->getErrors() != null) {
-                nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode());
-                nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText());
+                nlog(' Error code  : ' . $tresponse->getErrors()[0]->getErrorCode());
+                nlog(' Error message : ' . $tresponse->getErrors()[0]->getErrorText());
                 nlog(print_r($tresponse->getErrors()[0], 1));
             } else {
-                nlog(' Error code  : '.$response->getMessages()->getMessage()[0]->getCode());
-                nlog(' Error message : '.$response->getMessages()->getMessage()[0]->getText());
+                nlog(' Error code  : ' . $response->getMessages()->getMessage()[0]->getCode());
+                nlog(' Error message : ' . $response->getMessages()->getMessage()[0]->getText());
             }
         }
 

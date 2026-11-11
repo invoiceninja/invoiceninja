@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,23 +13,12 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Utils\HtmlEngine;
 use Illuminate\Support\Str;
 use Twig\Error\SyntaxError;
-use App\Jobs\Util\PreviewPdf;
-use App\Models\ClientContact;
 use App\Services\Pdf\PdfMock;
 use App\Utils\Traits\MakesHash;
-use App\Utils\VendorHtmlEngine;
 use App\Services\Pdf\PdfService;
-use App\Utils\PhantomJS\Phantom;
 use App\Models\InvoiceInvitation;
-use App\Services\PdfMaker\Design;
-use App\Utils\HostedPDF\NinjaPdf;
-use Illuminate\Support\Facades\DB;
-use App\Services\PdfMaker\PdfMaker;
 use Illuminate\Support\Facades\App;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesInvoiceHtml;
@@ -69,9 +58,9 @@ class PreviewController extends BaseController
         $entity_obj->fill($request->all());
 
         if (!$entity_obj->id || $request->entity == 'recurring_invoice') {
-            $entity_obj->design_id = $entity_obj->design_id ?: intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
-            $entity_obj->footer = empty($entity_obj->footer) ? $settings->{$entity_prop."_footer"} : $entity_obj->footer;
-            $entity_obj->terms = empty($entity_obj->terms) ? $settings->{$entity_prop."_terms"} : $entity_obj->terms;
+            $entity_obj->design_id = $entity_obj->design_id ?: intval($this->decodePrimaryKey($settings->{$entity_prop . "_design_id"}));
+            $entity_obj->footer = empty($entity_obj->footer) ? $settings->{$entity_prop . "_footer"} : $entity_obj->footer;
+            $entity_obj->terms = empty($entity_obj->terms) ? $settings->{$entity_prop . "_terms"} : $entity_obj->terms;
             $entity_obj->public_notes = empty($entity_obj->public_notes) ? $request->getClient()->public_notes : $entity_obj->public_notes;
 
             $entity_obj->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;
@@ -96,25 +85,15 @@ class PreviewController extends BaseController
         }
 
         /** Return PDF */
-        
+
         return response()->stream(function () use ($pdf) {
             echo $pdf;
         }, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="preview.pdf"',
             'Cache-Control' => 'no-cache',
-            'Server-Timing' => (string)(microtime(true) - $start),
+            'Server-Timing' => (string) (microtime(true) - $start),
         ]);
-
-        //@2025-06-25 - streamDownload forces attachment, which is not what we want. ->stream() is better.
-        // return response()->streamDownload(function () use ($pdf) {
-        //     echo $pdf;
-        // }, 'preview.pdf', [
-        //     'Content-Disposition' => 'inline',
-        //     'Content-Type' => 'application/pdf',
-        //     'Cache-Control:' => 'no-cache',
-        //     'Server-Timing' => (string)(microtime(true) - $start)
-        // ]);
 
     }
 
@@ -163,8 +142,8 @@ class PreviewController extends BaseController
             return $this->template();
         }
 
-        if ($request->input('entity', false) &&
-            $request->input('entity_id', false) != '-1') {
+        if ($request->input('entity', false)
+           && $request->input('entity_id', false) != '-1') {
 
             $design_object = json_decode(json_encode($request->input('design')));
 
@@ -183,11 +162,11 @@ class PreviewController extends BaseController
             }
 
             if ($entity_obj->client) {
-                $entity_obj->load('client');
+                $entity_obj->load('client', 'client.tags');
                 $locale = $entity_obj->client->preferredLocale();
                 $settings = $entity_obj->client->getMergedSettings();
             } else {
-                $entity_obj->load('vendor');
+                $entity_obj->load('vendor', 'vendor.tags');
                 $locale = $entity_obj->vendor->preferredLocale();
                 $settings = $entity_obj->vendor->getMergedSettings();
             }
@@ -201,15 +180,21 @@ class PreviewController extends BaseController
             $ps = new PdfService($invitation, 'product', [
                 'client' => $entity_obj->client ?? false,
                 'vendor' => $entity_obj->vendor ?? false,
-                $request->input('entity')."s" => [$entity_obj],
+                $request->input('entity') . "s" => [$entity_obj],
             ]);
 
-            $ps->boot()
-            ->designer
-            ->buildFromPartials($request->design['design']);
+            $requestDesign = $request->design['design'];
 
-            $ps->builder
-            ->build();
+            $ps->bootForPreviewDesign($requestDesign);
+
+            if (isset($requestDesign['blocks'])) {
+                $ps->setJsonDesignHtml(
+                    (new \App\Services\Pdf\JsonDesignService($ps, $requestDesign))->build()
+                );
+            } else {
+                $ps->designer->buildFromPartials($requestDesign);
+                $ps->builder->build();
+            }
 
             if ($request->query('html') == 'true') {
                 return $ps->getHtml();
@@ -337,18 +322,29 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
+        $requestDesign = $design_object['design'] ?? null;
+
+        if (! is_array($requestDesign)) {
+            return response()->json(['message' => 'Invalid custom design object'], 400);
+        }
+
         $ps = new PdfService($invitation, 'product', [
-            'client' => $invitation->client ?? false,
-            'vendor' => $invitation->vendor ?? false,
+            // @todo Remove after next release - invitations have no client/vendor relation, these always resolve to false and are never read by the PDF pipeline
+            // 'client' => $invitation->client ?? false,
+            // 'vendor' => $invitation->vendor ?? false,
             "{$entity_string}s" => [$invitation->{$entity_string}],
         ]);
 
-        $ps->boot()
-        ->designer
-        ->buildFromPartials($design_object['design']);
+        $ps->bootForPreviewDesign($requestDesign);
 
-        $ps->builder
-        ->build();
+        if (isset($requestDesign['blocks'])) {
+            $ps->setJsonDesignHtml(
+                (new \App\Services\Pdf\JsonDesignService($ps, $requestDesign))->build()
+            );
+        } else {
+            $ps->designer->buildFromPartials($requestDesign);
+            $ps->builder->build();
+        }
 
 
         if (request()->query('html') == 'true') {

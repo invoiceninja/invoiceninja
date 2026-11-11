@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -110,12 +110,12 @@ class Handler extends ExceptionHandler
                 $name = 'hosted@invoiceninja.com';
 
                 if (auth()->guard('contact') && auth()->guard('contact')->user()) { // @phpstan-ignore-line
-                    $name = 'Contact = '.auth()->guard('contact')->user()->email;
+                    $name = 'Contact = ' . auth()->guard('contact')->user()->email;
                     $key = auth()->guard('contact')->user()->company->account->key;
                 } elseif (auth()->guard('user') && auth()->guard('user')->user()) { // @phpstan-ignore-line
 
-                    $name = 'Admin = '.auth()->guard('user')->user()->email;
-                    $key = auth()->user()->account->key;
+                    $name = 'Admin = ' . auth()->guard('user')->user()->email;
+                    $key = auth()->guard('user')->user()->account->key;
                 } else {
                     $key = 'Anonymous';
                 }
@@ -139,9 +139,9 @@ class Handler extends ExceptionHandler
                         'email' => 'anonymous@example.com',
                         'name'  => 'Anonymous User',
                     ]);
-                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->user()->companyIsSet() && auth()->user()->company()->account->report_errors) {// @phpstan-ignore-line
+                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->guard('user')->user()->companyIsSet() && auth()->guard('user')->user()->company()->account->report_errors) {// @phpstan-ignore-line
                     $scope->setUser([
-                        'id'    => auth()->user()->account->key,
+                        'id'    => auth()->guard('user')->user()->account->key,
                         'email' => 'anonymous@example.com',
                         'name'  => 'Anonymous User',
                     ]);
@@ -156,7 +156,7 @@ class Handler extends ExceptionHandler
         parent::report($exception);
 
         if (Ninja::isSelfHost() && $exception instanceof MissingAppKeyException) {
-            info('To setup the app run: cp .env.example .env');
+            nlog('To setup the app run: cp .env.example .env');
         }
     }
 
@@ -204,7 +204,7 @@ class Handler extends ExceptionHandler
             $dontReport = array_merge($this->selfHostDontReport, $this->internalDontReport);
         }
 
-        return is_null(Arr::first($dontReport, fn ($type) => $e instanceof $type));
+        return is_null(Arr::first($dontReport, fn($type) => $e instanceof $type));
     }
 
     /**

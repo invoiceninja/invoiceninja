@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,12 +30,12 @@ class EmailPreferencesController extends Controller
         request()->session()->invalidate();
         request()->session()->regenerate(true);
         request()->session()->regenerateToken();
-        
-        $class = "\\App\\Models\\".ucfirst(Str::camel($entity)).'Invitation';
+
+        $class = "\\App\\Models\\" . ucfirst(Str::camel($entity)) . 'Invitation';
         $invitation = $class::where('key', $invitation_key)->firstOrFail();
 
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
-        
+
         $data['receive_emails'] = $invitation->contact->is_locked ? false : true;
         $data['company'] = $invitation->company;
 
@@ -52,7 +52,7 @@ class EmailPreferencesController extends Controller
 
         if ($invitation->contact->is_locked && !Cache::has("unsubscribe_notification_suppression:{$invitation_key}")) {
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company, true))->build());
+            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company))->build());
             $nmo->company = $invitation->contact->company;
             $nmo->to_user = $invitation->contact->company->owner();
             $nmo->settings = $invitation->contact->company->settings;

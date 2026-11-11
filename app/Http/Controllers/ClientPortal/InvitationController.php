@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,28 +44,36 @@ class InvitationController extends Controller
 
     public function router(string $entity, string $invitation_key)
     {
-        Auth::logout();
+        auth()->guard('contact')->logout();
 
         return $this->genericRouter($entity, $invitation_key);
     }
 
     public function recurringRouter(string $invitation_key)
     {
+        auth()->guard('contact')->logout();
+
         return $this->genericRouter('recurring_invoice', $invitation_key);
     }
 
     public function invoiceRouter(string $invitation_key)
     {
+        auth()->guard('contact')->logout();
+
         return $this->genericRouter('invoice', $invitation_key);
     }
 
     public function quoteRouter(string $invitation_key)
     {
+        auth()->guard('contact')->logout();
+
         return $this->genericRouter('quote', $invitation_key);
     }
 
     public function creditRouter(string $invitation_key)
     {
+        auth()->guard('contact')->logout();
+
         return $this->genericRouter('credit', $invitation_key);
     }
 
@@ -77,17 +85,19 @@ class InvitationController extends Controller
 
         $is_silent = 'false';
         $session_is_silent = session()->get('is_silent') ?? false;
-        $key = $entity.'_id';
+        $key = $entity . '_id';
 
-        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($entity)) . 'Invitation';
 
+        /** @var \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation $invitation */
         $invitation = $entity_obj::withTrashed()
                                     ->with($entity)
                                     ->where('key', $invitation_key)
                                     ->with('contact.client')
                                     ->firstOrFail();
 
-        if ($invitation->trashed() || $invitation->{$entity}->is_deleted) {
+                                    // Ensure the contact/client record is in a good state
+        if ($invitation->trashed() || $invitation->{$entity}->is_deleted || $invitation->{$entity}->client->is_deleted) {
             return $this->render('generic.not_available', ['passed_account' => $invitation->company->account, 'passed_company' => $invitation->company]);
         }
 
@@ -112,18 +122,19 @@ class InvitationController extends Controller
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
             //if no contact password has been set - allow user to set password - then continue to view entity
             if (empty($invitation->contact->password)) {
-                return $this->render('view_entity.set_password', [
-                            'root' => 'themes',
-                            'entity_type' => $entity,
-                            'invitation_key' => $invitation_key
-                        ]);
+                return redirect()->route('client.set_password_form', [
+                    'entity_type' => $entity,
+                    'invitation_key' => $invitation_key,
+                    'hash' => hash_hmac('sha256', $invitation_key, config('app.key')),
+                ]);
             }
 
-            if (!auth()->guard('contact')->check()) {
+            if (!auth()->guard('contact')->check() || (int) auth()->guard('contact')->user()->id !== (int) $invitation->client_contact_id) {
                 $this->middleware('auth:contact');
                 /** @var \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\RecurringInvoiceInvitation $invitation */
-                return redirect()->route('client.login', ['intended' => route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent])]);
+                return redirect()->route('client.login', ['company_key' => $invitation->company->company_key, 'intended' => route('client.' . $entity . '.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent])]);
             }
+
 
         } else {
             request()->session()->invalidate();
@@ -145,11 +156,11 @@ class InvitationController extends Controller
         } else {
             $is_silent = 'true';
 
-            return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent]);
+            return redirect()->route('client.' . $entity . '.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent]);
 
         }
 
-        return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
+        return redirect()->route('client.' . $entity . '.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
 
     }
 
@@ -189,9 +200,9 @@ class InvitationController extends Controller
             return response()->json(['message' => 'Invalid resource request']);
         }
 
-        $key = $entity.'_id';
+        $key = $entity . '_id';
 
-        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($entity)) . 'Invitation';
 
         $invitation = $entity_obj::withTrashed()
                                     ->where('key', $invitation_key)
@@ -202,7 +213,7 @@ class InvitationController extends Controller
             return response()->json(["message" => "no record found"], 400);
         }
 
-        $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
+        $file_name = $invitation->{$entity}->numberFormatter() . '.pdf';
 
         $file = (new CreateRawPdf($invitation))->handle();
 
@@ -217,22 +228,60 @@ class InvitationController extends Controller
         }, $file_name, $headers);
     }
 
-    public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
-    {
-    }
+    public function routerForIframe(string $entity, string $client_hash, string $invitation_key) {}
 
 
-    public function handlePasswordSet(Request $request)
+    public function setPasswordForm(Request $request)
     {
-        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($request->entity_type)).'Invitation';
-        $key = $request->entity_type.'_id';
+        if (!in_array($request->entity_type, ['invoice', 'quote', 'credit', 'recurring_invoice'])) {
+            abort(404);
+        }
+
+        if (!hash_equals(hash_hmac('sha256', $request->invitation_key, config('app.key')), $request->hash ?? '')) {
+            abort(403);
+        }
+
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($request->entity_type)) . 'Invitation';
 
         $invitation = $entity_obj::where('key', $request->invitation_key)
                                     ->whereHas($request->entity_type, function ($query) {
                                         $query->where('is_deleted', 0);
                                     })
+                                    ->with('contact')
+                                    ->firstOrFail();
+
+        if (!empty($invitation->contact->password)) {
+            abort(404);
+        }
+
+        \App::setLocale($invitation->contact->preferredLocale());
+
+        return $this->render('view_entity.set_password', [
+            'root' => 'themes',
+            'entity_type' => $request->entity_type,
+            'entity_translation' => ctrans('texts.' . $request->entity_type),
+            'invitation_key' => $request->invitation_key,
+        ]);
+    }
+
+    public function handlePasswordSet(Request $request)
+    {
+        $entity_obj = 'App\Models\\' . ucfirst(Str::camel($request->entity_type)) . 'Invitation';
+        $key = $request->entity_type . '_id';
+
+        $invitation = $entity_obj::where('key', $request->invitation_key)
+                                    ->whereHas($request->entity_type, function ($query) {
+                                        $query->where('is_deleted', 0);
+                                    })
+                                    ->whereHas('contact.client', function ($query) {
+                                        $query->where('is_deleted', 0);
+                                    })
                                     ->with('contact.client')
                                     ->firstOrFail();
+
+        if (!empty($invitation->contact->password)) {
+            abort(404);
+        }
 
         $contact = $invitation->contact;
         $contact->password = Hash::make($request->password);
@@ -257,7 +306,7 @@ class InvitationController extends Controller
             }
         }
 
-        return redirect()->route('client.'.$request->entity_type.'.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);
+        return redirect()->route('client.' . $request->entity_type . '.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);
     }
 
     public function paymentRouter(string $contact_key, string $payment_id)
@@ -265,12 +314,16 @@ class InvitationController extends Controller
         /** @var \App\Models\ClientContact $contact **/
         $contact = ClientContact::withTrashed()->where('contact_key', $contact_key)->firstOrFail();
 
-        /** @var \App\Models\Payment $payment **/
-        $payment = Payment::find($this->decodePrimaryKey($payment_id));
-
-        if ($payment->client_id != $contact->client_id) {
-            abort(403, 'You are not authorized to view this resource');
+        if ($contact->client->is_deleted) {
+            return $this->render('generic.not_available', ['passed_account' => $contact->company->account, 'passed_company' => $contact->company]);
         }
+
+        /** @var \App\Models\Payment $payment **/
+        $payment = Payment::withTrashed()
+                            ->where('id', $this->decodePrimaryKey($payment_id))
+                            ->where('client_id', $contact->client_id)
+                            ->where('is_deleted', 0)
+                            ->firstOrFail();
 
         request()->session()->invalidate();
         request()->session()->regenerate(true);
@@ -287,6 +340,9 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
+        if ($invitation->contact->client->is_deleted) {
+            return $this->render('generic.not_available', ['passed_account' => $invitation->company->account, 'passed_company' => $invitation->company]);
+        }
 
         if ($invitation->contact->trashed()) {
             $invitation->contact->restore();
@@ -299,7 +355,7 @@ class InvitationController extends Controller
         request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
-        $invoice = $invitation->invoice->service()->removeUnpaidGatewayFees()->save();
+        $invoice = $invitation->invoice;
 
         if (! $invitation->viewed_date) {
             $invitation->markViewed();
@@ -316,12 +372,18 @@ class InvitationController extends Controller
         }
 
         if ($invoice->partial > 0) {
-            $amount = round($invoice->partial, (int)$invoice->client->currency()->precision);
+            $amount = round($invoice->partial, (int) $invoice->client->currency()->precision);
         } else {
-            $amount = round($invoice->balance, (int)$invoice->client->currency()->precision);
+            $amount = round($invoice->balance, (int) $invoice->client->currency()->precision);
         }
 
-        $gateways = $invitation->contact->client->service()->getPaymentMethods($amount);
+        $client = $invitation->contact->client;
+
+        if (($client->requiresDocuNinjaSigning() || $client->requiresSignature()) && !$invoice->sync?->dn_completed) {
+            return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
+        }
+
+        $gateways = $client->service()->getPaymentMethods($amount);
 
         if (is_array($gateways) && count($gateways) >= 1) {
             $data = [
@@ -345,7 +407,7 @@ class InvitationController extends Controller
 
         $entity = 'invoice';
 
-        if ($invoice && is_array($gateways) && count($gateways) == 0) {
+        if (is_array($gateways) && count($gateways) == 0) {
             return redirect()->route('client.invoice.show', ['invoice' => $this->encodePrimaryKey($invitation->invoice_id)]);
         }
 

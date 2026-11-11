@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,7 +44,7 @@ class StoreTaskStatusRequest extends Request
     {
         $rules = [];
 
-        $rules['name'] = 'required|unique:task_statuses,name,null,null,company_id,'.auth()->user()->companyId();
+        $rules['name'] = 'required|unique:task_statuses,name,null,null,company_id,' . auth()->user()->companyId();
 
         return $rules;
     }

@@ -5,6 +5,7 @@
           description: 'The project hashed id'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string
@@ -77,6 +78,21 @@
         color:
           type: string
           description: The color associated with the project
+        tags:
+          description: 'Tags assigned to the project'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        current_hours:
+          description: 'Logged hours currently recorded against the project'
+          type: integer
+          example: 12
+          readOnly: true
+        budgeted_amount:
+          description: 'The budgeted monetary amount for the project'
+          type: number
+          format: float
+          example: 5000.00
       required:
         - id
         - user_id

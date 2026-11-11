@@ -34,11 +34,9 @@
     const orderId = "{!! $order_id !!}";
 
     paypal.Buttons({
-        env: 'production',
         fundingSource: fundingSource,
-        client: clientId,
         createOrder: function(data, actions) {
-            return orderId;  
+            return orderId;
         },
         onApprove: function(data, actions) {
 
@@ -97,19 +95,20 @@
         }
     
     }).render('#paypal-button-container').catch(function(err) {
-        
-      document.getElementById('errors').textContent = err;
-      document.getElementById('errors').hidden = false;
-        
+        const errors = document.getElementById('errors');
+        if (errors) {
+            errors.textContent = err;
+            errors.hidden = false;
+        }
     });
-    
-    document.getElementById("server_response").addEventListener('submit', (e) => {
-		if (document.getElementById("server_response").classList.contains('is-submitting')) {
-			e.preventDefault();
-		}
-		
-		document.getElementById("server_response").classList.add('is-submitting');
-	});
+
+        const form = document.getElementById("server_response");
+        form?.addEventListener('submit', (e) => {
+            if (form.classList.contains('is-submitting')) {
+                e.preventDefault();
+            }
+            form.classList.add('is-submitting');
+        });
 
 </script>
 @endscript

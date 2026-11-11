@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Repositories;
 
 use App\Models\Scheduler;
+use App\Services\Scheduler\PaymentSchedule;
 
 class SchedulerRepository extends BaseRepository
 {
@@ -33,6 +34,13 @@ class SchedulerRepository extends BaseRepository
 
         $scheduler->adjustOffset();
 
-        return $scheduler->fresh();
+        // Populate the invoice partial / due dates when a payment schedule is first created.
+        // A single-instalment schedule force-deletes itself during seeding, so fall back to
+        // the in-memory instance when there is no longer a persisted record to refresh.
+        if ($scheduler->wasRecentlyCreated && $scheduler->template === 'payment_schedule') {
+            (new PaymentSchedule($scheduler))->seed();
+        }
+
+        return $scheduler->fresh() ?? $scheduler;
     }
 }

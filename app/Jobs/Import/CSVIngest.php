@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,6 +31,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\LazyCollection;
 
 class CSVIngest implements ShouldQueue
 {
@@ -62,9 +64,9 @@ class CSVIngest implements ShouldQueue
         $this->hash = $request['hash'];
         $this->import_type = $request['import_type'];
         $this->skip_header = $request['skip_header'] ?? null;
-        $this->column_map =
-            ! empty($request['column_map']) ?
-                array_combine(array_keys($request['column_map']), array_column($request['column_map'], 'mapping')) : null;
+        $this->column_map
+            = ! empty($request['column_map'])
+                ? array_combine(array_keys($request['column_map']), array_column($request['column_map'], 'mapping')) : null;
     }
 
     /**
@@ -81,7 +83,7 @@ class CSVIngest implements ShouldQueue
 
         $engine = $this->bootEngine();
 
-        foreach (['client', 'product', 'invoice', 'payment', 'vendor', 'expense', 'quote', 'bank_transaction', 'recurring_invoice', 'task'] as $entity) {
+        foreach (['client', 'product', 'invoice', 'payment', 'vendor', 'purchase_order', 'expense', 'quote', 'bank_transaction', 'recurring_invoice', 'task'] as $entity) {
             $engine->import($entity);
         }
 
@@ -112,17 +114,28 @@ class CSVIngest implements ShouldQueue
             $new_contact->save();
         }
 
-        Client::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client) {
-            $contact = $client->contacts()->first();
-            $contact->is_primary = true;
-            $contact->save();
+        $this->streamQuery(Client::with('contacts')->where('company_id', $this->company->id))->each(function (Client $client): void {
+            $contact = $client->contacts->first();
+
+            if ($contact) {
+                $contact->is_primary = true;
+                $contact->save();
+            }
         });
 
-        Vendor::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($vendor) {
-            $contact = $vendor->contacts()->first();
-            $contact->is_primary = true;
-            $contact->save();
+        $this->streamQuery(Vendor::with('contacts')->where('company_id', $this->company->id))->each(function (Vendor $vendor): void {
+            $contact = $vendor->contacts->first();
+
+            if ($contact) {
+                $contact->is_primary = true;
+                $contact->save();
+            }
         });
+    }
+
+    private function streamQuery(Builder $query): LazyCollection
+    {
+        return (clone $query)->lazy(500);
     }
 
     private function bootEngine()

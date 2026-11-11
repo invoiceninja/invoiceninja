@@ -5,33 +5,34 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Jobs\PostMark;
 
-use App\Models\Company;
-use App\Models\SystemLog;
-use App\Libraries\MultiDB;
-use Postmark\PostmarkClient;
-use Illuminate\Bus\Queueable;
+use App\DataMapper\Analytics\Mail\EmailBounce;
+use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\Jobs\Util\SystemLogger;
-use App\Models\QuoteInvitation;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
-use Illuminate\Queue\SerializesModels;
-use Turbo124\Beacon\Facades\LightLogs;
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\SystemLog;
+use App\Notifications\Ninja\EmailBounceNotification;
+use App\Notifications\Ninja\EmailSpamNotification;
+use App\Utils\Ninja;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\DataMapper\Analytics\Mail\EmailSpam;
-use App\DataMapper\Analytics\Mail\EmailBounce;
-use App\Notifications\Ninja\EmailSpamNotification;
-use App\Notifications\Ninja\EmailBounceNotification;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Postmark\PostmarkClient;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class ProcessPostmarkWebhook implements ShouldQueue
 {
@@ -62,7 +63,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
      */
     public function __construct(private array $request, private string $security_token)
     {
-        if(\App\Utils\Ninja::isHosted()){
+        if (Ninja::isHosted()) {
             $this->onQueue('postmark');
         }
     }
@@ -73,7 +74,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
             ->where('company_id', $this->invitation->company_id)
             ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
             ->where('category_id', SystemLog::CATEGORY_MAIL)
-            // ->where('client_id', $this->invitation->contact->client_id)
+            ->when($this->invitation->contact?->client_id, fn ($query, $client_id) => $query->where('client_id', $client_id))
             // ->whereJsonContains('log', ['MessageID' => $message_id])
             ->where('log->MessageID', $message_id)
             ->orderBy('id', 'desc')
@@ -102,7 +103,8 @@ class ProcessPostmarkWebhook implements ShouldQueue
             $this->company->notification(new EmailSpamNotification($this->company))->ninja();
         }
 
-        if (!$this->invitation) {
+        /** Free accounts do not have email delivery meta data stored. */
+        if (!$this->invitation || (Ninja::isHosted() && $this->company->account->isFreeHostedClient())) {
             return;
         }
 
@@ -449,7 +451,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     {
 
         if ($exception) {
-            nlog("PROCESSPOSTMARKWEBHOOK:: ". $exception->getMessage());
+            nlog("PROCESSPOSTMARKWEBHOOK:: " . $exception->getMessage());
         }
 
         config(['queue.failed.driver' => null]);

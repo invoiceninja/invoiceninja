@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,14 +48,6 @@ class PurchaseOrderFilters extends QueryFilters
                 $po_status[] = PurchaseOrder::STATUS_DRAFT;
             }
 
-            if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q) {
-                    $q->where('status_id', PurchaseOrder::STATUS_SENT)
-                    ->whereNull('due_date')
-                    ->orWhere('due_date', '>=', now()->toDateString());
-                });
-            }
-
             if (in_array('accepted', $status_parameters)) {
                 $po_status[] = PurchaseOrder::STATUS_ACCEPTED;
             }
@@ -63,10 +55,15 @@ class PurchaseOrderFilters extends QueryFilters
             if (in_array('cancelled', $status_parameters)) {
                 $po_status[] = PurchaseOrder::STATUS_CANCELLED;
             }
+            
+            if (in_array('sent', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_SENT;
+            }
 
             if (count($po_status) >= 1) {
                 $query->whereIn('status_id', $po_status);
             }
+
         });
 
         return $this->builder;
@@ -86,17 +83,17 @@ class PurchaseOrderFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('number', 'like', '%'.$filter.'%')
-                ->orWhere('number', 'like', '%'.$filter.'%')
-                ->orWhere('date', 'like', '%'.$filter.'%')
-                ->orWhere('amount', 'like', '%'.$filter.'%')
-                ->orWhere('balance', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value1', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+            $query->where('number', 'like', '%' . $filter . '%')
+                ->orWhere('number', 'like', '%' . $filter . '%')
+                ->orWhere('date', 'like', '%' . $filter . '%')
+                ->orWhere('amount', 'like', '%' . $filter . '%')
+                ->orWhere('balance', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value4', 'like', '%' . $filter . '%')
                 ->orWhereHas('vendor', function ($q) use ($filter) {
-                    $q->where('name', 'like', '%'.$filter.'%');
+                    $q->where('name', 'like', '%' . $filter . '%');
                 })
                 ->orWhereRaw("
                 JSON_UNQUOTE(JSON_EXTRACT(
@@ -104,7 +101,7 @@ class PurchaseOrderFilters extends QueryFilters
                         JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
                         JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                     ), '$[*]')
-                ) LIKE ?", ['%'.$filter.'%']);
+                ) LIKE ?", ['%' . $filter . '%']);
         });
     }
 

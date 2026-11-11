@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\PaymentTermFactory;
 use App\Filters\PaymentTermFilters;
+use App\Http\Requests\PaymentTerm\BulkPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
 use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\EditPaymentTermRequest;
@@ -460,16 +461,16 @@ class PaymentTermController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkPaymentTermRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $payment_terms = PaymentTerm::withTrashed()->company()->find($this->transformKeys($ids));
+        $payment_terms = PaymentTerm::withTrashed()->company()->find($ids);
 
         $payment_terms->each(function ($payment_term, $key) use ($action, $user) {
             if ($user->can('edit', $payment_term)) {
@@ -477,6 +478,6 @@ class PaymentTermController extends BaseController
             }
         });
 
-        return $this->listResponse(PaymentTerm::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(PaymentTerm::withTrashed()->company()->whereIn('id', $ids));
     }
 }

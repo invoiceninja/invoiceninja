@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,22 +37,16 @@ class CompanyUserController extends BaseController
      *
      * @return void
      */
-    public function index()
-    {
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
      *
      * @return void
      */
-    public function create()
-    {
-    }
+    public function create() {}
 
-    public function store()
-    {
-    }
+    public function store() {}
 
     /**
      * Display the specified resource.
@@ -122,8 +116,13 @@ class CompanyUserController extends BaseController
             throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
         }
 
-        if ($auth_user->isAdmin()) {
-            $company_user->fill($request->input('company_user'));
+        $company_user_input = $request->input('company_user');
+
+        if ($auth_user->isOwner()) {
+            $company_user->fill($company_user_input);
+        } elseif ($auth_user->isAdmin()) {
+            unset($company_user_input['is_owner']);
+            $company_user->fill($company_user_input);
         } else {
             $company_user->settings = $request->input('company_user')['settings'];
             $company_user->notifications = $request->input('company_user')['notifications'];

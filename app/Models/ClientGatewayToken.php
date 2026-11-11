@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\GatewayType|null $gateway_type
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @mixin \Eloquent
  */
 class ClientGatewayToken extends BaseModel
@@ -104,7 +104,7 @@ class ClientGatewayToken extends BaseModel
     {
         $meta = $this->meta;
 
-        if($meta && isset($meta->brand) && isset($meta->last4)) {
+        if ($meta && isset($meta->brand) && isset($meta->last4)) {
             return $meta->brand . ' **** ' . $meta->last4;
         }
 

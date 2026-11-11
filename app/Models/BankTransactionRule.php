@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $auto_convert
  * @property int $matches_on_all
  * @property string $applies_to
+ * @property string $on_credit_match
  * @property int|null $client_id
  * @property int|null $vendor_id
  * @property int|null $category_id
@@ -38,7 +39,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\BankTransactionRuleFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransactionRule filter(\App\Filters\QueryFilters $filters)
@@ -92,6 +93,8 @@ class BankTransactionRule extends BaseModel
     protected array $search_keys = [
         'description' => 'string',
         'amount' => 'number',
+        'participant' => 'string',
+        'participant_name' => 'string',
     ];
 
     /* Amount */
@@ -100,7 +103,7 @@ class BankTransactionRule extends BaseModel
         '>',
         '>=',
         '<',
-        '<='
+        '<=',
     ];
 
     /* Description, Client, Vendor, Reference Number */

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,6 +20,9 @@ use Illuminate\Validation\Rule;
 class StoreRecurringExpenseRequest extends Request
 {
     use MakesHash;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = RecurringExpense::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -47,11 +50,11 @@ class StoreRecurringExpenseRequest extends Request
         }
 
         if (! empty($this->client_id)) {
-            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.$user->company()->id;
+            $rules['client_id'] = 'bail|sometimes|integer|exists:clients,id,company_id,' . $user->company()->id;
         }
 
-        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
-        $rules['frequency_id'] = 'required|integer|digits_between:1,12';
+        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,' . $user->company()->id . ',is_deleted,0';
+        $rules['frequency_id'] = 'required|integer|between:1,12';
         $rules['tax_amount1'] = 'numeric';
         $rules['tax_amount2'] = 'numeric';
         $rules['tax_amount3'] = 'numeric';
@@ -87,7 +90,7 @@ class StoreRecurringExpenseRequest extends Request
             $input['next_send_date_client'] = $input['next_send_date'];
         }
 
-        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
+        if (! array_key_exists('currency_id', $input) || strlen($input['currency_id'] ?? '') == 0) {
             $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 

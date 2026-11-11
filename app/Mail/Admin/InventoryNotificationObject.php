@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
 
 * @license https://www.elastic.co/licensing/elastic-license
@@ -20,9 +20,7 @@ use stdClass;
 
 class InventoryNotificationObject
 {
-    public function __construct(protected Product $product, public string $notification_level, protected bool $use_react_url)
-    {
-    }
+    public function __construct(protected Product $product, public string $notification_level) {}
 
     public function build()
     {
@@ -54,7 +52,7 @@ class InventoryNotificationObject
         return
             ctrans(
                 'texts.inventory_notification_subject',
-                ['product' => $this->product->product_key.': '.$this->product->notes]
+                ['product' => $this->product->product_key . ': ' . $this->product->notes]
             );
     }
 
@@ -63,14 +61,14 @@ class InventoryNotificationObject
         $content = ctrans(
             'texts.inventory_notification_body',
             ['amount' => $this->getAmount(),
-                    'product' => $this->product->product_key.': '.$this->product->notes,
-                ]
+                'product' => $this->product->product_key . ': ' . $this->product->notes,
+            ]
         );
 
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->product->portalUrl($this->use_react_url),
+            'url' => $this->product->portalUrl(),
             'button' => ctrans('texts.view'),
             'signature' => $this->product->company->settings->email_signature,
             'logo' => $this->product->company->present()->logo(),

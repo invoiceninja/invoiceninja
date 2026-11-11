@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,11 +20,16 @@ use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Eway\CreditCard;
 use App\PaymentDrivers\Eway\Token;
+use App\Utils\BcMath;
 use App\Utils\Traits\MakesHash;
 
 class EwayPaymentDriver extends BaseDriver
 {
     use MakesHash;
+
+    private const ZERO_DECIMAL_CURRENCIES = [
+        'VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF',
+    ];
 
     public $refundable = true; //does this gateway support refunds?
 
@@ -135,27 +140,15 @@ class EwayPaymentDriver extends BaseDriver
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentWebhookRequest $request, ?Payment $payment = null) {}
+
+    public function convertAmount($amount): int
     {
-    }
-
-    public function convertAmount($amount)
-    {
-        $precision = $this->client->currency()->precision;
-
-        if ($precision == 0) {
-            return $amount;
+        if (in_array($this->client->currency()->code, self::ZERO_DECIMAL_CURRENCIES, true)) {
+            return BcMath::toMinorUnits($amount, 0);
         }
 
-        if ($precision == 1) {
-            return $amount * 10;
-        }
-
-        if ($precision == 2) {
-            return $amount * 100;
-        }
-
-        return $amount;
+        return BcMath::toMinorUnits($amount, (int) $this->client->currency()->precision);
     }
 
     public function getClientRequiredFields(): array

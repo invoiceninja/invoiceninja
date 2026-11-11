@@ -4,6 +4,7 @@
           description: 'The bank transaction rules hashed id'
           type: string
           example: AS3df3A
+          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,7 +33,7 @@ class RecurringInvoiceFactory
         $invoice->due_date_days = 'terms';
         $invoice->partial_due_date = null;
         $invoice->is_deleted = false;
-        $invoice->line_items = json_encode([]);
+        $invoice->line_items = [];
         $invoice->tax_name1 = '';
         $invoice->tax_rate1 = 0;
         $invoice->tax_name2 = '';

@@ -4,6 +4,7 @@
           description: "The unique hashed identifier for the company"
           type: string
           example: WJxbojagwO
+          readOnly: true
         size_id:
           description: "The unique identifier representing the company's size category"
           type: string
@@ -35,7 +36,7 @@
         enabled_tax_rates:
           description: "The number of tax rates used per entity"
           type: integer
-          example: '2'
+          example: 2
         fill_products:
           description: "A flag determining whether to auto-fill product descriptions based on the product key"
           type: boolean
@@ -414,7 +415,8 @@
         smtp_encryption:
           description: "The encryption method for SMTP"
           type: string
-          enum: [tls, ssl, null]
+          nullable: true
+          enum: [tls, ssl]
           example: "tls"
 
         smtp_local_domain:

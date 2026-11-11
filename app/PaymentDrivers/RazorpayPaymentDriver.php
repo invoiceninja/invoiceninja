@@ -5,20 +5,23 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Razorpay\Hosted;
+use App\PaymentDrivers\Razorpay\Jobs\PaymentCapturedWebhook;
 use App\Utils\Traits\MakesHash;
+use Razorpay\Api\Errors\SignatureVerificationError;
 
 class RazorpayPaymentDriver extends BaseDriver
 {
@@ -48,6 +51,24 @@ class RazorpayPaymentDriver extends BaseDriver
         );
 
         return $this;
+    }
+
+    public function auth(): string
+    {
+        $apiKey = trim((string) $this->company_gateway->getConfigField('apiKey'));
+        $apiSecret = trim((string) $this->company_gateway->getConfigField('apiSecret'));
+
+        if ($apiKey === '' || $apiSecret === '') {
+            return 'error';
+        }
+
+        try {
+            $this->init()->gateway->payment->all(['count' => 1]); // @phpstan-ignore-line
+
+            return 'ok';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     public function gatewayTypes(): array
@@ -86,13 +107,9 @@ class RazorpayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
-    }
+    public function refund(Payment $payment, $amount, $return_client_response = false) {}
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
-    }
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
 
     /**
      * Convert the amount to the format that Razorpay supports.
@@ -105,8 +122,49 @@ class RazorpayPaymentDriver extends BaseDriver
         return \number_format((float) $amount * 100, 0, '.', '');
     }
 
-    public function processWebhookRequest(): void
+    /**
+     * Records a captured payment when the customer never returned from Checkout.
+     *
+     * @see https://razorpay.com/docs/webhooks/validate-test/
+     */
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        //
+        $webhook_secret = (string) $this->company_gateway->getConfigField('webhookSecret');
+
+        if ($webhook_secret === '') {
+            nlog('Razorpay webhook ignored: no webhook secret configured');
+
+            return response()->json([], 200);
+        }
+
+        try {
+            $this->init()->gateway->utility->verifyWebhookSignature( // @phpstan-ignore-line
+                $request->getContent(),
+                (string) $request->header('X-Razorpay-Signature'),
+                $webhook_secret,
+            );
+        } catch (SignatureVerificationError) {
+            return response()->json(['error' => 'Invalid signature'], 400);
+        }
+
+        $event = json_decode($request->getContent(), true);
+        $entity = $event['payload']['payment']['entity'] ?? null;
+
+        if (! in_array($event['event'] ?? null, ['payment.captured', 'order.paid'], true)
+            || ! is_array($entity)
+            || ($entity['status'] ?? null) !== 'captured'
+            || empty($entity['id'])
+            || empty($entity['order_id'])) {
+            return response()->json([], 200);
+        }
+
+        $entity['notes']['payment_hash'] = $entity['notes']['payment_hash']
+            ?? $event['payload']['order']['entity']['notes']['payment_hash']
+            ?? null;
+
+        PaymentCapturedWebhook::dispatch($entity, $request->company_key, $this->company_gateway->id)
+            ->delay(now()->addSeconds(5));
+
+        return response()->json([], 200);
     }
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,20 +35,20 @@ class RecurringInvoiceFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('date', 'like', '%'.$filter.'%')
-                  ->orWhere('amount', 'like', '%'.$filter.'%')
-                  ->orWhere('number', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value1', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+            $query->where('date', 'like', '%' . $filter . '%')
+                  ->orWhere('amount', 'like', '%' . $filter . '%')
+                  ->orWhere('number', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value4', 'like', '%' . $filter . '%')
                   ->orWhereHas('client', function ($q) use ($filter) {
-                      $q->where('name', 'like', '%'.$filter.'%');
+                      $q->where('name', 'like', '%' . $filter . '%');
                   })
                   ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                      $q->where('first_name', 'like', '%'.$filter.'%')
-                        ->orWhere('last_name', 'like', '%'.$filter.'%')
-                        ->orWhere('email', 'like', '%'.$filter.'%');
+                      $q->where('first_name', 'like', '%' . $filter . '%')
+                        ->orWhere('last_name', 'like', '%' . $filter . '%')
+                        ->orWhere('email', 'like', '%' . $filter . '%');
                   })
                     ->orWhereRaw("
                             JSON_UNQUOTE(JSON_EXTRACT(
@@ -56,7 +56,7 @@ class RecurringInvoiceFilters extends QueryFilters
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                                 ), '$[*]')
-                            ) LIKE ?", ['%'.$filter.'%']);
+                            ) LIKE ?", ['%' . $filter . '%']);
             //->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }
@@ -86,7 +86,7 @@ class RecurringInvoiceFilters extends QueryFilters
         }
 
         $recurring_filters = [];
-        
+
         if (in_array('draft', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_DRAFT;
         }
@@ -94,7 +94,7 @@ class RecurringInvoiceFilters extends QueryFilters
         if (in_array('active', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
         }
-        
+
         if (in_array('paused', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_PAUSED;
         }
@@ -134,17 +134,22 @@ class RecurringInvoiceFilters extends QueryFilters
             $sort_col[0] = 'next_send_date';
         }
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('recurring_invoices'))) {
+        if (!is_array($sort_col) || count($sort_col) != 2 || (!in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing('recurring_invoices')) && !str_starts_with($sort_col[0], 'client.') && !str_starts_with($sort_col[0], 'contact.') && !str_starts_with($sort_col[0], 'documents'))) {
             return $this->builder;
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
-        if ($sort_col[0] == 'client_id') {
+        if ($sort_col[0] == 'documents') {
+            return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
+
+        if (in_array($sort_col[0], ['client.name', 'client_id'])) {
 
 
             return $this->builder
-                ->orderByRaw("
+                ->orderByRaw(
+                    "
                     CASE 
                         WHEN CHAR_LENGTH((SELECT name FROM clients WHERE clients.id = recurring_invoices.client_id LIMIT 1)) > 1 
                             THEN (SELECT name FROM clients WHERE clients.id = recurring_invoices.client_id LIMIT 1)
@@ -163,13 +168,49 @@ class RecurringInvoiceFilters extends QueryFilters
                     END " . $dir
                 );
 
-                
+
 
             // return $this->builder->orderByRaw('client_id IS NULL')
             //                  ->orderBy(\App\Models\Client::select('name')
             //                  ->whereColumn('clients.id', 'recurring_invoices.client_id')
             //                  ->limit(1), $dir);
 
+        }
+
+        /** Relationship sorting - clients */
+        if (str_starts_with($sort_col[0], 'client.')) {
+            $client_parts = explode('.', $sort_col[0]);
+
+            if (!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('clients'))) {
+                return $this->builder;
+            }
+
+            if ($sort_col[0] === 'client.country_id') {
+                return $this->builder->orderBy(
+                    \App\Models\Client::select('countries.name')
+                        ->join('countries', 'countries.id', '=', 'clients.country_id')
+                        ->whereColumn('clients.id', 'recurring_invoices.client_id')
+                        ->limit(1),
+                    $dir
+                );
+            }
+
+            return $this->builder->orderBy(\App\Models\Client::select($client_parts[1])
+                ->whereColumn('clients.id', 'recurring_invoices.client_id')
+                ->limit(1), $dir);
+        }
+
+        /** Relationship sorting - contacts */
+        if (str_starts_with($sort_col[0], 'contact.')) {
+            $client_parts = explode('.', $sort_col[0]);
+
+            if (!isset($client_parts[1]) || !in_array($client_parts[1], \Illuminate\Support\Facades\Schema::getColumnListing('client_contacts'))) {
+                return $this->builder;
+            }
+
+            return $this->builder->orderBy(\App\Models\ClientContact::select($client_parts[1])
+                ->whereColumn('client_contacts.client_id', 'recurring_invoices.client_id')
+                ->limit(1), $dir);
         }
 
         if ($sort_col[0] == 'number') {
@@ -233,26 +274,26 @@ class RecurringInvoiceFilters extends QueryFilters
         if (!isset($parts[0]) || !isset($parts[1])) {
 
             $parts = explode(',', $range);
-            
-            if (!isset($parts[0]) || !isset($parts[1])){
+
+            if (!isset($parts[0]) || !isset($parts[1])) {
                 return $this->builder;
             }
-            
+
         }
 
         if (is_numeric($parts[0])) {
-            $startDate = Carbon::createFromTimestamp((int)$parts[0]);
+            $startDate = Carbon::createFromTimestamp((int) $parts[0]);
         } else {
             $startDate = Carbon::parse($parts[0]);
         }
 
         if (is_numeric($parts[1])) {
-            $endDate = Carbon::createFromTimestamp((int)$parts[1]);
+            $endDate = Carbon::createFromTimestamp((int) $parts[1]);
         } else {
             $endDate = Carbon::parse($parts[1]);
         }
 
-        if (!$startDate || !$endDate) {
+        if (!$startDate || !$endDate) { //@phpstan-ignore-line - false positive
             return $this->builder;
         }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -132,8 +132,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
         }
 
         // Update payment to completed
-        $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->save();
+        $payment = $payment->service()->completePendingPayment();
 
         $this->payment_hash = PaymentHash::where('payment_id', $payment->id)->firstOrFail();
 

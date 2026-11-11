@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,12 +27,15 @@ class TriggeredActions extends AbstractService
 
     private bool $updated = false;
 
-    public function __construct(private Invoice $invoice, private Request $request)
-    {
-    }
+    public function __construct(private Invoice $invoice, private Request $request) {}
 
     public function run()
     {
+        if ($this->invoice->status_id == Invoice::STATUS_DRAFT &&$this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true') {
+            $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
+            $this->updated = true;
+        }
+
         if ($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
             try {
                 $this->invoice->service()->autoBill();
@@ -45,12 +48,7 @@ class TriggeredActions extends AbstractService
             $this->invoice = $this->invoice->service()->markPaid($this->request->input('reference'))->save(); //update notification sends automatically for this.
         }
 
-        if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true' && $this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
-            $this->updated = true;
-        }
-
-        if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
+        if ($this->invoice->isPayable() && $this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
             $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'), $this->request->input('reference'))->save();
             // $this->updated = false;
         }
@@ -103,8 +101,6 @@ class TriggeredActions extends AbstractService
             $redirectUrl = urldecode($this->request->input('redirect'));
 
             if (filter_var($redirectUrl, FILTER_VALIDATE_URL)) {
-                // $backup = ($this->invoice->backup && is_object($this->invoice->backup)) ? $this->invoice->backup : new \stdClass();
-                // $backup->redirect = $redirectUrl;
                 $this->invoice->backup->redirect = $redirectUrl;
                 $this->invoice->saveQuietly();
             }

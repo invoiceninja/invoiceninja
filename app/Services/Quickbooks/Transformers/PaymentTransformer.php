@@ -16,8 +16,10 @@ use App\Models\Credit;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentType;
 use App\DataMapper\PaymentSync;
 use App\Factory\PaymentFactory;
+use App\Services\Quickbooks\QuickbooksService;
 
 /**
  *
@@ -30,8 +32,146 @@ class PaymentTransformer extends BaseTransformer
         return $this->transform($qb_data);
     }
 
-    public function ninjaToQb()
+    /**
+     * Transform an Invoice Ninja Payment into a QuickBooks Payment payload.
+     *
+     * @param Payment $payment
+     * @param QuickbooksService $qbService
+     * @return array
+     */
+    public function ninjaToQb(Payment $payment, QuickbooksService $qbService): array
     {
+        // Resolve client QB ID — auto-create if missing
+        $client_qb_id = $payment->client->sync->qb_id ?? null;
+        if (!$client_qb_id) {
+            $client_qb_id = $qbService->client->createQbClient($payment->client);
+        }
+
+        if (!$client_qb_id) {
+            throw new \Exception("Cannot push payment {$payment->id}: client has no QuickBooks ID and could not be created");
+        }
+
+        // Build Line items from Paymentable records (invoices only)
+        $lines = [];
+        foreach ($payment->invoices as $invoice) {
+            $invoice_qb_id = $invoice->sync->qb_id ?? null;
+            if (!$invoice_qb_id) {
+                continue;
+            }
+
+            $lines[] = [
+                'Amount' => (float) $invoice->pivot->amount,
+                'LinkedTxn' => [
+                    [
+                        'TxnId' => $invoice_qb_id,
+                        'TxnType' => 'Invoice',
+                    ],
+                ],
+            ];
+        }
+
+        // Calculate TotalAmt
+        // For credit payments (type_id=32 with amount=0), use the sum of invoice paymentable amounts
+        $total_amt = $payment->amount;
+        if ($payment->amount <= 0 && !empty($lines)) {
+            $total_amt = array_sum(array_column($lines, 'Amount'));
+        }
+
+        $payment_data = [
+            'CustomerRef' => ['value' => $client_qb_id],
+            'TotalAmt' => (float) $total_amt,
+            'TxnDate' => $payment->date ?? now()->format('Y-m-d'),
+        ];
+
+        if (!empty($lines)) {
+            $payment_data['Line'] = $lines;
+        }
+
+        if ($payment->private_notes) {
+            $payment_data['PrivateNote'] = mb_substr($payment->private_notes, 0, 4000);
+        }
+
+        if ($payment->transaction_reference) {
+            $payment_data['PaymentRefNum'] = mb_substr($payment->transaction_reference, 0, 21);
+        }
+
+        // Resolve PaymentMethodRef from IN type_id
+        $payment_method_ref = $this->resolvePaymentMethodRef($payment->type_id);
+        if ($payment_method_ref) {
+            $payment_data['PaymentMethodRef'] = ['value' => $payment_method_ref];
+        }
+
+        // Currency
+        if ($payment->currency_id && $payment->currency) {
+            $payment_data['CurrencyRef'] = ['value' => $payment->currency->code];
+        }
+
+        // Include Id for updates
+        if (!empty($payment->sync->qb_id)) {
+            $payment_data['Id'] = $payment->sync->qb_id;
+        }
+
+        return $payment_data;
+    }
+
+    /**
+     * Resolve an Invoice Ninja PaymentType ID to a QuickBooks PaymentMethod ID.
+     *
+     * Uses the cached payment_method_map from QB settings.
+     *
+     * @param int|null $type_id
+     * @return string|null QB PaymentMethod ID
+     */
+    private function resolvePaymentMethodRef(?int $type_id): ?string
+    {
+        if (!$type_id) {
+            return null;
+        }
+
+        $method_map = $this->company->quickbooks->settings->payment_method_map ?? [];
+
+        if (empty($method_map)) {
+            return null;
+        }
+
+        // Map IN payment type to a QB method name search strategy
+        $target_name = match ($type_id) {
+            PaymentType::CASH => 'Cash',
+            PaymentType::CHECK, PaymentType::MONEY_ORDER => 'Check',
+            PaymentType::VISA, PaymentType::MASTERCARD, PaymentType::AMERICAN_EXPRESS,
+            PaymentType::DISCOVER, PaymentType::DINERS, PaymentType::EUROCARD,
+            PaymentType::NOVA, PaymentType::CREDIT_CARD_OTHER, PaymentType::CARTE_BLANCHE,
+            PaymentType::UNIONPAY, PaymentType::JCB, PaymentType::LASER,
+            PaymentType::MAESTRO, PaymentType::SOLO, PaymentType::SWITCH,
+            PaymentType::DEBIT => 'CREDIT_CARD',
+            PaymentType::BANK_TRANSFER, PaymentType::ACH, PaymentType::SEPA,
+            PaymentType::DIRECT_DEBIT, PaymentType::BECS, PaymentType::ACSS,
+            PaymentType::BACS, PaymentType::STRIPE_BANK_TRANSFER,
+            PaymentType::MOLLIE_BANK_TRANSFER => 'Check',
+            default => null,
+        };
+
+        if (!$target_name) {
+            return null;
+        }
+
+        // Search for exact name match first
+        foreach ($method_map as $method) {
+            if (strcasecmp($method['name'] ?? '', $target_name) === 0) {
+                return $method['id'];
+            }
+        }
+
+        // For credit card types, match by Type field
+        if ($target_name === 'CREDIT_CARD') {
+            foreach ($method_map as $method) {
+                if (strcasecmp($method['type'] ?? '', 'CREDIT_CARD') === 0) {
+                    return $method['id'];
+                }
+            }
+        }
+
+        return null;
     }
 
     public function transform(mixed $qb_data)
@@ -44,8 +184,8 @@ class PaymentTransformer extends BaseTransformer
             'applied' => data_get($qb_data, 'TotalAmt', 0) - data_get($qb_data, 'UnappliedAmt', 0),
             'number' => data_get($qb_data, 'DocNumber', null),
             'private_notes' => data_get($qb_data, 'PrivateNote', null),
-            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef')),
-            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef', null)),
+            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef.value') ?? data_get($qb_data, 'CurrencyRef')),
+            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef.value') ??data_get($qb_data, 'CustomerRef', null)),
         ];
     }
 
@@ -64,8 +204,13 @@ class PaymentTransformer extends BaseTransformer
 
         $lines = data_get($qb_data, 'Line', []) ?? [];
 
-        if (!empty($lines) && !isset($lines[0])) {
-            $lines = [$lines];
+        // QB can return a single object or an array; normalize to array
+        if (!empty($lines)) {
+            if (!is_array($lines)) {
+                $lines = [$lines];
+            } elseif (!isset($lines[0])) {
+                $lines = [$lines];
+            }
         }
 
         foreach ($lines as $item) {
@@ -75,12 +220,24 @@ class PaymentTransformer extends BaseTransformer
 
             if ($tx_type == 'Invoice' && $id == $invoice->sync->qb_id && $amount > 0) {
 
+                $exists = \App\Models\Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->exists();
+
+                if ($exists) {
+                    continue;
+                }
+
                 $paymentable = new \App\Models\Paymentable();
                 $paymentable->payment_id = $payment->id;
                 $paymentable->paymentable_id = $invoice->id;
                 $paymentable->paymentable_type = 'invoices';
                 $paymentable->amount = $amount;
-                $paymentable->created_at = $payment->date; //@phpstan-ignore-line
+                $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+                $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                    ->encodeBusinessDate($payment->date, $timezone);
                 $paymentable->save();
 
                 $invoice->service()->applyPayment($payment, $paymentable->amount);
@@ -119,6 +276,11 @@ class PaymentTransformer extends BaseTransformer
             $payment->fill($ninja_payment_data);
             $payment->save();
 
+            if(!$payment->currency_id) {
+                $payment->currency_id = $payment->client->settings->currency_id ?? $payment->company->settings->currency_id;
+                $payment->saveQuietly();
+            }
+
             $payment->client->service()->updatePaidToDate($payment->amount);
 
             if ($payment->amount == 0) {
@@ -140,6 +302,17 @@ class PaymentTransformer extends BaseTransformer
         $credit_line = null;
 
         $credit_array = data_get($qb_data, 'Line', []);
+
+        // QB can return a single object or an array; normalize to array
+        if (!empty($credit_array)) {
+            if (!is_array($credit_array)) {
+                $credit_array = [$credit_array];
+            } elseif (!isset($credit_array[0])) {
+                $credit_array = [$credit_array];
+            }
+        } else {
+            $credit_array = [];
+        }
 
         foreach ($credit_array as $item) {
 
@@ -176,7 +349,9 @@ class PaymentTransformer extends BaseTransformer
         $paymentable->paymentable_id = $credit->id;
         $paymentable->paymentable_type = \App\Models\Credit::class;
         $paymentable->amount = $credit->amount;
-        $paymentable->created_at = $payment->date;
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+            ->encodeBusinessDate($payment->date, $timezone);
         $paymentable->save();
 
         return $payment;
@@ -195,8 +370,39 @@ class PaymentTransformer extends BaseTransformer
 
         return [[
             'amount' => (float) $this->getString($data, 'Line.Amount'),
-            'invoice_id' => $invoice_id
+            'invoice_id' => $invoice_id,
         ]];
+    }
+
+    public function appliedAmountForInvoice(mixed $qbPayment, string $invoiceQbId): float
+    {
+        $amount = 0.0;
+
+        foreach ($this->normalizeQuickBooksArray(data_get($qbPayment, 'Line', [])) as $line) {
+            foreach ($this->normalizeQuickBooksArray(data_get($line, 'LinkedTxn', [])) as $linkedTxn) {
+                if (
+                    data_get($linkedTxn, 'TxnType') === 'Invoice'
+                    && (string) data_get($linkedTxn, 'TxnId') === $invoiceQbId
+                ) {
+                    $amount += (float) data_get($line, 'Amount', 0);
+                }
+            }
+        }
+
+        return round($amount, 4);
+    }
+
+    private function normalizeQuickBooksArray(mixed $value): array
+    {
+        if ($value === null || $value === false || $value === '') {
+            return [];
+        }
+
+        if (is_array($value) && array_is_list($value)) {
+            return $value;
+        }
+
+        return [$value];
     }
 
 }

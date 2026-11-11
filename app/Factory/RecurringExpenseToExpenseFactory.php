@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,7 +105,7 @@ class RecurringExpenseToExpenseFactory
                 ),
                 ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
                 ':YEAR' => now()->year,
-                ':QUARTER' => 'Q'.now()->quarter,
+                ':QUARTER' => 'Q' . now()->quarter,
                 ':WEEK_BEFORE' => \sprintf(
                     '%s %s %s',
                     Carbon::now()->subDays(7)->translatedFormat($date_format),
@@ -170,9 +170,11 @@ class RecurringExpenseToExpenseFactory
 
             // If right side contains one of math operations, calculate.
             if (Str::contains($right, ['+'])) {
-                $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
+                if (preg_match('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches) !== 1) {
+                    continue;
+                }
 
-                $_operation = array_shift($_matches)[0]; // + -
+                $_operation = $_matches[0]; // + -
 
                 $_value = explode($_operation, $right); // [MONTHYEAR, 4]
 
@@ -214,21 +216,23 @@ class RecurringExpenseToExpenseFactory
             }
 
             if (Str::contains($match, ['-', '+', '/', '*'])) {
-                $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches);
+                if (preg_match('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches) !== 1) {
+                    continue;
+                }
 
-                $_operation = array_shift($_matches)[0];
+                $_operation = $_matches[0];
 
                 $_value = explode($_operation, $match); // [:MONTH, 4]
 
                 $raw = strtr($matches->keys()->first(), $replacements['raw']); // :MONTH => 1
 
-                $number = $res = preg_replace('/[^0-9]/', '', $_value[1]); // :MONTH+1. || :MONTH+2! => 1 || 2
+                $number = preg_replace('/[^0-9]/', '', $_value[1]); // :MONTH+1. || :MONTH+2! => 1 || 2
 
                 $target = "/{$matches->keys()->first()}\\{$_operation}{$number}/"; // /:$KEYWORD\\$OPERATION$VALUE => /:MONTH\\+1
 
                 $output = (int) $raw + (int) $_value[1];
 
-                if ($operation == '+') {
+                if ($_operation == '+') {
                     $output = (int) $raw + (int) $_value[1]; // 1 (:MONTH) + 4
                 }
 

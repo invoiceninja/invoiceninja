@@ -41,7 +41,7 @@ class ARSummaryReportServiceTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $settings = CompanySettings::defaults();
@@ -148,7 +148,6 @@ class ARSummaryReportServiceTest extends TestCase
 
         $reflection = new \ReflectionClass($report);
         $property = $reflection->getProperty('useOptimizedQuery');
-        $property->setAccessible(true);
         $property->setValue($report, false);
 
         $csv = $report->run();
@@ -202,7 +201,6 @@ class ARSummaryReportServiceTest extends TestCase
         
         $reflection = new \ReflectionClass($reportLegacy);
         $property = $reflection->getProperty('useOptimizedQuery');
-        $property->setAccessible(true);
         $property->setValue($reportLegacy, false);
         
         $csvLegacy = $reportLegacy->run();

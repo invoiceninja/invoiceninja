@@ -40,4 +40,12 @@
           description: 'Boolean flag that determines if this contact should receive emails'
           type: boolean
           example: true
+        cc_only:
+          description: 'When true this contact is only included as a CC recipient on outgoing emails and is not addressed directly.'
+          type: boolean
+          example: false
+        can_sign:
+          description: 'When true this contact is permitted to electronically sign invitations.'
+          type: boolean
+          example: false
       type: object

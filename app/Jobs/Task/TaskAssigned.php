@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,9 +37,7 @@ class TaskAssigned implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct(private Task $task, private string $db)
-    {
-    }
+    public function __construct(private Task $task, private string $db) {}
 
     public function handle(): void
     {
@@ -65,7 +63,5 @@ class TaskAssigned implements ShouldQueue
 
     }
 
-    public function failed($exception = null)
-    {
-    }
+    public function failed($exception = null) {}
 }

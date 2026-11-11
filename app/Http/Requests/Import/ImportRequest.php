@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,7 +38,7 @@ class ImportRequest extends Request
             'column_map' => 'required_with:hash|array',
             'skip_header' => 'required_with:hash|boolean',
             'files.*' => 'file|mimes:csv,txt,zip',
-            'bank_integration_id' => 'bail|required_with:column_map.bank_transaction|min:2'
+            'bank_integration_id' => 'bail|required_with:column_map.bank_transaction|min:2',
         ];
     }
 

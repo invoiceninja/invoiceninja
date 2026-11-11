@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -70,12 +70,12 @@ class ImportJsonController extends BaseController
             if (!isset($metadata['uploaded_filepath'])) {
 
                 return response()->json([
-                        'success' => true,
-                        'message' => 'Chunk uploaded successfully',
-                        'chunk' => $metadata['currentChunk'],
-                        'totalChunks' => $metadata['totalChunks'],
-                        'fileName' => $metadata['fileName']
-                    ], 200);
+                    'success' => true,
+                    'message' => 'Chunk uploaded successfully',
+                    'chunk' => $metadata['currentChunk'],
+                    'totalChunks' => $metadata['totalChunks'],
+                    'fileName' => $metadata['fileName'],
+                ], 200);
 
             }
 
@@ -110,7 +110,7 @@ class ImportJsonController extends BaseController
     private function handleChunkedUpload(ImportJsonRequest $request)
     {
         $metadata = json_decode($request->metadata, true);
-        
+
         // Validate metadata structure
         if (!isset($metadata['fileHash'], $metadata['fileName'], $metadata['totalChunks'], $metadata['currentChunk'])) {
             throw new \InvalidArgumentException('Invalid metadata structure');
@@ -150,10 +150,10 @@ class ImportJsonController extends BaseController
         }
 
         $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
-        
+
         // Store chunk in S3 with unique path
         $chunkKey = "tmp/chunks/{$metadata['fileHash']}/chunk-{$metadata['currentChunk']}";
-        
+
         Storage::disk($disk)->put(
             $chunkKey,
             file_get_contents($chunk->getRealPath()),
@@ -163,7 +163,7 @@ class ImportJsonController extends BaseController
         // Check if all chunks are uploaded by listing S3 objects
         $chunkPrefix = "tmp/chunks/{$metadata['fileHash']}/";
         $uploadedChunks = collect(Storage::disk($disk)->files($chunkPrefix))
-            ->filter(function($file) {
+            ->filter(function ($file) {
                 return str_contains(basename($file), 'chunk-');
             })
             ->count();
@@ -173,10 +173,10 @@ class ImportJsonController extends BaseController
                 // Combine chunks from S3
                 $finalPath = "migrations/{$safeFileName}";
                 $this->combineChunksFromS3($disk, $metadata['fileHash'], $metadata['totalChunks'], $finalPath);
-                
+
                 // Clean up
                 $this->cleanupS3Chunks($disk, $metadata['fileHash']);
-                
+
                 $metadata['uploaded_filepath'] = $finalPath;
                 return $metadata;
 
@@ -194,7 +194,7 @@ class ImportJsonController extends BaseController
     {
         // Create a temporary local file to combine chunks
         $tempFile = tempnam(sys_get_temp_dir(), 'chunk_combine_');
-        
+
         try {
             $handle = fopen($tempFile, 'wb');
             if ($handle === false) {
@@ -204,16 +204,16 @@ class ImportJsonController extends BaseController
             // Download and combine chunks in order
             for ($i = 0; $i < $totalChunks; $i++) {
                 $chunkKey = "tmp/chunks/{$fileHash}/chunk-{$i}";
-                
+
                 if (!Storage::disk($disk)->exists($chunkKey)) {
                     throw new \RuntimeException("Missing chunk: {$i}");
                 }
-                
+
                 $chunkContent = Storage::disk($disk)->get($chunkKey);
                 if ($chunkContent === null) {
                     throw new \RuntimeException("Failed to read chunk: {$i}");
                 }
-                
+
                 if (fwrite($handle, $chunkContent) === false) {
                     throw new \RuntimeException("Failed to write chunk: {$i}");
                 }
@@ -239,10 +239,10 @@ class ImportJsonController extends BaseController
     private function cleanupS3Chunks(string $disk, string $fileHash): void
     {
         $chunkPrefix = "tmp/chunks/{$fileHash}/";
-        
+
         // Get all chunk files for this upload
         $chunkFiles = Storage::disk($disk)->files($chunkPrefix);
-        
+
         // Delete all chunk files
         if (!empty($chunkFiles)) {
             Storage::disk($disk)->delete($chunkFiles);

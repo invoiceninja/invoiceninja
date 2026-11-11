@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,7 +26,6 @@ use App\Utils\Ninja;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Stripe\ApplePayDomain;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 
@@ -77,6 +76,7 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::APPLE_PAY,
             ],
+            'payment_method_types' => ['card'],
         ];
 
         $data['gateway'] = $this->stripe;
@@ -93,6 +93,10 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
             ],
             'requestPayerName' => true,
             'requestPayerEmail' => true,
+            'disableWallets' => [
+                'link',
+                'browserCard',
+            ],
         ];
 
         return $data;
@@ -109,7 +113,7 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
      * Handle payment response for browser pay.
      *
      * @param PaymentResponseRequest $request
-     * @return \Illuminate\Http\RedirectResponse|App\PaymentDrivers\Stripe\never
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -144,7 +148,7 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
             'payment_method' => $gateway_response->payment_method,
             'payment_type' => PaymentType::parseCardType(strtolower($payment_method->card->brand)),
             'amount' => $this->stripe->convertFromStripeAmount($gateway_response->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'transaction_reference' => isset($payment_intent->latest_charge) ? $payment_intent->latest_charge : $payment_intent->charges->data[0]->id,
+            'transaction_reference' => $payment_intent->latest_charge ?? $payment_intent->charges->data[0]->id,
             'gateway_type_id' => GatewayType::APPLE_PAY,
         ];
 
@@ -201,27 +205,37 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
      */
     protected function ensureApplePayDomainIsValidated()
     {
-        $config = $this->stripe->company_gateway->getConfig();
-
-        if (property_exists($config, 'apple_pay_domain_id')) {
-            return;
-        }
-
         $domain = $this->getAppleDomain();
 
         if (! $domain) {
             throw new PaymentFailed('Unable to register Domain with Apple Pay', 500);
         }
 
-        $response = ApplePayDomain::create([
-            'domain_name' => $domain,
-        ], $this->stripe->stripe_connect_auth);
+        $config = $this->stripe->company_gateway->getConfig();
 
-        $config->apple_pay_domain_id = $response->id;
+        if ($this->hasRegisteredPaymentMethodDomain($config, $domain)) {
+            return;
+        }
+
+        $payment_method_domain = $this->stripe->ensurePaymentMethodDomainRegistered($domain);
+
+        $config->apple_pay_domain_id = $payment_method_domain->id;
+        $config->apple_pay_domain_name = $domain;
 
         $this->stripe->company_gateway->setConfig($config);
 
         $this->stripe->company_gateway->save();
+    }
+
+    private function hasRegisteredPaymentMethodDomain(object $config, string $domain): bool
+    {
+        $stored_id = $config->apple_pay_domain_id ?? null;
+        $stored_domain = $config->apple_pay_domain_name ?? null;
+
+        return is_string($stored_id)
+            && str_starts_with($stored_id, 'pmd_')
+            && is_string($stored_domain)
+            && $stored_domain === $domain;
     }
 
     private function getAppleDomain()
@@ -232,7 +246,7 @@ class BrowserPay implements MethodInterface, LivewireMethodInterface
             if ($this->stripe->company_gateway->company->portal_mode == 'domain') {
                 $domain = $this->stripe->company_gateway->company->portal_domain;
             } else {
-                $domain = $this->stripe->company_gateway->company->subdomain.'.'.config('ninja.app_domain');
+                $domain = $this->stripe->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
             }
         } else {
             $domain = config('ninja.app_url');

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,7 +18,7 @@ use App\Models\Company;
 
 trait SavesDocuments
 {
-    public function saveDocuments($document_array, $entity, $is_public = true)
+    public function saveDocuments($document_array, $entity, ?bool $is_public = null)
     {
         if ($entity instanceof Company) {
             $account = $entity->account;
@@ -27,7 +27,7 @@ trait SavesDocuments
         } else {
             $account = $entity->company->account;
             $company = $entity->company;
-            $user = $entity->user;
+            $user = $entity->user ?? auth()->user();
         }
 
         if (! $account->hasFeature(Account::FEATURE_DOCUMENTS)) {
@@ -37,6 +37,8 @@ trait SavesDocuments
         if (!is_array($document_array)) {
             return;
         }
+
+        $is_public ??= (bool) $company->getSetting('documents_public_by_default');
 
         foreach ($document_array as $document) {
             $document = (new UploadFile(
@@ -53,10 +55,8 @@ trait SavesDocuments
         $entity->touch();
     }
 
-    public function saveDocument($document, $entity, $force_save = false)
+    public function saveDocument($document, $entity, $force_save = false, ?bool $is_public = null)
     {
-        $is_public = true;
-        
         if ($entity instanceof Company) {
             $account = $entity->account;
             $company = $entity;
@@ -64,12 +64,14 @@ trait SavesDocuments
         } else {
             $account = $entity->company->account;
             $company = $entity->company;
-            $user = $entity->user;
+            $user = $entity->user ?? auth()->user();
         }
 
         if (! $force_save && ! $account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return false;
         }
+
+        $is_public ??= (bool) $company->getSetting('documents_public_by_default');
 
         $document = (new UploadFile(
             $document,

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,7 +23,7 @@ class DuplicatePaymentException extends Exception
      *
      * @return void
      */
-    public function report()
+    public function report(): void
     {
         //
     }
@@ -34,12 +34,17 @@ class DuplicatePaymentException extends Exception
      * @param  Request  $request
      * @return JsonResponse
      */
-    public function render($request)
+    public function render($request): JsonResponse
     {
+        $status_code = $this->getCode();
+
+        if ($status_code < 400 || $status_code > 599) {
+            $status_code = 400;
+        }
 
         return response()->json([
             'message' => 'Duplicate request',
-        ], 400);
+        ], $status_code);
 
     }
 }

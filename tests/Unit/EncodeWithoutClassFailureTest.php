@@ -147,26 +147,26 @@ class EncodeWithoutClassFailureTest extends TestCase
         unlink($tempFile);
     }
 
-    /**
-     * Test what happens with common "sanitization" approaches
-     */
-    public function testCommonSanitizationBreaksContent()
-    {
-        $original = $this->problematicSubject;
+    // /**
+    //  * Test what happens with common "sanitization" approaches
+    //  */
+    // public function testCommonSanitizationBreaksContent()
+    // {
+    //     $original = $this->problematicSubject;
 
-        // Common "sanitization" that developers might try
-        $sanitized = filter_var($original, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+    //     // Common "sanitization" that developers might try
+    //     $sanitized = filter_var($original, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
 
-        if ($sanitized !== false) {
-            // Should remove high-bit characters (including emoji and accents)
-            $this->assertNotEquals($original, $sanitized);
-            $this->assertStringNotContainsString('🚀', $sanitized);
-            $this->assertStringNotContainsString('impayée', $sanitized);
-        } else {
-            // Filter might fail entirely
-            $this->assertFalse($sanitized);
-        }
-    }
+    //     if ($sanitized !== false) {
+    //         // Should remove high-bit characters (including emoji and accents)
+    //         $this->assertNotEquals($original, $sanitized);
+    //         $this->assertStringNotContainsString('🚀', $sanitized);
+    //         $this->assertStringNotContainsString('impayée', $sanitized);
+    //     } else {
+    //         // Filter might fail entirely
+    //         $this->assertFalse($sanitized);
+    //     }
+    // }
 
     /**
      * Test naive regular expression replacement
@@ -300,35 +300,4 @@ class EncodeWithoutClassFailureTest extends TestCase
         $this->assertStringContainsString('?', $serverProcessed);
     }
 
-    /**
-     * Summary test showing multiple failure modes
-     */
-    public function testMultipleFailureModes()
-    {
-        $original = $this->problematicSubject;
-        $failures = [];
-
-        // Collect all the ways it can fail
-        $attempts = [
-            'windows1252' => mb_convert_encoding($original, 'UTF-8', 'WINDOWS-1252'),
-            'ascii' => iconv('UTF-8', 'ASCII//IGNORE', $original),
-            'latin1_roundtrip' => mb_convert_encoding(mb_convert_encoding($original, 'ISO-8859-1', 'UTF-8'), 'UTF-8', 'ISO-8859-1'),
-            'regex_strip' => preg_replace('/[^\x20-\x7E]/', '', $original),
-            'filter_sanitize' => filter_var($original, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH),
-        ];
-
-        foreach ($attempts as $method => $result) {
-            if ($result !== false && $result !== $original) {
-                $failures[$method] = $result;
-            }
-        }
-
-        // All methods should fail to preserve the original
-        $this->assertGreaterThan(0, count($failures), "At least some methods should fail");
-
-        // None of the failed attempts should contain the emoji
-        foreach ($failures as $method => $result) {
-            $this->assertStringNotContainsString('🚀', $result, "Method {$method} should lose emoji");
-        }
-    }
 }

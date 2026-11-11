@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -49,9 +49,7 @@ class SendRecurring implements ShouldQueue
      * @param RecurringInvoice $recurring_invoice
      * @param string $db
      */
-    public function __construct(public RecurringInvoice $recurring_invoice, public string $db = 'db-ninja-01')
-    {
-    }
+    public function __construct(public RecurringInvoice $recurring_invoice, public string $db = 'db-ninja-01') {}
 
     /**
      * Execute the job.
@@ -60,18 +58,20 @@ class SendRecurring implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->recurring_invoice = $this->recurring_invoice->calc()->getRecurringInvoice();
+
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
         // $date = now()->addSeconds($this->recurring_invoice->client->timezone_offset())->format('Y-m-d'); Rev 1
-        // $date = date('Y-m-d'); //@todo this will always pull UTC date.  Rev 2.
+        // $date = date('Y-m-d'); 
         // 2025-01-23 - We need to know the current date in the users timezone, as we send recurring invoices around the
         // clock the actual date is not always the same as the UTC date.
         // be _very_ careful with this, as it will change the due date of the invoice.
         $date = now()->setTimezone($this->recurring_invoice->client->timezone()->name)->format('Y-m-d');
         $invoice->date = $date;
 
-        nlog("Recurring Invoice Date Set on Invoice = {$invoice->date} - ". now()->format('Y-m-d'));
+        nlog("Recurring Invoice Date Set on Invoice = {$invoice->date} - " . now()->format('Y-m-d'));
 
         $invoice->due_date = $this->recurring_invoice->calculateDueDate($date);
         $invoice->recurring_id = $this->recurring_invoice->id;
@@ -125,8 +125,10 @@ class SendRecurring implements ShouldQueue
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if (!$invoice->client->getSetting('client_online_payment_notification')) {
                 $this->sendRecurringEmails($invoice);
-                $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
             }
+
+            $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
+
         } elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice') && ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay()))) {
             nlog("attempting to autobill {$invoice->number}");
             AutoBill::dispatch($invoice->id, $this->db, true)->delay(rand(1, 2));
@@ -134,8 +136,9 @@ class SendRecurring implements ShouldQueue
             //04-08-2023 edge case to support where online payment notifications are not enabled
             if (!$invoice->client->getSetting('client_online_payment_notification')) {
                 $this->sendRecurringEmails($invoice);
-                $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
             }
+
+            $invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
 
         } elseif ($invoice->client->getSetting('auto_email_invoice')) {
             $this->sendRecurringEmails($invoice);
@@ -153,6 +156,11 @@ class SendRecurring implements ShouldQueue
      */
     private function sendRecurringEmails(Invoice $invoice): void
     {
+        if ($invoice->client->getSetting('skip_automatic_email_with_peppol') && $invoice->client->peppolSendingEnabled()) {
+            nlog("Skipping automatic email for invoice {$invoice->number} - client is on Peppol network");
+            return;
+        }
+
         //Admin notification for recurring invoice sent.
         if ($invoice->invitations->count() >= 1) {
 
@@ -161,7 +169,7 @@ class SendRecurring implements ShouldQueue
         }
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
-            if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice') && !$invitation->contact->is_locked) {
+            if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice') && !$invitation->contact->is_locked) { //@phpstan-ignore-line
                 try {
                     EmailEntity::dispatch($invitation->withoutRelations(), $invoice->company->db, 'invoice')->delay(rand(1, 2));
                 } catch (\Exception $e) {

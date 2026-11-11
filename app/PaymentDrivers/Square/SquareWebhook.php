@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,6 +23,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\Utils\Number;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -54,12 +55,10 @@ class SquareWebhook implements ShouldQueue
         'BUY_NOW_PAY_LATER' => PaymentType::CREDIT_CARD_OTHER,
         'SQUARE_ACCOUNT' => PaymentType::CREDIT_CARD_OTHER,
         'CASH' => PaymentType::CASH,
-        'EXTERNAL' => PaymentType::CREDIT_CARD_OTHER
+        'EXTERNAL' => PaymentType::CREDIT_CARD_OTHER,
     ];
 
-    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id)
-    {
-    }
+    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id) {}
 
     public function handle()
     {
@@ -76,7 +75,7 @@ class SquareWebhook implements ShouldQueue
 
         $payment_status = false;
 
-        match($status) {
+        match ($status) {
             'APPROVED' => $payment_status = false,
             'COMPLETED' => $payment_status = Payment::STATUS_COMPLETED,
             'PENDING' => $payment_status = Payment::STATUS_PENDING,
@@ -94,27 +93,47 @@ class SquareWebhook implements ShouldQueue
 
         /** If the status was pending and now is reporting as Failed / Cancelled - process failure path */
         if ($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])) {
+            $payment_hash = $this->resolvePaymentHash($payment, $payment_id);
+
             $payment->service()->deletePayment();
 
-            if ($this->driver->payment_hash) {
+            /**
+             * A pending debit that will not settle ends as failed, whether Square reports
+             * it cancelled or failed - the money never arrives either way. Without this the
+             * payment kept the cancelled state DeletePayment leaves behind, and the gateway
+             * fee stayed on the invoice.
+             *
+             * @see \App\Services\Invoice\ReverseGatewayFee
+             */
+            $payment->status_id = Payment::STATUS_FAILED;
+            $payment->save();
+
+            /**
+             * The driver only carries a client and a hash when it had to rebuild the
+             * payment from Square. For a payment we already hold - every state change on
+             * one we created - both are null, and reading the client off the driver was
+             * fatal, so the failure notification never went out.
+             */
+            $client = $payment->client;
+
+            if ($payment_hash) {
                 $error = ctrans('texts.client_payment_failure_body', [
                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                    'amount' => array_sum(array_column($this->driver->payment_hash->invoices(), 'amount')) + $this->driver->payment_hash->fee_total,
+                    'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client),
                 ]);
             } else {
-                $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
+                $error = 'Payment for ' . $client->present()->name() . " for {$payment->amount} failed";
             }
 
             PaymentFailedMailer::dispatch(
-                $this->driver->payment_hash,
-                $this->driver->client->company,
-                $this->driver->client,
+                $payment_hash,
+                $client->company,
+                $client,
                 $error
             );
 
-        } elseif ($payment->status_id == Payment::STATUS_PENDING && in_array($payment_status, [Payment::STATUS_COMPLETED, Payment::STATUS_COMPLETED])) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+        } elseif ($payment->status_id === Payment::STATUS_PENDING && $payment_status === Payment::STATUS_COMPLETED) {
+            $payment = $payment->service()->completePendingPayment();
         }
 
     }
@@ -138,11 +157,13 @@ class SquareWebhook implements ShouldQueue
 
             nlog("Searching by payment hash");
 
-            $payment_hash_id = $apiResponse->getResult()->getPayment()->getReferenceId() ?? false;
-            $square_payment = $apiResponse->getResult()->getPayment()->jsonSerialize();
-            $payment_hash = PaymentHash::query()->where('hash', $payment_hash_id)->firstOrFail();
+            $square_payment_object = $apiResponse->getResult()->getPayment();
+            $square_payment = $square_payment_object->jsonSerialize();
+            $payment_hash = PaymentHash::query()
+                ->where('hash', $square_payment_object->getReferenceId())
+                ->firstOrFail();
 
-            $payment_hash->data = array_merge((array) $payment_hash->data, (array)$square_payment);
+            $payment_hash->data = array_merge((array) $payment_hash->data, (array) $square_payment);
             $payment_hash->save();
 
             $this->driver->setPaymentHash($payment_hash);
@@ -175,5 +196,56 @@ class SquareWebhook implements ShouldQueue
             nlog($apiResponse->getErrors());
             return null;
         }
+    }
+
+    private function resolvePaymentHash(Payment $payment, ?string $square_payment_id): ?PaymentHash
+    {
+        if ($payment_hash = PaymentHash::query()->where('payment_id', $payment->id)->first()) {
+            return $payment_hash;
+        }
+
+        $payment_hash = $this->paymentHashFromReferenceId($this->referenceId($square_payment_id));
+
+        if ($payment_hash) {
+            return $this->linkPaymentHashToPayment($payment_hash, $payment);
+        }
+
+        return null;
+    }
+
+    private function referenceId(?string $square_payment_id): ?string
+    {
+        $reference_id = $this->webhook_array['data']['object']['payment']['reference_id'] ?? null;
+
+        if ($reference_id || ! $square_payment_id) {
+            return $reference_id;
+        }
+
+        $api_response = $this->square->getPaymentsApi()->getPayment($square_payment_id);
+
+        if (! $api_response->isSuccess()) {
+            return null;
+        }
+
+        return $api_response->getResult()->getPayment()->getReferenceId();
+    }
+
+    private function paymentHashFromReferenceId(?string $reference_id): ?PaymentHash
+    {
+        if (! $reference_id) {
+            return null;
+        }
+
+        return PaymentHash::query()->where('hash', $reference_id)->first();
+    }
+
+    private function linkPaymentHashToPayment(PaymentHash $payment_hash, Payment $payment): PaymentHash
+    {
+        if (! $payment_hash->payment_id) {
+            $payment_hash->payment_id = $payment->id;
+            $payment_hash->save();
+        }
+
+        return $payment_hash;
     }
 }

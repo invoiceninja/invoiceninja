@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,16 +42,20 @@ class GenericReportRequest extends Request
             'include_deleted' => 'required|bool',
             'product_key' => 'sometimes|string|nullable',
             'template_id' => 'sometimes|string|nullable',
+            'group_by' => 'sometimes|string|nullable',
             // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
     }
 
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
         
         $validator->after(function ($validator) {
 
-            if(!empty($this->template_id) && Design::where('id', $this->decodePrimaryKey($this->template_id))->where('is_template',true)->company()->doesntExist()) {
+            if (!empty($this->template_id) && Design::where('id', $this->decodePrimaryKey($this->template_id))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');
             }
 
@@ -81,6 +85,14 @@ class GenericReportRequest extends Request
         }
 
         $input['include_deleted'] = array_key_exists('include_deleted', $input) ? filter_var($input['include_deleted'], FILTER_VALIDATE_BOOLEAN) : false;
+
+        if (! array_key_exists('group_by', $input)) {
+            $input['group_by'] = '';
+        }
+
+        if (! empty($input['group_by']) && ! in_array($input['group_by'], $input['report_keys'])) {
+            array_unshift($input['report_keys'], $input['group_by']);
+        }
 
         $input['user_id'] = auth()->user()->id;
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,7 +31,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
         if ($task && method_exists($this, $key)) {
             return $this->{$key}($task);
-        } elseif ($task && $task->{$key} ?? false) {
+        } elseif ($task && ($task->{$key} ?? false)) {
             return $task->{$key};
         }
 
@@ -59,9 +59,9 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $date_format_default = $date_format->format;
         }
 
-        if (is_array($logs)) {
+        if (is_array($logs) && count($logs) > 0) {
             $item = $logs[0];
-            return Carbon::createFromTimeStamp((int)$item[0])->setTimezone($timezone_name)->format($date_format_default);
+            return Carbon::createFromTimeStamp((int) $item[0])->setTimezone($timezone_name)->format($date_format_default);
         }
 
         return '';
@@ -88,9 +88,14 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $date_format_default = $date_format->format;
         }
 
-        if (is_array($logs)) {
-            $item = $logs[1];
-            return Carbon::createFromTimeStamp((int)$item[1])->setTimezone($timezone_name)->format($date_format_default);
+        if (is_array($logs) && count($logs) > 0) {
+            $item = $logs[array_key_last($logs)];
+
+            if (! isset($item[1]) || $item[1] == 0) {
+                return ctrans('texts.is_running');
+            }
+
+            return Carbon::createFromTimeStamp((int) $item[1])->setTimezone($timezone_name)->format($date_format_default);
         }
 
         return '';
@@ -121,6 +126,28 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return $task->calcDuration();
     }
 
+    public function due_date(Task $task)
+    {
+        if (!$task->due_date) {
+            return '';
+        }
+
+        $date_format_default = 'Y-m-d';
+
+        $date_format = DateFormat::find($task->company->settings->date_format_id);
+
+        if ($date_format) {
+            $date_format_default = $date_format->format;
+        }
+
+        return Carbon::parse($task->due_date)->format($date_format_default);
+    }
+
+    public function estimated_duration(Task $task)
+    {
+        return is_null($task->estimated_duration) ? '' : (int) $task->estimated_duration;
+    }
+
     public function status_id(Task $task)
     {
         return $task->status()->exists() ? $task->status->name : '';
@@ -138,6 +165,11 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
     public function user_id(Task $task)
     {
-        return $task->user ? $task->user->present()->name() : '';
+        return $task->user->present()->name() ?? '';
+    }
+
+    public function tags(mixed $task): string
+    {
+        return $task->tags->pluck('name')->implode(', ');
     }
 }

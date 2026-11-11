@@ -33,6 +33,7 @@
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_invoices"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
@@ -104,13 +105,6 @@
           schema:
             type: string
           example: ?payable={client_id}
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc number|desc balance|asc 
         - name: private_notes
           in: query
           description: |
@@ -151,7 +145,7 @@
           required: false
           schema:
             type: integer
-          example: ?status_id=1
+          example: 1
       responses:
         200:
           description: "A list of invoices"
@@ -611,6 +605,7 @@
 
   /api/v1/invoices/create:
     get:
+      operationId: getInvoiceCreate
       tags:
         - invoices
       summary: "Blank invoice"
@@ -851,13 +846,14 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/invoice/{invitation_key}/download":
+  "/api/v1/invoices/{invitation_key}/download":
     get:
+      operationId: downloadInvoiceByInvitation
       tags:
         - invoices
       summary: "Download invoice PDF"
       description: |
-        ## GET /api/v1/invoice/{invitation_key}/download
+        ## GET /api/v1/invoices/{invitation_key}/download
 
         Downloads a specific invoice
 
@@ -871,7 +867,7 @@
         label: curl
         source: |
           curl --request GET \
-            --url 'https://invoicing.co/api/v1/invoice/D2J234DFA/download' \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA/download' \
             --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
             --header 'Accept: application/json'
       parameters:
@@ -910,6 +906,7 @@
           $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/delivery_note":
     get:
+      operationId: getInvoiceDeliveryNote
       tags:
         - invoices
       summary: "Download delivery note"
@@ -967,6 +964,7 @@
           $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/upload":
     post:
+      operationId: uploadInvoiceDocument
       tags:
         - invoices
       summary: "Add invoice document"

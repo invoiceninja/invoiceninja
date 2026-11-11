@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Credit;
 
 use App\Http\Requests\Request;
+use App\Models\Credit;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
@@ -24,6 +25,9 @@ class UpdateCreditRequest extends Request
     use MakesHash;
     use CleanLineItems;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Credit::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -52,10 +56,12 @@ class UpdateCreditRequest extends Request
 
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('credits')->where('company_id', $user->company()->id)->ignore($this->credit->id)];
 
-        $rules['client_id'] = ['bail', 'sometimes',Rule::in([$this->credit->client_id])];
+        $rules['client_id'] = ['bail', 'sometimes', 'integer', Rule::in([$this->credit->client_id])];
 
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
@@ -84,22 +90,17 @@ class UpdateCreditRequest extends Request
 
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidCreditScheme()];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
-    public function withValidator($validator)
-    {
-
-
-    }
+    public function withValidator($validator) {}
 
     public function prepareForValidation()
     {
         $input = $this->all();
 
-        nlog($input);
         $input = $this->decodePrimaryKeys($input);
-       
+
         if (isset($input['documents'])) {
             unset($input['documents']);
         }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,7 +18,9 @@ use App\Factory\PaymentFactory;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -29,9 +31,7 @@ class MarkPaid extends AbstractService
 
     private $payable_balance;
 
-    public function __construct(private Invoice $invoice, private ?string $reference)
-    {
-    }
+    public function __construct(private Invoice $invoice, private ?string $reference) {}
 
     public function run()
     {
@@ -40,36 +40,15 @@ class MarkPaid extends AbstractService
             return $this->invoice;
         }
 
-        if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            // $this->invoice = $this->invoice->service()->markSent()->save();
-
-            /*Set status*/
-            $this->invoice->status_id = Invoice::STATUS_SENT;
-            $this->invoice->balance = $this->invoice->amount;
-
-            /*Update ledger*/
-            $this->invoice
-                ->ledger()
-                ->updateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent.");
-
-            $this->invoice->client->service()->updateBalance($this->invoice->amount);
-            /* Perform additional actions on invoice */
-            $this->invoice
-                ->service()
-                ->applyNumber()
-                ->setDueDate()
-                ->setReminder()
-                ->save();
-
-            $this->invoice->markInvitationsSent();
-
-            event(new \App\Events\Invoice\InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
-        }
-
         $already_paid = false;
+        $draft_balance_adjustment = 0;
 
-        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid) {
+        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid, &$draft_balance_adjustment) {
+            
+            //reset these vars before each transaction
+            $already_paid = false;
+            $draft_balance_adjustment = 0;
+
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
             if ($this->invoice->status_id == Invoice::STATUS_PAID) {
@@ -77,20 +56,52 @@ class MarkPaid extends AbstractService
                 return;
             }
 
+            if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
+
+                /*Set status*/
+                $this->invoice->status_id = Invoice::STATUS_SENT;
+                $this->invoice->balance = $this->invoice->amount;
+
+                /*Update ledger*/
+                $this->invoice
+                    ->ledger()
+                    ->updateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent.");
+
+                $draft_balance_adjustment = $this->invoice->amount;
+                /* Perform additional actions on invoice */
+
+                $this->invoice = $this->invoice
+                    ->service()
+                    ->applyNumber()
+                    ->setDueDate()
+                    ->setReminder()
+                    ->save();
+
+                $this->invoice->markInvitationsSent();
+
+                event(new \App\Events\Invoice\InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+            }
+
             if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
 
-                $this->invoice
-                    ->service()
-                    ->setExchangeRate()
-                    ->clearPartial()
-                    ->updateBalance($this->payable_balance * -1)
-                    ->updatePaidToDate($this->payable_balance)
-                    ->setStatus(Invoice::STATUS_PAID)
-                    ->unlockDocuments()
-                    ->save();
+                $this->invoice = $this->invoice
+                                        ->service()
+                                        ->setExchangeRate()
+                                        ->clearPartial()
+                                        ->updateBalance($this->payable_balance * -1)
+                                        ->updatePaidToDate($this->payable_balance)
+                                        ->setStatus(Invoice::STATUS_PAID)
+                                        ->unlockDocuments()
+                                        ->save();
             }
-        }, 1);
+        }, 2);
+
+        /* Update client balance for draft→sent transition outside the invoice lock to prevent deadlocks */
+        if ($draft_balance_adjustment != 0) {
+            $this->invoice->client->service()->updateBalance($draft_balance_adjustment);
+        }
 
         if ($already_paid) {
             return $this->invoice;
@@ -126,6 +137,29 @@ class MarkPaid extends AbstractService
             'amount' => $this->payable_balance,
         ]);
 
+        try {
+            $this->invoice->loadMissing(['client.country', 'client.company']);
+
+            if ($this->invoice->client->reportableFrTransaction()) {
+                $paymentable = Paymentable::withTrashed()
+                    ->where('payment_id', $payment->id)
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->where('paymentable_type', 'invoices')
+                    ->latest('id')
+                    ->first();
+
+                app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                    payment: $payment,
+                    invoice: $this->invoice,
+                    paymentable: $paymentable,
+                    movementAmount: $this->payable_balance,
+                    movementDate: $payment->date ?: now()->toDateString(),
+                );
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+
         if ($payment->client->getSetting('send_email_on_mark_paid')) {
             $payment->service()->sendEmail();
         }
@@ -136,7 +170,7 @@ class MarkPaid extends AbstractService
 
         $this->invoice->next_send_date = null;
 
-        $this->invoice
+        $this->invoice = $this->invoice
                 ->service()
                 ->applyNumber()
                 ->save();

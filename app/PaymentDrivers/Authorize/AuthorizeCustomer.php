@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,7 +51,7 @@ class AuthorizeCustomer
 
             nlog("GetCustomerProfileId's ERROR :  Invalid response");
             $errorMessages = $response->getMessages()->getMessage();
-            nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText());
+            nlog('Response : ' . $errorMessages[0]->getCode() . '  ' . $errorMessages[0]->getText());
         }
     }
 
@@ -74,19 +74,19 @@ class AuthorizeCustomer
         } else {
             nlog('ERROR :  GetCustomerProfile: Invalid response');
             $errorMessages = $response->getMessages()->getMessage();
-            nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText());
+            nlog('Response : ' . $errorMessages[0]->getCode() . '  ' . $errorMessages[0]->getText());
 
             return [
                 'profile' => null,
                 'payment_profiles' => null,
-                'error' => $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText(),
+                'error' => $errorMessages[0]->getCode() . '  ' . $errorMessages[0]->getText(),
             ];
         }
     }
 
     public function importCustomers()
     {
-        $auth_customers = $this->getCustomerProfileIds();
+        $auth_customers = $this->getCustomerProfileIds() ?? [];
         $company = $this->authorize->company_gateway->company;
         $user = $company->owner();
 

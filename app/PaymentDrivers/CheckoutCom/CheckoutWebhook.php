@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,12 +15,10 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\CompanyGateway;
-use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Stripe\Utilities;
+use App\PaymentDrivers\CheckoutCom\Utilities;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -41,9 +39,7 @@ class CheckoutWebhook implements ShouldQueue
 
     public CompanyGateway $company_gateway;
 
-    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id)
-    {
-    }
+    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id) {}
 
     public function handle()
     {
@@ -57,9 +53,20 @@ class CheckoutWebhook implements ShouldQueue
             nlog("Checkout Webhook type not set");
         }
 
+        if(!$this->company_gateway) {
+            nlog("Checkout Webhook: company gateway not found");
+            nlog($this->company_gateway_id);
+            nlog($this->company_key);
+            nlog($this->webhook_array);
+            return;
+        }
+
         /** @phpstan-ignore-next-line */
-        match($this->webhook_array['type']) {
+        match ($this->webhook_array['type']) {
             'payment_approved' => $this->paymentApproved(),
+            'payment_captured' => $this->paymentApproved(),
+            'payment_declined', 'payment_expired', 'payment_canceled' => $this->paymentFailed(),
+            default => nlog("Checkout Webhook: unhandled type {$this->webhook_array['type']}"),
         };
 
     }
@@ -83,30 +90,37 @@ class CheckoutWebhook implements ShouldQueue
         }
 
         if ($payment) {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+            $payment = $payment->service()->completePendingPayment();
             return;
         }
 
-        if (isset($this->webhook_array['metadata'])) {
+        $metadata = $payment_object['metadata'] ?? $this->webhook_array['metadata'] ?? null;
 
-            $metadata = $this->webhook_array['metadata'];
+        if ($metadata && isset($metadata['udf2'])) {
 
             $payment_hash = PaymentHash::query()->where('hash', $metadata['udf2'])->first();
 
-            $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init()->setPaymentMethod();
+            if (!$payment_hash) {
+                nlog("Checkout Webhook: payment hash not found for udf2={$metadata['udf2']}");
+                nlog("Current database = ". config('database.default'));
+                nlog($metadata);
+                return;
+            }
+
+            $meta = Utilities::resolvePaymentMeta($payment_object);
+
+            $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init()->setPaymentMethod($meta['gateway_type_id']);
 
             $payment_hash->data = array_merge((array) $payment_hash->data, $this->webhook_array); // @phpstan-ignore-line
             $payment_hash->save();
             $driver->setPaymentHash($payment_hash);
 
-            // @phpstan-ignore-line
             $data = [
-                'payment_method' => isset($this->webhook_array['source']['id']) ? $this->webhook_array['source']['id'] : '',
-                'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+                'payment_method' => $payment_object['source']['id'] ?? '',
+                'payment_type' => $meta['payment_type'],
                 'amount' => $payment_hash->data->raw_value, // @phpstan-ignore-line
                 'transaction_reference' => $payment_object['id'],
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'gateway_type_id' => $meta['gateway_type_id'],
             ];
 
             $payment = $driver->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
@@ -122,5 +136,74 @@ class CheckoutWebhook implements ShouldQueue
 
         }
 
+    }
+
+    /**
+     * Handle payment_declined, payment_expired and payment_canceled webhooks.
+     *
+     * If a Payment record already exists, mark it as failed.
+     * Otherwise, find the PaymentHash via metadata and unwind gateway fees
+     * so the client isn't charged for a payment that never completed.
+     */
+    private function paymentFailed()
+    {
+        $payment_object = $this->webhook_array['data'];
+        $type = $this->webhook_array['type'];
+
+        nlog("Checkout Webhook: {$type} for {$payment_object['id']}");
+
+        $payment = Payment::query()->withTrashed()->where('transaction_reference', $payment_object['id'])->first();
+
+        if ($payment) {
+            if (in_array($payment->status_id, [Payment::STATUS_FAILED, Payment::STATUS_CANCELLED])) {
+                return;
+            }
+
+            /**
+             * Declined, expired and cancelled are one outcome for the invoice: the money is
+             * not coming. The payment was applied when Checkout reported it pending or
+             * captured, so it has to come off the invoice, and the failed state is what
+             * releases the gateway fee.
+             *
+             * @see \App\Services\Invoice\ReverseGatewayFee
+             */
+            $payment->service()->deletePayment();
+
+            $payment->status_id = Payment::STATUS_FAILED;
+            $payment->save();
+
+            SystemLogger::dispatch(
+                ['response' => $this->webhook_array],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $payment->client,
+                $this->company_gateway->company,
+            );
+
+            return;
+        }
+
+        $metadata = $payment_object['metadata'] ?? $this->webhook_array['metadata'] ?? null;
+
+        if ($metadata && isset($metadata['udf2'])) {
+            $payment_hash = PaymentHash::query()->where('hash', $metadata['udf2'])->first();
+
+            if (!$payment_hash) {
+                nlog("Checkout Webhook ({$type}): payment hash not found for udf2={$metadata['udf2']}");
+                return;
+            }
+
+            $driver = $this->company_gateway->driver($payment_hash->fee_invoice->client)->init();
+
+            SystemLogger::dispatch(
+                ['response' => $this->webhook_array],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $payment_hash->fee_invoice->client,
+                $this->company_gateway->company,
+            );
+        }
     }
 }

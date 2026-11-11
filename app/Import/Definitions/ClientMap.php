@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -55,6 +55,8 @@ class ClientMap
             35 => 'contact.custom_value2',
             36 => 'contact.custom_value3',
             37 => 'contact.custom_value4',
+            38 => 'client.is_tax_exempt',
+            39 => 'client.classification',
         ];
     }
 
@@ -99,6 +101,8 @@ class ClientMap
             35 => 'texts.custom_value',
             36 => 'texts.custom_value',
             37 => 'texts.custom_value',
+            38 => 'texts.is_tax_exempt',
+            39 => 'texts.classification',
         ];
     }
 }

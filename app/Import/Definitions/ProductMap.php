@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,6 +36,8 @@ class ProductMap
             16 => 'product.in_stock_quantity',
             17 => 'product.tax_category',
             18 => 'product.max_quantity',
+            19 => 'product.stock_notification',
+            20 => 'product.stock_notification_threshold',
         ];
     }
 
@@ -61,6 +63,8 @@ class ProductMap
             16 => 'texts.in_stock_quantity',
             17 => 'texts.tax_category',
             18 => 'texts.max_quantity',
+            19 => 'texts.stock_notifications',
+            20 => 'texts.notification_threshold',
         ];
     }
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -68,11 +68,11 @@ class PaymentAppliedValidAmount implements Rule
         $payment_amounts = $payment->amount - $payment->applied;
 
         if (request()->has('credits')
-            && is_array(request()->input('credits'))
-            && count(request()->input('credits')) == 0
-            && request()->has('invoices')
-            && is_array(request()->input('invoices'))
-            && count(request()->input('invoices')) == 0) {
+           && is_array(request()->input('credits'))
+           && count(request()->input('credits')) == 0
+           && request()->has('invoices')
+           && is_array(request()->input('invoices'))
+           && count(request()->input('invoices')) == 0) {
             return true;
         }
 
@@ -84,6 +84,12 @@ class PaymentAppliedValidAmount implements Rule
 
         if (isset($this->input['invoices']) && is_array($this->input['invoices'])) {
             foreach ($this->input['invoices'] as $invoice) {
+
+                if(!is_array($invoice) || !array_key_exists('amount', $invoice) || !array_key_exists('invoice_id', $invoice)){
+                    $this->message = 'Invalid invoice data. amount and invoice_id are required.';
+                    return false;
+                }
+
                 $invoice_amounts += $invoice['amount'];
 
                 $inv = $inv_collection->firstWhere('id', $invoice['invoice_id']);

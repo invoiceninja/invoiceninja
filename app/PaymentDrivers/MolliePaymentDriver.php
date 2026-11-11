@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -252,7 +252,6 @@ class MolliePaymentDriver extends BaseDriver
                 return $payment;
             }
 
-            $this->unWindGatewayFees($payment_hash);
 
             $this->sendFailureMail($payment->details);
 
@@ -272,7 +271,6 @@ class MolliePaymentDriver extends BaseDriver
 
             return false;
         } catch (ApiException $e) {
-            $this->unWindGatewayFees($payment_hash);
 
             $data = [
                 'status' => '',
@@ -320,8 +318,7 @@ class MolliePaymentDriver extends BaseDriver
             if ($record) {
                 $client = $record->client;
                 $this->client = $client;
-            } 
-            elseif($payment->status == 'failed' && $payment->metadata->gateway_type_id === GatewayType::CREDIT_CARD){
+            } elseif ($payment->status == 'failed' && $payment->metadata->gateway_type_id === GatewayType::CREDIT_CARD) {
                 //no payment, and it failed? return early!
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
 
@@ -340,8 +337,7 @@ class MolliePaymentDriver extends BaseDriver
                 );
 
                 return response()->json([], 200);
-            }
-            else {
+            } else {
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
                 $this->client = $client;
                 // sometimes if the user is not returned to the site with a response from Mollie
@@ -360,10 +356,18 @@ class MolliePaymentDriver extends BaseDriver
                         'amount' => $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
                         'payment_type' => $payment->metadata->payment_type_id,
                         'transaction_reference' => $payment->id,
-                        'idempotency_key' => substr("{$payment->id}{$payment_hash->hash}", 0, 64)
+                        'idempotency_key' => substr("{$payment->id}{$payment_hash->hash}", 0, 64),
                     ];
 
-                    $this->confirmGatewayFee($data);
+                    /**
+                     * Only confirm the fee for a status that produces a payment. For a
+                     * cancelled, expired or failed status createPayment() returns without
+                     * linking the hash to the payment, so nothing could ever reverse the
+                     * fee and it would stand on the invoice for a debit that never happened.
+                     */
+                    if (in_array($codes[$payment->status], [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
+                        $this->confirmGatewayFee($data);
+                    }
 
                     $record = $this->createPayment(
                         $data,
@@ -380,25 +384,35 @@ class MolliePaymentDriver extends BaseDriver
             $response = SystemLog::EVENT_GATEWAY_FAILURE;
 
             if ($record) {
+                $status_id = $codes[$payment->status];
+
                 if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
-                    
-                    if(property_exists($payment->metadata, 'hash') && $payment->metadata->hash){
-                        $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
-                        $this->handlePendingGatewayFeeRemoval($payment_hash);
+
+                    $record->service()->deletePayment(false);
+
+                    /**
+                     * Cancelled, expired and failed are the same outcome for the invoice -
+                     * the debit never happened - so they end in the same state. Failed is
+                     * what releases the gateway fee.
+                     *
+                     * @see \App\Services\Invoice\ReverseGatewayFee
+                     */
+                    $status_id = Payment::STATUS_FAILED;
+
+                    if(in_array($payment->status, ['canceled', 'failed'])) {
+                        $this->sendFailureMail($payment->details->failureMessage ?? "There was a problem processing your payment.");
                     }
 
-                    $record->service()->deletePayment(false); 
-
-                    $this->sendFailureMail($payment->details->failureMessage ?? "There was a problem processing your payment.");
-                    
-                }
-                else {
+                } else {
                     $response = SystemLog::EVENT_GATEWAY_SUCCESS;
                 }
 
-                $record->status_id = $codes[$payment->status];
-                $record->save();
-                
+                if ($status_id === Payment::STATUS_COMPLETED) {
+                    $record = $record->service()->completePendingPayment();
+                } else {
+                    $record->status_id = $status_id;
+                    $record->save();
+                }
             }
 
             SystemLogger::dispatch(
@@ -413,30 +427,9 @@ class MolliePaymentDriver extends BaseDriver
             return response()->json([], 200);
         } catch (ApiException $e) {
             return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
-        } catch(\Throwable $e){
+        } catch (\Throwable $e) {
             nlog("Mollie:: Failure - In payment Response? - {$e->getMessage()}");
             return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
-        }
-    }
-
-    private function handlePendingGatewayFeeRemoval(PaymentHash $payment_hash)
-    {
-        $invoice = $payment_hash->fee_invoice;
-
-        if($invoice){
-            $line_items = $invoice->line_items;
-
-            $line_items = collect($line_items)->filter(function($line_item, $key) use ($line_items) {
-                if ($key === array_key_last($line_items)) {
-                    return $line_item->type_id != '4';
-                }
-                return true;
-            })->toArray();
-
-            $invoice->line_items = array_values($line_items);
-
-            $invoice = $invoice->calc()->getInvoice();
-
         }
     }
 
@@ -453,15 +446,15 @@ class MolliePaymentDriver extends BaseDriver
             //     return render('gateways.mollie.mollie_pending_payment_placeholder');
             // }
             // else
-            
-            if($payment->status == 'failed'){
+
+            if ($payment->status == 'failed') {
                 return (new CreditCard($this))->processUnsuccessfulPayment(new PaymentFailed($payment->details->failureMessage, 400));
             }
 
             return (new CreditCard($this))->processSuccessfulPayment($payment);
         } catch (\Mollie\Api\Exceptions\ApiException $e) {
             return (new CreditCard($this))->processUnsuccessfulPayment($e);
-        } 
+        }
     }
 
     public function detach(ClientGatewayToken $token)

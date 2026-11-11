@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,16 +33,21 @@ use App\Services\Template\TemplateService;
 class Ubl2Pdf extends AbstractService
 {
     /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
-    public \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice;
+    public \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice;
 
     /**
      * @throws \Throwable
      */
-    public function __construct(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice, public Company $company)
+    public function __construct(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice, public Company $company)
     {
         $this->invoice = $invoice;
     }
 
+    /**
+     * Renders a UBL e-invoice as a styled PDF using the TD14 HTML template.
+     *
+     * @return void
+     */
     public function run()
     {
 
@@ -78,6 +83,11 @@ class Ubl2Pdf extends AbstractService
 
     }
 
+    /**
+     * Returns a keyed array of common translated labels for the PDF template.
+     *
+     * @return array
+     */
     private function getGenericTranslations(): array
     {
         return [
@@ -103,6 +113,12 @@ class Ubl2Pdf extends AbstractService
         ];
     }
 
+    /**
+     * Strips null/empty values and formats DateTime objects using the company date format.
+     *
+     * @param  array $array
+     * @return array
+     */
     private function processValues(array $array): array
     {
 
@@ -120,6 +136,11 @@ class Ubl2Pdf extends AbstractService
 
     }
 
+    /**
+     * Extracts the buyer/customer party details from the Peppol invoice.
+     *
+     * @return array
+     */
     private function clientDetails(): array
     {
         return $this->processValues([
@@ -137,6 +158,11 @@ class Ubl2Pdf extends AbstractService
         ]);
     }
 
+    /**
+     * Extracts the seller/supplier party details from the Peppol invoice.
+     *
+     * @return array
+     */
     private function supplierDetails(): array
     {
         return $this->processValues([
@@ -157,20 +183,30 @@ class Ubl2Pdf extends AbstractService
         ]);
     }
 
+    /**
+     * Generates custom CSS column widths for the invoice line items table.
+     *
+     * @return string
+     */
     private function customCss(): string
     {
         $css = '';
-        $css .= ".".str_replace(" ", "", ctrans('texts.product_key'))." { width: 15%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.quantity'))." { width: 8%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.notes'))." { width: 40%; } ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.cost'))." { width:10%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.tax'))." { width:10%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.line_total'))." { width:15%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.product_key')) . " { width: 15%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.quantity')) . " { width: 8%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.notes')) . " { width: 40%; } ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.cost')) . " { width:10%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.tax')) . " { width:10%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.line_total')) . " { width:15%;} ";
 
         return $css;
 
     }
 
+    /**
+     * Extracts document-level details (currency, type code, number, dates) and line items.
+     *
+     * @return array
+     */
     private function invoiceDetails(): array
     {
 
@@ -187,16 +223,26 @@ class Ubl2Pdf extends AbstractService
         return $data;
     }
 
+    /**
+     * Extracts document metadata including currency, terms, and public notes.
+     *
+     * @return array
+     */
     private function metadata(): array
     {
 
         return $this->processValues([
             'currency' => data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code),
             ctrans('texts.terms') => $this->harvestTerms(),
-            ctrans('texts.public_notes') => data_get($this->invoice, 'Note', '')
+            ctrans('texts.public_notes') => data_get($this->invoice, 'Note', ''),
         ]);
     }
 
+    /**
+     * Collects payment means and terms from the invoice into a newline-separated string.
+     *
+     * @return string
+     */
     private function harvestTerms(): string
     {
 
@@ -217,6 +263,11 @@ class Ubl2Pdf extends AbstractService
 
     }
 
+    /**
+     * Transforms Peppol InvoiceLine items into a formatted array for the PDF template.
+     *
+     * @return array
+     */
     private function invoiceLines(): array
     {
         $lines = data_get($this->invoice, 'InvoiceLine', []);
@@ -239,6 +290,11 @@ class Ubl2Pdf extends AbstractService
         }, $lines);
     }
 
+    /**
+     * Extracts subtotals, tax breakdowns, and balance due from LegalMonetaryTotal and TaxTotal.
+     *
+     * @return array
+     */
     private function totals(): array
     {
         $tax_inc = data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0);

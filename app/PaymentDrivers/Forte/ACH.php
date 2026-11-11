@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,7 +17,6 @@ use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Models\ClientGatewayToken;
@@ -71,8 +70,8 @@ class ACH implements LivewireMethodInterface
             "echeck" => [
                 "one_time_token" => $payload['one_time_token'],
                 "account_holder" => $payload['account_holder_name'],
-                "account_type" => "checking"
-                ],
+                "account_type" => "checking",
+            ],
         ];
 
         $response = $this->forte
@@ -124,7 +123,7 @@ class ACH implements LivewireMethodInterface
     }
 
 
-    public function authorizeResponse(Request $request)
+    public function authorizeResponse($request)
     {
         $data = [
             'account_holder_name' => $request->account_holder_name,
@@ -154,7 +153,10 @@ class ACH implements LivewireMethodInterface
         //Handle Token Billing
         if ($request->token && strlen($request->token) > 4) {
 
-            $cgt = \App\Models\ClientGatewayToken::where('token', $request->token)->firstOrFail();
+            $cgt = \App\Models\ClientGatewayToken::query()
+                ->where('token', $request->token)
+                ->where('client_id', $this->forte->client->id)
+                ->firstOrFail();
             $payment = $this->tokenBilling($cgt, $payment_hash);
 
             return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
@@ -182,12 +184,12 @@ class ACH implements LivewireMethodInterface
             'authorization_amount' => $payment_hash->data->total->amount_with_fee,
             'echeck' => [
                 'sec_code' => 'PPD',
-                'one_time_token' => $request->payment_token
+                'one_time_token' => $request->payment_token,
             ],
             'billing_address' => [
                 'first_name' => $this->forte->client->name,
-                'last_name' => $this->forte->client->name
-            ]
+                'last_name' => $this->forte->client->name,
+            ],
         ];
 
         $response = $this->forte
@@ -264,11 +266,11 @@ class ACH implements LivewireMethodInterface
             "paymethod_token" => $cgt->token,
             "billing_address" => [
                 "first_name" => $this->forte->client->present()->first_name(),
-                "last_name" => $this->forte->client->present()->last_name()
+                "last_name" => $this->forte->client->present()->last_name(),
             ],
             "echeck" => [
                 "sec_code" => "WEB",
-            ]
+            ],
 
         ];
 

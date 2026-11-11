@@ -23,13 +23,11 @@ class ApplyNumber extends AbstractService
 
     private bool $completed = true;
 
-    public function __construct(private Payment $payment)
-    {
-    }
+    public function __construct(private Payment $payment) {}
 
     public function run()
     {
-        if ($this->payment->number != '') {
+        if (trim((string)$this->payment->number) !== '') {
             return $this->payment;
         }
 

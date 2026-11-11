@@ -1,26 +1,35 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Jobs\SES;
 
-use App\Models\Company;
-use App\Models\SystemLog;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
+use App\DataMapper\Analytics\Mail\EmailBounce;
+use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\Jobs\Util\SystemLogger;
-use App\Models\QuoteInvitation;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
-use Illuminate\Queue\SerializesModels;
-use Turbo124\Beacon\Facades\LightLogs;
 use App\Models\PurchaseOrderInvitation;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\SystemLog;
+use App\Notifications\Ninja\EmailBounceNotification;
+use App\Notifications\Ninja\EmailSpamNotification;
+use App\Utils\Ninja;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\DataMapper\Analytics\Mail\EmailSpam;
-use App\DataMapper\Analytics\Mail\EmailBounce;
-use App\Notifications\Ninja\EmailSpamNotification;
-use App\Notifications\Ninja\EmailBounceNotification;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class SESWebhook implements ShouldQueue
 {
@@ -43,7 +52,7 @@ class SESWebhook implements ShouldQueue
         'events' => [],
         'event_type' => 'unknown',
         'timestamp' => '',
-        'message_id' => ''
+        'message_id' => '',
     ];
 
     private ?Company $company = null;
@@ -52,9 +61,7 @@ class SESWebhook implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct(private array $request)
-    {
-    }
+    public function __construct(private array $request) {}
 
     private function getSystemLog(string $message_id): ?SystemLog
     {
@@ -73,38 +80,38 @@ class SESWebhook implements ShouldQueue
         $existing_log = $system_log->log ?? [];
         $existing_history = $existing_log['history'] ?? [];
         $existing_events = $existing_history['events'] ?? [];
-        
+
         // Get new event data from the current webhook
         $new_event = $this->extractEventData();
-        
+
         // Check if this event type already exists in events array
         $event_type = $this->getCurrentEventType();
         $event_exists = false;
-        
+
         foreach ($existing_events as $event) {
             if (isset($event['event_type']) && $event['event_type'] === $event_type) {
                 $event_exists = true;
                 break;
             }
         }
-        
+
         // Only add new event if this event type doesn't already exist
         if (!$event_exists && !empty($new_event)) {
             $existing_events[] = $new_event;
         }
-        
+
         // Update the history with existing events plus any new event
         $updated_history = array_merge($existing_history, [
-            'events' => $existing_events
+            'events' => $existing_events,
         ]);
-        
+
         // Update the log with existing data plus updated history
         $system_log->log = array_merge($existing_log, [
             'history' => $updated_history,
             'last_updated' => now()->toISOString(),
-            'last_event_type' => $event_type
+            'last_event_type' => $event_type,
         ]);
-        
+
         $system_log->save();
     }
 
@@ -114,7 +121,7 @@ class SESWebhook implements ShouldQueue
     private function getCurrentEventType(): string
     {
         $notification_type = $this->request['eventType'] ?? $this->request['Type'] ?? $this->request['notificationType'] ?? '';
-        
+
         switch ($notification_type) {
             case 'Delivery':
             case 'Received':
@@ -137,7 +144,7 @@ class SESWebhook implements ShouldQueue
     private function extractCompanyKey(): ?string
     {
         // Check various possible locations for company key
-        
+
         // Check mail tags
         if (isset($this->request['mail']['tags']['company_key'])) {
             nlog("SESWebhook: Found company key in mail tags: " . $this->request['mail']['tags']['company_key']);
@@ -148,16 +155,16 @@ class SESWebhook implements ShouldQueue
         if (isset($this->request['mail']['headers'])) {
             nlog("SESWebhook: Checking mail headers for X-Tag", [
                 'headers_count' => count($this->request['mail']['headers']),
-                'headers' => $this->request['mail']['headers']
+                'headers' => $this->request['mail']['headers'],
             ]);
-            
+
             foreach ($this->request['mail']['headers'] as $header) {
                 if (isset($header['name']) && $header['name'] === 'X-Tag' && isset($header['value'])) {
                     nlog("SESWebhook: Found X-Tag header: " . $header['value']);
                     return $header['value'];
                 }
             }
-            
+
             nlog("SESWebhook: X-Tag header not found in mail headers");
         }
 
@@ -176,7 +183,7 @@ class SESWebhook implements ShouldQueue
         nlog("SESWebhook: No company key found in any location", [
             'mail_headers_exists' => isset($this->request['mail']['headers']),
             'mail_common_headers_exists' => isset($this->request['mail']['commonHeaders']),
-            'request_keys' => array_keys($this->request)
+            'request_keys' => array_keys($this->request),
         ]);
 
         return null;
@@ -212,7 +219,7 @@ class SESWebhook implements ShouldQueue
 
         // Extract company key from SES message tags or metadata
         $company_key = $this->extractCompanyKey();
-        
+
         if (!$company_key) {
             nlog("SESWebhook: No company key found in webhook data");
             return;
@@ -228,7 +235,7 @@ class SESWebhook implements ShouldQueue
 
         // Extract message ID from SES notification
         $message_id = $this->extractMessageId();
-        
+
         if (!$message_id) {
             nlog("SESWebhook: No message ID found in webhook data");
             return;
@@ -236,7 +243,8 @@ class SESWebhook implements ShouldQueue
 
         $this->invitation = $this->discoverInvitation($message_id);
 
-        if (!$this->invitation) {
+        /** Free accounts do not have email delivery meta data stored. */
+        if (!$this->invitation || (Ninja::isHosted() && $this->company->account->isFreeHostedClient())) {
             nlog("SESWebhook: No invitation found for message ID: " . $message_id);
             return;
         }
@@ -272,7 +280,7 @@ class SESWebhook implements ShouldQueue
         $this->request['MessageID'] = $this->extractMessageId();
         $data = array_merge($this->request, [
             'history' => $this->fetchMessage(),
-            'MessageID' => $this->extractMessageId()
+            'MessageID' => $this->extractMessageId(),
         ]);
 
         $sl = $this->getSystemLog($this->extractMessageId());
@@ -318,7 +326,7 @@ class SESWebhook implements ShouldQueue
 
         $data = array_merge($this->request, [
             'history' => $this->fetchMessage(),
-            'MessageID' => $this->extractMessageId()
+            'MessageID' => $this->extractMessageId(),
         ]);
 
         $sl = $this->getSystemLog($this->extractMessageId());
@@ -362,7 +370,7 @@ class SESWebhook implements ShouldQueue
 
         $data = array_merge($this->request, [
             'history' => $this->fetchMessage(),
-            'MessageID' => $this->extractMessageId()
+            'MessageID' => $this->extractMessageId(),
         ]);
 
         $sl = $this->getSystemLog($this->extractMessageId());
@@ -394,7 +402,7 @@ class SESWebhook implements ShouldQueue
 
         $data = array_merge($this->request, [
             'history' => $this->fetchMessage(),
-            'MessageID' => $this->extractMessageId()
+            'MessageID' => $this->extractMessageId(),
         ]);
 
         $sl = $this->getSystemLog($this->extractMessageId());
@@ -449,7 +457,7 @@ class SESWebhook implements ShouldQueue
     private function fetchMessage(): array
     {
         $message_id = $this->extractMessageId();
-        
+
         if (strlen($message_id) < 1) {
             return $this->default_response;
         }
@@ -469,7 +477,7 @@ class SESWebhook implements ShouldQueue
                 'events' => [$this->extractEventData()], // Start with single event in array
                 'event_type' => $event_type,
                 'timestamp' => now()->toISOString(),
-                'message_id' => $message_id
+                'message_id' => $message_id,
             ];
 
         } catch (\Exception $e) {
@@ -484,7 +492,7 @@ class SESWebhook implements ShouldQueue
     private function extractRecipients(): string
     {
         if (isset($this->request['mail']['destination'])) {
-            return is_array($this->request['mail']['destination']) 
+            return is_array($this->request['mail']['destination'])
                 ? implode(',', $this->request['mail']['destination'])
                 : $this->request['mail']['destination'];
         }
@@ -509,9 +517,9 @@ class SESWebhook implements ShouldQueue
      */
     private function extractSubject(): string
     {
-        return $this->request['mail']['commonHeaders']['subject'] ?? 
-               $this->request['bounce']['bouncedRecipients'][0]['email'] ?? 
-               '';
+        return $this->request['mail']['commonHeaders']['subject']
+               ?? $this->request['bounce']['bouncedRecipients'][0]['email']
+               ?? '';
     }
 
     /**
@@ -521,7 +529,7 @@ class SESWebhook implements ShouldQueue
     {
         $event_type = $this->getCurrentEventType();
         $message_id = $this->extractMessageId();
-        
+
         switch ($event_type) {
             case 'delivery':
                 return [
@@ -531,9 +539,9 @@ class SESWebhook implements ShouldQueue
                     'delivery_message' => $this->request['delivery']['smtpResponse'] ?? 'Successfully delivered',
                     'server' => $this->request['delivery']['processingTimeMillis'] ?? '',
                     'server_ip' => $this->request['delivery']['remoteMtaIp'] ?? '',
-                    'date' => $this->request['delivery']['timestamp'] ?? now()->toISOString()
+                    'date' => $this->request['delivery']['timestamp'] ?? now()->toISOString(),
                 ];
-                
+
             case 'bounce':
                 $bounce_data = $this->request['bounce'] ?? [];
                 return [
@@ -542,9 +550,9 @@ class SESWebhook implements ShouldQueue
                     'status' => 'Bounced',
                     'bounce_type' => $bounce_data['bounceType'] ?? '',
                     'bounce_sub_type' => $bounce_data['bounceSubType'] ?? '',
-                    'date' => $bounce_data['timestamp'] ?? now()->toISOString()
+                    'date' => $bounce_data['timestamp'] ?? now()->toISOString(),
                 ];
-                
+
             case 'complaint':
                 $complaint_data = $this->request['complaint'] ?? [];
                 return [
@@ -552,23 +560,23 @@ class SESWebhook implements ShouldQueue
                     'recipient' => $this->extractRecipients(),
                     'status' => 'Spam Complaint',
                     'complaint_type' => $complaint_data['complaintFeedbackType'] ?? '',
-                    'date' => $complaint_data['timestamp'] ?? now()->toISOString()
+                    'date' => $complaint_data['timestamp'] ?? now()->toISOString(),
                 ];
-                
+
             case 'open':
                 return [
                     'bounce_id' => '',
                     'recipient' => $this->extractRecipients(),
                     'status' => 'Opened',
-                    'date' => now()->toISOString()
+                    'date' => now()->toISOString(),
                 ];
-                
+
             default:
                 return [
                     'bounce_id' => '',
                     'recipient' => $this->extractRecipients(),
                     'status' => 'Unknown',
-                    'date' => now()->toISOString()
+                    'date' => now()->toISOString(),
                 ];
         }
     }
@@ -580,7 +588,7 @@ class SESWebhook implements ShouldQueue
     {
         $event_type = $this->getCurrentEventType();
         $message_id = $this->extractMessageId();
-        
+
         switch ($event_type) {
             case 'delivery':
                 return [
@@ -593,9 +601,9 @@ class SESWebhook implements ShouldQueue
                     'date' => $this->request['delivery']['timestamp'] ?? now()->toISOString(),
                     'event_type' => $event_type,
                     'timestamp' => now()->toISOString(),
-                    'message_id' => $message_id
+                    'message_id' => $message_id,
                 ];
-                
+
             case 'bounce':
                 $bounce_data = $this->request['bounce'] ?? [];
                 return [
@@ -607,9 +615,9 @@ class SESWebhook implements ShouldQueue
                     'date' => $bounce_data['timestamp'] ?? now()->toISOString(),
                     'event_type' => $event_type,
                     'timestamp' => now()->toISOString(),
-                    'message_id' => $message_id
+                    'message_id' => $message_id,
                 ];
-                
+
             case 'complaint':
                 $complaint_data = $this->request['complaint'] ?? [];
                 return [
@@ -620,9 +628,9 @@ class SESWebhook implements ShouldQueue
                     'date' => $complaint_data['timestamp'] ?? now()->toISOString(),
                     'event_type' => $event_type,
                     'timestamp' => now()->toISOString(),
-                    'message_id' => $message_id
+                    'message_id' => $message_id,
                 ];
-                
+
             case 'open':
                 return [
                     'bounce_id' => '',
@@ -631,9 +639,9 @@ class SESWebhook implements ShouldQueue
                     'date' => now()->toISOString(),
                     'event_type' => $event_type,
                     'timestamp' => now()->toISOString(),
-                    'message_id' => $message_id
+                    'message_id' => $message_id,
                 ];
-                
+
             default:
                 return [
                     'bounce_id' => '',
@@ -642,7 +650,7 @@ class SESWebhook implements ShouldQueue
                     'date' => now()->toISOString(),
                     'event_type' => $event_type,
                     'timestamp' => now()->toISOString(),
-                    'message_id' => $message_id
+                    'message_id' => $message_id,
                 ];
         }
     }

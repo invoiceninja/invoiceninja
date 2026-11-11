@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,9 +31,7 @@ class RecurringInvoicesCron
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -44,7 +42,7 @@ class RecurringInvoicesCron
     {
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
         $start = Carbon::now()->format('Y-m-d h:i:s');
-        nlog('Sending recurring invoices '.$start);
+        nlog('Sending recurring invoices ' . $start);
 
         Auth::logout();
 
@@ -68,7 +66,7 @@ class RecurringInvoicesCron
                                                         ->with('company')
                                                         ->cursor();
 
-            nlog(now()->format('Y-m-d').' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
+            nlog(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = ' . $recurring_invoices->count());
 
             $recurring_invoices->each(function ($recurring_invoice, $key) {
                 // nlog('Current date = '.now()->format('Y-m-d').' Recurring date = '.$recurring_invoice->next_send_date);
@@ -83,7 +81,7 @@ class RecurringInvoicesCron
                 try {
                     (new SendRecurring($recurring_invoice, $recurring_invoice->company->db))->handle();
                 } catch (\Exception $e) {
-                    nlog("Unable to sending recurring invoice {$recurring_invoice->id} ".$e->getMessage());
+                    nlog("Unable to sending recurring invoice {$recurring_invoice->id} " . $e->getMessage());
                 }
             });
         } else {
@@ -111,7 +109,7 @@ class RecurringInvoicesCron
                                                         ->with('company')
                                                         ->cursor();
 
-                nlog(now()->format('Y-m-d').' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
+                nlog(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = ' . $recurring_invoices->count());
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
                     nlog("Trying to send {$recurring_invoice->number}");
@@ -125,7 +123,7 @@ class RecurringInvoicesCron
                     try {
                         (new SendRecurring($recurring_invoice, $recurring_invoice->company->db))->handle();
                     } catch (\Exception $e) {
-                        nlog("Unable to sending recurring invoice {$recurring_invoice->id} ".$e->getMessage());
+                        nlog("Unable to sending recurring invoice {$recurring_invoice->id} " . $e->getMessage());
                     }
                 });
             }

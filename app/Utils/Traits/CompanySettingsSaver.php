@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,6 +59,12 @@ trait CompanySettingsSaver
         $settings = $this->checkSettingType($settings);
 
         $company_settings = CompanySettings::defaults();
+
+        $existing = $entity->settings->pdf_variables ?? null;
+
+        if (is_object($existing) && count(get_object_vars($existing)) > 0) {
+            $company_settings->pdf_variables = $existing;
+        }
 
         foreach ($settings as $key => $value) {
             if (is_null($settings->{$key})) {
@@ -221,7 +227,7 @@ trait CompanySettingsSaver
                 }
 
                 continue;
-            } elseif ($key == 'pdf_variables') {
+            } elseif ($key == 'pdf_variables' && property_exists($settings, $key)) {
                 settype($settings->{$key}, 'object');
             }
 

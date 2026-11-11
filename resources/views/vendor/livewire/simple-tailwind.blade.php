@@ -12,7 +12,7 @@ $scrollIntoViewJsSnippet = ($scrollTo !== false)
 
 <div>
     @if ($paginator->hasPages())
-        <nav role="navigation" aria-label="Pagination Navigation" class="flex justify-between">
+        <nav data-portal-target="pagination" role="navigation" aria-label="Pagination Navigation" class="flex justify-between">
             <span>
                 {{-- Previous Page Link --}}
                 @if ($paginator->onFirstPage())

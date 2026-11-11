@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -108,7 +108,7 @@ class RecurringInvoiceController extends BaseController
      */
     public function index(RecurringInvoiceFilters $filters)
     {
-        $recurring_invoices = RecurringInvoice::filter($filters);
+        $recurring_invoices = RecurringInvoice::filter($filters)->with('tags');
 
         return $this->listResponse($recurring_invoices);
     }
@@ -423,13 +423,14 @@ class RecurringInvoiceController extends BaseController
 
         if (in_array($request->action, ['increase_prices', 'update_prices'])) {
 
-            if($user->isAdmin())
+            if ($user->isAdmin()) {
                 UpdateRecurring::dispatch($request->ids, $user->company(), $user, $request->action, $percentage_increase);
+            }
 
             return response()->json(['message' => 'Update in progress.'], 200);
         }
 
-        $recurring_invoices = RecurringInvoice::withTrashed()->find($request->ids);
+        $recurring_invoices = RecurringInvoice::withTrashed()->company()->find($request->ids);
 
         if ($request->action == 'bulk_update' && $user->can('edit', $recurring_invoices->first())) {
 
@@ -440,24 +441,23 @@ class RecurringInvoiceController extends BaseController
             $this->recurring_invoice_repo->bulkUpdate($recurring_invoices, $request->column, $request->new_value);
 
             /** Handle changes to the status of the recurring invoice after the remaining_cycles is updated */
-            if($request->column == 'remaining_cycles'){
+            if ($request->column == 'remaining_cycles') {
 
-                if($request->new_value == 0){
+                if ($request->new_value == 0) {
                     $recurring_invoices->each(function ($recurring_invoice) {
                         $recurring_invoice->status_id = RecurringInvoice::STATUS_COMPLETED;
                         $recurring_invoice->save();
                     });
-                }
-                else {
+                } else {
                     $recurring_invoices->each(function ($recurring_invoice) {
-                        
-                        if($recurring_invoice->status_id == RecurringInvoice::STATUS_COMPLETED){
-                           
-                            if(!$recurring_invoice->next_send_date){
-                            $recurring_invoice->next_send_date = $recurring_invoice->last_sent_date;
-                            $recurring_invoice->next_send_date_client = $recurring_invoice->last_sent_date;
-                            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
-                            $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
+
+                        if ($recurring_invoice->status_id == RecurringInvoice::STATUS_COMPLETED) {
+
+                            if (!$recurring_invoice->next_send_date) {
+                                $recurring_invoice->next_send_date = $recurring_invoice->last_sent_date;
+                                $recurring_invoice->next_send_date_client = $recurring_invoice->last_sent_date;
+                                $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
+                                $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
                             }
 
                             $recurring_invoice->status_id = RecurringInvoice::STATUS_PAUSED;
@@ -619,7 +619,7 @@ class RecurringInvoiceController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $recurring_invoice, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $recurring_invoice, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($recurring_invoice->fresh());
@@ -637,7 +637,7 @@ class RecurringInvoiceController extends BaseController
 
         \Illuminate\Support\Facades\App::setLocale($invitation->contact->preferredLocale());
 
-        $file_name = $invoice->numberFormatter().'.pdf';
+        $file_name = $invoice->numberFormatter() . '.pdf';
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 

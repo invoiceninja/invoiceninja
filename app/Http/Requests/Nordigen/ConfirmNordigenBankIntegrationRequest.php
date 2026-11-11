@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,19 +38,7 @@ class ConfirmNordigenBankIntegrationRequest extends Request
         ];
     }
 
-    /**
-     * @return array{
-     *   user_id: int,
-     *   company_key: string,
-     *   context: string,
-     *   is_react: bool,
-     *   institution_id: string,
-     *   lang: string,
-     *   redirect: string,
-     *   requisitionId: string
-     * }
-     */
-    public function getTokenContent(): array
+    public function getTokenContent(): ?array
     {
         $input = $this->all();
 

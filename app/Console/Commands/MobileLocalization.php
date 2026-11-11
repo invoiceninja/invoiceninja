@@ -5,15 +5,15 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Console\Commands;
 
-use App\Utils\CurlUtils;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class MobileLocalization extends Command
 {
@@ -62,7 +62,7 @@ class MobileLocalization extends Command
 
     private function laravelResources()
     {
-        $resources = (array)$this->getResources();
+        $resources = (array) $this->getResources();
 
         if (is_iterable($resources)) {
             foreach ($resources as $key => $val) {
@@ -106,7 +106,7 @@ class MobileLocalization extends Command
     private function getResources()
     {
         $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
-        $data = CurlUtils::get($url);
+        $data = Http::get($url)->body();
 
         $start = strpos($data, 'do not remove comment') + 25;
         $end = strpos($data, '},', $start);
@@ -117,7 +117,7 @@ class MobileLocalization extends Command
         $data = str_replace("'", '"', $data);
         $data = str_replace("\#", "'", $data);
 
-        return json_decode('{'.rtrim($data, ',').'}');
+        return json_decode('{' . rtrim($data, ',') . '}');
     }
 
     protected function getOptions()

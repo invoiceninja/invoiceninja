@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Mail;
 
 use App\Utils\Ninja;
@@ -31,7 +39,7 @@ class SupportMessageSent extends Mailable
      */
     public function build()
     {
-        $system_info = request()->has('version') ? 'Version: '.request()->input('version') : 'Version: No Version Supplied.';
+        $system_info = request()->has('version') ? 'Version: ' . request()->input('version') : 'Version: No Version Supplied.';
 
         $log_lines = [];
 
@@ -40,17 +48,17 @@ class SupportMessageSent extends Mailable
          * we are going to bundle system-level info
          * and last 10 lines of laravel.log file.
          */
-        if (Ninja::isSelfHost() && $this->send_logs !== false) {
-            $system_info = Ninja::getDebugInfo();
+        // if (Ninja::isSelfHost() && $this->send_logs !== false) {
+        //     $system_info = Ninja::getDebugInfo();
 
-            $log_file = new SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
+        //     $log_file = new SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
 
-            $log_file->seek(PHP_INT_MAX);
-            $last_line = $log_file->key();
+        //     $log_file->seek(PHP_INT_MAX);
+        //     $last_line = $log_file->key();
 
-            $lines = new LimitIterator($log_file, max(0, $last_line - 100), $last_line);
-            $log_lines = iterator_to_array($lines);
-        }
+        //     $lines = new LimitIterator($log_file, max(0, $last_line - 100), $last_line);
+        //     $log_lines = iterator_to_array($lines);
+        // }
 
         $account = auth()->user()->account;
 
@@ -78,9 +86,16 @@ class SupportMessageSent extends Mailable
         }
 
         if (Ninja::isHosted()) {
-            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: {$plan_status} ".date('M jS, g:ia');
+            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: {$plan_status} " . date('M jS, g:ia');
         } else {
-            $subject = "{$priority}Self Hosted :: {$plan} :: {$is_large}{$platform}{$migrated} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Self Hosted :: {$plan} :: {$is_large}{$platform}{$migrated} :: " . date('M jS, g:ia');
+        }
+
+        foreach ($this->data['attachments'] ?? [] as $file) {
+            $this->attach($file->getRealPath(), [
+                'as' => $file->getClientOriginalName(),
+                'mime' => $file->getMimeType(),
+            ]);
         }
 
         return $this->from(config('mail.from.address'), $user->present()->name())

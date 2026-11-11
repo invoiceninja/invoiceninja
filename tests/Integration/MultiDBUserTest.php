@@ -45,13 +45,13 @@ class MultiDBUserTest extends TestCase
 
         foreach (MultiDB::getDBs() as $db) {
             MultiDB::setDB($db);
-            $u = User::where('email', 'db1@example.com')->first();
+            $u = User::where('email', 'db1@gmail.com')->first();
             if ($u) {
                 $u->account->delete();
             }
 
 
-            $u = User::where('email', 'db2@example.com')->first();
+            $u = User::where('email', 'db2@gmail.com')->first();
             if ($u) {
                 $u->account->delete();
             }
@@ -89,7 +89,7 @@ class MultiDBUserTest extends TestCase
             'email_verified_at' => now(),
             'password' => Hash::make('ALongAndBriliantPassword'), // secret
             'remember_token' => \Illuminate\Support\Str::random(10),
-            'email' => 'db1@example.com',
+            'email' => 'db1@gmail.com',
             'oauth_user_id' => '123',
             //     'account_id' => $account->id,
         ];
@@ -102,7 +102,7 @@ class MultiDBUserTest extends TestCase
             'email_verified_at' => now(),
             'password' => 'ALongAndBriliantPassword', // secret
             'remember_token'    => \Illuminate\Support\Str::random(10),
-            'email'             => 'db2@example.com',
+            'email'             => 'db2@gmail.com',
             'oauth_user_id'     => 'abc',
             //      'account_id' => $account2->id,
 
@@ -151,41 +151,41 @@ class MultiDBUserTest extends TestCase
 
     public function test_oauth_user_db2_exists()
     {
-        $user = MultiDB::hasUser(['email' => 'db2@example.com', 'oauth_user_id' => 'abc']);
+        $user = MultiDB::hasUser(['email' => 'db2@gmail.com', 'oauth_user_id' => 'abc']);
 
-        $this->assertEquals($user->email, 'db2@example.com');
+        $this->assertEquals($user->email, 'db2@gmail.com');
     }
 
     public function test_oauth_user_db1_exists()
     {
-        $user = MultiDB::hasUser(['email' => 'db1@example.com', 'oauth_user_id' => '123']);
+        $user = MultiDB::hasUser(['email' => 'db1@gmail.com', 'oauth_user_id' => '123']);
 
-        $this->assertEquals($user->email, 'db1@example.com');
+        $this->assertEquals($user->email, 'db1@gmail.com');
     }
 
     public function test_check_user_exists()
     {
-        $this->assertTrue(MultiDB::checkUserEmailExists('db1@example.com'));
+        $this->assertTrue(MultiDB::checkUserEmailExists('db1@gmail.com'));
     }
 
     public function test_check_user_does_not_exist()
     {
-        $this->assertFalse(MultiDB::checkUserEmailExists('bademail@example.com'));
+        $this->assertFalse(MultiDB::checkUserEmailExists('bademail@gmail.com'));
     }
 
     public function test_check_that_set_db_by_email_works()
     {
-        $this->assertTrue(MultiDB::userFindAndSetDb('db1@example.com'));
+        $this->assertTrue(MultiDB::userFindAndSetDb('db1@gmail.com'));
     }
 
     public function test_check_that_set_db_by_email_works_db_2()
     {
-        $this->assertTrue(MultiDB::userFindAndSetDb('db2@example.com'));
+        $this->assertTrue(MultiDB::userFindAndSetDb('db2@gmail.com'));
     }
 
     public function test_check_that_set_db_by_email_works_db_3()
     {
-        $this->assertFalse(MultiDB::userFindAndSetDb('bademail@example.com'));
+        $this->assertFalse(MultiDB::userFindAndSetDb('bademail@gmail.com'));
     }
 
     public function test_cross_db_user_linking_fails_appropriately()
@@ -195,7 +195,7 @@ class MultiDBUserTest extends TestCase
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',
-            'email' => 'db2@example.com',
+            'email' => 'db2@gmail.com',
             'company_user' => [
                 'is_admin' => true,
                 'is_owner' => false,
@@ -239,12 +239,12 @@ class MultiDBUserTest extends TestCase
         try {
             // Clean up db-ninja-01
             if (\DB::connection('db-ninja-01')->getPdo()) {
-                $u = User::on('db-ninja-01')->where('email', 'db1@example.com')->first();
+                $u = User::on('db-ninja-01')->where('email', 'db1@gmail.com')->first();
                 if ($u && $u->account) {
                     $u->account->delete();
                 }
 
-                $u = User::on('db-ninja-01')->where('email', 'db2@example.com')->first();
+                $u = User::on('db-ninja-01')->where('email', 'db2@gmail.com')->first();
                 if ($u && $u->account) {
                     $u->account->delete();
                 }
@@ -252,12 +252,12 @@ class MultiDBUserTest extends TestCase
 
             // Clean up db-ninja-02
             if (\DB::connection('db-ninja-02')->getPdo()) {
-                $u = User::on('db-ninja-02')->where('email', 'db1@example.com')->first();
+                $u = User::on('db-ninja-02')->where('email', 'db1@gmail.com')->first();
                 if ($u && $u->account) {
                     $u->account->delete();
                 }
 
-                $u = User::on('db-ninja-02')->where('email', 'db2@example.com')->first();
+                $u = User::on('db-ninja-02')->where('email', 'db2@gmail.com')->first();
                 if ($u && $u->account) {
                     $u->account->delete();
                 }

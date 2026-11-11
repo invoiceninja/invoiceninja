@@ -5,45 +5,50 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers;
 
-use Exception;
-use App\Models\Company;
+use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use Checkout\CheckoutSdk;
-use Checkout\Environment;
-use Checkout\Common\Phone;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use Illuminate\Support\Carbon;
-use App\Jobs\Util\SystemLogger;
-use App\Exceptions\PaymentFailed;
-use App\Models\ClientGatewayToken;
-use Checkout\CheckoutApiException;
-use App\Utils\Traits\SystemLogTrait;
-use Checkout\Payments\RefundRequest;
-use Illuminate\Support\Facades\Auth;
-use Checkout\CheckoutArgumentException;
-use Checkout\Customers\CustomerRequest;
-use Checkout\CheckoutAuthorizationException;
-use App\PaymentDrivers\CheckoutCom\Utilities;
-use Checkout\Payments\Request\PaymentRequest;
-use App\PaymentDrivers\CheckoutCom\CreditCard;
+use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\CheckoutWebhook;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use Checkout\Payments\Request\Source\RequestIdSource;
-use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\PaymentDrivers\CheckoutCom\CreditCard;
+use App\PaymentDrivers\CheckoutCom\CreditCardFlow;
+use App\PaymentDrivers\CheckoutCom\Utilities;
+use App\Utils\Traits\SystemLogTrait;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\CheckoutAuthorizationException;
+use Checkout\CheckoutSdk;
+use Checkout\Common\Phone;
+use Checkout\Customers\CustomerRequest;
+use Checkout\DefaultHttpClientBuilder;
+use Checkout\Environment;
+use Checkout\Payments\ApplePay\Request\DomainEnrollmentRequest;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\RequestIdSource as SourceRequestIdSource;
+use Checkout\Payments\RefundRequest;
+use Checkout\Payments\Request\PaymentRequest;
+use Checkout\Payments\Request\Source\RequestIdSource;
+use Exception;
+use GuzzleHttp\HandlerStack;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Psr\Log\NullLogger;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -74,37 +79,173 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public $payment_method; //the gateway type id
 
+    /** @var int Active GatewayType for this payment request. */
+    public int $gateway_type_id = GatewayType::CREDIT_CARD;
+
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
     ];
 
+    /** GatewayType IDs supported via the Flow SDK. */
+    public static array $flow_gateway_types = [
+        GatewayType::CREDIT_CARD,
+        GatewayType::IDEAL,
+        GatewayType::BANCONTACT,
+        GatewayType::GIROPAY,
+        GatewayType::EPS,
+        GatewayType::SOFORT,
+        GatewayType::PRZELEWY24,
+        GatewayType::PAYPAL,
+        GatewayType::APPLE_PAY,
+    ];
+
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
 
+    public function ensureApplePayDomainIsValidated(): bool
+    {
+        $config = $this->company_gateway->getConfig();
+        $domain = parse_url($this->company_gateway->company->domain(), PHP_URL_HOST);
+
+        if (is_string($domain) && ($config->apple_pay_domain_name ?? null) === $domain) {
+            return true;
+        }
+
+        try {
+            $this->setApplePayDomain($domain);
+            $this->company_gateway->setConfigField('apple_pay_domain_name', $domain);
+
+            return true;
+        } catch (\Throwable $e) {
+            nlog('Checkout.com Apple Pay enrollment failed. Check domain onboarding and the secret key enrollment permission.', [
+                'company_gateway_id' => $this->company_gateway->id,
+                'domain' => $domain,
+            ]);
+
+            return false;
+        }
+    }
+
+    public function setApplePayDomain(string $domain): void
+    {
+        if (! $this->useFlow()) {
+            throw new \RuntimeException('Configure Checkout.com Flow before registering Apple Pay.');
+        }
+
+        $request = new DomainEnrollmentRequest();
+        $request->domain = $domain;
+        $log_context = [
+            'company_gateway_id' => $this->company_gateway->id,
+            'domain' => $domain,
+            'environment' => $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production',
+            'environment_subdomain' => $this->checkoutEnvironmentSubdomain(),
+        ];
+
+        try {
+            // Flow enrollment uses the existing secret key with vault:apme-enrollment permission.
+            $builder = CheckoutSdk::builder()->staticKeys()
+                ->secretKey($this->company_gateway->getConfigField('secretApiKey'))
+                ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production())
+                ->httpClientBuilder($this->applePayHttpClient())
+                ->logger(new NullLogger());
+
+            $subdomain = $this->checkoutEnvironmentSubdomain();
+            if ($subdomain !== null) {
+                $builder->environmentSubdomain($subdomain);
+            } else {
+                $builder->useLegacyDomain();
+            }
+
+            $response = $builder->build()->getApplePayClient()->enrollDomain($request);
+        } catch (Exception $e) {
+            Log::warning('Checkout.com Apple Pay enrollment request failed.', array_merge($log_context, [
+                'exception_class' => get_class($e),
+                'exception_code' => $e->getCode(),
+                'http_status' => $e instanceof CheckoutApiException ? $e->http_metadata?->getStatusCode() : null,
+                'request_id' => $e instanceof CheckoutApiException ? ($e->error_details['request_id'] ?? null) : null,
+                'error_type' => $e instanceof CheckoutApiException ? ($e->error_details['error_type'] ?? null) : null,
+                'error_codes' => $e instanceof CheckoutApiException ? ($e->error_details['error_codes'] ?? []) : [],
+            ]));
+
+            throw new \RuntimeException('Checkout.com Apple Pay enrollment failed. Check domain onboarding and the secret key enrollment permission.');
+        }
+
+        if (($response['http_metadata'] ?? null)?->getStatusCode() !== 204) {
+            Log::warning('Checkout.com Apple Pay enrollment returned an unexpected status.', array_merge($log_context, [
+                'http_status' => ($response['http_metadata'] ?? null)?->getStatusCode(),
+            ]));
+
+            throw new \RuntimeException('Checkout.com did not confirm Apple Pay domain enrollment.');
+        }
+    }
+
+    protected function applePayHttpClient(): DefaultHttpClientBuilder
+    {
+        $stack = HandlerStack::create();
+        // SDK 6.8 overrides verify per request; enforce TLS verification for enrollment.
+        $stack->push(function (callable $handler) {
+            return function ($request, array $options) use ($handler) {
+                $options['verify'] = true;
+
+                return $handler($request, $options);
+            };
+        });
+
+        return new DefaultHttpClientBuilder([
+            'handler' => $stack,
+            'connect_timeout' => 5,
+            'timeout' => 20,
+            'allow_redirects' => false,
+        ]);
+    }
+
     /**
-     * Returns the default gateway type.
+     * Returns the gateway types available for this driver.
+     *
+     * When Flow SDK is active, returns only the types that the merchant's
+     * Checkout.com account actually supports (probed and stored in settings).
+     * Falls back to card-only if no probe has been run yet.
      */
     public function gatewayTypes(): array
     {
-        $types = [];
+        $types = [GatewayType::CREDIT_CARD];
 
-        $types[] = GatewayType::CREDIT_CARD;
+        if ($this->useFlow()) {
+            $available = $this->company_gateway->settings->available_payment_methods ?? null;
+
+            if (is_array($available) || is_object($available)) {
+                $available = (array) $available;
+
+                $types = array_filter(self::$flow_gateway_types, function (int $gt) use ($available) {
+                    $method = self::gatewayTypeToFlowMethod($gt);
+                    return $method && in_array($method, $available);
+                });
+
+                $types = array_values($types) ?: [GatewayType::CREDIT_CARD];
+            }
+        }
 
         return $types;
     }
 
     /**
-     * Since with Checkout.com we handle only credit cards, this method should be empty.
-     * @param int|null $payment_method
+     * Set the active payment method handler.
+     *
+     * When using the Flow SDK, all gateway types (card + APMs) route through
+     * CreditCardFlow which restricts the Flow widget to the requested method.
+     *
+     * @param int|null $payment_method GatewayType constant
      * @return CheckoutComPaymentDriver
      */
     public function setPaymentMethod($payment_method = null): self
     {
-        // At the moment Checkout.com payment
-        // driver only supports payments using credit card.
+        $this->gateway_type_id = (int) ($payment_method ?: GatewayType::CREDIT_CARD);
 
-        $class = self::$methods[GatewayType::CREDIT_CARD];
-
-        $this->payment_method = new $class($this);
+        if ($this->useFlow()) {
+            $this->payment_method = new CreditCardFlow($this);
+        } else {
+            // Legacy Frames — only supports credit cards
+            $this->payment_method = new CreditCard($this);
+        }
 
         return $this;
     }
@@ -115,8 +256,17 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function init()
     {
+        $secretKey = $this->company_gateway->getConfigField('secretApiKey');
+        if ($secretKey === null || $secretKey === '') {
+            $this->gateway = null;
+            return $this;
+        }
 
-        if (str_contains($this->company_gateway->getConfigField('secretApiKey'), '-')) {
+        $publicKey = $this->company_gateway->getConfigField('publicApiKey');
+        $environment = $this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production();
+        $environmentSubdomain = $this->checkoutEnvironmentSubdomain();
+
+        if (str_contains($secretKey, '-')) {
 
             $this->is_four_api = true; //was four api, now known as previous.
 
@@ -124,25 +274,103 @@ class CheckoutComPaymentDriver extends BaseDriver
             $builder = CheckoutSdk::builder()
                     ->previous()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
-                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
+                    ->environment($environment); /** phpstan-ignore-line **/
 
-            $this->gateway = $builder->build();
+            if ($environmentSubdomain !== null) {
+                $builder->environmentSubdomain($environmentSubdomain);
+            } else {
+                $builder->useLegacyDomain();
+            }
 
+            $builder->publicKey($publicKey)
+                    ->secretKey($secretKey);
+
+            try {
+                $this->gateway = $builder->build();
+            } catch (CheckoutArgumentException $e) {
+                // Public key format may not match the previous API pattern — retry without it.
+                // The public key is only needed client-side (Frames/Flow JS), not for server-side operations.
+                $builder = CheckoutSdk::builder()
+                    ->previous()
+                    ->staticKeys()
+                    ->environment($environment);
+
+                if ($environmentSubdomain !== null) {
+                    $builder->environmentSubdomain($environmentSubdomain);
+                } else {
+                    $builder->useLegacyDomain();
+                }
+
+                $builder->secretKey($secretKey);
+
+                $this->gateway = $builder->build();
+            }
         } else {
-
             /** @phpstan-ignore-next-line **/
             $builder = CheckoutSdk::builder()
                     ->staticKeys()
-                    ->environment($this->company_gateway->getConfigField('testMode') ? Environment::sandbox() : Environment::production()) /** phpstan-ignore-line **/
-                    ->publicKey($this->company_gateway->getConfigField('publicApiKey'))
-                    ->secretKey($this->company_gateway->getConfigField('secretApiKey'));
+                    ->environment($environment); /** phpstan-ignore-line **/
 
-            $this->gateway = $builder->build();
+            if ($environmentSubdomain !== null) {
+                $builder->environmentSubdomain($environmentSubdomain);
+            } else {
+                $builder->useLegacyDomain();
+            }
+
+            $builder->publicKey($publicKey)
+                    ->secretKey($secretKey);
+
+            try {
+                $this->gateway = $builder->build();
+            } catch (CheckoutArgumentException $e) {
+                // Public key format may not match the current API pattern — retry without it.
+                // The public key is only needed client-side (Frames/Flow JS), not for server-side operations.
+                $builder = CheckoutSdk::builder()
+                    ->staticKeys()
+                    ->environment($environment);
+
+                if ($environmentSubdomain !== null) {
+                    $builder->environmentSubdomain($environmentSubdomain);
+                } else {
+                    $builder->useLegacyDomain();
+                }
+
+                $builder->secretKey($secretKey);
+
+                $this->gateway = $builder->build();
+            }
 
         }
         return $this;
+    }
+
+    private function checkoutEnvironmentSubdomain(): ?string
+    {
+        $clientId = trim((string) $this->company_gateway->getConfigField('clientId'));
+
+        if ($clientId === '') {
+            return null;
+        }
+
+        $subdomain = substr($clientId, strlen('cli_'), 8);
+
+        if (! str_starts_with($clientId, 'cli_') || ! preg_match('/^[a-z0-9]{8}$/', $subdomain)) {
+            throw new CheckoutArgumentException('Checkout.com client ID must start with cli_ and contain at least eight lowercase letters or numbers.');
+        }
+
+        return $subdomain;
+    }
+
+    private function checkoutApiBaseUrl(): string
+    {
+        $subdomain = $this->checkoutEnvironmentSubdomain();
+        $apiHost = $this->company_gateway->getConfigField('testMode')
+            ? 'api.sandbox.checkout.com'
+            : 'api.checkout.com';
+
+        return $subdomain === null
+            ? "https://{$apiHost}"
+            : "https://{$subdomain}.{$apiHost}";
     }
 
     /**
@@ -203,12 +431,13 @@ class CheckoutComPaymentDriver extends BaseDriver
     /**
      * Store PaymentMethod
      *
-     * @param  array $data
+     * @param array $data
+     * @param array $additional
      * @return ?ClientGatewayToken $token
      */
-    public function storePaymentMethod(array $data)
+    public function storePaymentMethod(array $data, array $additional = []): ?ClientGatewayToken
     {
-        return $this->storeGatewayToken($data);
+        return $this->storeGatewayToken($data, $additional);
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
@@ -220,7 +449,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
 
         $request = new RefundRequest();
-        $request->reference = "{$payment->transaction_reference} ".now();
+        $request->reference = "{$payment->transaction_reference} " . now();
         $request->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
 
         try {
@@ -291,10 +520,16 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function getCustomer()
     {
-        try {
-            $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
+        if ($reference = $this->resolveGatewayCustomerReference()) {
+            try {
+                return $this->gateway->getCustomersClient()->get($reference);
+            } catch (\Exception $e) {
+                // Fall through to email lookup.
+            }
+        }
 
-            return $response;
+        try {
+            return $this->gateway->getCustomersClient()->get($this->client->present()->email());
         } catch (\Exception $e) {
 
             $request = new CustomerRequest();
@@ -329,6 +564,23 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             return $response;
         }
+    }
+
+    public function resolveGatewayCustomerReference(): ?string
+    {
+        if (! $this->client) {
+            return null;
+        }
+
+        return $this->client
+            ->gateway_tokens()
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->whereNotNull('gateway_customer_reference')
+            ->where('gateway_customer_reference', '!=', '')
+            ->reorder()
+            ->latest('created_at')
+            ->orderByDesc('id')
+            ->value('gateway_customer_reference');
     }
 
     public function updateCustomer($customer_id = null)
@@ -393,10 +645,18 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
-        $paymentRequest->reference = '#'.$invoice->number.' - '.now();
+        $paymentRequest->reference = '#' . $invoice->number . ' - ' . now();
         $paymentRequest->customer = $this->getCustomer();
         $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $payment_hash->hash];
         $paymentRequest->currency = $this->client->getCurrencyCode();
+
+        $processingChannelId = $this->company_gateway->getConfigField('processingChannelId');
+        if ($processingChannelId) {
+            $paymentRequest->processing_channel_id = $processingChannelId;
+        }
+
+        // MIT recurring — exempt from 3DS challenge
+        $paymentRequest->payment_type = 'Recurring';
 
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');
@@ -405,14 +665,16 @@ class CheckoutComPaymentDriver extends BaseDriver
         try {
             $response = $this->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
-            if ($response['status'] == 'Authorized') {
+            if ($response['status'] == 'Authorized' || $response['status'] == 'Captured') {
+
+                $meta = Utilities::resolvePaymentMeta($response);
 
                 $data = [
-                    'payment_method' => $response['source']['id'],
-                    'payment_type' => PaymentType::parseCardType(strtolower($response['source']['scheme'])),
+                    'payment_method' => $response['source']['id'] ?? $response['id'],
+                    'payment_type' => $meta['payment_type'],
                     'amount' => $amount,
                     'transaction_reference' => $response['id'],
-                    'gateway_type_id' => GatewayType::CREDIT_CARD,
+                    'gateway_type_id' => $meta['gateway_type_id'],
                 ];
 
                 $this->confirmGatewayFee($data);
@@ -432,9 +694,8 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
 
             if ($response['status'] == 'Declined') {
-                $this->unWindGatewayFees($payment_hash);
 
-                $this->sendFailureMail($response['status'].' '.$response['response_summary']);
+                $this->sendFailureMail($response['status'] . ' ' . $response['response_summary']);
 
                 $message = [
                     'server_response' => $response,
@@ -454,11 +715,10 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
         } catch (CheckoutApiException $e) {
 
-            $this->unWindGatewayFees($payment_hash);
 
             $error_details = $e->error_details;
 
-            if (isset($error_details['error_codes']) ?? false) {
+            if (isset($error_details['error_codes']) && is_array($error_details['error_codes'])) {
                 $error_details = end($e->error_details['error_codes']);
             } else {
                 $error_details = $e->getMessage();
@@ -492,9 +752,9 @@ class CheckoutComPaymentDriver extends BaseDriver
         $webhook_payload = file_get_contents('php://input');
 
         if ($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key)) {
-            CheckoutWebhook::dispatch($request->all(), $request->company_key, $this->company_gateway->id)->delay(10);
+            CheckoutWebhook::dispatch($request->all(), $this->company_gateway->company->company_key, $this->company_gateway->id)->delay(10);
         } else {
-            nlog("Hash Mismatch = {$request->header('cko-signature')} ".hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
+            nlog("Hash Mismatch = {$request->header('cko-signature')} " . hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
             nlog($request->all());
         }
 
@@ -526,7 +786,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             } else {
                 return $this->processUnsuccessfulPayment($payment);
             }
-        } catch (CheckoutApiException | Exception $e) {
+        } catch (\Throwable $e) {
             nlog("checkout");
             nlog($e->getMessage());
             return $this->processInternallyFailedPayment($this, $e);
@@ -540,13 +800,67 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function auth(): string
     {
-        try {
-            $this->init()->gateway->getCustomersClient('x');
-            return 'ok';
-        } catch (\Exception $e) {
+        $secretKey = trim((string) $this->company_gateway->getConfigField('secretApiKey'));
+        $publicKey = trim((string) $this->company_gateway->getConfigField('publicApiKey'));
 
+        if ($secretKey === '' || $publicKey === '') {
+            return 'error';
         }
-        return 'error';
+
+        try {
+            if (! $this->init()->gateway) {
+                return 'error';
+            }
+
+            $baseUrl = $this->company_gateway->getConfigField('testMode')
+                ? 'https://api.sandbox.checkout.com'
+                : 'https://api.checkout.com';
+            $previousApi = $this->is_four_api;
+            $secretAuthorization = $previousApi ? $secretKey : 'Bearer ' . $secretKey;
+            $publicAuthorization = $previousApi ? $publicKey : 'Bearer ' . $publicKey;
+
+            // A syntactically valid, nonexistent payment ID makes a read-only
+            // request exercise the secret key and Payments API permission.
+            $paymentResponse = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => $secretAuthorization])
+                ->acceptJson()
+                ->timeout(15)
+                ->get($baseUrl . '/payments/pay_' . str_repeat('a', 26));
+
+            if ($paymentResponse->status() !== 404) {
+                return 'error';
+            }
+
+            // Flow requires a processing channel. This endpoint checks the
+            // channel and secret together using the same request Flow relies on.
+            if ($this->useFlow()) {
+                $methodsResponse = Http::withOptions(['allow_redirects' => false])
+                    ->withHeaders(['Authorization' => $secretAuthorization])
+                    ->acceptJson()
+                    ->timeout(15)
+                    ->get($baseUrl . '/payment-methods', [
+                        'processing_channel_id' => $this->company_gateway->getConfigField('processingChannelId'),
+                    ]);
+
+                if (! $methodsResponse->successful()) {
+                    return 'error';
+                }
+            }
+
+            // Tokenization is public-key authenticated. An intentionally
+            // incomplete card payload must reach request validation (422/400),
+            // never authentication (401/403), and cannot create a token.
+            $tokenResponse = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => $publicAuthorization])
+                ->acceptJson()
+                ->timeout(15)
+                ->post($baseUrl . '/tokens', ['type' => 'card']);
+
+            return in_array($tokenResponse->status(), [400, 422], true) ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
+
     }
 
     private function getToken(string $token, $gateway_customer_reference)
@@ -593,9 +907,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                  foreach ($customer['instruments'] as $card) {
                      if (
-                         $card['type'] != 'card' ||
-                         Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) || //@phpstan-ignore-line
-                         $this->getToken($card['id'], $customer['id'])
+                         $card['type'] != 'card'
+                         || Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) //@phpstan-ignore-line
+                         || $this->getToken($card['id'], $customer['id'])
                      ) {
                          continue;
                      }
@@ -623,5 +937,120 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function livewirePaymentView(array $data): string
     {
         return $this->payment_method->livewirePaymentView($data);
+    }
+
+    /**
+     * Whether to use Checkout.com Flow SDK (payment sessions) instead of Frames.
+     * True when on current API and processingChannelId is configured.
+     */
+    public function useFlow(): bool
+    {
+        $secretKey = $this->company_gateway->getConfigField('secretApiKey');
+        if (empty($secretKey) || str_contains($secretKey, '-')) {
+            return false;
+        }
+
+        $channelId = $this->company_gateway->getConfigField('processingChannelId');
+
+        return $channelId !== null && $channelId !== '';
+    }
+
+    /**
+     * Probe the Checkout.com account to discover which payment methods
+     * are available for the configured processing channel.
+     *
+     * Uses the GET /payment-methods endpoint with ?processing_channel_id
+     * to retrieve the list. Stores the result in company_gateway->settings
+     * so that gatewayTypes() only advertises supported methods.
+     *
+     * @see https://api-reference.checkout.com/#operation/getPaymentMethods
+     */
+    public function probeAvailablePaymentMethods(): array
+    {
+        $this->init();
+
+        if (!$this->useFlow()) {
+            return ['card'];
+        }
+
+        $secretKey = $this->company_gateway->getConfigField('secretApiKey');
+        $processingChannelId = $this->company_gateway->getConfigField('processingChannelId');
+        $baseUrl = $this->checkoutApiBaseUrl();
+        $url = $baseUrl . '/payment-methods?' . http_build_query(['processing_channel_id' => $processingChannelId]);
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $secretKey,
+                'Content-Type' => 'application/json',
+            ])->get($url);
+
+            if (!$response->successful()) {
+                nlog("Checkout probe: GET /payment-methods returned {$response->status()}");
+                nlog($response->body());
+                return $this->persistAvailableMethods(['card']);
+            }
+
+            $body = $response->json();
+            nlog(['checkout_payment_methods_response' => $body]);
+
+            $methods = [];
+
+            // Normalize: Checkout.com returns "card_scheme" per brand (Visa, MC, etc.)
+            // and APMs by their type (ideal, giropay, etc.)
+            $typeMap = [
+                'card_scheme' => 'card',
+                'applepay'    => 'applepay',
+                'googlepay'   => 'googlepay',
+            ];
+
+            foreach ($body['methods'] ?? [] as $method) {
+                if (!isset($method['type'])) {
+                    continue;
+                }
+
+                $type = strtolower($method['type']);
+                $normalized = $typeMap[$type] ?? $type;
+
+                if (!in_array($normalized, $methods)) {
+                    $methods[] = $normalized;
+                }
+            }
+
+            // Apple Pay and Google Pay are card-based wallet methods that the
+            // Flow SDK enables automatically when card is available and the
+            // device supports them. They won't appear in /payment-methods
+            // but should be allowed when card payments are supported.
+            if (in_array('card', $methods)) {
+                if (!in_array('applepay', $methods)) {
+                    $methods[] = 'applepay';
+                }
+                if (!in_array('googlepay', $methods)) {
+                    $methods[] = 'googlepay';
+                }
+            }
+
+            $available = $methods ?: ['card'];
+
+        } catch (\Exception $e) {
+            nlog("Checkout probe failed: " . $e->getMessage());
+            $available = ['card'];
+        }
+
+        return $this->persistAvailableMethods($available);
+    }
+
+    /**
+     * Store the probed payment methods in the CompanyGateway settings.
+     */
+    private function persistAvailableMethods(array $available): array
+    {
+        $settings = $this->company_gateway->settings ?? new \stdClass();
+        $settings->available_payment_methods = $available;
+        $this->company_gateway->settings = $settings;
+        $this->company_gateway->save();
+
+        nlog(['checkout_probed_payment_methods' => $available]);
+
+        return $available;
     }
 }

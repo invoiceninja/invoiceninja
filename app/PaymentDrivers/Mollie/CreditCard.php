@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\PaymentDrivers\Mollie;
 
 use App\Models\Payment;
@@ -51,7 +59,7 @@ class CreditCard implements LivewireMethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        
+
         $amount = $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee);
 
         $description = sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->mollie->payment_hash->invoices())->pluck('invoice_number')->toArray()));
@@ -62,10 +70,13 @@ class CreditCard implements LivewireMethodInterface
 
         if (! empty($request->token)) {
             try {
-                $cgt = ClientGatewayToken::where('token', $request->token)->firstOrFail();
+                $cgt = ClientGatewayToken::query()
+                    ->where('token', $request->token)
+                    ->where('client_id', $this->mollie->client->id)
+                    ->firstOrFail();
 
                 $payment = $this->mollie->gateway->payments->create([
-                    'method' => 'creditcard',                                                
+                    'method' => 'creditcard',
                     'amount' => [
                         'currency' => $this->mollie->client->currency()->code,
                         'value' => $amount,
@@ -93,15 +104,29 @@ class CreditCard implements LivewireMethodInterface
                     return $this->processSuccessfulPayment($payment);
                 }
 
-                if ($payment->status === 'open') {
-                    $this->mollie->payment_hash->withData('payment_id', $payment->id);
+                // if ($payment->status === 'open') {
+                //     $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
-                    if (!$payment->getCheckoutUrl()) {
-                        return render('gateways.mollie.mollie_placeholder');
-                    } else {
-                        return redirect()->away($payment->getCheckoutUrl());
+                //     if (!$payment->getCheckoutUrl()) {
+                //         return render('gateways.mollie.mollie_placeholder');
+                //     } else {
+                //         return redirect()->away($payment->getCheckoutUrl());
+                //     }
+                // }
+
+
+                if (in_array($payment->status, ['open', 'pending'], true)) {
+                    if ($checkout = $payment->getCheckoutUrl()) {
+                        $this->mollie->payment_hash->withData('payment_id', $payment->id);
+                        return redirect()->away($checkout);
                     }
+                    return $this->processSuccessfulPayment($payment);
                 }
+                return $this->processUnsuccessfulPayment(
+                    new PaymentFailed($payment->details->failureMessage ?? ctrans('texts.status_failed'), 400)
+                );
+
+
             } catch (\Throwable $e) {
                 return $this->processUnsuccessfulPayment($e);
             }
@@ -178,7 +203,7 @@ class CreditCard implements LivewireMethodInterface
 
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment)
     {
-        
+
         $payment_hash = $this->mollie->payment_hash;
 
         if (property_exists($payment_hash->data, 'shouldStoreToken') && $payment_hash->data->shouldStoreToken) {
@@ -190,7 +215,7 @@ class CreditCard implements LivewireMethodInterface
                 return $this->processUnsuccessfulPayment($e);
             }
 
-            if(empty($mandates)){
+            if (empty($mandates)) {
                 return render('gateways.mollie.mollie_placeholder');
             }
 
@@ -214,7 +239,7 @@ class CreditCard implements LivewireMethodInterface
             'payment_type' => PaymentType::CREDIT_CARD_OTHER,
             'transaction_reference' => $payment->id,
         ];
-        
+
         $payment_record = $this->mollie->createPayment($data, $payment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(

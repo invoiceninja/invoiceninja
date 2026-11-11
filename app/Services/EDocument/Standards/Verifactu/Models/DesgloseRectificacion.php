@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\Verifactu\Models;
 
 /**
@@ -74,14 +82,14 @@ class DesgloseRectificacion extends BaseXmlModel
 
     public static function fromDOMElement(\DOMElement $element): self
     {
-        $baseRectificada = (float)self::getElementText($element, 'BaseRectificada');
-        $cuotaRectificada = (float)self::getElementText($element, 'CuotaRectificada');
+        $baseRectificada = (float) self::getElementText($element, 'BaseRectificada');
+        $cuotaRectificada = (float) self::getElementText($element, 'CuotaRectificada');
         $cuotaRecargoRectificado = self::getElementText($element, 'CuotaRecargoRectificado');
 
         return new self(
             $baseRectificada,
             $cuotaRectificada,
-            $cuotaRecargoRectificado ? (float)$cuotaRecargoRectificado : null
+            $cuotaRecargoRectificado ? (float) $cuotaRecargoRectificado : null
         );
     }
 

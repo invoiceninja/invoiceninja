@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,6 +34,11 @@ class ExpenseDecorator implements DecoratorInterface
 
         return '';
 
+    }
+
+    public function tags(Expense $expense): string
+    {
+        return $expense->tags->pluck('name')->implode(', ');
     }
 
     public function category(Expense $expense)
@@ -103,7 +108,7 @@ class ExpenseDecorator implements DecoratorInterface
     }
     public function user(Expense $expense)
     {
-        return $expense->user ? $expense->user->present()->name() : '';
+        return $expense->user->present()->name() ?? '';
     }
     public function assigned_user(Expense $expense)
     {

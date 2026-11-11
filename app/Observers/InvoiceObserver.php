@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,6 +21,14 @@ class InvoiceObserver
     public $afterCommit = true;
 
     /**
+     * Handle the invoice "updating" event (before save).
+     *
+     * @param Invoice $invoice
+     * @return void
+     */
+    public function updating(Invoice $invoice) {}
+
+    /**
      * Handle the client "created" event.
      *
      * @param Invoice $invoice
@@ -29,6 +37,8 @@ class InvoiceObserver
     public function created(Invoice $invoice)
     {
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_CREATE_INVOICE)
                             ->exists();
 
@@ -36,20 +46,6 @@ class InvoiceObserver
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company, 'client')->delay(0);
         }
 
-        // QuickBooks push - check if invoice status matches push_invoice_statuses
-        // Map invoice status to string for status-based push check
-        $invoiceStatus = $this->mapInvoiceStatusToString($invoice->status_id, $invoice->is_deleted);
-        
-        if ($invoice->company->shouldPushToQuickbooks('invoice', 'status', $invoiceStatus)) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
-                'invoice',
-                $invoice->id,
-                $invoice->company->id,
-                $invoice->company->db,
-                'create',
-                $invoiceStatus
-            );
-        }
     }
 
     /**
@@ -70,8 +66,9 @@ class InvoiceObserver
             $event = Webhook::EVENT_DELETE_INVOICE;
         }
 
-
         $subscriptions = Webhook::where('company_id', $invoice->company->id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -79,41 +76,6 @@ class InvoiceObserver
             WebhookHandler::dispatch($event, $invoice, $invoice->company, 'client')->delay(0);
         }
 
-        // QuickBooks push - check if invoice status matches push_invoice_statuses
-        // Map invoice status to string for status-based push check
-        $invoiceStatus = $this->mapInvoiceStatusToString($invoice->status_id, $invoice->is_deleted);
-        
-        if ($invoice->company->shouldPushToQuickbooks('invoice', 'status', $invoiceStatus)) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
-                'invoice',
-                $invoice->id,
-                $invoice->company->id,
-                $invoice->company->db,
-                'update',
-                $invoiceStatus
-            );
-        }
-    }
-
-    /**
-     * Map invoice status_id and is_deleted to status string for QuickBooks push.
-     * 
-     * @param int $statusId
-     * @param bool $isDeleted
-     * @return string
-     */
-    private function mapInvoiceStatusToString(int $statusId, bool $isDeleted): string
-    {
-        if ($isDeleted) {
-            return 'deleted';
-        }
-
-        return match($statusId) {
-            \App\Models\Invoice::STATUS_DRAFT => 'draft',
-            \App\Models\Invoice::STATUS_SENT => 'sent',
-            \App\Models\Invoice::STATUS_PAID => 'paid',
-            default => 'unknown',
-        };
     }
 
     /**
@@ -129,6 +91,8 @@ class InvoiceObserver
         }
 
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
+                            ->where('is_deleted', false)
+                            ->whereNull('deleted_at')
                             ->where('event_id', Webhook::EVENT_ARCHIVE_INVOICE)
                             ->exists();
 

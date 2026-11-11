@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Task;
 
 use App\Http\Requests\Request;
+use App\Models\Task;
 use Illuminate\Validation\Rule;
 
 class BulkTaskRequest extends Request
@@ -47,6 +48,33 @@ class BulkTaskRequest extends Request
             'column' => ['required_if:action,bulk_update', 'string', Rule::in(\App\Models\Task::$bulk_update_columns)],
             'new_value' => ['required_if:action,bulk_update|string'],
         ];
+
+    }
+
+    public function withValidator($validator)
+    {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+
+        $validator->after(function ($validator) {
+
+            if ($this->action == 'bulk_update') {
+                
+                $user = auth()->user();
+
+                $unauthorized = Task::withTrashed()
+                    ->whereIn('id', $this->transformKeys($this->ids))
+                    ->company()
+                    ->get()
+                    ->contains(fn (Task $task) => $user->cannot('edit', $task));
+
+                if ($unauthorized) {
+                    $validator->errors()->add('ids', 'You are not authorized to update these tasks.');
+                }
+            
+            }
+        });
 
     }
 }

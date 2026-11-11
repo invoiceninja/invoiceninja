@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,7 +17,9 @@ use App\Factory\RecurringInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\Paymentable;
 use App\Models\RecurringInvoice;
+use App\Services\EDocument\Standards\France\FrancePaymentApplicationRecorder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -181,6 +183,29 @@ class UpdateInvoicePayment
             /*update paymentable record*/
             $pivot_invoice->pivot->amount = $paid_amount;
             $pivot_invoice->pivot->save();
+
+            try {
+                $invoice->loadMissing(['client.country', 'client.company']);
+
+                if ($invoice->client->reportableFrTransaction()) {
+                    $paymentable = Paymentable::withTrashed()
+                        ->where('payment_id', $this->payment->id)
+                        ->where('paymentable_id', $invoice->id)
+                        ->where('paymentable_type', 'invoices')
+                        ->latest('id')
+                        ->first();
+
+                    app(FrancePaymentApplicationRecorder::class)->recordMovement(
+                        payment: $this->payment,
+                        invoice: $invoice,
+                        paymentable: $paymentable,
+                        movementAmount: $paid_amount,
+                        movementDate: $this->payment->date ?: now()->toDateString(),
+                    );
+                }
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
 
             $this->payment->applied += $paid_amount;
 

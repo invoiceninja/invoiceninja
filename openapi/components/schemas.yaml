@@ -52,7 +52,7 @@
         settings:
           description: 'The settings object'
           type: object
-          example: ''
+          example: {}
       type: object
     InvoicePaymentable:
       properties:
@@ -76,7 +76,7 @@
         paused:
           description: 'The scheduler paused state'
           type: boolean
-          example: 'false'
+          example: false
         repeat_every:
           description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
           type: string
@@ -84,7 +84,7 @@
         start_from:
           description: 'Timestamp when we should start the scheduler, default is today'
           type: integer
-          example: '1652898504'
+          example: 1652898504
         job:
           description: 'Job, we can find list of available jobs in Scheduler model'
           type: string
@@ -117,7 +117,7 @@
         paused:
           description: 'The scheduler paused state'
           type: boolean
-          example: 'false'
+          example: false
         repeat_every:
           description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
           type: string
@@ -125,7 +125,7 @@
         start_from:
           description: 'Timestamp when we should start the scheduler, default is today'
           type: integer
-          example: '1652898504'
+          example: 1652898504
         job:
           description: 'Job, we can find list of available jobs in Scheduler model'
           type: string
@@ -173,12 +173,12 @@
         task_status_order:
           description: 'The order of the task status'
           type: integer
-          example: '4'
+          example: 4
         created_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         is_deleted:
           description: 'A boolean flag determining if the task status has been deleted'
@@ -189,13 +189,13 @@
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
       type: object
     TaxRate:
@@ -212,7 +212,7 @@
         rate:
           description: 'The tax rate'
           type: number
-          example: '10'
+          example: 10
         is_deleted:
           description: 'Boolean flag determining if the tax has been deleted'
           type: boolean

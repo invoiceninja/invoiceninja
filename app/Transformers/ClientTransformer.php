@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -143,7 +143,7 @@ class ClientTransformer extends EntityTransformer
             'paid_to_date' => (float) $client->paid_to_date,
             'payment_balance' => (float) $client->payment_balance,
             'credit_balance' => (float) $client->credit_balance,
-            'last_login' => (int) $client->last_login,
+            'last_login' => (int) max(0, (int)$client->last_login),
             'size_id' => (string) $client->size_id,
             'public_notes' => $client->public_notes ?: '',
             'client_hash' => (string) $client->client_hash,
@@ -180,6 +180,7 @@ class ClientTransformer extends EntityTransformer
             'tax_info' => $client->tax_data ?: new \stdClass(),
             'classification' => $client->classification ?: '',
             'e_invoice' => $client->e_invoice ?: new \stdClass(),
+            'tags' => $this->transformTags($client),
         ];
     }
 }

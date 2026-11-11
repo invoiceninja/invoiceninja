@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,7 +14,7 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
+
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -60,7 +60,10 @@ class BECS implements LivewireMethodInterface
             return $this->processSuccessfulPayment($gateway_response->id);
         }
 
-        return $this->processUnsuccessfulPayment();
+        //@phpstan-ignore-next-line
+        $error = $gateway_response->last_payment_error?->message ?? "BECS payment failed with status: " . ($gateway_response->status ?? 'unknown');
+
+        return $this->processUnsuccessfulPayment($error);
     }
 
     public function processSuccessfulPayment(string $payment_intent): \Illuminate\Http\RedirectResponse
@@ -87,16 +90,11 @@ class BECS implements LivewireMethodInterface
         return redirect()->route('client.payments.show', $payment->hashed_id);
     }
 
-    public function processUnsuccessfulPayment()
+    public function processUnsuccessfulPayment(string $error = '')
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $server_response,
-            $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
-        );
+        $this->stripe->sendFailureMail($error ?: 'BECS payment was not successful');
 
         $message = [
             'server_response' => $server_response,

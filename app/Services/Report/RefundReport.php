@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\Report;
 
 use Carbon\Carbon;
@@ -46,9 +54,7 @@ class RefundReport extends BaseExport
      *     'client_id',
      * ]
      */
-    public function __construct(public Company $company, public array $input)
-    {
-    }
+    public function __construct(public Company $company, public array $input) {}
 
     public function run()
     {
@@ -74,6 +80,7 @@ class RefundReport extends BaseExport
 
         $this->csv->insertOne($this->buildHeader());
 
+
         // Get all refund activities
         $query = Activity::query()
             ->where('company_id', $this->company->id)
@@ -88,7 +95,7 @@ class RefundReport extends BaseExport
             /** @var Activity $activity */
 
             // Extract refund amount from notes using regex
-            preg_match('/Refunded : (\d+) -/', $activity->notes, $matches);
+            preg_match('/Refunded : (\d+) -/', $activity->notes ?? '', $matches);
             $refundAmount = $matches[1] ?? 0;
 
             // Get payment details
@@ -119,7 +126,7 @@ class RefundReport extends BaseExport
                             if ($invoice) {
                                 $invoices[] = [
                                     'number' => $invoice->number,
-                                    'amount' => $invoiceRefund['amount']
+                                    'amount' => $invoiceRefund['amount'],
                                 ];
                             }
                         }
@@ -132,7 +139,7 @@ class RefundReport extends BaseExport
                 $this->csv->insertOne([
                     $this->translateDate(\Carbon\Carbon::parse($activity->created_at)->format('Y-m-d'), $this->company->date_format(), $this->company->locale()),
                     Number::formatMoney($refundAmount, $this->company),
-                    $payment ? $payment->number : '',
+                    $payment->number ?? '',
                     $invoice['number'],
                     Number::formatMoney($invoice['amount'], $this->company),
                     $gatewayRefund ? 'Yes' : 'No',

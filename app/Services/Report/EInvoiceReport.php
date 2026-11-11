@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\Report;
 
 use Carbon\Carbon;
@@ -49,9 +57,7 @@ class EInvoiceReport extends BaseExport
      *     'client_id',
      * ]
      */
-    public function __construct(public Company $company, public array $input)
-    {
-    }
+    public function __construct(public Company $company, public array $input) {}
 
     public function run()
     {
@@ -85,7 +91,7 @@ class EInvoiceReport extends BaseExport
 
         $query = $this->addDateRange($query, 'invoices');
 
-        $invoices = $query->cursor();
+        $invoices = $this->streamQuery($query);
 
         // Process invoices
         foreach ($invoices as $invoice) {
@@ -118,11 +124,10 @@ class EInvoiceReport extends BaseExport
         $expenseActivityIds = $query->pluck('expense_id')
                                     ->toArray();
 
-        $expenses = Expense::query()
+        $expenses = $this->streamQuery(Expense::query()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
-            ->whereIn('id', $expenseActivityIds)
-            ->cursor();
+            ->whereIn('id', $expenseActivityIds));
 
         // Process expenses
         foreach ($expenses as $expense) {

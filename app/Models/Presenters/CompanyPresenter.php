@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,8 @@
 namespace App\Models\Presenters;
 
 use App\Models\Country;
+use App\Utils\Ninja;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -52,7 +54,6 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        // $basename = basename($this->settings->company_logo);
         $basename = basename($settings->company_logo);
 
         $logo = Storage::get("{$this->company_key}/{$basename}");
@@ -61,7 +62,7 @@ class CompanyPresenter extends EntityPresenter
             return $this->logo($settings);
         }
 
-        return "data:image/png;base64, ". base64_encode($logo);
+        return "data:image/png;base64, " . base64_encode($logo);
     }
 
     /**
@@ -77,46 +78,69 @@ class CompanyPresenter extends EntityPresenter
             return $this->logoDocker($settings);
         }
 
-        $context_options = [
-            "ssl" => [
-               "verify_peer" => false,
-               "verify_peer_name" => false,
-            ],
-        ];
+        $basename = basename($settings->company_logo);
 
-        if (strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false)) {
-            return "data:image/png;base64,". base64_encode(@file_get_contents($settings->company_logo, false, stream_context_create($context_options)));
-        } elseif (strlen($settings->company_logo) >= 1) {
-            return "data:image/png;base64,". base64_encode(@file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options)));
-        } else {
+        $disk = config('filesystems.default');
+
+        try {
+            $logo = Storage::disk($disk)->get($this->company_key . '/' . $basename);
+
+            if (!empty($logo)) {
+                return "data:image/png;base64," . base64_encode($logo);
+            }
+
+        } catch (\Throwable $e) {
+            //fall through
+        }
+
+        try {
+            $response = Http::withOptions([
+                'allow_redirects' => false,
+                'verify' => !Ninja::isSelfHost(), 
+            ])->timeout(5)
+            ->get($settings->company_logo);
+            return $response->successful() ? "data:image/png;base64," . base64_encode($response->body()) : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+        } catch (\Throwable $e) {
             return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
         }
+
     }
 
     public function logoFile($settings)
     {
-
-        $context_options = [
-            "ssl" => [
-               "verify_peer" => false,
-               "verify_peer_name" => false,
-            ],
-        ];
+        $logo_url = '';
 
         if (strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false)) {
-            return @file_get_contents($settings->company_logo, false, stream_context_create($context_options));
+            $logo_url = $settings->company_logo;
         } elseif (strlen($settings->company_logo) >= 1) {
-            return @file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options));
-        } else {
-            return '=b"ëPNG\r\n\x1A\n\0\0\0\rIHDR\0\0\0\x01\0\0\0\x01\x08\x04\0\0\0Á\x1C\f\x02\0\0\0\vIDATx┌cd`\0\0\0\x06\0\x020üð/\0\0\0\0IEND«B`é';
+            $logo_url = url('') . $settings->company_logo;
         }
+
+        if ($logo_url) {
+            try {
+                $response = Http::withOptions([
+                    'verify' => !Ninja::isSelfHost(), 
+                    'allow_redirects' => false,
+                    ])
+                    ->timeout(5)
+                    ->get($logo_url);
+
+                if ($response->successful()) {
+                    return $response->body();
+                }
+            } catch (\Throwable $e) {
+                // fall through to default
+            }
+        }
+
+        return '=b"ëPNG\r\n\x1A\n\0\0\0\rIHDR\0\0\0\x01\0\0\0\x01\x08\x04\0\0\0Á\x1C\f\x02\0\0\0\vIDATx┌cd`\0\0\0\x06\0\x020üð/\0\0\0\0IEND«B`é';
 
     }
 
     public function email()
     {
         /** @var \App\Models\Company $this */
-        if (str_contains($this->settings->email, "@")) {
+        if (str_contains($this->settings->email ?? '', "@")) {
             return $this->settings->email;
         }
 
@@ -134,22 +158,22 @@ class CompanyPresenter extends EntityPresenter
         }
 
         if ($address1 = $settings->address1) {
-            $str .= e($address1).'<br/>';
+            $str .= e($address1) . '<br/>';
         }
         if ($address2 = $settings->address2) {
-            $str .= e($address2).'<br/>';
+            $str .= e($address2) . '<br/>';
         }
         if ($cityState = $this->getCompanyCityState($settings)) {
-            $str .= e($cityState).'<br/>';
+            $str .= e($cityState) . '<br/>';
         }
         if ($country = Country::find($settings->country_id)) {
-            $str .= e($country->name).'<br/>';
+            $str .= e($country->name) . '<br/>';
         }
         if ($settings->phone) {
-            $str .= ctrans('texts.phone').': '.e($settings->phone).'<br/>';
+            $str .= ctrans('texts.phone') . ': ' . e($settings->phone) . '<br/>';
         }
         if ($settings->email) {
-            $str .= ctrans('texts.work_email').': '.e($settings->email).'<br/>';
+            $str .= ctrans('texts.work_email') . ': ' . e($settings->email) . '<br/>';
         }
 
         return $str;

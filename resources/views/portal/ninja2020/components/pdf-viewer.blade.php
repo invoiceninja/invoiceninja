@@ -46,7 +46,7 @@
     </section>
 </div>
 
-@livewire('pdf-slot', ['class' => get_class($entity), 'entity' => $entity, 'invitation' => $invitation, 'db' => $entity->company->db])
+@livewire('pdf-slot', ['entity_type' => \Illuminate\Support\Str::snake(class_basename($entity)), 'entity_key' => $entity->hashed_id, 'invitation_key' => $invitation->key ?? null, 'db' => $entity->company->db])
 
 @if($mobile)
     @push('footer')

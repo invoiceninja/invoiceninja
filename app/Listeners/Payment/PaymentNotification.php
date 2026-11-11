@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,6 +21,7 @@ use App\Mail\Admin\EntityPaidObject;
 use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Http;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class PaymentNotification implements ShouldQueue
@@ -34,9 +35,7 @@ class PaymentNotification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -69,17 +68,17 @@ class PaymentNotification implements ShouldQueue
                     $payment,
                     $company_user,
                     [
-                    'payment_manual',
-                    'payment_manual_all',
-                    'payment_manual_user',
-                    'all_notifications', ]
+                        'payment_manual',
+                        'payment_manual_all',
+                        'payment_manual_user',
+                        'all_notifications', ]
                 );
 
                 if (($key = array_search('mail', $methods)) !== false) {
                     unset($methods[$key]);
 
                     $nmo = new NinjaMailerObject();
-                    $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment, $company_user->portalType()))->build());
+                    $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
                     $nmo->company = $event->company;
                     $nmo->settings = $event->company->settings;
                     $nmo->to_user = $user;
@@ -101,17 +100,17 @@ class PaymentNotification implements ShouldQueue
                 $payment,
                 $company_user,
                 [
-                'payment_success',
-                'payment_success_all',
-                'payment_success_user',
-                'all_notifications', ]
+                    'payment_success',
+                    'payment_success_all',
+                    'payment_success_user',
+                    'all_notifications', ]
             );
 
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
                 //new check, IF the payment is on a recurring invoice AND the user had notifications disabled for recurring invoices. then we disable the notification for this payment.
-                $disabled_recurring_invoice_notifications = $this->findUserEntityNotificationType($payment, $company_user,['disable_recurring_payment_notification']);
+                $disabled_recurring_invoice_notifications = $this->findUserEntityNotificationType($payment, $company_user, ['disable_recurring_payment_notification']);
 
                 $invoice = $payment->invoices->first();
 
@@ -120,7 +119,7 @@ class PaymentNotification implements ShouldQueue
                 }
 
                 $nmo = new NinjaMailerObject();
-                $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment, $company_user->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
                 $nmo->company = $event->company;
                 $nmo->settings = $event->company->settings;
                 $nmo->to_user = $user;
@@ -165,10 +164,10 @@ class PaymentNotification implements ShouldQueue
 
         $base = "v=1&tid={$analytics_id}&cid={$client->id}&cu={$currency_code}&ti={$entity_number}";
 
-        $url = $base."&t=transaction&ta=ninja&tr={$amount}";
+        $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
 
-        $url = $base."&t=item&in={$item}&ip={$amount}&iq=1";
+        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
 
         $email = $client->present()->email();
@@ -187,17 +186,12 @@ class PaymentNotification implements ShouldQueue
     private function sendAnalytics($url)
     {
         $data = mb_convert_encoding($url, 'UTF-8');
-        // $data = utf8_encode($data);
-        $curl = curl_init();
 
-        $opts = [
-            CURLOPT_URL => config('ninja.google_analytics_url'),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => 'POST',
-            CURLOPT_POSTFIELDS => $data,
-        ];
-
-        curl_setopt_array($curl, $opts);
-        curl_exec($curl);
+        try {
+            Http::withBody($data, 'application/x-www-form-urlencoded')
+                ->post(config('ninja.google_analytics_url'));
+        } catch (\Throwable) {
+            // Fire-and-forget analytics; unreachable collect must not fail payment notifications.
+        }
     }
 }

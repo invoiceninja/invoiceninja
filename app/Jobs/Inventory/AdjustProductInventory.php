@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,9 +38,7 @@ class AdjustProductInventory implements ShouldQueue
 
     private array $notified_products = [];
 
-    public function __construct(public Company $company, public Invoice $invoice, public $old_invoice = [])
-    {
-    }
+    public function __construct(public Company $company, public Invoice $invoice, public $old_invoice = []) {}
 
     /**
      * Execute the job.
@@ -61,6 +59,10 @@ class AdjustProductInventory implements ShouldQueue
 
     public function handleDeletedInvoice()
     {
+        if(!is_iterable($this->invoice->line_items)) {
+            return;
+        }
+
         MultiDB::setDb($this->company->db);
 
         collect($this->invoice->line_items)->filter(function ($item) {
@@ -80,6 +82,10 @@ class AdjustProductInventory implements ShouldQueue
 
     public function handleRestoredInvoice()
     {
+        if(!is_iterable($this->invoice->line_items)) {
+            return;
+        }
+        
         MultiDB::setDb($this->company->db);
 
         collect($this->invoice->line_items)->filter(function ($item) {
@@ -105,7 +111,10 @@ class AdjustProductInventory implements ShouldQueue
 
     private function newInventoryAdjustment()
     {
-
+        if(!is_iterable($this->invoice->line_items)) {
+            return;
+        }
+        
         collect($this->invoice->line_items)->filter(function ($item) {
             return $item->type_id == '1';
         })->each(function ($i) {
@@ -158,7 +167,7 @@ class AdjustProductInventory implements ShouldQueue
 
             /** @var \App\Models\CompanyUser $cu */
             if ($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user', 'inventory_threshold_all', 'inventory_threshold_user']) && (! in_array($product->id, $this->notified_products))) {
-                $nmo->mailable = new NinjaMailer((new InventoryNotificationObject($product, $notification_level, $cu->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new InventoryNotificationObject($product, $notification_level))->build());
                 $nmo->to_user = $cu->user;
                 NinjaMailerJob::dispatch($nmo);
                 $this->notified_products[] = $product->id;

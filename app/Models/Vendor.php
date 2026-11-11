@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,7 +15,9 @@ namespace App\Models;
 use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\AppSetup;
 use App\DataMapper\CompanySettings;
+use App\Models\Traits\HasTags;
 use Illuminate\Support\Facades\App;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Vendor\VendorService;
 use App\Utils\Traits\GeneratesCounter;
@@ -56,6 +58,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $vendor_hash
  * @property string|null $public_notes
  * @property string|null $classification
+ * @property \App\DataMapper\VendorSync|null $sync
  * @property string|null $id_number
  * @property int|null $language_id
  * @property int|null $last_login
@@ -93,6 +96,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Location> $locations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  */
 class Vendor extends BaseModel
@@ -103,6 +107,7 @@ class Vendor extends BaseModel
     use PresentableTrait;
     use AppSetup;
     use Searchable;
+    use HasTags;
 
     /**
      * Get the index name for the model.
@@ -150,6 +155,7 @@ class Vendor extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'last_login' => 'timestamp',
+        'sync' => \App\DataMapper\VendorSync::class,
     ];
 
     protected $touches = [];
@@ -159,24 +165,26 @@ class Vendor extends BaseModel
     ];
 
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
-
+        
         $locale = $this->locale();
         App::setLocale($locale);
 
         $name = ctrans('texts.vendor') . " | " . $this->present()->name();
 
         if (strlen($this->vat_number ?? '') > 1) {
-            $name .= " | ". $this->vat_number;
+            $name .= " | " . $this->vat_number;
         }
 
         return [
-            'id' => $this->company->db.":".$this->id,
+            'id' => $this->company->db . ":" . $this->id,
             'name' => $name,
-            'is_deleted' => (bool)$this->is_deleted,
+            'is_deleted' => (bool) $this->is_deleted,
             'hashed_id' => $this->hashed_id,
-            'number' => (string)$this->number,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
+            'number' => (string) $this->number,
             'id_number' => $this->id_number,
             'vat_number' => $this->vat_number,
             'phone' => $this->phone,
@@ -193,12 +201,13 @@ class Vendor extends BaseModel
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'tags' => $this->tags->pluck('name')->values()->all(),
         ];
     }
 
     public function getScoutKey()
     {
-        return $this->company->db.":".$this->id;
+        return $this->company->db . ":" . $this->id;
     }
 
     protected $presenter = VendorPresenter::class;
@@ -226,6 +235,26 @@ class Vendor extends BaseModel
     public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(VendorContact::class)->orderBy('is_primary', 'desc');
+    }
+
+    /**
+     * Returns CC-only contacts as an array of Address objects.
+     * Capped at 4 to stay within provider limits.
+     *
+     * @return array<int, Address>
+     */
+    public function cc_contacts(): array
+    {
+
+        return $this->contacts()
+            ->where('cc_only', true)
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->where('is_locked', false)
+            ->limit(4)
+            ->get()
+            ->map(fn(\App\Models\VendorContact $c) => new Address($c->email, $c->present()->name()))
+            ->toArray();
     }
 
     public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -258,8 +287,8 @@ class Vendor extends BaseModel
             }
 
             return $currencies->first(function ($item) {
-                    return $item->id == $this->currency_id;
-                });
+                return $item->id == $this->currency_id;
+            });
         });
     }
 
@@ -383,6 +412,11 @@ class Vendor extends BaseModel
         return $this->hasMany(Expense::class)->withTrashed();
     }
 
+    public function recurring_expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringExpense::class)->withTrashed();
+    }
+
     public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Invoice::class)->withTrashed();
@@ -396,5 +430,10 @@ class Vendor extends BaseModel
     public function quotes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Quote::class)->withTrashed();
+    }
+
+    public function purchase_orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class)->withTrashed();
     }
 }

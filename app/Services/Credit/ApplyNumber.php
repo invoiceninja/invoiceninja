@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,22 +22,15 @@ class ApplyNumber extends AbstractService
 {
     use GeneratesCounter;
 
-    private $client;
-
-    private $credit;
-
     private bool $completed = true;
 
-    public function __construct(Client $client, Credit $credit)
+    public function __construct(private Client $client, private Credit $credit)
     {
-        $this->client = $client;
-
-        $this->credit = $credit;
     }
 
     public function run()
     {
-        if ($this->credit->number != '') {
+        if (trim((string)$this->credit->number) !== '') {
             return $this->credit;
         }
 

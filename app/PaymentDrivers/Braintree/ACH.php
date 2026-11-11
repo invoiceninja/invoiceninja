@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,7 +46,9 @@ class ACH implements MethodInterface, LivewireMethodInterface
     {
         try {
             $data['gateway'] = $this->braintree;
-            $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
+            $data['client_token'] = $this->braintree->gateway->clientToken()->generate(array_filter([
+                'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
+            ]));
         } catch (\Exception $e) {
 
             throw new PaymentFailed("Unable to generate client token, check your Braintree credentials. Error: " . $e->getMessage(), 500);
@@ -95,7 +97,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
                     $this->braintree->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
 
                     $data = [
-                        'invoices' => collect($this->braintree->payment_hash->data->invoices)->map(fn ($invoice) => $invoice->invoice_id)->toArray(),
+                        'invoices' => collect($this->braintree->payment_hash->data->invoices)->map(fn($invoice) => $invoice->invoice_id)->toArray(),
                         'action' => 'payment',
                     ];
 
@@ -113,7 +115,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
                 return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
             }
         }
-        
+
         if ($result instanceof \Braintree\Result\Error && $result->message) {
             session()->flash('ach_error', $result->message);
             return back()->withInput();
@@ -143,7 +145,9 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $customer = $this->braintree->findOrCreateCustomer();
 
         $token = ClientGatewayToken::query()
-            ->where('client_id', auth()->guard('contact')->user()->client->id)
+            ->where('client_id', $this->braintree->client->id)
+            ->where('company_gateway_id', $this->braintree->company_gateway->id)
+            ->where('gateway_type_id', GatewayType::BANK_TRANSFER)
             ->where('id', $this->decodePrimaryKey($request->source))
             ->firstOrFail();
 
@@ -151,7 +155,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $invoice = $this->braintree->payment_hash->fee_invoice;
         $po_number = $invoice->po_number ?? $invoice->number ?? '';
 
-        $result = $this->braintree->gateway->transaction()->sale([
+        $data = [
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token->token,
             'channel' => 'invoiceninja_BT',
@@ -160,7 +164,15 @@ class ACH implements MethodInterface, LivewireMethodInterface
             ],
             'taxAmount' => $total_taxes,
             'purchaseOrderNumber' => substr($po_number, 0, 16),
-        ]);
+        ];
+
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
+
+        $data = array_merge($data, $this->braintree->getLevel23Data($this->braintree->payment_hash));
+
+        $result = $this->braintree->gateway->transaction()->sale($data);
 
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash->data], SystemLog::TYPE_BRAINTREE);
@@ -241,7 +253,9 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $data['currency'] = $this->braintree->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['amount'] = $this->braintree->payment_hash->data->amount_with_fee;
-        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
+        $data['client_token'] = $this->braintree->gateway->clientToken()->generate(array_filter([
+            'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
+        ]));
         $data['payment_hash'] = $this->braintree->payment_hash->hash;
 
         if (count($data['tokens']) === 0) {

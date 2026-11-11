@@ -26,9 +26,7 @@ class QuoteCreatedNotification implements ShouldQueue
     use UserNotifies;
     public $delay = 5;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -51,14 +49,8 @@ class QuoteCreatedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
-            if (! $user) {
+            if ($company_user->trashed() || ! $user ) {
                 continue;
-            }
-
-            $use_react_link = false;
-
-            if (isset($company_user->react_settings->react_notification_link) && $company_user->react_settings->react_notification_link) {
-                $use_react_link = true;
             }
 
             /* This is only here to handle the alternate message channels - ie Slack */
@@ -72,7 +64,7 @@ class QuoteCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject();
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote', $company_user->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote'))->build());
                 $nmo->company = $quote->company;
                 $nmo->settings = $quote->company->settings;
 

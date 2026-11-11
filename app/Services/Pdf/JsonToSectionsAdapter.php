@@ -12,6 +12,8 @@
 
 namespace App\Services\Pdf;
 
+use App\DataMapper\InvoiceItem;
+
 /**
  * Converts JSON-based visual designer output to PdfBuilder sections format
  *
@@ -48,17 +50,63 @@ class JsonToSectionsAdapter
     /**
      * Grouped blocks by row (for layout)
      */
-    private array $blocksByRow = [];
+    private ?array $blocksByRow = null;
+
+    /**
+     * Blocks sorted by grid position. Cached because section conversion and
+     * base-template row grouping both need the same deterministic order.
+     */
+    private ?array $sortedBlocks = null;
+
+    /**
+     * Fetches and inlines user-supplied image URLs so Chromium never fetches
+     * untrusted content. Constructor-injected so tests can stub it.
+     */
+    private ImageFetcher $imageFetcher;
 
     /**
      * @param array $jsonDesign Complete JSON design with blocks and pageSettings
      * @param PdfService $service
+     * @param ImageFetcher|null $imageFetcher Optional override (defaults to a fresh ImageFetcher)
      */
-    public function __construct(array $jsonDesign, PdfService $service)
+    /**
+     * Block-id validation pattern. Block ids are interpolated into HTML `id`
+     * attributes and `data-ref` strings without further escaping by the
+     * adapter and by JsonDesignService::generateBaseTemplate(). The pattern
+     * accepts everything the FE actually emits — kebab-case names, UUIDs,
+     * and the dotted/underscored variants — and rejects anything that could
+     * break out of an attribute (`"`, `'`, `<`, `>`, `&`, `/`, whitespace,
+     * control chars). The 128-char cap prevents extreme attribute sizes.
+     */
+    private const BLOCK_ID_PATTERN = '/^[A-Za-z0-9._-]{1,128}$/';
+
+    private const TABLE_BORDER_WIDTH_MIN = 0.0;
+
+    private const TABLE_BORDER_WIDTH_MAX = 20.0;
+
+    private const TABLE_BORDER_WIDTH_STEP = 0.5;
+
+    private const TABLE_BORDER_WIDTH_DEFAULT = 1.0;
+
+    public function __construct(array $jsonDesign, PdfService $service, ?ImageFetcher $imageFetcher = null)
     {
-        $this->jsonBlocks = $jsonDesign['blocks'] ?? [];
+        $this->jsonBlocks = self::filterValidBlocks($jsonDesign['blocks'] ?? []);
         $this->pageSettings = $jsonDesign['pageSettings'] ?? [];
         $this->service = $service;
+        $this->imageFetcher = $imageFetcher ?? new ImageFetcher($service->company->company_key ?? null);
+    }
+
+    /**
+     * Drop blocks with missing or unsafe ids. Static so JsonDesignService
+     * can apply the same filter to its generateBaseTemplate input from the
+     * same source of truth. Returns the surviving blocks unchanged.
+     */
+    public static function filterValidBlocks(array $blocks): array
+    {
+        return array_values(array_filter($blocks, static function ($block) {
+            $id = $block['id'] ?? null;
+            return is_string($id) && preg_match(self::BLOCK_ID_PATTERN, $id) === 1;
+        }));
     }
 
     /**
@@ -70,11 +118,8 @@ class JsonToSectionsAdapter
     {
         $sections = [];
 
-        // Sort blocks by grid position (Y-axis primary, X-axis secondary)
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-
         // Convert each block to a section (no row grouping here - that's done in template)
-        foreach ($sortedBlocks as $block) {
+        foreach ($this->sortedBlocks() as $block) {
             $section = $this->convertBlockToSection($block);
             if ($section !== null) {
                 $sections[$block['id']] = $section;
@@ -91,8 +136,36 @@ class JsonToSectionsAdapter
      */
     public function getRowGroupedBlocks(): array
     {
-        $sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
-        return $this->groupBlocksIntoRows($sortedBlocks);
+        if ($this->blocksByRow === null) {
+            $this->blocksByRow = $this->groupBlocksIntoRows($this->sortedBlocks());
+        }
+
+        return $this->blocksByRow;
+    }
+
+    /**
+     * Sort and group an arbitrary block subset without touching the
+     * all-blocks caches used by toSections() / getRowGroupedBlocks().
+     *
+     * @param array<int, array<string, mixed>> $blocks
+     * @return array<int, array<int, array<string, mixed>>>
+     */
+    public function getRowGroupedBlocksFor(array $blocks): array
+    {
+        return $this->groupBlocksIntoRows($this->sortBlocksByPosition($blocks));
+    }
+
+    /**
+     * Return blocks sorted by grid position, computing the order once for the
+     * adapter lifetime.
+     */
+    private function sortedBlocks(): array
+    {
+        if ($this->sortedBlocks === null) {
+            $this->sortedBlocks = $this->sortBlocksByPosition($this->jsonBlocks);
+        }
+
+        return $this->sortedBlocks;
     }
 
     /**
@@ -168,10 +241,14 @@ class JsonToSectionsAdapter
             'logo', 'image' => $this->convertImageBlock($block),
             'company-info' => $this->convertCompanyInfoBlock($block),
             'client-info' => $this->convertClientInfoBlock($block),
+            'client-shipping-info' => $this->convertClientShippingInfoBlock($block),
             'invoice-details' => $this->convertInvoiceDetailsBlock($block),
             'table' => $this->convertTableBlock($block),
             'total' => $this->convertTotalBlock($block),
+            // Preset text blocks from the visual designer (same JSON shape as `text`).
+            'terms', 'footer', 'public-notes' => $this->convertTextBlock($block),
             'text' => $this->convertTextBlock($block),
+            'twig' => $this->convertTwigBlock($block),
             'divider' => $this->convertDividerBlock($block),
             'spacer' => $this->convertSpacerBlock($block),
             'qrcode' => $this->convertQRCodeBlock($block),
@@ -187,6 +264,17 @@ class JsonToSectionsAdapter
     {
         $props = $block['properties'];
         $blockId = $block['id'];
+        $source = is_string($props['source'] ?? null) ? $props['source'] : '';
+
+        $values = $this->service->html_variables['values'] ?? [];
+        $toInline = $block['type'] === 'logo'
+            ? strtr($source, $values)
+            : $source;
+
+        // Inline the remote asset as a data: URI so Chromium never fetches a
+        // user-supplied URL. Fails closed to an empty src if the URL can't be
+        // safely retrieved (rejected scheme/host, 3xx, wrong content-type, etc.).
+        $src = $toInline === '' ? '' : ($this->imageFetcher->inline($toInline) ?? '');
 
         return [
             'id' => $blockId,
@@ -201,7 +289,7 @@ class JsonToSectionsAdapter
                         [
                             'element' => 'img',
                             'properties' => [
-                                'src' => $props['source'] ?? '',
+                                'src' => $src,
                                 'alt' => $block['type'] === 'logo' ? 'Company Logo' : 'Image',
                                 'data-ref' => $blockId,
                                 'style' => $this->buildImageStyle($props),
@@ -228,6 +316,7 @@ class JsonToSectionsAdapter
                 $prefix = $config['prefix'] ?? '';
                 $variable = $config['variable'] ?? '';
                 $suffix = $config['suffix'] ?? '';
+                $hideIfEmpty = $config['hideIfEmpty'] ?? true; // Default to hiding empty fields
 
                 $content = '';
                 if (!empty($prefix)) {
@@ -241,7 +330,8 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $content,
-                    'show_empty' => false,
+                    'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -260,7 +350,7 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $line,
-                    'show_empty' => false,
+                    'show_empty' => false, // Hide empty lines
                     'properties' => [
                         'data-ref' => "{$block['id']}-line-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -303,6 +393,7 @@ class JsonToSectionsAdapter
                 $prefix = $config['prefix'] ?? '';
                 $variable = $config['variable'] ?? '';
                 $suffix = $config['suffix'] ?? '';
+                $hideIfEmpty = $config['hideIfEmpty'] ?? true; // Default to hiding empty fields
 
                 $content = '';
                 if (!empty($prefix)) {
@@ -316,7 +407,8 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $content,
-                    'show_empty' => false,
+                    'show_empty' => !$hideIfEmpty, // Invert: show_empty=false means hide when empty
+                    'empty_check' => $variable,
                     'properties' => [
                         'data-ref' => "{$block['id']}-field-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -335,7 +427,7 @@ class JsonToSectionsAdapter
                 $elements[] = [
                     'element' => 'div',
                     'content' => $line,
-                    'show_empty' => false,
+                    'show_empty' => false, // Hide empty lines
                     'properties' => [
                         'data-ref' => "{$block['id']}-line-{$index}",
                         'style' => $this->buildTextStyle($props),
@@ -351,44 +443,103 @@ class JsonToSectionsAdapter
     }
 
     /**
+     * Convert client-shipping-info block.
+     *
+     * Structurally identical to client-info — the frontend supplies the
+     * shipping variables (e.g. $client.shipping_address1) through the same
+     * fieldConfigs shape — so we delegate to convertClientInfoBlock.
+     *
+     * No show_shipping_address gate: the user's design choice (placing this
+     * block on the canvas) is the source of truth. The legacy
+     * show_shipping_address setting affects traditional designs where the
+     * shipping section is implicit; in JSON designs the user is explicit, so
+     * if they don't want shipping rendered they remove the block.
+     */
+    private function convertClientShippingInfoBlock(array $block): array
+    {
+        return $this->convertClientInfoBlock($block);
+    }
+
+    /**
      * Convert invoice-details block
      */
     private function convertInvoiceDetailsBlock(array $block): array
     {
         $props = $block['properties'];
         $items = $props['items'] ?? null;
+        $fieldConfigs = $props['fieldConfigs'] ?? null;
+        $showLabels = (bool) ($props['showLabels'] ?? true);
         $elements = [];
 
-        if ($items && is_array($items)) {
+        if ($fieldConfigs && is_array($fieldConfigs)) {
+            // New format: shared fieldConfigs shape (same as company-info /
+            // client-info). Each entry contributes one <tr> with a label cell
+            // (config.label) and a value cell (config.variable). hideIfEmpty
+            // suppresses the row when the variable resolves to empty.
+            foreach ($fieldConfigs as $index => $config) {
+                $label = $config['label'] ?? '';
+                $variable = $config['variable'] ?? '';
+                $hideIfEmpty = $config['hideIfEmpty'] ?? true;
+
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $label,
+                    $variable,
+                    !$hideIfEmpty,
+                    $props,
+                    $config,
+                    $showLabels,
+                    $variable,
+                );
+            }
+        } elseif ($items && is_array($items)) {
+            // Structured format: items array with label/variable pairs
             foreach ($items as $index => $item) {
                 if (!($item['show'] ?? true)) {
                     continue;
                 }
 
-                $elements[] = [
-                    'element' => 'tr',
-                    'properties' => [
-                        'data-ref' => "{$block['id']}-row-{$index}",
-                    ],
-                    'elements' => [
-                        [
-                            'element' => 'th',
-                            'content' => $item['label'] ?? '',
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-label-{$index}",
-                                'style' => $this->buildLabelStyle($props),
-                            ],
-                        ],
-                        [
-                            'element' => 'th',
-                            'content' => $item['variable'] ?? '',
-                            'properties' => [
-                                'data-ref' => "{$block['id']}-value-{$index}",
-                                'style' => $this->buildValueStyle($props),
-                            ],
-                        ],
-                    ],
-                ];
+                $variable = $item['variable'] ?? '';
+                $hideIfEmpty = $item['hideIfEmpty'] ?? true;
+
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $item['label'] ?? '',
+                    $variable,
+                    !$hideIfEmpty,
+                    $props,
+                    $item,
+                    $showLabels,
+                    $variable,
+                );
+            }
+        } elseif (isset($props['content']) && !empty($props['content'])) {
+            // Legacy format: content string with "Label: $variable" format
+            $lines = explode("\n", $props['content']);
+
+            foreach ($lines as $index => $line) {
+                $line = trim($line);
+                if (empty($line)) {
+                    continue;
+                }
+
+                $parts = explode(':', $line, 2);
+                $label = isset($parts[0]) ? trim($parts[0]) . ':' : '';
+                $variable = isset($parts[1]) ? trim($parts[1]) : '';
+
+                $elements[] = $this->buildInvoiceDetailsRow(
+                    $block['id'],
+                    $index,
+                    $label,
+                    $variable,
+                    false,
+                    $props,
+                    [],
+                    $showLabels,
+                    $variable,
+                );
             }
         }
 
@@ -397,7 +548,7 @@ class JsonToSectionsAdapter
             'elements' => [[
                 'element' => 'table',
                 'properties' => [
-                    'style' => $this->buildTableStyle($props),
+                    'style' => $this->buildInvoiceDetailsTableStyle($props),
                 ],
                 'elements' => $elements,
             ]],
@@ -405,7 +556,182 @@ class JsonToSectionsAdapter
     }
 
     /**
-     * Convert table block - maps to PdfBuilder's product/task table format
+     * Build a single <tr> for the invoice-details block, honoring per-row
+     * labelStyle/valueStyle overrides and the showLabels block flag.
+     */
+    private function buildInvoiceDetailsRow(string $blockId, mixed $index, string $label, string $variable, bool $showEmpty, array $props, array $row, bool $showLabels, ?string $emptyCheck = null): array
+    {
+        $columnStyles = $this->invoiceDetailsColumnStyles($props);
+        $resolver = new CellStyleResolver();
+        $context = ['kind' => CellStyleResolver::KIND_INVOICE_DETAILS];
+
+        $valueCell = [
+            'element' => 'th',
+            'content' => $variable,
+            'show_empty' => $showEmpty,
+            'properties' => [
+                'data-ref' => "{$blockId}-value-{$index}",
+                'style' => $this->composeCellStyle(
+                    $resolver->resolveValue($props, $row, $context),
+                    $columnStyles['value'],
+                ),
+            ],
+        ];
+
+        if (!$showLabels) {
+            $rowElement = [
+                'element' => 'tr',
+                'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
+                'elements' => [$valueCell],
+            ];
+
+            return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
+        }
+
+        $labelCell = [
+            'element' => 'th',
+            'content' => $label,
+            'properties' => [
+                'data-ref' => "{$blockId}-label-{$index}",
+                'style' => $this->composeCellStyle(
+                    $resolver->resolveLabel($props, $row, $context),
+                    $columnStyles['label'],
+                ),
+            ],
+        ];
+
+        $rowElement = [
+            'element' => 'tr',
+            'properties' => ['data-ref' => "{$blockId}-row-{$index}"],
+            'elements' => [$labelCell, $valueCell],
+        ];
+
+        return $this->withRowEmptyCheck($rowElement, $showEmpty, $emptyCheck ?? $variable);
+    }
+
+    /**
+     * Attach hide-if-empty metadata to a whole row so labels do not survive
+     * after their value cell resolves to empty.
+     */
+    private function withRowEmptyCheck(array $rowElement, bool $showEmpty, string $emptyCheck): array
+    {
+        if ($showEmpty) {
+            return $rowElement;
+        }
+
+        $rowElement['show_empty'] = false;
+        $rowElement['empty_check'] = $emptyCheck;
+
+        return $rowElement;
+    }
+
+    /**
+     * Compute the column-level (non-typography) styles applied uniformly to
+     * every label and value cell in an invoice-details block.
+     *
+     * @return array{label: array<string,string>, value: array<string,string>}
+     */
+    private function invoiceDetailsColumnStyles(array $props): array
+    {
+        $align = $props['align'] ?? 'left';
+        $labelAlign = $props['labelAlign'] ?? 'left';
+        $valueAlign = $props['valueAlign'] ?? $align;
+        $labelPadding = $props['labelPadding'] ?? '0';
+        $valuePadding = $props['valuePadding'] ?? '0';
+        $labelValueGap = $props['labelValueGap'] ?? '12px';
+        $rowSpacing = $props['rowSpacing'] ?? '0';
+        $lineHeight = $props['lineHeight'] ?? null;
+
+        $label = [
+            'text-align' => $labelAlign,
+            'padding' => $labelPadding,
+            // padding-right asserted after `padding` so labelValueGap survives the shorthand
+            'padding-right' => $labelValueGap,
+            'padding-bottom' => $rowSpacing,
+            'white-space' => 'nowrap',
+        ];
+
+        $value = [
+            'text-align' => $valueAlign,
+            'padding' => $valuePadding,
+            'padding-bottom' => $rowSpacing,
+            'white-space' => 'nowrap',
+        ];
+
+        if (isset($props['valueMinWidth']) && $props['valueMinWidth'] !== '') {
+            $value['min-width'] = (string) $props['valueMinWidth'];
+        }
+
+        if ($lineHeight !== null && $lineHeight !== '') {
+            $label['line-height'] = (string) $lineHeight;
+            $value['line-height'] = (string) $lineHeight;
+        }
+
+        return ['label' => $label, 'value' => $value];
+    }
+
+    /**
+     * Build the outer <table> style for an invoice-details block. The
+     * `padding` block prop applies here (outer container), per spec.
+     */
+    private function buildInvoiceDetailsTableStyle(array $props): string
+    {
+        $styles = [];
+        $styles[] = 'border-collapse: collapse';
+        $styles[] = 'width: fit-content';
+        $styles[] = 'max-width: 100%';
+        // Explicit auto layout keeps the label/value columns sized to their
+        // content (nowrap labels), insulated from the product table's
+        // table-layout: fixed regime.
+        $styles[] = 'table-layout: auto';
+
+        if (isset($props['padding']) && $props['padding'] !== '') {
+            $styles[] = 'padding: ' . $props['padding'];
+        }
+
+        if (isset($props['align'])) {
+            $align = $props['align'];
+            if ($align === 'right') {
+                $styles[] = 'margin-left: auto';
+            } elseif ($align === 'center') {
+                $styles[] = 'margin: 0 auto';
+            }
+        }
+
+        return implode('; ', $styles) . ';';
+    }
+
+    /**
+     * Compose the typography map and the column-level overrides into a CSS
+     * declaration string. Order matters: typography first (so column-level
+     * `padding-right` overrides any padding shorthand from the resolver).
+     *
+     * @param array<string, ?string> $typography Resolver output (font-size, font-weight, font-style, color)
+     * @param array<string, string>  $columnStyles Column-level styles applied uniformly to all rows
+     */
+    private function composeCellStyle(array $typography, array $columnStyles): string
+    {
+        $declarations = [];
+
+        foreach ($typography as $property => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+            $declarations[] = $property . ': ' . $value;
+        }
+
+        foreach ($columnStyles as $property => $value) {
+            if ($value === '') {
+                continue;
+            }
+            $declarations[] = $property . ': ' . $value;
+        }
+
+        return $declarations === [] ? '' : (implode('; ', $declarations) . ';');
+    }
+
+    /**
+     * Convert table block - builds complete table with custom columns and styling
      */
     private function convertTableBlock(array $block): array
     {
@@ -415,18 +741,36 @@ class JsonToSectionsAdapter
         // Determine table type from column fields
         $tableType = $this->detectTableType($columns);
 
-        // Build header elements
+        // Get filtered line items once; table body generation reuses the same
+        // array so large invoices don't walk line_items twice per table block.
+        $filteredItems = $this->getFilteredLineItems($tableType);
+
+        // Check if we should hide empty columns
+        $hideEmptyColumns = $this->service->config->settings->hide_empty_columns_on_pdf ?? false;
+
+        // Calculate which columns are empty only when the setting can use it.
+        $columnVisibility = $hideEmptyColumns
+            ? $this->calculateColumnVisibility($columns, $filteredItems)
+            : [];
+
+        $visibleColumns = $this->visibleTableColumns($columns, $props, $tableType, $columnVisibility, $hideEmptyColumns);
+
+        // Build header elements (only for visible columns)
         $headerElements = [];
-        foreach ($columns as $column) {
+        foreach ($visibleColumns as $column) {
             $headerElements[] = [
                 'element' => 'th',
-                'content' => $column['header'] ?? '',
+                'content' => $column['header'],
                 'properties' => [
-                    'data-ref' => "{$tableType}_table-{$column['id']}-th",
-                    'style' => $this->buildTableHeaderStyle($props, $column),
+                    'data-ref' => $column['header_ref'],
+                    'style' => $column['header_style'],
+                    'visi' => true, // Mark as visible for border-radius logic
                 ],
             ];
         }
+
+        // Build table body rows with only visible columns
+        $bodyRows = $this->buildTableBodyRows($visibleColumns, $filteredItems, $tableType, $props);
 
         return [
             'id' => $block['id'],
@@ -451,11 +795,334 @@ class JsonToSectionsAdapter
                     ],
                     [
                         'element' => 'tbody',
-                        'elements' => [], // Will be populated by PdfBuilder::buildTableBody()
+                        'elements' => $bodyRows,
                     ],
                 ],
             ]],
         ];
+    }
+
+    /**
+     * Precompute the visible column metadata and static styles once per table
+     * block rather than once per generated cell.
+     *
+     * @param array $columns Column definitions from JSON design
+     * @param array $props Table properties for styling
+     * @param string $tableType 'product' or 'task'
+     * @param array $columnVisibility Which columns are empty
+     * @param bool $hideEmptyColumns Whether to hide empty columns
+     * @return array Visible table column metadata
+     */
+    private function visibleTableColumns(array $columns, array $props, string $tableType, array $columnVisibility, bool $hideEmptyColumns): array
+    {
+        $borders = $this->resolveTableBorderProps($props);
+
+        // Collect the surviving columns first (index-aligned id + raw column),
+        // then redistribute width slack before emitting styles — the slack must
+        // be computed over the columns that actually render, not the full set.
+        $ids = [];
+        $rawColumns = [];
+        foreach ($columns as $index => $column) {
+            $columnId = $column['id'] ?? $index;
+            $isEmpty = $columnVisibility[$columnId] ?? false;
+
+            if ($hideEmptyColumns && $isEmpty) {
+                continue;
+            }
+
+            $ids[] = $columnId;
+            $rawColumns[] = $column;
+        }
+
+        $rawColumns = $this->redistributeColumnWidths($rawColumns);
+
+        $visibleColumns = [];
+        $visibleColumnCount = count($rawColumns);
+        foreach ($rawColumns as $i => $column) {
+            $columnId = $ids[$i];
+            $visibleColumns[] = [
+                'field' => $column['field'] ?? '',
+                'header' => $column['header'] ?? '',
+                'header_ref' => "{$tableType}_table-{$columnId}-th",
+                'cell_ref' => "{$tableType}_table-{$columnId}-td",
+                'header_style' => $this->buildTableHeaderStyle($props, $column, $borders, $i, $visibleColumnCount),
+                // Two body cell variants: the first-row variant suppresses its
+                // top stroke when the header bottom is enabled (seam rule).
+                'cell_style_first_row' => $this->buildTableCellStyle($props, $column, $borders, true, $i, $visibleColumnCount),
+                'cell_style' => $this->buildTableCellStyle($props, $column, $borders, false, $i, $visibleColumnCount),
+            ];
+        }
+
+        return $visibleColumns;
+    }
+
+    /**
+     * Under table-layout: fixed the declared column widths are authoritative,
+     * so percentage widths that sum to less than 100% would leave the table
+     * short (or, for any width-less column, get even-split into it). Absorb the
+     * remaining slack into the notes/description column — the natural flexible
+     * text column — so the product columns keep their set widths.
+     *
+     * Only acts when every visible column carries a `%` width and a
+     * notes/description column is present; otherwise the columns are returned
+     * unchanged.
+     *
+     * @param array<int, array<string, mixed>> $columns Visible raw columns
+     * @return array<int, array<string, mixed>>
+     */
+    private function redistributeColumnWidths(array $columns): array
+    {
+        $total = 0.0;
+        $notesIndex = null;
+
+        foreach ($columns as $i => $column) {
+            $width = $column['width'] ?? null;
+
+            if (!is_string($width) || !str_ends_with(trim($width), '%')) {
+                return $columns;
+            }
+
+            $total += (float) rtrim(trim($width), '%');
+
+            $field = str_replace('item.', '', (string) ($column['field'] ?? ''));
+            if ($notesIndex === null && in_array($field, ['notes', 'description'], true)) {
+                $notesIndex = $i;
+            }
+        }
+
+        if ($notesIndex === null || $total >= 100.0) {
+            return $columns;
+        }
+
+        $notesWidth = (float) rtrim(trim((string) $columns[$notesIndex]['width']), '%');
+        $columns[$notesIndex]['width'] = $this->formatPercent($notesWidth + (100.0 - $total));
+
+        return $columns;
+    }
+
+    /**
+     * Format a percentage value without trailing zeroes (e.g. 35 -> "35%").
+     */
+    private function formatPercent(float $value): string
+    {
+        return rtrim(rtrim(sprintf('%.4F', $value), '0'), '.') . '%';
+    }
+
+    /**
+     * Build table body rows using JSON design's custom columns
+     *
+     * @param array $visibleColumns Precomputed visible column metadata
+     * @param array $filteredItems Filtered line items for the table type
+     * @param string $tableType 'product' or 'task'
+     * @return array Array of row elements
+     */
+    private function buildTableBodyRows(array $visibleColumns, array $filteredItems, string $tableType, array $props): array
+    {
+        $rows = [];
+        $rowIndex = 0;
+
+        // Build rows
+        foreach ($filteredItems as $item) {
+            $rowElements = [];
+            $isFirstRow = $rowIndex === 0;
+            $rowBackground = $this->resolveRowBackground($props, $rowIndex);
+
+            // Per spec §1.1.1: row background is painted on the <tr> for
+            // browsers and ALSO on each <td> because dompdf and similar
+            // print pipelines drop <tr> backgrounds under border-collapse.
+            $cellBgSuffix = $rowBackground !== null
+                ? ' background-color: ' . $rowBackground . ';'
+                : '';
+
+            foreach ($visibleColumns as $column) {
+                $value = $this->getFieldValue($item, $column['field'], $tableType);
+                $baseStyle = $isFirstRow ? $column['cell_style_first_row'] : $column['cell_style'];
+
+                $rowElements[] = [
+                    'element' => 'td',
+                    'content' => $value,
+                    'properties' => [
+                        'data-ref' => $column['cell_ref'],
+                        'style' => $baseStyle . $cellBgSuffix,
+                        'visi' => true, // Mark as visible for border-radius logic
+                    ],
+                ];
+            }
+
+            // Apply parseVisibleElements-style logic for first/last cells
+            if (!empty($rowElements)) {
+                $tr = [
+                    'element' => 'tr',
+                    'elements' => $rowElements,
+                ];
+                if ($rowBackground !== null) {
+                    $tr['properties'] = ['style' => 'background: ' . $rowBackground . ';'];
+                }
+                $rows[] = $tr;
+                $rowIndex++;
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Get filtered line items by table type
+     *
+     * @param string $tableType 'product' or 'task'
+     * @return array Filtered line items
+     */
+    private function getFilteredLineItems(string $tableType): array
+    {
+        $lineItems = $this->service->config->entity->line_items ?? [];
+        $filteredItems = [];
+
+        foreach ($lineItems as $item) {
+            $itemTypeId = (string) ($item->type_id ?? '1');
+
+            if ($tableType === 'product') {
+                // Include products (1) and related types (4, 5, 6)
+                if (in_array($itemTypeId, ['1', '4', '5', '6'])) {
+                    $filteredItems[] = $item;
+                }
+            } elseif ($tableType === 'task') {
+                // Include only tasks (2)
+                if ($itemTypeId === '2') {
+                    $filteredItems[] = $item;
+                }
+            }
+        }
+
+        return $filteredItems;
+    }
+
+    /**
+     * Calculate which columns are empty across all rows
+     *
+     * @param array $columns Column definitions
+     * @param array $items Line items to check
+     * @return array Map of columnId => isEmpty (true if all values empty)
+     */
+    private function calculateColumnVisibility(array $columns, array $items): array
+    {
+        $visibility = [];
+
+        foreach ($columns as $index => $column) {
+            $columnId = $column['id'] ?? $index;
+            $field = $column['field'] ?? '';
+            $isEmpty = true;
+
+            // Check if any row has a non-empty value for this column
+            foreach ($items as $item) {
+                $value = $this->getFieldValue($item, $field, '');
+
+                if (!empty($value) && $value !== '0' && $value !== '0.00') {
+                    $isEmpty = false;
+                    break;
+                }
+            }
+
+            $visibility[$columnId] = $isEmpty;
+        }
+
+        return $visibility;
+    }
+
+    /**
+     * Get formatted field value from line item
+     *
+     * @param object $item Line item object
+     * @param string $field Field reference (e.g., 'item.product_key')
+     * @param string $tableType 'product' or 'task'
+     * @return string Formatted value
+     */
+    private function getFieldValue($item, string $field, string $tableType): string
+    {
+        // Remove 'item.' prefix if present
+        $fieldName = str_replace('item.', '', $field);
+
+        // Map common field names
+        $fieldMappings = [
+            'product_key' => 'product_key',
+            'notes' => 'notes',
+            'description' => 'notes',
+            'quantity' => 'quantity',
+            'cost' => 'cost',
+            'unit_cost' => 'cost',
+            'line_total' => 'line_total',
+            'discount' => 'discount',
+            'tax' => 'tax_amount',
+            'tax_amount' => 'tax_amount',
+            'tax_rate1' => 'tax_rate1',
+            'tax_rate2' => 'tax_rate2',
+            'tax_rate3' => 'tax_rate3',
+        ];
+
+        $actualField = $fieldMappings[$fieldName] ?? $fieldName;
+
+        // Get raw value
+        $rawValue = $item->{$actualField} ?? '';
+
+        // Format based on field type
+        return $this->formatFieldValue($rawValue, $fieldName, $item);
+    }
+
+    /**
+     * Format field value based on type
+     *
+     * @param mixed $value Raw value
+     * @param string $fieldName Field name
+     * @param object $item Line item for context
+     * @return string Formatted value
+     */
+    private function formatFieldValue($value, string $fieldName, $item): string
+    {
+        // Handle empty values
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        // Format based on field type
+        switch ($fieldName) {
+            case 'tags':
+                return InvoiceItem::formatTagsForDisplay($value);
+
+            case 'quantity':
+                return $this->service->config->formatValueNoTrailingZeroes($value);
+
+            case 'cost':
+            case 'unit_cost':
+                return $this->service->config->formatMoney($value);
+
+            case 'line_total':
+            case 'tax_amount':
+                return $this->service->config->formatMoneyNoRounding($value);
+
+            case 'discount':
+                if (isset($item->is_amount_discount) && $item->is_amount_discount) {
+                    return $this->service->config->formatMoney($value);
+                } else {
+                    return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';
+                }
+
+                // no break
+            case 'tax_rate1':
+            case 'tax_rate2':
+            case 'tax_rate3':
+                return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';
+
+            case 'notes':
+            case 'description':
+                // Process reserved keywords (like :MONTH, :YEAR, etc.)
+                $currentDateTime = null;
+                if (isset($this->service->config->entity->next_send_date)) {
+                    $currentDateTime = \Carbon\Carbon::parse($this->service->config->entity->next_send_date);
+                }
+                return \App\Utils\Helpers::processReservedKeywords($value, $this->service->config->currency_entity, $currentDateTime);
+
+            default:
+                return (string) $value;
+        }
     }
 
     /**
@@ -481,6 +1148,9 @@ class JsonToSectionsAdapter
     {
         $props = $block['properties'];
         $items = $props['items'] ?? [];
+        $showLabels = (bool) ($props['showLabels'] ?? true);
+        $columnStyles = $this->totalColumnStyles($props);
+        $resolver = new CellStyleResolver();
         $rowElements = [];
 
         foreach ($items as $index => $item) {
@@ -488,38 +1158,56 @@ class JsonToSectionsAdapter
                 continue;
             }
 
-            $isTotal = $item['isTotal'] ?? false;
-            $isBalance = $item['isBalance'] ?? false;
+            $field = $item['field'] ?? '';
+            $hideIfEmpty = $item['hideIfEmpty'] ?? true;
+            $isTotal = (bool) ($item['isTotal'] ?? false);
+            $isBalance = (bool) ($item['isBalance'] ?? false);
+            $context = [
+                'kind' => CellStyleResolver::KIND_TOTAL,
+                'isTotal' => $isTotal,
+                'isBalance' => $isBalance,
+            ];
 
-            // Create table row with label and value cells
-            $rowElements[] = [
+            $valueCell = [
+                'element' => 'td',
+                'content' => $field,
+                'properties' => [
+                    'data-ref' => "{$block['id']}-value-{$index}",
+                    'class' => 'totals-value',
+                    'style' => $this->composeCellStyle(
+                        $resolver->resolveValue($props, $item, $context),
+                        $columnStyles['value'],
+                    ),
+                ],
+            ];
+
+            $cells = [];
+            if ($showLabels) {
+                $cells[] = [
+                    'element' => 'td',
+                    'content' => ($item['label'] ?? '') . ':',
+                    'properties' => [
+                        'data-ref' => "{$block['id']}-label-{$index}",
+                        'class' => 'totals-label',
+                        'style' => $this->composeCellStyle(
+                            $resolver->resolveLabel($props, $item, $context),
+                            $columnStyles['label'],
+                        ),
+                    ],
+                ];
+            }
+            $cells[] = $valueCell;
+
+            $rowElement = [
                 'element' => 'tr',
                 'properties' => [
                     'data-ref' => "{$block['id']}-row-{$index}",
                     'class' => $this->buildTotalRowClass($isTotal, $isBalance),
-                    'style' => $this->buildTotalRowStyle($props, $isTotal),
                 ],
-                'elements' => [
-                    [
-                        'element' => 'td',
-                        'content' => $item['label'] . ':',
-                        'properties' => [
-                            'data-ref' => "{$block['id']}-label-{$index}",
-                            'class' => 'totals-label',
-                            'style' => $this->buildTotalLabelStyle($props),
-                        ],
-                    ],
-                    [
-                        'element' => 'td',
-                        'content' => $item['field'],
-                        'properties' => [
-                            'data-ref' => "{$block['id']}-value-{$index}",
-                            'class' => 'totals-value',
-                            'style' => $this->buildTotalValueStyle($props, $isTotal, $isBalance),
-                        ],
-                    ],
-                ],
+                'elements' => $cells,
             ];
+
+            $rowElements[] = $this->withRowEmptyCheck($rowElement, !$hideIfEmpty, $field);
         }
 
         return [
@@ -538,6 +1226,95 @@ class JsonToSectionsAdapter
                 ],
             ]],
         ];
+    }
+
+    /**
+     * Column-level styles applied to every label/value cell in the total
+     * block. labelAlign/valueAlign default to 'right' (preserving the prior
+     * hardcoded behaviour); spacing / labelValueGap / labelPadding /
+     * valuePadding / valueMinWidth honor existing keys per spec.
+     *
+     * @return array{label: array<string,string>, value: array<string,string>}
+     */
+    private function totalColumnStyles(array $props): array
+    {
+        $labelAlign = $props['labelAlign'] ?? 'right';
+        $valueAlign = $props['valueAlign'] ?? 'right';
+        $labelPadding = $props['labelPadding'] ?? '0';
+        $valuePadding = $props['valuePadding'] ?? '0';
+        $labelValueGap = $props['labelValueGap'] ?? '20px';
+        $spacing = $props['spacing'] ?? '4px';
+
+        $label = [
+            'text-align' => $labelAlign,
+            'padding' => $labelPadding,
+            // padding-right asserted after `padding` so labelValueGap survives
+            'padding-right' => $labelValueGap,
+            'padding-bottom' => $spacing,
+            'white-space' => 'nowrap',
+        ];
+
+        $value = [
+            'text-align' => $valueAlign,
+            'padding' => $valuePadding,
+            'padding-bottom' => $spacing,
+            'white-space' => 'nowrap',
+        ];
+
+        if (isset($props['valueMinWidth']) && $props['valueMinWidth'] !== '') {
+            $value['min-width'] = (string) $props['valueMinWidth'];
+        }
+
+        return ['label' => $label, 'value' => $value];
+    }
+
+    /**
+     * Convert a visual-designer Twig widget.
+     *
+     * PdfBuilder::parseTwigElements() compiles every `<ninja>` DOM node.
+     * The widget must emit a real ninja element — not escaped text inside a
+     * div — or Twig never runs. Outer `<ninja>` tags in the saved source are
+     * stripped so a pasted classic snippet is not nested.
+     */
+    private function convertTwigBlock(array $block): array
+    {
+        return [
+            'id' => $block['id'],
+            'elements' => [
+                [
+                    'element' => 'div',
+                    'properties' => [
+                        'class' => 'invoice-twig-content',
+                        'style' => 'width:100%;max-width:100%;min-width:0;box-sizing:border-box;position:relative;',
+                    ],
+                    'elements' => [
+                        [
+                            'element' => 'ninja',
+                            'content' => $this->twigSource($block),
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $block
+     */
+    private function twigSource(array $block): string
+    {
+        $properties = is_array($block['properties'] ?? null) ? $block['properties'] : [];
+        $content = $properties['content'] ?? '';
+
+        if (!is_string($content)) {
+            return '';
+        }
+
+        if (preg_match('/^\s*<ninja\b[^>]*>(.*)<\/ninja>\s*$/is', $content, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return $content;
     }
 
     /**
@@ -622,9 +1399,10 @@ class JsonToSectionsAdapter
             'elements' => [
                 [
                     'element' => 'div',
-                    'content' => '{{QR_CODE:' . ($props['data'] ?? '$invoice.public_url') . '}}',
+                    'content' => ($props['data'] ?? '$payment_qr_code'),
                     'properties' => [
                         'data-ref' => "{$block['id']}-qr",
+                        'data-state' => "encoded-html",
                         'style' => "text-align: " . ($props['align'] ?? 'left') . ";",
                     ],
                 ],
@@ -646,7 +1424,9 @@ class JsonToSectionsAdapter
             'content' => '',
             'properties' => [
                 'data-ref' => "{$block['id']}-space",
-                'style' => 'margin-bottom: 40px;',
+                // A real height participates in layout measurement; an empty
+                // element with only a bottom margin can collapse to zero.
+                'style' => 'height: ' . ($props['signatureHeight'] ?? '40px') . ';',
             ],
         ];
 
@@ -665,7 +1445,7 @@ class JsonToSectionsAdapter
         // Label
         $elements[] = [
             'element' => 'div',
-            'content' => $props['label'] ?? '',
+            'content' => is_string($props['label'] ?? null) ? $props['label'] : '',
             'properties' => [
                 'data-ref' => "{$block['id']}-label",
                 'style' => $this->buildSignatureLabelStyle($props),
@@ -679,7 +1459,7 @@ class JsonToSectionsAdapter
                 'content' => 'Date: ________________',
                 'properties' => [
                     'data-ref' => "{$block['id']}-date",
-                    'style' => $this->buildSignatureLabelStyle($props),
+                    'style' => $this->buildSignatureLabelStyle($props) . ' margin-top: 4px;',
                 ],
             ];
         }
@@ -688,7 +1468,7 @@ class JsonToSectionsAdapter
             'id' => $block['id'],
             'elements' => $elements,
             'properties' => [
-                'style' => "text-align: " . ($props['align'] ?? 'left') . ";",
+                'style' => $this->buildSignatureContainerStyle($props),
             ],
         ];
     }
@@ -745,53 +1525,29 @@ class JsonToSectionsAdapter
     private function buildTitleStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
+
+        $titleFontSize = $props['titleFontSize'] ?? $props['fontSize'] ?? null;
+        if ($titleFontSize !== null) {
+            $styles[] = 'font-size: ' . $titleFontSize;
+        }
+
         $styles[] = 'font-weight: ' . ($props['titleFontWeight'] ?? 'bold');
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
+
+        // font-style is conditional — emitting `font-style: normal` by default
+        // would override CSS that came in via the cascade.
+        if (isset($props['titleFontStyle'])) {
+            $styles[] = 'font-style: ' . $props['titleFontStyle'];
+        }
+
+        $styles[] = 'color: '      . ($props['titleColor'] ?? $props['color'] ?? '#374151');
+        $styles[] = 'text-align: ' . ($props['titleAlign'] ?? $props['align'] ?? 'left');
         $styles[] = 'margin-bottom: 8px';
 
         return implode('; ', $styles) . ';';
     }
 
-    private function buildLabelStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
-        $styles[] = 'color: ' . ($props['labelColor'] ?? '#6B7280');
-        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
-        $styles[] = 'padding-right: 12px';
-        $styles[] = 'white-space: nowrap';
 
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildValueStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
-        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTableStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'border-collapse: collapse';
-        if (isset($props['align'])) {
-            $align = $props['align'];
-            if ($align === 'right') {
-                $styles[] = 'margin-left: auto';
-            } elseif ($align === 'center') {
-                $styles[] = 'margin: 0 auto';
-            }
-        }
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTableHeaderStyle(array $props, array $column): string
+    private function buildTableHeaderStyle(array $props, array $column, array $borders, int $columnIndex, int $columnCount): string
     {
         $styles = [];
         $styles[] = 'padding: ' . ($props['padding'] ?? '8px');
@@ -799,8 +1555,32 @@ class JsonToSectionsAdapter
         if (isset($column['width'])) {
             $styles[] = 'width: ' . $column['width'];
         }
-        if ($props['showBorders'] ?? true) {
-            $styles[] = 'border: 1px solid ' . ($props['borderColor'] ?? '#E5E7EB');
+        // Under table-layout: fixed an unbreakable token would overflow its
+        // column; force long runs (no-space product keys, URLs) to wrap.
+        $styles[] = 'overflow-wrap: break-word';
+        $styles[] = 'word-break: break-word';
+
+        $h = $borders['header'];
+        if ($h['widthPx'] < 1) {
+            $columnSides = $this->ownedHairlineColumnSides($h['sides'], $columnIndex, $columnCount);
+            $styles = array_merge($styles, $this->buildHairlineBorderStyles($h, [
+                'top' => $h['sides']['top'],
+                'right' => $columnSides['right'],
+                'bottom' => $h['sides']['bottom'],
+                'left' => $columnSides['left'],
+            ]));
+        } else {
+            $styles[] = 'border-top: '    . $this->buildBorderStroke($h, $h['sides']['top']);
+            $styles[] = 'border-right: '  . $this->buildBorderStroke($h, $h['sides']['right']);
+            $styles[] = 'border-bottom: ' . $this->buildBorderStroke($h, $h['sides']['bottom']);
+            $styles[] = 'border-left: '   . $this->buildBorderStroke($h, $h['sides']['left']);
+            $styles[] = 'box-shadow: none';
+        }
+
+        // Repeat headerBg on each <th> so PDF engines that drop <thead>/<tr>
+        // backgrounds (dompdf and similar) still paint the header row.
+        if (isset($props['headerBg']) && is_string($props['headerBg']) && $props['headerBg'] !== '') {
+            $styles[] = 'background-color: ' . $props['headerBg'];
         }
 
         return implode('; ', $styles) . ';';
@@ -821,9 +1601,241 @@ class JsonToSectionsAdapter
         $styles = [];
         $styles[] = 'width: 100%';
         $styles[] = 'border-collapse: collapse';
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
+        // Fixed layout makes the per-column widths authoritative: an unbreakable
+        // token (e.g. a product_key with no spaces) can no longer stretch its
+        // column past the declared width. Pairs with the cell word-break rules.
+        $styles[] = 'table-layout: fixed';
+        if (isset($props['fontSize'])) {
+            $styles[] = 'font-size: ' . $props['fontSize'];
+        }
 
         return implode('; ', $styles) . ';';
+    }
+
+    private function buildTableCellStyle(array $props, array $column, array $borders, bool $isFirstRow, int $columnIndex, int $columnCount): string
+    {
+        $styles = [];
+        $styles[] = 'padding: ' . ($props['padding'] ?? '8px');
+        $styles[] = 'text-align: ' . ($column['align'] ?? 'left');
+
+        if (isset($column['width'])) {
+            $styles[] = 'width: ' . $column['width'];
+        }
+        // Under table-layout: fixed an unbreakable token would overflow its
+        // column; force long runs (no-space product keys, URLs) to wrap.
+        $styles[] = 'overflow-wrap: break-word';
+        $styles[] = 'word-break: break-word';
+
+        $b = $borders['row'];
+        $headerBottom = $borders['header']['sides']['bottom'];
+
+        // Seam rule: when the header already draws a bottom border, the
+        // first body row must not duplicate it as a top border. Otherwise
+        // the body's own top-side toggle decides.
+        if ($b['widthPx'] < 1) {
+            $topEnabled = $isFirstRow
+                ? ($b['sides']['top'] && !$headerBottom)
+                : ($b['sides']['top'] && !$b['sides']['bottom']);
+            $columnSides = $this->ownedHairlineColumnSides($b['sides'], $columnIndex, $columnCount);
+            $styles = array_merge($styles, $this->buildHairlineBorderStyles($b, [
+                'top' => $topEnabled,
+                'right' => $columnSides['right'],
+                'bottom' => $b['sides']['bottom'],
+                'left' => $columnSides['left'],
+            ]));
+        } else {
+            $topEnabled = $isFirstRow
+                ? ($b['sides']['top'] && !$headerBottom)
+                : $b['sides']['top'];
+
+            $styles[] = 'border-top: '    . $this->buildBorderStroke($b, $topEnabled);
+            $styles[] = 'border-right: '  . $this->buildBorderStroke($b, $b['sides']['right']);
+            $styles[] = 'border-bottom: ' . $this->buildBorderStroke($b, $b['sides']['bottom']);
+            $styles[] = 'border-left: '   . $this->buildBorderStroke($b, $b['sides']['left']);
+            $styles[] = 'box-shadow: none';
+        }
+
+        if (isset($props['cellColor'])) {
+            $styles[] = 'color: ' . $props['cellColor'];
+        }
+
+        // Row background is painted per-row in buildTableBodyRows so that
+        // alternating stripes (rowBg / alternateRowBg) can be selected by
+        // row index — see resolveRowBackground.
+
+        return implode('; ', $styles) . ';';
+    }
+
+    /**
+     * Resolve the table border configuration into a normalized structure
+     * that header + body cell builders can render directly.
+     *
+     * Output shape:
+     *   [
+     *     'header' => ['color' => string, 'widthPx' => float, 'sides' => [top,right,bottom,left]],
+     *     'row'    => ['color' => string, 'widthPx' => float, 'sides' => [top,right,bottom,left]],
+     *   ]
+     */
+    private function resolveTableBorderProps(array $props): array
+    {
+        return [
+            'header' => $this->resolveTableRegionBorders($props['headerBorders'] ?? null),
+            'row' => $this->resolveTableRegionBorders($props['rowBorders'] ?? null),
+        ];
+    }
+
+    private function resolveTableRegionBorders($region): array
+    {
+        if (!is_array($region) || $region === []) {
+            return [
+                'color' => '#E5E7EB',
+                'widthPx' => self::TABLE_BORDER_WIDTH_DEFAULT,
+                'sides' => ['top' => true, 'right' => true, 'bottom' => true, 'left' => true],
+            ];
+        }
+
+        $color = (isset($region['color']) && is_string($region['color']) && $region['color'] !== '')
+            ? $region['color']
+            : '#E5E7EB';
+
+        $widthPx = array_key_exists('width', $region)
+            ? $this->coerceBorderWidthPx($region['width'])
+            : self::TABLE_BORDER_WIDTH_DEFAULT;
+
+        $sidesInput = is_array($region['sides'] ?? null) ? $region['sides'] : [];
+
+        // A side is enabled unless its stored value is *strictly* false.
+        // Missing / null / true / 0 / "false" all resolve to true (frontend parity).
+        $sides = [
+            'top'    => ($sidesInput['top']    ?? null) !== false,
+            'right'  => ($sidesInput['right']  ?? null) !== false,
+            'bottom' => ($sidesInput['bottom'] ?? null) !== false,
+            'left'   => ($sidesInput['left']   ?? null) !== false,
+        ];
+
+        return [
+            'color' => $color,
+            'widthPx' => $widthPx,
+            'sides' => $sides,
+        ];
+    }
+
+    /**
+     * Match the frontend's coerceBorderWidthPx: snap to half-pixel increments
+     * and clamp to [0, 20]. Strings may carry a trailing "px"; non-finite
+     * or unparseable inputs use the compatibility default.
+     */
+    private function coerceBorderWidthPx(mixed $value): float
+    {
+        if (is_int($value) || is_float($value)) {
+            $width = (float) $value;
+        } elseif (is_string($value)) {
+            $trimmed = trim($value);
+            $stripped = preg_replace('/px$/i', '', $trimmed);
+
+            // JS parseFloat: pull a leading numeric token, else NaN.
+            if (preg_match('/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/', $stripped, $m)) {
+                $width = (float) $m[0];
+            } else {
+                return self::TABLE_BORDER_WIDTH_DEFAULT;
+            }
+        } else {
+            return self::TABLE_BORDER_WIDTH_DEFAULT;
+        }
+
+        if (!is_finite($width)) {
+            return self::TABLE_BORDER_WIDTH_DEFAULT;
+        }
+
+        $snapped = round($width / self::TABLE_BORDER_WIDTH_STEP) * self::TABLE_BORDER_WIDTH_STEP;
+
+        return max(self::TABLE_BORDER_WIDTH_MIN, min(self::TABLE_BORDER_WIDTH_MAX, $snapped));
+    }
+
+    private function buildBorderStroke(array $region, bool $sideEnabled): string
+    {
+        if (!$sideEnabled) {
+            return 'none';
+        }
+
+        return $region['widthPx'] . 'px solid ' . $region['color'];
+    }
+
+    /**
+     * Assign each vertical seam to one cell so adjacent inset shadows do not
+     * turn a fractional hairline into a doubled-width line.
+     *
+     * @return array{left: bool, right: bool}
+     */
+    private function ownedHairlineColumnSides(array $sides, int $columnIndex, int $columnCount): array
+    {
+        $isFirstColumn = $columnIndex === 0;
+        $isLastColumn = $columnIndex === max(0, $columnCount - 1);
+
+        return [
+            'left' => $isFirstColumn && $sides['left'],
+            'right' => $isLastColumn ? $sides['right'] : ($sides['right'] || $sides['left']),
+        ];
+    }
+
+    /**
+     * Chromium snaps native border widths to whole CSS pixels in PDF output,
+     * while inset shadows preserve fractional geometry.
+     *
+     * @return list<string>
+     */
+    private function buildHairlineBorderStyles(array $region, array $sides): array
+    {
+        $styles = ['border: none'];
+
+        if ($region['widthPx'] <= 0) {
+            $styles[] = 'box-shadow: none';
+
+            return $styles;
+        }
+
+        $width = $region['widthPx'] . 'px';
+        $color = $region['color'];
+        $shadows = [];
+
+        if ($sides['top']) {
+            $shadows[] = "inset 0 {$width} 0 0 {$color}";
+        }
+        if ($sides['right']) {
+            $shadows[] = "inset -{$width} 0 0 0 {$color}";
+        }
+        if ($sides['bottom']) {
+            $shadows[] = "inset 0 -{$width} 0 0 {$color}";
+        }
+        if ($sides['left']) {
+            $shadows[] = "inset {$width} 0 0 0 {$color}";
+        }
+
+        $styles[] = 'box-shadow: ' . ($shadows === [] ? 'none' : implode(', ', $shadows));
+
+        return $styles;
+    }
+
+    /**
+     * Resolve the background colour for a body row at $rowIndex, matching
+     * the frontend ternary: alternateRows gates striping with strict ===
+     * equality, odd indices use alternateRowBg, even indices use rowBg.
+     *
+     * Returns null when the resolved value is missing or empty so callers
+     * can skip emitting a background declaration entirely (FE parity:
+     * `background: undefined` produces no rule).
+     */
+    private function resolveRowBackground(array $props, int $rowIndex): ?string
+    {
+        $isStripe = ($props['alternateRows'] ?? null) === true && ($rowIndex % 2) === 1;
+        $key = $isStripe ? 'alternateRowBg' : 'rowBg';
+
+        $value = $props[$key] ?? null;
+        if (is_string($value) && $value !== '') {
+            return $value;
+        }
+
+        return null;
     }
 
     private function buildTotalRowClass(bool $isTotal, bool $isBalance): string
@@ -839,49 +1851,16 @@ class JsonToSectionsAdapter
         return implode(' ', $classes);
     }
 
-    private function buildTotalRowStyle(array $props, bool $isTotal): string
-    {
-        $styles = [];
-        $styles[] = 'font-size: ' . ($isTotal ? ($props['totalFontSize'] ?? '14px') : ($props['fontSize'] ?? '12px'));
-        $styles[] = 'font-weight: ' . ($isTotal ? ($props['totalFontWeight'] ?? 'bold') : 'normal');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTotalLabelStyle(array $props): string
-    {
-        $styles = [];
-        $styles[] = 'color: ' . ($props['labelColor'] ?? '#6B7280');
-        $styles[] = 'text-align: right';
-        $styles[] = 'white-space: nowrap';
-        $styles[] = 'padding-right: ' . ($props['labelValueGap'] ?? '20px');
-        $styles[] = 'padding-bottom: ' . ($props['spacing'] ?? '4px');
-
-        return implode('; ', $styles) . ';';
-    }
-
-    private function buildTotalValueStyle(array $props, bool $isTotal, bool $isBalance): string
-    {
-        $color = $props['amountColor'] ?? '#374151';
-        if ($isTotal) {
-            $color = $props['totalColor'] ?? $color;
-        }
-        if ($isBalance) {
-            $color = $props['balanceColor'] ?? $color;
-        }
-
-        $styles = [];
-        $styles[] = 'color: ' . $color;
-        $styles[] = 'text-align: right';
-        $styles[] = 'white-space: nowrap';
-        $styles[] = 'padding-bottom: ' . ($props['spacing'] ?? '4px');
-
-        return implode('; ', $styles) . ';';
-    }
-
     private function buildTotalContainerStyle(array $props): string
     {
         $styles = [];
+        $styles[] = 'border-collapse: collapse';
+        $styles[] = 'width: fit-content';
+        $styles[] = 'max-width: 100%';
+        // Explicit auto layout keeps the totals label/value columns content-sized,
+        // insulated from the product table's table-layout: fixed regime.
+        $styles[] = 'table-layout: auto';
+
         if (isset($props['align'])) {
             $align = $props['align'];
             if ($align === 'right') {
@@ -889,6 +1868,18 @@ class JsonToSectionsAdapter
             } elseif ($align === 'center') {
                 $styles[] = 'margin: 0 auto';
             }
+        }
+
+        // FE-controlled page-break behavior for the totals table only.
+        // Default true: keep the whole totals block on one page (matches
+        // the most common user expectation). When explicitly false, the
+        // totals table is allowed to flow across pages — individual rows
+        // still don't split because the global `tr { break-inside: avoid }`
+        // rule applies.
+        $keepTogether = (bool) ($props['keepTogether'] ?? true);
+        if ($keepTogether) {
+            $styles[] = 'break-inside: avoid';
+            $styles[] = 'page-break-inside: avoid';
         }
 
         return implode('; ', $styles) . ';';
@@ -908,13 +1899,25 @@ class JsonToSectionsAdapter
     private function buildSignatureLineStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'border-top: 1px solid #000';
-        $styles[] = 'width: 200px';
-        $styles[] = 'margin-bottom: 8px';
-        $align = $props['align'] ?? 'left';
-        if ($align === 'center') {
-            $styles[] = 'display: inline-block';
+        $lineStyle = $props['lineStyle'] ?? 'solid';
+        if (!in_array($lineStyle, ['solid', 'dashed', 'dotted'], true)) {
+            $lineStyle = 'solid';
         }
+        $styles[] = 'border-top: ' . ($props['lineThickness'] ?? '1px') . ' ' . $lineStyle . ' ' . ($props['lineColor'] ?? '#000000');
+        $styles[] = 'width: ' . ($props['lineWidth'] ?? '200px');
+        $styles[] = 'max-width: 100%';
+        $styles[] = 'margin-bottom: 8px';
+        $styles[] = 'display: inline-block';
+
+        return implode('; ', $styles) . ';';
+    }
+
+    private function buildSignatureContainerStyle(array $props): string
+    {
+        $styles = [];
+        $styles[] = 'text-align: ' . ($props['align'] ?? 'left');
+        $styles[] = 'padding: ' . ($props['padding'] ?? '0px');
+        $styles[] = 'box-sizing: border-box';
 
         return implode('; ', $styles) . ';';
     }
@@ -922,8 +1925,16 @@ class JsonToSectionsAdapter
     private function buildSignatureLabelStyle(array $props): string
     {
         $styles = [];
-        $styles[] = 'font-size: ' . ($props['fontSize'] ?? '12px');
-        $styles[] = 'color: ' . ($props['color'] ?? '#374151');
+        if (isset($props['fontSize'])) {
+            $styles[] = 'font-size: ' . $props['fontSize'];
+        }
+        if (isset($props['fontWeight'])) {
+            $styles[] = 'font-weight: ' . $props['fontWeight'];
+        }
+        if (isset($props['fontStyle'])) {
+            $styles[] = 'font-style: ' . $props['fontStyle'];
+        }
+        $styles[] = 'color: ' . ($props['color'] ?? '#6B7280');
 
         return implode('; ', $styles) . ';';
     }

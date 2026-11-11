@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,7 +52,7 @@ class VendorContactKeyLogin
 
             if ($vendor_contact = VendorContact::query()->where('email', $contact_email)->where('company_id', $payload['company_id'])->first()) {
                 if (empty($vendor_contact->email)) {
-                    $vendor_contact->email = Str::random(15).'@example.com';
+                    $vendor_contact->email = Str::random(15) . '@example.com';
                 }
                 $vendor_contact->save();
 
@@ -68,7 +68,7 @@ class VendorContactKeyLogin
             if (MultiDB::findAndSetDbByVendorContactKey($request->segment(3))) {
                 if ($vendor_contact = VendorContact::query()->where('contact_key', $request->segment(3))->first()) {
                     if (empty($vendor_contact->email)) {
-                        $vendor_contact->email = Str::random(6).'@example.com';
+                        $vendor_contact->email = Str::random(6) . '@example.com';
                     }
                     $vendor_contact->save();
 
@@ -83,7 +83,7 @@ class VendorContactKeyLogin
         } elseif ($request->segment(2) && $request->segment(2) == 'key_login' && $request->segment(3)) {
             if ($vendor_contact = VendorContact::query()->where('contact_key', $request->segment(3))->first()) {
                 if (empty($vendor_contact->email)) {
-                    $vendor_contact->email = Str::random(6).'@example.com';
+                    $vendor_contact->email = Str::random(6) . '@example.com';
                     $vendor_contact->save();
                 }
 
@@ -101,7 +101,7 @@ class VendorContactKeyLogin
                     $primary_contact = $client->primary_contact()->first();
 
                     if (empty($primary_contact->email)) {
-                        $primary_contact->email = Str::random(6).'@example.com';
+                        $primary_contact->email = Str::random(6) . '@example.com';
                     }
                     $primary_contact->save();
 
@@ -115,7 +115,7 @@ class VendorContactKeyLogin
                 $primary_contact = $client->primary_contact()->first();
 
                 if (empty($primary_contact->email)) {
-                    $primary_contact->email = Str::random(6).'@example.com';
+                    $primary_contact->email = Str::random(6) . '@example.com';
                 }
                 $primary_contact->save();
 
@@ -126,7 +126,7 @@ class VendorContactKeyLogin
         } elseif ($request->segment(3)) {
             if ($vendor_contact = VendorContact::query()->where('contact_key', $request->segment(3))->first()) {
                 if (empty($vendor_contact->email)) {
-                    $vendor_contact->email = Str::random(6).'@example.com';
+                    $vendor_contact->email = Str::random(6) . '@example.com';
                     $vendor_contact->save();
                 }
 

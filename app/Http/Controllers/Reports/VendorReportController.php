@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,7 +35,7 @@ class VendorReportController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($request->has('send_email') && $request->get('send_email') && $request->missing('output')) {
+        if ($request->has('send_email') && filter_var($request->input('send_email'), FILTER_VALIDATE_BOOLEAN) && $request->missing('output')) {
             SendToAdmin::dispatch($user->company(), $request->all(), VendorExport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);
@@ -43,7 +43,7 @@ class VendorReportController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-        PreviewReport::dispatch($user->company(), $request->all(), VendorExport::class, $hash);
+        PreviewReport::dispatch($user->company(), $request->all(), VendorExport::class, $hash, $this->filename, $user);
 
         return response()->json(['message' => $hash], 200);
 

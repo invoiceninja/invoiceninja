@@ -275,6 +275,8 @@ class ScheduleEntityTest extends TestCase
             ],
         ];
 
+        $this->assertEquals(5, RecurringInvoice::FREQUENCY_MONTHLY);
+        
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

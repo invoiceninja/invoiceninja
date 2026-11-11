@@ -1,0 +1,48 @@
+@import 'dialog-polyfill/dialog-polyfill';
+
+.portal-dialog {
+    @apply bg-white text-gray-900 p-0 border-0 shadow-xl;
+    width: calc(100% - 2rem);
+    max-width: 32rem;
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+    border-radius: var(--portal-button-radius, 0.5rem);
+
+    &:not([open]) { display: none; }
+    &[open] { display: flex; flex-direction: column; }
+    &::backdrop { background: rgba(0, 0, 0, 0.5); }
+    & + .backdrop { background: rgba(0, 0, 0, 0.5); }
+    &.portal-dialog-fallback { position: fixed; top: 50%; transform: translateY(-50%); }
+}
+
+.portal-dialog-pdf { max-width: 72rem; }
+
+.portal-dialog-body {
+    @apply p-4 sm:p-6 min-h-0 overflow-y-auto;
+    overflow-wrap: anywhere;
+    overscroll-behavior: contain;
+}
+
+.portal-dialog-actions {
+    @apply flex flex-col sm:flex-row-reverse border-t p-4 shrink-0;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    .button { @apply w-full sm:w-auto min-h-11; }
+    > * + * { margin-top: 0.75rem; }
+    @media (min-width: 640px) {
+        > * + * { margin-top: 0; margin-right: 0.75rem; }
+    }
+}
+
+html.portal-dialog-open {
+    overflow: hidden;
+    [data-portal-target="content"] { overflow: hidden; }
+}
+
+.portal-signature { @apply block w-full h-48 touch-none; }
+
+[data-portal="client"] {
+    .portal-summary dd { min-width: 0; overflow-wrap: anywhere; }
+    @media (max-width: 639px) {
+        .input { font-size: 1rem; }
+    }
+}

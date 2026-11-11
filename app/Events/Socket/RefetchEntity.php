@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,14 +28,12 @@ class RefetchEntity implements ShouldBroadcast
     use SerializesModels;
     use InteractsWithSockets;
 
-    public function __construct(public string $entity, public ?string $entity_id, public User $user)
-    {
-    }
+    public function __construct(public string $entity, public ?string $entity_id, public User $user) {}
 
     public function broadcastOn()
     {
         return [
-            new PrivateChannel("user-{$this->user->account->key}-{$this->user->id}"),
+            new PrivateChannel("user-{$this->user->account->key}-{$this->user->hashed_id}"),
         ];
     }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,9 +59,7 @@ class NewAccountCreated extends Notification
      * @param  mixed  $notifiable
      *
      */
-    public function toMail($notifiable)
-    {
-    }
+    public function toMail($notifiable) {}
 
     /**
      * Get the array representation of the notification.
@@ -80,7 +78,7 @@ class NewAccountCreated extends Notification
     {
         $this->user->setCompany($this->company);
 
-        $user_name = $this->user->first_name.' '.$this->user->last_name;
+        $user_name = $this->user->first_name . ' ' . $this->user->last_name;
         $email = $this->user->email;
         $ip = $this->user->ip;
 

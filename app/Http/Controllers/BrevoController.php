@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,9 +21,7 @@ use Illuminate\Http\Request;
  */
 class BrevoController extends BaseController
 {
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Process Brevo Webhook.
@@ -186,7 +184,10 @@ class BrevoController extends BaseController
     {
         $input = $request->all();
 
-        if (!($request->has('token') && $request->get('token') == config('ninja.inbound_mailbox.inbound_webhook_token'))) {
+        $inbound_token = config('ninja.inbound_mailbox.inbound_webhook_token');
+        $provided_token = $request->query('token') ?? $request->input('token');
+
+        if (!filled($inbound_token) || !is_string($provided_token) || !\hash_equals((string) $inbound_token, $provided_token)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

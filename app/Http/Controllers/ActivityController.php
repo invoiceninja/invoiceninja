@@ -5,39 +5,43 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Controllers;
 
-use stdClass;
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Models\Quote;
+use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
+use App\Http\Requests\Activity\ShowActivityRequest;
+use App\Http\Requests\Activity\StoreNoteRequest;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Credit;
-use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\Activity;
-use Illuminate\Http\Request;
 use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
+use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Task;
+use App\Models\Vendor;
+use App\Services\Pdf\Purify;
 use App\Transformers\ActivityTransformer;
-use App\Http\Requests\Activity\StoreNoteRequest;
-use App\Http\Requests\Activity\ShowActivityRequest;
-use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Pdf\SimulatedPdf;
+use App\Utils\Ninja;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use stdClass;
 
 class ActivityController extends BaseController
 {
@@ -58,34 +62,86 @@ class ActivityController extends BaseController
     {
         $default_activities = $request->has('rows') ? $request->input('rows') : 75;
 
+        if ($request->has('reactv2')) {
+
+            /** @var \App\Models\User auth()->user() */
+            $user = auth()->user();
+
+            $activities = $this->activityFeedQuery($default_activities);
+
+            if (!$user->isAdmin()) {
+                $activities->where('user_id', auth()->user()->id);
+            }
+
+            $this->filterByUser($activities, $request);
+
+            $this->olderThanCursor($activities, $request);
+
+            return response()->json(['data' => $this->activityStringPayload($activities)], 200);
+        }
+
         /* @var App\Models\Activity[] $activities */
         $activities = Activity::with('user')
                                 ->orderBy('created_at', 'DESC')
                                 ->company()
                                 ->take($default_activities);
 
-        if ($request->has('reactv2')) {
-
-            /** @var \App\Models\User auth()->user() */
-            $user = auth()->user();
-
-            if (!$user->isAdmin()) {
-                $activities->where('user_id', auth()->user()->id);
-            }
-
-            $system = ctrans('texts.system');
-
-            $data = $activities->cursor()->map(function ($activity) {
-
-                /** @var \App\Models\Activity $activity */
-                return $activity->activity_string();
-
-            });
-
-            return response()->json(['data' => $data->toArray()], 200);
-        }
+        $this->filterByUser($activities, $request);
 
         return $this->listResponse($activities);
+    }
+
+    /**
+     * Narrows to the activities of the users in `user_id` (hashed ids, comma separated).
+     * An id that doesn't decode matches nothing; it can only narrow, never widen, the user's scope.
+     */
+    private function filterByUser(Builder $activities, Request $request): void
+    {
+        $user_id = $request->input('user_id');
+
+        if (!is_string($user_id) || strlen(trim($user_id)) == 0) {
+            return;
+        }
+
+        $user_ids = collect(explode(',', $user_id))
+                        ->map(fn ($id) => $this->decodePrimaryKey(trim($id), true))
+                        ->filter(fn ($id) => is_int($id))
+                        ->values()
+                        ->all();
+
+        $activities->whereIn('user_id', $user_ids);
+    }
+
+    /**
+     * Keyset cursor for paging the feed: `before` names an activity (hashed id) of this company,
+     * and only the activities after it in feed order - created_at, then id, descending - are returned.
+     * The stored timestamp is compared as is, so the cut is exact to the microsecond.
+     */
+    private function olderThanCursor(Builder $activities, Request $request): void
+    {
+        if (!$request->has('before')) {
+            return;
+        }
+
+        $request->validate(['before' => ['bail', 'required', 'string']]);
+
+        $id = $this->decodePrimaryKey($request->input('before'), true);
+
+        $boundary = is_int($id) ? Activity::query()->without('backup')->company()->find($id) : null;
+
+        if (!$boundary) {
+            throw ValidationException::withMessages(['before' => ctrans('texts.record_not_found')]);
+        }
+
+        $created_at = $boundary->getRawOriginal('created_at');
+
+        $activities->where(function ($query) use ($created_at, $boundary) {
+            $query->where('created_at', '<', $created_at)
+                  ->orWhere(function ($query) use ($created_at, $boundary) {
+                      $query->where('created_at', $created_at)
+                            ->where('id', '<', $boundary->id);
+                  });
+        });
     }
 
     public function entityActivity(ShowActivityRequest $request)
@@ -93,11 +149,13 @@ class ActivityController extends BaseController
 
         $default_activities = request()->has('rows') ? request()->input('rows') : 75;
 
-        $activities = Activity::with('user')
-                                ->orderBy('created_at', 'DESC')
-                                ->company()
-                                ->where("{$request->entity}_id", $request->entity_id)
-                                ->take($default_activities);
+        $activities = $this->activityFeedQuery($default_activities)
+                                ->where("{$request->entity}_id", $request->entity_id);
+
+        // Filtered in SQL, so `rows` counts only the requested types (141 = notes).
+        if ($request->filled('activity_type_id')) {
+            $activities->whereIn('activity_type_id', array_map('intval', explode(',', (string) $request->input('activity_type_id'))));
+        }
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
@@ -108,17 +166,62 @@ class ActivityController extends BaseController
             $activities->where('user_id', auth()->user()->id);
         }
 
-        $system = ctrans('texts.system');
+        return response()->json(['data' => $this->activityStringPayload($activities)], 200);
 
-        $data = $activities->cursor()->map(function ($activity) {
+    }
 
-            /** @var \App\Models\Activity $activity */
-            return $activity->activity_string();
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function activityStringPayload(Builder $activities): array
+    {
+        return $activities->get()
+            ->map(function ($activity) {
 
-        });
+                /** @var \App\Models\Activity $activity */
+                return $activity->activity_string();
 
-        return response()->json(['data' => $data->toArray()], 200);
+            })
+            ->values()
+            ->all();
+    }
 
+    private function activityFeedQuery(int $limit): Builder
+    {
+        return Activity::query()
+            ->without('backup')
+            ->with($this->activityStringRelations())
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->company()
+            ->take($limit);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function activityStringRelations(): array
+    {
+        return [
+            'user',
+            'client',
+            'vendor',
+            'invoice',
+            'quote',
+            'credit',
+            'payment.client.country',
+            'payment.client.company',
+            'payment.client.group_settings',
+            'task',
+            'expense',
+            'purchase_order',
+            'subscription',
+            'recurring_invoice',
+            'recurring_expense',
+            'contact',
+            'vendor_contact',
+            'company',
+        ];
     }
 
 
@@ -163,8 +266,16 @@ class ActivityController extends BaseController
             if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
             }
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            $pdf = SimulatedPdf::generate($html_backup);
+
+            $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+            if ($numbered_pdf) {
+                $pdf = $numbered_pdf;
+            }
         } else {
-            $pdf = $this->makePdf(null, null, $html_backup);
+            $pdf = $this->makePdf(null, null, Purify::clean($html_backup));
 
             $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
 
@@ -176,11 +287,11 @@ class ActivityController extends BaseController
         $activity->company->setLocale();
 
         if (isset($activity->invoice_id)) {
-            $filename = $activity->invoice->numberFormatter().'.pdf';
+            $filename = $activity->invoice->numberFormatter() . '.pdf';
         } elseif (isset($activity->quote_id)) {
-            $filename = $activity->quote->numberFormatter().'.pdf';
+            $filename = $activity->quote->numberFormatter() . '.pdf';
         } elseif (isset($activity->credit_id)) {
-            $filename = $activity->credit->numberFormatter().'.pdf';
+            $filename = $activity->credit->numberFormatter() . '.pdf';
         } else {
             $filename = 'backup.pdf';
         }
@@ -243,7 +354,7 @@ class ActivityController extends BaseController
             case RecurringInvoice::class:
                 $activity->recurring_invoice_id = $entity->id;
                 $activity->client_id = $entity->client_id;
-                                
+
                 $activity->save();
                 return $this->itemResponse($activity);
 
@@ -257,7 +368,6 @@ class ActivityController extends BaseController
                 return $this->itemResponse($activity);
             case RecurringExpense::class:
                 $activity->recurring_expense_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
@@ -272,7 +382,6 @@ class ActivityController extends BaseController
 
             case PurchaseOrder::class:
                 $activity->purchase_order_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
@@ -293,7 +402,7 @@ class ActivityController extends BaseController
                 $activity->payment_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
-                
+
                 $activity->save();
                 return $this->itemResponse($activity);
 
@@ -307,6 +416,6 @@ class ActivityController extends BaseController
                 break;
         }
 
-        
+
     }
 }

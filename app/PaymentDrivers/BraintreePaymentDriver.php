@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,9 +46,6 @@ class BraintreePaymentDriver extends BaseDriver
 
     private bool $completed = true;
 
-    /**
-     * @var Gateway;
-     */
     public Gateway $gateway;
 
     public static $methods = [
@@ -69,6 +66,17 @@ class BraintreePaymentDriver extends BaseDriver
         ]);
 
         return $this;
+    }
+
+    public function resolveStoredToken(string $token, int $gateway_type_id): ClientGatewayToken
+    {
+        return ClientGatewayToken::query()
+            ->where('company_id', $this->company_gateway->company_id)
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->where('client_id', $this->client->id)
+            ->where('gateway_type_id', $gateway_type_id)
+            ->where('token', $token)
+            ->firstOrFail();
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -232,7 +240,7 @@ class BraintreePaymentDriver extends BaseDriver
 
         $this->init();
 
-        $result = $this->gateway->transaction()->sale([
+        $data = [
             'amount' => $amount,
             'paymentMethodToken' => $cgt->token,
             'deviceData' => '',
@@ -241,16 +249,28 @@ class BraintreePaymentDriver extends BaseDriver
                 'submitForSettlement' => true,
             ],
             'taxAmount' => $total_taxes,
-            'purchaseOrderNumber' => substr($invoice->po_number ?? $invoice->number, 0, 16),
-        ]);
+            'purchaseOrderNumber' => substr($invoice->po_number ?? $invoice->number ?? '', 0, 16),
+        ];
+
+        if ($this->company_gateway->getConfigField('merchantAccountId')) {
+            $data['merchantAccountId'] = $this->company_gateway->getConfigField('merchantAccountId');
+        }
+
+        $data = array_merge($data, $this->getLevel23Data($payment_hash));
+
+        $result = $this->gateway->transaction()->sale($data);
 
         if ($result->success) {
 
             $data = [
-                'payment_type' => PaymentType::parseCardType(strtolower($result->transaction->creditCard['cardType'])),
+                'payment_type' => match ((int) $cgt->gateway_type_id) {
+                    GatewayType::PAYPAL => PaymentType::PAYPAL,
+                    GatewayType::BANK_TRANSFER => PaymentType::ACH,
+                    default => PaymentType::parseCardType(strtolower($result->transaction->creditCard['cardType'])),
+                },
                 'amount' => $amount,
                 'transaction_reference' => $result->transaction->id,
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'gateway_type_id' => (int) $cgt->gateway_type_id,
             ];
 
             $this->confirmGatewayFee($data);
@@ -270,7 +290,6 @@ class BraintreePaymentDriver extends BaseDriver
         }
 
         if (! $result->success) {
-            $this->unWindGatewayFees($payment_hash);
 
             $this->sendFailureMail($result->transaction->additionalProcessorResponse);
 
@@ -292,6 +311,137 @@ class BraintreePaymentDriver extends BaseDriver
         }
     }
 
+
+    /**
+     * Build Level 2/3 interchange data for Braintree transactions.
+     *
+     * Wrapped in try-catch — this is supplemental data for lower interchange rates
+     * and must never cause a payment to fail.
+     *
+     * @param PaymentHash $payment_hash
+     * @return array
+     */
+    public function getLevel23Data(PaymentHash $payment_hash): array
+    {
+        try {
+            $data = [];
+
+            $invoice_ids = $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id'));
+            $invoices = Invoice::query()->whereIn('id', $invoice_ids)->withTrashed()->get();
+
+            if ($invoices->isEmpty()) {
+                return [];
+            }
+
+            // Level 2: Shipping address
+            $client = $this->client;
+            if ($client && $client->shipping_postal_code) {
+                $data['shipping'] = [
+                    'streetAddress' => $client->shipping_address1 ?: '',
+                    'extendedAddress' => $client->shipping_address2 ?: '',
+                    'locality' => $client->shipping_city ?: '',
+                    'region' => $client->shipping_state ?: '',
+                    'postalCode' => $client->shipping_postal_code ?: '',
+                    'countryCodeAlpha3' => $client->shipping_country ? ($client->shipping_country->iso_3166_3 ?: '') : '',
+                ];
+            }
+
+            // Level 2: Ships from postal code (company address)
+            $company = $this->company_gateway->company;
+            $company_postal_code = $company->settings->postal_code ?? '';
+            if ($company_postal_code) {
+                $data['shippingAmount'] = '0.00';
+                $data['shipsFromPostalCode'] = substr($company_postal_code, 0, 10);
+            }
+
+            // Level 2: Discount amount across all invoices
+            $total_discount = 0;
+            foreach ($invoices as $invoice) {
+                if ($invoice->discount > 0) {
+                    if ($invoice->is_amount_discount) {
+                        $total_discount += $invoice->discount;
+                    } else {
+                        $subtotal = collect($invoice->line_items)->sum(function ($item) {
+                            return (float) ($item->line_total ?? 0);
+                        });
+                        $total_discount += round($subtotal * ($invoice->discount / 100), 2);
+                    }
+                }
+            }
+            if ($total_discount > 0) {
+                $data['discountAmount'] = number_format($total_discount, 2, '.', '');
+            }
+
+            // Level 3: Line items (max 249 per Braintree)
+            $line_items = [];
+            foreach ($invoices as $invoice) {
+                $items = $invoice->line_items;
+                if (!is_iterable($items)) {
+                    continue;
+                }
+
+                foreach ($items as $item) {
+                    if (count($line_items) >= 249) {
+                        break 2;
+                    }
+
+                    $quantity = (float) ($item->quantity ?? 1);
+                    $unit_amount = (float) ($item->cost ?? 0);
+                    $line_total = (float) ($item->line_total ?? ($quantity * $unit_amount));
+                    $tax_amount = (float) ($item->tax_amount ?? 0);
+
+                    if ($quantity <= 0 || $unit_amount <= 0) {
+                        continue;
+                    }
+
+                    // Calculate item-level discount
+                    $item_discount = 0.0;
+                    $raw_discount = (float) ($item->discount ?? 0);
+                    if ($raw_discount > 0) {
+                        $is_amount = $item->is_amount_discount ?? false;
+                        $item_discount = $is_amount ? $raw_discount : round(($quantity * $unit_amount) * ($raw_discount / 100), 2);
+                    }
+
+                    $product_key = trim($item->product_key ?? '');
+                    $item_name = $product_key !== '' ? $product_key : 'Item';
+
+                    $bt_item = [
+                        'name' => substr($item_name, 0, 35),
+                        'kind' => \Braintree\TransactionLineItem::DEBIT,
+                        'quantity' => number_format($quantity, 4, '.', ''),
+                        'unitAmount' => number_format(abs($unit_amount), 4, '.', ''),
+                        'totalAmount' => number_format(abs($line_total), 2, '.', ''),
+                        'taxAmount' => number_format(abs($tax_amount), 2, '.', ''),
+                        'discountAmount' => number_format(abs($item_discount), 2, '.', ''),
+                        'unitOfMeasure' => 'EA',
+                    ];
+
+                    // Only include productCode if non-empty
+                    if ($product_key !== '') {
+                        $bt_item['productCode'] = substr($product_key, 0, 12);
+                    }
+
+                    // Strip HTML and add description if non-empty
+                    $notes = trim(strip_tags($item->notes ?? ''));
+                    if ($notes !== '') {
+                        $bt_item['description'] = substr($notes, 0, 127);
+                    }
+
+                    $line_items[] = $bt_item;
+                }
+            }
+
+            if (!empty($line_items)) {
+                $data['lineItems'] = $line_items;
+            }
+
+            return $data;
+
+        } catch (\Exception $e) {
+            nlog("Braintree L2/L3 data build failed (non-fatal): " . $e->getMessage());
+            return [];
+        }
+    }
 
     /**
      * Required fields for client to fill, to proceed with gateway actions.
@@ -316,7 +466,7 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function processWebhookRequest($request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'bt_signature' => ['required'],
             'bt_payload' => ['required'],
@@ -334,15 +484,20 @@ class BraintreePaymentDriver extends BaseDriver
         );
 
         nlog('braintree webhook');
-        nlog($webhookNotification);
+
+        if($webhookNotification){ //@phpstan-ignore-line
+            nlog($webhookNotification);
+        }
 
         $message = $webhookNotification->kind; // "subscription_went_past_due"
 
-        nlog($message);
+        if($message){
+            nlog($message);
+        }
 
-        if($message == 'transaction_settlement_declined'){
+        if ($message == 'transaction_settlement_declined') {
             $payment = Payment::withTrashed()->where('transaction_reference', $webhookNotification->transaction->id)->first();
-            
+
             if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {
                 $payment->service()->deletePayment();
                 $payment->status_id = Payment::STATUS_FAILED;
@@ -356,16 +511,25 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function auth(): string
     {
-
-        try {
-            $ct = $this->init()->gateway->clientToken()->generate();
-
-            return 'ok';
-        } catch (\Exception $e) {
-
+        foreach (['merchantId', 'publicKey', 'privateKey'] as $field) {
+            if (trim((string) $this->company_gateway->getConfigField($field)) === '') {
+                return 'error';
+            }
         }
 
-        return 'error';
+        try {
+            $gateway = $this->init()->gateway;
+            $gateway->clientToken()->generate();
+
+            $merchantAccountId = trim((string) $this->company_gateway->getConfigField('merchantAccountId'));
+            if ($merchantAccountId !== '') {
+                $gateway->merchantAccount()->find($merchantAccountId);
+            }
+
+            return 'ok';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     private function find(string $customer_id = '')
@@ -446,14 +610,14 @@ class BraintreePaymentDriver extends BaseDriver
 
         if ($b_business_address) {
 
-            $braintree_address =
-            [
-            'address1' => $b_business_address->extendedAddress ?? '',
-            'address2' => $b_business_address->streetAddress ?? '',
-            'city' => $b_business_address->locality ?? '',
-            'postal_code' => $b_business_address->postalCode ?? '',
-            'state' => $b_business_address->region ?? '',
-            'country_id' => $b_business_address->countryCodeNumeric ?? '840',
+            $braintree_address
+            = [
+                'address1' => $b_business_address->extendedAddress ?? '',
+                'address2' => $b_business_address->streetAddress ?? '',
+                'city' => $b_business_address->locality ?? '',
+                'postal_code' => $b_business_address->postalCode ?? '',
+                'state' => $b_business_address->region ?? '',
+                'country_id' => $b_business_address->countryCodeNumeric ?? '840',
             ];
 
             $import_client_data = array_merge($import_client_data, $braintree_address);
@@ -461,14 +625,14 @@ class BraintreePaymentDriver extends BaseDriver
 
         if ($b_shipping_address) {
 
-            $braintree_shipping_address =
-            [
-            'shipping_address1' => $b_shipping_address->extendedAddress ?? '',
-            'shipping_address2' => $b_shipping_address->streetAddress ?? '',
-            'shipping_city' => $b_shipping_address->locality ?? '',
-            'shipping_postal_code' => $b_shipping_address->postalCode ?? '',
-            'shipping_state' => $b_shipping_address->region ?? '',
-            'shipping_country_id' => $b_shipping_address->countryCodeNumeric ?? '840',
+            $braintree_shipping_address
+            = [
+                'shipping_address1' => $b_shipping_address->extendedAddress ?? '',
+                'shipping_address2' => $b_shipping_address->streetAddress ?? '',
+                'shipping_city' => $b_shipping_address->locality ?? '',
+                'shipping_postal_code' => $b_shipping_address->postalCode ?? '',
+                'shipping_state' => $b_shipping_address->region ?? '',
+                'shipping_country_id' => $b_shipping_address->countryCodeNumeric ?? '840',
             ];
 
             $import_client_data = array_merge($import_client_data, $braintree_shipping_address);

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,6 +18,7 @@ use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Cron\AutoBillCron;
+use App\Jobs\Cron\FranceEReportingCron;
 use App\Jobs\Util\VersionCheck;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Util\SchedulerCheck;
@@ -35,13 +36,13 @@ use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\EDocument\EInvoicePullDocs;
 use App\Jobs\Cron\InvoiceTaxSummary;
+use App\Jobs\Cron\DailyTaskDigestCron;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Invoice\InvoiceCheckOverdue;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\PaymentDrivers\Rotessa\Jobs\TransactionReport;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Console\Commands\CreateElasticIndex;
 
 class Kernel extends ConsoleKernel
 {
@@ -74,28 +75,29 @@ class Kernel extends ConsoleKernel
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
-        // Run hourly over 26-hour period for complete timezone coverage
+        // Disabled until daily task digest delivery is implemented.
+        // $schedule->job(new DailyTaskDigestCron())
+        //     ->everyFourHours()
+        //     ->timezone('UTC')
+        //     ->withoutOverlapping()
+        //     ->name('daily-task-digest-job')
+        //     ->onOneServer();
+
+        // Run hourly - timezone-aware processing ensures each company
+        // is only processed once, at its local month-end midnight
         $schedule->job(new InvoiceTaxSummary())
             ->hourly()
-            ->when(function () {
-                $now = now();
-                $hour = $now->hour;
-                
-                // Run for 26 hours starting from UTC 10:00 on last day of month
-                // This covers the transition period when timezones move to next month
-                if ($now->isSameDay($now->copy()->endOfMonth())) {
-                    // Start at UTC 10:00 (when UTC+14 moves to next day)
-                    return $hour >= 10;
-                } elseif ($now->isSameDay($now->copy()->startOfMonth())) {
-                    // Continue until UTC 12:00 (when UTC-12 moves to next day)
-                    return $hour <= 12;
-                }
-                
-                return false;
-            })
             ->withoutOverlapping()
-            ->name('invoice-tax-summary-26hour-coverage')
+            ->name('invoice-tax-summary')
             ->onOneServer();
+            
+        /* Runs France e-reporting payment notifications and due report submissions */
+        // $schedule->job(new FranceEReportingCron())
+        //     ->dailyAt('22:00')
+        //     ->timezone('Europe/Paris')
+        //     ->withoutOverlapping()
+        //     ->name('france-e-reporting-job')
+        //     ->onOneServer();
 
         /* Checks Rotessa Transactions */
         $schedule->job(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();
@@ -128,7 +130,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new QuoteCheckExpired())->dailyAt('05:10')->withoutOverlapping()->name('quote-expired-job')->onOneServer();
 
         /* Performs auto billing */
-        $schedule->job(new AutoBillCron())->dailyAt('06:20')->withoutOverlapping()->name('auto-bill-job')->onOneServer();
+        $schedule->job(new AutoBillCron())->dailyAt(config('ninja.auto_bill_time'))->withoutOverlapping()->name('auto-bill-job')->onOneServer();
 
         /* Fires webhooks for overdue Invoice */
         $schedule->job(new InvoiceCheckLateWebhook())->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-webhook-job')->onOneServer();

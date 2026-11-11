@@ -44,6 +44,10 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public Company $company;
 
+    public $maxExceptions = 1;
+
+    public $tries = 6;
+
     /**
      * Create a new job instance.
      */
@@ -51,6 +55,11 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     {
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
+    }
+
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addHour();
     }
 
     /**
@@ -61,22 +70,65 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->bank_integration->integration_type != BankIntegration::INTEGRATION_TYPE_YODLEE) {
-            throw new \Exception("Invalid BankIntegration Type");
-        }
+        set_time_limit(600);
 
-        set_time_limit(0);
+        sleep(rand(1,5));
 
         //Loop through everything until we are up to date - improve handling of delayed accounts
         $this->from_date = $this->from_date ? Carbon::parse($this->from_date)->subWeeks(2)->format('Y-m-d') : '2021-01-01';
 
         nlog("Yodlee: Processing transactions for account: {$this->bank_integration->account->key}");
 
+        $yodlee = new Yodlee($this->bank_integration_account_id);
+
+        try {
+            $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
+
+            if ($account_summary) {
+                $at = new AccountTransformer();
+                $account = $at->transform($account_summary);
+
+                if ($account[0]) {
+                    $this->bank_integration->balance = $account[0]['current_balance'];
+                    $this->bank_integration->currency = $account[0]['account_currency'];
+                    $this->bank_integration->bank_account_status = $account[0]['account_status'];
+                    $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
+                    $this->bank_integration->save();
+                }
+            }
+        } catch (\Exception $e) {
+            nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
+            $this->bank_integration->disabled_upstream = true;
+            $this->bank_integration->save();
+            $this->stop_loop = false;
+            return;
+        }
+
+        if ($this->bank_integration->disabled_upstream) {
+            nlog("Yodlee: account disabled upstream: {$this->bank_integration->bank_account_id} status: {$this->bank_integration->bank_account_status}");
+            $this->stop_loop = false;
+            return;
+        }
+
+
         do {
             try {
-                $this->processTransactions();
+                $this->processTransactions($yodlee);
             } catch (\Exception $e) {
                 nlog("Yodlee: {$this->bank_integration->bank_account_id} - exited abnormally => " . $e->getMessage());
+
+                if ($e instanceof \App\Exceptions\YodleeApiException) {
+                    $error = json_decode($e->getMessage(), true);
+            
+                    if (
+                        ($error['errorCode'] ?? '') === 'Y800'
+                        && ($error['errorMessage'] ?? '') === 'Invalid value for accountId'
+                    ) {
+                        $this->bank_integration->disabled_upstream = true;
+                        $this->bank_integration->bank_account_status = 'Bank Account Requires Re-Linking';
+                        $this->bank_integration->save();
+                    }
+                }
 
                 $content = [
                     "Processing transactions for account: {$this->bank_integration->bank_account_id} failed",
@@ -84,7 +136,9 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                     $e->getMessage(),
                 ];
 
+                
                 $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+                BankMatchingService::dispatch($this->company->id, $this->company->db);
                 return;
             }
         } while ($this->stop_loop);
@@ -93,37 +147,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     }
 
 
-    private function processTransactions()
+    private function processTransactions(Yodlee $yodlee)
     {
-        $yodlee = new Yodlee($this->bank_integration_account_id);
-
-        if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
-            $this->bank_integration->disabled_upstream = true;
-            $this->bank_integration->save();
-            $this->stop_loop = false;
-            return;
-        }
-
-        try {
-            $account_summary = $yodlee->getAccountSummary($this->bank_integration->bank_account_id);
-
-            if ($account_summary) {
-
-                $at = new AccountTransformer();
-                $account = $at->transform($account_summary);
-
-                if ($account[0]['current_balance']) {
-                    $this->bank_integration->balance = $account[0]['current_balance'];
-                    $this->bank_integration->currency = $account[0]['account_currency'];
-                    $this->bank_integration->bank_account_status = $account[0]['account_status'];
-                    $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
-                    $this->bank_integration->save();
-                }
-
-            }
-        } catch (\Exception $e) {
-            nlog("YODLEE: unable to update account summary for {$this->bank_integration->bank_account_id} => " . $e->getMessage());
-        }
 
         $data = [
             'top' => 500,
@@ -137,6 +162,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
         //Get int count
         $count = $transaction_count->transaction->TOTAL->count;
+
+        sleep(1);
 
         //get transactions array
         $transactions = $yodlee->getTransactions($data);
@@ -163,25 +190,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         $now = now();
 
         foreach ($transactions as $transaction) {
-            if (BankTransaction::query() //ensure we don't duplicate transactions with the same ID
-                            ->where('transaction_id', $transaction['transaction_id'])
-                            ->where('company_id', $this->company->id)
-                            ->where('bank_integration_id', $this->bank_integration->id)
-                            ->withTrashed()
-                            ->exists()) {
-                continue;
-            }
-            elseif (BankTransaction::query() //ensure we don't duplicate transactions that have the same amount, currency, account type, category type, date, and description
-                            ->where('company_id', $this->company->id)
-                            ->where('bank_integration_id', $this->bank_integration->id)
-                            ->where('amount', $transaction['amount'])
-                            ->where('currency_id', $transaction['currency_id'])
-                            ->where('account_type', $transaction['account_type'])
-                            ->where('category_type', $transaction['category_type'])
-                            ->where('date', $transaction['date'])
-                            ->where('description', $transaction['description'])
-                            ->withTrashed()
-                            ->exists()) {
+            if ($this->isDuplicateTransaction($transaction)) {
                 continue;
             }
 
@@ -198,6 +207,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         }
 
 
+        BankTransaction::reguard();
+
         $this->skip = $this->skip + 500;
 
         if ($count < 500) {
@@ -205,6 +216,65 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
             $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->save();
         }
+    }
+
+    /**
+     * Determines whether an incoming transaction already exists for this company.
+     *
+     * Two checks are applied:
+     *  1. Exact upstream id match, scoped to this integration. Catches the
+     *     steady-state case where the same feed is re-fetched (Yodlee ids are
+     *     stable within a single integration).
+     *  2. Company-grain natural-key match. Catches duplicates that arrive under a
+     *     *new* bank_integration_id after the user re-links the same bank account
+     *     (Yodlee re-issues transaction ids, so check 1 misses them). The running
+     *     balance + check number (persisted in the Yodlee-unused participant /
+     *     participant_name columns) disambiguate genuinely-distinct same-day /
+     *     same-amount transactions: a real duplicate carries the *same* running
+     *     balance, whereas two distinct payments leave different balances behind.
+     *     The disambiguators are applied null-tolerantly so we never create a
+     *     duplicate against legacy rows captured before they were populated.
+     *
+     * @param array<string, mixed> $transaction
+     */
+    private function isDuplicateTransaction(array $transaction): bool
+    {
+        $exists_by_id = BankTransaction::query()
+            ->where('company_id', $this->company->id)
+            ->where('bank_integration_id', $this->bank_integration->id)
+            ->where('transaction_id', $transaction['transaction_id'])
+            ->withTrashed()
+            ->exists();
+
+        if ($exists_by_id) {
+            return true;
+        }
+
+        $query = BankTransaction::query()
+            ->where('company_id', $this->company->id)
+            ->where('amount', $transaction['amount'])
+            ->where('currency_id', $transaction['currency_id'])
+            ->where('account_type', $transaction['account_type'])
+            ->where('category_type', $transaction['category_type'])
+            ->where('date', $transaction['date'])
+            ->where('description', $transaction['description'])
+            ->withTrashed();
+
+        if (!is_null($transaction['participant'] ?? null)) {
+            $query->where(function ($q) use ($transaction) {
+                $q->whereNull('participant')
+                  ->orWhere('participant', $transaction['participant']);
+            });
+        }
+
+        if (!is_null($transaction['participant_name'] ?? null)) {
+            $query->where(function ($q) use ($transaction) {
+                $q->whereNull('participant_name')
+                  ->orWhere('participant_name', $transaction['participant_name']);
+            });
+        }
+
+        return $query->exists();
     }
 
 

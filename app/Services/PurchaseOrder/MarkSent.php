@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,9 +18,7 @@ use App\Models\PurchaseOrder;
 
 class MarkSent
 {
-    public function __construct(public Vendor $vendor, public PurchaseOrder $purchase_order)
-    {
-    }
+    public function __construct(public Vendor $vendor, public PurchaseOrder $purchase_order) {}
 
     public function run()
     {
@@ -35,7 +33,7 @@ class MarkSent
             ->service()
             ->setStatus(PurchaseOrder::STATUS_SENT)
             ->applyNumber()
-            ->adjustBalance($this->purchase_order->amount) //why was this commented out previously?
+            ->adjustBalance($this->purchase_order->amount - $this->purchase_order->balance)
             ->save();
 
         $this->purchase_order->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");

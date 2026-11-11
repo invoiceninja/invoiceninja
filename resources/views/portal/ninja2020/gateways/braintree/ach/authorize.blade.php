@@ -6,6 +6,8 @@
 @endsection
 
 @section('gateway_content')
+<div id="braintree-ach-authorize" data-retry-message="{{ ctrans('texts.try_again') }}" data-error-message="{{ ctrans('texts.generic_gateway_error') }}" data-mandate-error="{{ ctrans('texts.you_need_to_accept_the_terms_before_proceeding') }}">
+    <meta name="client-token" content="{{ $client_token ?? '' }}" />
     @if(session()->has('ach_error'))
         <div class="alert alert-failure mb-4">
             <p>{{ session('ach_error') }}</p>
@@ -78,7 +80,7 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.address2')])
-        <input class="input w-full" id="billing-extended-address" type="text" required>
+        <input class="input w-full" id="billing-extended-address" type="text">
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.locality')])
@@ -86,7 +88,7 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.state')])
-        <select class="input w-full" id="billing-region">
+        <select class="input w-full" id="billing-region" required>
             <option disabled selected></option>
             @foreach(\App\DataProviders\USStates::get() as $code => $state)
                 <option value="{{ $code }}">{{ $state }} ({{ $code }})</option>
@@ -101,11 +103,12 @@
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-bank-account'])
         {{ ctrans('texts.add_payment_method') }}
     @endcomponent
+</div>
 @endsection
 
 @section('gateway_footer')
-    <script src="https://js.braintreegateway.com/web/3.81.0/js/client.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.81.0/js/us-bank-account.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/client.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/us-bank-account.min.js"></script>
     
     @vite('resources/js/clients/payment_methods/braintree-ach.js')
 @endsection

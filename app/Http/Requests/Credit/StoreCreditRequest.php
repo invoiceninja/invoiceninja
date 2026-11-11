@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,6 +24,9 @@ class StoreCreditRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Credit::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -55,7 +58,7 @@ class StoreCreditRequest extends Request
         $rules['documents'] = 'bail|sometimes|array';
         $rules['documents.*'] = $this->fileValidation();
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
+        $rules['client_id'] = 'required|integer|exists:clients,id,company_id,' . $user->company()->id;
 
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
@@ -78,20 +81,22 @@ class StoreCreditRequest extends Request
 
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
 
-        if ($this->invoice_id) {
-            $rules['invoice_id'] = new ValidInvoiceCreditRule();
-        }
-
         $rules['line_items'] = 'array';
 
         $rules['location_id'] = ['nullable', 'sometimes','bail',Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
+
+        $rules =$this->globalRules($rules);
+
+        if ($this->invoice_id) {
+            $rules['invoice_id'] = new ValidInvoiceCreditRule();
+        }
 
         return $rules;
     }
 
     public function prepareForValidation()
     {
-        
+
         $user = auth()->user();
 
         $input = $this->all();

@@ -1,0 +1,1075 @@
+<?php
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace Tests\Feature;
+
+use App\Factory\CompanyGatewayFactory;
+use App\Factory\CompanyUserFactory;
+use App\Http\Middleware\PasswordProtection;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
+use App\Models\Design;
+use App\Models\GroupSetting;
+use App\Models\Location;
+use App\Models\PaymentTerm;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\RecurringInvoice;
+use App\Models\RecurringQuote;
+use App\Models\Subscription;
+use App\Models\User;
+use App\Models\Webhook;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
+use Tests\TestCase;
+
+/**
+ * Verifies that an admin from Company B cannot access
+ * entities belonging to Company A via the API.
+ */
+class CrossCompanyAccessTest extends TestCase
+{
+    use MakesHash;
+    use DatabaseTransactions;
+    use MockAccountData;
+
+    private string $other_token;
+
+    private Account $test_account;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->makeTestData();
+
+        Session::start();
+        Model::reguard();
+
+        // Create a completely separate account/company/user/token
+        $this->test_account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+        ]);
+
+        $this->test_account->num_users = 3;
+        $this->test_account->save();
+
+        $company = Company::factory()->create([
+            'account_id' => $this->test_account->id,
+        ]);
+
+        $user = User::factory()->create([
+            'account_id' => $this->test_account->id,
+            'confirmation_code' => '123',
+            'email' => uniqid('testuser') . '@gmail.com',
+        ]);
+
+        $cu = CompanyUserFactory::create($user->id, $company->id, $this->test_account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->save();
+
+        $this->other_token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $this->test_account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $this->other_token;
+        $company_token->is_system = true;
+        $company_token->save();
+    }
+
+    public function testCrossCompanyShowDesignDenied(): void
+    {
+        $design = new Design();
+        $design->company_id = $this->company->id;
+        $design->user_id = $this->user->id;
+        $design->is_custom = true;
+        $design->name = 'Test Design';
+        $design->design = '{}';
+        $design->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/designs/' . $this->encodePrimaryKey($design->id));
+
+        $response->assertStatus(403);
+
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyShowTaxRateDenied(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/tax_rates/' . $this->encodePrimaryKey($this->tax_rate->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyShowTaskStatusDenied(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/task_statuses/' . $this->encodePrimaryKey($this->task_status->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyShowCompanyGatewayDenied(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyEditCompanyGatewayDenied(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id) . '/edit');
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyTestCompanyGatewayDenied(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->post('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id) . '/test');
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyImportCompanyGatewayCustomersDenied(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->post('/api/v1/company_gateways/' . $this->encodePrimaryKey($cg->id) . '/import_customers');
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyShowWebhookDenied(): void
+    {
+        $webhook = new Webhook();
+        $webhook->company_id = $this->company->id;
+        $webhook->user_id = $this->user->id;
+        $webhook->event_id = 1;
+        $webhook->target_url = 'https://example.com/hook';
+        $webhook->format = 'JSON';
+        $webhook->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/webhooks/' . $this->encodePrimaryKey($webhook->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyShowPaymentTermDenied(): void
+    {
+        $payment_term = new PaymentTerm();
+        $payment_term->company_id = $this->company->id;
+        $payment_term->user_id = $this->user->id;
+        $payment_term->num_days = 30;
+        $payment_term->name = 'Net 30';
+        $payment_term->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/payment_terms/' . $this->encodePrimaryKey($payment_term->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyShowTokenDenied(): void
+    {
+        $token = $this->createCustomToken();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->get('/api/v1/tokens/' . $this->encodePrimaryKey($token->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyUpdateTaxRateDenied(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->put('/api/v1/tax_rates/' . $this->encodePrimaryKey($this->tax_rate->id), [
+            'name' => 'Hacked',
+            'rate' => 99,
+        ]);
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyDestroyTaskStatusDenied(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->delete('/api/v1/task_statuses/' . $this->encodePrimaryKey($this->task_status->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyUpdatePaymentTermDenied(): void
+    {
+        $payment_term = new PaymentTerm();
+        $payment_term->company_id = $this->company->id;
+        $payment_term->user_id = $this->user->id;
+        $payment_term->num_days = 30;
+        $payment_term->name = 'Net 30';
+        $payment_term->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->put('/api/v1/payment_terms/' . $this->encodePrimaryKey($payment_term->id), [
+            'num_days' => 999,
+        ]);
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyDestroyWebhookDenied(): void
+    {
+        $webhook = new Webhook();
+        $webhook->company_id = $this->company->id;
+        $webhook->user_id = $this->user->id;
+        $webhook->event_id = 1;
+        $webhook->target_url = 'https://example.com/hook';
+        $webhook->format = 'JSON';
+        $webhook->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->delete('/api/v1/webhooks/' . $this->encodePrimaryKey($webhook->id));
+
+        $response->assertStatus(403);
+        $this->test_account->delete();
+
+    }
+
+    /**
+     * Verify that the owning company's admin CAN still access their own entities (no regression).
+     */
+    public function testSameCompanyShowTaxRateAllowed(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tax_rates/' . $this->encodePrimaryKey($this->tax_rate->id));
+
+        $response->assertStatus(200);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyShowTaskStatusAllowed(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/task_statuses/' . $this->encodePrimaryKey($this->task_status->id));
+
+        $response->assertStatus(200);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyShowDesignAllowed(): void
+    {
+        $design = new Design();
+        $design->company_id = $this->company->id;
+        $design->user_id = $this->user->id;
+        $design->is_custom = true;
+        $design->name = 'Test Design';
+        $design->design = '{}';
+        $design->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/designs/' . $this->encodePrimaryKey($design->id));
+
+        $response->assertStatus(200);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyShowWebhookAllowed(): void
+    {
+        $webhook = new Webhook();
+        $webhook->company_id = $this->company->id;
+        $webhook->user_id = $this->user->id;
+        $webhook->event_id = 1;
+        $webhook->target_url = 'https://example.com/hook';
+        $webhook->format = 'JSON';
+        $webhook->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/webhooks/' . $this->encodePrimaryKey($webhook->id));
+
+        $response->assertStatus(200);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyShowPaymentTermAllowed(): void
+    {
+        $payment_term = new PaymentTerm();
+        $payment_term->company_id = $this->company->id;
+        $payment_term->user_id = $this->user->id;
+        $payment_term->num_days = 30;
+        $payment_term->name = 'Net 30';
+        $payment_term->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payment_terms/' . $this->encodePrimaryKey($payment_term->id));
+
+        $response->assertStatus(200);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyShowTokenAllowed(): void
+    {
+        $token = $this->createCustomToken();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens/' . $this->encodePrimaryKey($token->id));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.token', $token->token);
+        $this->test_account->delete();
+
+    }
+
+    /**
+     * Cross-company bulk action tests.
+     * Verifies that Company B's admin cannot bulk-archive/delete entities from Company A.
+     */
+
+    public function testCrossCompanyBulkExpenseCategoryDenied(): void
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/expense_categories/bulk', [
+            'ids' => [$this->expense_category->hashed_id],
+            'action' => 'archive',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->expense_category->fresh()->deleted_at);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyBulkGroupSettingDenied(): void
+    {
+        $group_setting = GroupSetting::where('company_id', $this->company->id)->firstOrFail();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/group_settings/bulk', [
+            'ids' => [$group_setting->hashed_id],
+            'action' => 'archive',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($group_setting->fresh()->deleted_at);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyBulkLocationDenied(): void
+    {
+        $location = Location::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/locations/bulk', [
+            'ids' => [$location->hashed_id],
+            'action' => 'archive',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($location->fresh()->deleted_at);
+        $this->test_account->delete();
+    }
+
+    public function testCrossCompanyBulkTokenDenied(): void
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $token = $this->createCustomToken();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($token->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($token->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkTaxRateDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->tax_rate->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/tax_rates/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->tax_rate->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkTaskStatusDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->task_status->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/task_statuses/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkWebhookDenied(): void
+    {
+        $webhook = new Webhook();
+        $webhook->company_id = $this->company->id;
+        $webhook->user_id = $this->user->id;
+        $webhook->event_id = 1;
+        $webhook->target_url = 'https://example.com/hook';
+        $webhook->format = 'JSON';
+        $webhook->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($webhook->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/webhooks/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($webhook->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkPaymentTermDenied(): void
+    {
+        $payment_term = new PaymentTerm();
+        $payment_term->company_id = $this->company->id;
+        $payment_term->user_id = $this->user->id;
+        $payment_term->num_days = 30;
+        $payment_term->name = 'Net 30';
+        $payment_term->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($payment_term->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/payment_terms/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($payment_term->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkVendorDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->vendor->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/vendors/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->vendor->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkExpenseDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->expense->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        // BulkExpenseRequest validates ids belong to user's company via Rule::exists
+        $response->assertStatus(422);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkTaskDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->task->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/tasks/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkProjectDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->project->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/projects/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkProductDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->product->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/products/bulk', $data);
+
+        // BulkProductRequest validates ids belong to user's company via Rule::exists
+        $response->assertStatus(422);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkSchedulerDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->scheduler->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/task_schedulers/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->scheduler->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkRecurringExpenseDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/recurring_expenses/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($this->recurring_expense->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkPaymentDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->payment->id)],
+            'action' => 'archive',
+        ];
+
+        $this->assertNotNull($this->payment->id);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/payments/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
+    }
+
+    /**
+     * Same-company bulk action tests (no regression).
+     */
+
+    public function testSameCompanyBulkTokenAllowed(): void
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $token = $this->createCustomToken();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($token->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkTaxRateAllowed(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->tax_rate->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tax_rates/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkWebhookAllowed(): void
+    {
+        $webhook = new Webhook();
+        $webhook->company_id = $this->company->id;
+        $webhook->user_id = $this->user->id;
+        $webhook->event_id = 1;
+        $webhook->target_url = 'https://example.com/hook';
+        $webhook->format = 'JSON';
+        $webhook->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($webhook->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/webhooks/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkVendorAllowed(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->vendor->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkRecurringQuoteDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_quote->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/recurring_quotes/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(0, $arr['data']);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkRecurringQuoteAllowed(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_quote->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_quotes/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkRecurringInvoiceDenied(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_invoice->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        // BulkRecurringInvoiceRequest validates ids belong to user's company via Rule::exists
+        $response->assertStatus(422);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkRecurringInvoiceAllowed(): void
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_invoice->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkDesignDenied(): void
+    {
+        $design = new Design();
+        $design->company_id = $this->company->id;
+        $design->user_id = $this->user->id;
+        $design->is_custom = true;
+        $design->name = 'Bulk Test Design';
+        $design->design = '{}';
+        $design->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($design->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/designs/bulk', $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['ids']);
+        $this->assertNull($design->fresh()->deleted_at);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkDesignAllowed(): void
+    {
+        $design = new Design();
+        $design->company_id = $this->company->id;
+        $design->user_id = $this->user->id;
+        $design->is_custom = true;
+        $design->name = 'Bulk Test Design';
+        $design->design = '{}';
+        $design->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($design->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/designs/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkSubscriptionDenied(): void
+    {
+        $subscription = Subscription::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'Cross Test Subscription',
+        ]);
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($subscription->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/subscriptions/bulk', $data);
+
+        // BulkSubscriptionRequest validates ids belong to user's company via Rule::exists
+        $response->assertStatus(422);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkSubscriptionAllowed(): void
+    {
+        $subscription = Subscription::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'Same Test Subscription',
+        ]);
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($subscription->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/subscriptions/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    public function testCrossCompanyBulkCompanyGatewayDenied(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($cg->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->other_token,
+        ])->postJson('/api/v1/company_gateways/bulk', $data);
+
+        // BulkCompanyGatewayRequest validates ids belong to user's company via Rule::exists
+        $response->assertStatus(422);
+        $this->test_account->delete();
+
+    }
+
+    public function testSameCompanyBulkCompanyGatewayAllowed(): void
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($cg->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/company_gateways/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertCount(1, $arr['data']);
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->test_account->delete();
+
+    }
+
+    private function createCustomToken(): CompanyToken
+    {
+        $token = new CompanyToken();
+        $token->user_id = $this->user->id;
+        $token->company_id = $this->company->id;
+        $token->account_id = $this->account->id;
+        $token->name = 'custom token';
+        $token->token = \Illuminate\Support\Str::random(64);
+        $token->is_system = false;
+        $token->save();
+
+        return $token;
+    }
+}

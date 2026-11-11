@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -119,7 +119,7 @@ class ConnectedAccountController extends BaseController
                 'email' => $email,
                 'oauth_user_id' => $user->getId(),
                 'oauth_provider_id' => 'microsoft',
-                'email_verified_at' => now()
+                'email_verified_at' => now(),
             ];
 
 
@@ -147,7 +147,11 @@ class ConnectedAccountController extends BaseController
 
         $google = new Google();
 
-        $user = $google->getTokenResponse(request()->input('id_token'));
+        if (request()->filled('id_token')) {
+            $user = $google->getTokenResponse(request()->input('id_token'));
+        } elseif (request()->filled('access_token')) {
+            $user = $google->harvestUser(request()->input('access_token'));
+        }
 
         if ($user) {
             $client = new Google_Client();

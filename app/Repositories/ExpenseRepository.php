@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,7 +46,9 @@ class ExpenseRepository extends BaseRepository
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $payment_date = isset($data['payment_date']) ? $data['payment_date'] : false;
+        $tag_ids = $this->resolveTagIdsForSync($data, $expense);
+
+        $payment_date = $data['payment_date'] ?? false;
 
         if ($payment_date && $payment_date == $expense->payment_date) {
             //do nothing
@@ -80,6 +82,8 @@ class ExpenseRepository extends BaseRepository
             $purchase_order->paid_to_date = $expense->amount;
             $purchase_order->save();
         }
+
+        $this->syncResolvedTags($expense, $tag_ids);
 
         return $expense;
     }

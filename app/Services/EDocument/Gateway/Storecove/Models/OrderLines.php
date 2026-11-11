@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
 class OrderLines
@@ -10,20 +18,20 @@ class OrderLines
     public ?string $amount_excluding_tax;
     public ?float $item_price;
     public ?float $base_quantity;
-    /** @var AllowanceCharges[] */
+    /** @var AllowanceCharges[]|null */
     public ?array $allowance_charges;
     public ?bool $allow_partial_delivery;
     public ?string $accounting_cost;
     public ?Delivery $delivery;
     public ?string $description;
     public ?string $name;
-    /** @var References[] */
+    /** @var References[]|null */
     public ?array $references;
-    /** @var TaxesDutiesFees[] */
+    /** @var TaxesDutiesFees[]|null */
     public ?array $taxes_duties_fees;
-    /** @var AdditionalItemProperties[] */
+    /** @var AdditionalItemProperties[]|null */
     public ?array $additional_item_properties;
-    /** @var string[] */
+    /** @var string[]|null */
     public ?array $lot_number_ids;
     public ?string $note;
 

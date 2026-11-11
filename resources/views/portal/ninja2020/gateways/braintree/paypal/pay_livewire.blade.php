@@ -1,5 +1,5 @@
 <div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
-    id="braintree-paypal-payment">
+    id="braintree-paypal-payment" data-retry-message="{{ ctrans('texts.try_again') }}" data-error-message="{{ ctrans('texts.generic_gateway_error') }}">
 
     <meta name="client-token" content="{{ $client_token ?? '' }}" />
 
@@ -16,7 +16,7 @@
         <input type="hidden" name="client-data">
     </form>
 
-    <div class="alert alert-failure mb-4" hidden id="errors"></div>
+    <div class="alert alert-failure mb-4" hidden id="errors" role="alert"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
         {{ ctrans('texts.paypal') }}
@@ -27,31 +27,31 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
 
 
-        <ul class="list-none space-y-2">
+        <ul class="payment-method-list">
             @if(count($tokens) > 0)
                 @foreach($tokens as $token)
-                <li class="py-2 hover:bg-gray-100 rounded transition-colors duration-150">
-                    <label class="flex items-center cursor-pointer px-2">
+                <li class="payment-method-item">
+                    <label class="payment-method-label">
                         <input
                             type="radio"
                             data-token="{{ $token->token }}"
                             name="payment-type"
-                            class="form-radio text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
-                        <span class="ml-2 cursor-pointer">{{ property_exists($token->meta, 'email') ? $token->meta?->email : 'no email provided'}}</span>
+                            class="form-radio cursor-pointer toggle-payment-with-token"/>
+                        <span class="ml-1">{{ property_exists($token->meta, 'email') ? $token->meta?->email : 'no email provided'}}</span>
                     </label>
                 </li>
                 @endforeach
             @endif
 
-            <li class="py-2 hover:bg-gray-100 rounded transition-colors duration-150">
-                <label class="flex items-center cursor-pointer px-2">
+            <li class="payment-method-item">
+                <label class="payment-method-label">
                     <input
                         type="radio"
                         id="toggle-payment-with-credit-card"
-                        class="form-radio text-indigo-600 rounded-full cursor-pointer"
+                        class="form-radio cursor-pointer"
                         name="payment-type"
                         checked/>
-                    <span class="ml-2 cursor-pointer">{{ __('texts.new_account') }}</span>
+                    <span class="ml-1">{{ __('texts.new_account') }}</span>
                 </label>
             </li>    
         </ul>
@@ -61,7 +61,7 @@
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
-        <div id="paypal-button"></div>
+        <div id="paypal-button" wire:ignore></div>
 
         <svg id="paypal-spinner" class="animate-spin h-8 w-8 text-primary hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -73,9 +73,9 @@
 </div>
 
 @assets
-<script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script>
-<script src="https://js.braintreegateway.com/web/3.76.2/js/paypal-checkout.min.js"></script>
-<script src="https://js.braintreegateway.com/web/3.76.2/js/data-collector.min.js"></script>
+<script src="https://js.braintreegateway.com/web/3.147.0/js/client.min.js"></script>
+<script src="https://js.braintreegateway.com/web/3.147.0/js/paypal-checkout.min.js"></script>
+<script src="https://js.braintreegateway.com/web/3.147.0/js/data-collector.min.js"></script>
 
 @vite('resources/js/clients/payments/braintree-paypal.js')
 @endassets

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,18 +28,18 @@ class AddressComponent extends Component
         'city',
         'postal_code',
         'province_code',
-        'country'
+        'country',
     ];
 
     private $defaults = [
-        'country' => 'US'
+        'country' => 'US',
     ];
 
     public function __construct(public array $address)
     {
-        if (strlen($this->address['state']) > 2) {
-            $this->address['state'] = $this->address['country'] == 'US' ? array_search($this->address['state'], USStates::$states) : CAProvinces::getAbbreviation($this->address['state']);
-        }
+        $this->address['state'] = $this->address['country'] == 'US'
+            ? USStates::getAbbreviation($this->address['state'] ?? '')
+            : CAProvinces::getAbbreviation($this->address['state'] ?? '');
 
         $this->attributes = $this->newAttributeBag(
             Arr::only(

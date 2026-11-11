@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,9 +24,16 @@ class SubscriptionFactory
         $billing_subscription->company_id = $company_id;
         $billing_subscription->user_id = $user_id;
         $billing_subscription->steps = collect(Purchase::defaultSteps())
-            ->map(fn ($step) => StepService::mapClassNameToString($step))
+            ->map(fn($step) => StepService::mapClassNameToString($step))
             ->implode(',');
 
+        $billing_subscription->webhook_configuration = [
+            'post_purchase_url' => '',
+            'post_purchase_rest_method' => 'post',
+            'post_purchase_headers' => [],
+            'return_url' => '',
+        ];
+        
         return $billing_subscription;
     }
 }

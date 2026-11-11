@@ -42,8 +42,8 @@ class InboundMailEngine
 
     public function __construct(private ?Company $company = null)
     {
-        $this->globalBlacklist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_blocklist')) : [];
-        $this->globalWhitelist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_whitelist')) : [];
+        $this->globalBlacklist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_blocklist') ?? '') : [];
+        $this->globalWhitelist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_whitelist') ?? '') : [];
     }
 
     // SPAM Protection

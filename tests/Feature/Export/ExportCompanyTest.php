@@ -15,8 +15,11 @@ namespace Tests\Feature\Export;
 use App\Jobs\Company\CompanyExport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use ZipArchive;
 
 /**
  *
@@ -45,10 +48,36 @@ class ExportCompanyTest extends TestCase
         }
     }
 
-    public function testCompanyExport()
+    public function testCompanyExport(): void
     {
-        $res = (new CompanyExport($this->company, $this->company->users->first(), '123'))->handle();
+        Storage::fake(config('filesystems.default'));
+
+        $this->project->hash = 'project-hash';
+        $this->project->meta = json_encode(['external_id' => 'project-meta'], JSON_THROW_ON_ERROR);
+        $this->project->save();
+
+        $hash = 'company-export-test';
+        Cache::put($hash, 'https://example.test/download');
+
+        $res = (new CompanyExport($this->company, $this->company->users->first(), $hash))->handle();
 
         $this->assertTrue($res);
+
+        $backup_path = Cache::get($hash);
+        $zip = new ZipArchive();
+
+        $this->assertTrue($zip->open(Storage::disk(config('filesystems.default'))->path($backup_path)));
+
+        $backup = $zip->getFromName('backup.json');
+        $zip->close();
+
+        $this->assertIsString($backup);
+
+        $export = json_decode($backup, true, flags: JSON_THROW_ON_ERROR);
+        $project = collect($export['projects'])->firstWhere('id', $this->project->id);
+
+        $this->assertNotNull($project);
+        $this->assertArrayNotHasKey('hash', $project);
+        $this->assertArrayNotHasKey('meta', $project);
     }
 }

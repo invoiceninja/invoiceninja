@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -53,7 +53,7 @@ class RefundTransaction
 
         $transaction_status = $transaction->getTransactionStatus();
 
-        $transaction_type = match($transaction_status){
+        $transaction_type = match ($transaction_status) {
             'capturedPendingSettlement' => 'voidTransaction',
             'refundPendingSettlement' => 'refundTransaction',
             'FDSAuthorizedPendingReview' => 'voidHeldTransaction',
@@ -62,8 +62,7 @@ class RefundTransaction
 
         if ($transaction_type == 'voidTransaction') {
             $amount = $transaction->getAuthAmount();
-        }
-        elseif ($transaction_type == 'voidHeldTransaction') {
+        } elseif ($transaction_type == 'voidHeldTransaction') {
             $amount = $transaction->getAuthAmount();
             return $this->declineHeldTransaction($payment, $amount);
         }
@@ -71,7 +70,7 @@ class RefundTransaction
         $this->authorize->init();
 
         // Set the transaction's refId
-        $refId = 'ref'.time();
+        $refId = 'ref' . time();
 
         //create a transaction
         $transactionRequest = new TransactionRequestType();
@@ -212,7 +211,7 @@ class RefundTransaction
 
     public function declineHeldTransaction(Payment $payment, $amount)
     {
-            
+
         $this->authorize->init();
         $refId = 'ref' . time();
 
@@ -227,7 +226,7 @@ class RefundTransaction
 
         $controller = new UpdateHeldTransactionController($request);
         $response = $controller->executeWithApiResponse($this->authorize->mode());
- 
+
         if ($response != null) {
             if ($response->getMessages()->getResultCode() == 'Ok') {
                 $tresponse = $response->getTransactionResponse();

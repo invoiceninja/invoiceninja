@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,18 +28,21 @@ use Livewire\WithPagination;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\WithSorting;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 
 class DocumentsTable extends Component
 {
     use WithPagination;
     use WithSorting;
 
+    #[Locked]
     public int $client_id;
 
     public int $per_page = 10;
 
     public string $tab = 'documents';
 
+    #[Locked]
     public string $db;
 
     protected $query;

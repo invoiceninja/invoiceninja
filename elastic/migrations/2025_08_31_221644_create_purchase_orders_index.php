@@ -16,8 +16,10 @@ final class CreatePurchaseOrdersIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'purchase_orders_v2'])) {
-            return; // Index already exists, skip creation
+        
+        $indexExistsResponse = $client->indices()->exists(['index' => 'purchase_orders']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
 
         $mapping = [
@@ -83,7 +85,7 @@ final class CreatePurchaseOrdersIndex implements MigrationInterface
             ]
         ];
 
-        Index::createRaw('purchase_orders_v2', $mapping);
+        Index::createRaw('purchase_orders', $mapping);
     }
 
     /**
@@ -91,6 +93,6 @@ final class CreatePurchaseOrdersIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('purchase_orders_v2');
+        Index::dropIfExists('purchase_orders');
     }
 }

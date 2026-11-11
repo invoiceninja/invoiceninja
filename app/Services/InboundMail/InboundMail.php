@@ -37,7 +37,5 @@ class InboundMail
 
     public ?Carbon $date = null;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 }

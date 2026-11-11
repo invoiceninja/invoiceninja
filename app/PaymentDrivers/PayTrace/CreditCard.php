@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -68,7 +68,7 @@ class CreditCard implements LivewireMethodInterface
 
         if (! $response->success) {
             $error = 'Error creating customer in gateway';
-            $error_code = isset($response->response_code) ? $response->response_code : 'PT_ERR';
+            $error_code = $response->response_code ?? 'PT_ERR';
 
             if (isset($response->errors)) {
                 foreach ($response->errors as $err) {
@@ -126,7 +126,7 @@ class CreditCard implements LivewireMethodInterface
             'city' => $this->paytrace->client->city,
             'state' => $this->paytrace->client->state,
             'zip' => $this->paytrace->client->postal_code,
-            'country' => $this->paytrace->client->country->iso_3166_2
+            'country' => $this->paytrace->client->country->iso_3166_2,
         ];
 
         return $data;
@@ -145,7 +145,10 @@ class CreditCard implements LivewireMethodInterface
         $response_array = $request->all();
 
         if ($request->token) {
-            $token = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+            $token = ClientGatewayToken::query()
+                ->where('id', $this->decodePrimaryKey($request->token))
+                ->where('client_id', $this->paytrace->client->id)
+                ->firstOrFail();
 
             return $this->processTokenPayment($token->token, $request);
         }
@@ -162,7 +165,7 @@ class CreditCard implements LivewireMethodInterface
             'enc_key' => $response_array['enc_key'],
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
-            'amount' => $request->input('amount_with_fee'),
+            'amount' => array_sum(array_column($this->paytrace->payment_hash->invoices(), 'amount')) + $this->paytrace->payment_hash->fee_total,
             'invoice_id' => $this->harvestInvoiceId(),
         ];
 
@@ -180,7 +183,7 @@ class CreditCard implements LivewireMethodInterface
         $data = [
             'customer_id' => $token,
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
-            'amount' => $request->input('amount_with_fee'),
+            'amount' => array_sum(array_column($this->paytrace->payment_hash->invoices(), 'amount')) + $this->paytrace->payment_hash->fee_total,
             'invoice_id' => $this->harvestInvoiceId(),
         ];
 
@@ -201,10 +204,10 @@ class CreditCard implements LivewireMethodInterface
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         if ($invoice) {
-            return ctrans('texts.invoice_number').'# '.$invoice->number;
+            return ctrans('texts.invoice_number') . '# ' . $invoice->number;
         }
 
-        return ctrans('texts.invoice_number').'####';
+        return ctrans('texts.invoice_number') . '####';
     }
 
     private function processSuccessfulPayment($response)

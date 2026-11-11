@@ -22,8 +22,8 @@ class QuoteInvitationFactory
         $qi = new QuoteInvitation();
         $qi->company_id = $company_id;
         $qi->user_id = $user_id;
-        $qi->client_contact_id = null;
-        $qi->quote_id = null;
+        $qi->client_contact_id = null; //@phpstan-ignore-line
+        $qi->quote_id = null; //@phpstan-ignore-line
         $qi->key = Str::random(config('ninja.key_length'));
         $qi->transaction_reference = null;
         $qi->message_id = null;

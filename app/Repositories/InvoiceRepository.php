@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,20 +66,28 @@ class InvoiceRepository extends BaseRepository
     public function delete($invoice): ?Invoice
     {
 
-        if(!$invoice)
+        if (!$invoice) {
             return null;
-        
+        }
+
         $invoice = \DB::transaction(function () use ($invoice) {
-            return \App\Models\Invoice::withTrashed()->lockForUpdate()->find($invoice->id);
+            $invoice = \App\Models\Invoice::withTrashed()->lockForUpdate()->find($invoice->id);
+
+            if (!$invoice || $invoice->is_deleted) {
+                return $invoice;
+            }
+
+            $invoice->is_deleted = true;
+            $invoice->saveQuietly();
+
+            return $invoice;
         });
 
-        if (!$invoice || $invoice->is_deleted) {
+        if (!$invoice || !$invoice->is_deleted) {
             return $invoice;
         }
 
-        $invoice->is_deleted = true;
-        $invoice->saveQuietly();
-
+        $invoice->refresh();
         $invoice = $invoice->service()->markDeleted()->save();
 
         return $invoice;
@@ -117,11 +125,7 @@ class InvoiceRepository extends BaseRepository
         return $invoice;
     }
 
-    public function reverse()
-    {
-    }
+    public function reverse() {}
 
-    public function cancel()
-    {
-    }
+    public function cancel() {}
 }

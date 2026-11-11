@@ -16,9 +16,13 @@ final class CreateTasksIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'tasks_v2'])) {
-            return; // Index already exists, skip creation
+        
+        $indexExistsResponse = $client->indices()->exists(['index' => 'tasks']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
+
+
 
         $mapping = [
             'properties' => [
@@ -35,10 +39,8 @@ final class CreateTasksIndex implements MigrationInterface
                     'type' => 'text',
                     'analyzer' => 'standard'
                 ],
-                'rate' => ['type' => 'float'],
-                'hours' => ['type' => 'float'],
-                'due_date' => ['type' => 'date'],
-                'start_date' => ['type' => 'date'],
+                'task_rate' => ['type' => 'float'],
+                'calculated_start_date' => ['type' => 'date'],
                 
                 // Custom fields
                 'custom_value1' => ['type' => 'keyword'],
@@ -48,22 +50,18 @@ final class CreateTasksIndex implements MigrationInterface
                 
                 // Additional fields
                 'company_key' => ['type' => 'keyword'],
-                'client_id' => ['type' => 'keyword'],
-                'project_id' => ['type' => 'keyword'],
-                'assigned_user_id' => ['type' => 'keyword'],
-                'status_id' => ['type' => 'keyword'],
-                'private_notes' => [
-                    'type' => 'text',
-                    'analyzer' => 'standard'
-                ],
-                'public_notes' => [
-                    'type' => 'text',
-                    'analyzer' => 'standard'
-                ],
+                'time_log' => ['type' => 'nested', 'properties' => [
+                    'start_time' => ['type' => 'integer'],
+                    'end_time' => ['type' => 'integer'],
+                    'description' => ['type' => 'text', 'analyzer' => 'standard'],
+                    'billable' => ['type' => 'boolean'],
+                    'is_running' => ['type' => 'boolean'],
+                ]],
+               
             ]
         ];
 
-        Index::createRaw('tasks_v2', $mapping);
+        Index::createRaw('tasks', $mapping);
     }
 
     /**
@@ -71,7 +69,7 @@ final class CreateTasksIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('tasks_v2');
+        Index::dropIfExists('tasks');
     }
 }
 

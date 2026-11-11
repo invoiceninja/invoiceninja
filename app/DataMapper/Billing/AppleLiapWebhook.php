@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,14 +47,14 @@ class AppleLiapWebhook extends GenericStructuredMetric
      * @var string
      */
     public $html = '';
-    
+
     /**
      * JSON data
      *
      * @var array
      */
     public $json = [];
-    
+
     /**
      * Initialize with either HTML or JSON content
      *
@@ -66,10 +66,10 @@ class AppleLiapWebhook extends GenericStructuredMetric
         if ($html !== null) {
             $this->html = $html;
         }
-        
+
         if ($json !== null) {
             $this->json = $json;
         }
-        
+
     }
 }

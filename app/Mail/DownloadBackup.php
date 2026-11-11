@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,15 +18,9 @@ use Illuminate\Support\Facades\App;
 
 class DownloadBackup extends Mailable
 {
-    public $file_path;
 
-    public $company;
-
-    public function __construct($file_path, Company $company)
+    public function __construct(public string $file_path, public Company $company)
     {
-        $this->file_path = $file_path;
-
-        $this->company = $company;
     }
 
     /**

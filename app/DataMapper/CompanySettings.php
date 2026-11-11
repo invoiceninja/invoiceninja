@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -487,6 +487,12 @@ class CompanySettings extends BaseSettings
 
     public $enable_e_invoice = false;
 
+    public $e_invoice_forward_email = '';
+
+    public $e_expense_forward_email = '';
+
+    public $skip_automatic_email_with_peppol = false;
+
     public $delivery_note_design_id = '';
 
     public $statement_design_id = '';
@@ -536,7 +542,19 @@ class CompanySettings extends BaseSettings
     public string $ses_topic_arn = '';
     public string $ses_from_address = '';
 
+    public bool $france_reporting_enabled = false;
+    public string $france_reporting_schedule = 'ten_day'; //ten_day, monthly
+
+    public bool $global_tag_inheritance = false;
+    public bool $documents_public_by_default = true;
+    
+
     public static $casts = [
+        'documents_public_by_default' => 'bool',
+        'global_tag_inheritance' => 'bool',
+        'france_reporting_enabled' => 'bool',
+        'france_reporting_schedule' => 'string',
+        'e_expense_forward_email' => 'string',
         'ses_from_address' => 'string',
         'ses_topic_arn' => 'string',
         'ses_secret_key' => 'string',
@@ -569,6 +587,8 @@ class CompanySettings extends BaseSettings
         'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
         'e_invoice_type'                     => 'string',
+        'e_invoice_forward_email'            => 'string',
+        'skip_automatic_email_with_peppol'   => 'bool',
         'mailgun_endpoint'                   => 'string',
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',
@@ -944,7 +964,7 @@ class CompanySettings extends BaseSettings
         $notification = new stdClass();
         $notification->email = [];
 
-        if(Ninja::isSelfHost()) {
+        if (Ninja::isSelfHost()) {
             $notification->email = ['invoice_sent_all', 'payment_success_all', 'payment_manual_all'];
         }
 
@@ -1094,7 +1114,7 @@ class CompanySettings extends BaseSettings
             ],
             'statement_details' => [
                 '$statement_date',
-                '$balance'
+                '$balance',
             ],
             'delivery_note_columns' => [
                 '$product.item',

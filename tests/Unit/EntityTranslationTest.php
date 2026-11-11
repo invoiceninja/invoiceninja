@@ -57,7 +57,7 @@ class EntityTranslationTest extends TestCase
         ]);
 
         $u = User::factory()->create([
-            'email' => $this->faker->email(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'account_id' => $account->id,
         ]);
 

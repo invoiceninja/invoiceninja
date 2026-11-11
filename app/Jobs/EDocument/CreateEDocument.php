@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,7 +30,6 @@ use App\Services\EDocument\Standards\RoEInvoice;
 use App\Services\EDocument\Standards\OrderXDocument;
 use App\Services\EDocument\Standards\FacturaEInvoice;
 use App\Services\EDocument\Standards\ZugferdEDocument;
-use App\Services\EDocument\Standards\ZugferdEDokument;
 
 class CreateEDocument implements ShouldQueue
 {
@@ -41,9 +40,7 @@ class CreateEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private object $document, private bool $returnObject = false)
-    {
-    }
+    public function __construct(private object $document, private bool $returnObject = false) {}
 
     /**
      * Execute the job.
@@ -88,7 +85,6 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
 
-                    //New implementation now the default 2025-02-04 - requires zugferd_version_two=false to disable
                     $zugferd = (new ZugferdEDocument($this->document))->run();
 
                     return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
@@ -97,10 +93,8 @@ class CreateEDocument implements ShouldQueue
                 case "Facturae_3.2.2":
                     return (new FacturaEInvoice($this->document, str_replace("Facturae_", "", $e_document_type)))->run();
                 default:
-
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
-
-                    return $this->returnObject ? $zugferd : $zugferd->getXml();
+                    $zugferd = (new ZugferdEDocument($this->document))->run();
+                    return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
 
             }
         } elseif ($this->document instanceof Quote) {
@@ -137,11 +131,11 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Extended":
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
+                    $zugferd = (new ZugferdEDocument($this->document))->run();
                     return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 default:
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
-                    return $this->returnObject ? $zugferd : $zugferd->getXml();
+                    $zugferd = (new ZugferdEDocument($this->document))->run();
+                    return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
             }
         } else {
             return "";

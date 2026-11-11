@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,9 +22,7 @@ use stdClass;
 
 class QuoteApprovedObject
 {
-    public function __construct(public Quote $quote, public Company $company, public bool $use_react_url)
-    {
-    }
+    public function __construct(public Quote $quote, public Company $company) {}
 
     public function build()
     {
@@ -76,16 +74,16 @@ class QuoteApprovedObject
         $content = ctrans(
             'texts.notification_quote_approved',
             [
-                    'amount' => $this->getAmount(),
-                    'client' => $this->quote->client->present()->name(),
-                    'invoice' => $this->quote->number,
-                ]
+                'amount' => $this->getAmount(),
+                'client' => $this->quote->client->present()->name(),
+                'invoice' => $this->quote->number,
+            ]
         );
 
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->quote->invitations->first()->getAdminLink($this->use_react_url),
+            'url' => $this->quote->invitations->first()->getAdminLink(),
             'button' => ctrans('texts.view_quote'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

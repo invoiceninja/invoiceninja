@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,9 +60,7 @@ class ProcessMailgunWebhook implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct(private array $request)
-    {
-    }
+    public function __construct(private array $request) {}
 
     private function getSystemLog(string $message_id): ?SystemLog
     {
@@ -90,7 +88,6 @@ class ProcessMailgunWebhook implements ShouldQueue
      */
     public function handle()
     {
-        nlog($this->request);
 
         if (empty($this->request['event-data']['tags'][0])) { //@phpstan-ignore-line
             return;
@@ -98,11 +95,16 @@ class ProcessMailgunWebhook implements ShouldQueue
 
         MultiDB::findAndSetDbByCompanyKey($this->request['event-data']['tags'][0]);
 
-        /** @var \App\Models\Company $company */
+        /** @var \App\Models\Company|null $company */
         $company = Company::where('company_key', $this->request['event-data']['tags'][0])->first();
 
         if ($company && $this->request['event-data']['event'] == 'complained' && config('ninja.notification.slack')) {
             $company->notification(new EmailSpamNotification($company))->ninja();
+        }
+
+        /** Free accounts do not have email delivery meta data stored. */
+        if (!$company || (Ninja::isHosted() && $company->account->isFreeHostedClient())) {
+            return;
         }
 
         $this->message_id = $this->request['event-data']['message']['headers']['message-id'];
@@ -180,6 +182,11 @@ class ProcessMailgunWebhook implements ShouldQueue
     */
     private function processOpen()
     {
+
+        if ($this->invitation->opened_date) {
+            return;
+        }
+
         $this->invitation->opened_date = now();
         $this->invitation->saveQuietly();
 

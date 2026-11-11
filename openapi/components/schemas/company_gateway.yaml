@@ -4,6 +4,7 @@
           description: 'The hashed id of the company gateway'
           type: string
           example: Opnel5aKBz
+          readOnly: true
         gateway_key:
           description: 'The gateway key (hash)'
           type: string
@@ -11,7 +12,7 @@
         accepted_credit_cards:
           description: 'Bitmask representation of cards'
           type: integer
-          example: '32'
+          example: 32
         require_billing_address:
           description: 'Determines if the the billing address is required prior to payment.'
           type: boolean

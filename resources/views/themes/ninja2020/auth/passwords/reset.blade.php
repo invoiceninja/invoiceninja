@@ -27,9 +27,9 @@
                     <div class="flex flex-col">
                         <label for="email" class="input-label">{{ ctrans('texts.email_address') }}</label>
                         <input type="email" name="email" id="email"
-                               class="input"
+                               class="input @if(!empty($email)) bg-gray-100 cursor-not-allowed @endif"
                                value="{{ $email ?? old('email') }}"
-                               autofocus>
+                               @if(!empty($email)) readonly @else autofocus @endif>
                         @error('email')
                         <div class="validation validation-fail">
                             {{ $message }}

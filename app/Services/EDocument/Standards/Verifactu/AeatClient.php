@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,8 +39,8 @@ class AeatClient
      */
     private function init(): self
     {
-        $this->certificate = $this->certificate ?? config('services.verifactu.certificate');
-        $this->ssl_key = $this->ssl_key ?? config('services.verifactu.ssl_key');
+        $this->certificate ??= config('services.verifactu.certificate');
+        $this->ssl_key ??= config('services.verifactu.ssl_key');
 
         if (config('services.verifactu.test_mode')) {
             $this->setTestMode();
@@ -92,9 +92,9 @@ class AeatClient
         nlog("Signed SOAP envelope size: " . strlen($signed_xml) . " bytes");
 
         $response = Http::withHeaders([
-                'Content-Type' => 'text/xml; charset=utf-8',
-                'SOAPAction' => '',
-            ])
+            'Content-Type' => 'text/xml; charset=utf-8',
+            'SOAPAction' => '',
+        ])
             ->withOptions([
                 'cert' => $this->certificate,
                 'ssl_key' => $this->ssl_key,

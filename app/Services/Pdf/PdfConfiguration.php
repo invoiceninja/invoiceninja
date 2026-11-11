@@ -51,11 +51,11 @@ class PdfConfiguration
 
     public Currency $currency;
 
-    public Client | Vendor $currency_entity;
+    public Client|Vendor $currency_entity;
 
     public Design $design;
 
-    public Invoice | Credit | Quote | PurchaseOrder | RecurringInvoice $entity;
+    public Invoice|Credit|Quote|PurchaseOrder|RecurringInvoice $entity;
 
     public string $entity_design_id;
 
@@ -66,6 +66,19 @@ class PdfConfiguration
     public array $pdf_variables;
 
     public object $settings;
+
+    public ?DocumentSettingsResolver $document_settings_resolver = null;
+
+    /**
+     * Cached associative-array form of $design->design.
+     *
+     * Eloquent stores the design column as an object cast (stdClass tree).
+     * The JSON-design pipeline reads it as an associative array, which means
+     * round-tripping it through json_decode(json_encode(...), true). Caching
+     * the result avoids repeating that work on every isJsonDesign() /
+     * resolver / build call within a single render.
+     */
+    private ?array $decoded_design = null;
 
     public $settings_object;
 
@@ -86,8 +99,30 @@ class PdfConfiguration
      * @param  PdfService $service
      * @return void
      */
-    public function __construct(public PdfService $service)
+    public function __construct(public PdfService $service) {}
+
+    /**
+     * Lazily decode the design column into an associative array, memoizing
+     * the result. Callers that need the array form (isJsonDesign() check,
+     * DocumentSettingsResolver, JsonDesignService::build()) all share this
+     * single decode rather than re-running json_encode/json_decode each.
+     *
+     * Returns null when the design column is missing or not an object —
+     * callers treat that as "not a JSON design".
+     */
+    public function decodedDesign(): ?array
     {
+        if ($this->decoded_design !== null) {
+            return $this->decoded_design;
+        }
+
+        if (!isset($this->design) || !is_object($this->design->design)) {
+            return null;
+        }
+
+        $this->decoded_design = json_decode(json_encode($this->design->design), true);
+
+        return $this->decoded_design;
     }
 
     /**
@@ -136,6 +171,17 @@ class PdfConfiguration
      */
     private function setCurrencyForPdf(): self
     {
+
+        // Fixes an issue where a PO has both a client and vendor associated.
+        if($this->entity_string == 'purchase_order'){
+
+
+            $this->currency = $this->vendor->currency();
+            $this->currency_entity = $this->vendor;
+
+            return $this;
+        }
+
         $this->currency = $this->client ? $this->client->currency() : $this->vendor->currency();
 
         $this->currency_entity = $this->client ? $this->client : $this->vendor;
@@ -153,7 +199,7 @@ class PdfConfiguration
         $default = (array) CompanySettings::getEntityVariableDefaults();
 
         // $variables = (array)$this->service->company->settings->pdf_variables;
-        $variables = (array)$this->settings->pdf_variables;
+        $variables = (array) $this->settings->pdf_variables;
 
         foreach ($default as $property => $value) {
             if (array_key_exists($property, $variables)) {
@@ -235,7 +281,7 @@ class PdfConfiguration
         $this->setTaxMap($this->entity->calc()->getTaxMap());
         $this->setTotalTaxMap($this->entity->calc()->getTotalTaxMap());
 
-        $this->path = $this->path.$this->entity->numberFormatter().'.pdf';
+        $this->path = $this->path . $this->entity->numberFormatter() . '.pdf';
 
         return $this;
     }
@@ -319,7 +365,7 @@ class PdfConfiguration
         } elseif ($this->settings->show_currency_code === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
-            return "{$value} ".trim($symbol);
+            return "{$value} " . trim($symbol);
         } elseif ($this->settings->show_currency_code === false) {
             return "{$symbol}{$value}";
         } else {
@@ -413,7 +459,7 @@ class PdfConfiguration
         } elseif ($this->settings->show_currency_code === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
-            return "{$value} ".trim($symbol);
+            return "{$value} " . trim($symbol);
         } elseif ($this->settings->show_currency_code === false) {
             if ($_value < 0) {
                 $value = substr($value, 1);

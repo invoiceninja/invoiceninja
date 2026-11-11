@@ -109,6 +109,50 @@ class AddTaxIdentifierRequestTest extends TestCase
         $this->assertArrayHasKey('vat_number', $validator->errors()->toArray());
     }
 
+    public function testValidInputThroughPrepareForValidation()
+    {
+        $this->actingAs($this->user);
+        $this->user->setCompany($this->company);
+
+        $data = [
+            'country' => 276, // DE country_id, as sent by the client
+            'vat_number' => 'DE123456789',
+        ];
+
+        $this->request->initialize($data);
+        $this->request->setUserResolver(fn () => $this->user);
+        $this->request->prepareForValidation();
+
+        $validator = Validator::make($this->request->all(), $this->request->rules());
+
+        $this->assertTrue(
+            $validator->passes(),
+            'Validation should pass. Errors: ' . json_encode($validator->errors()->toArray())
+        );
+    }
+
+    public function testValidSingaporeVatNumber()
+    {
+        $this->actingAs($this->user);
+        $this->user->setCompany($this->company);
+
+        $data = [
+            'country' => 702, // SG country_id
+            'vat_number' => 'SG12345678A',
+        ];
+
+        $this->request->initialize($data);
+        $this->request->setUserResolver(fn () => $this->user);
+        $this->request->prepareForValidation();
+
+        $validator = Validator::make($this->request->all(), $this->request->rules());
+
+        $this->assertTrue(
+            $validator->passes(),
+            'Validation should pass for SG VAT. Errors: ' . json_encode($validator->errors()->toArray())
+        );
+    }
+
     public function testSameCountryFails()
     {
         $this->actingAs($this->user);

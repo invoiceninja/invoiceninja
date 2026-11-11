@@ -8,7 +8,6 @@
     }
 
     html {
-        width: 210mm;
         height: 200mm;
     }
 
@@ -36,6 +35,10 @@
         padding: 0;
     }
 
+    [data-state="encoded-html"] > p + p {
+        margin-top: 1em;
+    }
+    
     .company-logo {
         /*        max-width: 55%;*/
         max-width: $company_logo_size;

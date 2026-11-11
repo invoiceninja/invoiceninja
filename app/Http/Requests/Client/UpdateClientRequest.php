@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\DataMapper\CompanySettings;
@@ -25,6 +26,9 @@ class UpdateClientRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Client::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -49,20 +53,24 @@ class UpdateClientRequest extends Request
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
-        $rules['size_id'] = 'integer|nullable';
+        $rules['size_id'] = ['bail', 'nullable', 'sometimes', 'exists:sizes,id'];
+        $rules['industry_id'] = ['bail', 'nullable', 'sometimes', 'exists:industries,id'];
         $rules['country_id'] = 'integer|nullable|exists:countries,id';
         $rules['shipping_country_id'] = 'integer|nullable|exists:countries,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
         $rules['id_number'] = ['sometimes', 'bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
         $rules['number'] = ['sometimes', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
-
+        $rules['group_settings_id'] = ['bail','nullable','sometimes', Rule::exists('group_settings', 'id')->where('company_id', $user->company()->id)];
+        
         $rules['e_invoice'] = ['sometimes','nullable', new ValidClientScheme()];
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts'] = 'array';
+        $rules['contacts.*.id'] = ['bail','nullable','sometimes', Rule::exists('client_contacts', 'id')->where('client_id', $this->client->id)->where('company_id', $user->company()->id)];
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
             'nullable',
@@ -97,24 +105,29 @@ class UpdateClientRequest extends Request
             }
         }];
 
+        $rules['settings.currency_id'] = 'required|exists:currencies,id';
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
-            
+
             $user = auth()->user();
             $company = $user->company();
 
-            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+            if (isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent') {
                 $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
             }
-            
+
         });
     }
-    
+
     public function messages()
     {
         return [
@@ -137,7 +150,7 @@ class UpdateClientRequest extends Request
         if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
             $this->files->set('file', [$this->file('file')]);
         }
-        
+
         if (isset($input['documents'])) {
             unset($input['documents']);
         }
@@ -232,6 +245,7 @@ class UpdateClientRequest extends Request
             return $settings;
         }
 
+        $settings = is_array($settings) ? (object) $settings : $settings;
         $saveable_casts = CompanySettings::$free_plan_casts;
 
         foreach ($settings as $key => $value) {
@@ -239,14 +253,11 @@ class UpdateClientRequest extends Request
                 unset($settings->{$key});
             }
 
-            //26-04-2022 - In case settings are returned as array instead of object
-            if ($key == 'default_task_rate' && is_array($settings)) {
-                $settings['default_task_rate'] = floatval($value);
-            } elseif ($key == 'default_task_rate' && is_object($settings)) {
+            if ($key == 'default_task_rate') {
                 $settings->default_task_rate = floatval($value);
             }
         }
 
-        return $settings;
+        return (array) $settings;
     }
 }

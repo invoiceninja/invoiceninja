@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,6 +15,7 @@ namespace App\Services\EDocument\Standards;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\DataMapper\Tax\BaseRule;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Services\AbstractService;
@@ -35,9 +36,7 @@ class OrderXDocument extends AbstractService
      * @param  array $tax_map
      * @return void
      */
-    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit  $document, private readonly bool $returnObject = false, private array $tax_map = [])
-    {
-    }
+    public function __construct(public \App\Models\Invoice|\App\Models\Quote|\App\Models\PurchaseOrder|\App\Models\Credit  $document, private readonly bool $returnObject = false, private array $tax_map = []) {}
 
     public function run(): self
     {
@@ -235,7 +234,7 @@ class OrderXDocument extends AbstractService
                 $tax_type = OrderDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
                 break;
         }
-        $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
+        $eu_states = BaseRule::EU_TAX_EXEMPT_COUNTRY_CODES;
         if (empty($tax_type)) {
             if ((in_array($this->document->company->country()->iso_3166_2, $eu_states) && in_array($this->document->client->country->iso_3166_2, $eu_states)) && $this->document->company->country()->iso_3166_2 != $this->document->client->country->iso_3166_2) {
                 $tax_type = OrderDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
@@ -254,14 +253,14 @@ class OrderXDocument extends AbstractService
     }
     private function addtoTaxMap(string $tax_type, float $net_amount, float $tax_rate): void
     {
-        $hash = hash("md5", $tax_type."-".$tax_rate);
+        $hash = hash("md5", $tax_type . "-" . $tax_rate);
         if (array_key_exists($hash, $this->tax_map)) {
             $this->tax_map[$hash]["net_amount"] += $net_amount;
         } else {
             $this->tax_map[$hash] = [
                 "tax_type" => $tax_type,
                 "net_amount" => $net_amount,
-                "tax_rate" => $tax_rate / 100
+                "tax_rate" => $tax_rate / 100,
             ];
         }
     }

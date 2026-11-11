@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,9 +21,16 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Libraries\MultiDB;
 use App\Export\CSV\BaseExport;
+use App\Models\Paymentable;
+use App\Models\TransactionEvent;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
 use App\Services\Template\TemplateService;
+use Carbon\CarbonImmutable;
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
+use App\Services\Payment\PaymentApplicationDateResolver;
+use App\Services\Report\TaxPeriod\CashTaxEventProjector;
+use App\Services\Report\TaxPeriod\SalesBreakdownCalculator;
 
 class TaxSummaryReport extends BaseExport
 {
@@ -56,9 +63,7 @@ class TaxSummaryReport extends BaseExport
             'client_id',
         ]
     */
-    public function __construct(public Company $company, public array $input)
-    {
-    }
+    public function __construct(public Company $company, public array $input) {}
 
     public function run()
     {
@@ -94,7 +99,7 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne([ctrans('texts.tax_summary')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
 
-        if ($this->input['date_range'] != 'all') {
+        if (! in_array($this->input['date_range'], ['all', 'all_time'], true)) {
             $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->start_date, $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->end_date, $this->company->date_format(), $this->company->locale())]);
         }
 
@@ -110,89 +115,183 @@ class TaxSummaryReport extends BaseExport
         $cash_taxable_sales = 0;
         $cash_exempt_sales = 0;
 
-        $gross_sales = round($query->sum('amount'), 2);
-        $taxable_sales = round($query->where('total_taxes', '>', 0)->sum('amount'), 2);
-        $exempt_sales = round(($gross_sales - $taxable_sales), 2);
+        $gross_sales = 0.0;
+        $taxable_sales = 0.0;
+        $exempt_sales = 0.0;
 
-        $gross_sales_money = Number::formatMoney($gross_sales, $this->company);
-        $taxable_sales_money = Number::formatMoney($taxable_sales, $this->company);
-        $exempt_sales_money = Number::formatMoney($exempt_sales, $this->company);
-
-        $gross_sales_formatted = Number::formatValue($gross_sales, $this->company->currency());
-        $taxable_sales_formatted = Number::formatValue($taxable_sales, $this->company->currency());
-        $exempt_sales_formatted = Number::formatValue($exempt_sales, $this->company->currency());
-
+        // Accrual: iterate invoices filtered by invoice date (the existing query)
         foreach ($query->cursor() as $invoice) {
             $calc = $invoice->calc();
-
-            //Combine the line taxes with invoice taxes here to get a total tax amount
             $taxes = array_merge($calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray());
+            $exchange_rate = (float) ($invoice->exchange_rate ?: 1);
+            $multiplier = 1 / $exchange_rate;
+            $sales_totals = SalesBreakdownCalculator::summaryTotals($invoice, $multiplier);
+            $gross_sales += $sales_totals['gross_sales'];
+            $taxable_sales += $sales_totals['taxable_sales'];
+            $exempt_sales += $sales_totals['exempt_sales']
+                + $sales_totals['non_taxable_sales']
+                + $sales_totals['zero_rated_sales'];
 
-            //filter into two arrays for accrual + cash
+            if (empty($taxes)) {
+                $accrual_invoice_map[] = [
+                    'number' => ctrans('texts.invoice') . " " . $invoice->number,
+                    'date' => $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
+                    'formatted' => Number::formatMoney(0, $this->company),
+                    'tax' => Number::formatValue(0, $this->company->currency()),
+                    'name' => ctrans('texts.tax_exempt'),
+                    'rate' => 0,
+                    'base_amount' => 0,
+                ];
+            }
+
             foreach ($taxes as $tax) {
                 $key = $tax['name'];
-                $tax_prorata = 0;
+                $tax_amount = (float) $tax['total'] * $multiplier;
+                $base_amount = (float) ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $multiplier;
 
                 if (!isset($accrual_map[$key])) {
                     $accrual_map[$key]['tax_amount'] = 0;
                 }
 
-                $accrual_map[$key]['tax_amount'] += $tax['total'];
+                $accrual_map[$key]['tax_amount'] += $tax_amount;
                 $accrual_invoice_map[] = [
                     'number' => ctrans('texts.invoice') . " " . $invoice->number,
                     'date' => $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
-                    'formatted' => Number::formatMoney($tax['total'], $this->company),
-                    'tax' => Number::formatValue($tax['total'], $this->company->currency()),
+                    'formatted' => Number::formatMoney($tax_amount, $this->company),
+                    'tax' => Number::formatValue($tax_amount, $this->company->currency()),
                     'name' => $tax['name'],
                     'rate' => $tax['tax_rate'],
-                    'base_amount' => $tax['base_amount'] ?? $calc->getNetSubtotal(),
+                    'base_amount' => $base_amount,
                 ];
+            }
+        }
 
-                //cash
-                $key = $tax['name'];
+        $gross_sales = round($gross_sales, 2);
+        $taxable_sales = round($taxable_sales, 2);
+        $exempt_sales = round($exempt_sales, 2);
+        $gross_sales_money = Number::formatMoney($gross_sales, $this->company);
+        $taxable_sales_money = Number::formatMoney($taxable_sales, $this->company);
+        $exempt_sales_money = Number::formatMoney($exempt_sales, $this->company);
+        $gross_sales_formatted = Number::formatValue($gross_sales, $this->company->currency());
+        $taxable_sales_formatted = Number::formatValue($taxable_sales, $this->company->currency());
+        $exempt_sales_formatted = Number::formatValue($exempt_sales, $this->company->currency());
 
-                if (!isset($cash_map[$key])) {
-                    $cash_map[$key]['tax_amount'] = 0;
+        // Cash activity is initialized from paymentables, then projected from immutable events.
+        $is_all = in_array($this->input['date_range'], ['all', 'all_time'], true);
+        $timezone = $this->company->timezone()?->name ?: config('app.timezone');
+        $paymentable_query = Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->whereNull('deleted_at')
+            ->whereHas('payment', fn ($query) => $query
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('is_deleted', false));
+
+        if (! $is_all) {
+            [$cash_start, $cash_end] = app(PaymentApplicationDateResolver::class)
+                ->candidateBounds($this->start_date, $this->end_date, $timezone);
+            $paymentable_query
+                ->where('created_at', '>=', $cash_start)
+                ->where('created_at', '<', $cash_end);
+        }
+
+        $paymentable_query
+            ->orderBy('id')
+            ->lazyById(500)
+            ->filter(function (Paymentable $paymentable) use ($is_all, $timezone): bool {
+                if ($is_all) {
+                    return true;
                 }
 
-                if (in_array($invoice->status_id, [Invoice::STATUS_PARTIAL,Invoice::STATUS_PAID])) {
+                $date = app(PaymentApplicationDateResolver::class)->resolve($paymentable, $timezone);
 
-                    try {
-                        if ($invoice->status_id == Invoice::STATUS_PAID) {
-                            $tax_prorata = $tax['total'];
-                            $cash_map[$key]['tax_amount'] += $tax['total'];
-                            $cash_gross_sales += $invoice->amount;
-                            $cash_taxable_sales += $invoice->total_taxes > 0 ? $invoice->amount : 0;
-                            $cash_exempt_sales += $invoice->total_taxes == 0 ? $invoice->amount : 0;
-                        } else {
+                return $date !== null && $date >= $this->start_date && $date <= $this->end_date;
+            })
+            ->each(function (Paymentable $paymentable): void {
+                $invoice = Invoice::withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->find($paymentable->paymentable_id);
 
-                            $paid_amount = $invoice->amount - $invoice->balance;
-                            $payment_ratio = $invoice->amount > 0 ? $paid_amount / $invoice->amount : 0;
-                            $tax_prorata = round($payment_ratio * ($tax['total'] ?? 0), 2);
-
-                            $cash_map[$key]['tax_amount'] += $tax_prorata;
-
-                            $cash_gross_sales += $invoice->amount;
-                            $cash_taxable_sales += $tax_prorata > 0 ? $paid_amount : 0;
-                            $cash_exempt_sales += $tax_prorata == 0 ? $paid_amount : 0;
-                        }
-
-                        $cash_invoice_map[] = [
-                            'number' => ctrans('texts.invoice') . " " . $invoice->number,
-                            'date' => $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
-                            'formatted' => Number::formatMoney($tax_prorata, $this->company),
-                            'tax' => Number::formatValue($tax_prorata, $this->company->currency()),
-                            'name' => $tax['name'],
-                            'rate' => $tax['tax_rate'],
-                            'base_amount' => $tax['base_amount'] ?? $calc->getNetSubtotal(),
-                        ];
-
-                    } catch (\DivisionByZeroError $e) {
-                        $cash_map[$key]['tax_amount'] += 0;
-                    }
+                if ($invoice) {
+                    app(InvoiceTransactionEventEntryCash::class)->runForPaymentable($invoice, $paymentable);
                 }
+            });
+
+        $eligible_invoices = Invoice::query()
+            ->withTrashed()
+            ->where('company_id', $this->company->id);
+        $eligible_invoices = $this->filterByUserPermissions($eligible_invoices);
+        $eligible_invoices = $this->filterByClients($eligible_invoices);
+        $event_query = TransactionEvent::query()
+            ->with('invoice')
+            ->where('company_id', $this->company->id)
+            ->whereIn('event_id', [
+                TransactionEvent::PAYMENT_CASH,
+                TransactionEvent::PAYMENT_REFUNDED,
+                TransactionEvent::PAYMENT_DELETED,
+            ])
+            ->whereIn('invoice_id', $eligible_invoices->select('id'));
+
+        if (! $is_all) {
+            $event_query->whereBetween('period', [
+                CarbonImmutable::parse($this->start_date)->startOfMonth()->toDateString(),
+                CarbonImmutable::parse($this->end_date)->endOfMonth()->toDateString(),
+            ]);
+        }
+
+        $events = $event_query->orderBy('period')->orderBy('id')->get();
+        $invoices = $events->pluck('invoice')->filter()->keyBy('id');
+        $cash_rows = app(CashTaxEventProjector::class)->project(
+            $events,
+            $is_all ? null : $this->start_date,
+            $is_all ? null : $this->end_date,
+        );
+
+        foreach ($cash_rows as $row) {
+            $invoice = $invoices->get($row['invoice_id']);
+
+            if (! $invoice) {
+                continue;
             }
 
+            if ($row['sales_totals'] !== []) {
+                $cash_gross_sales += (float) ($row['sales_totals']['gross_sales'] ?? 0);
+                $cash_taxable_sales += (float) ($row['sales_totals']['taxable_sales'] ?? 0);
+                $cash_exempt_sales += (float) ($row['sales_totals']['exempt_sales'] ?? 0)
+                    + (float) ($row['sales_totals']['non_taxable_sales'] ?? 0)
+                    + (float) ($row['sales_totals']['zero_rated_sales'] ?? 0);
+            } else {
+                $cash_gross_sales += $row['gross_amount'];
+                $cash_taxable_sales += abs($row['tax_amount']) > 0.0001 ? $row['gross_amount'] : 0;
+                $cash_exempt_sales += abs($row['tax_amount']) > 0.0001 ? 0 : $row['gross_amount'];
+            }
+
+            if ($row['tax_details'] === []) {
+                $cash_invoice_map[] = [
+                    'number' => ctrans('texts.invoice').' '.$invoice->number,
+                    'date' => $this->translateDate($row['effective_date'], $this->company->date_format(), $this->company->locale()),
+                    'formatted' => Number::formatMoney(0, $this->company),
+                    'tax' => Number::formatValue(0, $this->company->currency()),
+                    'name' => ctrans('texts.tax_exempt'),
+                    'rate' => 0,
+                    'base_amount' => 0,
+                ];
+            }
+
+            foreach ($row['tax_details'] as $tax) {
+                $key = (string) ($tax['tax_name'] ?? ctrans('texts.tax'));
+                $cash_map[$key]['tax_amount'] = ($cash_map[$key]['tax_amount'] ?? 0) + (float) ($tax['tax_amount'] ?? 0);
+                $cash_invoice_map[] = [
+                    'number' => ctrans('texts.invoice').' '.$invoice->number,
+                    'date' => $this->translateDate($row['effective_date'], $this->company->date_format(), $this->company->locale()),
+                    'formatted' => Number::formatMoney((float) ($tax['tax_amount'] ?? 0), $this->company),
+                    'tax' => Number::formatValue((float) ($tax['tax_amount'] ?? 0), $this->company->currency()),
+                    'name' => $key,
+                    'rate' => (float) ($tax['tax_rate'] ?? 0),
+                    'base_amount' => (float) ($tax['taxable_amount'] ?? 0),
+                ];
+            }
         }
 
         $this->csv->insertOne([]);

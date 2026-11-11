@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,6 +37,13 @@ class CloneQuoteToInvoiceFactory
             unset($quote_array['terms']);
         }
 
+        if(array_key_exists('sync', $quote_array)) {
+            unset($quote_array['sync']);
+        }
+        if(array_key_exists('backup', $quote_array)) {
+            unset($quote_array['backup']);
+        }
+
         // unset($quote_array['public_notes']);
         unset($quote_array['footer']);
         unset($quote_array['design_id']);
@@ -59,7 +66,6 @@ class CloneQuoteToInvoiceFactory
         $invoice->reminder_last_sent = null;
         $invoice->last_sent_date = null;
         $invoice->last_viewed = null;
-
 
         return $invoice;
     }

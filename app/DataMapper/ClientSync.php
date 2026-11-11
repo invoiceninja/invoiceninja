@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,9 +22,15 @@ class ClientSync implements Castable
 {
     public string $qb_id;
 
+    public string $qb_status_message;
+
+    public bool $dn_dirty = false;
+
     public function __construct(array $attributes = [])
     {
         $this->qb_id = $attributes['qb_id'] ?? '';
+        $this->qb_status_message = $attributes['qb_status_message'] ?? '';
+        $this->dn_dirty = $attributes['dn_dirty'] ?? false;
     }
     /**
      * Get the name of the caster class to use when casting from / to this cast target.

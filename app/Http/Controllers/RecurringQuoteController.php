@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,12 +23,15 @@ use App\Http\Requests\RecurringQuote\EditRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\ShowRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\StoreRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\UpdateRecurringQuoteRequest;
+use App\Http\Requests\RecurringQuote\UploadRecurringQuoteRequest;
+use App\Models\Account;
 use App\Models\Quote;
 use App\Models\RecurringQuote;
 use App\Repositories\RecurringQuoteRepository;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringQuoteTransformer;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -38,6 +41,7 @@ use Illuminate\Http\Response;
 class RecurringQuoteController extends BaseController
 {
     use MakesHash;
+    use SavesDocuments;
 
     protected $entity_type = RecurringQuote::class;
 
@@ -493,7 +497,7 @@ class RecurringQuoteController extends BaseController
 
         $ids = request()->input('ids');
 
-        $recurring_quotes = RecurringQuote::withTrashed()->find($this->transformKeys($ids));
+        $recurring_quotes = RecurringQuote::withTrashed()->company()->find($this->transformKeys($ids));
 
         $recurring_quotes->each(function ($recurring_quote, $key) use ($action, $user) {
             if ($user->can('edit', $recurring_quote)) {
@@ -501,7 +505,7 @@ class RecurringQuoteController extends BaseController
             }
         });
 
-        return $this->listResponse(RecurringQuote::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(RecurringQuote::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**
@@ -612,5 +616,18 @@ class RecurringQuoteController extends BaseController
                 // code...
                 break;
         }
+    }
+
+    public function upload(UploadRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
+    {
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
+            return $this->featureFailure();
+        }
+
+        if ($request->has('documents')) {
+            $this->saveDocuments($request->file('documents'), $recurring_quote, $request->has('is_public') ? $request->boolean('is_public') : null);
+        }
+
+        return $this->itemResponse($recurring_quote->fresh());
     }
 }

@@ -28,9 +28,14 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($line_items_data)
     {
-        $invoice_data = reset($line_items_data);
+        if (!empty($line_items_data) && is_array(reset($line_items_data))) {
+            $invoice_data = reset($line_items_data);
+        } else {
+            $invoice_data = $line_items_data;
+            $line_items_data = [$invoice_data];
+        }
 
-        if ($this->hasInvoice($invoice_data['Invoice #'])) {
+        if (isset($invoice_data['Invoice #']) && $this->hasInvoice($invoice_data['Invoice #'])) {
             throw new ImportException('Invoice number already exists');
         }
 
@@ -42,11 +47,12 @@ class InvoiceTransformer extends BaseTransformer
         $transformed = [
             'company_id'  => $this->company->id,
             'client_id'   => $this->getClient($this->getString($invoice_data, 'Client Name'), null),
-            'number'      => $this->getString($invoice_data, 'Invoice #'),
+            'number'      => $this->getString($invoice_data, 'Invoice #', null),
             'date'        => isset($invoice_data['Date Issued']) ? $this->parseDate($invoice_data['Date Issued']) : null,
             'amount'      => 0,
-            'status_id'   => $invoiceStatusMap[$status =
-                    strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
+            'is_amount_discount' => false,
+            'status_id'   => $invoiceStatusMap[$status
+                    = strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
             // 'viewed'      => $status === 'viewed',
         ];
 
@@ -71,7 +77,7 @@ class InvoiceTransformer extends BaseTransformer
         if (! empty($invoice_data['Date Paid'])) {
             $transformed['payments'] = [[
                 'date'   => $this->parseDate($invoice_data['Date Paid']),
-                'amount' => $transformed['amount'],
+                'amount' => round($transformed['amount'], 2),
             ]];
         }
 
@@ -103,6 +109,6 @@ class InvoiceTransformer extends BaseTransformer
     /** @return float  */
     public function getFreshbookQuantityFloat($data, $field)
     {
-        return $data[$field];
+        return $data[$field] ?? 0;
     }
 }

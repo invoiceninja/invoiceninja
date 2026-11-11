@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,7 +47,7 @@ class ActivityRepository extends BaseRepository
     {
         $activity = new Activity();
 
-        foreach ($fields as $key => $value) {
+        foreach (get_object_vars($fields) as $key => $value) {
             $activity->{$key} = $value;
         }
 
@@ -61,6 +61,7 @@ class ActivityRepository extends BaseRepository
 
         $activity->ip = $event_vars['ip'] ?: ' ';
         $activity->is_system = $event_vars['is_system'];
+        $activity->notes = $activity->notes ?? '';
 
         $activity->save();
 
@@ -119,7 +120,7 @@ class ActivityRepository extends BaseRepository
 
     public function getTokenId(array $event_vars)
     {
-        if (isset($event_vars['token']) &&$event_vars['token']) {
+        if (isset($event_vars['token']) && $event_vars['token']) {
             /** @var \App\Models\CompanyToken $company_token **/
             $company_token = CompanyToken::query()->where('token', $event_vars['token'])->first();
 

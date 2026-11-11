@@ -91,6 +91,7 @@ class Register extends Component
         $contact = $service->createClientContact($data, $client);
 
         auth()->guard('contact')->loginUsingId($contact->id, true);
+        $this->dispatch('update-csrf', token: csrf_token());
 
         // $this->dispatch('purchase.context', property: 'contact', value: $contact);
         $this->dispatch('purchase.next');
@@ -99,7 +100,7 @@ class Register extends Component
     public function registerForm()
     {
         $count = collect($this->subscription()->company->client_registration_fields ?? [])
-            ->filter(fn ($field) => $field['required'] === true || $field['visible'] === true)
+            ->filter(fn($field) => $field['required'] === true || $field['visible'] === true)
             ->count();
 
         if ($count === 0) {
@@ -111,6 +112,7 @@ class Register extends Component
             $contact = $service->createClientContact(['email' => $this->email], $client);
 
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
 
             // $this->dispatch('purchase.context', property: 'contact', value: $contact);
             $this->dispatch('purchase.next');
@@ -134,7 +136,7 @@ class Register extends Component
                     return;
                 }
 
-                $i = collect($this->register_fields)->search(fn ($field) => $field['key'] == $mapping);
+                $i = collect($this->register_fields)->search(fn($field) => $field['key'] == $mapping);
 
                 if ($i !== false) {
                     $this->register_fields[$i]['visible'] = true;

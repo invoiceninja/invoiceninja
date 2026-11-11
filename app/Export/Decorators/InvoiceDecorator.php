@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,15 +13,23 @@
 namespace App\Export\Decorators;
 
 use App\Models\Invoice;
+use App\Models\Payment;
 
 class InvoiceDecorator extends Decorator implements DecoratorInterface
 {
     public function transform(string $key, mixed $entity): mixed
     {
-        
+
         $invoice = false;
 
-        if ($entity instanceof Invoice) {
+        if ($entity instanceof Payment && $entity->relationLoaded('current_paymentable')) {
+            $paymentable = $entity->getRelation('current_paymentable');
+            if ($paymentable && $paymentable->paymentable_type === 'invoices') {
+                $invoice = $paymentable->paymentable;
+            } else {
+                return '';
+            }
+        } elseif ($entity instanceof Invoice) {
             $invoice = $entity;
         } elseif ($entity->invoice) {
             $invoice = $entity->invoice;
@@ -87,7 +95,7 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     }
     public function user_id(Invoice $invoice)
     {
-        return $invoice->user ? $invoice->user->present()->name() : '';
+        return $invoice->user->present()->name() ?? '';
     }
 
     public function recurring_id(Invoice $invoice)
@@ -98,6 +106,11 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     public function auto_bill_enabled(Invoice $invoice)
     {
         return $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
+    }
+
+    public function po_number(Invoice $invoice)
+    {
+        return $invoice->po_number ?? '';
     }
 
 }

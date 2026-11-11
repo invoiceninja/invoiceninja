@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -62,9 +62,18 @@ class PaymentTransformer extends EntityTransformer
 
     public function includeInvoices(Payment $payment)
     {
+        $invoices = $payment->invoices;
+
+        $invoices->loadMissing([
+            'tags',
+            'documents',
+            'invitations.company',
+            'invitations.contact',
+        ]);
+        
         $transformer = new InvoiceTransformer($this->serializer);
 
-        return $this->includeCollection($payment->invoices, $transformer, Invoice::class);
+        return $this->includeCollection($invoices, $transformer, Invoice::class);
     }
 
     public function includeCredits(Payment $payment)
@@ -120,7 +129,7 @@ class PaymentTransformer extends EntityTransformer
             'type_id' => (string) $payment->type_id ?: '',
             'invitation_id' => (string) $payment->invitation_id ?: '',
             'private_notes' => (string) $payment->private_notes ?: '',
-            'number' => (string) $payment->number ?: '',
+            'number' => (string) ($payment->number ?? ''),
             'custom_value1' => (string) $payment->custom_value1 ?: '',
             'custom_value2' => (string) $payment->custom_value2 ?: '',
             'custom_value3' => (string) $payment->custom_value3 ?: '',
@@ -135,6 +144,7 @@ class PaymentTransformer extends EntityTransformer
             'currency_id' => (string) $payment->currency_id ?: '',
             'exchange_rate' => (float) $payment->exchange_rate ?: 1,
             'exchange_currency_id' => (string) $payment->exchange_currency_id ?: '',
+            'tags' => $this->transformTags($payment),
         ];
     }
 }

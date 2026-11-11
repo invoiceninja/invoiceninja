@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,9 +35,9 @@ class CreateRecurringInvitations extends AbstractService
     {
         $this->entity = $entity;
         $this->entity_name = lcfirst(Str::snake(class_basename($entity)));
-        $this->entity_id_name = $this->entity_name.'_id';
-        $this->invitation_class = 'App\Models\\'.ucfirst(Str::camel($this->entity_name)).'Invitation';
-        $this->invitation_factory = 'App\Factory\\'.ucfirst(Str::camel($this->entity_name)).'InvitationFactory';
+        $this->entity_id_name = $this->entity_name . '_id';
+        $this->invitation_class = 'App\Models\\' . ucfirst(Str::camel($this->entity_name)) . 'Invitation';
+        $this->invitation_factory = 'App\Factory\\' . ucfirst(Str::camel($this->entity_name)) . 'InvitationFactory';
     }
 
     public function run()
@@ -50,18 +50,19 @@ class CreateRecurringInvitations extends AbstractService
                                             ->withTrashed()
                                             ->first();
 
-                if (! $invitation && $contact->send_email) {
+                if (! $invitation && $contact->send_email && ! $contact->cc_only) {
                     $ii = $this->invitation_factory::create($this->entity->company_id, $this->entity->user_id);
                     $ii->key = $this->createDbHash($this->entity->company->db);
                     $ii->{$this->entity_id_name} = $this->entity->id;
                     $ii->client_contact_id = $contact->id;
+                    $ii->can_sign = $contact->can_sign;
                     $ii->save();
-                } elseif ($invitation && ! $contact->send_email) {
+                } elseif ($invitation && (! $contact->send_email || $contact->cc_only)) {
                     $invitation->delete();
                 }
             });
         } catch (Exception $e) {
-            info($e->getMessage());
+            nlog($e->getMessage());
         }
 
         if ($this->entity->invitations()->count() == 0) {
@@ -72,6 +73,7 @@ class CreateRecurringInvitations extends AbstractService
 
             if ($invitation) {
                 $invitation->restore();
+                $invitation->save();
             }
         }
 

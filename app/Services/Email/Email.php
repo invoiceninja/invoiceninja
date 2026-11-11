@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -84,12 +84,29 @@ class Email implements ShouldQueue
     /** Default mailer */
     private string $mailer = 'default';
 
+    /**
+     * Map of email_sending_method => [mailer name, configuration method].
+     */
+    private const MAIL_DRIVER_MAP = [
+        'mailgun'         => ['mailgun',   'setHostedMailgunMailer'],
+        'ses'             => ['ses',       'setHostedSesMailer'],
+        'gmail'           => ['gmail',     'setGmailMailer'],
+        'office365'       => ['office365', 'setOfficeMailer'],
+        'microsoft'       => ['office365', 'setOfficeMailer'],
+        'client_postmark' => ['postmark',  'setPostmarkMailer'],
+        'client_mailgun'  => ['mailgun',   'setMailgunMailer'],
+        'client_brevo'    => ['brevo',     'setBrevoMailer'],
+        'client_ses'      => ['ses',       'setSesMailer'],
+        'smtp'            => ['smtp',      'configureSmtpMailer'],
+    ];
+
     /** The mailable */
     public Mailable $mailable;
 
-    public function __construct(public EmailObject $email_object, public Company $company)
-    {
-    }
+    /** Prevents a second in-process fallback if the hosted mailer also throws */
+    private bool $used_hosted_fallback = false;
+
+    public function __construct(public EmailObject $email_object, public Company $company) {}
 
     /**
      * The backoff time between retries.
@@ -192,7 +209,7 @@ class Email implements ShouldQueue
     {
         $_variables = $this->email_object->variables;
 
-        match (class_basename($this->email_object->entity)) {
+        match (class_basename($this->email_object->entity ?? '')) {
             "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
@@ -254,8 +271,11 @@ class Email implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if (in_array($this->email_object->settings->email_sending_method, ['default','mailgun','postmark'])) {
-            Cache::increment("email_quota".$this->company->account->key);
+        if (in_array($this->mailer, ['default','mailgun','postmark','ses'])
+            && !$this->client_postmark_secret
+            && !$this->client_mailgun_secret
+            && !$this->client_ses_secret) {
+            Cache::increment("email_quota" . $this->company->account->key);
         }
     }
 
@@ -289,6 +309,7 @@ class Email implements ShouldQueue
         /* Attempt the send! */
         try {
             nlog("Using mailer => " . $this->mailer . " " . now()->toDateTimeString());
+            nlog("Trying to send to " . reset($this->email_object->to)?->address . " " . now()->toDateTimeString());
 
             $mailer->send($this->mailable);
 
@@ -300,13 +321,6 @@ class Email implements ShouldQueue
         } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
             nlog("Mailer failed with a Transport Exception {$e->getMessage()}");
 
-            if (Ninja::isHosted() && $this->mailer == 'smtp') {
-                $settings = $this->email_object->settings;
-                $settings->email_sending_method = 'default';
-                $this->company->settings = $settings;
-                $this->company->save();
-            }
-
             if (stripos($e->getMessage(), 'code 406') !== false) {
 
                 $address_object = reset($this->email_object->to);
@@ -315,37 +329,48 @@ class Email implements ShouldQueue
 
                 $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
 
-                $this->fail();
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
-
+                
                 return;
             }
 
-            $this->fail();
-            $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            if (Ninja::isHosted() && $this->mailer === 'smtp') {
+                match ((new SmtpFailure())->action($e, $this->attempts(), $this->tries)) {
+                    SmtpFailure::RETRY => $this->release($this->backoff()[$this->attempts() - 1]),
+                    SmtpFailure::FALLBACK => $this->fallbackSmtp($e->getMessage()),
+                    SmtpFailure::FAIL => $this->failSmtp($e->getMessage()),
+                    default => $this->logMailError($e->getMessage()),
+                };
 
+                $this->cleanUpMailers();
+                return;
+            }
+
+            $this->cleanUpMailers();
+            $this->logMailError($e->getMessage());
+            return;
+            
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
+            
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            $this->logMailError($e->getMessage());
+            
             return;
         } catch (\Google\Service\Exception $e) {
 
             if ($e->getCode() == '429') {
 
                 $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
-                $this->logMailError($message, $this->company->clients()->first());
+                $this->logMailError($message);
                 sleep(rand(1, 2));
                 $this->release(900);
                 $message = null;
@@ -354,14 +379,13 @@ class Email implements ShouldQueue
         } catch (\ErrorException $e) { //@todo - remove after symfony/mailer is updated with bug fix
 
             $message = "Attachment size is too large.";
-            $this->fail();
-            $this->logMailError($message, $this->company->clients()->first());
+            $this->logMailError($message);
             $this->cleanUpMailers();
 
             $this->entityEmailFailed($message);
-
+            
             return;
-        } catch (\Exception | \RuntimeException $e) {
+        } catch (\Exception|\RuntimeException $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -369,20 +393,18 @@ class Email implements ShouldQueue
             if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->fail();
-                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->logMailError($e->getMessage());
                 $this->cleanUpMailers();
 
                 $this->entityEmailFailed($message);
-
                 return;
             }
 
             if (stripos($e->getMessage(), 'Dsn') !== false) {
 
                 nlog("Incorrectly configured mail server - setting to default mail driver.");
-                $this->email_object->settings->email_sending_method = 'default';
-                return $this->setMailDriver();
+                $this->retryWithDefaultMailer();
+                return;
 
             }
 
@@ -404,20 +426,19 @@ class Email implements ShouldQueue
                     $message = "Unknown issue sending via Postmark, please try again later.";
                 }
 
-                $this->fail();
                 $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
-
+                
                 return;
             }
 
             //only report once, not on all tries
-            if ($this->attempts() == $this->tries) {
+            if ($this->attempts() >= $this->tries) {
                 /* If the is an entity attached to the message send a failure mailer */
                 $this->entityEmailFailed($message);
-
                 app('sentry')->captureException($e);
-
+                $this->cleanUpMailers();
+                return;
             }
 
             $this->tearDown();
@@ -431,6 +452,31 @@ class Email implements ShouldQueue
         }
 
         $this->cleanUpMailers();
+    }
+
+    private function retryWithDefaultMailer(): void
+    {
+        if ($this->used_hosted_fallback) {
+            return;
+        }
+
+        $this->used_hosted_fallback = true;
+        $this->cleanUpMailers();
+        $this->email_object->settings->email_sending_method = 'default';
+        $this->setMailDriver();
+        $this->email();
+    }
+
+    private function fallbackSmtp(string $message): void
+    {
+        $this->logMailError($message);
+        $this->retryWithDefaultMailer();
+    }
+
+    private function failSmtp(string $message): void
+    {
+        $this->logMailError($message);
+        $this->entityEmailFailed($message);
     }
 
     /**
@@ -512,23 +558,10 @@ class Email implements ShouldQueue
     private function hasInValidEmails(): bool
     {
         foreach ($this->email_object->to as $address_object) {
-            if (stripos($address_object->address, '@example.') !== false) {
-                return true;
-            }
-
-            if (!str_contains($address_object->address, "@")) {
-                return true;
-            }
-
-            if ($address_object->address == " ") {
-                return true;
-            }
-
-            if ($address_object->address == "") {
-                return true;
-            }
-
-            if ($address_object->name == " " || $address_object->name == "") {
+            if (stripos($address_object->address, '@example.') !== false
+                || !str_contains($address_object->address, '@')
+                || trim($address_object->address) === ''
+                || trim($address_object->name) === '') {
                 return true;
             }
         }
@@ -573,7 +606,10 @@ class Email implements ShouldQueue
     {
 
         /** Force free/trials onto specific mail driver */
-        if (Ninja::isHosted() && $this->email_object->settings->email_sending_method == 'default' && (!$this->company->account->isPaid() || $this->company->account->isNewHostedAccount())) {
+        if (Ninja::isHosted() && (!$this->company->account->isPaid() || ($this->company->account->isNewHostedAccount() && $this->email_object->settings->email_sending_method == 'default'))) {
+
+        // if (Ninja::isHosted() && $this->email_object->settings->email_sending_method == 'default' && (!$this->company->account->isPaid() || $this->company->account->isNewHostedAccount())) {
+            $this->email_object->settings->email_sending_method = 'default';
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
@@ -581,14 +617,16 @@ class Email implements ShouldQueue
 
         if (Ninja::isHosted() && $this->company->account->isPaid() && $this->email_object->settings->email_sending_method == 'default') {
 
+            $email = '';
+            
             try {
 
                 $address_object = reset($this->email_object->to);
                 $email = $address_object->address ?? '';
                 $domain = explode("@", $email)[1] ?? "";
                 $dns = dns_get_record($domain, DNS_MX);
-                $server = $dns[0]["target"];
-                if (stripos($server, "outlook.com") !== false) {
+
+                if (is_array($dns) && isset($dns[0]["target"]) && stripos($dns[0]["target"], "outlook.com") !== false) {
 
                     if (property_exists($this->email_object->settings, 'email_from_name') && strlen($this->email_object->settings->email_from_name) > 1) {
                         $email_from_name = $this->email_object->settings->email_from_name;
@@ -604,64 +642,26 @@ class Email implements ShouldQueue
                     return $this;
 
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 nlog("problem switching outlook driver - hosted");
+                nlog($email);
                 nlog($e->getMessage());
             }
         }
 
-        switch ($this->email_object->settings->email_sending_method) {
-            case 'default':
-                $this->mailer = config('mail.default');
-                // $this->setHostedMailgunMailer(); //should only be activated if hosted platform needs to fall back to mailgun
-                return $this;
-            case 'mailgun':
-                $this->mailer = 'mailgun';
-                $this->setHostedMailgunMailer();
-                return $this;
-            case 'ses':
-                $this->mailer = 'ses';
-                $this->setHostedSesMailer();
-                return $this;
-            case 'gmail':
-                $this->mailer = 'gmail';
-                $this->setGmailMailer();
-                return $this;
-            case 'office365':
-            case 'microsoft':
-                $this->mailer = 'office365';
-                $this->setOfficeMailer();
-                return $this;
-            case 'client_postmark':
-                $this->mailer = 'postmark';
-                $this->setPostmarkMailer();
-                return $this;
-            case 'client_mailgun':
-                $this->mailer = 'mailgun';
-                $this->setMailgunMailer();
-                return $this;
-            case 'client_brevo':
-                $this->mailer = 'brevo';
-                $this->setBrevoMailer();
-                return $this;
-            case 'client_ses':
-                $this->mailer = 'ses';
-                $this->setSesMailer();
-                return $this;
-            case 'smtp':
-                $this->mailer = 'smtp';
-                $this->configureSmtpMailer();
-                return $this;
-            default:
-                $this->mailer = config('mail.default');
-                break;
+        $method = $this->email_object->settings->email_sending_method;
 
+        if (isset(self::MAIL_DRIVER_MAP[$method])) {
+            [$mailer, $setter] = self::MAIL_DRIVER_MAP[$method];
+            $this->mailer = $mailer;
+            $this->{$setter}();
+            return $this;
         }
 
+        // 'default' and unknown methods fall back to the configured default mailer
         $this->mailer = config('mail.default');
 
         return $this;
-
     }
 
     private function configureSmtpMailer()
@@ -670,16 +670,16 @@ class Email implements ShouldQueue
         $company = $this->company;
 
         $smtp_host = $company->smtp_host ?? '';
-        $smtp_port = (int)$company->smtp_port ?? 0; //@phpstan-ignore-line
+        $smtp_port = (int) $company->smtp_port ?? 0; //@phpstan-ignore-line
         $smtp_username = $company->smtp_username ?? '';
         $smtp_password = $company->smtp_password ?? '';
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
         $smtp_local_domain = strlen($company->smtp_local_domain ?? '') > 2 ? $company->smtp_local_domain : null;
         $smtp_verify_peer = $company->smtp_verify_peer ?? true;
 
-        if (strlen($smtp_host) <= 1 ||
-        strlen($smtp_username) <= 1 ||
-        strlen($smtp_password) <= 1
+        if (strlen($smtp_host) <= 1
+        || strlen($smtp_username) <= 1
+        || strlen($smtp_password) <= 1
         ) {
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
@@ -689,7 +689,7 @@ class Email implements ShouldQueue
             'mail.mailers.smtp' => [
                 'transport' => 'smtp',
                 'host' => $smtp_host,
-                'port' => (int)$smtp_port,
+                'port' => (int) $smtp_port,
                 'username' => $smtp_username,
                 'password' => $smtp_password,
                 'encryption' => $smtp_encryption,
@@ -903,7 +903,7 @@ class Email implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
         } catch (\Exception $e) {
-            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->logMailError('Gmail Token Invalid');
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -946,7 +946,7 @@ class Email implements ShouldQueue
      * @param  null | \App\Models\Client $recipient_object
      * @return void
      */
-    private function logMailError($errors, $recipient_object): void
+    private function logMailError($errors, $recipient_object = null): void
     {
         (
             new SystemLogger(
@@ -1000,7 +1000,7 @@ class Email implements ShouldQueue
                         'client_secret' => config('ninja.o365.client_secret'),
                         'scope' => 'email Mail.Send offline_access profile User.Read openid',
                         'grant_type' => 'refresh_token',
-                        'refresh_token' => $user->oauth_user_refresh_token
+                        'refresh_token' => $user->oauth_user_refresh_token,
                     ],
                 ])->getBody()->getContents());
             } catch (\Exception $e) {

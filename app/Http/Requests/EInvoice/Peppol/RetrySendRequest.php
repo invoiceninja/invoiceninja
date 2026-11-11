@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,7 +29,9 @@ class RetrySendRequest extends Request
             return true;
         }
 
-        return $user->account->isPaid() && $user->isAdmin() && ($user->company()->legal_entity_id != null || $user->company()->verifactuEnabled());
+        return $user->account->isPaid()
+            && $user->isAdmin()
+            && ($user->company()->legal_entity_id != null || $user->company()->verifactuEnabled());
     }
 
     /**
@@ -58,7 +60,7 @@ class RetrySendRequest extends Request
 
         if (isset($input['entity']) && in_array($input['entity'], ['invoice','quote','credit','purchase_order'])) {
             $this->entity_plural = Str::plural($input['entity']);
-            $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
+            $input['entity'] = "App\Models\\" . ucfirst(Str::camel($input['entity']));
         }
 
         $this->replace($input);

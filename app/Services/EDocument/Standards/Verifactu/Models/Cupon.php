@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\Verifactu\Models;
 
 class Cupon extends BaseXmlModel
@@ -16,7 +24,7 @@ class Cupon extends BaseXmlModel
         // Add required elements
         $root->appendChild($this->createElement($doc, 'IDCupon', $this->idCupon));
         $root->appendChild($this->createElement($doc, 'FechaExpedicionCupon', $this->fechaExpedicionCupon));
-        $root->appendChild($this->createElement($doc, 'ImporteCupon', (string)$this->importeCupon));
+        $root->appendChild($this->createElement($doc, 'ImporteCupon', (string) $this->importeCupon));
 
         // Add optional description
         if ($this->descripcionCupon !== null) {
@@ -31,7 +39,7 @@ class Cupon extends BaseXmlModel
         $cupon = new self();
         $cupon->setIdCupon($cupon->getElementValue($element, 'IDCupon'));
         $cupon->setFechaExpedicionCupon($cupon->getElementValue($element, 'FechaExpedicionCupon'));
-        $cupon->setImporteCupon((float)$cupon->getElementValue($element, 'ImporteCupon'));
+        $cupon->setImporteCupon((float) $cupon->getElementValue($element, 'ImporteCupon'));
 
         $descripcionCupon = $cupon->getElementValue($element, 'DescripcionCupon');
         if ($descripcionCupon !== null) {

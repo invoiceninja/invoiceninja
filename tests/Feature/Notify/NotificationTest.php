@@ -50,7 +50,7 @@ class NotificationTest extends TestCase
 
         $u = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'confirmation_code' => uniqid("st", true),
         ]);
 
@@ -93,7 +93,7 @@ class NotificationTest extends TestCase
         // ['all_notifications', 'all_user_notifications', 'invoice_created_user', 'invoice_sent_user', 'invoice_viewed_user', 'invoice_late_user'];
         $u = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'confirmation_code' => uniqid("st", true),
         ]);
 
@@ -205,7 +205,7 @@ class NotificationTest extends TestCase
     {
         $u = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => uniqid('testuser') . '@gmail.com',
             'confirmation_code' => uniqid("st", true),
         ]);
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,24 +13,28 @@
 namespace App\Livewire;
 
 use App\Libraries\MultiDB;
-use App\Models\Invoice;
 use App\Models\PurchaseOrder;
+use App\Utils\Traits\WithBulkSelection;
 use App\Utils\Traits\WithSorting;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class PurchaseOrdersTable extends Component
 {
+    use WithBulkSelection;
     use WithPagination;
     use WithSorting;
 
-    public $per_page = 10;
+    public int $per_page = 10;
 
-    public $status = [];
+    public array $status = [];
 
-    public $db;
+    public string $db;
 
-    public function mount()
+    public function mount(): void
     {
         MultiDB::setDb($this->db);
 
@@ -39,7 +43,42 @@ class PurchaseOrdersTable extends Component
         $this->sort_field = 'date';
     }
 
-    public function render()
+    public function updatedStatus(): void
+    {
+        $this->resetSelection();
+    }
+
+    public function toggleStatus(string $value): void
+    {
+        if (in_array($value, $this->status)) {
+            $this->status = array_values(array_diff($this->status, [$value]));
+        } else {
+            $this->status[] = $value;
+        }
+
+        $this->resetSelection();
+    }
+
+    public function sortBy($field): void
+    {
+        $this->sort_field === $field
+            ? $this->sort_asc = ! $this->sort_asc
+            : $this->sort_asc = true;
+
+        $this->sort_field = $field;
+
+        $this->resetSelection();
+    }
+
+    protected function selectablePageIds(): array
+    {
+        return $this->buildQuery()
+            ->paginate($this->per_page, ['id'], 'page', $this->getPage())
+            ->pluck('hashed_id')
+            ->toArray();
+    }
+
+    private function buildQuery(): Builder
     {
         $local_status = [];
 
@@ -62,15 +101,17 @@ class PurchaseOrdersTable extends Component
             $query = $query->whereIn('status_id', array_unique($local_status));
         }
 
-        $query = $query
+        return $query
             ->where('vendor_id', auth()->guard('vendor')->user()->vendor_id)
-            // ->where('status_id', '<>', Invoice::STATUS_DRAFT)
-            // ->where('status_id', '<>', Invoice::STATUS_CANCELLED)
-            ->withTrashed()
-            ->paginate($this->per_page);
+            ->withTrashed();
+    }
+
+    public function render(): Factory|View
+    {
+        $purchase_orders = $this->buildQuery()->paginate($this->per_page);
 
         return render('components.livewire.purchase-orders-table', [
-            'purchase_orders' => $query,
+            'purchase_orders' => $purchase_orders,
         ]);
     }
 }

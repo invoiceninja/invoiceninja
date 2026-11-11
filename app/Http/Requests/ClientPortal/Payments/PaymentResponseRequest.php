@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Http\Requests\ClientPortal\Payments;
 
 use App\Models\PaymentHash;
@@ -12,9 +20,23 @@ class PaymentResponseRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        $contact = auth()->guard('contact')->user();
+
+        if (! $contact) {
+            return false;
+        }
+
+        if ($this->has('payment_hash')) {
+            $ph = PaymentHash::with('fee_invoice')->where('hash', $this->payment_hash)->first();
+
+            if ($ph && $ph->fee_invoice) {
+                return $contact->client_id === $ph->fee_invoice->client_id;
+            }
+        }
+
+        return false;
     }
 
     /**

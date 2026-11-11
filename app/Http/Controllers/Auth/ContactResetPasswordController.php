@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,20 +105,31 @@ class ContactResetPasswordController extends Controller
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
         }
 
-        $request->validate($this->rules(), $this->validationErrorMessages());
+        $rules = $this->rules();
+        $rules['token'] = ['required', 'string'];
 
-        $user = ClientContact::where($request->only(['email', 'token']))->first();
+        $request->validate($rules, $this->validationErrorMessages());
 
-        if (! $user) {
-            return $this->sendResetFailedResponse($request, PASSWORD::INVALID_USER);
+        $token = $request->input('token');
+
+        $user = ClientContact::where([
+            'email' => $request->input('email'),
+            'token' => $token,
+        ])->first();
+
+        if (! $user || ! $this->resetTokenIsValid($token)) {
+            return $this->sendResetFailedResponse($request, Password::INVALID_TOKEN);
         }
 
         $hashed_password = Hash::make($request->input('password'));
 
-        ClientContact::where('email', $user->email)->update([
-            'password' => $hashed_password,
-            'remember_token' => Str::random(60),
-        ]);
+        ClientContact::where('email', $user->email)
+            ->where('company_id', $user->company_id)
+            ->update([
+                'password' => $hashed_password,
+                'remember_token' => Str::random(60),
+                'token' => null,
+            ]);
 
         event(new PasswordReset($user));
 
@@ -146,5 +157,14 @@ class ContactResetPasswordController extends Controller
     public function broker()
     {
         return Password::broker('contacts');
+    }
+
+    private function resetTokenIsValid(string $token): bool
+    {
+        if (! preg_match('/^(\d{10})\.[A-Za-z0-9]{49}$/D', $token, $matches)) {
+            return false;
+        }
+
+        return now()->timestamp <= (int) $matches[1];
     }
 }

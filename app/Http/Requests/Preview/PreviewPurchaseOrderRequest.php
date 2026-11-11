@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -63,7 +63,7 @@ class PreviewPurchaseOrderRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['amount'] = 0;
         $input['balance'] = 0;
-        $input['number'] = isset($input['number']) ? $input['number'] : ctrans('texts.live_preview').' #'.rand(0, 1000); //30-06-2023
+        $input['number'] ??= ctrans('texts.live_preview') . ' #' . rand(0, 1000); //30-06-2023
 
         if ($input['entity_id'] ?? false) {
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'], true);
@@ -96,7 +96,7 @@ class PreviewPurchaseOrderRequest extends Request
     public function getVendor(): ?Vendor
     {
         if (!$this->vendor) {
-            $this->vendor = Vendor::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->vendor_id);
+            $this->vendor = Vendor::query()->with('contacts', 'company', 'user', 'tags')->withTrashed()->find($this->vendor_id);
         }
 
         return $this->vendor;
@@ -111,7 +111,7 @@ class PreviewPurchaseOrderRequest extends Request
 
     public function stubInvitation()
     {
-        $vendor = Vendor::query()->with('contacts', 'company', 'user')->withTrashed()->find($this->vendor_id);
+        $vendor = Vendor::query()->with('contacts', 'company', 'user', 'tags')->withTrashed()->find($this->vendor_id);
         $this->setVendor($vendor);
         $invitation = false;
 

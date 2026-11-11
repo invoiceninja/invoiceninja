@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,6 +31,7 @@ use App\Models\RecurringQuote;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Events\User\UserWasPurged;
 use Illuminate\Support\Facades\DB;
 use App\DataMapper\CompanySettings;
 use App\Events\User\UserWasDeleted;
@@ -94,7 +95,7 @@ class UserRepository extends BaseRepository
             throw new \Illuminate\Auth\Access\AuthorizationException("Illegal operation encountered for {$user->hashed_id}", 401);
         }
 
-        $user->account_id = $account->id;//@todo we should never change the account_id if it is set at this point.
+        $user->account_id = $account->id; //We should never change the account_id if it is set at this point.
 
         if (strlen($user->password ?? '') >= 1) {
             $user->has_password = true;
@@ -109,9 +110,21 @@ class UserRepository extends BaseRepository
             if (! $cu) {
                 $data['company_user']['account_id'] = $account->id;
                 $data['company_user']['notifications'] = isset($data['company_user']['notifications']['email']) ? $data['company_user']['notifications'] : CompanySettings::notificationDefaults();
+                $data['company_user']['is_owner'] = false;
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
-                if (auth()->user()->isAdmin()) {
+                if (auth()->user()->isOwner()) {
+                    $cu->fill($data['company_user']);
+                    $cu->restore();
+                    $cu->tokens()->restore();
+                    $cu->save();
+
+                    //05-08-2022
+                    if ($cu->tokens()->count() == 0) {
+                        (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
+                    }
+                } elseif (auth()->user()->isAdmin()) {
+                    unset($data['company_user']['is_owner']);
                     $cu->fill($data['company_user']);
                     $cu->restore();
                     $cu->tokens()->restore();
@@ -147,7 +160,6 @@ class UserRepository extends BaseRepository
         }
 
         if (array_key_exists('company_user', $data)) {
-            $this->forced_includes = 'company_users';
 
             $company = auth()->user()->company();
 
@@ -203,7 +215,7 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * @param $entity
+     * @param $user
      */
     public function restore($user)
     {
@@ -258,7 +270,7 @@ class UserRepository extends BaseRepository
                });
         }
     }
-    
+
     /**
      * purge a user and all of their data across
      * all companies and accounts.
@@ -270,10 +282,20 @@ class UserRepository extends BaseRepository
     public function purge(User $user, User $new_owner_user): void
     {
 
+        $notes = $user->present()->name();
+
         \DB::transaction(function () use ($user, $new_owner_user) {
-            
+
+            $purged_user_company_ids = $user->account
+                ->companies()
+                ->pluck('id')
+                ->all();
+                
+            /* Remove all of the system tokens for the user */
+            $user->tokens()->where('is_system', true)->forceDelete();
+
             // Relations to transfer user_id to new owner
-            $allRelations = [
+            $all_relations = [
                 'activities', 'bank_integrations', 'bank_transaction_rules',
                 'bank_transactions', 'client_contacts', 'company_gateways',
                 'company_ledgers', 'company_tokens', 'credit_invitations',
@@ -290,27 +312,58 @@ class UserRepository extends BaseRepository
                 'recurring_quotes',
             ];
 
-            foreach ($allRelations as $relation) {
-                $user->{$relation}()->update(['user_id' => $new_owner_user->id]);
+            foreach ($all_relations as $relation) {
+                 $user->{$relation}()
+                    ->whereIn('company_id', $purged_user_company_ids)
+                    ->update(['user_id' => $new_owner_user->id]);
             }
 
             // Models with both user_id and assigned_user_id
-            $modelsWithAssignedUser = [
+            $models_with_assigned_user = [
                 Client::class, Invoice::class, Credit::class, Quote::class,
                 Payment::class, Expense::class, Task::class, Project::class,
                 Vendor::class, Product::class, PurchaseOrder::class,
                 RecurringInvoice::class, RecurringExpense::class, RecurringQuote::class,
             ];
 
-            foreach ($modelsWithAssignedUser as $model) {
+            foreach ($models_with_assigned_user as $model) {
                 // Null out assigned_user_id
                 $model::withTrashed()
+                    ->whereIn('company_id', $purged_user_company_ids)
                     ->where('assigned_user_id', $user->id)
                     ->update(['assigned_user_id' => null]);
             }
 
+            // Fix scheduler parameters JSON — embedded user_id
+            $user->schedules()->each(function ($scheduler) use ($new_owner_user, $user) {
+                $params = $scheduler->parameters; // @phpstan-ignore-line
+                if (isset($params['user_id']) && $params['user_id'] == $user->id) {
+                    $params['user_id'] = $new_owner_user->id;
+                    $scheduler->parameters = $params; // @phpstan-ignore-line
+                    $scheduler->save();
+                }
+            });
+
+            // Fix gmail_sending_user_id in company settings
+            $old_hashed_id = $user->hashed_id;
+
+            $new_owner_user->account->companies()->cursor()->each(function ($company) use ($old_hashed_id) {
+                /** @var \App\Models\Company $company */
+                $settings = $company->settings;
+                if (isset($settings->gmail_sending_user_id) && $settings->gmail_sending_user_id === $old_hashed_id) {
+                    $settings->gmail_sending_user_id = '0';
+                    $settings->email_sending_method = 'default';
+                    $company->settings = $settings;
+                    $company->save();
+                }
+            });
+
             $user->forceDelete();
+
         });
 
+        $company = $new_owner_user->account->default_company ?? $new_owner_user->companies->first();
+
+        event(new UserWasPurged($new_owner_user, $notes, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
     }
 }

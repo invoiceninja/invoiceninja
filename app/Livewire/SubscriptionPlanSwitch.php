@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,19 +20,26 @@ use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Locked;
 
 class SubscriptionPlanSwitch extends Component
 {
+    #[Locked]
     public $recurring_invoice_id;
 
+    #[Locked]
     public $subscription_id;
 
+    #[Locked]
     public $amount;
 
+    #[Locked]
     public $target_id;
 
+    #[Locked]
     public $contact_id;
 
+    #[Locked]
     public $db;
 
     /**
@@ -61,6 +68,7 @@ class SubscriptionPlanSwitch extends Component
     /**
      * @var mixed|string
      */
+    #[Locked]
     public $hash;
 
     public ?string $first_name;
@@ -151,13 +159,13 @@ class SubscriptionPlanSwitch extends Component
             Cache::put(
                 $this->hash,
                 [
-                'subscription_id' => $this->target()->hashed_id,
-                'target_id' => $this->target()->hashed_id,
-                'recurring_invoice' => $this->recurring_invoice()->hashed_id,
-                'client_id' => $this->recurring_invoice()->client->hashed_id,
-                'invoice_id' => $this->state['invoice']->hashed_id,
-                'context' => 'change_plan',
-                now()->addMinutes(60), ]
+                    'subscription_id' => $this->target()->hashed_id,
+                    'target_id' => $this->target()->hashed_id,
+                    'recurring_invoice' => $this->recurring_invoice()->hashed_id,
+                    'client_id' => $this->recurring_invoice()->client->hashed_id,
+                    'invoice_id' => $this->state['invoice']->hashed_id,
+                    'context' => 'change_plan',
+                    now()->addMinutes(60), ]
             );
 
             $this->state['payment_initialised'] = true;

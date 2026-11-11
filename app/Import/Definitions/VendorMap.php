@@ -46,6 +46,9 @@ class VendorMap
             26 => 'contact.custom_value2',
             27 => 'contact.custom_value3',
             28 => 'contact.custom_value4',
+            29 => 'vendor.language_id',
+            30 => 'vendor.classification',
+            31 => 'vendor.is_tax_exempt',
 
         ];
     }
@@ -82,6 +85,9 @@ class VendorMap
             26 => 'texts.custom_value',
             27 => 'texts.custom_value',
             28 => 'texts.custom_value',
+            29 => 'texts.language',
+            30 => 'texts.classification',
+            31 => 'texts.is_tax_exempt',
         ];
     }
 }

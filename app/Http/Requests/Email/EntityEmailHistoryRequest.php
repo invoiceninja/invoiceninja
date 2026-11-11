@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,10 @@
 namespace App\Http\Requests\Email;
 
 use App\Http\Requests\Request;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -53,10 +57,31 @@ class EntityEmailHistoryRequest extends Request
     {
         $input = $this->all();
 
-        $this->entity_plural = Str::plural($input['entity']) ?? '';
-        $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
+        $this->entity_plural = Str::plural($input['entity'] ?? '');
+        $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'] ?? '');
 
         $this->replace($input);
     }
 
+    public function getEntity()
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        $entity = match($this->input('entity')) {
+            'invoice' => Invoice::class,
+            'quote' => Quote::class,
+            'credit' => Credit::class,
+            'recurring_invoice' => RecurringInvoice::class,
+            // 'purchase_order' => PurchaseOrder::class,
+            default => null,
+        };
+
+        if($entity){
+
+            return $entity::where('company_id', $user->company()->id)->where('id', $this->input('entity_id'))->first();
+        }
+
+        return $entity;
+    }
 }

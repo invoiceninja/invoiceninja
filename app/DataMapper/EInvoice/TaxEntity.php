@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,11 +26,18 @@ class TaxEntity
     /** @var array<string> */
     public array $received_documents = [];
 
+    /** @var array<string> */
+    public array $sent_documents = [];
+
     /** @var bool $acts_as_sender */
     public bool $acts_as_sender = true;
 
     /** @var bool $acts_as_receiver */
     public bool $acts_as_receiver = true;
+
+    /** @var array<string> */
+    public array $e_invoice_statuses = [];
+    
     /**
      * __construct
      *
@@ -49,7 +56,7 @@ class TaxEntity
             $this->{$key} = $value;
         }
 
-        $this->migrate();
+        $this->migrate(); //@phpstan-ignore-line
     }
 
     public function init(): self

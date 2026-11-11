@@ -5,30 +5,33 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Jobs\EDocument;
 
-use App\Utils\Ninja;
 use App\Models\Account;
+use App\Models\Activity;
 use App\Models\Company;
-use App\Utils\TempFile;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Services\EDocument\Gateway\Storecove\EInvoiceForwarder;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\Email\Email;
-use Illuminate\Bus\Queueable;
 use App\Services\Email\EmailObject;
-use Illuminate\Support\Facades\App;
+use App\Utils\Ninja;
+use App\Utils\TempFile;
+use App\Utils\Traits\Notifications\UserNotifies;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Mail\Mailables\Address;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
-use App\Utils\Traits\Notifications\UserNotifies;
-
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class EInvoicePullDocs implements ShouldQueue
 {
@@ -44,14 +47,12 @@ class EInvoicePullDocs implements ShouldQueue
     public $tries = 1;
 
     private int $einvoice_received_count = 0;
-    
-    public function __construct()
-    {
-    }
+
+    public function __construct() {}
 
     public function handle()
     {
-        nlog("Pulling Peppol Docs ". now()->format('Y-m-d h:i:s'));
+        nlog("Pulling Peppol Docs " . now()->format('Y-m-d h:i:s'));
 
         if (Ninja::isHosted()) {
             return;
@@ -67,78 +68,228 @@ class EInvoicePullDocs implements ShouldQueue
                 ->each(function ($account) {
 
                     $account->companies->filter(function ($company) {
-
-                        return $company->settings->e_invoice_type == 'PEPPOL' && ($company->tax_data->acts_as_receiver ?? false);
-
+                        return $company->settings->e_invoice_type == 'PEPPOL';
                     })
-                    ->each(function ($company) {
+                        ->each(function ($company) {
 
-                        $this->einvoice_received_count = 0;
+                            $this->einvoice_received_count = 0;
+                            $this->getStatuses($company);
+                            $this->getSentDocs($company);
 
-                        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
-                            ->withHeaders([
-                                'Content-Type' => 'application/json',
-                                'Accept' => 'application/json',
-                                'X-EInvoice-Token' => $company->account->e_invoicing_token,
-                            ])
-                            ->post('/api/einvoice/peppol/documents', data: [
-                                'license_key' => config('ninja.license_key'),
-                                'account_key' => $company->account->key,
-                                'company_key' => $company->company_key,
-                                'legal_entity_id' => $company->legal_entity_id,
-                            ]);
-
-                        if ($response->successful()) {
-
-                            $hash = $response->header('X-CONFIRMATION-HASH');
-
-                            $this->handleSuccess($response->json(), $company, $hash);
-                        } else {
-                            nlog($response->body());
-                        }
-
-
-
-                        if($this->einvoice_received_count > 0) {
-
-                            foreach ($company->company_users as $company_user) {
-                                
-                                $user = $company_user->user;
-
-                                $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
-
-                                if(!array_search('mail', $notifications)){
-                                    continue;
-                                }
-
-                                App::setLocale($company->getLocale());
-
-                                $mo = new EmailObject();
-                                $mo->subject = ctrans('texts.einvoice_received_subject');
-                                $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                                $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                                $mo->company_key = $company->company_key;
-                                $mo->html_template = 'email.template.admin';
-                                $mo->to = [new Address($user->email, $user->present()->name())];
-                        
-                                Email::dispatch($mo, $company);
-                            }
-                        }
-
-                    });
-
+                        });
                 });
     }
 
+    private function getSentDocs(Company $company)
+    {
+
+        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'X-EInvoice-Token' => $company->account->e_invoicing_token,
+                ])
+                ->post('/api/einvoice/peppol/documents', data: [
+                    'license_key' => config('ninja.license_key'),
+                    'account_key' => $company->account->key,
+                    'company_key' => $company->company_key,
+                    'legal_entity_id' => $company->legal_entity_id,
+                ]);
+
+        if ($response->successful()) {
+
+            $hash = $response->header('X-CONFIRMATION-HASH');
+
+            $this->handleSuccess($response->json(), $company, $hash);
+        } else {
+            nlog($response->body());
+        }
+
+        if ($this->einvoice_received_count > 0) {
+
+            foreach ($company->company_users as $company_user) {
+
+                $user = $company_user->user;
+
+                $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
+
+                if (!in_array('mail', $notifications)) {
+                    continue;
+                }
+
+                App::setLocale($company->getLocale());
+
+                $mo = new EmailObject();
+                $mo->subject = ctrans('texts.einvoice_received_subject');
+                $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                $mo->company_key = $company->company_key;
+                $mo->html_template = 'email.template.admin';
+                $mo->to = [new Address($user->email, $user->present()->name())];
+
+                Email::dispatch($mo, $company);
+            }
+        }
+
+        $this->pullSentDocuments($company);
+    }
+
+    private function getStatuses(Company $company)
+    {
+
+        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'X-EInvoice-Token' => $company->account->e_invoicing_token,
+                ])
+                ->post('/api/einvoice/peppol/documents/statuses', data: [
+                    'license_key' => config('ninja.license_key'),
+                    'account_key' => $company->account->key,
+                    'company_key' => $company->company_key,
+                    'legal_entity_id' => $company->legal_entity_id,
+                ]);
+
+        if ($response->successful()) {
+            $statuses = $response->json();
+
+            foreach ($statuses as $status) {
+
+                $model = Invoice::withTrashed()->where('backup->guid', $status['guid'])->first();
+
+                if (!$model) {
+                    $model = Credit::withTrashed()->where('backup->guid', $status['guid'])->first();
+                }
+
+                if (!$model) {
+                    /**
+                     * France e-reporting submission GUIDs live on
+                     * TransactionEvent.payment_request->guid, not on an invoice/credit
+                     * backup->guid. Hand the status to the FR reconciler, which matches
+                     * by that key. On self-hosted multi_db is disabled, so the reconciler
+                     * resolves the local company and TransactionEvent directly.
+                    */
+                    // UpdateFranceEReportSubmissionStatus::dispatch([
+                    //     ...$status,
+                    //     'tenant_id' => $company->company_key,
+                    //     'guid' => $status['guid'],
+                    // ]);
+
+                    continue;
+                }
+
+                $statusEvent = (string) ($status['event'] ?? '');
+                $this->recordDocumentStatus($model, $statusEvent);
+
+                match ($statusEvent) {
+                    'cleared' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_cleared_for_sending')),
+                    'accepted' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_accepted')),
+                    'rejected' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_rejected')),
+                    'partially_paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_partially_paid')),
+                    'paid' => $this->writeActivity($model, Activity::EINVOICE_STATUS_UPDATED, ctrans('texts.peppol_paid')),
+                    default => null,
+                };
+
+            }
+
+        }
+
+    }
+
+
+    private function recordDocumentStatus(Invoice|Credit $model, string $status): void
+    {
+        if ($status === '') {
+            return;
+        }
+
+        $previousStatus = strtolower(trim((string) ($model->backup->e_invoice_status ?? '')));
+
+        $normalizedStatus = strtolower(trim($status));
+        $rejectionRemainsLatched = $previousStatus === 'rejected'
+            && ! in_array($normalizedStatus, ['accepted', 'cleared'], true);
+
+        if ($rejectionRemainsLatched) {
+            return;
+        }
+
+        $model->backup->e_invoice_status = $normalizedStatus;
+
+        if ($normalizedStatus === 'cleared' && is_null($model->backup->e_invoice_cleared_at)) {
+            $model->backup->e_invoice_cleared_at = now()->toIso8601String();
+        }
+
+        $model->saveQuietly();
+        $company = $model->getRelationValue('company');
+
+        if ($previousStatus !== $normalizedStatus
+            && $company instanceof Company
+            && (bool) $company->getSetting('france_reporting_enabled')) {
+            RecordFranceEReportingDocumentLifecycle::dispatchSync(
+                get_class($model),
+                $model->id,
+                0,
+                $company->db,
+                $normalizedStatus,
+            );
+        }
+    }
+
+    private function writeActivity($model, int $activity_id, ?string $notes = '')
+    {
+        $model_key = 'invoice_id';
+
+        if ($model instanceof Credit) {
+            $model_key = 'credit_id';
+        }
+
+        if (Activity::where($model_key, $model->id)
+        ->where('activity_type_id', $activity_id)
+        ->where('notes', $notes)
+        ->where('created_at', '>', now()->subDays(1))
+        ->exists()) {
+            return;
+        }
+
+        $activity = new Activity();
+        $activity->user_id = $model->user_id;
+        $activity->client_id = $model->client_id ?? $model->vendor_id;
+        $activity->company_id = $model->company_id;
+        $activity->account_id = $model->company->account_id;
+        $activity->activity_type_id = $activity_id;
+        $activity->{$model_key} = $model->id;
+        $activity->notes = $notes;
+        $activity->save();
+    }
+
+    /**
+     * Processes received documents pulled from the hosted server.
+     *
+     * Creates expenses and vendors from each Storecove invoice, saves
+     * HTML/XML/attachments to the expense, and forwards the XML to
+     * the company's expense forwarding email if configured. Flushes the
+     * documents from S3 after processing.
+     *
+     * @param  array<int, array>  $received_documents
+     * @param  Company            $company
+     * @param  string             $hash  Confirmation hash for flushing
+     * @return void
+     */
     private function handleSuccess(array $received_documents, Company $company, string $hash): void
     {
 
         $storecove = new Storecove();
-
-        $mail_payload = [];
+        $forwarder = EInvoiceForwarder::forExpenses($company);
 
         foreach ($received_documents as $document) {
+
             nlog($document);
+
+            if (!isset($document['document']['invoice'])) {
+                nlog("No invoice found in document!!");
+                continue;
+            }
+
             $storecove_invoice = $storecove->expense->getStorecoveInvoice(json_encode($document['document']['invoice']));
             $expense = $storecove->expense->createExpense($storecove_invoice, $company);
 
@@ -151,19 +302,36 @@ class EInvoicePullDocs implements ShouldQueue
                 $upload_document = null;
             }
 
+            if (($document['original_document_mime_type'] ?? '') === 'application/pdf'
+                && strlen($document['original_base64_document'] ?? '') > 5) {
+                $upload_document = TempFile::UploadedFileFromBase64(
+                    $document['original_base64_document'],
+                    "{$file_name}.pdf",
+                    'application/pdf'
+                );
+                $this->saveDocument($upload_document, $expense, true);
+                $upload_document = null;
+            }
+
             if (strlen($document['original_base64_xml'] ?? '') > 5) {
 
                 $upload_document = TempFile::UploadedFileFromBase64($document['original_base64_xml'], "{$file_name}.xml", 'application/xml');
                 $this->saveDocument($upload_document, $expense, true);
                 $upload_document = null;
+
+                if ($forwarder->isConfigured()) {
+                    $forwarder->forward(base64_decode($document['original_base64_xml']), "{$file_name}.xml", 'received');
+                }
             }
 
-            foreach ($document['document']['invoice']['attachments'] as $attachment) {
+            if (isset($document['document']['invoice']['attachments'])) {
+                foreach ($document['document']['invoice']['attachments'] as $attachment) {
 
-                $upload_document = TempFile::UploadedFileFromBase64($attachment['document'], $attachment['filename'], $attachment['mime_type']);
-                $this->saveDocument($upload_document, $expense, true);
-                $upload_document = null;
+                    $upload_document = TempFile::UploadedFileFromBase64($attachment['document'], $attachment['filename'], $attachment['mime_type']);
+                    $this->saveDocument($upload_document, $expense, true);
+                    $upload_document = null;
 
+                }
             }
 
             $this->einvoice_received_count++;
@@ -181,7 +349,7 @@ class EInvoicePullDocs implements ShouldQueue
                 'account_key' => $company->account->key,
                 'company_key' => $company->company_key,
                 'legal_entity_id' => $company->legal_entity_id,
-                'hash'  => $hash
+                'hash'  => $hash,
             ]);
 
         if ($response->successful()) {
@@ -189,6 +357,73 @@ class EInvoicePullDocs implements ShouldQueue
 
 
 
+    }
+
+    /**
+     * Pulls confirmed-sent XML documents from the hosted server and forwards
+     * them to the company's forwarding email.
+     *
+     * Only runs when the company has a valid forwarding email configured.
+     * Retrieves sent documents via /api/einvoice/peppol/documents/sent,
+     * forwards each XML, then flushes the documents from S3.
+     *
+     * @param  Company $company
+     * @return void
+     */
+    private function pullSentDocuments(Company $company): void
+    {
+        $forwarder = new EInvoiceForwarder($company);
+
+        if (!$forwarder->isConfigured()) {
+            return;
+        }
+
+        $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'X-EInvoice-Token' => $company->account->e_invoicing_token,
+            ])
+            ->post('/api/einvoice/peppol/documents/sent', data: [
+                'license_key' => config('ninja.license_key'),
+                'account_key' => $company->account->key,
+                'company_key' => $company->company_key,
+                'legal_entity_id' => $company->legal_entity_id,
+            ]);
+
+        if (!$response->successful()) {
+            return;
+        }
+
+        $sent_documents = $response->json();
+        $hash = $response->header('X-CONFIRMATION-HASH');
+
+        if (empty($sent_documents)) {
+            return;
+        }
+
+        foreach ($sent_documents as $document) {
+            $guid = $document['guid'] ?? '';
+            $xml_base64 = $document['xml_base64'] ?? '';
+
+            if (strlen($xml_base64) > 5) {
+                $forwarder->forward(base64_decode($xml_base64), "{$guid}.xml", 'sent');
+            }
+        }
+
+        \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'X-EInvoice-Token' => $company->account->e_invoicing_token,
+            ])
+            ->post('/api/einvoice/peppol/documents/sent/flush', data: [
+                'license_key' => config('ninja.license_key'),
+                'account_key' => $company->account->key,
+                'company_key' => $company->company_key,
+                'legal_entity_id' => $company->legal_entity_id,
+                'hash' => $hash,
+            ]);
     }
 
     public function failed(\Throwable $exception)

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,11 +72,11 @@ class EmailObject
 
     public ?int $invitation_id = null;
 
-    public InvoiceInvitation | QuoteInvitation | CreditInvitation | PurchaseOrderInvitation | null $invitation;
+    public InvoiceInvitation|QuoteInvitation|CreditInvitation|PurchaseOrderInvitation|null $invitation;
 
     public ?int $entity_id = null;
 
-    public Invoice | Quote | Credit | PurchaseOrder | Payment | null $entity;
+    public Invoice|Quote|Credit|PurchaseOrder|Payment|null $entity;
 
     public ?int $client_id = null;
 
@@ -92,7 +92,7 @@ class EmailObject
 
     public ?int $client_contact_id = null;
 
-    public ClientContact | VendorContact | null  $contact;
+    public ClientContact|VendorContact|null  $contact;
 
     public ?int $vendor_contact_id = null;
 

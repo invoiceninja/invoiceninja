@@ -103,7 +103,9 @@ class InvoiceBalanceTest extends TestCase
         $i = $i->calc()->getInvoice();
 
         $this->assertEquals(15, $i->amount);
-        $this->assertEquals(15 - 10.37, $i->balance);
+        // 15 - 10.37 = 4.63; balance is now rounded to currency precision rather
+        // than carrying the 4.630000000000001 float artifact into storage.
+        $this->assertEqualsWithDelta(4.63, $i->balance, 0.0001);
         $this->assertEquals(3, $i->status_id);
         $this->assertEquals(10.37, $i->paid_to_date);
 

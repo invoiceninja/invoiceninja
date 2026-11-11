@@ -125,7 +125,9 @@ class ClientBalanceReportOptimizationTest extends TestCase
     public function testClientsWithNoInvoices()
     {
         // Create clients without invoices
-        Client::factory()->count(5)->create([
+        Client::factory()->count(5)->sequence(
+            fn ($sequence) => ['name' => "No Invoice Client {$sequence->index}"],
+        )->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
@@ -134,10 +136,9 @@ class ClientBalanceReportOptimizationTest extends TestCase
         $report = new ClientBalanceReport($this->company, $input);
         $output = $report->run();
 
-        // Should return 0 for invoice count and balance
+        // Clients without a positive invoice balance should be excluded.
         $this->assertNotEmpty($output);
-        $lines = array_filter(explode("\n", $output), fn($line) => !empty($line));
-        $this->assertGreaterThanOrEqual(5, count($lines));
+        $this->assertStringNotContainsString('No Invoice Client', $output);
     }
 
     /**
@@ -148,6 +149,7 @@ class ClientBalanceReportOptimizationTest extends TestCase
         $client = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
+            'name' => 'Zero Balance Invoice Client',
         ]);
 
         // Create invoices at different dates
@@ -291,10 +293,9 @@ class ClientBalanceReportOptimizationTest extends TestCase
         $report = new ClientBalanceReport($this->company, $input);
         $output = $report->run();
 
-        // Should still count the invoices
+        // Paid invoices do not contribute to client balance rows.
         $this->assertNotEmpty($output);
-        $lines = array_filter(explode("\n", $output), fn($line) => !empty($line));
-        $this->assertGreaterThanOrEqual(5, count($lines));
+        $this->assertStringNotContainsString('Zero Balance Invoice Client', $output);
     }
 
     /**

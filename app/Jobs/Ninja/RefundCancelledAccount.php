@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Jobs\Ninja;
 
 use App\Models\Account;
@@ -67,9 +75,6 @@ class RefundCancelledAccount implements ShouldQueue
 
         $refund = $this->calculateRefundAmount($paid, $plan_expires);
 
-        /* Are there any edge cases? */
-
-        //@TODO process refund by refunding directly to the payment_id;
     }
 
     private function calculateRefundAmount($amount, $plan_expires)

@@ -46,6 +46,10 @@
             <p><b>{{ ctrans('texts.expenses') }}:</b> {{ $expense_count }} </p>
         @endif
 
+        @if($purchase_order_count)
+            <p><b>{{ ctrans('texts.purchase_orders') }}:</b> {{ $purchase_order_count }} </p>
+        @endif
+
         @if($company_gateway_count)
             <p><b>{{ ctrans('texts.gateways') }}:</b> {{ $company_gateway_count }} </p>
         @endif

@@ -21,10 +21,10 @@ class SubscriptionStepsController extends BaseController
     public function index(): JsonResponse
     {
         $dependencies = collect(Purchase::$dependencies)
-            ->map(fn ($dependency) => [
+            ->map(fn($dependency) => [
                 'id' => $dependency['id'],
                 'dependencies' => collect($dependency['dependencies'])
-                    ->map(fn ($dependency) => Purchase::$dependencies[$dependency]['id'])
+                    ->map(fn($dependency) => Purchase::$dependencies[$dependency]['id'])
                     ->toArray(),
             ])
             ->toArray();
@@ -35,7 +35,7 @@ class SubscriptionStepsController extends BaseController
     public function check(): JsonResponse
     {
         request()->validate(([
-            'steps' => ['required', new Steps()]
+            'steps' => ['required', new Steps()],
         ]));
 
         return response()->json([], 200);

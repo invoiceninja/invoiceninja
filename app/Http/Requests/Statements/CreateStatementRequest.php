@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Http\Requests\Statements;
 
 use App\Http\Requests\Request;
@@ -36,7 +44,7 @@ class CreateStatementRequest extends Request
         return [
             'start_date' => 'required|date_format:Y-m-d',
             'end_date'   => 'required|date_format:Y-m-d',
-            'client_id'  => 'bail|required|exists:clients,id,company_id,'.$user->company()->id,
+            'client_id'  => 'bail|required|exists:clients,id,company_id,' . $user->company()->id,
             'show_payments_table' => 'boolean',
             'show_aging_table' => 'boolean',
             'show_credits_table' => 'boolean',

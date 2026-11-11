@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,9 +52,7 @@ class EmailDefaults
     /**
      * @param Email $email job class
      */
-    public function __construct(protected Email $email)
-    {
-    }
+    public function __construct(protected Email $email) {}
 
     /**
      * Entry point for generating
@@ -181,10 +179,10 @@ class EmailDefaults
         $breaks = ["<br />","<br>","<br/>"];
         $this->email->email_object->text_body = str_ireplace($breaks, "\r\n", $this->email->email_object->body);
         $this->email->email_object->text_body = strip_tags($this->email->email_object->text_body);
-        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], "\r\n\r\n".'$view_url'."\r\n", $this->email->email_object->text_body);
+        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], "\r\n\r\n" . '$view_url' . "\r\n", $this->email->email_object->text_body);
 
         if ($this->template == 'email.template.custom') {
-            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
+            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom ?? '')));
         }
 
         return $this;
@@ -215,7 +213,7 @@ class EmailDefaults
         $reply_to_email = $this->email->company->owner()->email;
         $reply_to_name = $this->email->company->owner()->present()->name();
 
-        if (str_contains($this->email->email_object->settings->reply_to_email, "@")) {
+        if (str_contains($this->email->email_object->settings->reply_to_email ?? '', "@")) {
             $reply_to_email = $this->email->email_object->settings->reply_to_email;
         } elseif (isset($this->email->email_object->invitation->user)) {
             $reply_to_email = $this->email->email_object->invitation->user->email;
@@ -280,14 +278,51 @@ class EmailDefaults
     }
 
     /**
-     * Sets the CC of the email
+     * Sets the CC of the email from cc_only contacts.
+     * Feature-gated: hosted free accounts are excluded.
+     * CC-only contacts receive one copy only — attached to the first invitation for the entity.
+     * Deduplicates against any existing CC addresses (e.g. manual cc_email from request).
      */
     private function setCc(): self
     {
+        if (Ninja::isHosted() && !$this->email->company->account->isPremium()) {
+            return $this;
+        }
+
+        $entity = $this->email->email_object->entity;
+
+        if (!$entity) {
+            return $this;
+        }
+
+        /* Only attach cc_only contacts to the first invitation for this entity */
+        /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|\App\Models\CreditInvitation|\App\Models\PurchaseOrderInvitation|null $invitation */
+        $invitation = $this->email->email_object->invitation;
+        /** @var \App\Models\InvoiceInvitation|\App\Models\QuoteInvitation|\App\Models\CreditInvitation|\App\Models\PurchaseOrderInvitation|null $first_invitation */
+        $first_invitation = $entity->invitations()->orderBy('id')->first();
+
+        if ($invitation && $first_invitation && $first_invitation->id !== $invitation->id) {
+            return $this;
+        }
+
+        $cc_addresses = [];
+
+        if ($entity->client ?? null) {
+            $cc_addresses = $entity->client->cc_contacts();
+        } elseif ($entity->vendor ?? null) {
+            $cc_addresses = $entity->vendor->cc_contacts();
+        }
+
+        if (empty($cc_addresses)) {
+            return $this;
+        }
+
+        $existing_emails = collect($this->email->email_object->cc)->map(fn($a) => $a->address)->toArray();
+        $cc_addresses = array_filter($cc_addresses, fn($a) => !in_array($a->address, $existing_emails));
+
+        $this->email->email_object->cc = array_merge($this->email->email_object->cc, array_values($cc_addresses));
+
         return $this;
-        // return $this->email->email_object->cc;
-        // return [
-        // ];
     }
 
     /**
@@ -311,7 +346,7 @@ class EmailDefaults
         if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
 
-            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter() . '.pdf']]);
         }
 
         /** UBL xml file */
@@ -330,11 +365,11 @@ class EmailDefaults
             try {
                 $xml_string = $this->email->email_object->entity->service()->getEDocument();
             } catch (\Throwable $th) {
-                nlog("could not generate e invoice for:: ".$this->email->email_object->entity->id);
+                nlog("could not generate e invoice for:: " . $this->email->email_object->entity->id);
             }
 
             if ($xml_string) {
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0] . "-e_invoice.xml"]]);
             }
 
         }

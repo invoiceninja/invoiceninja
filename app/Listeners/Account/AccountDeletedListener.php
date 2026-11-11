@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Listeners\Account;
 
 use App\Utils\Ninja;
@@ -16,9 +24,7 @@ class AccountDeletedListener implements ShouldQueue
      * Create the event listener.
      *
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -28,11 +34,11 @@ class AccountDeletedListener implements ShouldQueue
      */
     public function handle($event)
     {
-        
+
         if (Ninja::isHosted()) {
 
             MultiDB::setDB('db-ninja-01');
-            
+
             $company = Company::find(config('ninja.ninja_default_company_id'));
 
             $activity = new Activity();
@@ -45,7 +51,7 @@ class AccountDeletedListener implements ShouldQueue
             $activity->ip = $event->ip;
             $activity->is_system = false;
             $activity->save();
-            
+
 
         }
     }

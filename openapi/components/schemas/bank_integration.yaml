@@ -4,6 +4,7 @@
           description: 'The bank integration hashed id'
           type: string
           example: AS3df3A
+          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string
@@ -15,7 +16,7 @@
         bank_account_id:
           description: 'The bank account id'
           type: integer
-          example: '1233434'
+          example: 1233434
         bank_account_name:
           description: 'The name of the account'
           type: string
@@ -35,7 +36,7 @@
         balance:
           description: 'The current bank balance if available'
           type: number
-          example: '1000000'
+          example: 1000000
         currency:
           description: 'iso_3166_3 code'
           type: string

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,8 +39,8 @@ class ForteCustomerFactory
                         "street_line2" => $client->address1,
                         "locality" => $client->city,
                         "region" => $client->state,
-                        "postal_code" => $client->postal_code
-                    ]
+                        "postal_code" => $client->postal_code,
+                    ],
                 ],
                 // [
                 //     "label" => "Brown Billing",
@@ -59,7 +59,7 @@ class ForteCustomerFactory
                 //         "postal_code" => "95420"
                 //     ]
                 // ]
-            ]
+            ],
         ];
 
     }
@@ -68,18 +68,18 @@ class ForteCustomerFactory
     {
         return
         collect([
-          'name' => $customer['company_name'] ?? $customer['first_name'],
-          'contacts' => [
-              [
-                  'first_name' => $customer['first_name'],
-                  'last_name' => $customer['last_name'],
-                  'email' => $this->getBillingAddress($customer)['email'],
-                  'phone' => $this->getBillingAddress($customer)['phone'],
-              ]
-          ],
-          'settings' => [
-              'currency_id' => $company->settings->currency_id,
-          ],
+            'name' => $customer['company_name'] ?? $customer['first_name'],
+            'contacts' => [
+                [
+                    'first_name' => $customer['first_name'],
+                    'last_name' => $customer['last_name'],
+                    'email' => $this->getBillingAddress($customer)['email'],
+                    'phone' => $this->getBillingAddress($customer)['phone'],
+                ],
+            ],
+            'settings' => [
+                'currency_id' => $company->settings->currency_id,
+            ],
         ])->merge($this->getShippingAddress($customer))
         ->merge($this->getBillingAddress($customer))
         ->toArray();

@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Observers;
 
 use App\Models\ClientGatewayToken;
@@ -54,10 +62,19 @@ class CompanyGatewayObserver
     public function restored(CompanyGateway $company_gateway)
     {
         //When we restore the gateway, bring back the tokens!
-        ClientGatewayToken::query()->where('company_gateway_id', $company_gateway->id)
-                          ->withTrashed()->cursor()->each(function ($cgt) {
-                              $cgt->restore();
-                          });
+        // ClientGatewayToken::query()
+        //                     ->where('company_gateway_id', $company_gateway->id)
+        //                     ->where('is_deleted', false)
+        //                     ->withTrashed()
+        //                     ->cursor()
+        //                     ->each(function ($cgt) {
+        //                         $cgt->restore();
+        //                     });
+
+        $company_gateway->client_gateway_tokens()
+                        ->onlyTrashed()
+                        ->where('is_deleted', false)
+                        ->restore();
     }
 
     /**

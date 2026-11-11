@@ -1,4 +1,16 @@
 <div>
+    <div class="flex items-center mb-4">
+        <form action="{{ route('client.invoices.bulk') }}" method="post">
+            @csrf
+            @foreach($selected as $hashed_id)
+                <input type="hidden" name="invoices[]" value="{{ $hashed_id }}">
+            @endforeach
+            <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="download">{{ ctrans('texts.download') }}</button>
+            @if($gateway_available)
+                <button type="submit" @disabled(count($selected) === 0) wire:loading.attr="disabled" wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-primary bg-primary disabled:opacity-50" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
+            @endif
+        </form>
+    </div>
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="hidden mr-2 text-sm md:block">{{ ctrans('texts.per_page') }}</span>
@@ -11,27 +23,27 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:model.live="status" value="paid" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
+                <input wire:key="invoice-status-paid-{{ in_array('paid', $status, true) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('paid')" @checked(in_array('paid', $status, true)) value="paid" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
                 <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_paid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model.live="status" value="unpaid" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
+                <input wire:key="invoice-status-unpaid-{{ in_array('unpaid', $status, true) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('unpaid')" @checked(in_array('unpaid', $status, true)) value="unpaid" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
                 <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_unpaid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model.live="status" value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
+                <input wire:key="invoice-status-overdue-{{ in_array('overdue', $status, true) ? 'selected' : 'unselected' }}" wire:change="toggleStatus('overdue')" @checked(in_array('overdue', $status, true)) value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
                 <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.past_due') }}</label>
             </div>
         </div>
     </div>
     <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle rounded">
-            <table class="min-w-full mt-4 border border-gray-200 rounded shadow invoices-table">
+            <table data-portal-target="table" data-portal-table="invoices" class="min-w-full mt-4 border border-gray-200 rounded shadow invoices-table">
                 <thead>
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <label>
-                                <input type="checkbox" class="form-check form-check-parent">
+                                <input type="checkbox" wire:key="invoice-select-all-{{ $select_all ? 'selected' : 'unselected' }}" class="form-check" wire:change="toggleSelectAll" @checked($select_all) aria-label="{{ ctrans('texts.select_all') }}">
                             </label>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
@@ -74,10 +86,10 @@
                 </thead>
                 <tbody>
                     @forelse($invoices as $invoice)
-                        <tr class="bg-white group hover:bg-gray-100">
+                        <tr class="bg-white group hover:bg-gray-100" wire:key="invoice-{{ $invoice->hashed_id }}">
                             <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-nowrap">
                                 <label>
-                                    <input type="checkbox" class="form-check form-check-child" data-value="{{ $invoice->hashed_id }}">
+                                    <input type="checkbox" wire:key="invoice-checkbox-{{ $invoice->hashed_id }}-{{ in_array($invoice->hashed_id, $selected, true) ? 'selected' : 'unselected' }}" class="form-check" wire:change="toggleSelected('{{ $invoice->hashed_id }}')" @checked(in_array($invoice->hashed_id, $selected, true)) value="{{ $invoice->hashed_id }}">
                                 </label>
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
@@ -137,7 +149,3 @@
         {{ $invoices->links('portal/ninja2020/vendor/pagination') }}
     </div>
 </div>
-
-@push('footer')
-    @vite('resources/js/clients/invoices/action-selectors.js')
-@endpush

@@ -70,6 +70,23 @@ return [
         'client_id' => env('APPLE_CLIENT_ID'),
         'client_secret' => env('APPLE_CLIENT_SECRET'),
         'redirect' => env('APPLE_REDIRECT_URI'),
+        'client_ids' => explode(',', env('APPLE_CLIENT_IDS', '')),
+    ],
+
+    'oidc' => [
+        // URL to the identity provider without `/.well-known/openid-configuration` suffix
+        // https://sso.example.com/application/o/invoiceninja
+        'issuer'     => env('OIDC_ISSUER', substr(env('OIDC_WELL_KNOWN', ''), 0, -1 * strlen('/.well-known/openid-configuration'))),
+        'client_id'      => env('OIDC_CLIENT_ID', ''),
+        'client_secret'  => env('OIDC_CLIENT_SECRET', ''),
+        // Fixed callback URL. Must be registered at the IdP.
+        'redirect'       => rtrim((string) env('APP_URL', ''), '/') . '/auth/oidc',
+        // Space-separated scopes.
+        'scopes'         => env('OIDC_SCOPES', 'openid profile email'),
+        // Human-readable label used on the Blade login page button.
+        'provider_label' => env('OIDC_PROVIDER_LABEL', 'Single Sign-On'),
+        // Redirect automatically to OIDC provider on login page.
+        'auto' => env('OIDC_AUTO', false),
     ],
 
     'ses' => [
@@ -94,6 +111,7 @@ return [
         'model' => App\Models\User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+        'run_trial_integration_tests' => env('RUN_STRIPE_TRIAL_INTEGRATION_TESTS', false),
     ],
 
     'github' => [
@@ -148,6 +166,7 @@ return [
         'debug' => env('APP_DEBUG',false),
         'redirect_uri' => env('GOCARDLESS_REDIRECT_URI', null),
         'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
+        'webhook_secret' => env('GOCARDLESS_WEBHOOK_SECRET'),
     ],
     'quickbooks_webhook' => [
         'verifier_token' => env('QUICKBOOKS_VERIFIER_TOKEN', false),
@@ -172,5 +191,11 @@ return [
         'zone_id' => env('CLOUDFLARE_SAAS_ZONE_ID', false),
         'api_token' => env('CLOUDFLARE_SAAS_API_TOKEN', false),
         'email' => env('CLOUDFLARE_SAAS_EMAIL', false),
-    ]
+    ],
+    'square' => [
+        'redirect_url' => env('SQUARE_REDIRECT_URL'),
+        'application_id' => env('SQUARE_APPLICATION_ID'),
+        'application_secret' => env('SQUARE_APPLICATION_SECRET'),
+        'environment' => env('SQUARE_ENVIRONMENT', 'production'),
+    ],
 ];

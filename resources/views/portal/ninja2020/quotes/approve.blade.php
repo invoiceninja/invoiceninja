@@ -3,9 +3,10 @@
 
 @push('head')
     <meta name="show-quote-terms" content="{{ $settings->show_accept_quote_terms ? true : false }}">
-    <meta name="require-quote-signature" content="{{ $client->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_quote_signature }}">
+    <meta name="require-quote-signature" content="{{ $requires_signature ? true : false }}">
     <meta name="accept-user-input" content="{{ $client->getSetting('accept_client_input_quote_approval') }}">
-    <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
+    <meta name="docuninja-active" content="false">
+
 @endpush
 
 @section('body')
@@ -29,8 +30,8 @@
                         <div class="relative inline-block text-left">
                             <div>
                                 <div class="rounded-md shadow-sm">
-                                    <button type="button" id="approve-button" onclick="setTimeout(() => this.disabled = true, 0); return true;"
-                                            class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:ring-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150">
+                                    <button type="button" id="approve-button"
+                                            class="button button-primary bg-primary">
                                         {{ ctrans('texts.approve') }}
                                     </button>
                                 </div>

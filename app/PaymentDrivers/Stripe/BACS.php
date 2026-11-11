@@ -15,6 +15,7 @@ namespace App\PaymentDrivers\Stripe;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -24,6 +25,7 @@ use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Number;
+use Illuminate\Support\Facades\DB;
 use Stripe\Checkout\Session;
 
 class BACS implements LivewireMethodInterface
@@ -44,7 +46,7 @@ class BACS implements LivewireMethodInterface
             'customer' => $customer->id,
             'success_url' => str_replace("%7B", "{", str_replace("%7D", "}", $this->buildAuthorizeUrl())),
             'cancel_url' => route('client.payment_methods.index'),
-        ]);
+        ], $this->stripe->stripe_connect_auth);
         return render('gateways.stripe.bacs.authorize', $data);
     }
     private function buildAuthorizeUrl(): string
@@ -59,12 +61,37 @@ class BACS implements LivewireMethodInterface
     {
         $this->stripe->init();
         if ($request->session_id) {
-            $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
-
+            $session = Session::retrieve([
+                'id' => $request->session_id,
+                'expand' => ['setup_intent'],
+            ], $this->stripe->stripe_connect_auth);
             $customer = $this->stripe->findOrCreateCustomer();
-            $this->stripe->attach($session->setup_intent->payment_method, $customer);
-            $payment_method =  $this->stripe->getStripePaymentMethod($session->setup_intent->payment_method);
-            $this->storePaymentMethod($payment_method, $customer);
+            $intent = $session->setup_intent;
+
+            if (
+                $session->mode !== 'setup'
+                || $session->status !== 'complete'
+                || $this->stripeId($session->customer) !== $customer->id
+                || $session->livemode !== $customer->livemode
+                || ! ($intent instanceof \Stripe\SetupIntent)
+                || $intent->status !== 'succeeded'
+                || $intent->usage !== 'off_session'
+                || $this->stripeId($intent->customer) !== $customer->id
+                || $intent->livemode !== $customer->livemode
+            ) {
+                throw new PaymentFailed('Unable to validate the BACS setup.', 422);
+            }
+
+            $method_id = $this->stripeId($intent->payment_method);
+            $mandate_id = $this->stripeId($intent->mandate);
+
+            if (! $method_id || ! $mandate_id) {
+                throw new PaymentFailed('The BACS setup is incomplete.', 422);
+            }
+
+            $method = $this->stripe->getStripePaymentMethod($method_id);
+            $this->validateMethod($method, $customer);
+            $this->storePaymentMethod($method, $customer, $mandate_id);
         }
         return redirect()->route('client.payment_methods.index');
     }
@@ -162,29 +189,142 @@ class BACS implements LivewireMethodInterface
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
-    private function storePaymentMethod($method, $customer)
+    private function stripeId(mixed $value): ?string
     {
-        try {
-            $payment_meta = new \stdClass();
-            $payment_meta->brand = (string) $method->bacs_debit->sort_code;
-            $payment_meta->last4 = (string) $method->bacs_debit->last4;
-            $payment_meta->state = 'unauthorized';
-            $payment_meta->type = GatewayType::BACS;
-
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $method->id,
-                'payment_method_id' => GatewayType::BACS,
-            ];
-            $clientgateway = ClientGatewayToken::query()
-                ->where('token', $method->id)
-                ->first();
-            if (!$clientgateway) {
-                $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
-            }
-        } catch (\Exception $e) {
-            return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
+        if (is_string($value)) {
+            return $value !== '' ? $value : null;
         }
+
+        return is_object($value) ? ($value->id ?? null) : null;
+    }
+
+    private function validateMethod(\Stripe\PaymentMethod $method, \Stripe\Customer $customer): void
+    {
+        if (
+            $method->type !== 'bacs_debit'
+            || $this->stripeId($method->customer) !== $customer->id
+            || $method->livemode !== $customer->livemode
+        ) {
+            throw new PaymentFailed('Unable to validate the BACS account.', 422);
+        }
+    }
+
+    private function mandateState(\Stripe\Mandate $mandate, \Stripe\PaymentMethod $method): string
+    {
+        $on_behalf_of = $this->stripeId($mandate->on_behalf_of ?? null);
+
+        if (
+            $mandate->type !== 'multi_use'
+            || $this->stripeId($mandate->payment_method) !== $method->id
+            || $mandate->livemode !== $method->livemode
+            || ($on_behalf_of !== null && $on_behalf_of !== ($this->stripe->stripe_connect_auth['stripe_account'] ?? null))
+        ) {
+            throw new PaymentFailed('Unable to validate the BACS mandate.', 422);
+        }
+
+        return match ($mandate->status) {
+            'active' => 'authorized',
+            'pending' => 'pending',
+            'inactive' => 'inactive',
+            default => throw new PaymentFailed('Unknown BACS mandate status.', 422),
+        };
+    }
+
+    private function tokenQuery(string $method_id, string $customer_id)
+    {
+        $client = $this->stripe->client;
+
+        return ClientGatewayToken::query()
+            ->where('company_id', $client->company_id)
+            ->where('client_id', $client->id)
+            ->where('company_gateway_id', $this->stripe->company_gateway->id)
+            ->where('gateway_customer_reference', $customer_id)
+            ->where('gateway_type_id', GatewayType::BACS)
+            ->where('token', $method_id);
+    }
+
+    private function storePaymentMethod($method, $customer, string $mandate_id): void
+    {
+        $client = $this->stripe->client;
+        try {
+            DB::transaction(function () use ($client, $method, $customer, $mandate_id) {
+                Client::query()->withoutEagerLoads()
+                    ->where('company_id', $client->company_id)
+                    ->whereKey($client->id)->lockForUpdate()->firstOrFail();
+                // Fetch under the same lock used by mandate webhooks, preventing stale writes.
+                $mandate = \Stripe\Mandate::retrieve($mandate_id, $this->stripe->stripe_connect_auth);
+                $state = $this->mandateState($mandate, $method);
+                $token = $this->tokenQuery($method->id, $customer->id)->first();
+
+                if (! $token) {
+                    $token = new ClientGatewayToken();
+                    $token->company_id = $client->company_id;
+                    $token->client_id = $client->id;
+                    $token->company_gateway_id = $this->stripe->company_gateway->id;
+                    $token->gateway_customer_reference = $customer->id;
+                    $token->gateway_type_id = GatewayType::BACS;
+                    $token->token = $method->id;
+                    // Preserve the portal's existing behaviour: a newly added method is default.
+                    ClientGatewayToken::query()
+                        ->where('company_id', $client->company_id)
+                        ->where('client_id', $client->id)
+                        ->where('is_default', true)
+                        ->update(['is_default' => false]);
+                    $token->is_default = true;
+                }
+
+                $token->meta = (object) array_merge((array) $token->meta, [
+                    'brand' => (string) $method->bacs_debit->sort_code,
+                    'last4' => (string) $method->bacs_debit->last4,
+                    'type' => GatewayType::BACS,
+                    'mandate_id' => $mandate->id,
+                    'state' => $state,
+                ]);
+                if ($token->isDirty()) {
+                    $token->save();
+                }
+            });
+        } catch (\Exception $e) {
+            $this->stripe->processInternallyFailedPayment($this->stripe, $e);
+        }
+    }
+
+    public function handleMandateUpdated(array $event): void
+    {
+        $this->stripe->init();
+        $mandate_id = data_get($event, 'data.object.id');
+        $method_id = data_get($event, 'data.object.payment_method');
+        if (! is_string($mandate_id) || ! is_string($method_id)) {
+            return;
+        }
+
+        $client = $this->stripe->client;
+        DB::transaction(function () use ($client, $mandate_id, $method_id) {
+            Client::query()->withoutEagerLoads()
+                ->where('company_id', $client->company_id)
+                ->whereKey($client->id)->lockForUpdate()->firstOrFail();
+            $method = $this->stripe->getStripePaymentMethod($method_id);
+            $customer_id = $this->stripeId($method->customer);
+            if (! $customer_id) {
+                return;
+            }
+            $token = $this->tokenQuery($method_id, $customer_id)->first();
+            // Older mandates must not overwrite the state of a replacement mandate.
+            if (! $token || (($token->meta->mandate_id ?? $mandate_id) !== $mandate_id)) {
+                return;
+            }
+            $customer = $this->stripe->getCustomer($customer_id);
+            $this->validateMethod($method, $customer);
+            $mandate = \Stripe\Mandate::retrieve($mandate_id, $this->stripe->stripe_connect_auth);
+            $state = $this->mandateState($mandate, $method);
+            $token->meta = (object) array_merge((array) $token->meta, [
+                'mandate_id' => $mandate->id,
+                'state' => $state,
+            ]);
+            if ($token->isDirty()) {
+                $token->save();
+            }
+        });
     }
 
     public function paymentData(array $data): array

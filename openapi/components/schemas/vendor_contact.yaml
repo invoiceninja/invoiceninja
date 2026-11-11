@@ -61,7 +61,7 @@
           description: 'The date which the contact confirmed their email'
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         password:
           description: 'The hashed password of the contact'
@@ -75,22 +75,30 @@
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         deleted_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         send_email:
           description: 'Flag indicating whether to send emails to this contact'
           type: boolean
           example: true
+        cc_only:
+          description: 'When true this contact is only included as a CC recipient on outgoing emails and is not addressed directly.'
+          type: boolean
+          example: false
+        can_sign:
+          description: 'When true this contact is permitted to electronically sign purchase order invitations.'
+          type: boolean
+          example: false
       type: object

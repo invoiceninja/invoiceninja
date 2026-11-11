@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,9 +31,7 @@ class PaymentMethod
 
     private $gateway_order = [];
 
-    public function __construct(private Client $client, private float $amount)
-    {
-    }
+    public function __construct(private Client $client, private float $amount) {}
 
     public function run()
     {
@@ -164,17 +162,19 @@ class PaymentMethod
             }
         }
 
-        //transform from Array to Collection
         $payment_methods_collections = collect($this->payment_methods);
-
-        //** Plucks the remaining keys into its own collection
-        $this->payment_methods = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
+        $this->payment_methods = $payment_methods_collections->intersectByKeys(
+            $payment_methods_collections->flatten(1)->unique()
+        );
 
         //@15-06-2024
-        foreach ($this->payment_methods as $key => $type) {
+        foreach ($this->payment_methods as $type) {
             foreach ($type as $gateway_id => $gateway_type_id) {
                 $gate = $this->gateways->where('id', $gateway_id)->first();
-                $this->buildUrl($gate, $gateway_type_id);
+
+                if ($gate) {
+                    $this->buildUrl($gate, $gateway_type_id);
+                }
             }
         }
 
@@ -201,7 +201,7 @@ class PaymentMethod
             // Show credits as only payment option if both statements are true.
             if (
                 $this->client->service()->getCreditBalance() > $this->amount
-                && $this->client->getSetting('use_credits_payment') == 'always') {
+               && $this->client->getSetting('use_credits_payment') == 'always') {
                 $payment_urls = [];
             }
 
@@ -229,16 +229,18 @@ class PaymentMethod
 
         if (! $type || (GatewayType::CUSTOM == $type)) {
             $this->payment_urls[] = [
-                'label' => $gateway->getConfigField('name').$fee_label,
+                'label' => $gateway->getConfigField('name') . $fee_label,
                 'company_gateway_id'  => $gateway->id,
+                'gateway_key' => $gateway->gateway_key,
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
                 'is_paypal' => $gateway->isPayPal(),
                 'sort_order' => $priority,
             ];
         } else {
             $this->payment_urls[] = [
-                'label' => $gateway->getTypeAlias($type).$fee_label,
+                'label' => $gateway->getTypeAlias($type) . $fee_label,
                 'company_gateway_id'  => $gateway->id,
+                'gateway_key' => $gateway->gateway_key,
                 'gateway_type_id' => $type,
                 'is_paypal' => $gateway->isPayPal(),
                 'sort_order' => $priority,

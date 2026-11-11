@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,7 +29,7 @@ class UpdateDesignRequest extends Request
         'purchase_order',
         'project',
         'task',
-        'expense'
+        'expense',
     ];
 
     /**
@@ -42,20 +42,23 @@ class UpdateDesignRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->isAdmin() && $user->account->hasFeature(Account::FEATURE_API);
+        return $user->can('edit', $this->route('design')) && $user->account->hasFeature(Account::FEATURE_API);
     }
 
     public function rules()
     {
         return [
             'is_template' => 'sometimes|boolean',
-            'entities' => 'sometimes|string|nullable'
+            'entities' => 'sometimes|string|nullable',
+            'design.customCss' => 'sometimes|string|nullable',
         ];
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
+
+        $input['design'] = is_array($input['design'] ?? null) ? $input['design'] : [];
 
         if (! array_key_exists('product', $input['design']) || is_null($input['design']['product'])) {
             $input['design']['product'] = '';

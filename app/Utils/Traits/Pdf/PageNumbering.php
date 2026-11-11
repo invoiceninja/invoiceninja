@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -16,9 +16,14 @@ use setasign\Fpdi\PdfParser\StreamReader;
 
 trait PageNumbering
 {
-    private function pageNumbering($pdf_data_object, $company)
+    private function pageNumbering($pdf_data_object, $company, ?object $resolvedSettings = null)
     {
-        if (! property_exists($company->settings, 'page_numbering') || ! $company->settings->page_numbering) {
+        // Per-design overrides (JSON-designer documentSettings) take precedence
+        // over company.settings; fall back to company.settings for everything
+        // else.
+        $settings = $resolvedSettings ?? $company->settings;
+
+        if (! property_exists($settings, 'page_numbering') || ! $settings->page_numbering) {
             return $pdf_data_object;
         }
 
@@ -33,7 +38,8 @@ trait PageNumbering
 
             for ($i = 1; $i <= $pageCount; $i++) {
                 //import a page then get the id and will be used in the template
-                $tplId = $pdf->importPage($i);
+                //external links are imported so Pay/View and template links stay clickable
+                $tplId = $pdf->importPage($i, importExternalLinks: true);
 
                 //create a page
                 $templateSize = $pdf->getTemplateSize($tplId);

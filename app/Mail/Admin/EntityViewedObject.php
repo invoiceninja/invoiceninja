@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,16 +31,13 @@ class EntityViewedObject
 
     public $settings;
 
-    protected $use_react_url;
-
-    public function __construct($invitation, $entity_type, $use_react_url)
+    public function __construct($invitation, $entity_type)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
         $this->entity = $invitation->{$entity_type};
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
-        $this->use_react_url = $use_react_url;
     }
 
     public function build()
@@ -101,16 +98,16 @@ class EntityViewedObject
         $content = ctrans(
             "texts.notification_{$this->entity_type}_viewed",
             [
-                    'amount' => $this->getAmount(),
-                    'client' => $this->contact->present()->name(),
-                    'invoice' => $this->entity->number,
-                ]
+                'amount' => $this->getAmount(),
+                'client' => $this->contact->present()->name(),
+                'invoice' => $this->entity->number,
+            ]
         );
 
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->invitation->getAdminLink($this->use_react_url),
+            'url' => $this->invitation->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

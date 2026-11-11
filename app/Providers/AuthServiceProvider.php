@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,6 +31,7 @@ use App\Models\Activity;
 use App\Models\Document;
 use App\Models\Location;
 use App\Models\Scheduler;
+use App\Models\Tag;
 use App\Models\TaskStatus;
 use App\Models\PaymentTerm;
 use App\Models\CompanyToken;
@@ -63,6 +64,7 @@ use App\Policies\ActivityPolicy;
 use App\Policies\DocumentPolicy;
 use App\Policies\LocationPolicy;
 use App\Policies\SchedulerPolicy;
+use App\Policies\TagPolicy;
 use App\Policies\TaskStatusPolicy;
 use App\Models\BankTransactionRule;
 use App\Policies\PaymentTermPolicy;
@@ -79,6 +81,7 @@ use App\Policies\ExpenseCategoryPolicy;
 use App\Policies\RecurringExpensePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\BankTransactionRulePolicy;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -116,6 +119,7 @@ class AuthServiceProvider extends ServiceProvider
         RecurringQuote::class => RecurringQuotePolicy::class,
         Scheduler::class => SchedulerPolicy::class,
         Subscription::class => SubscriptionPolicy::class,
+        Tag::class => TagPolicy::class,
         Task::class => TaskPolicy::class,
         TaskStatus::class => TaskStatusPolicy::class,
         TaxRate::class => TaxRatePolicy::class,
@@ -136,7 +140,16 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-list', function ($user, $entity) {
             $entity = strtolower(class_basename($entity));
 
-            return $user->hasPermission('view_'.$entity) || $user->isAdmin();
+            return $user->hasPermission('view_' . $entity) || $user->isAdmin();
+        });
+
+
+        ResetPassword::createUrlUsing(function ($notifiable, string $token) {
+            return config('app.url')
+                . route('password.reset', [
+                    'token' => $token,
+                    'email' => $notifiable->getEmailForPasswordReset(),
+                ], false);
         });
     }
 }

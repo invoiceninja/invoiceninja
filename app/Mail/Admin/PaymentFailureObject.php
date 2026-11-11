@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,9 +33,7 @@ class PaymentFailureObject
      * @param $company
      * @param $amount
      */
-    public function __construct(public Client $client, public string $error, public Company $company, public float $amount, public ?PaymentHash $payment_hash, protected bool $use_react_url)
-    {
-    }
+    public function __construct(public Client $client, public string $error, public Company $company, public float $amount, public ?PaymentHash $payment_hash) {}
 
     public function build()
     {
@@ -92,10 +90,10 @@ class PaymentFailureObject
         $content = ctrans(
             'texts.notification_invoice_payment_failed',
             [
-                    'client' => $this->client->present()->name(),
-                    'invoice' => $this->getDescription(),
-                    'amount' => Number::formatMoney($this->amount, $this->client),
-                ]
+                'client' => $this->client->present()->name(),
+                'invoice' => $this->getDescription(),
+                'amount' => Number::formatMoney($this->amount, $this->client),
+            ]
         );
 
         $data = [
@@ -110,8 +108,8 @@ class PaymentFailureObject
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
             'whitelabel' => $this->company->account->isPaid() ? true : false,
-            'url' => $this->client->portalUrl($this->use_react_url),
-            'button' => $this->use_react_url ? ctrans('texts.view_client') : ctrans('texts.login'),
+            'url' => $this->client->portalUrl(),
+            'button' => ctrans('texts.view_client'),
             'additional_info' => $this->error,
             'text_body' => $content,
             'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',

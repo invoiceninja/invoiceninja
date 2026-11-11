@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Standards\Verifactu\Models;
 
 class DetalleDesglose extends BaseXmlModel
@@ -31,12 +39,12 @@ class DetalleDesglose extends BaseXmlModel
         $root->appendChild($this->createElement($doc, 'CalificacionOperacion', $this->desgloseIVA['CalificacionOperacion']));
 
         if (isset($this->desgloseIVA['TipoImpositivo']) && $this->desgloseIVA['CalificacionOperacion'] == 'S1') {
-            $root->appendChild($this->createElement($doc, 'TipoImpositivo', (string)$this->desgloseIVA['TipoImpositivo']));
+            $root->appendChild($this->createElement($doc, 'TipoImpositivo', (string) $this->desgloseIVA['TipoImpositivo']));
         }
-        $root->appendChild($this->createElement($doc, 'BaseImponibleOimporteNoSujeto', (string)$this->desgloseIVA['BaseImponible']));
+        $root->appendChild($this->createElement($doc, 'BaseImponibleOimporteNoSujeto', (string) $this->desgloseIVA['BaseImponible']));
 
         if (isset($this->desgloseIVA['Cuota']) && $this->desgloseIVA['CalificacionOperacion'] == 'S1') {
-            $root->appendChild($this->createElement($doc, 'CuotaRepercutida', (string)$this->desgloseIVA['Cuota']));
+            $root->appendChild($this->createElement($doc, 'CuotaRepercutida', (string) $this->desgloseIVA['Cuota']));
         }
 
         return $root;
@@ -50,9 +58,9 @@ class DetalleDesglose extends BaseXmlModel
             'Impuesto' => self::getElementText($element, 'Impuesto'),
             'ClaveRegimen' => self::getElementText($element, 'ClaveRegimen'),
             'CalificacionOperacion' => self::getElementText($element, 'CalificacionOperacion'),
-            'BaseImponible' => (float)self::getElementText($element, 'BaseImponibleOimporteNoSujeto'),
-            'TipoImpositivo' => (float)self::getElementText($element, 'TipoImpositivo'),
-            'Cuota' => (float)self::getElementText($element, 'CuotaRepercutida')
+            'BaseImponible' => (float) self::getElementText($element, 'BaseImponibleOimporteNoSujeto'),
+            'TipoImpositivo' => (float) self::getElementText($element, 'TipoImpositivo'),
+            'Cuota' => (float) self::getElementText($element, 'CuotaRepercutida'),
         ];
         $detalleDesglose->setDesgloseIVA($desglose);
 

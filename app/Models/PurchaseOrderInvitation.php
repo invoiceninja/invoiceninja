@@ -5,13 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
+use App\Utils\AppLink;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use Carbon\Carbon;
@@ -31,6 +32,7 @@ use Illuminate\Support\Str;
  * @property string|null $message_id
  * @property string|null $email_error
  * @property string|null $signature_base64
+ * @property string|null $signature_ip
  * @property string|null $signature_date
  * @property string|null $sent_date
  * @property string|null $viewed_date
@@ -38,13 +40,14 @@ use Illuminate\Support\Str;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
+ * @property boolean $can_sign
  * @property string|null $email_status
  * @property \App\Models\Company $company
  * @property \App\Models\VendorContact $contact
  * @property string $hashed_id
  * @property \App\Models\PurchaseOrder $purchase_order
  * @property \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Database\Factories\PurchaseOrderInvitationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation newModelQuery()
@@ -153,11 +156,11 @@ class PurchaseOrderInvitation extends BaseModel
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain.'/vendor/';
+                return $domain . '/vendor/';
             case 'iframe':
-                return $domain.'/vendor/';
+                return $domain . '/vendor/';
             case 'domain':
-                return $domain.'/vendor/';
+                return $domain . '/vendor/';
 
             default:
                 return '';
@@ -176,27 +179,21 @@ class PurchaseOrderInvitation extends BaseModel
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain.'/vendor/'.$entity_type.'/'.$this->key;
+                return $domain . '/vendor/' . $entity_type . '/' . $this->key;
             case 'iframe':
-                return $domain.'/vendor/'.$entity_type.'/'.$this->key;
+                return $domain . '/vendor/' . $entity_type . '/' . $this->key;
             case 'domain':
-                return $domain.'/vendor/'.$entity_type.'/'.$this->key;
+                return $domain . '/vendor/' . $entity_type . '/' . $this->key;
 
             default:
                 return '';
         }
     }
 
-    public function getAdminLink($use_react_link = false): string
-    {
-        return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
-    }
-
-    private function getReactLink(): string
+    public function getAdminLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        return config('ninja.react_url')."/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
+        return AppLink::forRecord($entity_type . 's', $this->{$entity_type});
     }
-
 }

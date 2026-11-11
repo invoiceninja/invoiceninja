@@ -27,10 +27,11 @@
         /api/v1/locations?name=warehouse*
         ```
         
-        You can also sort the results:
-        
+        Sorting uses `column|asc` or `column|desc`. Use a single `sort` parameter for one column, or repeated `sort[]` parameters for multi-level ordering (first is primary):
+
         ```html
-        /api/v1/locations?sort=name|desc
+        /api/v1/locations?sort=id|desc
+        /api/v1/locations?sort[]=id|desc&sort[]=name|asc
         ```
 
         For pagination, use per_page and page parameters:
@@ -47,6 +48,7 @@
         - $ref: '#/components/parameters/index'
         - $ref: '#/components/parameters/per_page_meta'
         - $ref: '#/components/parameters/page_meta'
+        - $ref: '#/components/parameters/sort_locations'
         - name: name
           in: query
           description: |
@@ -59,18 +61,6 @@
           schema:
             type: string
           example: warehouse
-        - name: sort
-          in: query
-          description: |
-            Returns the list sorted by column in ascending or descending order.
-            
-            ```html
-              ?sort=name|desc
-            ```
-          required: false
-          schema:
-            type: string
-          example: name|desc
       responses:
         200:
           description: 'A list of locations'

@@ -222,7 +222,8 @@ trait MockAccountData
     {
         config(['database.default' => config('ninja.db.default')]);
 
-        if (Country::count() == 0) {
+        if (! Schema::hasTable('countries') || Country::count() == 0) {
+            Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
         }
 
@@ -242,8 +243,16 @@ trait MockAccountData
 
         });
 
+        app()->singleton('countries', function ($app) {
+
+            $resource = Country::query()->orderBy('name')->get();
+            Cache::forever('countries', $resource);
+            return $resource;
+
+        });
+
         $this->faker = \Faker\Factory::create();
-        $fake_email = $this->faker->email();
+        $fake_email = uniqid('testuser') . '@gmail.com';
 
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000000,

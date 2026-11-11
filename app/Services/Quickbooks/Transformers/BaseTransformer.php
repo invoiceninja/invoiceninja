@@ -21,9 +21,7 @@ use App\Models\Company;
  */
 class BaseTransformer
 {
-    public function __construct(public Company $company)
-    {
-    }
+    public function __construct(public Company $company) {}
 
     public function resolveCountry(?string $iso_3_code): string
     {
@@ -31,7 +29,7 @@ class BaseTransformer
         $country = app('countries')->first(function ($c) use ($iso_3_code) {
 
             /** @var \App\Models\Country $c */
-            return $c->iso_3166_3 == $iso_3_code || $c->name == $iso_3_code;
+            return $c->iso_3166_2 == $iso_3_code || $c->iso_3166_3 == $iso_3_code || $c->name == $iso_3_code;
         });
 
         return $country ? (string) $country->id : $this->company->settings->country_id;
@@ -40,11 +38,11 @@ class BaseTransformer
     public function resolveCurrency(string $currency_code): string
     {
 
-        /** @var \App\Models\Currency $currency */
+        /** @var \App\Models\Currency|null $currency */
         $currency = app('currencies')->first(function ($c) use ($currency_code) {
 
             /** @var \App\Models\Currency $c */
-            return $c->code == $currency_code;
+            return $c->code == strtoupper($currency_code);
         });
 
         return $currency ? (string) $currency->id : $this->company->settings->currency_id;
@@ -56,7 +54,7 @@ class BaseTransformer
             return (string) $this->company->settings->timezone_id;
         }
 
-        /** @var \App\Models\Timezone $timezone */
+        /** @var \App\Models\Timezone|null $timezone */
         $timezone = app('timezones')->first(function ($t) use ($timezone_name) {
             /** @var \App\Models\Timezone $t */
             return $t->name === $timezone_name;

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,7 +40,6 @@ class StoreSubscriptionRequest extends Request
         $rules = [
             'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)],
             'group_id' => ['bail','sometimes', 'nullable', Rule::exists('group_settings', 'id')->where('company_id', auth()->user()->company()->id)],
-            'assigned_user_id' => ['bail','sometimes', 'nullable', Rule::exists('users', 'id')->where('account_id', auth()->user()->account_id)],
             'product_ids' => 'bail|sometimes|nullable|string',
             'recurring_product_ids' => 'bail|sometimes|nullable|string',
             'is_recurring' => 'bail|sometimes|bool',
@@ -78,6 +77,10 @@ class StoreSubscriptionRequest extends Request
      */
     public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
             $this->validateWebhookUrl($validator, 'webhook_configuration.post_purchase_url');
         });
@@ -125,12 +128,14 @@ class StoreSubscriptionRequest extends Request
         // gethostbyname returns the hostname if resolution fails
         if ($ip === $host && !filter_var($host, FILTER_VALIDATE_IP)) {
             // DNS resolution failed - allow it (external DNS might resolve differently)
+            $validator->errors()->add($field, 'Unable to resolve hostname.');
             return;
         }
 
         // Block private and reserved IP ranges (SSRF protection)
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
             $validator->errors()->add($field, ctrans('texts.invalid_url'));
+            return;
         }
     }
 

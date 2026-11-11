@@ -3,6 +3,9 @@ import laravel from 'laravel-vite-plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
+    build: {
+        target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari13'],
+    },
     plugins: [
         laravel([
             'resources/js/app.js',
@@ -13,17 +16,17 @@ export default defineConfig({
             'resources/js/clients/payments/authorize-ach-payment.js',
             'resources/js/clients/payments/forte-credit-card-payment.js',
             'resources/js/clients/payments/forte-ach-payment.js',
+            'resources/js/clients/payments/lawpay-credit-card-payment.js',
+            'resources/js/clients/payments/lawpay-ach-payment.js',
             'resources/js/clients/payments/stripe-ach.js',
             'resources/js/clients/payments/stripe-klarna.js',
             'resources/js/clients/payments/stripe-bacs.js',
-            'resources/js/clients/invoices/action-selectors.js',
-            'resources/js/clients/purchase_orders/action-selectors.js',
             'resources/js/clients/purchase_orders/accept.js',
             'resources/js/clients/invoices/payment.js',
             'resources/js/clients/payments/stripe-sofort.js',
             'resources/js/clients/payments/stripe-alipay.js',
             'resources/js/clients/payments/checkout-credit-card.js',
-            'resources/js/clients/quotes/action-selectors.js',
+            'resources/js/clients/payments/checkout-credit-card-flow.js',
             'resources/js/clients/quotes/approve.js',
             'resources/js/clients/quotes/reject.js',
             'resources/js/clients/payments/stripe-credit-card.js',
@@ -44,6 +47,7 @@ export default defineConfig({
             'resources/js/clients/payments/razorpay-aio.js',
             'resources/js/clients/payments/stripe-sepa.js',
             'resources/js/clients/payment_methods/authorize-checkout-card.js',
+            'resources/js/clients/payment_methods/authorize-checkout-card-flow.js',
             'resources/js/clients/payments/stripe-giropay.js',
             'resources/js/clients/payments/stripe-acss.js',
             'resources/js/clients/payments/stripe-bancontact.js',
@@ -55,13 +59,23 @@ export default defineConfig({
             'resources/js/clients/payments/stripe-fpx.js',
             'resources/js/clients/payments/stripe-ach-pay.js',
             'resources/js/clients/payments/stripe-bank-transfer.js',
+            'resources/js/clients/payments/stripe-promptpay.js',
             'resources/js/clients/payment_methods/authorize-stripe-acss.js',
             'resources/js/clients/payment_methods/authorize-powerboard-card.js',
             'resources/js/clients/payments/powerboard-credit-card.js',
             'resources/js/clients/payments/blockonomics.js',
         ]),
         viteStaticCopy({
-            targets: [],
+            targets: [
+                {
+                    src: 'node_modules/@docuninja/builder2.0/dist/builder2.0.standalone.css',
+                    dest: 'assets',
+                },
+                {
+                    src: 'node_modules/@docuninja/builder2.0/dist/builder.iife.js',
+                    dest: 'assets',
+                },
+            ],
         }),
     ],
 });

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -88,7 +88,7 @@ class ProductController extends BaseController
      */
     public function index(ProductFilters $filters)
     {
-        $products = Product::filter($filters);
+        $products = Product::filter($filters)->with('tags');
 
         return $this->listResponse($products);
     }
@@ -474,7 +474,7 @@ class ProductController extends BaseController
 
         $ids = $request->input('ids');
 
-        $products = Product::withTrashed()->whereIn('id', $ids);
+        $products = Product::withTrashed()->company()->whereIn('id', $ids);
 
         if ($action == 'set_tax_id') {
 
@@ -482,16 +482,16 @@ class ProductController extends BaseController
 
             $products->update(['tax_id' => $tax_id]);
 
-            return $this->listResponse(Product::withTrashed()->whereIn('id', $ids));
+            return $this->listResponse(Product::withTrashed()->company()->whereIn('id', $ids));
         }
 
-        $products->cursor()->each(function ($product, $key) use ($action, $user) {
+        $products->with('company.account')->lazyById(100)->each(function ($product, $key) use ($action, $user) {
             if ($user->can('edit', $product)) {
                 $this->product_repo->{$action}($product);
             }
         });
 
-        return $this->listResponse(Product::withTrashed()->whereIn('id', $ids));
+        return $this->listResponse(Product::withTrashed()->company()->whereIn('id', $ids));
     }
 
     /**
@@ -551,7 +551,7 @@ class ProductController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $product, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $product, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($product->fresh());

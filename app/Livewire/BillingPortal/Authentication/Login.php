@@ -87,6 +87,7 @@ class Login extends Component
         $contact = $this->createClientContact();
 
         auth()->guard('contact')->loginUsingId($contact->id, true);
+        $this->dispatch('update-csrf', token: csrf_token());
 
         // $this->dispatch('purchase.context', property: 'contact', value: $contact);
         $this->dispatch('purchase.next');
@@ -140,6 +141,7 @@ class Login extends Component
 
         if ($contact) {
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
 
             // $this->dispatch('purchase.context', property: 'contact', value: $contact);
             $this->dispatch('purchase.next');
@@ -162,9 +164,12 @@ class Login extends Component
         ]);
 
         if ($attempt) {
+            $this->dispatch('update-csrf', token: csrf_token());
 
             // $this->dispatch('purchase.context', property: 'contact', value: auth()->guard('contact')->user());
             $this->dispatch('purchase.next');
+
+            return;
         }
 
         session()->flash('message', 'These credentials do not match our records.');

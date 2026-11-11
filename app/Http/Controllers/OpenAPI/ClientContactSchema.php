@@ -24,6 +24,7 @@
  *       @OA\Property(property="confirmed", type="boolean", example=true, description="Boolean value confirms the user has confirmed their account."),
  *       @OA\Property(property="is_locked", type="boolean", example=true, description="Boolean value defines if the contact has been locked out."),
  *       @OA\Property(property="send_email", type="boolean", example=true, description="Boolean value determines is this contact should receive emails"),
+ *       @OA\Property(property="cc_only", type="boolean", example=false, description="When true, this contact receives emails only as a CC recipient and does not get their own invitation"),
  *       @OA\Property(property="failed_logins", type="number", format="integer", example="3", description="The number of failed logins the contact has had"),
  *       @OA\Property(property="email_verified_at", type="number", format="integer", example="134341234234", description="The date which the contact confirmed their email"),
  *       @OA\Property(property="last_login", type="number", format="integer", example="134341234234", description="Timestamp"),

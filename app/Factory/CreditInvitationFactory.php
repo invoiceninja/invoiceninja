@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,8 +22,8 @@ class CreditInvitationFactory
         $ci = new CreditInvitation();
         $ci->company_id = $company_id;
         $ci->user_id = $user_id;
-        $ci->client_contact_id = null;
-        $ci->credit_id = null;
+        $ci->client_contact_id = null; //@phpstan-ignore-line
+        $ci->credit_id = null; //@phpstan-ignore-line
         $ci->key = Str::random(config('ninja.key_length'));
         $ci->transaction_reference = null;
         $ci->message_id = null;

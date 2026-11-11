@@ -44,7 +44,7 @@ class UploadRecurringInvoiceRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-        
+
         if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
             $this->files->set('documents', [$this->file('documents')]);
         }

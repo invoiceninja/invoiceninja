@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,7 +26,7 @@ class AsReferralEarningCollection implements CastsAttributes
 
         $items = json_decode($value, true);
 
-        return array_map(fn ($item) => new ReferralEarning($item), $items);
+        return array_map(fn($item) => new ReferralEarning($item), $items);
     }
 
     public function set($model, string $key, $value, array $attributes)
@@ -39,6 +39,6 @@ class AsReferralEarningCollection implements CastsAttributes
             $value = [$value];
         }
 
-        return json_encode(array_map(fn ($entity) => get_object_vars($entity), $value));
+        return json_encode(array_map(fn($entity) => get_object_vars($entity), $value));
     }
 }

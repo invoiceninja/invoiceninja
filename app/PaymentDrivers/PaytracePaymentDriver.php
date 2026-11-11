@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,7 +14,6 @@ namespace App\PaymentDrivers;
 
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Utils\CurlUtils;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
@@ -30,6 +29,7 @@ use App\Repositories\ClientContactRepository;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientContact;
 use App\PaymentDrivers\Factory\PaytraceCustomerFactory;
+use Illuminate\Support\Facades\Http;
 
 class PaytracePaymentDriver extends BaseDriver
 {
@@ -136,10 +136,10 @@ class PaytracePaymentDriver extends BaseDriver
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         if ($invoice) {
-            $invoice_id =  ctrans('texts.invoice_number').'# '.$invoice->number;
+            $invoice_id =  ctrans('texts.invoice_number') . '# ' . $invoice->number;
         }
 
-        $invoice_id = ctrans('texts.invoice_number').'# '.substr($payment_hash->hash, 0, 6);
+        $invoice_id = ctrans('texts.invoice_number') . '# ' . substr($payment_hash->hash, 0, 6);
 
         $data = [
             'customer_id' => $cgt->token,
@@ -183,48 +183,46 @@ class PaytracePaymentDriver extends BaseDriver
         $this->processUnsuccessfulTransaction($data, false);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
-    {
-    }
+    public function processWebhookRequest(PaymentWebhookRequest $request, ?Payment $payment = null) {}
 
     /*Helpers*/
-    private function generateAuthHeaders()
+    private function paytraceApiEndpoint(): string
     {
-        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
+        return $this->company_gateway->getConfigField('testMode')
+            ? 'https://api.sandbox.paytrace.com'
+            : 'https://api.paytrace.com';
+    }
 
-        $url = "{$api_endpoint}/oauth/token";
-
-        $data = [
+    private function generateAuthHeaders(): array
+    {
+        $response = Http::asForm()->post("{$this->paytraceApiEndpoint()}/oauth/token", [
             'grant_type' => 'password',
             'username' => $this->company_gateway->getConfigField('username'),
             'password' => $this->company_gateway->getConfigField('password'),
-        ];
-
-        $response = CurlUtils::post($url, $data, $headers = false);
+        ])->body();
 
         $auth_data = json_decode($response);
 
-        if (!isset($auth_data) || ! property_exists($auth_data, 'access_token')) {
+        if (! isset($auth_data) || ! property_exists($auth_data, 'access_token')) {
             throw new SystemError('Error authenticating with PayTrace');
         }
 
-        $headers = [];
-        $headers[] = 'Content-type: application/json';
-        $headers[] = 'Authorization: Bearer '.$auth_data->access_token;
-
-        return $headers;
+        return [
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer '.$auth_data->access_token,
+        ];
     }
 
     public function getAuthToken()
     {
-
-        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
-
         $headers = $this->generateAuthHeaders();
 
-        $response = CurlUtils::post("{$api_endpoint}/v1/payment_fields/token/create", [], $headers);
-
-        $response = json_decode($response);
+        $response = json_decode(
+            Http::withHeaders($headers)
+                ->withBody('', 'application/json')
+                ->post("{$this->paytraceApiEndpoint()}/v1/payment_fields/token/create")
+                ->body()
+        );
 
         if ($response) {
             return $response->clientKey;
@@ -235,16 +233,12 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function gatewayRequest($uri, $data, $headers = false)
     {
-
-        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
-
-        $base_url = "{$api_endpoint}{$uri}";
-
-        $headers = $this->generateAuthHeaders();
-
-        $response = CurlUtils::post($base_url, json_encode($data), $headers);
-
-        $response = json_decode($response);
+        $response = json_decode(
+            Http::withHeaders($this->generateAuthHeaders())
+                ->withBody(json_encode($data), 'application/json')
+                ->post("{$this->paytraceApiEndpoint()}{$uri}")
+                ->body()
+        );
 
         if ($response) {
             return $response;
@@ -312,15 +306,24 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function auth(): string
     {
-        try {
-            $this->init()->generateAuthHeaders() && strlen($this->company_gateway->getConfigField('integratorId')) > 2;
-            return 'ok';
-        } catch (\Exception $e) {
+        $username = trim((string) $this->company_gateway->getConfigField('username'));
+        $password = trim((string) $this->company_gateway->getConfigField('password'));
+        $integratorId = trim((string) $this->company_gateway->getConfigField('integratorId'));
 
+        if ($username === '' || $password === '' || $integratorId === '') {
+            return 'error';
         }
 
-        return 'error';
+        try {
+            $response = $this->gatewayRequest('/v1/customer/export', [
+                'integrator_id' => $integratorId,
+                'customer_id' => 'invoice_ninja_auth_check',
+            ]);
 
+            return $response && ($response->success ?? false) === true ? 'ok' : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     public function importCustomers()

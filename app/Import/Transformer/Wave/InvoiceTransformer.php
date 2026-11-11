@@ -71,11 +71,11 @@ class InvoiceTransformer extends BaseTransformer
                 $description = $this->getString($record, 'Transaction Line Description');
 
                 // Remove duplicate data from description
-                if (substr($description, 0, strlen($customer_name) + 3) === $customer_name.' - ') {
+                if (substr($description, 0, strlen($customer_name) + 3) === $customer_name . ' - ') {
                     $description = substr($description, strlen($customer_name) + 3);
                 }
 
-                if (substr($description, 0, strlen($invoice_number) + 3) === $invoice_number.' - ') {
+                if (substr($description, 0, strlen($invoice_number) + 3) === $invoice_number . ' - ') {
                     $description = substr($description, strlen($invoice_number) + 3);
                 }
 

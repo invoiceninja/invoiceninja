@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,13 +58,13 @@ class CreateCompanyToken implements ShouldQueue
      */
     public function handle(): ?CompanyToken
     {
-        $this->custom_token_name = $this->custom_token_name ?: $this->user->first_name.' '.$this->user->last_name;
+        $this->custom_token_name = $this->custom_token_name ?: $this->user->first_name . ' ' . $this->user->last_name;
 
         $company_token = new CompanyToken();
         $company_token->user_id = $this->user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->user->account->id;
-        $company_token->name = $this->custom_token_name ?: $this->user->first_name.' '.$this->user->last_name;
+        $company_token->name = $this->custom_token_name ?: $this->user->first_name . ' ' . $this->user->last_name;
         $company_token->token = Str::random(64);
         $company_token->is_system = true;
 

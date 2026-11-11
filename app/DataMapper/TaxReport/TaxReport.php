@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,6 +23,9 @@ class TaxReport
 {
     public ?TaxSummary $tax_summary; // Summary totals
     public ?array $tax_details; // Array of TaxDetail objects (includes adjustments)
+    public ?array $tax_details_by_classification; // Per (tax_name, tax_rate, classification) buckets
+    public ?array $sales_breakdown; // Per tax treatment sales buckets
+    public ?array $sales_totals;
     public float $amount; // The total amount of the invoice
     public ?Collection $payment_history; // Collection of PaymentHistory objects
 
@@ -32,10 +35,19 @@ class TaxReport
             ? new TaxSummary($attributes['tax_summary'])
             : null;
         $this->tax_details = isset($attributes['tax_details'])
-            ? array_map(fn ($detail) => new TaxDetail($detail), $attributes['tax_details'])
+            ? array_map(fn($detail) => new TaxDetail($detail), $attributes['tax_details'])
+            : null;
+        $this->tax_details_by_classification = isset($attributes['tax_details_by_classification'])
+            ? array_map(fn($detail) => is_array($detail) ? $detail : (array) $detail, $attributes['tax_details_by_classification'])
+            : null;
+        $this->sales_breakdown = isset($attributes['sales_breakdown'])
+            ? array_map(fn($row) => is_array($row) ? $row : (array) $row, $attributes['sales_breakdown'])
+            : null;
+        $this->sales_totals = isset($attributes['sales_totals'])
+            ? array_map(fn ($value): float => (float) $value, $attributes['sales_totals'])
             : null;
         $this->payment_history = isset($attributes['payment_history'])
-            ? collect($attributes['payment_history'])->map(fn ($payment) => new PaymentHistory($payment))
+            ? collect($attributes['payment_history'])->map(fn($payment) => new PaymentHistory($payment))
             : null;
     }
 
@@ -43,8 +55,11 @@ class TaxReport
     {
         return [
             'tax_summary' => $this->tax_summary?->toArray(),
-            'tax_details' => $this->tax_details ? array_map(fn ($detail) => $detail->toArray(), $this->tax_details) : null,
-            'payment_history' => $this->payment_history ? $this->payment_history->map(fn ($payment) => $payment->toArray())->toArray() : null,
+            'tax_details' => $this->tax_details ? array_map(fn($detail) => $detail->toArray(), $this->tax_details) : null,
+            'tax_details_by_classification' => $this->tax_details_by_classification,
+            'sales_breakdown' => $this->sales_breakdown,
+            'sales_totals' => $this->sales_totals,
+            'payment_history' => $this->payment_history ? $this->payment_history->map(fn($payment) => $payment->toArray())->toArray() : null,
         ];
     }
 }

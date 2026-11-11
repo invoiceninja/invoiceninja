@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
 use DateTime;
@@ -21,7 +29,7 @@ class Credit
     public $accounting_customer_party;
 
     #[SerializedName('cac:CreditNoteLine')]
-    /** @var CreditLines[] */
+    /** @var CreditLines[]|null */
     public ?array $invoice_lines = [];
 
     #[SerializedPath('[cbc:AccountingCost]')]
@@ -37,7 +45,7 @@ class Credit
     public $accounting_supplier_party;
 
     #[SerializedPath('[cac:AllowanceCharge]')]
-    /** @var AllowanceCharges[] */
+    /** @var AllowanceCharges[]|null */
     public ?array $allowance_charges = [];
 
     //this is an experimental prop
@@ -49,7 +57,7 @@ class Credit
     public $amount_including_vat;
 
     #[SerializedPath('[cac:AdditionalDocumentReference]')]
-    /** @var Attachments[] */
+    /** @var Attachments[]|null */
     public ?array $attachments;
 
     public ?bool $consumer_tax_mode; //toggle this to TRUE if we are using a secondary identifier ie. when German company is taxing French company and therefore using the additional Vat identifier
@@ -84,7 +92,7 @@ class Credit
     public ?string $payable_rounding_amount;
 
     #[SerializedPath('[cac:PaymentMeans]')]
-    /** @var PaymentMeansArray[] */
+    /** @var PaymentMeansArray[]|null */
     public array $payment_means_array;
 
     #[SerializedPath('[cac:PaymentTerms][0]')]
@@ -92,6 +100,9 @@ class Credit
 
     // no mapping
     public ?string $preferred_invoice_type;
+
+    /** France AFNOR invoicing context. */
+    public ?string $fr_cadre_de_facturation = null;
 
     #[SerializedPath('[cac:LegalMonetaryTotal][cbc:PrepaidAmount]')]
     public ?string $prepaid_amount;
@@ -101,7 +112,7 @@ class Credit
     public ?string $price_mode;
 
     #[SerializedPath('[cac:BillingReference]')]
-    /** @var References[] */
+    /** @var References[]|null */
     public ?array $references;
 
     //AU/NZ and JP. - only available intra country ie AU - AU
@@ -114,14 +125,14 @@ class Credit
     public ?string $tax_point_date;
 
     #[SerializedPath('[cac:TaxTotal][0][cac:TaxSubtotal]')]
-    /** @var CreditTaxSubtotals[] */
+    /** @var CreditTaxSubtotals[]|null */
     public $tax_subtotals;
 
     //storecove - no mappings - tax_line_percentages
     public ?string $tax_system;
 
     //italy only - invoice level
-    /** @var TaxesDutiesFees[] */
+    /** @var TaxesDutiesFees[]|null */
     public ?array $taxes_duties_fees;
 
     //no mapping
@@ -422,6 +433,11 @@ class Credit
     public function getPreferredInvoiceType(): ?string
     {
         return $this->preferred_invoice_type;
+    }
+
+    public function getFrCadreDeFacturation(): ?string
+    {
+        return $this->fr_cadre_de_facturation;
     }
 
     public function getPrepaidAmount(): ?string
@@ -740,6 +756,12 @@ class Credit
     public function setPreferredInvoiceType(?string $preferred_invoice_type): self
     {
         $this->preferred_invoice_type = $preferred_invoice_type;
+        return $this;
+    }
+
+    public function setFrCadreDeFacturation(?string $fr_cadre_de_facturation): self
+    {
+        $this->fr_cadre_de_facturation = $fr_cadre_de_facturation;
         return $this;
     }
 

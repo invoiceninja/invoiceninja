@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,9 +66,7 @@ class AdminEmail implements ShouldQueue
 
     public Mailable $mailable;
 
-    public function __construct(public EmailObject $email_object, public Company $company)
-    {
-    }
+    public function __construct(public EmailObject $email_object, public Company $company) {}
 
     /**
      * The backoff time between retries.
@@ -157,25 +155,28 @@ class AdminEmail implements ShouldQueue
 
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            /** @var \App\Models\Client|null $client */
+            $client=$this->company->clients()->first();
+            $this->logMailError($e->getMessage(), $client);
             return;
         } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-            $this->fail();
             $this->cleanUpMailers();
-            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            /** @var \App\Models\Client|null $c lient */
+            $client=$this->company->clients()->first();
+            $this->logMailError($e->getMessage(), $client);
             return;
-        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
+        } catch (\Exception|\RuntimeException|\Google\Service\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
             if (stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
-                $this->fail();
-                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                /** @var \App\Models\Client|null $client */
+                $client=$this->company->clients()->first();
+                $this->logMailError($e->getMessage(), $client);
                 $this->cleanUpMailers();
 
                 return;
@@ -195,7 +196,6 @@ class AdminEmail implements ShouldQueue
                     nlog($message);
                 }
 
-                $this->fail();
                 $this->cleanUpMailers();
                 return;
             }
@@ -563,7 +563,10 @@ class AdminEmail implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
         } catch (\Exception $e) {
-            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+
+            /** @var \App\Models\Client|null $client */
+            $client = $this->company->clients()->first();
+            $this->logMailError('Gmail Token Invalid', $client);
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -649,7 +652,7 @@ class AdminEmail implements ShouldQueue
                     'client_secret' => config('ninja.o365.client_secret'),
                     'scope' => 'email Mail.Send offline_access profile User.Read openid',
                     'grant_type' => 'refresh_token',
-                    'refresh_token' => $user->oauth_user_refresh_token
+                    'refresh_token' => $user->oauth_user_refresh_token,
                 ],
             ])->getBody()->getContents());
 

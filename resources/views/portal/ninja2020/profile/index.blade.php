@@ -32,4 +32,8 @@
 
     <!-- Client shipping address -->
     @livewire('profile.settings.shipping-address')
+
+    <!-- Client custom fields -->
+    @livewire('profile.settings.custom-fields')
+
 @endsection

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,14 +42,14 @@ class AuthorizeTransaction
         $this->authorize->init();
 
         // Set the transaction's refId
-        $refId = 'ref'.time();
+        $refId = 'ref' . time();
 
         $op = new OpaqueDataType();
         $op->setDataDescriptor($data['dataDescriptor']);
         $op->setDataValue($data['dataValue']);
         $paymentOne = new PaymentType();
         $paymentOne->setOpaqueData($op);
-        $amount = $data['amount_with_fee'];
+        $amount = round($data['amount_with_fee'], 2);
 
         $invoice_numbers = '';
         $po_numbers = '';
@@ -88,10 +88,16 @@ class AuthorizeTransaction
         // Add values for transaction settings
         $duplicateWindowSetting = new SettingType();
         $duplicateWindowSetting->setSettingName("duplicateWindow");
-        $duplicateWindowSetting->setSettingValue("60");
+        $duplicateWindowSetting->setSettingValue("3");
+
+        $emailSetting = new SettingType();
+        $emailSetting->setSettingName('emailCustomer');
+        $emailSetting->setSettingValue('false');
 
         $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
 
+        $billto = null;
+        
         if ($contact) {
             $billto = new \net\authorize\api\contract\v1\CustomerAddressType();
             $billto->setFirstName(substr($contact->present()->first_name(), 0, 50));
@@ -110,7 +116,6 @@ class AuthorizeTransaction
         }
 
         //Assign to the transactionRequest field
-
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
@@ -118,6 +123,7 @@ class AuthorizeTransaction
         $transactionRequestType->setTaxExempt(empty($taxAmount));
         $transactionRequestType->setOrder($order);
         $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+        $transactionRequestType->addToTransactionSettings($emailSetting);
 
         $solution = new \net\authorize\api\contract\v1\SolutionType();
         $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');
@@ -141,24 +147,24 @@ class AuthorizeTransaction
             $tresponse = $response->getTransactionResponse();
 
             if ($tresponse != null && $tresponse->getMessages() != null) {
-                nlog(' Transaction Response code : '.$tresponse->getResponseCode());
+                nlog(' Transaction Response code : ' . $tresponse->getResponseCode());
                 nlog(' Charge Customer Profile APPROVED  :');
-                nlog(' Charge Customer Profile AUTH CODE : '.$tresponse->getAuthCode());
-                nlog(' Charge Customer Profile TRANS ID  : '.$tresponse->getTransId());
-                nlog(' Code : '.$tresponse->getMessages()[0]->getCode());
-                nlog(' Description : '.$tresponse->getMessages()[0]->getDescription());
+                nlog(' Charge Customer Profile AUTH CODE : ' . $tresponse->getAuthCode());
+                nlog(' Charge Customer Profile TRANS ID  : ' . $tresponse->getTransId());
+                nlog(' Code : ' . $tresponse->getMessages()[0]->getCode());
+                nlog(' Description : ' . $tresponse->getMessages()[0]->getDescription());
                 nlog(print_r($tresponse->getMessages()[0], 1));
 
-                if ($tresponse->getResponseCode()== "4" || $tresponse->getMessages()[0]->getCode() == "253") {
+                if ($tresponse->getResponseCode() == "4" || $tresponse->getMessages()[0]->getCode() == "253") {
                     //notify user that this transaction is being held under FDS review:
-                    FDSReview::dispatch((string)$tresponse->getTransId(), $this->authorize->payment_hash, $this->authorize->company_gateway->company->db);
+                    FDSReview::dispatch((string) $tresponse->getTransId(), $this->authorize->payment_hash, $this->authorize->company_gateway->company->db);
                 }
 
             } else {
                 nlog('Transaction Failed ');
                 if ($tresponse->getErrors() != null) {
-                    nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode());
-                    nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText());
+                    nlog(' Error code  : ' . $tresponse->getErrors()[0]->getErrorCode());
+                    nlog(' Error message : ' . $tresponse->getErrors()[0]->getErrorText());
                     nlog(print_r($tresponse->getErrors()[0], 1));
                 }
             }
@@ -166,12 +172,12 @@ class AuthorizeTransaction
             nlog('Transaction Failed ');
             $tresponse = $response->getTransactionResponse();
             if ($tresponse != null && $tresponse->getErrors() != null) {
-                nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode());
-                nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText());
+                nlog(' Error code  : ' . $tresponse->getErrors()[0]->getErrorCode());
+                nlog(' Error message : ' . $tresponse->getErrors()[0]->getErrorText());
                 nlog(print_r($tresponse->getErrors()[0], 1));
             } else {
-                nlog(' Error code  : '.$response->getMessages()->getMessage()[0]->getCode());
-                nlog(' Error message : '.$response->getMessages()->getMessage()[0]->getText());
+                nlog(' Error code  : ' . $response->getMessages()->getMessage()[0]->getCode());
+                nlog(' Error message : ' . $response->getMessages()->getMessage()[0]->getText());
             }
         }
 
@@ -179,7 +185,7 @@ class AuthorizeTransaction
             'response'           => $tresponse,
             'amount'             => $amount,
             'profile_id'         => $profile_id,
-            'transaction_id'     => $tresponse->getTransId()
+            'transaction_id'     => $tresponse->getTransId(),
             // 'payment_profile_id' => $payment_profile_id,
         ];
     }

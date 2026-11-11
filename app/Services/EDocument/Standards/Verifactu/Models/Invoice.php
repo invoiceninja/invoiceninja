@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -400,12 +400,12 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
             throw new \InvalidArgumentException('ImporteTotal must be a numeric value');
         }
 
-        $formatted = number_format((float)$importeTotal, 2, '.', '');
+        $formatted = number_format((float) $importeTotal, 2, '.', '');
         if (!preg_match('/^(\+|-)?\d{1,12}(\.\d{0,2})?$/', $formatted)) {
             throw new \InvalidArgumentException('ImporteTotal must be a number with up to 12 digits and 2 decimal places');
         }
 
-        $this->importeTotal = (float)$importeTotal;
+        $this->importeTotal = (float) $importeTotal;
         return $this;
     }
 
@@ -651,7 +651,7 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
             $objDSig->setCanonicalMethod(XMLSecurityDSig::EXC_C14N); //@phpstan-ignore-line
 
             // Create a new security key
-            $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, array('type' => 'private')); //@phpstan-ignore-line
+            $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'private']); //@phpstan-ignore-line
 
             // Load the private key
             $objKey->loadKey($this->privateKeyPath, true);
@@ -662,7 +662,7 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
                 XMLSecurityDSig::SHA256, //@phpstan-ignore-line
                 [
                     'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
-                    'http://www.w3.org/2001/10/xml-exc-c14n#'
+                    'http://www.w3.org/2001/10/xml-exc-c14n#',
                 ],
                 ['force_uri' => true]
             );
@@ -677,7 +677,7 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
             $objDSig->appendSignature($doc->documentElement);
 
             // Verify the signature
-            $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, array('type' => 'public')); //@phpstan-ignore-line
+            $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'public']); //@phpstan-ignore-line
             $objKey->loadKey($this->publicKeyPath, true, true);
 
             if ($objDSig->verify($objKey) === 1) {
@@ -692,7 +692,7 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
         } catch (\Exception $e) {
             Log::error("Error during XML signing: " . $e->getMessage(), [
                 'exception' => $e,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -876,10 +876,10 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
         }
 
         // 11. CuotaTotal
-        $root->appendChild($this->createElement($doc, 'CuotaTotal', (string)$this->cuotaTotal));
+        $root->appendChild($this->createElement($doc, 'CuotaTotal', (string) $this->cuotaTotal));
 
         // 12. ImporteTotal
-        $root->appendChild($this->createElement($doc, 'ImporteTotal', (string)$this->importeTotal));
+        $root->appendChild($this->createElement($doc, 'ImporteTotal', (string) $this->importeTotal));
 
         // 13. Encadenamiento (always present for R1 invoices)
         // if ($this->encadenamiento !== null) {
@@ -1188,13 +1188,13 @@ class Invoice extends BaseXmlModel implements XmlModelInterface
         // Parse CuotaTotal
         $cuotaTotalElement = $element->getElementsByTagNameNS(self::XML_NAMESPACE, 'CuotaTotal')->item(0);
         if ($cuotaTotalElement) {
-            $invoice->setCuotaTotal((float)$cuotaTotalElement->nodeValue);
+            $invoice->setCuotaTotal((float) $cuotaTotalElement->nodeValue);
         }
 
         // Parse ImporteTotal
         $importeTotalElement = $element->getElementsByTagNameNS(self::XML_NAMESPACE, 'ImporteTotal')->item(0);
         if ($importeTotalElement) {
-            $invoice->setImporteTotal((float)$importeTotalElement->nodeValue);
+            $invoice->setImporteTotal((float) $importeTotalElement->nodeValue);
         }
 
         // Parse Encadenamiento

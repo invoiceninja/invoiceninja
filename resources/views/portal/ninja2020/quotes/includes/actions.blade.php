@@ -25,17 +25,17 @@
                 </h3>
             </div>
 
-            <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
+            <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 flex flex-col sm:flex-row gap-3 sm:items-center">
                 @yield('quote-not-approved-right-side')
-                <div class="inline-flex rounded-md shadow-sm mr-2">
+                <div class="inline-flex rounded-md shadow-sm">
                     <button type="button"
-                        class="button button-primary bg-primary"
+                        class="button button-primary bg-primary w-full sm:w-auto min-h-11"
                         id="approve-button">{{ ctrans('texts.approve') }}</button>
                 </div>
 
                 <div class="inline-flex rounded-md shadow-sm">
                     <button type="button"
-                        class="button button-secondary bg-red-500 text-white hover:bg-red-600"
+                        class="button button-danger w-full sm:w-auto min-h-11"
                         id="reject-button">{{ ctrans('texts.reject') }}</button>
                 </div>
             </div>

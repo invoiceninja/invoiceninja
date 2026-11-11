@@ -28,14 +28,14 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if ($this->hasInvoice($data['Details'])) {
+        if (isset($data['Details']) && $this->hasInvoice($data['Details'])) {
             throw new ImportException('Invoice number already exists');
         }
 
         $transformed = [
             'company_id' => $this->company->id,
             'client_id'  => $this->getClient($this->getString($data, 'Client'), null),
-            'number'     => $this->getString($data, 'Details'),
+            'number'     => $this->getString($data, 'Details', null),
             'date'       => isset($data['Date']) ? $this->parseDate($data['Date']) : null,
             'due_date'   => isset($data['Due']) ? $this->parseDate($data['Due']) : null,
             'status_id'  => Invoice::STATUS_SENT,

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -115,7 +115,7 @@ class QuoteTransformer extends EntityTransformer
             'updated_at' => (int) $quote->updated_at,
             'archived_at' => (int) $quote->deleted_at,
             'created_at' => (int) $quote->created_at,
-            'number' => $quote->number ?: '',
+            'number' => (string) ($quote->number ?? ''),
             'discount' => (float) $quote->discount,
             'po_number' => $quote->po_number ?: '',
             'date' => $quote->date ?: '',
@@ -165,7 +165,8 @@ class QuoteTransformer extends EntityTransformer
             'tax_info' => $quote->tax_data ?: new \stdClass(),
             'e_invoice' => $quote->e_invoice ?: new \stdClass(),
             'location_id' => $this->encodePrimaryKey($quote->location_id),
-
+            'tags' => $this->transformTags($quote),
+            'sync' => $quote->sync,
         ];
     }
 }

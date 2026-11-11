@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Http\Requests\ClientPortal\Credits;
 
 use App\Http\ViewComposers\PortalComposer;
@@ -17,8 +25,8 @@ class ShowCreditRequest extends FormRequest
         auth()->guard('contact')->user()->loadMissing(['company']);
 
         return ! $this->credit->is_deleted
-            && (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)
-            && auth()->guard('contact')->user()->client_id === $this->credit->client_id;
+           && (bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)
+           && auth()->guard('contact')->user()->client_id === $this->credit->client_id;
     }
 
     /**

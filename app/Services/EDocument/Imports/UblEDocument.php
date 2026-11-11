@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,7 +39,10 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Parses a UBL XML file into a Peppol model and creates an expense with vendor.
+     *
      * @throws \Throwable
+     * @return \App\Models\Expense
      */
     public function run(): \App\Models\Expense
     {
@@ -62,7 +65,7 @@ class UblEDocument extends AbstractService
      */
     private function extractInvoiceUbl(string $xml): string
     {
-        $xml = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $xml);
+        $xml = str_replace(['<?xml version="1.0" encoding="UTF-8"?>', "<?xml version='1.0' encoding='UTF-8'?>"], '', $xml);
 
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
@@ -72,6 +75,7 @@ class UblEDocument extends AbstractService
         // Register the namespaces
         $xpath->registerNamespace('sh', 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader');
         $xpath->registerNamespace('ubl-inv', 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2');
+        $xpath->registerNamespace('inv', 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2');
         $xpath->registerNamespace('ubl-cn', 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2');
 
         // Try to find Invoice first
@@ -105,14 +109,12 @@ class UblEDocument extends AbstractService
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
      * @return Expense
      */
-    private function buildAndSaveExpense(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Expense
+    private function buildAndSaveExpense(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Expense
     {
         $isCreditNote = $invoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote;
 
         $vendor = $this->findOrCreateVendor($invoice);
 
-        nlog($invoice);
-        nlog(data_get($invoice, 'PaymentMeans.0', false));
         $TaxExclusiveAmount = data_get($invoice, 'LegalMonetaryTotal.TaxExclusiveAmount.amount', 0);
         $TaxInclusiveAmount = data_get($invoice, 'LegalMonetaryTotal.TaxExclusiveAmount.amount', 0);
         $ChargeTotalAmount = data_get($invoice, 'LegalMonetaryTotal.ChargeTotalAmount.amount', 0);
@@ -152,7 +154,7 @@ class UblEDocument extends AbstractService
         $public_notes = collect($items)->reject(function ($item) {
             return $item['name'] === false && $item['description'] === false;
         })->map(function ($item) {
-            return $item['name'] ?? ' ' . ' ## '. $item['description'] ?? ' '; //@phpstan-ignore-line
+            return $item['name'] ?? ' ' . ' ## ' . $item['description'] ?? ' '; //@phpstan-ignore-line
         })->implode("\n");
 
         /** @var \App\Models\Expense $expense */
@@ -230,6 +232,12 @@ class UblEDocument extends AbstractService
 
     }
 
+    /**
+     * Resolves a currency code (e.g. 'EUR') to its database ID, falling back to company default.
+     *
+     * @param  string $currency_code
+     * @return int
+     */
     private function resolveCurrencyId(string $currency_code): int
     {
 
@@ -242,9 +250,13 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Finds an existing vendor by VAT number, routing ID, id number, or name,
+     * or creates a new one from the supplier party data.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return Vendor
      */
-    private function findOrCreateVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
+    private function findOrCreateVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
         $asp = $invoice->AccountingSupplierParty;
 
@@ -276,27 +288,33 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Resolves the supplier name from PartyName or PartyLegalEntity.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return string
      */
-    private function resolveSupplierName(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
+    private function resolveSupplierName(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
         if (data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false)) {
             $party_name = data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false);
-            return data_get($party_name[0], 'Name', '');
+            return is_array($party_name) ? data_get($party_name[0], 'Name', '') : '';
         }
 
         if (data_get($invoice, 'AccountingSupplierParty.Party.PartyLegalEntity', false)) {
-            $ple = data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false);
-            return data_get($ple[0], 'RegistrationName', '');
+            $ple = data_get($invoice, 'AccountingSupplierParty.Party.PartyLegalEntity', false);
+            return is_array($ple) ? data_get($ple[0], 'RegistrationName', '') : '';
         }
 
         return '';
     }
 
     /**
+     * Extracts the supplier's party identification number (e.g. company registration number).
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return string
      */
-    private function resolveVendorIdNumber(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
+    private function resolveVendorIdNumber(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
 
         $pts = data_get($invoice, 'AccountingSupplierParty.Party.PartyIdentification', false);
@@ -306,9 +324,12 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Extracts the supplier's VAT number from the PartyTaxScheme CompanyID.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return string
      */
-    private function resolveVendorVat(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
+    private function resolveVendorVat(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
 
         $pts = data_get($invoice, 'AccountingSupplierParty.Party.PartyTaxScheme', false);
@@ -318,9 +339,12 @@ class UblEDocument extends AbstractService
     }
 
     /**
+     * Creates a new vendor from the Peppol supplier party data, including address and contact.
+     *
      * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return Vendor
      */
-    private function newVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
+    private function newVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
         $vendor = VendorFactory::create($this->company->id, $this->company->owner()->id);
 
@@ -357,11 +381,17 @@ class UblEDocument extends AbstractService
 
     }
 
+    /**
+     * Resolves an ISO country code to its database ID, falling back to company default.
+     *
+     * @param  string|null $iso_country_code
+     * @return int
+     */
     private function resolveCountry(?string $iso_country_code): int
     {
         return Country::query()
                         ->where('iso_3166_2', $iso_country_code)
                         ->orWhere('iso_3166_3', $iso_country_code)
-                        ->first()?->id ?? (int)$this->company->settings->country_id;
+                        ->first()?->id ?? (int) $this->company->settings->country_id;
     }
 }

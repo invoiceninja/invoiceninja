@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,7 +34,6 @@ class LedgerService
         $company_ledger->notes = $notes;
         $company_ledger->balance = $balance;
         $company_ledger->activity_id = Activity::UPDATE_INVOICE;
-        $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
 
@@ -54,7 +53,6 @@ class LedgerService
         $company_ledger->adjustment = $adjustment;
         $company_ledger->notes = $notes;
         $company_ledger->activity_id = Activity::UPDATE_INVOICE;
-        $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
 
@@ -70,7 +68,6 @@ class LedgerService
         $company_ledger->adjustment = $adjustment;
         $company_ledger->activity_id = Activity::UPDATE_PAYMENT;
         $company_ledger->notes = $notes;
-        $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
 
@@ -86,7 +83,6 @@ class LedgerService
         $company_ledger->adjustment = $adjustment;
         $company_ledger->notes = $notes;
         $company_ledger->activity_id = Activity::UPDATE_CREDIT;
-        $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,7 +27,7 @@ class NinjaTranslator extends Translator
      */
     public function set($key, $value, $locale = null)
     {
-        list($namespace, $group, $item) = $this->parseKey($key);
+        [$namespace, $group, $item] = $this->parseKey($key);
 
         if (null === $locale) {
             $locale = $this->locale;
@@ -46,7 +46,7 @@ class NinjaTranslator extends Translator
         }
 
         foreach ($items as $key => $value) {
-            list($namespace, $group, $item) = $this->parseKey($key);
+            [$namespace, $group, $item] = $this->parseKey($key);
 
             $this->load($namespace, $group, $locale);
 

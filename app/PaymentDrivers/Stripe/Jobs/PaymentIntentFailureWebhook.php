@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\Utils\Number;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -64,24 +65,7 @@ class PaymentIntentFailureWebhook implements ShouldQueue
 
             nlog($transaction);
 
-            $payment = Payment::query()
-                ->where('company_id', $company->id)
-                ->where(function ($query) use ($transaction) {
-
-                    if (isset($transaction['payment_intent'])) {
-                        $query->where('transaction_reference', $transaction['payment_intent']);
-                    }
-
-                    if (isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->orWhere('transaction_reference', $transaction['id']);
-                    }
-
-                    if (!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->where('transaction_reference', $transaction['id']);
-                    }
-
-                })
-                ->first();
+            $payment = self::findPaymentByStripeReference($company->id, $transaction);
 
             if ($payment) {
                 $client = $payment->client;
@@ -98,13 +82,14 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                 if ($payment_hash) {
                     $error = ctrans('texts.client_payment_failure_body', [
                         'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-                        'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total, ]);
+                        'amount' => Number::formatMoney($payment_hash->amount_with_fee(), $client),
+                    ]);
                 } else {
-                    $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
+                    $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
                 }
 
                 if (array_key_exists('failure_message', $transaction)) {
-                    $error .= "\n\n".$transaction['failure_message'];
+                    $error .= "\n\n" . $transaction['failure_message'];
                 }
 
                 PaymentFailedMailer::dispatch(

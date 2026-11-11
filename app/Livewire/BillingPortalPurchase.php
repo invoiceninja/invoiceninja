@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,10 +24,12 @@ use App\Models\Invoice;
 use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use App\Utils\BcMath;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class BillingPortalPurchase extends Component
@@ -37,6 +39,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string
      */
+    #[Locked]
     public $hash;
 
     /**
@@ -88,6 +91,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string|integer
      */
+    #[Locked]
     public $company_gateway_id;
 
     /**
@@ -95,6 +99,7 @@ class BillingPortalPurchase extends Component
      *
      * @var string|integer
      */
+    #[Locked]
     public $payment_method_id;
 
     private $user_coupon;
@@ -104,6 +109,7 @@ class BillingPortalPurchase extends Component
      *
      * @var array
      */
+    #[Locked]
     public $steps = [
         'passed_email' => false,
         'existing_user' => false,
@@ -146,6 +152,7 @@ class BillingPortalPurchase extends Component
      *
      * @var int
      */
+    #[Locked]
     public $quantity;
 
     /**
@@ -158,6 +165,7 @@ class BillingPortalPurchase extends Component
     /**
      * @var float
      */
+    #[Locked]
     public $price;
 
     /**
@@ -172,8 +180,10 @@ class BillingPortalPurchase extends Component
      *
      * @var \App\Models\Company
      */
+    #[Locked]
     public $company;
 
+    #[Locked]
     public $db;
 
     /**
@@ -221,7 +231,7 @@ class BillingPortalPurchase extends Component
     /**
      * Handle user authentication
      *
-     * @return $this|bool|void
+     * @return self|bool|void
      */
     public function authenticate()
     {
@@ -238,9 +248,13 @@ class BillingPortalPurchase extends Component
         if ($contact && $this->steps['existing_user']) {
             $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
 
-            return $attempt
-                ? $this->getPaymentMethods($contact)
-                : session()->flash('message', 'These credentials do not match our records.');
+            if (! $attempt) {
+                return session()->flash('message', 'These credentials do not match our records.');
+            }
+
+            $this->dispatch('update-csrf', token: csrf_token());
+
+            return $this->getPaymentMethods($contact);
         }
 
         $this->steps['existing_user'] = false;
@@ -248,6 +262,8 @@ class BillingPortalPurchase extends Component
         $this->contact = $this->createBlankClient();
 
         if ($this->contact && $this->contact instanceof ClientContact) {
+            Auth::guard('contact')->loginUsingId($this->contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
             $this->getPaymentMethods($this->contact);
         }
     }
@@ -321,7 +337,7 @@ class BillingPortalPurchase extends Component
             });
 
             if ($record) {
-                $data['settings']['language_id'] = (string)$record->id;
+                $data['settings']['language_id'] = (string) $record->id;
             }
         }
 
@@ -334,13 +350,11 @@ class BillingPortalPurchase extends Component
      * Fetching payment methods from the client.
      *
      * @param ClientContact $contact
-     * @return $this
+     * @return self
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
         $this->contact = $contact;
-
-        Auth::guard('contact')->loginUsingId($contact->id, true);
 
         if ($this->subscription->trial_enabled) {
             $this->heading_text = ctrans('texts.plan_trial');
@@ -349,7 +363,7 @@ class BillingPortalPurchase extends Component
             return $this;
         }
 
-        if ((float)$this->price <= 0) {
+        if ((float) $this->price <= 0) {
 
             $this->steps['payment_required'] = false;
             $this->steps['fetched_payment_methods'] = false;
@@ -437,58 +451,65 @@ class BillingPortalPurchase extends Component
         $this->steps['started_payment'] = true;
         $this->steps['show_loading_bar'] = true;
 
-        $data = [
-            'client_id' => $this->contact->client->id,
-            'date' => now()->format('Y-m-d'),
-            'invitations' => [[
-                'key' => '',
-                'client_contact_id' => $this->contact->hashed_id,
-            ]],
-            'user_input_promo_code' => $this->coupon,
-            'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-            'quantity' => $this->quantity,
-        ];
+        try {
 
-        $is_eligible = $this->subscription->service()->isEligible($this->contact);
+            $data = [
+                'client_id' => $this->contact->client->id,
+                'date' => now()->format('Y-m-d'),
+                'invitations' => [[
+                    'key' => '',
+                    'client_contact_id' => $this->contact->hashed_id,
+                ]],
+                'user_input_promo_code' => $this->coupon,
+                'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
+                'quantity' => $this->quantity,
+            ];
 
-        if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
-            $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['message'];
-            $this->steps['show_loading_bar'] = false;
+            $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
-            return;
+            if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
+                $this->steps['not_eligible'] = true;
+                $this->steps['not_eligible_message'] = $is_eligible['message'];
+                $this->steps['show_loading_bar'] = false;
+
+                return;
+            }
+
+            $this->invoice = $this->subscription
+                ->service()
+                ->createInvoice($data, $this->quantity)
+                ->service()
+                ->markSent()
+                ->fillDefaults()
+                ->adjustInventory()
+                ->save();
+
+            $context = 'purchase';
+
+            if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
+                $context = 'whitelabel';
+            }
+
+            if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && in_array($this->subscription->service()->products()->first()?->product_key, ['peppol_500','peppol_1000','selfhost_peppol_500','selfhost_peppol_1000'])) {
+                $context = $this->subscription->service()->products()->first()?->product_key;
+            }
+
+            Cache::put($this->hash, [
+                'subscription_id' => $this->subscription->hashed_id,
+                'email' => $this->email ?? $this->contact->email,
+                'client_id' => $this->contact->client->hashed_id,
+                'invoice_id' => $this->invoice->hashed_id,
+                'context' => $context,
+                'campaign' => $this->campaign,
+                'request_data' => $this->request_data,
+            ], now()->addMinutes(60));
+
+            $this->dispatch('beforePaymentEventsCompleted');
+
+        } catch (\Throwable $e) {
+            \Log::error("handleBeforePaymentEvents FAILED: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine());
+            throw $e;
         }
-
-        $this->invoice = $this->subscription
-            ->service()
-            ->createInvoice($data, $this->quantity)
-            ->service()
-            ->markSent()
-            ->fillDefaults()
-            ->adjustInventory()
-            ->save();
-
-        $context = 'purchase';
-
-        if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
-            $context = 'whitelabel';
-        }
-
-        if (config('ninja.ninja_default_company_id') == $this->subscription->company_id && in_array($this->subscription->service()->products()->first()?->product_key, ['peppol_500','peppol_1000','selfhost_peppol_500','selfhost_peppol_1000'])) {
-            $context = $this->subscription->service()->products()->first()?->product_key;
-        }
-
-        Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->hashed_id,
-            'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->hashed_id,
-            'invoice_id' => $this->invoice->hashed_id,
-            'context' => $context,
-            'campaign' => $this->campaign,
-            'request_data' => $this->request_data,
-        ], now()->addMinutes(60));
-
-        $this->dispatch('beforePaymentEventsCompleted');
     }
 
     /**
@@ -508,6 +529,14 @@ class BillingPortalPurchase extends Component
 
     public function handlePaymentNotRequired()
     {
+        $this->resetValidation('payment');
+
+        if (! BcMath::isZero($this->price)) {
+            $this->addError('payment', ctrans('texts.subscription_payment_required'));
+
+            return;
+        }
+
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
         if ($is_eligible['status_code'] != 200) {
@@ -586,7 +615,7 @@ class BillingPortalPurchase extends Component
             ->first();
 
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
+        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company, (string) route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
         $mailer->company = $this->subscription->company;
         $mailer->settings = $this->subscription->company->settings;
         $mailer->to_user = $contact;
@@ -601,10 +630,6 @@ class BillingPortalPurchase extends Component
     {
         if (array_key_exists('email', $this->request_data)) {
             $this->email = $this->request_data['email'];
-        }
-
-        if ($this->contact instanceof ClientContact) {
-            $this->getPaymentMethods($this->contact);
         }
 
         return render('components.livewire.billing-portal-purchase');

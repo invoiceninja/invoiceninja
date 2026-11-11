@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,14 +47,21 @@ class ZugferdEDocument extends AbstractService
     }
 
     /**
+     * Parses a Zugferd/Factur-X XML or PDF, creates an expense with vendor,
+     * renders a PDF visualisation, and attaches documents.
+     *
      * @throws Exception
+     * @return Expense
      */
     public function run(): Expense
     {
         /** @var \App\Models\User $user */
         $user = $this->company->owner();
 
-        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->file->get());
+        $documentContent = $this->file->get();
+        $extractor = new FacturXXmlExtractor();
+        $xml = $extractor->extract($documentContent);
+        $this->document = $extractor->read($xml);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
 
@@ -77,9 +84,13 @@ class ZugferdEDocument extends AbstractService
             $expense->save();
 
             $documents = [$this->file];
-            if ($this->file->getExtension() == "xml") {
+
+            if ($extractor->isPdf($documentContent)) {
+                $documents[] = TempFile::UploadedFileFromRaw($xml, $documentno . '.xml', 'application/xml');
+            } else {
                 array_push($documents, TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno . "_visualiser.pdf", "application/pdf"));
             }
+
             $this->saveDocuments($documents, $expense);
 
             $expense->save();
@@ -93,9 +104,9 @@ class ZugferdEDocument extends AbstractService
             if ($this->document->firstDocumentTax()) {
                 do {
                     $this->document->getDocumentTax($categoryCode, $typeCode, $basisAmount, $calculatedAmount, $rateApplicablePercent, $exemptionReason, $exemptionReasonCode, $lineTotalBasisAmount, $allowanceChargeBasisAmount, $taxPointDate, $dueDateTypeCode);
-                    $expense->{"tax_amount$counter"} = $calculatedAmount;
-                    $expense->{"tax_rate$counter"} = $rateApplicablePercent;
-                    $expense->{"tax_name$counter"} = $typeCode;
+                    $expense->{"tax_amount$counter"} = $calculatedAmount ?? 0;
+                    $expense->{"tax_rate$counter"} = $rateApplicablePercent ?? 0;
+                    $expense->{"tax_name$counter"} = $typeCode ?? '';
                     $counter++;
                 } while ($this->document->nextDocumentTax());
             }
@@ -138,7 +149,7 @@ class ZugferdEDocument extends AbstractService
 
                 $country = app('countries')->first(function ($c) use ($country) {
                     /** @var \App\Models\Country $c */
-                    return $c->iso_3166_2 == $country || $c->iso_3166_3 == $country;
+                    return $c->iso_3166_2 == strtoupper($country) || $c->iso_3166_3 == strtoupper($country);
                 });
                 if ($country) {
                     $vendor->country_id = $country->id;

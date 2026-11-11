@@ -44,8 +44,10 @@ class DesignExtractor
             return $this->html;
         }
 
-        $this->html = file_get_contents(config('ninja.designs.base_path') . $this->design);
-
+        $content = file_get_contents(config('ninja.designs.base_path') . $this->design);
+        $this->html = ($content === false || $content === '')
+            ? '<html><body></body></html>'
+            : $content;
         return $this->html;
     }
 

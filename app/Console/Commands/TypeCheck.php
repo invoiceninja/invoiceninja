@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -82,7 +82,7 @@ class TypeCheck extends Command
             if ($client) {
                 $this->checkClient($client);
             } else {
-                $this->logMessage(date('Y-m-d h:i:s').' Could not find this client');
+                $this->logMessage(date('Y-m-d h:i:s') . ' Could not find this client');
             }
         }
 
@@ -92,14 +92,14 @@ class TypeCheck extends Command
             if ($company) {
                 $this->checkCompany($company);
             } else {
-                $this->logMessage(date('Y-m-d h:i:s').' Could not find this company');
+                $this->logMessage(date('Y-m-d h:i:s') . ' Could not find this company');
             }
         }
     }
 
     private function checkClient($client)
     {
-        $this->logMessage(date('Y-m-d h:i:s').' Checking Client => '.$client->present()->name().' '.$client->id);
+        $this->logMessage(date('Y-m-d h:i:s') . ' Checking Client => ' . $client->present()->name() . ' ' . $client->id);
 
         $entity_settings = $this->checkSettingType($client->settings);
         $entity_settings->md5 = md5(time());
@@ -109,14 +109,14 @@ class TypeCheck extends Command
 
     private function checkCompany($company)
     {
-        $this->logMessage(date('Y-m-d h:i:s').' Checking Company => '.$company->present()->name().' '.$company->id);
+        $this->logMessage(date('Y-m-d h:i:s') . ' Checking Company => ' . $company->present()->name() . ' ' . $company->id);
 
         $company->saveSettings((array) $company->settings, $company);
     }
 
     private function checkAll()
     {
-        $this->logMessage(date('Y-m-d h:i:s').' Checking all clients and companies.');
+        $this->logMessage(date('Y-m-d h:i:s') . ' Checking all clients and companies.');
 
         Client::withTrashed()->cursor()->each(function ($client) {
             $this->logMessage("Checking client {$client->id}");
@@ -141,8 +141,8 @@ class TypeCheck extends Command
 
     private function logMessage($str)
     {
-        $str = date('Y-m-d h:i:s').' '.$str;
+        $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
-        $this->log .= $str."\n";
+        $this->log .= $str . "\n";
     }
 }

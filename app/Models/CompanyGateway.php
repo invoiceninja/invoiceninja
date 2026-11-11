@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,6 +40,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $deleted_at
  * @property string $token_billing
  * @property string|null $label
+ * @property string|null $gateway_account_id
  * @property bool $require_client_name
  * @property bool $require_postal_code
  * @property bool $require_client_phone
@@ -115,12 +116,12 @@ class CompanyGateway extends BaseModel
     ];
 
     public static $credit_cards = [
-            1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
-            2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
-            4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
-            8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
-            16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
-        ];
+        1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
+        2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
+        4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
+        8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
+        16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
+    ];
 
     // const TYPE_PAYPAL = 300;
     // const TYPE_STRIPE = 301;
@@ -160,6 +161,9 @@ class CompanyGateway extends BaseModel
         '91be24c7b792230bced33e930ac61676' => 325, //Rotessa
         'wbhf02us6owgo7p4nfjd0ymssdshks4d' => 326, //Blockonomics
         'b67581d804dbad1743b61c57285142ad' => 327, //Powerboard
+        'f4lafbnygsmkflagbqp7zqnfpgeoekdn' => 328, //LawPay
+        'c7a8e2f1b4d90635a3f8e1c9b2d4a6e0' => 330, //CHIP
+        'ca3b3f7e4be811c96a8a1f4cafe2a97f' => 331, //Helcim
     ];
 
     protected $touches = [];
@@ -217,7 +221,7 @@ class CompanyGateway extends BaseModel
 
     private function driver_class()
     {
-        $class = 'App\\PaymentDrivers\\'.$this->gateway->provider.'PaymentDriver';
+        $class = 'App\\PaymentDrivers\\' . $this->gateway->provider . 'PaymentDriver';
         $class = str_replace('_', '', $class);
 
         if (class_exists($class)) {

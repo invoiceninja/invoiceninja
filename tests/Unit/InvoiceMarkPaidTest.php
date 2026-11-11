@@ -29,6 +29,7 @@ use App\Factory\InvoiceFactory;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceItemFactory;
+use App\Helpers\Cache\Atomic;
 use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
@@ -97,7 +98,7 @@ class InvoiceMarkPaidTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
         ]);
 
         $settings = CompanySettings::defaults();
@@ -263,6 +264,100 @@ class InvoiceMarkPaidTest extends TestCase
 
         $this->account->forceDelete();
 
+    }
+
+    public function testPaidInvoiceUpdateRejectsDuplicateRequest(): void
+    {
+        $this->buildData();
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->tax_name1 = '';
+        $item->tax_rate1 = 0;
+        $item->type_id = '1';
+        $item->tax_id = '1';
+
+        $invoice = Invoice::factory()->create([
+            'discount' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+            'line_items' => [$item],
+            'status_id' => Invoice::STATUS_SENT,
+            'uses_inclusive_taxes' => false,
+            'is_amount_discount' => false,
+        ]);
+
+        $repository = new InvoiceRepository();
+        $invoice = $repository->save([], $invoice->calc()->getInvoice());
+        $invoice_amount = (float) $invoice->amount;
+        $lock_key = implode('|', [
+            'INVOICE_MARK_PAID',
+            $this->company->db,
+            $invoice->id,
+            $this->company->company_key,
+        ]);
+
+        $this->assertTrue(Atomic::set($lock_key, true, 1));
+
+        $duplicate_response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/invoices/{$invoice->hashed_id}?paid=true", []);
+
+        $duplicate_response->assertStatus(429);
+
+        $invoice = $invoice->fresh();
+
+        $this->assertSame(Invoice::STATUS_SENT, $invoice->status_id);
+        $this->assertEquals($invoice_amount, $invoice->balance);
+        $this->assertEquals(0, $invoice->paid_to_date);
+        $this->assertCount(0, $invoice->payments);
+        $this->assertSame(
+            0,
+            \App\Models\CompanyLedger::query()
+                ->where('company_id', $this->company->id)
+                ->where('notes', 'Marked Paid Activity')
+                ->count()
+        );
+
+        Atomic::del($lock_key);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/invoices/{$invoice->hashed_id}?paid=true", []);
+
+        $response->assertStatus(200);
+        $this->assertFalse((bool) Atomic::get($lock_key));
+
+        $invoice = $invoice->fresh();
+
+        $this->assertSame(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals($invoice_amount, $invoice->paid_to_date);
+        $this->assertCount(1, $invoice->payments);
+        $this->assertSame(
+            1,
+            \App\Models\CompanyLedger::query()
+                ->where('company_id', $this->company->id)
+                ->where('notes', 'Marked Paid Activity')
+                ->count()
+        );
+
+        $this->account->forceDelete();
     }
 
 }

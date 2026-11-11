@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -133,6 +133,7 @@ class PortalComposer
 
         if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_tasks')) {
             $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.tasks.index', 'icon' => 'clock', 'id' => 'tasks'];
+            $data[] = ['title' => ctrans('texts.projects'), 'url' => 'client.projects.index', 'icon' => 'briefcase', 'id' => 'projects'];
         }
 
         $data[] = ['title' => ctrans('texts.statement'), 'url' => 'client.statement', 'icon' => 'activity', 'id' => 'statement'];
@@ -140,7 +141,7 @@ class PortalComposer
         if (Ninja::isHosted() && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company_id == config('ninja.ninja_default_company_id')) {
             $data[] = ['title' => ctrans('texts.plan'), 'url' => 'client.plan', 'icon' => 'credit-card', 'id' => 'plan'];
         } else {
-            $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar', 'id' => 'subsciptions'];
+            $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar', 'id' => 'subscriptions'];
         }
 
         if (auth()->guard('contact')->user()->client->getSetting('client_initiated_payments')) {

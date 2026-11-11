@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -35,31 +43,31 @@ class InvoiceLines
     public ?string $quantity_unit_code;
 
     #[SerializedPath('[cac:AllowanceCharge]')]
-    /** @var AllowanceCharges[] */ //todo
+    /** @var AllowanceCharges[]|null */ //todo
     public ?array $allowance_charges;
 
     #[SerializedPath('[cbc:LineExtensionAmount][#]')]
     public ?float $amount_excluding_vat;
 
-    #[SerializedPath('[cac:Price][cbc:PriceAmount][value]')]
+    /** Optional line-amount alias; populated by mapper when applicable. */
     public ?float $amount_excluding_tax;
 
     #[SerializedPath('[cbc:TaxInclusiveAmount][#]')]
     public ?float $amount_including_tax;
 
     #[SerializedPath('[cac:Item][cac:ClassifiedTaxCategory]')]
-    /** @var TaxesDutiesFees[] */
+    /** @var TaxesDutiesFees[]|null */
     public ?array $taxes_duties_fees = [];
 
     #[SerializedPath('[cbc:AccountingCost]')]
     public ?string $accounting_cost;
 
     #[SerializedPath('[cac:DocumentReference]')]
-    /** @var References[] */
+    /** @var References[]|null */
     public ?array $references;
 
     #[SerializedPath('[cac:Item][cac:AdditionalItemProperty]')]
-    /** @var AdditionalItemProperties[] */
+    /** @var AdditionalItemProperties[]|null */
     public ?array $additional_item_properties;
 
     #[SerializedPath('[cac:Item][cac:SellersItemIdentification][cbc:ID][#]')]

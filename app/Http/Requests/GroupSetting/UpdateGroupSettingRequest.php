@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,19 +44,23 @@ class UpdateGroupSettingRequest extends Request
 
     public function withValidator($validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
-            
+
             $user = auth()->user();
             $company = $user->company();
 
-            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+            if (isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent') {
                 $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
             }
-            
+
         });
     }
-    
-    
+
+
     public function prepareForValidation()
     {
         $input = $this->all();
@@ -91,7 +95,7 @@ class UpdateGroupSettingRequest extends Request
         unset($settings->pdf_variables);
 
         if (! $user->account->isFreeHostedClient()) {
-            return (array)$settings;
+            return (array) $settings;
         }
 
         $saveable_casts = CompanySettings::$free_plan_casts;
@@ -102,6 +106,6 @@ class UpdateGroupSettingRequest extends Request
             }
         }
 
-        return (array)$settings;
+        return (array) $settings;
     }
 }

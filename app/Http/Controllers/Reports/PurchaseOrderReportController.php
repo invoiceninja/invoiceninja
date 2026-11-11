@@ -37,7 +37,7 @@ class PurchaseOrderReportController extends BaseController
         $user = auth()->user();
 
 
-        if ($request->has('send_email') && $request->get('send_email') && $request->missing('output')) {
+        if ($request->has('send_email') && filter_var($request->input('send_email'), FILTER_VALIDATE_BOOLEAN) && $request->missing('output')) {
             SendToAdmin::dispatch($user->company(), $request->all(), PurchaseOrderExport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);
@@ -45,7 +45,7 @@ class PurchaseOrderReportController extends BaseController
 
         $hash = \Illuminate\Support\Str::uuid();
 
-        PreviewReport::dispatch($user->company(), $request->all(), PurchaseOrderExport::class, $hash);
+        PreviewReport::dispatch($user->company(), $request->all(), PurchaseOrderExport::class, $hash, $this->filename, $user);
 
         return response()->json(['message' => $hash], 200);
 

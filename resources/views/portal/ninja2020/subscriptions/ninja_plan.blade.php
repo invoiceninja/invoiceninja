@@ -80,7 +80,7 @@ input:checked ~ .dot {
               <p class="text-xl text-white">
                 Single User
               </p>
-              <button id="handleProMonthlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500">
+              <button id="handleProMonthlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white hover:bg-gray-100 border border-transparent rounded text-blue-500">
                 Purchase
               </button>
             </div>
@@ -121,7 +121,7 @@ input:checked ~ .dot {
                   <option value="k8mepY2aMy">11-20 Users</option>
                 </select>
               </p>
-              <button id="handleMonthlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500">
+              <button id="handleMonthlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white hover:bg-gray-100 border border-transparent rounded text-blue-500">
                 Purchase
               </button>
             </div>
@@ -164,7 +164,7 @@ input:checked ~ .dot {
               <p class="text-xl text-white">
                 Buy 10 months get 2 free!
               </p>
-                <button id="handleProYearlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500">
+                <button id="handleProYearlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white hover:bg-gray-100 border border-transparent rounded text-blue-500">
                 Purchase
               </button>
             </div>
@@ -208,7 +208,7 @@ input:checked ~ .dot {
                   <option value="MVyb86oevA">11-20 Users</option>
                 </select>
               </p>
-              <button id="handleYearlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500" >
+              <button id="handleYearlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white hover:bg-gray-100 border border-transparent rounded text-blue-500" >
                 Purchase
               </button>
             </div>

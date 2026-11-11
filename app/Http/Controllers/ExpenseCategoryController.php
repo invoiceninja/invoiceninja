@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\ExpenseCategoryFactory;
 use App\Filters\ExpenseCategoryFilters;
+use App\Http\Requests\ExpenseCategory\BulkExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\CreateExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\DestroyExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\EditExpenseCategoryRequest;
@@ -458,16 +459,16 @@ class ExpenseCategoryController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkExpenseCategoryRequest $request)
     {
         /** @var \App\Models\User $user **/
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $expense_categories = ExpenseCategory::withTrashed()->find($this->transformKeys($ids));
+        $expense_categories = ExpenseCategory::withTrashed()->company()->find($ids);
 
         $expense_categories->each(function ($expense_category, $key) use ($action, $user) {
             if ($user->can('edit', $expense_category)) {
@@ -475,6 +476,6 @@ class ExpenseCategoryController extends BaseController
             }
         });
 
-        return $this->listResponse(ExpenseCategory::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(ExpenseCategory::withTrashed()->company()->whereIn('id', $ids));
     }
 }

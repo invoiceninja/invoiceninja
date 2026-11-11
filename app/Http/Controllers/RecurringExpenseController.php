@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -16,6 +16,7 @@ use App\Events\RecurringExpense\RecurringExpenseWasCreated;
 use App\Events\RecurringExpense\RecurringExpenseWasUpdated;
 use App\Factory\RecurringExpenseFactory;
 use App\Filters\RecurringExpenseFilters;
+use App\Http\Requests\RecurringExpense\BulkRecurringExpenseRequest;
 use App\Http\Requests\RecurringExpense\CreateRecurringExpenseRequest;
 use App\Http\Requests\RecurringExpense\DestroyRecurringExpenseRequest;
 use App\Http\Requests\RecurringExpense\EditRecurringExpenseRequest;
@@ -36,7 +37,6 @@ use Illuminate\Http\Response;
 
 /**
  * Class RecurringExpenseController.
- * @covers App\Http\Controllers\RecurringExpenseController
  */
 class RecurringExpenseController extends BaseController
 {
@@ -102,7 +102,7 @@ class RecurringExpenseController extends BaseController
      */
     public function index(RecurringExpenseFilters $filters)
     {
-        $recurring_expenses = RecurringExpense::filter($filters);
+        $recurring_expenses = RecurringExpense::filter($filters)->with('tags');
 
         return $this->listResponse($recurring_expenses);
     }
@@ -486,15 +486,15 @@ class RecurringExpenseController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkRecurringExpenseRequest $request)
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
-        $recurring_expenses = RecurringExpense::withTrashed()->find($this->transformKeys($ids));
+        $ids = $request->input('ids');
+        $recurring_expenses = RecurringExpense::withTrashed()->company()->find($ids);
 
         $recurring_expenses->each(function ($recurring_expense, $key) use ($action, $user) {
             if ($user->can('edit', $recurring_expense)) {
@@ -502,7 +502,7 @@ class RecurringExpenseController extends BaseController
             }
         });
 
-        return $this->listResponse(RecurringExpense::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(RecurringExpense::withTrashed()->company()->whereIn('id', $ids));
     }
 
     private function performAction(RecurringExpense $recurring_expense, string $action, $bulk = false)
@@ -610,7 +610,7 @@ class RecurringExpenseController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $recurring_expense, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $recurring_expense, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($recurring_expense->fresh());

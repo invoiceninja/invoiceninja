@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,7 +33,7 @@ class ClientFactory
         $client->is_deleted = false;
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
-        $client->classification = '';
+        $client->classification = 'business';
 
         return $client;
     }

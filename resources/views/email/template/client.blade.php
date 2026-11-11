@@ -146,17 +146,17 @@
     <tr>
         <td>
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
-                   style="border: 1px solid #c2c2c2;" class="dark-bg-base">
-                
+                   style="border: 1px solid #c2c2c2; border-collapse: collapse;" class="dark-bg-base">
+
                 <!--[if mso]>
                 <tr class="dark-bg" style="margin-top:10px; border: none;">
                 <td style="border: none;"></td>
                 </tr>
                 <![endif]-->
-                
+
                 <tr>
-                    <td align="center" cellpadding="20">
-                        <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px; padding-top:10px;">
+                    <td align="center" style="padding: 10px 20px; mso-padding-alt: 10px 20px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                        <div>
                             @if($logo && strpos($logo, 'blank.png') === false)
                              <img class="" src="{{ $logo ?? '' }}" alt=" " border="0" style="display: block; width: auto; max-width: 300px; max-height: 100px; height: auto; margin: 0 auto;">
                             @endif
@@ -164,8 +164,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td cellpadding="5">
-                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: {{ $email_alignment }}" id="content">
+                    <td style="padding: 30px 20px 20px 20px; mso-padding-alt: 30px 20px 20px 20px; text-align: {{ $email_alignment }};">
+                        <div id="content">
                                 <div style="padding-top: 10px;"></div>
 
                                 {{ $slot ?? '' }}
@@ -192,18 +192,12 @@
                                 @endisset
                         </div>
                     </td>
-                </tr>  
-                
-                <tr>
-                  <td height="0">
-                   <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 5px; text-align: center" id="content"> </div>
-                 </td>
                 </tr>
 
                 <tr>
-                    <td cellpadding="20" bgcolor="#f9f9f9">
-                        <div class="dark-bg dark-text-white"
-                             style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: #f9f9f9;">
+                    <td class="dark-bg dark-text-white" bgcolor="#f9f9f9" height="40" valign="middle" align="center"
+                        style="min-height: 40px; padding: 7px 20px 14px 20px; mso-padding-alt: 7px 20px 14px 20px; text-align: center; background-color: #f9f9f9; vertical-align: middle;">
+                        <div>
                             @isset($signature)
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-bottom: 30px;">
                                     {!! nl2br($signature) !!}
@@ -223,9 +217,9 @@
                 </tr>
 
                 <tr>
-                    <td bgcolor="#242424"  cellpadding="20">
-                        <div class="dark-bg-base"
-                             style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
+                    <td bgcolor="#242424" height="22" valign="middle" align="center"
+                        style="min-height: 22px; padding: 6px 20px; mso-padding-alt: 6px 20px; background-color: #242424; vertical-align: middle;">
+                        <div class="dark-bg-base">
                             @if(isset($company))
                                 @if($company->account->isPaid())
                                     <p style="text-align: center; color: #ffffff; font-size: 10px;
@@ -246,9 +240,9 @@
 
                 @if(isset($email_preferences) && $email_preferences)
                 <tr>
-                    <td bgcolor="#242424"  cellpadding="20">
-                        <div class="dark-bg-base"
-                             style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
+                    <td bgcolor="#242424" height="22" valign="middle" align="center"
+                        style="min-height: 22px; padding: 6px 20px; mso-padding-alt: 6px 20px; background-color: #242424; vertical-align: middle;">
+                        <div class="dark-bg-base">
                                 <a href="{{ $email_preferences }}">
                                     <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
                                         {{ ctrans('texts.email_preferences') }}

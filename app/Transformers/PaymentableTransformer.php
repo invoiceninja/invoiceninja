@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,6 +42,7 @@ class PaymentableTransformer extends EntityTransformer
         return  [
             'id' => $this->encodePrimaryKey($paymentable->id),
             $entity_key => $this->encodePrimaryKey($paymentable->paymentable_id),
+            'payment_id' => $this->encodePrimaryKey($paymentable->payment_id),
             'amount' => (float) $paymentable->amount,
             'refunded' => (float) $paymentable->refunded,
             'created_at' => (int) $paymentable->created_at,

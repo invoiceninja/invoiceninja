@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -57,11 +57,11 @@ class PaymentHash extends Model
     }
 
     /**
-     * @return float|null
+     * @return float
      */
     public function amount_with_fee()
     {
-        return $this->data->amount_with_fee;
+        return $this->data->amount_with_fee ?? 0;
     }
 
     /**
@@ -69,7 +69,7 @@ class PaymentHash extends Model
      */
     public function credits_total()
     {
-        return isset($this->data->credits) ? $this->data->credits : 0;
+        return $this->data->credits ?? 0;
     }
 
     public function payment(): \Illuminate\Database\Eloquent\Relations\BelongsTo

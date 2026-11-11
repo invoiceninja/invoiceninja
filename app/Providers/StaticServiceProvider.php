@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -85,15 +85,16 @@ class StaticServiceProvider extends ServiceProvider
         /** @return \Illuminate\Support\Collection<PaymentType> */
         app()->singleton('payment_types', function ($app) {
 
-            if ($resource = Cache::get('payment_types')) {
-                return $resource;
-            }
+            return \App\Models\PaymentType::getDefaultPaymentTypes();
+            // if ($resource = Cache::get('payment_types')) {
+            //     return $resource;
+            // }
 
-            $resource = PaymentType::query()->orderBy('id')->get();
+            // $resource = PaymentType::query()->orderBy('id')->get();
 
-            Cache::forever('payment_types', $resource);
+            // Cache::forever('payment_types', $resource);
 
-            return $resource;
+            // return $resource;
 
         });
 
@@ -258,15 +259,12 @@ class StaticServiceProvider extends ServiceProvider
                 'partial_payment' => [
                     'subject' => EmailTemplateDefaults::emailPaymentPartialSubject(),
                     'body' => EmailTemplateDefaults::emailPaymentPartialTemplate(),
-                ]
+                ],
             ];
 
         });
 
     }
 
-    public function boot()
-    {
-
-    }
+    public function boot() {}
 }

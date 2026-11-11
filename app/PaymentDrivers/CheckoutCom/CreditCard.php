@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,6 +60,8 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     {
         $data['gateway'] = $this->checkout;
         $data['cardholder_name'] = auth()->guard('contact')->user()->present()->name() ?? '';
+        $data['use_flow'] = false;
+
         return render('gateways.checkout.credit_card.authorize', $data);
     }
 
@@ -88,19 +90,19 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
      */
     public function authorizeResponse(Request $request)
     {
-        $gateway_response = \json_decode($request->gateway_response);
+        $gateway_response = json_decode($request->gateway_response);
 
         $customerRequest = $this->checkout->getCustomer();
 
-        $request = $this->bootRequest($gateway_response->token);
-        $request->capture = false;
-        $request->reference = '$1 payment for authorization.';
-        $request->amount = 100;
-        $request->currency = $this->checkout->client->getCurrencyCode();
-        $request->customer = $customerRequest;
+        $paymentRequest = $this->bootRequest($gateway_response->token);
+        $paymentRequest->capture = false;
+        $paymentRequest->reference = '$1 payment for authorization.';
+        $paymentRequest->amount = 100;
+        $paymentRequest->currency = $this->checkout->client->getCurrencyCode();
+        $paymentRequest->customer = $customerRequest;
 
         try {
-            $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($request);
+            $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
             if (isset($response['approved']) && $response['status'] === 'Authorized') {
                 $payment_meta = new \stdClass();
@@ -116,7 +118,11 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                     'payment_method_id' => GatewayType::CREDIT_CARD,
                 ];
 
-                $payment_method = $this->checkout->storeGatewayToken($data, ['gateway_customer_reference' => $customerRequest['id']]);
+                $payment_method = $this->checkout->storeGatewayToken($data, [
+                    'gateway_customer_reference' => $response['customer']['id']
+                        ?? $customerRequest['id']
+                        ?? null,
+                ]);
 
                 return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
             }
@@ -124,7 +130,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
             $error_details = $e->error_details;
 
-            if (isset($e->error_details['error_codes']) ?? false) {
+            if (isset($e->error_details['error_codes']) && is_array($e->error_details['error_codes'])) {
                 $error_details = end($e->error_details['error_codes']);
             } else {
                 $error_details = $e->getMessage();
@@ -151,7 +157,8 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $data['raw_value'] = $data['total']['amount_with_fee'];
         $data['customer_email'] = $this->checkout->client->present()->email();
         $data['cardholder_name'] = auth()->guard('contact')->user()->present()->name() ?? '';
-        
+        $data['use_flow'] = false;
+
         return $data;
     }
 
@@ -199,16 +206,12 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     {
         $cgt = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->input('token')))
-            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
-            ->first();
-
-        if (! $cgt) {
-            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        }
+            ->where('client_id', $this->checkout->client->id)
+            ->firstOrFail();
 
         $paymentRequest = $this->checkout->bootTokenRequest($cgt->token);
 
-        return $this->completePayment($paymentRequest, $request);
+        return $this->completePayment($paymentRequest, $request, true);
     }
 
     private function attemptPaymentUsingCreditCard(PaymentResponseRequest $request)
@@ -220,7 +223,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         return $this->completePayment($paymentRequest, $request);
     }
 
-    private function completePayment($paymentRequest, PaymentResponseRequest $request)
+    private function completePayment($paymentRequest, PaymentResponseRequest $request, bool $isTokenPayment = false)
     {
         $paymentRequest->amount = $this->checkout->payment_hash->data->value;
         $paymentRequest->reference = substr($this->checkout->getDescription(), 0, 49);
@@ -228,23 +231,32 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $paymentRequest->metadata = ['udf1' => 'Invoice Ninja', 'udf2' => $this->checkout->payment_hash->hash];
         $paymentRequest->currency = $this->checkout->client->getCurrencyCode();
 
+        $processingChannelId = $this->checkout->company_gateway->getConfigField('processingChannelId');
+        if ($processingChannelId) {
+            $paymentRequest->processing_channel_id = $processingChannelId;
+        }
+
+        if ($isTokenPayment) {
+            $paymentRequest->payment_type = 'Recurring';
+        }
+
+        $paymentRequest->{'success_url'} = route('checkout.3ds_redirect', [
+            'company_key' => $this->checkout->client->company->company_key,
+            'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
+            'hash' => $this->checkout->payment_hash->hash,
+        ]);
+
+        $paymentRequest->{'failure_url'} = route('checkout.3ds_redirect', [
+            'company_key' => $this->checkout->client->company->company_key,
+            'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
+            'hash' => $this->checkout->payment_hash->hash,
+        ]);
+
         $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, ['checkout_payment_ref' => $paymentRequest]);
         $this->checkout->payment_hash->save();
 
-        if ($this->checkout->client->currency()->code == 'EUR' || $this->checkout->company_gateway->getConfigField('threeds')) {
+        if (! $isTokenPayment && ($this->checkout->client->currency()->code == 'EUR' || $this->checkout->company_gateway->getConfigField('threeds'))) {
             $paymentRequest->{'3ds'} = ['enabled' => true];
-
-            $paymentRequest->{'success_url'} = route('checkout.3ds_redirect', [
-                'company_key' => $this->checkout->client->company->company_key,
-                'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
-                'hash' => $this->checkout->payment_hash->hash,
-            ]);
-
-            $paymentRequest->{'failure_url'} = route('checkout.3ds_redirect', [
-                'company_key' => $this->checkout->client->company->company_key,
-                'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
-                'hash' => $this->checkout->payment_hash->hash,
-            ]);
         }
 
         try {
@@ -271,9 +283,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             }
 
             if ($response['status'] == 'Declined') {
-                $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
-                //18-10-2022
                 SystemLogger::dispatch(
                     $response,
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -285,6 +295,13 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
                 return $this->processUnsuccessfulPayment($response);
             }
+
+            if ($response['status'] == 'Captured' && isset($response['approved']) && $response['approved']) {
+                return $this->processSuccessfulPayment($response);
+            }
+
+            return $this->processUnsuccessfulPayment($response);
+
         } catch (CheckoutApiException $e) {
             // API error
             $error_details = $e->error_details;
@@ -303,9 +320,9 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
             }
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
-            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+            $human_message = is_array($error_details) ? json_encode($error_details) : (string) $error_details;
+            $human_exception = $human_message !== '' ? new \Exception($human_message, 400) : $e;
 
             SystemLogger::dispatch(
                 $e->getMessage(),
@@ -320,7 +337,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
             SystemLogger::dispatch(
                 $e->getMessage(),
@@ -336,7 +352,6 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
 
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
             SystemLogger::dispatch(
                 $e->getMessage(),

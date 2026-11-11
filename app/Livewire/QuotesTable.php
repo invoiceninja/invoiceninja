@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,53 +13,75 @@
 namespace App\Livewire;
 
 use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Models\Quote;
+use App\Utils\Traits\WithBulkSelection;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class QuotesTable extends Component
 {
+    use WithBulkSelection;
     use WithPagination;
 
     public int $per_page = 10;
 
     public array $status = [];
 
-    public string $sort = 'status_id';
+    public string $sort = 'date';
 
-    public bool $sort_asc = true;
+    public bool $sort_asc = false;
 
     public int $company_id;
 
     public string $db;
 
-    public string $sort_field = 'date';
-
-    public function mount()
+    public function mount(): void
     {
         MultiDB::setDb($this->db);
-
-        $this->sort_asc = false;
-
-        $this->sort_field = 'date';
     }
 
-
-    public function sortBy($field)
+    public function sortBy(string $field): void
     {
         $this->sort === $field
             ? $this->sort_asc = ! $this->sort_asc
             : $this->sort_asc = true;
 
         $this->sort = $field;
+
+        $this->resetSelection();
     }
 
-    public function render()
+    public function updatedStatus(): void
+    {
+        $this->resetSelection();
+    }
+
+    public function toggleStatus(string $value): void
+    {
+        if (in_array($value, $this->status)) {
+            $this->status = array_values(array_diff($this->status, [$value]));
+        } else {
+            $this->status[] = $value;
+        }
+
+        $this->resetSelection();
+    }
+
+    protected function selectablePageIds(): array
+    {
+        return $this->buildQuery()
+            ->paginate($this->per_page, ['id'], 'page', $this->getPage())
+            ->pluck('hashed_id')
+            ->toArray();
+    }
+
+    private function buildQuery(): Builder
     {
         $query = Quote::query()
             ->with('client.contacts', 'company')
-            // ->orderBy($this->sort, $this->sort_asc ? 'asc' : 'desc');
             ->when($this->sort == 'number', function ($q) {
                 $q->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . ($this->sort_asc ? 'asc' : 'desc'));
             })
@@ -67,9 +89,7 @@ class QuotesTable extends Component
                 $q->orderBy($this->sort, ($this->sort_asc ? 'asc' : 'desc'));
             });
 
-
         if (count($this->status) > 0) {
-            /* Special filter for expired*/
             if (in_array('-1', $this->status)) {
                 $query->where(function ($query) {
                     $query->whereDate('due_date', '<=', now()->startOfDay())
@@ -92,18 +112,26 @@ class QuotesTable extends Component
             if (in_array('5', $this->status)) {
                 $query->where('status_id', Quote::STATUS_REJECTED);
             }
+
+            if (in_array('6', $this->status)) {
+                $query->where('status_id', Quote::STATUS_CANCELLED);
+            }
         }
 
-        $query = $query
+        return $query
             ->where('company_id', auth()->guard('contact')->user()->company_id)
             ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->where('is_deleted', 0)
             ->where('status_id', '<>', Quote::STATUS_DRAFT)
-            ->withTrashed()
-            ->paginate($this->per_page);
+            ->withTrashed();
+    }
+
+    public function render(): Factory|View
+    {
+        $quotes = $this->buildQuery()->paginate($this->per_page);
 
         return render('components.livewire.quotes-table', [
-            'quotes' => $query,
+            'quotes' => $quotes,
         ]);
     }
 }

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,6 +13,7 @@
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
 use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\SerializedPath;
 
@@ -38,7 +40,7 @@ class AllowanceCharges
     // public ?Tax $tax;
 
     #[SerializedPath('[cac:TaxCategory]')]
-    /** @var TaxesDutiesFees[] */
+    /** @var TaxesDutiesFees[]|null */
     public ?array $taxes_duties_fees;
 
     #[SerializedPath('[cbc:AllowanceChargeReason]')]
@@ -46,6 +48,10 @@ class AllowanceCharges
 
     #[SerializedPath('[cbc:AllowanceChargeReasonCode]')]
     public ?string $reason_code;
+
+    /** Hydrated from validated UBL bytes; internal only — not part of Storecove wire schema. */
+    #[Ignore]
+    private ?string $charge_indicator;
 
     /**
      * @param TaxesDutiesFees[] $taxes_duties_fees
@@ -59,7 +65,8 @@ class AllowanceCharges
         // ?Tax $tax,
         ?array $taxes_duties_fees,
         ?string $reason,
-        ?string $reason_code
+        ?string $reason_code,
+        ?string $charge_indicator = null,
     ) {
         $this->amount_excluding_vat = $amount_excluding_vat;
         $this->amount_excluding_tax = $amount_excluding_tax;
@@ -70,6 +77,7 @@ class AllowanceCharges
         $this->taxes_duties_fees = $taxes_duties_fees;
         $this->reason = $reason;
         $this->reason_code = $reason_code;
+        $this->charge_indicator = $charge_indicator;
     }
 
     public function getAmountExcludingVat(): ?float
@@ -163,6 +171,18 @@ class AllowanceCharges
     public function setReasonCode(?string $reason_code): self
     {
         $this->reason_code = $reason_code;
+        return $this;
+    }
+
+    #[Ignore]
+    public function getChargeIndicator(): ?string
+    {
+        return $this->charge_indicator;
+    }
+
+    public function setChargeIndicator(?string $charge_indicator): self
+    {
+        $this->charge_indicator = $charge_indicator;
         return $this;
     }
 }

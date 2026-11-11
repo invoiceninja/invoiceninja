@@ -27,9 +27,7 @@ class CreditCreatedNotification implements ShouldQueue
 
     public $delay = 10;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -48,6 +46,9 @@ class CreditCreatedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
+            if ($company_user->trashed() || ! $user ) {
+                continue;
+            }
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'credit');
 
@@ -59,7 +60,7 @@ class CreditCreatedNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject();
-                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit', $company_user->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit'))->build());
                 $nmo->company = $credit->company;
                 $nmo->settings = $credit->company->settings;
                 $nmo->to_user = $user;

@@ -164,7 +164,8 @@
                         </div>
                          <div class="col-span-6 sm:col-span-6">
                             <label for="public_notes" class="input-label w-full">{{ ctrans('texts.notes') }}</label>
-                            <textarea rows="4" id="public_notes" class="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="public_notes" value="{{ $vendor->public_notes }}" />{{ $vendor->public_notes}}</textarea>
+                            <textarea rows="4" name="public_notes" id="public_notes" class="focus:shadow-soft-primary-outline min-h-unset text-sm leading-5.6 ease-soft block h-auto w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding px-3 py-2 font-normal text-gray-700 outline-none transition-all placeholder:text-gray-500 focus:border-fuchsia-300 focus:outline-none">{{ $vendor->public_notes }}</textarea>
+
                             @error('public_notes')
                             <div class="validation validation-fail">
                                 {{ $message }}

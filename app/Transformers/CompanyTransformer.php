@@ -5,52 +5,51 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Transformers;
 
-use stdClass;
-use App\Models\Task;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Design;
-use App\Models\Vendor;
 use App\Models\Account;
-use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\Project;
-use App\Models\TaxRate;
-use App\Models\Webhook;
 use App\Models\Activity;
-use App\Models\Document;
-use App\Models\Location;
-use App\Models\Scheduler;
-use App\Models\SystemLog;
-use App\Models\TaskStatus;
-use App\Models\CompanyUser;
-use App\Models\PaymentTerm;
-use App\Models\CompanyToken;
-use App\Models\GroupSetting;
-use App\Models\Subscription;
-use App\Models\CompanyLedger;
-use App\Models\PurchaseOrder;
-use App\Models\CompanyGateway;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
+use App\Models\Credit;
+use App\Models\Design;
+use App\Models\Document;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
-use App\Utils\Traits\MakesHash;
+use App\Models\GroupSetting;
+use App\Models\Invoice;
+use App\Models\Location;
+use App\Models\Payment;
+use App\Models\PaymentTerm;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Models\BankTransactionRule;
+use App\Models\Scheduler;
+use App\Models\Subscription;
+use App\Models\SystemLog;
+use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\Webhook;
+use App\Utils\Traits\MakesHash;
 
 /**
  * Class CompanyTransformer.
@@ -80,9 +79,6 @@ class CompanyTransformer extends EntityTransformer
         'recurring_invoices',
         'tax_rates',
         'products',
-        'country',
-        'timezone',
-        'language',
         'expenses',
         'vendors',
         'payments',
@@ -120,7 +116,7 @@ class CompanyTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
-        $std = new stdClass();
+        $std = new \stdClass();
 
         return [
             'id' => (string) $this->encodePrimaryKey($company->id),
@@ -201,7 +197,7 @@ class CompanyTransformer extends EntityTransformer
             'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
             'calculate_taxes' => (bool) $company->calculate_taxes,
-            'tax_data' => $company->tax_data ?: new \stdClass(),
+            'tax_data' => $company->tax_data ?: new \stdClass(), //@phpstan-ignore-line
             'has_e_invoice_certificate' => $company->e_invoice_certificate ? true : false,
             'has_e_invoice_certificate_passphrase' => $company->e_invoice_certificate_passphrase ? true : false,
             'invoice_task_project_header' => (bool) $company->invoice_task_project_header,
@@ -224,10 +220,29 @@ class CompanyTransformer extends EntityTransformer
             'smtp_verify_peer' => (bool) $company->smtp_verify_peer,
             'e_invoice' => $company->e_invoice ?: new \stdClass(),
             'legal_entity_id' =>  $company->legal_entity_id ? (int) $company->legal_entity_id : null,
-            'quickbooks' => $company->getRawOriginal('quickbooks') ? $company->quickbooks->toArray() : null,
+            'quickbooks' => $this->transformQuickbooks($company),
+            'enable_modules' => (bool) $company->enable_modules,
         ];
 
-        return $data;
+    }
+
+    /**
+     * Transforms the QuickBooks settings for API output, stripping the OAuth
+     * access/refresh tokens which must never leave the server.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function transformQuickbooks(Company $company): ?array
+    {
+        if ($company->quickbooks->isEmpty() || !$company->getRawOriginal('quickbooks')) {
+            return null;
+        }
+
+        $quickbooks = $company->quickbooks->toArray();
+
+        unset($quickbooks['accessTokenKey'], $quickbooks['refresh_token']);
+
+        return $quickbooks;
     }
 
     private function isLarge(Company $company): bool
@@ -257,6 +272,13 @@ class CompanyTransformer extends EntityTransformer
         return $this->includeCollection($company->task_statuses, $transformer, TaskStatus::class);
     }
 
+    public function includeContacts(Company $company)
+    {
+        $transformer = new ClientContactTransformer($this->serializer);
+
+        return $this->includeCollection($company->contacts, $transformer, ClientContact::class);
+    }
+
     public function includeDocuments(Company $company)
     {
         $transformer = new DocumentTransformer($this->serializer);
@@ -273,9 +295,10 @@ class CompanyTransformer extends EntityTransformer
 
     public function includeTokens(Company $company)
     {
-        $transformer = new CompanyTokenTransformer($this->serializer);
+        // $transformer = new CompanyTokenTransformer($this->serializer);
+        $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
-        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+        return $this->includeCollection($company->tokens_hashed, $transformer, CompanyToken::class);
     }
 
 
@@ -327,7 +350,7 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
-        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+        return $this->includeCollection($company->tokens_hashed, $transformer, CompanyToken::class);
     }
 
     public function includeWebhooks(Company $company)

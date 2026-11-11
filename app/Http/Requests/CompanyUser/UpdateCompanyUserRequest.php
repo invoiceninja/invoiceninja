@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,14 +27,24 @@ class UpdateCompanyUserRequest extends Request
     public function authorize(): bool
     {
         /** @var \App\Models\User $auth_user */
+        
         $auth_user = auth()->user();
+        
+        if ($auth_user->id == $this->user->id) {
+            return true;
+        }
+    
+        return $auth_user->isAdmin()
+            && $this->user->company_users()->where('company_id', $auth_user->companyId())->exists()
+            && (!$this->user->hasOwnerFlag() || $auth_user->isOwner());
 
-        return $auth_user->isAdmin() || ($auth_user->id == $this->user->id);
     }
 
     public function rules()
     {
-        return [];
+        return [
+            'company_user' => 'required|array'
+        ];
     }
 
     public function prepareForValidation()

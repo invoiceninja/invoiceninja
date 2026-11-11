@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class ClientStatementController extends BaseController
 
         $send_email = false;
 
-        if ($request->has('send_email') && $request->send_email == 'true') {
+        if ($request->has('send_email') && filter_var($request->input('send_email'), FILTER_VALIDATE_BOOLEAN) && $request->send_email == 'true') {
             $send_email = true;
         }
 
@@ -58,7 +58,7 @@ class ClientStatementController extends BaseController
         if ($pdf) {
             return response()->streamDownload(function () use ($pdf) {
                 echo $pdf;
-            }, ctrans('texts.statement').'.pdf', ['Content-Type' => 'application/pdf']);
+            }, ctrans('texts.statement') . '.pdf', ['Content-Type' => 'application/pdf']);
         }
 
         return response()->json(['message' => ctrans('texts.error_title')], 500);

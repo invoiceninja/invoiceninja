@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\LocationFactory;
 use App\Filters\LocationFilters;
+use App\Http\Requests\Location\BulkLocationRequest;
 use App\Http\Requests\Location\CreateLocationRequest;
 use App\Http\Requests\Location\DestroyLocationRequest;
 use App\Http\Requests\Location\EditLocationRequest;
@@ -458,16 +459,16 @@ class LocationController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkLocationRequest $request)
     {
         /** @var \App\Models\User $user **/
         $user = auth()->user();
 
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $locations = Location::withTrashed()->find($this->transformKeys($ids));
+        $locations = Location::withTrashed()->company()->find($ids);
 
         $locations->each(function ($location, $key) use ($action, $user) {
             if ($user->can('edit', $location)) {
@@ -475,6 +476,6 @@ class LocationController extends BaseController
             }
         });
 
-        return $this->listResponse(Location::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Location::withTrashed()->company()->whereIn('id', $ids));
     }
 }

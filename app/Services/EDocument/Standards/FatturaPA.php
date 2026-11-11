@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -107,9 +107,7 @@ class FatturaPA extends AbstractService
     /**
      * @param Invoice $invoice
      */
-    public function __construct(public Invoice $invoice)
-    {
-    }
+    public function __construct(public Invoice $invoice) {}
 
     public function run()
     {
@@ -140,7 +138,7 @@ class FatturaPA extends AbstractService
 
         $sede = new Sede(
             Indirizzo: $this->invoice->company->settings->address1,
-            CAP: (int)$this->invoice->company->settings->postal_code,
+            CAP: (int) $this->invoice->company->settings->postal_code,
             Comune: $this->invoice->company->settings->city,
             Provincia: $this->invoice->company->settings->state,
             Nazione: $this->invoice->company->country()->iso_3166_2
@@ -160,7 +158,7 @@ class FatturaPA extends AbstractService
 
         $sede = new Sede(
             Indirizzo: $this->invoice->client->address1,
-            CAP: (int)$this->invoice->client->postal_code,
+            CAP: (int) $this->invoice->client->postal_code,
             Comune: $this->invoice->client->city,
             Provincia: $this->invoice->client->state,
             Nazione: $this->invoice->client->country->iso_3166_2

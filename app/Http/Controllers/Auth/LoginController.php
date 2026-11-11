@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,6 +28,7 @@ use Illuminate\Http\JsonResponse;
 use PragmaRX\Google2FA\Google2FA;
 use App\Jobs\Account\CreateAccount;
 use App\Events\User\UserLoginFailed;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\Traits\User\LoginCache;
 use Illuminate\Support\Facades\Cache;
@@ -38,12 +39,15 @@ use App\Jobs\Company\CreateCompanyToken;
 use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Login\LoginRequest;
+use App\Http\Requests\Login\PrecheckLoginRequest;
+use App\Services\Auth\Passkeys\PasskeyService;
+use App\Services\Company\CompanyTokenRotator;
 use App\Libraries\OAuth\Providers\Google;
 use Illuminate\Database\Eloquent\Builder;
 use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
 use App\Utils\Traits\UserSessionAttributes;
-use App\Transformers\CompanyUserTransformer;
+use App\Transformers\AuthenticatedCompanyUserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends BaseController
@@ -54,7 +58,12 @@ class LoginController extends BaseController
 
     protected $entity_type = CompanyUser::class;
 
-    protected $entity_transformer = CompanyUserTransformer::class;
+    protected $entity_transformer = AuthenticatedCompanyUserTransformer::class;
+
+    /**
+     * Prevents account existence leaking through lookup timing.
+     */
+    private const PRECHECK_TIME_FLOOR_MS = 250;
 
     /**
      * Where to redirect users after login.
@@ -74,20 +83,6 @@ class LoginController extends BaseController
     }
 
     /**
-     * Once the user is authenticated, we need to set
-     * the default company into a session variable.
-     *
-     * @param Request $request
-     * @param User $user
-     * @return void
-     * @deprecated .1 API ONLY we don't need to set any session variables
-     */
-    public function authenticated(Request $request, User $user): void
-    {
-        //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
-    }
-
-    /**
      * Login via API.
      *
      * @param LoginRequest $request The request
@@ -97,118 +92,272 @@ class LoginController extends BaseController
     {
         $this->forced_includes = ['company_users'];
 
-        $this->validateLogin($request);
-
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
-            return response()
-                ->json(['message' => 'Too many login attempts, you are being throttled'], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.minimum_client_version'));
+            return $this->loginErrorResponse('Too many login attempts, you are being throttled', 401);
         }
 
-        if ($this->attemptLogin($request)) {
-            LightLogs::create(new LoginSuccess())
-                ->increment()
-                ->batch();
+        $via_passkey = $request->isPasskeyLogin();
 
-            $ip = '';
+        $authenticated = $via_passkey
+            ? $this->attemptPasskeyLogin($request)
+            : $this->attemptLogin($request);
 
-            if (request()->hasHeader('Cf-Connecting-Ip')) {
-                $ip = request()->header('Cf-Connecting-Ip');
-            } elseif (request()->hasHeader('X-Forwarded-For')) {
-                $ip = request()->header('X-Forwarded-For');
-            } else {
-                $ip = request()->ip() ?: ' ';
-            }
-
-            LightLogs::create(new LoginMeta($request->email, $ip, 'success'))
-                ->batch();
-
-            /** @var \App\Models\User $user */
-            $user = $this->guard()->user();
-
-            //2FA
-            if ($user->google_2fa_secret && $request->has('one_time_password')) {
-                $google2fa = new Google2FA();
-
-                if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
-                    return response()
-                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
-                        ->header('X-App-Version', config('ninja.app_version'))
-                        ->header('X-Api-Version', config('ninja.minimum_client_version'));
-                }
-            } elseif (strlen($user->google_2fa_secret ?? '') > 2 && !$request->has('one_time_password')) {
-                return response()
-                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
-                    ->header('X-App-Version', config('ninja.app_version'))
-                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
-            }
-
-            /* If for some reason we lose state on the default company ie. a company is deleted - always make sure we can default to a company*/
-            if (!$user->account->default_company) {
-                $account = $user->account;
-                $account->default_company_id = $user->companies->first()->id;
-                $account->save();
-                $user = $user->fresh();
-            }
-
-            nlog("LOGIN:: {$request->email} - {$user->account_id}");
-
-            /** @var \App\Models\CompanyUser $cu */
-            $cu = $this->hydrateCompanyUser($user);
-
-            if ($cu->count() == 0) {
-                return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-            }
-
-            /*On the hosted platform, only owners can login for free/pro accounts*/
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) {
-                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 401);
-            }
-
-            event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
-
-            return $this->timeConstrainedResponse($cu);
-        } else {
-
-            LightLogs::create(new LoginFailure())
-                ->increment()
-                ->batch();
-                
-            $ip = '';
-
-            if (request()->hasHeader('Cf-Connecting-Ip')) {
-                $ip = request()->header('Cf-Connecting-Ip');
-            } elseif (request()->hasHeader('X-Forwarded-For')) {
-                $ip = request()->header('X-Forwarded-For');
-            } else {
-                $ip = request()->ip() ?: ' ';
-            }
-
-            LightLogs::create(new LoginMeta($request->email, $ip, 'failure'))->batch();
-
-            event(new UserLoginFailed($request->email, $ip));
-            
-            $this->incrementLoginAttempts($request);
-
-            return response()
-                ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.minimum_client_version'));
+        if (!$authenticated) {
+            return $this->handleFailedLogin($request);
         }
+
+        $this->logLoginAttempt($request->email, 'success');
+
+        /** @var \App\Models\User $user */
+        $user = $this->guard()->user();
+
+        if (!$via_passkey && $error_response = $this->verifyTwoFactor($user, $request)) {
+            return $error_response;
+        }
+
+        return $this->finalizeLogin($user, $request);
+    }
+
+    /**
+     * Resolve the authentication methods available for a given email address.
+     *
+     * This unauthenticated endpoint lets the client render the correct login UI
+     * (e.g. reveal the one-time-password field) before the user submits a
+     * password, so credentials only need to be transmitted once.
+     *
+     * Passkeys and OAuth/SSO are intentionally omitted from this payload; passkeys
+     * are surfaced out-of-band through the WebAuthn conditional-UI ceremony so they
+     * do not widen the enumeration surface here.
+     *
+     * @param  PrecheckLoginRequest  $request
+     * @return JsonResponse
+     */
+    public function precheck(PrecheckLoginRequest $request): JsonResponse
+    {
+        $started_at = microtime(true);
+
+        $methods = ['password'];
+
+        $user = MultiDB::hasUser([
+            'email' => $request->input('email' ,'')
+        ]);
+
+        if ($user && $user->google_2fa_secret) {
+            $methods[] = 'totp';
+        }
+
+        $this->equalizePrecheckResponseTime($started_at);
+
+        return response()->json([
+            'methods' => $methods,
+            'secret_required' => (bool) config('ninja.api_secret'),
+        ], 200);
+    }
+
+
+    /**
+     * Attempt to authenticate the user via WebAuthn passkey credentials.
+     *
+     * The request is already classified as a passkey login by LoginRequest.
+     * This method resolves the user through MultiDB::hasUser() and delegates
+     * cryptographic verification to PasskeyService::authenticate().
+     *
+     * @param  LoginRequest  $request
+     * @return bool
+     */
+    private function attemptPasskeyLogin(LoginRequest $request): bool
+    {
+        $user = MultiDB::hasUser([
+            'email' => $request->input('email'),
+            'is_deleted' => 0,
+            'deleted_at' => null,
+        ]);
+
+        if (!$user) {
+            return false;
+        }
+
+        try {
+            /** @var array $passkey_authentication */
+            $passkey_authentication = $request->input('passkey_authentication');
+
+            $passkey_user = app(PasskeyService::class)->authenticate(
+                $user,
+                (string) $request->input('passkey_challenge_token'),
+                $passkey_authentication,
+            );
+
+            Auth::login($passkey_user, false);
+
+            return true;
+        } catch (\Throwable $e) {
+            nlog('Passkey login failed: '.$e->getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Verify the user's TOTP two-factor authentication code when enabled.
+     *
+     * This check is enforced for every login method (password and passkey alike).
+     * If the user has a google_2fa_secret set, a valid one_time_password must be
+     * provided in the request; otherwise the login is rejected.
+     *
+     * Returns null when 2FA is not enabled or the OTP is valid (login may proceed),
+     * or a JsonResponse error when verification fails (login must be halted).
+     *
+     * @param  User          $user     The authenticated user to verify.
+     * @param  LoginRequest  $request  The login request containing the optional one_time_password.
+     * @return JsonResponse|null       Null to continue login, or an error response to halt.
+     */
+    private function verifyTwoFactor(User $user, LoginRequest $request): ?JsonResponse
+    {
+        if (!$user->google_2fa_secret) {
+            return null;
+        }
+
+        if (!$request->filled('one_time_password')) {
+            return $this->loginErrorResponse(ctrans('texts.invalid_one_time_password'), 400);
+        }
+
+        $google2fa = new Google2FA();
+
+        if (!$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
+            return $this->loginErrorResponse(ctrans('texts.invalid_one_time_password'), 422);
+        }
+
+        return null;
+    }
+
+    /**
+     * Finalize a successful login by hydrating the user's company context and dispatching events.
+     *
+     * Performs the following steps:
+     *  1. Recovers the default company if it is missing from the account.
+     *  2. Hydrates all CompanyUser records for the authenticated user.
+     *  3. Enforces hosted-plan restrictions (only owners may log in on non-Enterprise plans).
+     *  4. Fires the UserLoggedIn event.
+     *  5. Returns the time-constrained API response containing company user data.
+     *
+     * @param  User          $user     The authenticated user.
+     * @param  LoginRequest  $request  The original login request.
+     * @return \Illuminate\Http\Response|JsonResponse
+     */
+    private function finalizeLogin(User $user, LoginRequest $request)
+    {
+        if (!$user->account->default_company) {
+            $account = $user->account;
+            $account->default_company_id = $user->companies->first()->id;
+            $account->save();
+            $user = $user->fresh();
+        }
+
+        /** @var \Illuminate\Database\Eloquent\Builder $cu */
+        $cu = $this->hydrateCompanyUser($user);
+
+        if ($cu->count() == 0) {
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+        }
+
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade.'], 401);
+        }
+
+        event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
+
+        return $this->timeConstrainedResponse($cu);
+    }
+
+    /**
+     * Handle a failed login attempt by recording analytics, firing events, and throttling.
+     *
+     * @param  LoginRequest  $request  The failed login request.
+     * @return JsonResponse            A 401 error response with invalid credentials message.
+     */
+    private function handleFailedLogin(LoginRequest $request): JsonResponse
+    {
+        LightLogs::create(new LoginFailure())
+            ->increment()
+            ->batch();
+
+        $ip = $this->resolveClientIp();
+
+        LightLogs::create(new LoginMeta($request->email, $ip, 'failure'))->batch();
+
+        event(new UserLoginFailed($request->email, $ip));
+
+        $this->incrementLoginAttempts($request);
+
+        return $this->loginErrorResponse(ctrans('texts.invalid_credentials'), 400);
+    }
+
+    /**
+     * Record a successful login attempt in the analytics pipeline.
+     *
+     * Increments the LoginSuccess counter and writes a LoginMeta entry
+     * containing the user's email, resolved client IP, and outcome label.
+     *
+     * @param  string  $email    The email address used for the login attempt.
+     * @param  string  $outcome  A label describing the result (e.g. "success").
+     * @return void
+     */
+    private function logLoginAttempt(string $email, string $outcome): void
+    {
+        LightLogs::create(new LoginSuccess())
+            ->increment()
+            ->batch();
+
+        LightLogs::create(new LoginMeta($email, $this->resolveClientIp(), $outcome))
+            ->batch();
+    }
+
+    /**
+     * Resolve the real client IP address from the current request.
+     *
+     * Checks proxy/CDN headers in priority order: Cf-Connecting-Ip (Cloudflare),
+     * X-Forwarded-For (reverse proxies), then falls back to the request's own IP.
+     * Returns a single space if no IP can be determined.
+     *
+     * @return string  The resolved client IP address.
+     */
+    private function resolveClientIp(): string
+    {
+        if (request()->hasHeader('Cf-Connecting-Ip')) {
+            return (string) request()->header('Cf-Connecting-Ip');
+        }
+
+        if (request()->hasHeader('X-Forwarded-For')) {
+            return (string) request()->header('X-Forwarded-For');
+        }
+
+        return request()->ip() ?: ' ';
+    }
+
+    /**
+     * Build a standardised JSON error response for login failures.
+     *
+     * Includes X-App-Version and X-Api-Version headers so the client can
+     * detect version mismatches even on failed authentication attempts.
+     *
+     * @param  string        $message  The human-readable error message.
+     * @param  int           $status   The HTTP status code (e.g. 401, 422).
+     * @return JsonResponse            The formatted error response.
+     */
+    private function loginErrorResponse(string $message, int $status): JsonResponse
+    {
+        return response()
+            ->json(['message' => $message], $status)
+            ->header('X-App-Version', config('ninja.app_version'))
+            ->header('X-Api-Version', config('ninja.minimum_client_version'));
     }
 
     public function refreshReact(Request $request)
     {
-        $truth = app()->make(TruthSource::class);
-
-        if ($truth->getCompanyToken()) {
-            $company_token = $truth->getCompanyToken();
-        } else {
-            $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
-        }
+        $company_token = app(TruthSource::class)->getCompanyToken()
+            ?? CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
             ->where('user_id', $company_token->user_id);
@@ -217,9 +366,9 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu->each(function ($company_user) use ($request) {
+            if ($company_user->tokens()->where('company_id', $company_user->company_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
 
@@ -242,13 +391,8 @@ class LoginController extends BaseController
      */
     public function refresh(Request $request)
     {
-        $truth = app()->make(TruthSource::class);
-
-        if ($truth->getCompanyToken()) {
-            $company_token = $truth->getCompanyToken();
-        } else {
-            $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
-        }
+        $company_token = app(TruthSource::class)->getCompanyToken()
+            ?? CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
             ->where('user_id', $company_token->user_id);
@@ -257,14 +401,19 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+        $cu->each(function ($company_user) use ($request) {
+            if ($company_user->tokens()->where('company_id', $company_user->company_id)->where('is_system', true)->doesntExist()) {
+                (new CreateCompanyToken($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT')))->handle();
             }
         });
 
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
-            $cu->where('company_id', $company_token->company_id);
+            $cu->where('company_id', $company_token->company_id)
+                ->with([
+                    'company.users.company_users' => fn ($query) => $query
+                        ->where('company_id', $company_token->company_id)
+                        ->without(['user', 'account']),
+                ]);
         }
 
         if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterprisePaidClient()) {
@@ -310,12 +459,21 @@ class LoginController extends BaseController
 
     private function getSocialiteUser(string $provider, string $token)
     {
+        if ($provider == 'apple') {
+            return OAuth::appleUserFromToken($token);
+        }
+
         return Socialite::driver($provider)->userFromToken($token);
     }
 
     private function handleSocialiteLogin($provider, $token)
     {
-        $user = $this->getSocialiteUser($provider, $token);
+        try {
+            $user = $this->getSocialiteUser($provider, $token);
+        } catch (\Throwable $e) {
+            nlog('Socialite login failed: '.$e->getMessage());
+            $user = null;
+        }
 
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
@@ -335,20 +493,19 @@ class LoginController extends BaseController
         ];
 
         if ($existing_user = MultiDB::hasUser($query)) {
-            if (!$existing_user->account) {
+            if (!$existing_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
             Auth::login($existing_user, false);
 
-            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser($existing_user);
 
             if ($cu->count() == 0) {
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -356,8 +513,14 @@ class LoginController extends BaseController
         }
         //If this is a result user/email combo - lets add their OAuth details details
         if ($existing_login_user = MultiDB::hasUser(['email' => $user->email])) {
-            if (!$existing_login_user->account) {
+            if (!$existing_login_user->account) { //@phpstan-ignore-line
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+            }
+
+            if ($existing_login_user->oauth_provider_id && $existing_login_user->oauth_provider_id !== $provider) {
+                return response()->json([
+                    'message' => 'This email is already linked to '.$existing_login_user->oauth_provider_id.' sign-in. Please sign in with '.$existing_login_user->oauth_provider_id.'.',
+                ], 400);
             }
 
             Auth::login($existing_login_user, false);
@@ -368,14 +531,14 @@ class LoginController extends BaseController
                 'oauth_provider_id' => $provider,
             ]);
 
-            /** @var \App\Models\CompanyUser $cu */
+
             $cu = $this->hydrateCompanyUser($existing_login_user);
 
             if ($cu->count() == 0) {
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterprisePaidClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -415,14 +578,14 @@ class LoginController extends BaseController
         // $account_user->email_verified_at = now();
         // $account_user->save();
 
-        /** @var \App\Models\CompanyUser $cu */
+
         $cu = $this->hydrateCompanyUser($account_user);
 
         if ($cu->count() == 0) {
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$account_user->account->isEnterprisePaidClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$account_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -459,11 +622,13 @@ class LoginController extends BaseController
 
         //21-03-2024
         $cu->each(function ($cu) {
-            /** @var \App\Models\CompanyUser $cu */
-            if (CompanyToken::query()->where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) {
-                (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle();
+
+            if (CompanyToken::query()->where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) { //@phpstan-ignore-line
+                (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle(); //@phpstan-ignore-line
             }
         });
+
+        app(CompanyTokenRotator::class)->rotateDueTokensForUser($user);
 
         $truth->setCompanyToken(CompanyToken::where('user_id', $user->id)->where('company_id', $set_company->id)->where('is_system', true)->first());
 
@@ -473,15 +638,29 @@ class LoginController extends BaseController
     private function handleMicrosoftOauth()
     {
         if (request()->has('accessToken')) {
-            $accessToken = request()->input('accessToken');
+            $access_token = request()->input('accessToken');
         } elseif (request()->has('access_token')) {
-            $accessToken = request()->input('access_token');
+            $access_token = request()->input('access_token');
         } else {
             return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
         }
 
+        $expected_client_id = config('services.microsoft.client_id');
+
+        if ($expected_client_id) {
+            $parts = explode('.', $access_token);
+            if (count($parts) === 3) {
+                $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+                $token_client_id = $payload['appid'] ?? $payload['azp'] ?? null;
+
+                if ($token_client_id !== $expected_client_id) {
+                    return response()->json(['message' => 'Invalid Microsoft token: audience mismatch.'], 403);
+                }
+            }
+        }
+
         $graph = new \Microsoft\Graph\Graph();
-        $graph->setAccessToken($accessToken);
+        $graph->setAccessToken($access_token);
 
         $user = $graph->createRequest('GET', '/me')
             ->setReturnType(Model\User::class)
@@ -498,7 +677,7 @@ class LoginController extends BaseController
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
-                if (!$existing_user->account) {
+                if (!$existing_user->account) { //@phpstan-ignore-line
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -507,6 +686,10 @@ class LoginController extends BaseController
 
             if (MultiDB::hasUser(['email' => $email, 'oauth_provider_id' => null])) {
                 return response()->json(['message' => 'User exists, but never authenticated with OAuth, please use your email and password to login.'], 400);
+            }
+
+            if (($linked_user = MultiDB::hasUser(['email' => $email])) && $linked_user->oauth_provider_id && $linked_user->oauth_provider_id !== 'microsoft') {
+                return response()->json(['message' => 'This email is already linked to '.$linked_user->oauth_provider_id.' sign-in. Please sign in with '.$linked_user->oauth_provider_id.'.'], 400);
             }
 
             // Signup!
@@ -540,14 +723,14 @@ class LoginController extends BaseController
     {
         Auth::login($existing_user, false);
 
-        /** @var \App\Models\CompanyUser $cu */
+
         $cu = $this->hydrateCompanyUser($existing_user);
 
         if ($cu->count() == 0) {
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -558,16 +741,13 @@ class LoginController extends BaseController
 
     private function existingLoginUser($user)
     {
-
-
-        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterprisePaidClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -597,7 +777,7 @@ class LoginController extends BaseController
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
-                if (!$existing_user->account) {
+                if (!$existing_user->account) { //@phpstan-ignore-line
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -608,13 +788,16 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'Please use your email and password to login.'], 400);
             }
 
+            if (($linked_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) && $linked_user->oauth_provider_id && $linked_user->oauth_provider_id !== 'google') {
+                return response()->json(['message' => 'This email is already linked to '.$linked_user->oauth_provider_id.' sign-in. Please sign in with '.$linked_user->oauth_provider_id.'.'], 400);
+            }
 
         }
 
         if ($user) {
             //check the user doesn't already exist in some form
             if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user), 'oauth_provider_id' => 'google'])) {
-                if (!$existing_login_user->account) {
+                if (!$existing_login_user->account) { //@phpstan-ignore-line
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -663,13 +846,13 @@ class LoginController extends BaseController
             return $account;
         }
 
-        $user = $account->default_company->owner();        
+        $user = $account->default_company->owner();
         // $user->email_verified_at = now();
         // $user->save();
 
         Auth::login($user, false);
 
-        /** @var \App\Models\CompanyUser $cu */
+
         $cu = $this->hydrateCompanyUser($user);
 
         if ($cu->count() == 0) {
@@ -699,16 +882,34 @@ class LoginController extends BaseController
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
         }
 
+        if ($provider == 'oidc') {
+            if (!config('services.oidc.issuer')) {
+                return abort(404, 'OIDC provider is not configured');
+            }
+
+            $scopes = array_values(array_filter(explode(' ', (string) config('services.oidc.scopes', 'openid profile email'))));
+            $parameters = ['response_type' => 'code', 'redirect_uri' => config('services.oidc.redirect')];
+        }
+
         if (request()->hasHeader('X-REACT') || request()->query('react')) {
             /**@var \App\Models\User $user */
             $user = auth()->user();
-            Cache::put("react_redir:".$user?->account->key, 'true', 300);
+            Cache::put("react_redir:" . $user?->account->key, 'true', 300);
+        }
+
+        // The IdP redirects back with `?error=...` when the user cancels or
+        // consent fails. Short-circuit here so we never fall through to
+        // Socialite::redirect() again, which would bounce the browser
+        // straight back to the IdP and loop.
+        if (request()->has('error')) {
+            nlog('OAuth provider returned error: ' . request()->query('error'));
+            return response()->json(['message' => 'OAuth sign-in was cancelled or failed.'], 400);
         }
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            if (!in_array($provider, ['google', 'microsoft'])) {
+            if (!in_array($provider, ['google', 'microsoft', 'oidc'])) {
                 return abort(400, 'Invalid provider');
             }
 
@@ -720,6 +921,10 @@ class LoginController extends BaseController
     {
         if ($provider == 'microsoft') {
             return $this->handleMicrosoftProviderCallback();
+        }
+
+        if ($provider == 'oidc') {
+            return $this->handleOidcProviderCallback();
         }
 
         $socialite_user = Socialite::driver($provider)->user();
@@ -757,48 +962,218 @@ class LoginController extends BaseController
 
         $redirect_url = '/#/';
 
-        $request_from_react = Cache::pull("react_redir:".auth()->user()?->account?->key);
+        $request_from_react = Cache::pull("react_redir:" . auth()->user()?->account?->key);
 
         // if($request_from_react)
-        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+        $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);
     }
 
-    public function handleMicrosoftProviderCallback($provider = 'microsoft')
+    /**
+     * Publicly report whether generic OIDC SSO is configured on this
+     * self-hosted instance so the React login page can conditionally
+     * show a "Sign in with <label>" button.
+     *
+     * Returns { oidc_enabled: bool, oidc_provider_label: string, oidc_auto: bool }.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oidcConfig()
     {
-        $socialite_user = Socialite::driver($provider)->user();
+        return response()->json([
+            'oidc_enabled' => !empty(config('services.oidc.client_id')) && !empty(config('services.oidc.issuer')),
+            'oidc_provider_label' => config('services.oidc.provider_label', 'OIDC'),
+            'oidc_auto' => config('services.oidc.auto', false),
+        ]);
+    }
 
-        $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
-
-        $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
-
-        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
-            nlog('found user and updating their user record');
-            $name = OAuth::splitName($socialite_user->getName());
-
-            $update_user = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'email' => $socialite_user->getEmail(),
-                'oauth_user_id' => $socialite_user->getId(),
-                'oauth_provider_id' => $provider,
-                'oauth_user_token_expiry' => $oauth_expiry,
-            ];
-
-            $user->update($update_user);
-            $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
-            $user->oauth_user_token = $oauth_user_token;
-            $user->save();
-
-        } else {
-            nlog('user not found for oauth');
+    /**
+     * Handle the browser callback from a generic OIDC identity provider.
+     *
+     * Signs in an existing user matched by (sub, provider) or by a
+     * one-time email link. Never provisions a new account — OIDC on
+     * self-hosted is treated as a sign-in path for accounts that already
+     * exist, not a self-service signup path.
+     *
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function handleOidcProviderCallback()
+    {
+        try {
+            /** @var \Laravel\Socialite\Two\User $socialite_user */
+            $socialite_user = Socialite::driver('oidc')->user();
+        } catch (\Throwable $e) {
+            nlog('OIDC callback failed: ' . $e->getMessage());
+            return response()->json(['message' => 'OIDC sign-in failed.'], 400);
         }
 
-        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+        if (!$socialite_user || !$socialite_user->getId()) { //@phpstan-ignore-line
+            return response()->json(['message' => 'OIDC sign-in failed: missing subject identifier.'], 400);
+        }
+
+        $user = MultiDB::hasUser([
+            'oauth_user_id' => $socialite_user->getId(),
+            'oauth_provider_id' => 'oidc',
+        ]);
+
+        // Fall back to a one-time email link for accounts provisioned
+        // outside of OIDC. Only link when:
+        //  * the IdP asserts email_verified: true — otherwise an attacker
+        //    who can register an unverified account at the IdP under a
+        //    victim's address could take over the matching local account;
+        //  * the local account has no other OAuth provider attached, to
+        //    avoid silently hijacking a google/microsoft linkage.
+        $raw = $socialite_user->getRaw();
+        $email_verified = ($raw['email_verified'] ?? false) === true;
+
+        if (!$user && $email_verified && $socialite_user->getEmail()) {
+            $email_user = MultiDB::hasUser(['email' => $socialite_user->getEmail()]);
+
+            if ($email_user && (!$email_user->oauth_provider_id || $email_user->oauth_provider_id === 'oidc')) {
+                $email_user->update([
+                    'oauth_user_id' => $socialite_user->getId(),
+                    'oauth_provider_id' => 'oidc',
+                ]);
+                $user = $email_user;
+            }
+        }
+
+        if (!$user) {
+            return response()->json(['message' => 'No Invoice Ninja account is linked to this OIDC identity. Ask an administrator to invite you first.'], 400);
+        }
+
+        if (!$user->account) { //@phpstan-ignore-line
+            return response()->json(['message' => 'User exists but is not attached to any company.'], 400);
+        }
+
+        Auth::login($user, false);
+
+        $cu = $this->hydrateCompanyUser($user);
+
+        if ($cu->count() == 0) {
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+        }
+
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) { //@phpstan-ignore-line
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+        }
+
+        $name = OAuth::splitName($socialite_user->getName() ?? '');
+        $user->update([
+            'first_name' => $user->first_name ?: $name[0],
+            'last_name' => $user->last_name ?: $name[1],
+        ]);
+
+        $company_token = app(TruthSource::class)->getCompanyToken();
+
+        if (!$company_token) {
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+        }
+
+        event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars($user->id)));
+
+        // Never place the CompanyToken in the redirect URL — it would land
+        // in browser history, Referer headers, and any HTTP access log
+        // between the IdP and the SPA. Instead stash the token behind a
+        // one-shot random exchange code with a 60s TTL, and hand the SPA
+        // only the code; the SPA calls POST /api/v1/oidc/exchange to swap
+        // it for the real token exactly once.
+        $exchange_code = Str::random(64);
+        Cache::put('oidc.exchange.' . $exchange_code, $company_token->token, now()->addSeconds(60));
+
+        return redirect(config('ninja.react_url') . '/oauth-callback?code=' . $exchange_code);
+    }
+
+    /**
+     * One-shot exchange of a short-lived OIDC callback code for the real
+     * CompanyToken issued during `handleOidcProviderCallback`.
+     *
+     * The React SPA POSTs the `code` query-string value it received on the
+     * `/oauth-callback` landing page; we `Cache::pull` the value so the
+     * code cannot be replayed. Codes are 64-char random strings and expire
+     * in 60 seconds, so an attacker with a leaked code has a tiny window
+     * that closes on first legitimate use.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function oidcExchange(Request $request)
+    {
+        $code = (string) $request->input('code', '');
+
+        // Fixed-length guard rejects trivially short guesses without giving
+        // any information about which specific codes are live.
+        if (strlen($code) !== 64) {
+            return response()->json(['message' => 'Invalid OIDC exchange code.'], 400);
+        }
+
+        $token = Cache::pull('oidc.exchange.' . $code);
+
+        if (!$token) {
+            return response()->json(['message' => 'OIDC exchange code is expired or already used.'], 400);
+        }
+
+        return response()->json(['token' => $token]);
+    }
+
+    public function handleMicrosoftProviderCallback($provider = 'microsoft')
+    {
+        try{
+            $socialite_user = Socialite::driver($provider)->user();
+
+            $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
+
+            $expires_in = $socialite_user->accessTokenResponseBody['expires_in'] ?? 300;
+            $oauth_expiry = now()->addSeconds($expires_in);
+
+            if ($user = OAuth::handleAuth($socialite_user, $provider)) {
+                nlog('found user and updating their user record');
+                $name = OAuth::splitName($socialite_user->getName());
+
+                $update_user = [
+                    'first_name' => $name[0],
+                    'last_name' => $name[1],
+                    'email' => $socialite_user->getEmail(),
+                    'oauth_user_id' => $socialite_user->getId(),
+                    'oauth_provider_id' => $provider,
+                    'oauth_user_token_expiry' => $oauth_expiry,
+                ];
+
+                $user->update($update_user);
+                $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
+                $user->oauth_user_token = $oauth_user_token;
+                $user->save();
+
+            } else {
+                nlog('user not found for oauth');
+            }
+        }
+        catch(\Throwable $e){
+            nlog("Error in handleMicrosoftProviderCallback: " . $e->getMessage());
+        }
+
+        $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);
 
         // return redirect('/#/');
     }
+
+    /**
+     * Pad the precheck response to a constant time floor.
+     *
+     * @param  float  $started_at  The microtime(true) captured at handler entry.
+     * @return void
+     */
+    private function equalizePrecheckResponseTime(float $started_at): void
+    {
+        $elapsed_ms = (microtime(true) - $started_at) * 1000;
+        $remaining_ms = self::PRECHECK_TIME_FLOOR_MS - $elapsed_ms;
+
+        if ($remaining_ms > 0) {
+            usleep((int) ($remaining_ms * 1000));
+        }
+    }
+
+
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,13 +17,17 @@ use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
-use App\Http\ValidationRules\Quote\UniqueQuoteNumberRule;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
+use App\Http\ValidationRules\Quote\IsExpiredRule;
+use Illuminate\Validation\Validator;
 
 class StoreQuoteRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
+
+    /** @var class-string */
+    protected ?string $tag_entity_type = Quote::class;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -45,7 +49,7 @@ class StoreQuoteRequest extends Request
 
         $rules = [];
 
-        $rules['client_id'] = ['required', 'bail', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
+        $rules['client_id'] = ['required', 'bail', 'integer', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
@@ -60,7 +64,7 @@ class StoreQuoteRequest extends Request
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['is_amount_discount'] = ['boolean'];
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
-        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date ?? '') > 1), 'date'];
+        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn() => strlen($this->partial_due_date ?? '') > 1), 'date', new IsExpiredRule($this->client_id)];
         $rules['line_items'] = 'array';
 
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
@@ -83,7 +87,7 @@ class StoreQuoteRequest extends Request
 
         $rules['location_id'] = ['nullable', 'sometimes','bail',Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -130,10 +134,10 @@ class StoreQuoteRequest extends Request
         if (!isset($input['date'])) {
             $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
-        if (isset($input['client_id']) &&isset($input['partial_due_date']) && (!isset($input['due_date']) || strlen($input['due_date']) <= 1)) {
+        if (isset($input['client_id']) && isset($input['partial_due_date']) && (!isset($input['due_date']) || strlen($input['due_date']) <= 1)) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
             $valid_days = ($client && strlen($client->getSetting('valid_until')) >= 1) ? $client->getSetting('valid_until') : 7;
-            $input['due_date'] = \Carbon\Carbon::parse($input['date'])->addDays((int)$valid_days)->format('Y-m-d');
+            $input['due_date'] = \Carbon\Carbon::parse($input['date'])->addDays((int) $valid_days)->format('Y-m-d');
         }
 
         if (isset($input['footer']) && $this->hasHeader('X-REACT')) {
@@ -149,7 +153,7 @@ class StoreQuoteRequest extends Request
             $input['terms'] = str_replace("\n", "", $input['terms']);
         }
 
-
         $this->replace($input);
     }
+
 }

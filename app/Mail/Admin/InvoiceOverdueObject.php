@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,9 +22,7 @@ use stdClass;
 
 class InvoiceOverdueObject
 {
-    public function __construct(public Invoice $invoice, public Company $company, public bool $use_react_url)
-    {
-    }
+    public function __construct(public Invoice $invoice, public Company $company) {}
 
     public function build()
     {
@@ -76,17 +74,17 @@ class InvoiceOverdueObject
         $content = ctrans(
             'texts.notification_invoice_overdue',
             [
-                    'amount' => $this->getAmount(),
-                    'client' => $this->invoice->client->present()->name(),
-                    'invoice' => $this->invoice->number,
-                ]
+                'amount' => $this->getAmount(),
+                'client' => $this->invoice->client->present()->name(),
+                'invoice' => $this->invoice->number,
+            ]
         );
 
         $data = [
             'title' => $this->getSubject(),
             'content' => $content,
-            'url' => $this->invoice->invitations->first()->getAdminLink($this->use_react_url),
-            'button' => $this->use_react_url ? ctrans('texts.view_invoice') : ctrans('texts.login'),
+            'url' => $this->invoice->invitations->first()->getAdminLink(),
+            'button' => ctrans('texts.view_invoice'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
@@ -99,4 +97,3 @@ class InvoiceOverdueObject
         return $data;
     }
 }
-

@@ -11,7 +11,7 @@
         </div>
         <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">
             <!-- Add payment method button -->
-            @if($client->getCreditCardGateway() || $client->getBankTransferGateway())
+            @if($client->getCreditCardGateway() || $client->getBankTransferGateway() || $client->getBACSGateway() || $client->getACSSGateway())
                 <button x-on:click="open = !open" class="button button-primary bg-primary" data-cy="add-payment-method">{{ ctrans('texts.add_payment_method') }}</button>
                 <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
                     <div class="py-1 rounded-md bg-white ring-1 ring-black ring-opacity-5">
@@ -42,7 +42,7 @@
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-            <table class="min-w-full shadow rounded border border-gray-200 mt-4 payment-methods-table">
+            <table data-portal-target="table" data-portal-table="payment-methods" class="min-w-full shadow rounded border border-gray-200 mt-4 payment-methods-table">
                 <thead>
                 <tr>
                     <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">

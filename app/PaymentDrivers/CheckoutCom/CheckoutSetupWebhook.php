@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,33 +44,60 @@ class CheckoutSetupWebhook implements ShouldQueue
 
     public CheckoutComPaymentDriver $checkout;
 
-    public function __construct(private string $company_key, private int $company_gateway_id)
-    {
-    }
+    public function __construct(private string $company_key, private int $company_gateway_id) {}
 
     public function handle()
     {
 
+        nlog("Checkout Setup Webhook");
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        /** @var \App\Models\CompanyGateway $company_gateway */
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
+        if (! $company_gateway) {
+            nlog("Checkout Setup Webhook: company gateway not found {$this->company_gateway_id}");
+
+            return;
+        }
+
         $this->checkout = $company_gateway->driver()->init();
+
+        if ($this->checkout->gateway === null) {
+            return;
+        }
+
+        // Probe which payment methods the account supports and store the result
+        $this->checkout->probeAvailablePaymentMethods();
 
         $webhook = new Webhook($this->checkout);
 
         $workflows = $webhook->getWorkFlows();
 
-        $wf = collect($workflows['data'])->first(function ($workflow) {
-            return $workflow['name'] == $this->authentication_webhook_name;
-        });
+        if (! is_array($workflows)) {
+            nlog("Checkout Setup Webhook: unable to list workflows for company_gateway {$this->company_gateway_id}");
 
-        if ($wf) {
+            return;
+        }
+
+        if ($this->findAuthenticationWorkflow($workflows)) {
             return;
         }
 
         $this->createAuthenticationWorkflow();
+    }
+
+    /**
+     * @param array<string, mixed> $workflows
+     * @return array<string, mixed>|null
+     */
+    public function findAuthenticationWorkflow(array $workflows): ?array
+    {
+        $workflow = collect($workflows['data'] ?? [])->first(function ($workflow) {
+            return is_array($workflow) && ($workflow['name'] ?? null) === $this->authentication_webhook_name;
+        });
+
+        return is_array($workflow) ? $workflow : null;
     }
 
     /**
@@ -92,7 +119,7 @@ class CheckoutSetupWebhook implements ShouldQueue
 
         $eventWorkflowConditionRequest = new EventWorkflowConditionRequest();
         $eventWorkflowConditionRequest->events = [
-            "gateway" => ["payment_approved"],
+            "gateway" => ["payment_approved", "payment_declined", "payment_expired", "payment_canceled"],
             "issuing" => ["authorization_approved","authorization_declined"],
         ];
 

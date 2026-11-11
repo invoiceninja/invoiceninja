@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -85,7 +85,8 @@ class AuthorizeCreditCard implements LivewireMethodInterface
             $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
             $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
 
-            $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
+            $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
+            $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, round($payment_hash->data->amount_with_fee, 2));
 
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
@@ -138,14 +139,12 @@ class AuthorizeCreditCard implements LivewireMethodInterface
     {
         $client_gateway_token = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->token))
-            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
-            ->first();
+            ->where('client_id', $this->authorize->client->id)
+            ->firstOrFail();
 
-        if (! $client_gateway_token) {
-            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        }
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
 
-        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($client_gateway_token->gateway_customer_reference, $client_gateway_token->token, $request->input('amount_with_fee'));
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($client_gateway_token->gateway_customer_reference, $client_gateway_token->token, $payment_hash->data->amount_with_fee);
 
         return $this->handleResponse($data, $request);
     }
@@ -153,6 +152,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
     public function tokenBilling($cgt, $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $amount = round($amount, 2);
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 
@@ -277,7 +277,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
 
         $vars = [
             'invoices' => $payment_hash->invoices(),
-            'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
+            'amount' => $payment_hash->amount_with_fee(),
         ];
 
         $logger_message = [

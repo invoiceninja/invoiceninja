@@ -22,12 +22,14 @@ use Illuminate\Support\Str;
 class ClientTransformer extends BaseTransformer
 {
     /**
-     * @param $data
+     * @param $client_data
      *
      * @return array|bool
      */
-    public function transform($data)
+    public function transform($client_data)
     {
+        $data = reset($client_data);
+
         if (isset($data['Organization']) && $this->hasClient($data['Organization'])) {
             throw new ImportException('Client already exists');
         }
@@ -35,7 +37,7 @@ class ClientTransformer extends BaseTransformer
         $address1 = data_get($data, 'Street', data_get($data, 'Address Line 1', ''));
         $address2 = data_get($data, 'Address Line 2', '');
 
-        return [
+        $client = [
             'company_id'     => $this->company->id,
             'name'           => $this->getString($data, 'Organization'),
             'phone'     => $this->getString($data, 'Phone'),
@@ -49,14 +51,44 @@ class ClientTransformer extends BaseTransformer
             'credit_balance' => 0,
             'settings'       => new \stdClass(),
             'client_hash'    => Str::random(40),
-            'contacts'       => [
-                [
-                    'first_name'    => $this->getString($data, 'First Name'),
-                    'last_name'     => $this->getString($data, 'Last Name'),
-                    'email'         => $this->getString($data, 'Email'),
-                    'phone'         => $this->getString($data, 'Phone'),
-                ],
-            ],
         ];
+
+        $contacts = [];
+
+        foreach ($client_data as $row) {
+            $email = $this->getString($row, 'Email');
+
+            if (empty($email)) {
+                continue;
+            }
+
+            $contact = [
+                'first_name'    => $this->getString($row, 'First Name'),
+                'last_name'     => $this->getString($row, 'Last Name'),
+                'email'         => $email,
+                'phone'         => $this->getString($row, 'Phone'),
+            ];
+
+            $key = strtolower($email);
+
+            if (!isset($contacts[$key]) || empty($contacts[$key]['first_name'])) {
+                $contacts[$key] = $contact;
+            }
+        }
+
+        $contacts = array_values($contacts);
+
+        if (empty($contacts)) {
+            $contacts[] = [
+                'first_name'    => $this->getString($data, 'First Name'),
+                'last_name'     => $this->getString($data, 'Last Name'),
+                'email'         => $this->getString($data, 'Email'),
+                'phone'         => $this->getString($data, 'Phone'),
+            ];
+        }
+
+        $client['contacts'] = $contacts;
+
+        return $client;
     }
 }

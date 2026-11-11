@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,17 +33,17 @@ class VendorFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('name', 'like', '%'.$filter.'%')
-                          ->orWhere('id_number', 'like', '%'.$filter.'%')
+            $query->where('name', 'like', '%' . $filter . '%')
+                          ->orWhere('id_number', 'like', '%' . $filter . '%')
                           ->orWhereHas('contacts', function ($query) use ($filter) {
-                              $query->where('first_name', 'like', '%'.$filter.'%');
-                              $query->orWhere('last_name', 'like', '%'.$filter.'%');
-                              $query->orWhere('email', 'like', '%'.$filter.'%');
+                              $query->where('first_name', 'like', '%' . $filter . '%');
+                              $query->orWhere('last_name', 'like', '%' . $filter . '%');
+                              $query->orWhere('email', 'like', '%' . $filter . '%');
                           })
-                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
+                          ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                          ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                          ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                          ->orWhere('custom_value4', 'like', '%' . $filter . '%');
         });
     }
 

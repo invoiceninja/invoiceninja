@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,10 +60,10 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
 
         if (is_array($this->template_data) && array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
-        } elseif (strlen($this->vendor->getSetting('email_template_'.$this->reminder_template)) > 0) {
-            $body_template = $this->vendor->getSetting('email_template_'.$this->reminder_template);
+        } elseif (strlen($this->vendor->getSetting('email_template_' . $this->reminder_template)) > 0) {
+            $body_template = $this->vendor->getSetting('email_template_' . $this->reminder_template);
         } else {
-            $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_'.$this->reminder_template, $this->vendor->company->locale());
+            $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_' . $this->reminder_template, $this->vendor->company->locale());
         }
 
         /* Use default translations if a custom message has not been set*/
@@ -88,14 +88,14 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
                 'amount' => Number::formatMoney($this->purchase_order->balance, $this->vendor),
             ],
             $this->vendor->company->locale()
-        )."\n\n".$this->invitation->getLink();
+        ) . "\n\n" . $this->invitation->getLink();
 
         if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
-        } elseif (strlen($this->vendor->getSetting('email_subject_'.$this->reminder_template)) > 0) {
-            $subject_template = $this->vendor->getSetting('email_subject_'.$this->reminder_template);
+        } elseif (strlen($this->vendor->getSetting('email_subject_' . $this->reminder_template)) > 0) {
+            $subject_template = $this->vendor->getSetting('email_subject_' . $this->reminder_template);
         } else {
-            $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_'.$this->reminder_template, $this->vendor->company->locale());
+            $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_' . $this->reminder_template, $this->vendor->company->locale());
         }
 
         if (iconv_strlen($subject_template) == 0) {
@@ -114,7 +114,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setVariables((new VendorHtmlEngine($this->invitation))->makeValues())//move make values into the htmlengine
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_purchase_order').'</a>')
+            ->setFooter("<a href='{$this->invitation->getLink()}'>" . ctrans('texts.view_purchase_order') . '</a>')
             ->setViewLink($this->invitation->getLink())
             ->setViewText(ctrans('texts.view_purchase_order'))
             ->setInvitation($this->invitation)
@@ -128,7 +128,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             //     $pdf = $this->purchase_order->documentMerge($pdf);
             // }
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter() . '.pdf']]);
         }
 
         //attach third party documents
@@ -141,7 +141,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
                     Cache::put($hash, ['db' => $this->purchase_order->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
 
-                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>"]);
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) . "'>" . $document->name . "</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
                 }
@@ -153,7 +153,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
                     $hash = Str::random(64);
                     Cache::put($hash, ['db' => $this->purchase_order->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
-                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>"]);
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) . "'>" . $document->name . "</a>"]);
                 } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
                 }

@@ -1,6 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_content')
+<div id="braintree-ach-payment">
     @if(count($tokens) > 0)
         <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -17,19 +18,23 @@
         </form>
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        <ul class="payment-method-list">
             @if(count($tokens) > 0)
                 @foreach($tokens as $token)
-                    <label class="mr-4">
-                        <input
+                <li class="payment-method-item">
+                <label class="payment-method-label">
+                <input
                             type="radio"
                             data-token="{{ $token->hashed_id }}"
                             name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token"/>
-                        <span class="ml-1 cursor-pointer">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
+                        <span class="ml-1">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
                     </label>
+                </li>
                 @endforeach
-            @endisset
-        @endcomponent
+            @endif
+                </ul>
+    @endcomponent
 
         @include('portal.ninja2020.gateways.includes.pay_now')
 
@@ -40,29 +45,9 @@
                href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method') }}</a>
         @endcomponent
     @endif
+</div>
 @endsection
 
-@push('footer')
-    <script defer>
-        Array
-            .from(document.getElementsByClassName('toggle-payment-with-token'))
-            .forEach((element) => element.addEventListener('click', (element) => {
-                document.querySelector('input[name=source]').value = element.target.dataset.token;
-            }));
-
-        document.getElementById('pay-now').addEventListener('click', function (e) {
-            e.target.parentElement.disabled = true;
-
-            document.getElementById('server-response').submit();
-        });
-
-    /**
-    * @type {HTMLInputElement|null}
-    */
-    const first = document.querySelector('input[name="payment-type"]');
-
-    if (first) {
-        first.click();
-    }
-    </script>
-@endpush
+@section('gateway_footer')
+    @vite('resources/js/clients/payment_methods/braintree-ach.js')
+@endsection

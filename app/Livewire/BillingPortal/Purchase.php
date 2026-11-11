@@ -26,13 +26,15 @@ use App\Livewire\BillingPortal\Payments\Methods;
 use App\Livewire\BillingPortal\Authentication\Login;
 use App\Livewire\BillingPortal\Authentication\Register;
 use App\Livewire\BillingPortal\Authentication\RegisterOrLogin;
+use Livewire\Attributes\Locked;
 
 class Purchase extends Component
 {
     use MakesHash;
-
+    #[Locked]
     public string $subscription_id;
 
+    #[Locked]
     public string $db;
 
     public array $request_data;
@@ -133,7 +135,7 @@ class Purchase extends Component
 
     public function mount()
     {
-        $classes = collect(self::$dependencies)->mapWithKeys(fn ($dependency, $class) => [$dependency['id'] => $class])->toArray();
+        $classes = collect(self::$dependencies)->mapWithKeys(fn($dependency, $class) => [$dependency['id'] => $class])->toArray();
 
         MultiDB::setDb($this->db);
 
@@ -152,7 +154,7 @@ class Purchase extends Component
 
         if ($sub->steps) {
             $steps = collect(explode(',', $sub->steps))
-                ->map(fn ($step) => $classes[$step])
+                ->map(fn($step) => $classes[$step])
                 ->toArray();
             $this->steps = [
                 Setup::class,

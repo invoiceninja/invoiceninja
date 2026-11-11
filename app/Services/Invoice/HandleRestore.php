@@ -5,19 +5,21 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Invoice;
 
+use App\Listeners\Invoice\InvoiceTransactionEventEntryCash;
 use App\Jobs\Inventory\AdjustProductInventory;
 use App\Models\Invoice;
 use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Str;
 
 class HandleRestore extends AbstractService
 {
@@ -29,9 +31,7 @@ class HandleRestore extends AbstractService
 
     private $adjustment_amount = 0;
 
-    public function __construct(private Invoice $invoice)
-    {
-    }
+    public function __construct(private Invoice $invoice) {}
 
     public function run()
     {
@@ -67,12 +67,57 @@ class HandleRestore extends AbstractService
              ->setAdjustmentAmount()
              ->adjustPayments();
 
+        $this->writeTaxEventCorrections();
+
         if ($this->invoice->company->track_inventory) {
             (new AdjustProductInventory($this->invoice->company, $this->invoice, []))->handleRestoredInvoice();
         }
 
 
         return $this->invoice;
+    }
+
+    private function writeTaxEventCorrections(): void
+    {
+        $effective_date = now($this->invoice->company->timezone()?->name ?: config('app.timezone'))->toDateString();
+        $mutation_key = 'invoice_restored:'.Str::uuid();
+
+        Paymentable::query()
+            ->with(['payment' => fn ($query) => $query->withTrashed()])
+            ->where('paymentable_type', 'invoices')
+            ->where('paymentable_id', $this->invoice->id)
+            ->whereNull('deleted_at')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->each(function (Paymentable $paymentable) use ($effective_date, $mutation_key): void {
+                $amount = (float) $paymentable->amount - (float) $paymentable->refunded;
+
+                if (abs($amount) < 0.0001) {
+                    return;
+                }
+
+                $source = app(InvoiceTransactionEventEntryCash::class)
+                    ->findSourceEvent($this->invoice->id, $paymentable->id);
+
+                if (! $source) {
+                    return;
+                }
+
+                app(InvoiceTransactionEventEntryCash::class)->writeCorrection(
+                    source: $source,
+                    effective_date: $effective_date,
+                    sign: 1,
+                    kind: 'invoice_restored',
+                    correction_key: sha1("{$mutation_key}|{$paymentable->id}"),
+                    context: [
+                        'mutation_key' => $mutation_key,
+                        'mutation_type' => 'invoice_restored',
+                        'invoice_id' => $this->invoice->id,
+                    ],
+                    amount: abs($amount),
+                );
+            });
     }
 
     /* Touches all paymentables as deleted */
@@ -123,6 +168,7 @@ class HandleRestore extends AbstractService
         //adjust payments down by the amount applied to the invoice payment.
 
         $this->invoice->net_payments()->each(function ($payment) {
+            
             $payment_adjustment = $payment->paymentables
                                             ->where('paymentable_type', '=', 'invoices')
                                             ->where('paymentable_id', $this->invoice->id)
@@ -151,7 +197,7 @@ class HandleRestore extends AbstractService
 
     private function windBackInvoiceNumber()
     {
-        $findme = '_'.ctrans('texts.deleted');
+        $findme = '_' . ctrans('texts.deleted');
 
         $pos = strpos($this->invoice->number, $findme);
 
@@ -165,7 +211,7 @@ class HandleRestore extends AbstractService
             $exists = Invoice::query()->where(['company_id' => $this->invoice->company_id, 'number' => $new_invoice_number])->exists();
 
             if ($exists) {
-                $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice, $this->invoice->recurring_id);
+                $this->invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice, isset($this->invoice->recurring_id));
             } else {
                 $this->invoice->number = $new_invoice_number;
             }

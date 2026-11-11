@@ -24,9 +24,7 @@ class PurchaseOrderAcceptedListener implements ShouldQueue
 {
     use UserNotifies;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -48,7 +46,7 @@ class PurchaseOrderAcceptedListener implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
-            if (! $user) {
+            if ($company_user->trashed() || ! $user ) {
                 continue;
             }
 
@@ -60,7 +58,7 @@ class PurchaseOrderAcceptedListener implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject();
-                $nmo->mailable = new NinjaMailer((new PurchaseOrderAcceptedObject($purchase_order, $event->company, $company_user->portalType()))->build());
+                $nmo->mailable = new NinjaMailer((new PurchaseOrderAcceptedObject($purchase_order, $event->company))->build());
                 $nmo->company = $event->company;
                 $nmo->settings = $event->company->settings;
 

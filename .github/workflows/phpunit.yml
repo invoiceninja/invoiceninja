@@ -11,14 +11,16 @@ name: phpunit
 jobs:
   run:
     runs-on: ${{ matrix.operating-system }}
+    permissions:
+      contents: read
+      
     strategy:
       matrix:
-        operating-system: ['ubuntu-22.04','ubuntu-24.04']
-        php-versions: ['8.2','8.3','8.4']
+        operating-system: ['ubuntu-24.04']
+        php-versions: ['8.2','8.3','8.4','8.5']
         phpunit-versions: ['latest']
         ci_node_total: [ 8 ]
         ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
-        laravel: [11.*]
         dependency-version: [prefer-stable]
 
     env:
@@ -41,8 +43,10 @@ jobs:
       NINJA_LICENSE: ${{ secrets.ninja_license }}
       TRAVIS: true
       MAIL_MAILER: log
-      PDF_GENERATOR: hosted_ninja
-
+      PDF_GENERATOR: simulator
+      PDF_GENERATOR_REAL: snappdf
+      SENTRY_SAMPLE_RATE: 0
+      
     services:
       mariadb:
         image: mariadb:10.6
@@ -83,10 +87,10 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml, redis, :psr
+        tools: composer:v2
 
     - uses: actions/checkout@v4
       with:
-        ref: v5-develop
         fetch-depth: 1
 
     - name: Copy .env
@@ -100,14 +104,21 @@ jobs:
     - uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-${{ matrix.php }}-composer-
+          ${{ runner.os }}-${{ matrix.php-versions }}-composer-
 
     - name: Install composer dependencies
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
-        composer install
+        export COMPOSER_AUTH=$(php -r 'echo json_encode([
+          "github-oauth" => [
+            "github.com" => getenv("GH_TOKEN")
+          ]
+        ]);')
+
+        composer install --no-interaction --prefer-dist
 
     - name: Prepare Laravel Application
       env:
@@ -127,6 +138,7 @@ jobs:
         cat .env
         vendor/bin/snappdf download
         tests/ci
+      # Snappdf is for tests that opt into PDF_GENERATOR_REAL (see UsesRealPdfGeneration).
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true

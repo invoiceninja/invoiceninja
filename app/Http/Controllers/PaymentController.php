@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -107,7 +107,7 @@ class PaymentController extends BaseController
      */
     public function index(PaymentFilters $filters)
     {
-        $payments = Payment::filter($filters);
+        $payments = Payment::filter($filters)->with('tags');
 
         return $this->listResponse($payments);
     }
@@ -216,7 +216,7 @@ class PaymentController extends BaseController
         event('eloquent.created: App\Models\Payment', $payment);
 
         Atomic::del($request->lock_key);
-        
+
         return $this->itemResponse($payment);
     }
 
@@ -517,10 +517,6 @@ class PaymentController extends BaseController
 
         $payments = Payment::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (!$payments) {
-            return response()->json(['message' => ctrans('texts.record_not_found')]);
-        }
-
         if ($action == 'template' && $user->can('view', $payments->first())) {
 
             $hash_or_response = request()->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
@@ -539,14 +535,13 @@ class PaymentController extends BaseController
             return response()->json(['message' => $hash_or_response], 200);
         }
 
-
         $payments->each(function ($payment, $key) use ($action, $user) {
             if ($user->can('edit', $payment)) {
                 $this->performAction($payment, $action, true);
             }
         });
 
-        return $this->listResponse(Payment::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Payment::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**
@@ -776,7 +771,7 @@ class PaymentController extends BaseController
         }
 
         if ($request->has('documents')) {
-            $this->saveDocuments($request->file('documents'), $payment, $request->input('is_public', true));
+            $this->saveDocuments($request->file('documents'), $payment, $request->has('is_public') ? $request->boolean('is_public') : null);
         }
 
         return $this->itemResponse($payment->fresh());

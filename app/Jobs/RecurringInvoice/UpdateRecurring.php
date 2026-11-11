@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -32,9 +32,7 @@ class UpdateRecurring implements ShouldQueue
 
     public $tries = 1;
 
-    public function __construct(public array $ids, public Company $company, public User $user, protected string $action, protected float $percentage = 0)
-    {
-    }
+    public function __construct(public array $ids, public Company $company, public User $user, protected string $action, protected float $percentage = 0) {}
 
     /**
      * Execute the job.
@@ -51,13 +49,13 @@ class UpdateRecurring implements ShouldQueue
             ->whereIn('id', $this->ids)
             ->chunk(100, function ($recurring_invoices) {
                 foreach ($recurring_invoices as $recurring_invoice) {
-                    
-                        if ($this->action == 'update_prices') {
-                            $recurring_invoice->service()->updatePrice();
-                        } elseif ($this->action == 'increase_prices') {
-                            $recurring_invoice->service()->increasePrice($this->percentage);
-                        }
-                    
+
+                    if ($this->action == 'update_prices') {
+                        $recurring_invoice->service()->updatePrice();
+                    } elseif ($this->action == 'increase_prices') {
+                        $recurring_invoice->service()->increasePrice($this->percentage);
+                    }
+
                 }
             });
 
@@ -66,7 +64,8 @@ class UpdateRecurring implements ShouldQueue
 
     public function failed($exception = null)
     {
-        if($exception)
+        if ($exception) {
             nlog($exception->getMessage());
+        }
     }
 }

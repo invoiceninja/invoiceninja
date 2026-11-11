@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,11 +15,14 @@ namespace App\Livewire;
 use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
 use Livewire\Component;
+use Livewire\Attributes\Locked;
 
 class RecurringInvoiceCancellation extends Component
 {
+    #[Locked]
     public $invoice_id;
 
+    #[Locked]
     public $db;
 
     public function mount()

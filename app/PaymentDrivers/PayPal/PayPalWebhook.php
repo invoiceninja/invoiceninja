@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,15 +41,13 @@ class PayPalWebhook implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    private $gateway_key = '80af24a6a691230bbec33e930ab40666';
+    // private string $gateway_key = '80af24a6a691230bbec33e930ab40666';
 
     private string $test_endpoint = 'https://api-m.sandbox.paypal.com';
 
     private string $endpoint = 'https://api-m.paypal.com';
 
-    public function __construct(protected array $webhook_request, protected array $headers, protected string $access_token)
-    {
-    }
+    public function __construct(protected array $webhook_request, protected array $headers, protected string $access_token) {}
 
     public function handle()
     {
@@ -64,7 +62,7 @@ class PayPalWebhook implements ShouldQueue
         if ($this->verifyWebhook()) {
             nlog('verified');
 
-            match($this->webhook_request['event_type']) {//@phpstan-ignore-line
+            match ($this->webhook_request['event_type']) {//@phpstan-ignore-line
                 'CHECKOUT.ORDER.COMPLETED' => $this->checkoutOrderCompleted(),
             };
 
@@ -218,8 +216,7 @@ class PayPalWebhook implements ShouldQueue
 
             nlog("payment status check");
             if ($payment_hash->payment && $payment_hash->payment->status_id != Payment::STATUS_COMPLETED) { // Make sure the payment is marked as completed
-                $payment_hash->payment->status_id = Payment::STATUS_COMPLETED;
-                $payment_hash->push();
+                $payment_hash->payment->service()->completePendingPayment();
             }
             return;
         }
@@ -230,8 +227,7 @@ class PayPalWebhook implements ShouldQueue
             $payment = Payment::where('transaction_reference', $transaction_reference)->first();
 
             if (!$payment) {
-                nlog("make payment here!");
-                $payment = $this->createPayment($payment_hash, [
+                $this->createPayment($payment_hash, [
                     'amount' => $amount,
                     'transaction_reference' => $transaction_reference,
                     'merchant_id' => $merchant_id,
@@ -246,7 +242,7 @@ class PayPalWebhook implements ShouldQueue
     {
         $method = 'paypal';
 
-        match($source) {
+        match ($source) {
             "card" => $method = PaymentType::CREDIT_CARD_OTHER,
             "paypal" => $method = PaymentType::PAYPAL,
             "venmo" => $method = PaymentType::VENMO,
@@ -273,11 +269,13 @@ class PayPalWebhook implements ShouldQueue
             $source = array_key_first($order['payment_source']);
         }
 
+        $gateway_type_id = $driver->gatewayTypeFromPaymentSource($source);
+
         $data = [
             'payment_type' => $this->getPaymentType($source),
             'amount' => $data['amount'],
             'transaction_reference' => $data['transaction_reference'],
-            'gateway_type_id' => GatewayType::PAYPAL,
+            'gateway_type_id' => $gateway_type_id,
         ];
 
         $payment = $driver->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
@@ -295,19 +293,18 @@ class PayPalWebhook implements ShouldQueue
 
     private function harvestGateway(Company $company, string $merchant_id): ?CompanyGateway
     {
-        $gateway = CompanyGateway::query()
+        return CompanyGateway::query()
             ->where('company_id', $company->id)
-            ->where('gateway_key', $this->gateway_key)
-            ->first(function ($cg) use ($merchant_id) { //@phpstan-ignore-line
+            ->whereIn('gateway_key', [
+                '80af24a6a691230bbec33e930ab40666',
+                '80af24a6a691230bbec33e930ab40665',
+            ])
+            ->get()
+            ->first(function ($cg) use ($merchant_id) {
                 $config = $cg->getConfig();
 
-                if ($config->merchantId == $merchant_id) {
-                    return $cg;
-                }
-
+                return ($config->merchantId ?? null) == $merchant_id;
             });
-
-        return $gateway ?? null;
     }
 
     //--------------------------------------------------------------------------------------//
@@ -315,8 +312,9 @@ class PayPalWebhook implements ShouldQueue
     {
         // nlog($this->headers);
 
-        if(!isset($this->headers['paypal-auth-algo'][0]))
-          return false;
+        if (!isset($this->headers['paypal-auth-algo'][0])) {
+            return false;
+        }
 
         $request = [
             'auth_algo' => $this->headers['paypal-auth-algo'][0],
@@ -325,7 +323,7 @@ class PayPalWebhook implements ShouldQueue
             'transmission_sig' => $this->headers['paypal-transmission-sig'][0],
             'transmission_time' => $this->headers['paypal-transmission-time'][0],
             'webhook_id' => config('ninja.paypal.webhook_id'),
-            'webhook_event' =>  $this->webhook_request
+            'webhook_event' =>  $this->webhook_request,
         ];
 
         nlog($request);

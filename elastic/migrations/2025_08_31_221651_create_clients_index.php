@@ -16,9 +16,12 @@ final class CreateClientsIndex implements MigrationInterface
     {
         // Check if index already exists (idempotency)
         $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
-        if ($client->indices()->exists(['index' => 'clients_v2'])) {
-            return; // Index already exists, skip creation
+        
+        $indexExistsResponse = $client->indices()->exists(['index' => 'clients']);
+        if ($indexExistsResponse->getStatusCode() === 200) {
+            return;
         }
+
 
         $mapping = [
             'properties' => [
@@ -136,7 +139,7 @@ final class CreateClientsIndex implements MigrationInterface
             ]
         ];
 
-        Index::createRaw('clients_v2', $mapping);
+        Index::createRaw('clients', $mapping);
     }
 
     /**
@@ -144,7 +147,7 @@ final class CreateClientsIndex implements MigrationInterface
      */
     public function down(): void
     {
-        Index::dropIfExists('clients_v2');
+        Index::dropIfExists('clients');
     }
 }
 

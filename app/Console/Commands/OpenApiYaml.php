@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,7 +34,7 @@ class OpenApiYaml extends Command
 
     private array $directories = [
         '/components/schemas',
-        '/paths/'
+        '/paths/',
     ];
 
     /**
@@ -65,8 +65,8 @@ class OpenApiYaml extends Command
         }
 
         Storage::disk('base')->delete('/openapi/api-docs.yaml');
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/info.yaml'));
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/paths.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/info.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/paths.yaml'));
 
         //iterate paths
         $directory = new DirectoryIterator($path . '/paths/');
@@ -77,11 +77,11 @@ class OpenApiYaml extends Command
             }
         }
 
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/components.yaml'));
 
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/examples.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/components/examples.yaml'));
 
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/responses.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/components/responses.yaml'));
 
         $directory = new DirectoryIterator($path . '/components/responses/');
 
@@ -91,7 +91,7 @@ class OpenApiYaml extends Command
             }
         }
 
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/parameters.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/components/parameters.yaml'));
 
         $directory = new DirectoryIterator($path . '/components/parameters/');
 
@@ -101,7 +101,7 @@ class OpenApiYaml extends Command
             }
         }
 
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/components/schemas.yaml'));
 
         //iterate schemas
 
@@ -115,6 +115,6 @@ class OpenApiYaml extends Command
 
 
         // Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas/account.yaml'));
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/misc/misc.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path . '/misc/misc.yaml'));
     }
 }

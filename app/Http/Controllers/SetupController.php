@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -19,7 +19,6 @@ use App\Jobs\Account\CreateAccount;
 use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
-use App\Utils\CurlUtils;
 use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
@@ -58,8 +57,18 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
+
+        if (Ninja::isHosted()) {
+            return redirect('/');
+        }
+
         try {
             $check = SystemHealth::check(false, false);
+
+             if($check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::first()){
+                return redirect('/');
+             }
+
         } catch (Exception $e) {
             nlog(['message' => $e->getMessage(), 'action' => 'SetupController::doSetup()']);
 
@@ -150,6 +159,7 @@ class SetupController extends Controller
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             Artisan::call('config:clear');
+            Artisan::call('cache:clear');
 
             Storage::disk('local')->delete('test.pdf');
 
@@ -163,9 +173,6 @@ class SetupController extends Controller
             return redirect('/');
         } catch (Exception $e) {
             nlog($e->getMessage());
-            info($e->getMessage());
-
-            echo $e->getMessage();
 
             return redirect()
                 ->back()
@@ -185,7 +192,7 @@ class SetupController extends Controller
         try {
             $status = SystemHealth::dbCheck($request);
 
-            if (is_array($status) && $status['success'] === true && \App\Models\Account::count() > 0) {
+            if ($status['success'] === true) {
                 return response([], 200);
             }
 

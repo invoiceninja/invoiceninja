@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,9 +24,9 @@ class PaymentBalanceActivity implements ShouldQueue
     use SerializesModels;
 
     public $tries = 1;
-    
+
     public $delay = 5;
-    
+
     public $deleteWhenMissingModels = true;
 
     /**
@@ -34,9 +34,7 @@ class PaymentBalanceActivity implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -47,12 +45,11 @@ class PaymentBalanceActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        try{
+        try {
             $event->payment->client->service()->updatePaymentBalance();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
 
-            nlog("PaymentBalanceActivity ".$e->getMessage());
+            nlog("PaymentBalanceActivity " . $e->getMessage());
         }
     }
 
@@ -65,7 +62,7 @@ class PaymentBalanceActivity implements ShouldQueue
     {
         if ($exception) {
             nlog('PaymentBalanceActivity failed ' . $exception->getMessage());
-        } 
+        }
 
         // config(['queue.failed.driver' => null]);
     }

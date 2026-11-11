@@ -22,20 +22,18 @@ class VendorTransformer extends BaseTransformer
         return $this->transform($qb_data);
     }
 
-    public function ninjaToQb()
-    {
-    }
+    public function ninjaToQb() {}
 
     public function transform(mixed $data): array
     {
 
         nlog($data);
         $contact = [
-                'first_name' => data_get($data, 'GivenName'),
-                'last_name' => data_get($data, 'FamilyName'),
-                'phone' => data_get($data, 'PrimaryPhone.FreeFormNumber'),
-                'email' => data_get($data, 'PrimaryEmailAddr.Address'),
-            ];
+            'first_name' => data_get($data, 'GivenName'),
+            'last_name' => data_get($data, 'FamilyName'),
+            'phone' => data_get($data, 'PrimaryPhone.FreeFormNumber'),
+            'email' => data_get($data, 'PrimaryEmailAddr.Address'),
+        ];
 
         $vendor = [
             'number' => data_get($data, 'Id'),

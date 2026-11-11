@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,16 +29,7 @@ class DocumentRepository extends BaseRepository
         }
     }
 
-    public function restore($document)
-    {
-        // if (! $document->trashed()) {
-        //     return;
-        // }
+    public function restore($document) {}
 
-        // $document->restore();
-    }
-
-    public function archive($document)
-    {
-    }
+    public function archive($document) {}
 }

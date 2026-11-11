@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,39 +17,17 @@ use App\Jobs\Client\UpdateTaxData;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Webhook;
+use App\Services\Quickbooks\QuickbooksBatchCollector;
 
 class ClientObserver
 {
     public $afterCommit = true;
 
-    private $eu_country_codes = [
-        'AT' => '40',
-        'BE' => '56',
-        'BG' => '100',
-        'CY' => '196',
-        'CZ' => '203',
-        'DE' => '276',
-        'DK' => '208',
-        'EE' => '233',
-        'ES' => '724',
-        'FI' => '246',
-        'FR' => '250',
-        'GR' => '300',
-        'HR' => '191',
-        'HU' => '348',
-        'IE' => '372',
-        'IT' => '380',
-        'LT' => '440',
-        'LU' => '442',
-        'LV' => '428',
-        'MT' => '470',
-        'NL' => '528',
-        'PL' => '616',
-        'PT' => '620',
-        'RO' => '642',
-        'SE' => '752',
-        'SI' => '705',
-        'SK' => '703',
+    /** Numeric country_ids for EU member states — mirrors BaseRule::$eu_country_codes */
+    private array $eu_country_ids = [
+        40, 56, 100, 196, 203, 276, 208, 233, 724, 246, 250, 300,
+        191, 348, 372, 380, 440, 442, 428, 470, 528, 616, 620, 642,
+        752, 705, 703,
     ];
 
     /**
@@ -66,26 +44,30 @@ class ClientObserver
         }
 
         /** Check VAT records for client */
-        if (in_array($client->country_id, $this->eu_country_codes) && $client->company->calculate_taxes) {
+        if (in_array($client->country_id, $this->eu_country_ids) && $client->company->calculate_taxes) {
             CheckVat::dispatch($client, $client->company);
         }
 
         $subscriptions = Webhook::where('company_id', $client->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_CREATE_CLIENT)
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(0);
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(2);
         }
 
-        // QuickBooks push - efficient check in observer (zero overhead if not configured)
-        if ($client->company->shouldPushToQuickbooks('client', 'create')) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+        // Only push to QuickBooks if:
+        // 1. QuickBooks is connected and client sync is enabled
+        // 2. We're NOT currently importing from QuickBooks (prevent circular sync)
+        if ($client->company->shouldPushToQuickbooks('client')
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])) {
+            QuickbooksBatchCollector::collect(
                 'client',
                 $client->id,
-                $client->company->id,
                 $client->company->db,
-                'create'
+                $client->company_id,
             );
         }
     }
@@ -105,7 +87,12 @@ class ClientObserver
         }
 
         /** Monitor vat numbers for EU based clients for tax calculations */
-        if ($client->getOriginal('vat_number') != $client->vat_number && in_array($client->country_id, $this->eu_country_codes) && $client->company->calculate_taxes) {
+        // Original attributes have already been synchronized when this observer runs after commit.
+        // Keep the loose comparison so null and an empty VAT number remain equivalent.
+        if ($client->wasChanged('vat_number')
+            && ($client->getPrevious()['vat_number'] ?? null) != $client->vat_number
+            && in_array($client->country_id, $this->eu_country_ids)
+            && $client->company->calculate_taxes) {
             CheckVat::dispatch($client, $client->company);
         }
 
@@ -120,21 +107,27 @@ class ClientObserver
         }
 
         $subscriptions = Webhook::where('company_id', $client->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', $event)
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch($event, $client, $client->company, 'client')->delay(0);
+            WebhookHandler::dispatch($event, $client, $client->company, 'client')->delay(2);
         }
 
-        // QuickBooks push - efficient check in observer (zero overhead if not configured)
-        if ($client->company->shouldPushToQuickbooks('client', 'update')) {
-            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+        // Only push to QuickBooks if:
+        // 1. QuickBooks is connected and client sync is enabled
+        // 2. We're NOT currently importing from QuickBooks (prevent circular sync)
+        // 3. Only financial fields changed (not balance fields which are auto-calculated)
+        if ($client->company->shouldPushToQuickbooks('client')
+           && empty(\App\Services\Quickbooks\QuickbooksService::$importing[$client->company_id])
+           && !$client->isDirty(['paid_to_date','balance','credit_balance','payment_balance'])) {
+            QuickbooksBatchCollector::collect(
                 'client',
                 $client->id,
-                $client->company->id,
                 $client->company->db,
-                'update'
+                $client->company_id,
             );
         }
     }
@@ -152,11 +145,13 @@ class ClientObserver
         }
 
         $subscriptions = Webhook::where('company_id', $client->company_id)
+                                    ->where('is_deleted', false)
+                                    ->whereNull('deleted_at')
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_CLIENT)
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(0);
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(2);
         }
     }
 

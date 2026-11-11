@@ -21,6 +21,7 @@ use App\Repositories\QuoteRepository;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\QuoteTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
+use App\Utils\BcMath;
 
 class QbQuote implements SyncInterface
 {
@@ -36,7 +37,7 @@ class QbQuote implements SyncInterface
 
     public function find(string $id): mixed
     {
-        return $this->service->sdk->FindById('Quote', $id);
+        return $this->service->sdk()->findById('Quote', $id);
     }
 
     public function syncToNinja(array $records): void
@@ -73,7 +74,7 @@ class QbQuote implements SyncInterface
                     ->whereNotNull('number')
                     ->where('number', $ninja_quote_data['number'])
                     ->exists()) {
-                    $ninja_quote_data['number'] = 'qb_'.$ninja_quote_data['number'].'_'.rand(1000, 99999);
+                    $ninja_quote_data['number'] = 'qb_' . $ninja_quote_data['number'] . '_' . rand(1000, 99999);
                 }
 
                 $quote->fill($ninja_quote_data);
@@ -91,17 +92,14 @@ class QbQuote implements SyncInterface
 
     }
 
-    public function syncToForeign(array $records): void
-    {
-
-    }
+    public function syncToForeign(array $records): void {}
 
     private function qbQuoteUpdate(array $ninja_quote_data, Quote $quote): void
     {
         $current_ninja_quote_balance = $quote->balance;
         $qb_quote_balance = $ninja_quote_data['balance'];
 
-        if (floatval($current_ninja_quote_balance) == floatval($qb_quote_balance)) {
+        if (BcMath::equal($current_ninja_quote_balance, $qb_quote_balance)) {
             nlog('Quote balance is the same, skipping update of line items');
             unset($ninja_quote_data['line_items']);
             $quote->fill($ninja_quote_data);
@@ -121,7 +119,7 @@ class QbQuote implements SyncInterface
 
         if ($search->count() == 0) {
             $quote = QuoteFactory::create($this->service->company->id, $this->service->company->owner()->id);
-            $quote->client_id = (int)$client_id;
+            $quote->client_id = (int) $client_id;
 
             $sync = new QuoteSync();
             $sync->qb_id = $id;
@@ -129,7 +127,7 @@ class QbQuote implements SyncInterface
 
             return $quote;
         } elseif ($search->count() == 1) {
-            return $this->service->syncable('quote', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $search->first();
         }
 
         return null;
@@ -200,7 +198,7 @@ class QbQuote implements SyncInterface
 
             foreach ($payment_ids as $payment_id) {
 
-                $payment = $this->service->sdk->FindById('Payment', $payment_id);
+                $payment = $this->service->sdk()->findById('Payment', $payment_id);
 
                 $payment_transformer = new PaymentTransformer($this->service->company);
 
@@ -214,7 +212,9 @@ class QbQuote implements SyncInterface
                 $paymentable->paymentable_id = $quote->id;
                 $paymentable->paymentable_type = 'quotes';
                 $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
-                $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
+                $timezone = $this->service->company->timezone()?->name ?: config('app.timezone');
+                $paymentable->created_at = app(\App\Services\Payment\PaymentApplicationDateResolver::class)
+                    ->encodeBusinessDate($ninja_payment->date, $timezone);
                 $paymentable->save();
 
                 $quote->service()->applyPayment($ninja_payment, $paymentable->amount);

@@ -74,6 +74,7 @@ class RegisterOrLogin extends Component
             $client = $service->createClient([]);
             $contact = $service->createClientContact(['email' => $this->email], $client);
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
             $this->dispatch('purchase.next');
             return;
 
@@ -114,7 +115,10 @@ class RegisterOrLogin extends Component
         ]);
 
         if ($attempt) {
+            $this->dispatch('update-csrf', token: csrf_token());
             $this->dispatch('purchase.next');
+
+            return;
         }
 
         session()->flash('message', 'These credentials do not match our records.');
@@ -175,6 +179,7 @@ class RegisterOrLogin extends Component
 
         if ($contact) {
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
 
             // $this->dispatch('purchase.context', property: 'contact', value: $contact);
             $this->dispatch('purchase.next');
@@ -190,9 +195,9 @@ class RegisterOrLogin extends Component
     {
 
         $data = array_merge($data, [
-           'country_id' => $this->formData['country_id'] ?? null,
-           'shipping_country_id' => $this->formData['shipping_country_id'] ?? null,
-       ]);
+            'country_id' => $this->formData['country_id'] ?? null,
+            'shipping_country_id' => $this->formData['shipping_country_id'] ?? null,
+        ]);
 
         $service = new ClientRegisterService(
             company: $this->subscription()->company,
@@ -206,6 +211,7 @@ class RegisterOrLogin extends Component
         $contact = $service->createClientContact($data, $client);
 
         auth()->guard('contact')->loginUsingId($contact->id, true);
+        $this->dispatch('update-csrf', token: csrf_token());
 
         // $this->dispatch('purchase.context', property: 'contact', value: $contact);
         $this->dispatch('purchase.next');
@@ -214,7 +220,7 @@ class RegisterOrLogin extends Component
     public function registerForm()
     {
         $count = collect($this->subscription()->company->client_registration_fields ?? [])
-            ->filter(fn ($field) => $field['required'] === true || $field['visible'] === true)
+            ->filter(fn($field) => $field['required'] === true || $field['visible'] === true)
             ->count();
 
         if ($count === 0) {
@@ -226,6 +232,7 @@ class RegisterOrLogin extends Component
             $contact = $service->createClientContact(['email' => $this->email], $client);
 
             auth()->guard('contact')->loginUsingId($contact->id, true);
+            $this->dispatch('update-csrf', token: csrf_token());
 
             // $this->dispatch('purchase.context', property: 'contact', value: $contact);
             $this->dispatch('purchase.next');
@@ -249,7 +256,7 @@ class RegisterOrLogin extends Component
                     return;
                 }
 
-                $i = collect($this->register_fields)->search(fn ($field) => $field['key'] == $mapping);
+                $i = collect($this->register_fields)->search(fn($field) => $field['key'] == $mapping);
 
                 if ($i !== false) {
                     $this->register_fields[$i]['visible'] = true;

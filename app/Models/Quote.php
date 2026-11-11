@@ -5,16 +5,16 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
+use App\DataMapper\QuoteSync;
 use App\Utils\Ninja;
 use App\Utils\Number;
-use App\DataMapper\QuoteSync;
 use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
@@ -29,7 +29,8 @@ use Laracasts\Presenter\PresentableTrait;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Events\Quote\QuoteReminderWasEmailed;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Models\Traits\HasTags;
+use App\Models\Traits\IndexableItems;
 /**
  * App\Models\Quote
  *
@@ -56,9 +57,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
- * @property array|null $line_items
+ * @property object|array|string $line_items
  * @property object|null $backup
- * @property object|null $sync
+ * @property QuoteSync|null $sync
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
@@ -69,7 +70,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $tax_rate2
  * @property string|null $tax_name3
  * @property float $tax_rate3
- * @property string $total_taxes
+ * @property float $total_taxes
  * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -87,6 +88,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $exchange_rate
  * @property float $amount
  * @property float $balance
+ * @property int|null $location_id
+ * @property object|null $tax_data
  * @property float|null $partial
  * @property \Carbon\Carbon|null $partial_due_date
  * @property string|null $last_viewed
@@ -122,6 +125,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
@@ -134,16 +138,8 @@ class Quote extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
     use Searchable;
-
-    /**
-     * Get the index name for the model.
-     *
-     * @return string
-     */
-    public function searchableAs(): string
-    {
-        return 'quotes';
-    }
+    use HasTags;
+    Use IndexableItems;
 
     protected $presenter = QuotePresenter::class;
 
@@ -214,36 +210,53 @@ class Quote extends BaseModel
     public const STATUS_CONVERTED = 4;
 
     public const STATUS_REJECTED = 5;
-    
+
+    public const STATUS_CANCELLED = 6;
+
     public const STATUS_EXPIRED = -1;
 
-    public function toSearchableArray()
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
     {
+        return 'quotes';
+    }
+
+    public function toSearchableArray(): array
+    {
+        
         $locale = $this->company->locale();
         App::setLocale($locale);
 
         return [
-            'id' => $this->company->db.":".$this->id,
-            'name' => ctrans('texts.quote') . " " . ($this->number ?? '') . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'id' => $this->company->db . ":" . $this->id,
+            'name' => ctrans('texts.quote') . " " . ($this->number ?? '') . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->client) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
-            'number' => (string)$this->number,
-            'is_deleted' => (bool)$this->is_deleted,
+            'user_id' => (string) $this->user_id,
+            'assigned_user_id' => (string) $this->assigned_user_id,
+            'number' => (string) $this->number,
+            'is_deleted' => (bool) $this->is_deleted,
             'amount' => (float) $this->amount,
             'balance' => (float) $this->balance,
             'due_date' => $this->due_date,
             'date' => $this->date,
-            'custom_value1' => (string)$this->custom_value1,
-            'custom_value2' => (string)$this->custom_value2,
-            'custom_value3' => (string)$this->custom_value3,
-            'custom_value4' => (string)$this->custom_value4,
+            'custom_value1' => (string) $this->custom_value1,
+            'custom_value2' => (string) $this->custom_value2,
+            'custom_value3' => (string) $this->custom_value3,
+            'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
-            'po_number' => (string)$this->po_number,
+            'po_number' => (string) $this->po_number,
+            'tags' => $this->tags->pluck('name')->values()->all(),
+            'line_items' => $this->indexLineItems(),
         ];
     }
 
     public function getScoutKey()
     {
-        return $this->company->db.":".$this->id;
+        return $this->company->db . ":" . $this->id;
     }
 
     public function getEntityType()
@@ -258,11 +271,25 @@ class Quote extends BaseModel
 
     public function getStatusIdAttribute($value)
     {
-        if ($this->due_date && ! $this->is_deleted && $value == self::STATUS_SENT && Carbon::parse($this->due_date)->lte(now()->startOfDay())) {
+        if (! $this->is_deleted && $value == self::STATUS_SENT && $this->hasLapsedValidUntil()) {
             return self::STATUS_EXPIRED;
         }
 
         return $value;
+    }
+
+    /**
+     * Valid-until is inclusive of the due date. The quote expires the following day.
+     */
+    public function hasLapsedValidUntil(mixed $due_date = null): bool
+    {
+        $due = $due_date ?? $this->due_date;
+
+        if (! $due) {
+            return false;
+        }
+
+        return Carbon::parse($due)->addDay()->lte(now()->setTimezone($this->client->timezone()->name)->startOfDay());
     }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -308,6 +335,11 @@ class Quote extends BaseModel
         return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
+    public function purchase_orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
+
     public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
@@ -336,7 +368,7 @@ class Quote extends BaseModel
      *
      * @return InvoiceSumInclusive | InvoiceSum The quote calculator object getters
      */
-    public function calc(): InvoiceSumInclusive | InvoiceSum
+    public function calc(): InvoiceSumInclusive|InvoiceSum
     {
         $quote_calc = null;
 
@@ -375,19 +407,21 @@ class Quote extends BaseModel
     {
         switch ($status) {
             case self::STATUS_DRAFT:
-                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
+                return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
             case self::STATUS_SENT:
-                return '<h5><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h5>';
+                return '<h5><span class="badge badge-primary">' . ctrans('texts.pending') . '</span></h5>';
             case self::STATUS_APPROVED:
-                return '<h5><span class="badge badge-success">'.ctrans('texts.approved').'</span></h5>';
+                return '<h5><span class="badge badge-success">' . ctrans('texts.approved') . '</span></h5>';
             case self::STATUS_EXPIRED:
-                return '<h5><span class="badge badge-danger">'.ctrans('texts.expired').'</span></h5>';
+                return '<h5><span class="badge badge-danger">' . ctrans('texts.expired') . '</span></h5>';
             case self::STATUS_CONVERTED:
-                return '<h5><span class="badge badge-light">'.ctrans('texts.converted').'</span></h5>';
+                return '<h5><span class="badge badge-light">' . ctrans('texts.converted') . '</span></h5>';
             case self::STATUS_REJECTED:
-                return '<h5><span class="badge badge-danger">'.ctrans('texts.rejected').'</span></h5>';
+                return '<h5><span class="badge badge-danger">' . ctrans('texts.rejected') . '</span></h5>';
+            case self::STATUS_CANCELLED:
+                return '<h5><span class="badge badge-secondary">' . ctrans('texts.cancelled') . '</span></h5>';
             default:
-                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
+                return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
         }
     }
 
@@ -406,6 +440,8 @@ class Quote extends BaseModel
                 return ctrans('texts.converted');
             case self::STATUS_REJECTED:
                 return ctrans('texts.rejected');
+            case self::STATUS_CANCELLED:
+                return ctrans('texts.cancelled');
             default:
                 return ctrans('texts.draft');
 
@@ -433,6 +469,11 @@ class Quote extends BaseModel
         }
 
         return false;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status_id === $this::STATUS_CANCELLED;
     }
 
     public function getValidUntilAttribute()
@@ -502,7 +543,7 @@ class Quote extends BaseModel
      */
     public function canRemind(): bool
     {
-        if (in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_APPROVED, self::STATUS_CONVERTED]) || $this->is_deleted) {
+        if (in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_APPROVED, self::STATUS_CONVERTED, self::STATUS_CANCELLED]) || $this->is_deleted) {
             return false;
         }
 

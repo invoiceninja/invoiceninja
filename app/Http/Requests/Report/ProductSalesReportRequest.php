@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,7 +45,7 @@ class ProductSalesReportRequest extends Request
             'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => 'bail|present|array',
             'send_email' => 'bail|required|bool',
-            'client_id' => 'bail|nullable|sometimes|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0',
+            'client_id' => 'bail|nullable|sometimes|exists:clients,id,company_id,' . $user->company()->id . ',is_deleted,0',
         ];
     }
 
@@ -73,7 +73,7 @@ class ProductSalesReportRequest extends Request
         if (array_key_exists('client_id', $input) && strlen($input['client_id'] ?? '') > 1) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
-        
+
         $input['user_id'] = auth()->user()->id;
 
         $this->replace($input);

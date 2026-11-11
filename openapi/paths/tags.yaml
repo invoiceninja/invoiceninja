@@ -1,0 +1,371 @@
+  /api/v1/tags:
+    get:
+      tags:
+        - tags
+      summary: 'List tags'
+      description: |
+        Lists company tags for a single taggable entity type.
+
+        `entity_type` is required so task tags and project tags never bleed into the same picker.
+      operationId: getTags
+      x-codeSamples:
+        - lang: curl
+          label: curl
+          source: |
+            curl -X GET 'https://demo.invoiceninja.com/api/v1/tags?entity_type=App%5CModels%5CTask' \
+              -H "X-API-TOKEN: YOUR-TOKEN" \
+              -H "X-Requested-With: XMLHttpRequest"
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+        - $ref: '#/components/parameters/per_page_meta'
+        - $ref: '#/components/parameters/page_meta'
+        - name: entity_type
+          in: query
+          description: 'Supported values: App\Models\Task, App\Models\Project'
+          required: true
+          schema:
+            type: string
+            enum:
+              - 'task'
+              - 'project'
+          example: 'App\Models\Task'
+        - name: filter
+          in: query
+          description: 'Search by tag name'
+          required: false
+          schema:
+            type: string
+          example: urgent
+        - name: sort
+          in: query
+          description: 'Sort using column|direction, for example name|asc or created_at|desc'
+          required: false
+          schema:
+            type: string
+          example: name|asc
+      responses:
+        200:
+          description: 'A list of tags'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+    post:
+      tags:
+        - tags
+      summary: 'Create tag'
+      description: 'Creates a tag catalog entry for a supported entity type.'
+      operationId: storeTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        description: 'Tag object that needs to be added to the company catalog'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagRequest'
+            example:
+              entity_type: 'task'
+              name: Urgent
+              color: '#FF0000'
+      responses:
+        200:
+          description: 'Returns the saved tag object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/tags/create:
+    get:
+      tags:
+        - tags
+      summary: 'Blank tag'
+      description: 'Returns a blank tag object with default values.'
+      operationId: getTagsCreate
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+      responses:
+        200:
+          description: 'A blank tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/tags/{id}':
+    get:
+      tags:
+        - tags
+      summary: 'Show tag'
+      description: 'Displays a tag by id.'
+      operationId: showTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+    put:
+      tags:
+        - tags
+      summary: 'Update tag'
+      description: 'Updates a tag name or color. `entity_type` is immutable and should not be sent.'
+      operationId: updateTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      requestBody:
+        description: 'Tag fields to update'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 191
+                  example: High priority
+                color:
+                  type: string
+                  nullable: true
+                  pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$'
+                  example: '#FF5500'
+      responses:
+        200:
+          description: 'Returns the updated tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+    delete:
+      tags:
+        - tags
+      summary: 'Delete tag'
+      description: 'Soft-deletes a tag catalog entry and cascades its pivot assignments.'
+      operationId: deleteTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the deleted tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/tags/{id}/edit':
+    get:
+      tags:
+        - tags
+      summary: 'Edit tag'
+      description: 'Displays a tag by id for editing.'
+      operationId: editTag
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: id
+          in: path
+          description: 'The tag hashed ID'
+          required: true
+          schema:
+            type: string
+          example: Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the tag object'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        404:
+          description: 'Tag not found'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/tags/bulk:
+    post:
+      tags:
+        - tags
+      summary: 'Bulk tag actions'
+      description: 'Archives, restores, or deletes multiple tags.'
+      operationId: bulkTags
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - name: action
+          in: query
+          description: 'Action to perform'
+          required: true
+          schema:
+            type: string
+            enum:
+              - archive
+              - restore
+              - delete
+          example: archive
+      requestBody:
+        description: 'Bulk tag action payload'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagBulkAction'
+            example:
+              ids:
+                - Opnel5aKBz
+      responses:
+        200:
+          description: 'Returns the affected tag objects'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'

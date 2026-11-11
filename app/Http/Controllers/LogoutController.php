@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -57,18 +57,19 @@ class LogoutController extends BaseController
      */
     public function index(Request $request)
     {
+        /** @var \App\Models\CompanyToken $ct */
         $ct = CompanyToken::with('company.tokens')
                     ->where('token', $request->header('X-API-TOKEN'))
                     ->first();
 
         $ct->company
-                    ->tokens()
-                    ->where('is_system', true)
-                    ->cursor()
-                    ->each(function ($ct) {
-                        $ct->token = \Illuminate\Support\Str::random(64);
-                        $ct->save();
-                    });
+            ->tokens()
+            ->where('is_system', true)
+            ->cursor()
+            ->each(function ($company_token) {
+                $company_token->token = \Illuminate\Support\Str::random(64);
+                $company_token->save();
+            });
 
         return response()->json(['message' => 'All tokens deleted'], 200);
     }

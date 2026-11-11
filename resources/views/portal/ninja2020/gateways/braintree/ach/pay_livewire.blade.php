@@ -17,17 +17,17 @@
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
 
-        <ul class="list-none space-y-2">
+        <ul class="payment-method-list">
             @if(count($tokens) > 0)
                 @foreach($tokens as $token)
-                <li class="py-2 hover:bg-gray-100 rounded transition-colors duration-150">
-                    <label class="flex items-center cursor-pointer px-2">
+                <li class="payment-method-item">
+                    <label class="payment-method-label">
                         <input
                             type="radio"
                             data-token="{{ $token->hashed_id }}"
                             name="payment-type"
-                            class="form-radio text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
-                        <span class="ml-2 cursor-pointer">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
+                            class="form-radio cursor-pointer toggle-payment-with-token"/>
+                        <span class="ml-1">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>
                     </label>
                 </li>
                 @endforeach
@@ -47,28 +47,6 @@
     @endif
 </div>
 
-@script
-    <script defer>
-        Array
-            .from(document.getElementsByClassName('toggle-payment-with-token'))
-            .forEach((element) => element.addEventListener('click', (element) => {
-                document.querySelector('input[name=source]').value = element.target.dataset.token;
-            }));
-
-        document.getElementById('pay-now').addEventListener('click', function (e) {
-            e.target.parentElement.disabled = true;
-
-            document.getElementById('server-response').submit();
-        });
-
-
-    /**
-    * @type {HTMLInputElement|null}
-    */
-    const first = document.querySelector('input[name="payment-type"]');
-
-    if (first) {
-        first.click();
-    }
-    </script>
-@endscript
+@assets
+    @vite('resources/js/clients/payment_methods/braintree-ach.js')
+@endassets

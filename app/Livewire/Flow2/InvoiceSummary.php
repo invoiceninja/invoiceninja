@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,10 +13,13 @@
 namespace App\Livewire\Flow2;
 
 use App\Models\InvoiceInvitation;
+use App\Utils\Ninja;
 use App\Utils\Number;
-use Livewire\Component;
-use Livewire\Attributes\On;
 use App\Utils\Traits\WithSecureContext;
+use Illuminate\Support\Facades\App;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class InvoiceSummary extends Component
 {
@@ -43,6 +46,13 @@ class InvoiceSummary extends Component
     {
         $_context = $this->getContext($this->_key);
 
+        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
+
+        \Illuminate\Support\Facades\App::forgetInstance('translator');
+        $t = app('translator');
+        \Illuminate\Support\Facades\App::setLocale($contact->preferredLocale());
+        $t->replace(\App\Utils\Ninja::transformTranslations($contact->client->getMergedSettings()));
+        
         if (!empty($_context)) {
             $this->isReady = true;
             $this->loadContextData();
@@ -60,7 +70,7 @@ class InvoiceSummary extends Component
         $contact = $_context['contact'] ?? auth()->guard('contact')->user();
         $this->invoices = $_context['payable_invoices'] ?? [];
         $this->amount = isset($_context['amount']) ? Number::formatMoney($_context['amount'], $contact->client) : '';
-        $this->gateway_fee = isset($_context['gateway_fee']) ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
+        $this->gateway_fee = isset($_context['gateway_fee']) && $_context['gateway_fee'] > 0 ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
     }
 
     #[On(self::CONTEXT_UPDATE)]
@@ -86,7 +96,7 @@ class InvoiceSummary extends Component
 
         $invite = \App\Models\InvoiceInvitation::on($db)->withTrashed()->find($invitation_id);
 
-        $file_name = $invite->invoice->numberFormatter().'.pdf';
+        $file_name = $invite->invoice->numberFormatter() . '.pdf';
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invite))->handle();
 

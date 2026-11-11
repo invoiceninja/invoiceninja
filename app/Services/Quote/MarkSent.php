@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,11 +21,9 @@ use Carbon\Carbon;
 
 class MarkSent
 {
-    public function __construct(private Client $client, private Quote $quote)
-    {
-    }
+    public function __construct(private Client $client, private Quote $quote) {}
 
-    public function run($first_event = false)
+    public function run($fire_event = false)
     {
         /* Return immediately if status is not draft */
         if ($this->quote->status_id != Quote::STATUS_DRAFT) {
@@ -36,7 +34,7 @@ class MarkSent
 
         if ($this->quote->due_date != '' || $this->client->getSetting('valid_until') == '') {
         } else {
-            $this->quote->due_date = Carbon::parse($this->quote->date)->addDays((int)$this->client->getSetting('valid_until'));
+            $this->quote->due_date = Carbon::parse($this->quote->date)->addDays((int) $this->client->getSetting('valid_until'));
         }
 
         $this->quote
@@ -48,8 +46,7 @@ class MarkSent
 
         event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        if ($first_event) {
-
+        if ($fire_event) {
             event('eloquent.updated: App\Models\Quote', $this->quote);
             $this->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
         }

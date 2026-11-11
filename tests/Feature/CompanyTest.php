@@ -17,15 +17,13 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\TaxRate;
 use Tests\MockAccountData;
+use App\Enum\SyncDirection;
 use App\Models\CompanyToken;
+use App\DataMapper\QuickbooksSettings;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\UploadedFile;
 use App\DataMapper\CompanySettings;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Session;
 use App\Http\Middleware\PasswordProtection;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  *
@@ -42,6 +40,88 @@ class CompanyTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testCompanyQuickbooksSettingsUpdate()
+    {
+        $data = [
+            'quickbooks' => [
+                'settings' => [
+                    'client' => [
+                        'direction' => SyncDirection::PUSH->value,
+                    ],
+                    'invoice' => [
+                        'direction' => SyncDirection::NONE->value,
+                    ],
+                    'product' => [
+                        'direction' => SyncDirection::BIDIRECTIONAL->value,
+                    ],
+                    'qb_income_account_id' => '123',
+                ]
+            ]
+        ];
+
+        $data = array_merge((array) $this->company->settings, $data);
+        unset($data['company_logo']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
+
+        $response->assertStatus(200);
+
+        $this->company = $this->company->fresh();
+
+        $this->assertEquals('push', $this->company->quickbooks->settings->client->direction->value);
+        $this->assertEquals('none', $this->company->quickbooks->settings->invoice->direction->value);
+        $this->assertEquals('bidirectional', $this->company->quickbooks->settings->product->direction->value);
+        $this->assertEquals('123', $this->company->quickbooks->settings->qb_income_account_id);
+    }
+    public function testCompanyQuickbooksSettings()
+    {
+        $settings = $this->company->quickbooks->settings;
+        $settings->client->direction = SyncDirection::PUSH;
+        $settings->invoice->direction = SyncDirection::PUSH;
+        $settings->product->direction = SyncDirection::PUSH;
+        $this->company->quickbooks->settings = $settings;
+        $this->company->save();
+    
+        $this->assertEquals('push', $this->company->quickbooks->settings->client->direction->value);
+    }
+
+    public function testQuickbooksTokensAreStrippedFromApiResponse()
+    {
+        $this->company->quickbooks = new QuickbooksSettings([
+            'accessTokenKey' => 'secret_access_token',
+            'refresh_token' => 'secret_refresh_token',
+            'realmID' => 'realm_123',
+            'companyName' => 'Acme QB',
+            'settings' => [
+                'allow_deposit' => false,
+            ],
+        ]);
+        $this->company->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id));
+
+        $response->assertStatus(200);
+
+        $quickbooks = $response->json('data.quickbooks');
+
+        $this->assertIsArray($quickbooks);
+        $this->assertArrayNotHasKey('accessTokenKey', $quickbooks);
+        $this->assertArrayNotHasKey('refresh_token', $quickbooks);
+        $this->assertStringNotContainsString('secret_access_token', $response->getContent());
+        $this->assertStringNotContainsString('secret_refresh_token', $response->getContent());
+
+        $this->assertEquals('realm_123', $quickbooks['realmID']);
+        $this->assertArrayHasKey('allow_deposit', $quickbooks['settings']);
+        $this->assertFalse($quickbooks['settings']['allow_deposit']);
+    }
+
     public function testCompanyWebsite()
     {
         $settings = $this->company->settings;
@@ -55,7 +135,7 @@ class CompanyTest extends TestCase
 
     public function testCompanyExpenseMailbox()
     {
-        $safeEmail = $this->faker->safeEmail();
+        $safeEmail = uniqid('testuser') . '@gmail.com';
 
         // Test valid email address
         $company_update = [
@@ -112,12 +192,76 @@ class CompanyTest extends TestCase
         TaxRate::query()->delete();
 
         $settings = $this->company->settings;
-        $settings->country_id = '40';
+        $settings->country_id = '40'; // Austria - standard 20% + reduced 10%
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(2, TaxRate::count());
+
+        $rates = TaxRate::query()->pluck('rate', 'name')->toArray();
+        $this->assertEquals(20, $rates['USt']);
+        $this->assertEquals(10, $rates['USt (ermäßigt)']);
+    }
+
+    public function testLocalizeCompanyGermanyCreatesStandardAndReducedRates(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '276'; // Germany
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(2, TaxRate::count());
+
+        $rates = TaxRate::query()->pluck('rate', 'name')->toArray();
+        $this->assertEquals(19, $rates['MwSt']);
+        $this->assertEquals(7, $rates['MwSt (ermäßigt)']);
+    }
+
+    public function testLocalizeCompanyCanadaCreatesThreeRates(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '124'; // Canada
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(3, TaxRate::count());
+    }
+
+    public function testLocalizeCompanyUnknownCountryCreatesNoRates(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '999';
+        $this->company->saveSettings($settings, $this->company);
+
+        $this->company->service()->localizeCompany($this->user);
+
+        $this->assertEquals(0, TaxRate::count());
+    }
+
+    public function testLocalizeCompanyDenmarkCreatesSingleRate(): void
+    {
+        TaxRate::query()->delete();
+
+        $settings = $this->company->settings;
+        $settings->country_id = '208'; // Denmark - no reduced rate
         $this->company->saveSettings($settings, $this->company);
 
         $this->company->service()->localizeCompany($this->user);
 
         $this->assertEquals(1, TaxRate::count());
+
+        $rate = TaxRate::query()->first();
+        $this->assertEquals('moms', $rate->name);
+        $this->assertEquals(25, $rate->rate);
     }
 
     public function testCompanyCurrent()
@@ -242,8 +386,6 @@ class CompanyTest extends TestCase
         $settings->quote_design_id = '1';
 
         $company->settings = $settings;
-
-        // nlog($company->toArray());
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

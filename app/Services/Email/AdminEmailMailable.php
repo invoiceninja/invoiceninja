@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,9 +27,7 @@ class AdminEmailMailable extends Mailable
      *
      * @return void
      */
-    public function __construct(public EmailObject $email_object)
-    {
-    }
+    public function __construct(public EmailObject $email_object) {}
 
     /**
      * Get the message envelope.
@@ -39,7 +37,7 @@ class AdminEmailMailable extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: str_replace("<br>", "", $this->email_object->subject),
+            subject: str_replace("<br>", "", $this->email_object->subject ?? ''),
             tags: [$this->email_object->company_key],
             replyTo: $this->email_object->reply_to,
             from: $this->email_object->from,
@@ -87,9 +85,9 @@ class AdminEmailMailable extends Mailable
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime  = finfo_buffer($finfo, base64_decode($file['file']));
             $mime = $mime ?: 'application/octet-stream';
-            finfo_close($finfo);
+            $finfo = null;
 
-            return Attachment::fromData(fn () => base64_decode($file['file']), $file['name'])->withMime($mime);
+            return Attachment::fromData(fn() => base64_decode($file['file']), $file['name'])->withMime($mime);
         });
 
         return $attachments->toArray();

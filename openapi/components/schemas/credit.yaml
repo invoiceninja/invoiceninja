@@ -4,6 +4,7 @@
           description: "The unique hashed ID of the credit"
           type: string
           example: Opnel5aKBz
+          readOnly: true
         user_id:
           description: "The unique hashed ID of the user associated with the credit"
           type: string
@@ -19,7 +20,7 @@
         status_id:
           description: "The ID representing the current status of the credit"
           type: string
-          example: 3
+          example: "3"
         invoice_id:
           description: "The unique hashed ID of the linked invoice to which the credit is applied"
           type: string
@@ -194,17 +195,17 @@
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
@@ -246,4 +247,62 @@
           description: 'The unique identifier of the vendor associated with this credit'
           type: string
           example: Opnel5aKBz
+        tags:
+          description: 'Tags assigned to this entity'
+          type: array
+          items:
+            $ref: '#/components/schemas/TagAssignment'
+        tax_info:
+          description: 'Calculated tax data for this entity'
+          type: object
+          additionalProperties: true
+        sync:
+          description: 'External accounting sync metadata for this entity'
+          type: object
+          nullable: true
+          additionalProperties: true
+        entity_type:
+          description: 'The entity type identifier returned by the API'
+          type: string
+        has_tasks:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        has_expenses:
+          description: 'Deprecated. Always false in current API versions.'
+          type: boolean
+          example: false
+          deprecated: true
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: 1434342123
+          readOnly: true
+        backup:
+          description: 'Invoice backup metadata'
+          type: object
+          nullable: true
+          additionalProperties: true
+        reminder1_sent:
+          description: 'Date the first reminder was sent'
+          type: string
+          example: '2024-01-15'
+        reminder2_sent:
+          description: 'Date the second reminder was sent'
+          type: string
+          example: '2024-01-22'
+        reminder3_sent:
+          description: 'Date the third reminder was sent'
+          type: string
+          example: '2024-01-29'
+        reminder_last_sent:
+          description: 'Date the last reminder was sent'
+          type: string
+          example: '2024-01-29'
       type: object

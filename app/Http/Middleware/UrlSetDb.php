@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,7 +47,7 @@ class UrlSetDb
                 return response()->json(['message' => 'Invalid confirmation code'], 403);
             }
 
-            MultiDB::setDB(MultiDB::DB_PREFIX.str_pad($hashed_db[0], 2, '0', STR_PAD_LEFT));
+            MultiDB::setDB(MultiDB::DB_PREFIX . str_pad($hashed_db[0], 2, '0', STR_PAD_LEFT));
         }
 
         return $next($request);

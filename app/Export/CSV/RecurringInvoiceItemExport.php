@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class RecurringInvoiceItemExport extends BaseExport
     private array $decorate_keys = [
         'client',
         'currency_id',
-        'status'
+        'status',
     ];
 
     public function __construct(Company $company, array $input)
@@ -72,7 +72,7 @@ class RecurringInvoiceItemExport extends BaseExport
 
         $query = RecurringInvoice::query()
                         ->withTrashed()
-                        ->with('client')
+                        ->with('client', 'tags')
                         ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
@@ -93,6 +93,9 @@ class RecurringInvoiceItemExport extends BaseExport
         if ($this->input['status'] ?? false) {
             $query = $this->addRecurringInvoiceStatusFilter($query, $this->input['status']);
         }
+
+        $query = $this->addTagFilter($query);
+
         $query = $this->filterByUserPermissions($query);
 
         $query = $this->applyProductFilters($query);
@@ -115,7 +118,7 @@ class RecurringInvoiceItemExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($resource) {
 
                 /** @var \App\Models\RecurringInvoice $resource */
@@ -145,7 +148,7 @@ class RecurringInvoiceItemExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
             ->each(function ($invoice) {
 
                 /** @var \App\Models\RecurringInvoice $invoice */
@@ -162,7 +165,7 @@ class RecurringInvoiceItemExport extends BaseExport
 
         //if we have product filters in place, we will also need to filter the items at this level:
         if (isset($this->input['product_key'])) {
-                        
+
             $products = str_getcsv($this->input['product_key'], ',', "'");
 
             $products = array_map(function ($product) {
@@ -198,7 +201,7 @@ class RecurringInvoiceItemExport extends BaseExport
                             $item->tax_id = '1';
                         }
 
-                        $item_array[$key] = $this->getTaxCategoryName((int)$item->tax_id ?? 1); // @phpstan-ignore-line
+                        $item_array[$key] = $this->getTaxCategoryName((int) $item->tax_id ?? 1); // @phpstan-ignore-line
                     } elseif (property_exists($item, $tmp_key)) {
                         $item_array[$key] = $item->{$tmp_key};
                     } else {
@@ -212,9 +215,14 @@ class RecurringInvoiceItemExport extends BaseExport
 
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
-            $this->storage_array[] = $this->convertFloats($entity);
+            $this->storage_array[] = $this->convertFloats($entity, ['recurring_invoice' => $invoice->id]);
 
         }
+    }
+
+    protected function groupingIdentityForColumn(string $column): ?string
+    {
+        return str_starts_with($column, 'recurring_invoice.') ? 'recurring_invoice' : null;
     }
 
     private function getTaxCategoryName($tax_id)
@@ -233,7 +241,7 @@ class RecurringInvoiceItemExport extends BaseExport
         };
     }
 
-    private function buildRow(RecurringInvoice $invoice): array
+    protected function buildRow(RecurringInvoice $invoice): array
     {
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 
@@ -244,11 +252,11 @@ class RecurringInvoiceItemExport extends BaseExport
 
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'item') {
+            if ($parts[0] === 'item') {
                 continue;
             }
 
-            if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
+            if ($parts[0] === 'invoice' && isset($parts[1], $transformed_invoice[$parts[1]])) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } elseif (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];
@@ -278,10 +286,10 @@ class RecurringInvoiceItemExport extends BaseExport
         }
 
         if (in_array('recurring_invoice.user_id', $this->input['report_keys'])) {
-            $entity['recurring_invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+            $entity['recurring_invoice.user_id'] = $invoice->user->present()->name() ?? '';
         }
 
-        
+
         if (in_array('invoice.project', $this->input['report_keys'])) {
             $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';// @phpstan-ignore-line
         }

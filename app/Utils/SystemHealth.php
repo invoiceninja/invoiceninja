@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -87,7 +87,7 @@ class SystemHealth
             'jobs_pending' => 0, // TODO for backwards compatibility, remove once Flutter AP is updated
             'trailing_slash' => (bool) self::checkUrlState(),
             'file_permissions' => (string) ($check_file_system ? self::checkFileSystem() : ''),
-            'exchange_rate_api_not_configured' => (bool)self::checkCurrencySanity(),
+            'exchange_rate_api_not_configured' => (bool) self::checkCurrencySanity(),
             'api_version' => (string) config('ninja.app_version'),
             'is_docker' => (bool) config('ninja.is_docker'),
             'pending_migrations' => (bool) ($check_file_system ? self::checkPendingMigrations() : false),
@@ -174,15 +174,27 @@ class SystemHealth
         return false;
     }
 
-    public static function checkPendingMigrations()
+    /**
+     * Compare filesystem migration files to the **configured** default DB's `migrations` table.
+     *
+     * Always uses {@see config()} `database.default`, not {@see \Illuminate\Support\Facades\DB::getDefaultConnection()},
+     * so callers that temporarily switch the default connection (e.g. shard imports) do not get a false
+     * "pending migrations" result from a tenant DB whose migration history differs from the app codebase.
+     */
+    public static function checkPendingMigrations(): bool
     {
-        $run_count = DB::table('migrations')->count();
+        $connectionName = config('database.default');
+
+        $ran = DB::connection($connectionName)->table('migrations')->pluck('migration');
 
         $directory = base_path('database/migrations');
-        $iterator = new \FilesystemIterator($directory);
-        $total_count = iterator_count($iterator) - 1;
 
-        return $run_count != $total_count;
+        $pending = collect(new \FilesystemIterator($directory))
+            ->filter(fn ($file) => $file->getExtension() === 'php')
+            ->map(fn ($file) => $file->getBasename('.php'))
+            ->diff($ran);
+
+        return $pending->isNotEmpty();
     }
 
     public static function getPdfEngine()
@@ -191,6 +203,8 @@ class SystemHealth
             return 'Invoice Ninja Hosted PDF Generator';
         } elseif (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return 'Phantom JS Web Generator';
+        } elseif (config('ninja.pdf_generator') == 'simulator') {
+            return 'Simulator (blank PDF)';
         } else {
             return 'SnapPDF PDF Generator';
         }
@@ -255,7 +269,7 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found php cli, but no version information' : $foo[0];
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -348,12 +362,19 @@ class SystemHealth
 
     private static function checkEnvWritable()
     {
-        return is_writable(base_path().'/.env');
+        return is_writable(base_path() . '/.env');
     }
 
     public static function lastError()
     {
-        $log_file = new SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
+        $log_path = sprintf('%s/laravel.log', base_path('storage/logs'));
+
+        $log_file = new SplFileObject($log_path);
+
+        if (! is_readable($log_path)) {
+            return '';
+        }
+
         $log_file->seek(PHP_INT_MAX);
         $last_line = $log_file->key();
 
@@ -363,7 +384,7 @@ class SystemHealth
 
         foreach ($lines as $line) {
             // Match the main error, ie. [2024-07-10 12:23:07] production.ERROR: ...
-            if (substr($line, 0, 2) === '[2') {
+            if (preg_match('/^\[[^\]]+\]\s+\S+\.(?:ERROR|CRITICAL|ALERT|EMERGENCY):/', $line) === 1) {
                 $last_error = $line;
             }
         }

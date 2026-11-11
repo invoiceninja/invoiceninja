@@ -92,7 +92,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('put test token');
 
         $data = [
             'name' => 'newname',
@@ -114,7 +114,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('get test token');
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -129,7 +129,7 @@ class CompanyTokenApiTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
+        $company_token = $this->createCustomToken('not archived test token');
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -140,5 +140,236 @@ class CompanyTokenApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals(0, $arr['data']['archived_at']);
+    }
+
+    public function testCompanyTokenBulkArchive()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = CompanyToken::whereCompanyId($this->company->id)->where('is_system', false)->first();
+
+        if (! $company_token) {
+            $company_token = new CompanyToken();
+            $company_token->user_id = $this->user->id;
+            $company_token->company_id = $this->company->id;
+            $company_token->account_id = $this->account->id;
+            $company_token->name = 'bulk test token';
+            $company_token->token = \Illuminate\Support\Str::random(64);
+            $company_token->is_system = false;
+            $company_token->save();
+        }
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($company_token->id)],
+            'action' => 'archive',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+    }
+
+    public function testCompanyTokenBulkRestore()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'restore test token';
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        // Archive first
+        $company_token->delete();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($company_token->id)],
+            'action' => 'restore',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
+    }
+
+    public function testCompanyTokenBulkDelete()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'delete test token';
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($company_token->id)],
+            'action' => 'delete',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/tokens/bulk', $data);
+
+        $arr = $response->json();
+        $this->assertTrue($arr['data'][0]['is_deleted']);
+    }
+
+    public function testCompanyTokenPutWithTokenFieldInBody()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = $this->createCustomToken('put collision test token');
+
+        // Real clients PUT the full token resource. The body contains a
+        // `token` field (the raw token string) which collides with the
+        // {token} route parameter via Request::__get's input-first lookup.
+        $data = [
+            'id' => $this->encodePrimaryKey($company_token->id),
+            'name' => 'newname-with-collision',
+            'token' => \Illuminate\Support\Str::random(64),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id), $data);
+
+        $response->assertStatus(200);
+        $this->assertEquals('newname-with-collision', $response->json('data.name'));
+    }
+
+    public function testCompanyTokenGetWithTokenInQueryString()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = $this->createCustomToken('get query test token');
+
+        // Query-string `?token=...` is merged into $this->all() and would
+        // shadow the bound route param the same way a body field does.
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id).'?token=shadow-value');
+
+        $response->assertStatus(200);
+    }
+
+    public function testCompanyTokenEditWithTokenInQueryString()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = $this->createCustomToken('edit query test token');
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id).'/edit?token=shadow-value');
+
+        $response->assertStatus(200);
+    }
+
+    public function testCompanyTokenDeleteWithTokenFieldInBody()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'delete-collision-' . uniqid();
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        $data = [
+            'token' => \Illuminate\Support\Str::random(64),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->deleteJson('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id), $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testIsSystemFilter()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $systemToken = new CompanyToken();
+        $systemToken->user_id = $this->user->id;
+        $systemToken->company_id = $this->company->id;
+        $systemToken->account_id = $this->account->id;
+        $systemToken->name = 'system_token_' . uniqid();
+        $systemToken->token = \Illuminate\Support\Str::random(64);
+        $systemToken->is_system = true;
+        $systemToken->save();
+
+        $userToken = new CompanyToken();
+        $userToken->user_id = $this->user->id;
+        $userToken->company_id = $this->company->id;
+        $userToken->account_id = $this->account->id;
+        $userToken->name = 'user_token_' . uniqid();
+        $userToken->token = \Illuminate\Support\Str::random(64);
+        $userToken->is_system = false;
+        $userToken->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens?is_system=true&per_page=500')->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($systemToken->hashed_id, $ids);
+        $this->assertNotContains($userToken->hashed_id, $ids);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens?is_system=false&per_page=500')->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($userToken->hashed_id, $ids);
+        $this->assertNotContains($systemToken->hashed_id, $ids);
+    }
+
+    private function createCustomToken(string $name): CompanyToken
+    {
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = $name;
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = false;
+        $company_token->save();
+
+        return $company_token;
     }
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,7 +43,11 @@ class MindeeEDocument extends AbstractService
     }
 
     /**
+     * Sends the uploaded file to Mindee OCR, parses the prediction result,
+     * and creates an expense with vendor from the extracted invoice data.
+     *
      * @throws Exception
+     * @return Expense
      */
     public function run(): Expense
     {
@@ -85,21 +89,21 @@ class MindeeEDocument extends AbstractService
             // The document does not exist as an expense
             // Handle accordingly
 
-            /** @var \App\Models\Currency $currency */
+            /** @var \App\Models\Currency|null $currency */
             $currency = app('currencies')->first(function ($c) use ($invoiceCurrency) {
                 /** @var \App\Models\Currency $c */
-                return $c->code == $invoiceCurrency;
+                return $c->code == strtoupper($invoiceCurrency);
             });
 
             $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
             $expense->date = $documentdate;
             $expense->public_notes = $documentno;
-            $expense->currency_id = $currency ? $currency->id : $this->company->settings->currency_id;
+            $expense->currency_id = $currency ? $currency->id : $this->company->settings->currency_id; 
             $expense->save();
 
             $this->saveDocuments([
                 $this->file,
-                TempFile::UploadedFileFromRaw(strval($result->document), $documentno . "_mindee_orc_result.txt", "text/plain")
+                TempFile::UploadedFileFromRaw(strval($result->document), $documentno . "_mindee_orc_result.txt", "text/plain"),
             ], $expense);
             // $expense->saveQuietly();
 
@@ -113,7 +117,7 @@ class MindeeEDocument extends AbstractService
                 $counter++;
             }
 
-            /** @var \App\Models\VendorContact $vendor_contact */
+            /** @var \App\Models\VendorContact|null $vendor_contact */
             $vendor_contact = VendorContact::query()->where("company_id", $this->company->id)->where("email", $prediction->supplierEmail)->first();
 
             /** @var \App\Models\Vendor|null $vendor */
@@ -165,6 +169,13 @@ class MindeeEDocument extends AbstractService
         return $expense;
     }
 
+    /**
+     * Validates that daily and monthly Mindee API rate limits have not been exceeded
+     * at both the global and per-account level.
+     *
+     * @throws Exception
+     * @return void
+     */
     private function checkLimits()
     {
         Cache::add('mindeeTotalDailyRequests', 0, now()->endOfDay());
@@ -185,6 +196,11 @@ class MindeeEDocument extends AbstractService
         }
     }
 
+    /**
+     * Increments the global and per-account daily/monthly Mindee API request counters.
+     *
+     * @return void
+     */
     private function incrementRequestCounts()
     {
         Cache::increment('mindeeTotalDailyRequests');

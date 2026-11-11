@@ -14,6 +14,7 @@ namespace Tests\Feature;
 
 use App\Factory\InvoiceItemFactory;
 use App\Models\Client;
+use App\Models\CompanyLedger;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\InvoiceRepository;
@@ -300,6 +301,103 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(0, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->paid_to_date);
+    }
+
+    public function testDeletingInvoiceFromStaleInstanceAfterCancellationDoesNotReduceClientBalanceAgain(): void
+    {
+        $data = [
+            'name' => 'A Nice Client',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $client_hash_id = $arr['data']['id'];
+        $client = Client::find($this->decodePrimaryKey($client_hash_id));
+
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 20;
+
+        $line_items[] = (array) $item;
+
+        $invoice = [
+            'status_id' => 1,
+            'number' => '',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'client_id' => $client_hash_id,
+            'line_items' => (array) $line_items,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $invoice = Invoice::find($this->decodePrimaryKey($arr['data']['id']));
+        $invoice = $invoice->service()->markSent()->save();
+
+        $payment_data = [
+            'amount' => 10,
+            'client_id' => $client->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 10,
+                ],
+            ],
+            'date' => '2019/12/12',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments?include=invoices', $payment_data);
+
+        $response->assertStatus(200);
+
+        $payment = Payment::find($this->decodePrimaryKey($response->json('data.id')));
+        $payment->service()->deletePayment()->save();
+
+        $stale_invoice_for_delete = $invoice->fresh();
+
+        $this->assertEquals(20, $stale_invoice_for_delete->balance);
+
+        $invoice->fresh()->service()->handleCancellation()->save();
+
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $client->fresh()->balance);
+
+        $stale_invoice_for_delete->service()->markDeleted()->save();
+
+        $deletion_ledger = CompanyLedger::query()
+            ->where('client_id', $client->id)
+            ->where('notes', 'Invoice Deleted - reducing ledger balance')
+            ->orderByDesc('id')
+            ->first();
+
+        $this->assertNotNull($deletion_ledger);
+        $this->assertEquals(0, $deletion_ledger->adjustment);
+        $this->assertEquals(0, $client->fresh()->balance);
     }
 
     /**

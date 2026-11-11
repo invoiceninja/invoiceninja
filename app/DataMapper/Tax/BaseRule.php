@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,6 +22,28 @@ use App\Models\RecurringInvoice;
 
 class BaseRule implements RuleInterface
 {
+    /**
+     * Strict EU member states including Spanish autonomous territories.
+     * Used for tax threshold calculations, VAT registration, and nexus determination.
+     */
+    public const EU_COUNTRY_CODES = [
+        'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'ES-CN', 'ES-CE', 'ES-ML',
+        'FI', 'FR', 'GR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL',
+        'PL', 'PT', 'RO', 'SE', 'SI', 'SK',
+    ];
+
+    /**
+     * EU + EEA (IS, LI, NO) + Switzerland — the broader VAT zone.
+     * Used for Peppol tax category determination and exemption reason codes,
+     * where EEA/EFTA countries follow EU-like VAT rules.
+     * Includes EL (Greece alternate ISO code) for document format compatibility.
+     */
+    public const EU_TAX_EXEMPT_COUNTRY_CODES = [
+        'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'GR',
+        'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI',
+        'ES', 'ES-CE', 'ES-ML', 'ES-CN', 'SE', 'IS', 'LI', 'NO', 'CH',
+    ];
+
     /** EU TAXES */
     public bool $consumer_tax_exempt = false;
 
@@ -39,109 +61,51 @@ class BaseRule implements RuleInterface
 
     public string $client_subregion = '';
 
-    public array $eu_country_codes = [
-            'AT', // Austria
-            'BE', // Belgium
-            'BG', // Bulgaria
-            'CY', // Cyprus
-            'CZ', // Czech Republic
-            'DE', // Germany
-            'DK', // Denmark
-            'EE', // Estonia
-            'ES', // Spain
-            'ES-CN', // Canary Islands
-            'ES-CE', // Ceuta
-            'ES-ML', // Melilla
-            'FI', // Finland
-            'FR', // France
-            'GR', // Greece
-            'HR', // Croatia
-            'HU', // Hungary
-            'IE', // Ireland
-            'IT', // Italy
-            'LT', // Lithuania
-            'LU', // Luxembourg
-            'LV', // Latvia
-            'MT', // Malta
-            'NL', // Netherlands
-            'PL', // Poland
-            'PT', // Portugal
-            'RO', // Romania
-            'SE', // Sweden
-            'SI', // Slovenia
-            'SK', // Slovakia
-    ];
+    public array $eu_country_codes = self::EU_COUNTRY_CODES;
 
     public array $region_codes = [
-            'AT' => 'EU', // Austria
-            'BE' => 'EU', // Belgium
-            'BG' => 'EU', // Bulgaria
-            'CY' => 'EU', // Cyprus
-            'CZ' => 'EU', // Czech Republic
-            'DE' => 'EU', // Germany
-            'DK' => 'EU', // Denmark
-            'EE' => 'EU', // Estonia
-            'ES' => 'EU', // Spain
-            'ES-CN' => 'EU', // Canary Islands
-            'ES-CE' => 'EU', // Ceuta
-            'ES-ML' => 'EU', // Melilla
-            'FI' => 'EU', // Finland
-            'FR' => 'EU', // France
-            'GR' => 'EU', // Greece
-            'HR' => 'EU', // Croatia
-            'HU' => 'EU', // Hungary
-            'IE' => 'EU', // Ireland
-            'IT' => 'EU', // Italy
-            'LT' => 'EU', // Lithuania
-            'LU' => 'EU', // Luxembourg
-            'LV' => 'EU', // Latvia
-            'MT' => 'EU', // Malta
-            'NL' => 'EU', // Netherlands
-            'PL' => 'EU', // Poland
-            'PT' => 'EU', // Portugal
-            'RO' => 'EU', // Romania
-            'SE' => 'EU', // Sweden
-            'SI' => 'EU', // Slovenia
-            'SK' => 'EU', // Slovakia
+        'AD' => 'AD', // Andorra
+        'AT' => 'EU', // Austria
+        'BE' => 'EU', // Belgium
+        'BG' => 'EU', // Bulgaria
+        'CY' => 'EU', // Cyprus
+        'CZ' => 'EU', // Czech Republic
+        'DE' => 'EU', // Germany
+        'DK' => 'EU', // Denmark
+        'EE' => 'EU', // Estonia
+        'ES' => 'EU', // Spain
+        'ES-CN' => 'EU', // Canary Islands
+        'ES-CE' => 'EU', // Ceuta
+        'ES-ML' => 'EU', // Melilla
+        'FI' => 'EU', // Finland
+        'FR' => 'EU', // France
+        'GR' => 'EU', // Greece
+        'HR' => 'EU', // Croatia
+        'HU' => 'EU', // Hungary
+        'IE' => 'EU', // Ireland
+        'IT' => 'EU', // Italy
+        'LT' => 'EU', // Lithuania
+        'LU' => 'EU', // Luxembourg
+        'LV' => 'EU', // Latvia
+        'MT' => 'EU', // Malta
+        'NL' => 'EU', // Netherlands
+        'PL' => 'EU', // Poland
+        'PT' => 'EU', // Portugal
+        'RO' => 'EU', // Romania
+        'SE' => 'EU', // Sweden
+        'SI' => 'EU', // Slovenia
+        'SK' => 'EU', // Slovakia
 
-            'US' => 'US', // United States
+        'US' => 'US', // United States
 
-            'AU' => 'AU', // Australia
+        'AU' => 'AU', // Australia
 
-            'GB' => 'UK', //Great Britain
+        'GB' => 'UK', //Great Britain
+
+        'SG' => 'SG', // Singapore
     ];
 
     /** EU TAXES */
-
-    /** Supported E Delivery Countries */
-    public array $peppol_business_countries = [
-        'AT',
-        'BE',
-        'DK',
-        'EE',
-        'FI',
-        'DE',
-        'IS',
-        // 'IT',
-        'LT',
-        'LU',
-        'NL',
-        'NO',
-        // 'PL',
-        'SE',
-        'IE',
-    ];
-
-    public array $peppol_government_countries = [
-        'FR',
-        'GR',
-        'PT',
-        'RO',
-        'SI',
-        'ES',
-        'GB',
-    ];
-    /** Supported E Delivery Countries */
 
     public string $tax_name1 = '';
     public float $tax_rate1 = 0;
@@ -160,9 +124,7 @@ class BaseRule implements RuleInterface
 
     private bool $should_calc_tax = true;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function init(): self
     {
@@ -297,11 +259,12 @@ class BaseRule implements RuleInterface
 
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2 ?? $this->client->company->country()->iso_3166_2];
 
-        match($this->client_region) {
-            'US' => $this->client_subregion = isset($this->invoice?->client?->tax_data?->geoState) ? $this->invoice->client->tax_data->geoState : $this->getUSState(),
+        match ($this->client_region) {
+            'US' => $this->client_subregion = $this->invoice->client->tax_data->geoState ?? $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
             'UK' => $this->client_subregion = 'GB',
+            'SG' => $this->client_subregion = 'SG',
             default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
 
@@ -329,8 +292,8 @@ class BaseRule implements RuleInterface
     public function isTaxableRegion(): bool
     {
         return
-        isset($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions) && $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions ||
-        (isset($this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}) && ($this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax ?? false));
+        isset($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions) && $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions
+        || (isset($this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}) && ($this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax ?? false));
     }
 
     public function defaultForeign(): self
@@ -349,7 +312,7 @@ class BaseRule implements RuleInterface
 
             return $this;
 
-        } elseif ($this->client_region == 'US' && isset($this->tax_data?->taxSales)) {
+        } elseif ($this->client_region == 'US' && isset($this->tax_data->taxSales)) {
 
             $this->tax_rate1 = $this->tax_data->taxSales * 100;
             $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
@@ -369,12 +332,12 @@ class BaseRule implements RuleInterface
                 $company_country_code = $this->client->company->country()->iso_3166_2;
                 $client_country_code = $this->client->country->iso_3166_2;
 
-                $is_over_threshold = isset($this->client->company->tax_data->regions->EU->has_sales_above_threshold) &&
-                                    $this->client->company->tax_data->regions->EU->has_sales_above_threshold;
+                $is_over_threshold = isset($this->client->company->tax_data->regions->EU->has_sales_above_threshold)
+                                   && $this->client->company->tax_data->regions->EU->has_sales_above_threshold;
 
-                $is_b2c = strlen($this->client->vat_number) < 2 ||
-                        !($this->client->has_valid_vat_number ?? false) ||
-                        $this->client->classification == 'individual';
+                $is_b2c = strlen($this->client->vat_number ?? '') < 2
+                        || !($this->client->has_valid_vat_number ?? false)
+                        || $this->client->classification == 'individual';
 
                 // Use destination VAT only for B2C transactions over threshold
                 if ($is_b2c && $is_over_threshold) {
@@ -413,7 +376,7 @@ class BaseRule implements RuleInterface
 
         } elseif ($this->isTaxableRegion()) { //other regions outside of US
 
-            match(intval($item->tax_id)) {
+            match (intval($item->tax_id)) {
                 Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt($item),
                 Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced($item),
                 Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item),

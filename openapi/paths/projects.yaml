@@ -27,6 +27,7 @@
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - $ref: "#/components/parameters/sort_projects"
       responses:
         200:
           description: "A list of projects"
@@ -446,7 +447,7 @@
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Project User response"

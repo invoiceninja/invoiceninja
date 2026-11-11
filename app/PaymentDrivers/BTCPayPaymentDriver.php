@@ -5,26 +5,28 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\PaymentFailed;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Mail\PaymentFailedMailer;
 use App\Models\Client;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use App\Models\SystemLog;
+use App\PaymentDrivers\BTCPay\BTCPay;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use BTCPayServer\Client\Webhook;
-use App\Exceptions\PaymentFailed;
-use App\PaymentDrivers\BTCPay\BTCPay;
-use App\Jobs\Mail\PaymentFailedMailer;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
+use Illuminate\Support\Facades\Http;
 
 class BTCPayPaymentDriver extends BaseDriver
 {
@@ -60,6 +62,40 @@ class BTCPayPaymentDriver extends BaseDriver
         $this->store_id = $this->company_gateway->getConfigField('storeId');
         $this->webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
         return $this; /* This is where you boot the gateway with your auth credentials*/
+    }
+
+    public function auth(): string
+    {
+        $this->init();
+        $baseUrl = rtrim(trim((string) $this->btcpay_url), '/');
+
+        if ($baseUrl === ''
+            || trim((string) $this->api_key) === ''
+            || trim((string) $this->store_id) === ''
+            || trim((string) $this->webhook_secret) === '') {
+            return 'error';
+        }
+
+        $scheme = parse_url($baseUrl, PHP_URL_SCHEME);
+        $host = parse_url($baseUrl, PHP_URL_HOST);
+        if (! in_array($scheme, ['http', 'https'], true) || ! is_string($host) || $host === '') {
+            return 'error';
+        }
+
+        try {
+            $response = Http::withOptions(['allow_redirects' => false])
+                ->withHeaders(['Authorization' => 'token ' . $this->api_key])
+                ->acceptJson()
+                ->timeout(15)
+                ->get($baseUrl . '/api/v1/stores/' . rawurlencode((string) $this->store_id));
+
+            return $response->successful()
+                && hash_equals((string) $this->store_id, (string) $response->json('id'))
+                    ? 'ok'
+                    : 'error';
+        } catch (\Throwable) {
+            return 'error';
+        }
     }
 
     /* Returns an array of gateway types for the payment gateway */
@@ -157,7 +193,13 @@ class BTCPayPaymentDriver extends BaseDriver
                     $payment->service()->deletePayment();
                     $this->failedPaymentNotification($payment);
 
-                    $StatusId = Payment::STATUS_CANCELLED;
+                    /**
+                     * An expired invoice is the same outcome as an invalid one - the money
+                     * never arrived - and failed is what releases the gateway fee.
+                     *
+                     * @see \App\Services\Invoice\ReverseGatewayFee
+                     */
+                    $StatusId = Payment::STATUS_FAILED;
 
                     $payment->status_id = $StatusId;
                     $payment->save();
@@ -187,19 +229,18 @@ class BTCPayPaymentDriver extends BaseDriver
 
                 if (!$payment) {
 
-
                     $dataPayment = [
                         'payment_method' => $this->payment_method,
                         'payment_type' => PaymentType::CRYPTO,
-                        'amount' => $_invoice->amount,
+                        'amount' => $this->payment_hash->amount_with_fee(),
                         'gateway_type_id' => GatewayType::CRYPTO,
-                        'transaction_reference' => $btcpayRep->invoiceId
+                        'transaction_reference' => $btcpayRep->invoiceId,
                     ];
 
                     $payment = $this->createPayment($dataPayment, $StatusId);
 
                 } else {
-                    $payment->save();
+                    $payment = $payment->service()->completePendingPayment();
                 }
 
                 break;
@@ -212,7 +253,8 @@ class BTCPayPaymentDriver extends BaseDriver
 
         $error = ctrans('texts.client_payment_failure_body', [
             'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
-            'amount' => array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total, ]);
+            'amount' => Number::formatMoney($this->payment_hash->amount_with_fee(), $payment->client),
+        ]);
 
         PaymentFailedMailer::dispatch(
             $this->payment_hash,

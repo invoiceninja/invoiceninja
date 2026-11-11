@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,7 +23,7 @@ class ShowCompanyGatewayRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->isAdmin() && auth()->user()->can('view', $this->company_gateway);
     }
 
     public function rules()
@@ -36,8 +36,6 @@ class ShowCompanyGatewayRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-
-        //$input['id'] = $this->encodePrimaryKey($input['id']);
 
         $this->replace($input);
     }

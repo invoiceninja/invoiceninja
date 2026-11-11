@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,8 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Http\Requests\SelfUpdate\SelfUpdateRequest;
+use App\Models\Account;
 use App\Models\Company;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
@@ -41,16 +43,14 @@ class SelfUpdateController extends BaseController
         'public/index.html',
     ];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
-    public function update()
+    public function update(SelfUpdateRequest $request)
     {
         set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
-        if (Ninja::isHosted() || config('ninja.disable_auto_update')) {
+        if (Ninja::isHosted() || config('ninja.disable_auto_update') || !($account = Account::first())) {
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
@@ -131,6 +131,13 @@ class SelfUpdateController extends BaseController
 
         nlog('Called Artisan commands');
 
+        if (config('ninja.pdf_generator') == 'snappdf') {
+            nlog('Downloading snappdf binary');
+            $process = new \Symfony\Component\Process\Process(['./vendor/bin/snappdf', 'download'], base_path());
+            $process->setTimeout(300);
+            $process->run();
+        }
+
         return response()->json(['message' => 'Update completed'], 200);
     }
 
@@ -160,7 +167,7 @@ class SelfUpdateController extends BaseController
         $directoryIterator = new \RecursiveDirectoryIterator(base_path('bootstrap/cache'), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-            unlink(base_path('bootstrap/cache/').$file->getFileName());
+            unlink(base_path('bootstrap/cache/') . $file->getFileName());
             $file = null;
         }
 

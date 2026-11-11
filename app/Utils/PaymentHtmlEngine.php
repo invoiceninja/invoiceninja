@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -103,7 +103,7 @@ class PaymentHtmlEngine
         $data['$vat_number'] = ['value' => $this->client->vat_number ?: ' ', 'label' => ctrans('texts.vat_number')];
         $data['$website'] = ['value' => $this->client->present()->website() ?: ' ', 'label' => ctrans('texts.website')];
         $data['$phone'] = ['value' => $this->client->present()->phone() ?: ' ', 'label' => ctrans('texts.phone')];
-        $data['$country'] = ['value' => isset($this->client->country->name) ? $this->client->country->name : '', 'label' => ctrans('texts.country')];
+        $data['$country'] = ['value' => $this->client->country->name ?? '', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
         $data['$client_name'] = ['value' => $this->client->present()->name() ?: ' ', 'label' => ctrans('texts.client_name')];
         $data['$client.name'] = &$data['$client_name'];
@@ -193,6 +193,8 @@ class PaymentHtmlEngine
         $data['$invoices.balance'] = ['value' => $this->formatInvoiceField('balance'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_numbers'] = ['value' => $this->formatInvoiceNumbersRaw(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_raw'] = ['value' => $this->formatInvoiceNumberRaw(), 'label' => ctrans('texts.invoice_number')];
         $data['$date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$method'] = ['value' => '', 'label' => ctrans('texts.method')];
         $data['$transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
@@ -206,7 +208,7 @@ class PaymentHtmlEngine
         $data['$history'] = ['value' => '', 'label' => ctrans('texts.history')];
 
         if ($this->payment->status_id == 4) {
-            $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
+            $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') . '</div>', 'label' => ''];
         } else {
             $data['$status_logo'] = ['value' => '', 'label' => ''];
         }
@@ -243,7 +245,7 @@ class PaymentHtmlEngine
         $invoice = '';
 
         if ($this->payment->invoices()->exists()) {
-            $invoice = ctrans('texts.invoice_number_short').implode(',', $this->payment->invoices->pluck('number')->toArray());
+            $invoice = ctrans('texts.invoice_number_short') . implode(',', $this->payment->invoices->pluck('number')->toArray());
         }
 
         return $invoice;
@@ -254,7 +256,7 @@ class PaymentHtmlEngine
         $invoice = '';
 
         if ($this->payment->invoices()->exists()) {
-            $invoice = ctrans('texts.po_number_short').implode(',', $this->payment->invoices->pluck('po_number')->toArray());
+            $invoice = ctrans('texts.po_number_short') . implode(',', $this->payment->invoices->pluck('po_number')->toArray());
         }
 
         return $invoice;
@@ -265,7 +267,7 @@ class PaymentHtmlEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} ".Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
+            $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} " . Number::formatMoney($invoice->pivot->amount, $this->client) . '<br>';
         }
 
         return $invoice_list;
@@ -277,16 +279,26 @@ class PaymentHtmlEngine
 
         foreach ($this->payment->invoices as $invoice) {
             if (strlen($invoice->po_number) > 1) {
-                $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+                $invoice_list .= ctrans('texts.po_number') . " {$invoice->po_number} <br>";
             }
 
-            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} <br>";
-            $invoice_list .= ctrans('texts.invoice_amount').' '.Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
-            $invoice_list .= ctrans('texts.invoice_balance').' '.Number::formatMoney($invoice->fresh()->balance, $this->client).'<br>';
+            $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} <br>";
+            $invoice_list .= ctrans('texts.invoice_amount') . ' ' . Number::formatMoney($invoice->pivot->amount, $this->client) . '<br>';
+            $invoice_list .= ctrans('texts.invoice_balance') . ' ' . Number::formatMoney($invoice->fresh()->balance, $this->client) . '<br>';
             $invoice_list .= '-----<br>';
         }
 
         return $invoice_list;
+    }
+
+    private function formatInvoiceNumbersRaw(): string
+    {
+        return collect($this->payment->invoices->pluck('number')->toArray())->implode(', ');
+    }
+
+    private function formatInvoiceNumberRaw(): string
+    {
+        return $this->payment->invoices->first()->number ?? '&nbsp;';
     }
 
     public function makeValues(): array
@@ -315,7 +327,7 @@ class PaymentHtmlEngine
 
         foreach ($values as $key => $value) {
             $data['values'][$key] = $value['value'];
-            $data['labels'][$key.'_label'] = $value['label'];
+            $data['labels'][$key . '_label'] = $value['label'];
         }
 
         return $data;
@@ -339,9 +351,9 @@ class PaymentHtmlEngine
         <![endif]-->        
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
-        <td align="center" class="new_button" style="border-radius: 2px; background-color: '.$this->settings->primary_color.'">
-            <a href="'. $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid '.$this->settings->primary_color.'; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
-            <singleline label="cta button">'. $text .'</singleline>
+        <td align="center" class="new_button" style="border-radius: 2px; background-color: ' . $this->settings->primary_color . '">
+            <a href="' . $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid ' . $this->settings->primary_color . '; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
+            <singleline label="cta button">' . $text . '</singleline>
             </a>
         </td>
         </tr>

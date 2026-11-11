@@ -5,15 +5,19 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Requests\TaskScheduler;
 
+use App\Utils\BcMath;
+use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -24,26 +28,29 @@ class StoreSchedulerRequest extends Request
 {
     use MakesHash;
     public array $client_statuses = [
-                        'all',
-                        'draft',
-                        'paid',
-                        'unpaid',
-                        'overdue',
-                        'pending',
-                        'invoiced',
-                        'logged',
-                        'partial',
-                        'applied',
-                        'active',
-                        'paused',
-                        'completed',
-                        'approved',
-                        'expired',
-                        'upcoming',
-                        'converted',
-                        'uninvoiced',
+        'all',
+        'draft',
+        'paid',
+        'unpaid',
+        'overdue',
+        'pending',
+        'invoiced',
+        'logged',
+        'partial',
+        'applied',
+        'active',
+        'paused',
+        'completed',
+        'approved',
+        'expired',
+        'upcoming',
+        'converted',
+        'uninvoiced',
+        'sent',
+        'cancelled',
+        'rejected',
     ];
-    
+
     public array $templates = [
         'invoice',
         'quote',
@@ -79,7 +86,7 @@ class StoreSchedulerRequest extends Request
         $rules = [
             'name' => 'bail|sometimes|nullable|string',
             'is_paused' => 'bail|sometimes|boolean',
-            'frequency_id' => 'bail|sometimes|integer|digits_between:1,12',
+            'frequency_id' => 'bail|sometimes|integer|between:0,12',
             'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',
             'next_run_client' => 'bail|sometimes|date:Y-m-d',
             'template' => 'bail|required|string',
@@ -90,7 +97,8 @@ class StoreSchedulerRequest extends Request
             'parameters.end_date' => ['bail', 'date:Y-m-d', 'required_if:parameters.date_range,custom', 'after_or_equal:parameters.start_date'],
             'parameters.entity' => ['bail', 'sometimes', 'string', 'in:invoice,credit,quote,purchase_order'],
             'parameters.entity_id' => ['bail', 'sometimes', 'string'],
-            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report','in:vendor,purchase_order_item,purchase_order,ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,activity,activities,client,clients,client_contact,client_contacts,credit,credits,document,documents,expense,expenses,invoice,invoices,invoice_item,invoice_items,quote,quotes,quote_item,quote_items,recurring_invoice,recurring_invoices,payment,payments,product,products,task,tasks'],
+            'parameters.group_by' => ['bail', 'sometimes', 'nullable', 'string'],
+            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report','in:vendor,purchase_order_item,purchase_order,ar_detailed,ar_summary,client_balance,tax_summary,profitloss,client_sales,user_sales,product_sales,activity,activities,client,clients,client_contact,client_contacts,credit,credits,document,documents,expense,expenses,invoice,invoices,invoice_item,invoice_items,quote,quotes,quote_item,quote_items,recurring_invoice,recurring_invoices,payment,payments,product,products,task,tasks,recurring_invoice_item,project'],
             'parameters.date_key' => ['bail','sometimes', 'string'],
             'parameters.status' => ['bail','sometimes', 'nullable', 'string'],
             'parameters.include_project_tasks' => ['bail','sometimes', 'boolean', 'required_if:template,invoice_outstanding_tasks'],
@@ -104,6 +112,7 @@ class StoreSchedulerRequest extends Request
             'parameters.schedule.*.amount' => ['bail','sometimes', 'numeric'],
             'parameters.schedule.*.is_amount' => ['bail','sometimes', 'boolean'],
             'parameters.template_id' => ['bail','sometimes', 'string', 'nullable'],
+            'parameters.tag_ids' => ['bail', 'sometimes', 'nullable'],
         ];
 
         return $rules;
@@ -111,13 +120,75 @@ class StoreSchedulerRequest extends Request
 
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
+        if ($validator->errors()->isNotEmpty()) {
+            return;
+        }
+        
         $validator->after(function ($validator) {
-            if(!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template',true)->company()->doesntExist()) {
+            if (!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');
             }
+
+            $this->validatePaymentScheduleTotal($validator);
+
+            $this->validateEntity($validator);
         });
+
+
     }
-    
+
+    private function resolveEntity(): ?string
+    {
+        return match ($this->parameters['entity'] ?? null) {
+            'invoice' => Invoice::class,
+            'credit' => Credit::class,
+            'quote' => Quote::class,
+            'purchase_order' => PurchaseOrder::class,
+            default => null,
+        };
+    }
+
+    private function validateEntity(\Illuminate\Validation\Validator $validator): void
+    {
+        $entityClass = $this->resolveEntity();
+
+        if (!$entityClass) {
+            return;
+        }
+
+        $entityId = $this->parameters['entity_id'] ?? null;
+
+        if (empty($entityId) || $entityClass::query()->where('id', $this->decodePrimaryKey($entityId))->company()->doesntExist()) {
+            $validator->errors()->add('entity_id', 'Invalid Entity ID Selected');
+        }
+    }
+
+    private function validatePaymentScheduleTotal(\Illuminate\Validation\Validator $validator): void
+    {
+        if (($this->template ?? '') !== 'payment_schedule') {
+            return;
+        }
+
+        if (!isset($this->parameters['schedule']) || !is_array($this->parameters['schedule']) || count($this->parameters['schedule']) === 0) {
+            return;
+        }
+
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($this->parameters['invoice_id'] ?? ''));
+
+        if (!$invoice) {
+            return;
+        }
+
+        $schedule = collect($this->parameters['schedule']);
+        $is_amount = (bool) ($schedule->first()['is_amount'] ?? false);
+
+        if ($is_amount && !BcMath::equal($schedule->sum('amount'), $invoice->amount)) {
+            $validator->errors()->add('schedule', 'The total amount of the schedule does not match the invoice amount.');
+        } elseif (!$is_amount && !BcMath::equal($schedule->sum('amount'), 100)) {
+            $validator->errors()->add('schedule', 'The total percentage amount of the schedule does not match 100%.');
+        }
+    }
+
     public function prepareForValidation()
     {
         $input = $this->all();
@@ -126,7 +197,7 @@ class StoreSchedulerRequest extends Request
             $input['next_run_client'] = $input['next_run'];
         }
 
-        if ($input['template'] == 'email_record') {
+        if (($input['template'] ?? '') == 'email_record') {
             $input['frequency_id'] = 0;
         }
 
@@ -150,15 +221,14 @@ class StoreSchedulerRequest extends Request
 
         }
 
-        if(isset($input['parameters']['schedule']) && is_array($input['parameters']['schedule']) && count($input['parameters']['schedule']) > 0) {
+        if (isset($input['parameters']['schedule']) && is_array($input['parameters']['schedule']) && count($input['parameters']['schedule']) > 0) {
             $input['remaining_cycles'] = count($input['parameters']['schedule']);
         }
 
-        if($input['template'] == 'payment_schedule' && isset($input['parameters']['invoice_id'])){
+        if ($input['template'] == 'payment_schedule' && isset($input['parameters']['invoice_id'])) {
             $i = Invoice::withTrashed()->find($this->decodePrimaryKey($input['parameters']['invoice_id']));
-            $input['name'] = ctrans('texts.payment_schedule'). " " . ctrans('texts.invoice_number_short') . " " . $i->number;
-        }
-        elseif($input['template'] == 'invoice_outstanding_tasks'){
+            $input['name'] = ctrans('texts.payment_schedule') . " " . ctrans('texts.invoice_number_short') . " " . $i->number;
+        } elseif ($input['template'] == 'invoice_outstanding_tasks') {
             $input['name'] = ctrans('texts.invoice_outstanding_tasks');
         }
 
@@ -172,7 +242,7 @@ class StoreSchedulerRequest extends Request
         return [
             'parameters.schedule.min' => 'The schedule must have at least one item.',
             'parameters.schedule' => 'You must have at least one schedule entry.',
-            'parameters.invoice_id.required_if' => 'The invoice is required for the payment schedule template.'
+            'parameters.invoice_id.required_if' => 'The invoice is required for the payment schedule template.',
         ];
     }
 }

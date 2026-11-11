@@ -203,7 +203,7 @@
                         
                         <td>
                         <![endif]-->   
-                            <a href="http://slack.invoiceninja.com/" target="_blank" class="btn-white"
+                            <a href="https://slack.invoiceninja.com/" target="_blank" class="btn-white"
                                style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
                                 <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/slack.png') }}" width="13">
                                 <span>Slack</span>

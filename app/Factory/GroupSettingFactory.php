@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,6 +23,7 @@ class GroupSettingFactory
         $settings->entity = Client::class;
 
         $gs = new GroupSetting();
+        $gs->id = 0;
         $gs->name = '';
         $gs->company_id = $company_id;
         $gs->user_id = $user_id;

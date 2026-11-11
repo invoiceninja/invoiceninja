@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,6 +30,7 @@ use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use App\Services\EDocument\Gateway\Storecove\Models\Invoice;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveSchemeResolver;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -49,10 +50,14 @@ class StorecoveExpense
 {
     use SavesDocuments;
 
-    public function __construct(private Storecove $storecove)
-    {
-    }
+    public function __construct(private Storecove $storecove) {}
 
+    /**
+     * Deserializes a raw Storecove JSON string into a Storecove Invoice model.
+     *
+     * @param  string $storecove_json
+     * @return Invoice
+     */
     public function getStorecoveInvoice($storecove_json)
     {
 
@@ -83,7 +88,7 @@ class StorecoveExpense
                 null,
                 null,
                 $propertyInfo
-            )
+            ),
         ];
 
         $context = [
@@ -114,6 +119,14 @@ class StorecoveExpense
         return $storecove_invoice;
     }
 
+    /**
+     * Creates an expense and vendor from a Storecove invoice, logs the activity,
+     * and attaches any embedded document attachments.
+     *
+     * @param  Invoice $storecove_invoice
+     * @param  Company $company
+     * @return \App\Models\Expense
+     */
     public function createExpense(Invoice $storecove_invoice, Company $company)
     {
 
@@ -179,6 +192,13 @@ class StorecoveExpense
 
     }
 
+    /**
+     * Transforms a Storecove Invoice model into an expense array with vendor data,
+     * tax breakdowns, and currency resolution.
+     *
+     * @param  Invoice $storecove_invoice
+     * @return array
+     */
     public function transform(Invoice $storecove_invoice): array
     {
 
@@ -186,7 +206,7 @@ class StorecoveExpense
 
         foreach ($storecove_invoice->getTaxSubtotals() as $tdf) {
 
-            $tax_totals[] = (array)$tdf;
+            $tax_totals[] = (array) $tdf;
         }
 
         $party = $storecove_invoice->getAccountingSupplierParty()->getParty();
@@ -195,16 +215,17 @@ class StorecoveExpense
         $vat_number = '';
         $id_number = '';
         $routing_id = '';
+        $schemeResolver = new StorecoveSchemeResolver();
 
         foreach ($pis as $pi) {
-            if ($ident = $this->storecove->router->resolveIdentifierTypeByValue($pi->getScheme())) {
+            if ($ident = $schemeResolver->publicIdentifierField($pi->getScheme())) {
                 if ($ident == 'vat_number') {
                     $vat_number = $pi->getId();
                 } elseif ($ident == 'id_number') {
                     $id_number = $pi->getId();
                 } elseif ($ident == 'routing_id') {
                     $routing_id = $pi->getId();
-                } else{
+                } else {
                     //Sometimes some very unusual identifiers are returned, we should always skip these.
                     // ie. IBAN, etc.
                     continue;
@@ -225,7 +246,7 @@ class StorecoveExpense
                     'category' => $group->first()['category'],
                     'percentage' => $group->first()['percentage'],
                     'country' => $group->first()['country'],
-                    'total_tax_amount' => $group->sum('tax_amount')
+                    'total_tax_amount' => $group->sum('tax_amount'),
                 ];
             })->toArray();
 
@@ -269,6 +290,13 @@ class StorecoveExpense
             return $storecove_invoice->getDocumentCurrencyCode() == $c->code;
         })->id ?? 1;
 
+        $countries = app('countries');
+
+        $country_id = $countries->first(function ($c) use ($party) {
+            /** @var \App\Models\Country $c */
+            return $party->getAddress()->getCountry() == $c->iso_3166_2 || $party->getAddress()->getCountry() == $c->iso_3166_3;
+        })->id ?? 1;
+
         //vendor
         $vendor = [
             'name' => $party->getCompanyName() ?? $party->getRegistrationName(),
@@ -282,13 +310,14 @@ class StorecoveExpense
             'city' => $party->getAddress()->getCity() ?? '',
             'state' => $party->getAddress()->getCounty() ?? '',
             'postal_code' => $party->getAddress()->getZip() ?? '',
+            'country_id' => $country_id,
             'contacts' => [
                 [
                     'first_name' => $party->getContact()->getFirstName() ?? '',
                     'last_name' => $party->getContact()->getLastName() ?? '',
                     'email' => $party->getContact()->getEmail() ?? '',
                     'phone' => $party->getContact()->getPhone() ?? '',
-                ]
+                ],
             ],
         ];
 
@@ -314,9 +343,9 @@ class StorecoveExpense
             'vendor' => $vendor,
         ];
 
-        nlog($expense);
-
         return $expense;
 
     }
+
+
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -81,8 +81,8 @@ class S3Cleanup extends Command
 
     private function logMessage($str)
     {
-        $str = date('Y-m-d h:i:s').' '.$str;
+        $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
-        $this->log .= $str."\n";
+        $this->log .= $str . "\n";
     }
 }

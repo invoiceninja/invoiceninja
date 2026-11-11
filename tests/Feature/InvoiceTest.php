@@ -48,6 +48,102 @@ class InvoiceTest extends TestCase
     }
 
 
+    public function testExplicitAutoBillDisabledOverridesCompanyDefault()
+    {
+        $settings = $this->company->settings;
+        $settings->auto_bill_standard_invoices = true;
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->client->group_settings_id = null;
+        $this->client->save();
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->type_id = '1';
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => [$item],
+            'auto_bill_enabled' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(200);
+
+        $this->assertTrue($response->json('data.auto_bill_enabled'));
+    }
+
+    public function testClientIdMustBeInteger()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->type_id = '1';
+
+        $line_items[] = $item;
+
+        // Valid hashed_id should pass (decoded to integer in prepareForValidation)
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => $line_items,
+        ];
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(200);
+
+        // Array should fail
+        $data['client_id'] = ['invalid'];
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['client_id']);
+
+        // Boolean should fail
+        $data['client_id'] = true;
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['client_id']);
+    }
+
+    public function testLineItemTagsArePersistedAsNormalizedCommaSeparatedNames(): void
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100;
+        $item->tags = ' Retail,Priority Customer, Retail,Wholesale ';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', [
+            'client_id' => $this->client->hashed_id,
+            'line_items' => [$item],
+        ])->assertStatus(200);
+
+        $response->assertJsonPath('data.line_items.0.tags', 'Retail,Priority Customer,Wholesale');
+
+        $invoice = Invoice::findOrFail($this->decodePrimaryKey($response->json('data.id')));
+
+        $this->assertSame('Retail,Priority Customer,Wholesale', $invoice->line_items[0]->tags);
+    }
+
     public function testLineItemValidation()
     {
 
@@ -491,6 +587,38 @@ class InvoiceTest extends TestCase
             ->assertStatus(200);
     }
 
+    public function testInvoiceRedirectUrlRedirectsAfterPaymentAndIsCleared(): void
+    {
+        $redirect_url = 'https://example.com/invoice-paid?status=success';
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$this->invoice->hashed_id.'?redirect='.rawurlencode($redirect_url), [
+            'client_id' => $this->client->hashed_id,
+        ])->assertStatus(200);
+
+        $this->assertSame($redirect_url, Invoice::find($this->invoice->id)->backup->redirect);
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$this->invoice->hashed_id.'?amount_paid='.$this->invoice->balance, [
+            'client_id' => $this->client->hashed_id,
+        ])->assertStatus(200);
+
+        $payment = Invoice::find($this->invoice->id)->payments()->first();
+
+        $this->assertNotNull($payment);
+
+        $this->actingAs($this->contact, 'contact');
+
+        $this->get(route('client.payments.show', ['payment' => $payment->hashed_id]))
+            ->assertRedirect($redirect_url);
+
+        $this->assertNull(Invoice::find($this->invoice->id)->backup->redirect);
+    }
+
     public function testPostNewInvoice()
     {
         $invoice = [
@@ -623,5 +751,155 @@ class InvoiceTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/', $data)
         ->assertStatus(200);
+    }
+
+    public function testDueDateFilter()
+    {
+        $future = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'is_deleted' => 0,
+        ]);
+
+        $past = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'due_date' => now()->subDays(30)->format('Y-m-d'),
+            'is_deleted' => 0,
+        ]);
+
+        $cutoff = now()->format('Y-m-d');
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?due_date=' . $cutoff . '&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($future->hashed_id, $ids);
+        $this->assertNotContains($past->hashed_id, $ids);
+    }
+
+    public function testOverdueFilter()
+    {
+        $overdue = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'due_date' => now()->subDays(7)->format('Y-m-d'),
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $notOverdueFuture = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'due_date' => now()->addDays(7)->format('Y-m-d'),
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $paid = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_PAID,
+            'due_date' => now()->subDays(7)->format('Y-m-d'),
+            'balance' => 0,
+            'is_deleted' => 0,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?overdue=true&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($overdue->hashed_id, $ids);
+        $this->assertNotContains($notOverdueFuture->hashed_id, $ids);
+        $this->assertNotContains($paid->hashed_id, $ids);
+    }
+
+    public function testPayableFilter()
+    {
+        $payable = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $paid = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_PAID,
+            'balance' => 0,
+            'is_deleted' => 0,
+        ]);
+
+        $cancelled = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_CANCELLED,
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $otherClient = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+        $otherClientInvoice = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $otherClient->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'balance' => 100,
+            'is_deleted' => 0,
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?payable=' . $this->client->hashed_id . '&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($payable->hashed_id, $ids);
+        $this->assertNotContains($paid->hashed_id, $ids);
+        $this->assertNotContains($cancelled->hashed_id, $ids);
+        $this->assertNotContains($otherClientInvoice->hashed_id, $ids);
+    }
+
+    public function testPrivateNotesFilter()
+    {
+        $needle = 'SecretNote_' . uniqid();
+
+        $match = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'private_notes' => 'prefix ' . $needle . ' suffix',
+        ]);
+
+        $noMatch = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'private_notes' => 'unrelated content',
+        ]);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson('/api/v1/invoices?private_notes=' . urlencode($needle) . '&per_page=500')
+            ->assertStatus(200);
+
+        $ids = array_column($response->json('data'), 'id');
+        $this->assertContains($match->hashed_id, $ids);
+        $this->assertNotContains($noMatch->hashed_id, $ids);
     }
 }

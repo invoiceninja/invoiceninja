@@ -3,8 +3,7 @@
 
 @push('head')
 <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
-<meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
-<script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
+<meta name="require-invoice-signature" content="{{ $requires_signature }}">
 @endpush
 
 @section('body')
@@ -23,6 +22,7 @@
 
     <input type="hidden" name="client_city" value="{{ auth()->guard('contact')->user()->client->city }}">
     <input type="hidden" name="client_postal_code" value="{{ auth()->guard('contact')->user()->client->postal_code }}">
+    <input type="hidden" name="docuninja_active" value="{{ $docuninja_active ? 'true' : 'false' }}">
 
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
@@ -70,7 +70,7 @@
                                     {{ ctrans('texts.public_notes') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {!! html_entity_decode($invoice->public_notes) !!}
+                                    {!! \App\Services\Pdf\Purify::clean(html_entity_decode($invoice->public_notes), true) !!}
                                 </dd>
                                 @else
                                 <dt class="text-sm font-medium leading-5 text-gray-500">

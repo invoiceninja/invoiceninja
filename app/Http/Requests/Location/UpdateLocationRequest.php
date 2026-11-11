@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,13 +46,15 @@ class UpdateLocationRequest extends Request
             $rules['name'] = Rule::unique('locations')->where('company_id', $user->company()->id)->ignore($this->location->id);
         }
 
-
-        $rules['client_id'] = 'required_without:vendor_id|nullable|integer|bail|exists:clients,id,company_id,'.$user->companyId();
-        $rules['vendor_id'] = 'required_without:client_id|nullable|integer|bail|exists:vendors,id,company_id,'.$user->companyId();
+        $rules['client_id'] = 'required_without:vendor_id|nullable|integer|bail|exists:clients,id,company_id,' . $user->companyId();
 
         $rules['country_id'] = 'integer|exists:countries,id';
 
-        return $this->globalRules($rules);
+        $rules = $this->globalRules($rules);
+
+        $rules['vendor_id'] = 'required_without:client_id|nullable|integer|bail|exists:vendors,id,company_id,' . $user->companyId();
+
+        return $rules;
     }
 
     public function prepareForValidation()

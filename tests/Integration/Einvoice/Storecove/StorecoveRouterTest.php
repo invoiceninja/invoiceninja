@@ -12,15 +12,22 @@
 
 namespace Tests\Integration\Einvoice\Storecove;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Client;
 use App\Models\Account;
+use App\Models\Client;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\Invoice;
-use Illuminate\Routing\Middleware\ThrottleRequests;
+use App\Models\User;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveIdentifierValidator;
+use App\Services\EDocument\Gateway\Storecove\Identifiers\StorecoveSchemeResolver;
+use App\Services\EDocument\Gateway\Storecove\Routing\StorecoveRequiredClientFields;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Artisan;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class StorecoveRouterTest extends TestCase
 {
@@ -38,6 +45,11 @@ class StorecoveRouterTest extends TestCase
 
         $this->faker = \Faker\Factory::create();
 
+        if (Country::count() == 0) {
+            Artisan::call('db:seed', ['--force' => true]);
+        }
+        
+        
     }
 
     private function buildData()
@@ -51,7 +63,7 @@ class StorecoveRouterTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => 'xyz123',
-            'email' => \Illuminate\Support\Str::random(32)."@example.com",
+            'email' => \Illuminate\Support\Str::random(32)."@gmail.com",
             'password' => \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword'),
         ]);
 
@@ -72,6 +84,21 @@ class StorecoveRouterTest extends TestCase
 
     }
 
+    private function identifierValidator(): StorecoveIdentifierValidator
+    {
+        return new StorecoveIdentifierValidator();
+    }
+
+    private function schemeResolver(): StorecoveSchemeResolver
+    {
+        return new StorecoveSchemeResolver();
+    }
+
+    private function requiredClientFields(): StorecoveRequiredClientFields
+    {
+        return new StorecoveRequiredClientFields();
+    }
+
     public function testIsBusinessTaxIdentifier()
     {
         $invoice = $this->buildData();
@@ -83,7 +110,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals("IS:VAT", $storecove->router->resolveTaxScheme('IS', 'business'));
 
@@ -101,7 +127,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('LU:VAT', $storecove->router->resolveRouting('LU', 'business'));
     }
@@ -117,7 +142,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('LU:VAT', $storecove->router->resolveRouting('LU', 'government'));
     }
@@ -133,7 +157,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('LU:VAT', $storecove->router->resolveTaxScheme('LU', 'business'));
     }
@@ -149,7 +172,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals("LU:VAT", $storecove->router->resolveTaxScheme('LU', 'government'));
     }
@@ -166,7 +188,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('NO:ORG', $storecove->router->resolveRouting('NO', 'business'));
     }
@@ -182,7 +203,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('NO:ORG', $storecove->router->resolveRouting('NO', 'government'));
     }
@@ -198,7 +218,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('NO:VAT', $storecove->router->resolveTaxScheme('NO', 'business'));
     }
@@ -214,7 +233,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals("NO:VAT", $storecove->router->resolveTaxScheme('NO', 'government'));
     }
@@ -231,7 +249,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('NL:VAT', $storecove->router->resolveRouting('NL', 'business'));
     }
@@ -247,7 +264,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('NL:OINO', $storecove->router->resolveRouting('NL', 'government'));
     }
@@ -263,7 +279,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('NL:VAT', $storecove->router->resolveTaxScheme('NL', 'business'));
     }
@@ -279,7 +294,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals(false, $storecove->router->resolveTaxScheme('NL', 'government'));
     }
@@ -296,7 +310,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('SE:ORGNR', $storecove->router->resolveRouting('SE', 'business'));
     }
@@ -312,7 +325,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('SE:ORGNR', $storecove->router->resolveRouting('SE', 'government'));
     }
@@ -328,7 +340,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('SE:VAT', $storecove->router->resolveTaxScheme('SE', 'business'));
     }
@@ -337,16 +348,74 @@ class StorecoveRouterTest extends TestCase
     {
         $invoice = $this->buildData();
 
+        $invoice->client->country_id = 752;
+        $invoice->client->vat_number = 'SE123456789101';
+        $invoice->client->classification = 'government';
+        $invoice->client->push();
+
+        $invoice = $invoice->refresh()->load('client');
+
+        // $client = $invoice->client;
+        // $client->country_id = 752;
+        // $client->vat_number = 'SE123456789101';
+        // $client->classification = 'government';
+        // $client->save();
+
+        $storecove = new Storecove();
+
+        $this->assertEquals('SE:VAT', $storecove->router->resolveTaxScheme('SE', 'government'));
+    }
+
+    public function testSeBusinessClientUsesIdNumberForOrgnrRouting()
+    {
+        $invoice = $this->buildData();
+
+        // $client = $invoice->client;
+        $invoice->client->country_id = 752;
+        $invoice->client->vat_number = 'SE123456789101';
+        $invoice->client->id_number = '5567891234';
+        $invoice->client->classification = 'business';
+        $invoice->client->push();
+
+        $storecove = new Storecove();
+
+        // Routing scheme should be SE:ORGNR
+        $this->assertEquals('SE:ORGNR', $storecove->router->resolveRouting('SE', 'business'));
+
+        // RoutingResolver should use id_number (org number) as the routing identifier value, not vat_number
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
+
+        $this->assertEquals('eIdentifiers', $result['type']);
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
+
+        $orgnrIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'SE:ORGNR');
+
+        $this->assertNotNull($orgnrIdentifier, 'SE:ORGNR routing identifier should be present');
+        $this->assertEquals('5567891234', $orgnrIdentifier['id'], 'SE:ORGNR should use the client id_number (org number)');
+    }
+
+    public function testSeReceiverSetsSvefakturaNetwork()
+    {
+        $invoice = $this->buildData();
+
         $client = $invoice->client;
         $client->country_id = 752;
         $client->vat_number = 'SE123456789101';
-        $client->classification = 'government';
+        $client->id_number = '5567891234';
+        $client->classification = 'business';
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
 
-        $this->assertEquals('SE:VAT', $storecove->router->resolveTaxScheme('SE', 'government'));
+        $this->assertNotEmpty($result['networks']);
+
+        $svefaktura = collect($result['networks'])->firstWhere('application', 'svefaktura');
+
+        $this->assertNotNull($svefaktura, 'Svefaktura network should be present when sending to SE receiver');
+        $this->assertTrue($svefaktura['settings']['enabled']);
     }
 
     // Iceland Tests
@@ -361,7 +430,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IS:KTNR', $storecove->router->resolveRouting('IS', 'business'));
     }
@@ -377,7 +445,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IS:KTNR', $storecove->router->resolveRouting('IS', 'government'));
     }
@@ -393,7 +460,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IS:VAT', $storecove->router->resolveTaxScheme('IS', 'business'));
     }
@@ -409,7 +475,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IS:VAT', $storecove->router->resolveTaxScheme('IS', 'government'));
     }
@@ -426,7 +491,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IE:VAT', $storecove->router->resolveRouting('IE', 'business'));
     }
@@ -442,7 +506,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IE:VAT', $storecove->router->resolveRouting('IE', 'government'));
     }
@@ -458,7 +521,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IE:VAT', $storecove->router->resolveTaxScheme('IE', 'business'));
     }
@@ -474,7 +536,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('IE:VAT', $storecove->router->resolveTaxScheme('IE', 'government'));
     }
@@ -492,7 +553,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('DK:DIGST', $storecove->router->resolveRouting('DK', 'business'));
     }
@@ -508,7 +568,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('DK:DIGST', $storecove->router->resolveRouting('DK', 'government'));
     }
@@ -524,7 +583,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('DK:ERST', $storecove->router->resolveTaxScheme('DK', 'business'));
     }
@@ -540,7 +598,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('DK:ERST', $storecove->router->resolveTaxScheme('DK', 'government'));
     }
@@ -557,7 +614,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('GB:VAT', $storecove->router->resolveRouting('GB', 'business'));
     }
@@ -573,7 +629,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('GB:VAT', $storecove->router->resolveRouting('GB', 'government'));
     }
@@ -589,7 +644,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('GB:VAT', $storecove->router->resolveTaxScheme('GB', 'business'));
     }
@@ -605,7 +659,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('GB:VAT', $storecove->router->resolveTaxScheme('GB', 'government'));
     }
@@ -621,7 +674,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'business'));
     }
@@ -637,7 +689,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'government'));
     }
@@ -653,7 +704,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'business'));
     }
@@ -669,7 +719,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'government'));
     }
@@ -686,7 +735,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('AT:VAT', $storecove->router->resolveRouting('AT', 'business'));
 
@@ -703,10 +751,32 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals("9915:b", $storecove->router->resolveRouting('AT', 'government'));
 
+    }
+
+    public function testAtGovRoutingResolverProducesFixedEndpoint(): void
+    {
+        $invoice = $this->buildData();
+
+        $invoice->client->country_id = 40;
+        $invoice->client->vat_number = 'ATU123456789';
+        $invoice->client->id_number = 'GOV-AT-123';
+        $invoice->client->classification = 'government';
+        $invoice->client->push();
+
+        $storecove = new Storecove();
+        $resolver = new RoutingResolver($invoice->fresh(), $storecove->proxy, $storecove->router);
+        $result = $resolver->resolve();
+
+        $this->assertSame('eIdentifiers', $result['type'], 'AT government should resolve to eIdentifiers, not none');
+
+        $eIdentifiers = $result['meta']['routing']['eIdentifiers'];
+        $atGovIdentifier = collect($eIdentifiers)->firstWhere('scheme', 'AT:GOV');
+
+        $this->assertNotNull($atGovIdentifier, 'AT:GOV identifier should be present in routing');
+        $this->assertSame('b', $atGovIdentifier['id'], 'AT:GOV routing id must always be "b"');
     }
 
     public function testAtBusinessClientTaxIdentifier()
@@ -720,7 +790,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('AT:VAT', $storecove->router->resolveTaxScheme('AT', 'business'));
 
@@ -737,7 +806,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals(false, $storecove->router->resolveTaxScheme('AT', 'government'));
 
@@ -755,9 +823,12 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
-        $this->assertEquals('DE:STNR', $storecove->router->resolveRouting('DE', 'individual'));
+        // DE:STNR for individuals is now handled by DE::getCandidates(), not resolveRouting()
+        $handler = \App\Services\EDocument\Standards\Peppol\CountryFactory::make('DE');
+        $candidates = $handler->getCandidates($invoice->fresh()->client, 'individual', $storecove->router);
+        $this->assertNotEmpty($candidates);
+        $this->assertEquals('DE:STNR', $candidates[0]['scheme']);
 
     }
 
@@ -772,7 +843,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('DE:VAT', $storecove->router->resolveRouting('DE', 'business'));
 
@@ -789,7 +859,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals("DE:LWID", $storecove->router->resolveRouting('DE', 'government'));
 
@@ -806,7 +875,6 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals('DE:VAT', $storecove->router->resolveTaxScheme('DE', 'business'));
 
@@ -823,11 +891,519 @@ class StorecoveRouterTest extends TestCase
         $client->save();
 
         $storecove = new Storecove();
-        $storecove->router->setInvoice($invoice->fresh());
 
         $this->assertEquals(false, $storecove->router->resolveTaxScheme('DE', 'government'));
 
     }
 
+    // Required client fields tests
+
+    public function testResolveRequiredFieldsSeBusinessNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('SE', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('SE:VAT', $required['vat_number']);
+        $this->assertEquals('SE:ORGNR', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsNoBusinessNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('NO', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('NO:VAT', $required['vat_number']);
+        $this->assertEquals('NO:ORG', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsBeBusinessNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('BE', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('BE:VAT', $required['vat_number']);
+        $this->assertEquals('BE:EN', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsDeBusinessNeedsVatOnly()
+    {
+        $required = $this->requiredClientFields()->for('DE', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayNotHasKey('id_number', $required);
+        $this->assertEquals('DE:VAT', $required['vat_number']);
+    }
+
+    public function testResolveRequiredFieldsDeGovNeedsIdOnly()
+    {
+        $required = $this->requiredClientFields()->for('DE', 'government');
+
+        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('DE:LWID', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsCaBusinessNeedsCbn()
+    {
+        $required = $this->requiredClientFields()->for('CA', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertEquals('CA:CBN', $required['vat_number']);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('CA:CBN', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsAtBusinessNeedsVatOnly()
+    {
+        $required = $this->requiredClientFields()->for('AT', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayNotHasKey('id_number', $required);
+        $this->assertEquals('AT:VAT', $required['vat_number']);
+    }
+
+    public function testResolveRequiredFieldsAtGovNeedsIdOnly()
+    {
+        $required = $this->requiredClientFields()->for('AT', 'government');
+
+        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('AT:GOV', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsFrBusinessNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('FR', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('FR:VAT', $required['vat_number']);
+        $this->assertEquals('FR:SIRENE or FR:SIRET', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsItBusinessNeedsVatAndRouting()
+    {
+        $required = $this->requiredClientFields()->for('IT', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('routing_id', $required);
+        $this->assertEquals('IT:IVA', $required['vat_number']);
+        $this->assertEquals('IT:CUUO', $required['routing_id']);
+    }
+
+    public function testResolveRequiredFieldsIndividualReturnsEmpty()
+    {
+        $this->assertEmpty($this->requiredClientFields()->for('DE', 'individual'));
+        $this->assertEmpty($this->requiredClientFields()->for('SE', 'individual'));
+        $this->assertEmpty($this->requiredClientFields()->for('FR', 'individual'));
+    }
+
+    public function testResolveRequiredFieldsItIndividualNeedsCodiceFiscale(): void
+    {
+        $required = $this->requiredClientFields()->for('IT', 'individual');
+
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('IT:CF', $required['id_number']);
+        $this->assertArrayNotHasKey('routing_id', $required);
+    }
+
+    public function testResolveRequiredFieldsItIndividualDomesticSenderAlsoNeedsCuuo(): void
+    {
+        $required = $this->requiredClientFields()->for('IT', 'individual', 'IT');
+
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertArrayHasKey('routing_id', $required);
+        $this->assertEquals('IT:CF', $required['id_number']);
+        $this->assertEquals('IT:CUUO', $required['routing_id']);
+    }
+
+    public function testResolveRequiredFieldsUnknownCountryReturnsEmpty()
+    {
+        $this->assertEmpty($this->requiredClientFields()->for('ZZ', 'business'));
+    }
+
+    // Format validation tests
+
+    public function testValidateIdentifierFormatSeVat()
+    {
+        $this->assertTrue($this->identifierValidator()->validFormat('SE:VAT', 'SE123456789012'));
+        $this->assertTrue($this->identifierValidator()->validFormat('SE:VAT', '123456789012'));
+        $this->assertFalse($this->identifierValidator()->validFormat('SE:VAT', '12345'));
+    }
+
+    public function testValidateIdentifierFormatSeOrgnr()
+    {
+        $this->assertTrue($this->identifierValidator()->validFormat('SE:ORGNR', '5567891234'));
+        $this->assertFalse($this->identifierValidator()->validFormat('SE:ORGNR', '556789'));
+    }
+
+    public function testValidateIdentifierFormatFrSireneOrSiret()
+    {
+        // Luhn-valid SIREN / SIRET
+        $this->assertTrue($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '732829320'));
+        $this->assertTrue($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '73282932000074'));
+        // Correct length but failing the Luhn check digit
+        $this->assertFalse($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '123456789'));
+        $this->assertFalse($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '12345678901234'));
+        $this->assertFalse($this->identifierValidator()->validFormat('FR:SIRENE or FR:SIRET', '12345'));
+    }
+
+    public function testValidateIdentifierFormatDeVat()
+    {
+        $this->assertTrue($this->identifierValidator()->validFormat('DE:VAT', 'DE123456789'));
+        $this->assertTrue($this->identifierValidator()->validFormat('DE:VAT', '123456789'));
+        $this->assertFalse($this->identifierValidator()->validFormat('DE:VAT', 'DE12345'));
+    }
+
+    public function testValidateIdentifierFormatDkBothFields()
+    {
+        $this->assertTrue($this->identifierValidator()->validFormat('DK:ERST', 'DK12345678'));
+        $this->assertTrue($this->identifierValidator()->validFormat('DK:DIGST', '12345678'));
+    }
+
+    public function testValidateIdentifierFormatItCuuo()
+    {
+        $this->assertTrue($this->identifierValidator()->validFormat('IT:CUUO', 'ABC1234'));
+        $this->assertTrue($this->identifierValidator()->validFormat('IT:CUUO', 'ABCDEF'));
+        $this->assertFalse($this->identifierValidator()->validFormat('IT:CUUO', 'AB'));
+    }
+
+    // Checkdigit validation tests
+
+    public function testValidateBeEnCheckdigitValid()
+    {
+        // Known valid Belgian enterprise numbers (mod-97 checkdigit)
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0202239951')); // KBO/BCE
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0404616494')); // BNP Paribas Fortis
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0403199702')); // bpost
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0471811661')); // ING Belgium
+
+        // With optional BE prefix
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', 'BE0202239951'));
+    }
+
+    public function testValidateBeEnCheckdigitInvalid()
+    {
+        // Invalid checkdigit — the exact case from the Storecove error
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:EN', '0123456789'));
+
+        // Valid format but wrong check digits
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:EN', '0202239952'));
+
+        // With prefix, still invalid
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:EN', 'BE0123456789'));
+    }
+
+    public function testValidateBeVatCheckdigitValid()
+    {
+        // Belgian VAT uses same mod-97 on the 10-digit portion
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:VAT', 'BE0202239951'));
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:VAT', 'BE0471811661'));
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:VAT', '0404616494'));
+    }
+
+    public function testValidateBeVatCheckdigitInvalid()
+    {
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:VAT', 'BE0123456789'));
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:VAT', '0123456789'));
+    }
+
+    // Ensure other schemes are not affected by checkdigit validation
+
+    public function testValidateOtherSchemesUnaffected()
+    {
+        // These should still pass — no checkdigit algorithm defined
+        $this->assertTrue($this->identifierValidator()->validFormat('DE:VAT', 'DE123456789'));
+        $this->assertTrue($this->identifierValidator()->validFormat('SE:VAT', 'SE123456789012'));
+        $this->assertTrue($this->identifierValidator()->validFormat('SE:ORGNR', '5567891234'));
+        $this->assertTrue($this->identifierValidator()->validFormat('IT:CUUO', 'ABC1234'));
+    }
+
+    public function testResolveRequiredFieldsNlBusinessNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('NL', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('NL:VAT', $required['vat_number']);
+        $this->assertEquals('NL:KVK', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsNlGovNeedsIdOnly()
+    {
+        $required = $this->requiredClientFields()->for('NL', 'government');
+
+        $this->assertArrayNotHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('NL:OINO', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsChBusinessNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('CH', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('CH:VAT', $required['vat_number']);
+        $this->assertEquals('CH:UIDB', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsGbBusinessNeedsVatOnly()
+    {
+        $required = $this->requiredClientFields()->for('GB', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayNotHasKey('id_number', $required);
+        $this->assertEquals('GB:VAT', $required['vat_number']);
+    }
+
+    public function testResolveRequiredFieldsAuBusinessNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('AU', 'business');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('AU:ABN', $required['vat_number']);
+        $this->assertEquals('AU:ABN', $required['id_number']);
+    }
+
+    // BE-specific comprehensive tests
+
+    public function testResolveRequiredFieldsBeGovNeedsBoth()
+    {
+        $required = $this->requiredClientFields()->for('BE', 'government');
+
+        $this->assertArrayHasKey('vat_number', $required);
+        $this->assertArrayHasKey('id_number', $required);
+        $this->assertEquals('BE:VAT', $required['vat_number']);
+        $this->assertEquals('BE:EN', $required['id_number']);
+    }
+
+    public function testResolveRequiredFieldsBeIndividualReturnsEmpty()
+    {
+        $this->assertEmpty($this->requiredClientFields()->for('BE', 'individual'));
+    }
+
+    public function testBeClassificationRoutability()
+    {
+        $storecove = new Storecove();
+
+        $this->assertTrue($storecove->router->isClassificationRoutable('BE', 'business'));
+        $this->assertTrue($storecove->router->isClassificationRoutable('BE', 'government'));
+        $this->assertFalse($storecove->router->isClassificationRoutable('BE', 'individual'));
+    }
+
+    public function testBeIso6523SchemeMapping()
+    {
+        $this->assertEquals('0208', $this->schemeResolver()->iso6523('BE:EN'));
+        $this->assertEquals('9925', $this->schemeResolver()->iso6523('BE:VAT'));
+    }
+
+    public function testCompositeSchemeResolvesToFirstAtomicEasCode()
+    {
+        // BR-CL-25 regression: never emit "FR:SIRENE or FR:SIRET" verbatim
+        // as a UBL schemeID — must resolve to a 4-digit EAS code.
+        $this->assertEquals('0002', $this->schemeResolver()->iso6523('FR:SIRENE or FR:SIRET'));
+        $this->assertEquals('0002', $this->schemeResolver()->iso6523('FR:SIRENE'));
+        $this->assertEquals('0009', $this->schemeResolver()->iso6523('FR:SIRET'));
+    }
+
+    public function testBeEnFormatValidationVariants()
+    {
+        // Valid: 10 digits starting with 0 or 1, valid checkdigit
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0202239951'));
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', 'BE0202239951'));
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0403199702'));
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0471811661'));
+
+        // Invalid: too short
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:EN', '02022'));
+
+        // Invalid: too long
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:EN', '02022399510'));
+
+        // Invalid: non-numeric
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:EN', 'ABCDEFGHIJ'));
+    }
+
+    public function testBeVatFormatValidationVariants()
+    {
+        // Valid: BE prefix + 0/1 + 9 digits, valid checkdigit
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:VAT', 'BE0202239951'));
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:VAT', '0471811661'));
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:VAT', 'BE0404616494'));
+
+        // Invalid: starts with 2 (not 0 or 1)
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:VAT', 'BE2123456789'));
+
+        // Invalid: too short
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:VAT', 'BE012345'));
+    }
+
+    public function testBeCheckdigitDistinguishesFormatVsCheckdigitErrors()
+    {
+        // Valid format, valid checkdigit → true
+        $this->assertTrue($this->identifierValidator()->validFormat('BE:EN', '0202239951'));
+
+        // Valid format, invalid checkdigit → false (from checkdigit, not format)
+        $this->assertFalse($this->identifierValidator()->validFormat('BE:EN', '0202239952'));
+
+        // Public checkdigit method: returns false for bad checkdigit
+        $this->assertFalse($this->identifierValidator()->validCheckdigit('BE:EN', '0202239952'));
+
+        // Public checkdigit method: returns true for valid
+        $this->assertTrue($this->identifierValidator()->validCheckdigit('BE:EN', '0202239951'));
+
+        // Public checkdigit method: returns null for schemes without checkdigit algo
+        $this->assertNull($this->identifierValidator()->validCheckdigit('DE:VAT', 'DE123456789'));
+    }
+
+    public function testBeBusinessClientRoutingUsesIdNumber()
+    {
+        $invoice = $this->buildData();
+
+        $client = $invoice->client;
+        $client->country_id = 56;
+        $client->vat_number = 'BE0202239951';
+        $client->id_number = '0202239951';
+        $client->classification = 'business';
+        $client->save();
+
+        $storecove = new Storecove();
+
+        // BE routing should be BE:EN
+        $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'business'));
+
+        // Tax scheme should be BE:VAT
+        $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'business'));
+
+        // ISO 6523 for routing (BE:EN) should be 0208
+        $this->assertEquals('0208', $this->schemeResolver()->iso6523('BE:EN'));
+    }
+
+    public function testBeGovClientRoutingUsesIdNumber()
+    {
+        $invoice = $this->buildData();
+
+        $client = $invoice->client;
+        $client->country_id = 56;
+        $client->vat_number = 'BE0404616494';
+        $client->id_number = '0404616494';
+        $client->classification = 'government';
+        $client->save();
+
+        $storecove = new Storecove();
+
+        // BE government routing should also be BE:EN (B+G rule)
+        $this->assertEquals('BE:EN', $storecove->router->resolveRouting('BE', 'government'));
+        $this->assertEquals('BE:VAT', $storecove->router->resolveTaxScheme('BE', 'government'));
+    }
+
+    public function testBeGetFormatExamples()
+    {
+        $this->assertEquals('0202239951', $this->identifierValidator()->formatExample('BE:EN'));
+        $this->assertEquals('BE0202239951', $this->identifierValidator()->formatExample('BE:VAT'));
+    }
+
+    /**
+     * Locks down every identifier_regex pattern so accidental changes
+     * are caught immediately. If a regex genuinely needs updating,
+     * update the expected value here — that forces a conscious decision.
+     */
+    public function testIdentifierRegexPatternsAreStable(): void
+    {
+        $expected = [
+            // VAT number patterns
+            'AT:VAT'    => '/^(AT)?U\d{8}$/i',
+            'BE:VAT'    => '/^(BE)?[01]\d{9}$/i',
+            'BG:VAT'    => '/^(BG)?\d{9,10}$/i',
+            'CY:VAT'    => '/^(CY)?\d{8}[A-Z]$/i',
+            'CZ:VAT'    => '/^(CZ)?\d{8,10}$/i',
+            'DE:VAT'    => '/^(DE)?\d{9}$/i',
+            'DK:ERST'   => '/^(DK)?\d{8}$/i',
+            'EE:VAT'    => '/^(EE)?\d{9}$/i',
+            'ES:VAT'    => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i',
+            'FI:VAT'    => '/^(FI)?\d{8}$/i',
+            'FR:VAT'    => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+            'GR:VAT'    => '/^(GR|EL)?\d{9}$/i',
+            'HR:VAT'    => '/^(HR)?\d{11}$/i',
+            'HU:VAT'    => '/^(HU)?\d{8}$/i',
+            'IE:VAT'    => '/^(IE)?\d[A-Z0-9\+\*]\d{5}[A-Z]{1,2}$/i',
+            'IT:IVA'    => '/^(IT)?\d{11}$/i',
+            'IT:CF'     => '/^[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]$/i',
+            'LT:VAT'    => '/^(LT)?(\d{9}|\d{12})$/i',
+            'LU:VAT'    => '/^(LU)?\d{8}$/i',
+            'LV:VAT'    => '/^(LV)?\d{11}$/i',
+            'MT:VAT'    => '/^(MT)?\d{8}$/i',
+            'NL:VAT'    => '/^(NL)?\d{9}B\d{2}$/i',
+            'PL:VAT'    => '/^(PL)?\d{10}$/i',
+            'PT:VAT'    => '/^(PT)?\d{9}$/i',
+            'RO:VAT'    => '/^(RO)?\d{2,10}$/i',
+            'SE:VAT'    => '/^(SE)?\d{12}$/i',
+            'SI:VAT'    => '/^(SI)?\d{8}$/i',
+            'SK:VAT'    => '/^(SK)?\d{10}$/i',
+            'AD:VAT'    => '/^(AD)?[A-Z]\d{6}[A-Z]$/i',
+            'AL:VAT'    => '/^(AL)?[A-Z]\d{8}[A-Z]$/i',
+            'BA:VAT'    => '/^(BA)?\d{12}$/i',
+            'LI:VAT'    => '/^(LI)?\d{5}$/i',
+            'MC:VAT'    => '/^(MC|FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i',
+            'ME:VAT'    => '/^(ME)?\d{8}$/i',
+            'MK:VAT'    => '/^(MK)?\d{13}$/i',
+            'SM:VAT'    => '/^(SM)?\d{5}$/i',
+            'TR:VAT'    => '/^(TR)?\d{10}$/i',
+            'VA:VAT'    => '/^(VA)?\d{11}$/i',
+            'RS:VAT'    => '/^(RS)?\d{9}$/i',
+            'IS:VAT'    => '/^(IS)?\d{5,6}$/i',
+            'NO:VAT'    => '/^(NO)?\d{9}(MVA)?$/i',
+            'CH:VAT'    => '/^(CHE)?\d{9}(MWST|TVA|IVA)?$/i',
+            'GB:VAT'    => '/^(GB)?\d{9}(\d{3})?$/i',
+            'AU:ABN'    => '/^\d{11}$/',
+            'NZ:GST'    => '/^\d{8,9}$/',
+            'US:EIN'    => '/^\d{2}\-?\d{7}$/',
+            'IN:GSTIN'  => '/^\d{2}[A-Z]{5}\d{4}[A-Z]\d[A-Z0-9][A-Z0-9]$/i',
+            'JP:IIN'    => '/^T?\d{13}$/',
+            'SG:GST'    => '/^[A-Z0-9]{2}-\d{7}-[A-Z0-9]$/i',
+            'SA:TIN'    => '/^\d{10,15}$/',
+            'MY:TIN'    => '/^[A-Z0-9]{10,14}$/i',
+
+            // ID number patterns
+            'SE:ORGNR'  => '/^\d{10}$/',
+            'NO:ORG'    => '/^\d{9}$/',
+            'BE:EN'     => '/^(BE)?[01]\d{9}$/i',
+            'DK:DIGST'  => '/^(DK)?\d{8}$/i',
+            'EE:CC'     => '/^\d{8}$/',
+            'FI:OVT'    => '/^\d{12,13}[a-zA-Z0-9]{0,5}$/',
+            'FI:OPID'   => '/^\d{12,13}[a-zA-Z0-9]{0,5}$/',
+            'FR:SIRENE' => '/^\d{9}$/',
+            'FR:SIRET'  => '/^\d{14}$/',
+            'NL:KVK'    => '/^\d{8}$/',
+            'NL:OINO'   => '/^\d{20}$/',
+            'LT:LEC'    => '/^\d{7,9}$/',
+            'LU:MAT'    => '/^\d{11}$/',
+            'CH:UIDB'   => '/^(CHE)?\d{9}$/i',
+            'IS:KTNR'   => '/^\d{6,10}$/',
+            'CA:CBN'    => '/^\d{9}$/',
+            'MX:RFC'    => '/^[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}$/i',
+            'JP:SST'    => '/^T?\d{13}$/',
+            'MY:EIF'    => '/^[A-Z0-9]{10,14}$/i',
+            'SG:UEN'    => '/^[A-Z0-9]{9,16}$/i',
+            'AT:GOV'    => '/^.+$/',
+            'DE:LWID'   => '/(?=.{0,45}$)^[0-9]{0,12}(\-[0-9a-zA-Z]{0,30}(\-[0-9]{2}))$/',
+            'IT:CUUO'   => '/^[A-Z0-9]{6,7}$/i',
+        ];
+
+        $regexMap = config('einvoice.identifier_regex');
+
+        foreach ($expected as $scheme => $regex) {
+            $this->assertArrayHasKey($scheme, $regexMap, "Scheme {$scheme} missing from identifier_regex");
+            $this->assertEquals($regex, $regexMap[$scheme], "Regex for {$scheme} has been changed");
+        }
+
+        // Ensure no new schemes were added without updating this test
+        $this->assertCount(count($expected), $regexMap, 'identifier_regex has schemes not covered by this test — add them to $expected');
+    }
 
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -59,9 +58,9 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $first_month_of_year
  * @property string $portal_mode
  * @property string|null $portal_domain
- * @property int $enable_modules
+ * @property bool $enable_modules //alias for DocuNinja is active / available
  * @property object $custom_fields
- * @property \App\DataMapper\CompanySettings|\stdClass $settings
+ * @property \App\DataMapper\CompanySettings|\stdClass|array $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -124,6 +123,9 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $inbound_mailbox_blacklist
  * @property string|null $e_invoice_certificate_passphrase
  * @property string|null $e_invoice_certificate
+ * @property object|null $e_invoice
+ * @property string|null $shopify_name
+ * @property string|null $shopify_access_token
  * @property object|null $origin_tax_data
  * @property int $deleted_at
  * @property string|null $smtp_username
@@ -394,7 +396,7 @@ class Company extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
-        'tax_data' => 'object',
+        'tax_data' => \App\Casts\TaxModelCast::class,
         'origin_tax_data' => 'object',
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
         'smtp_username' => 'encrypted',
@@ -405,21 +407,6 @@ class Company extends BaseModel
     ];
 
     protected $with = [];
-
-    // public static $modules = [
-    //     self::ENTITY_RECURRING_INVOICE => 1,
-    //     self::ENTITY_CREDIT => 2,
-    //     self::ENTITY_QUOTE => 4,
-    //     self::ENTITY_TASK => 8,
-    //     self::ENTITY_EXPENSE => 16,
-    //     self::ENTITY_PROJECT => 32,
-    //     self::ENTITY_VENDOR => 64,
-    //     self::ENTITY_TICKET => 128,
-    //     self::ENTITY_PROPOSAL => 256,
-    //     self::ENTITY_RECURRING_EXPENSE => 512,
-    //     self::ENTITY_RECURRING_TASK => 1024,
-    //     self::ENTITY_RECURRING_QUOTE => 2048,
-    // ];
 
     public function shouldCalculateTax()
     {
@@ -576,7 +563,7 @@ class Company extends BaseModel
 
     public function activities(): HasMany
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(Activity::class)->where('created_at', '>=', now()->subDays(90)->toDateTimeString())->orderBy('id', 'DESC')->take(50);
     }
 
     /**
@@ -670,15 +657,16 @@ class Company extends BaseModel
 
     public function country()
     {
-        return once(function () {   
+        return once(function () {
 
             /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+
             $countries = app('countries');
             $country_id = $this->getSetting('country_id');
 
             return $countries->first(function ($item) use ($country_id) {
-                    return $item->id == $country_id;
-                });
+                return $item->id == $country_id;
+            });
 
         });
     }
@@ -760,7 +748,8 @@ class Company extends BaseModel
 
     public function getSetting($setting)
     {
-        //todo $this->setting ?? false
+        $setting = $setting ?? '';
+        
         if (property_exists($this->settings, $setting) != false) {
             return $this->settings->{$setting};
         }
@@ -811,7 +800,12 @@ class Company extends BaseModel
     {
         return $this->hasMany(Payment::class)->withTrashed();
     }
-
+    
+    /**
+     * tokens
+     *
+     * @return Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CompanyToken::class);
@@ -834,7 +828,7 @@ class Company extends BaseModel
 
     public function tokens_hashed(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(CompanyToken::class);
+        return $this->hasMany(CompanyToken::class)->where('is_system', false);
     }
 
     public function company_users(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -1004,11 +998,11 @@ class Company extends BaseModel
         return once(function () {
             /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
             $date_formats = app('date_formats');
-                $date_format = $this->getSetting('date_format_id');
+            $date_format = $this->getSetting('date_format_id');
 
-                return $date_formats->first(function ($item) use ($date_format) {
-                    return $item->id == $date_format;
-                })->format;
+            return $date_formats->first(function ($item) use ($date_format) {
+                return $item->id == $date_format;
+            })->format;
         });
     }
 
@@ -1046,12 +1040,17 @@ class Company extends BaseModel
      */
     public function peppolSendingEnabled(): bool
     {
+        /** FRREPORTING:: French senders are not permitted on the network - fail silently. */
+        if ($this->country()?->iso_3166_2 === 'FR') {
+            return false;
+        }
+
         return !$this->account->is_flagged && $this->account->e_invoice_quota > 0 && isset($this->legal_entity_id) && isset($this->tax_data->acts_as_sender) && $this->tax_data->acts_as_sender;
     }
-    
+
     /**
      * verifactuEnabled
-     * 
+     *
      * Returns a flag if the current company is using verifactu as the e-invoice provider
      *
      * @return bool
@@ -1065,28 +1064,24 @@ class Company extends BaseModel
 
     /**
      * Check if QuickBooks push should be triggered for an entity/action.
-     * 
+     *
      * Uses efficient checks to avoid overhead for companies not using QuickBooks.
      * Uses once() to cache the result for the request lifecycle.
-     * 
+     *
      * This method is designed to be called from model observers to efficiently
      * determine if a push job should be dispatched, with zero overhead for
      * companies that don't use QuickBooks.
-     * 
+     *
      * @param string $entity Entity type: 'client', 'invoice', etc.
-     * @param string $action Action type: 'create', 'update', 'status'
-     * @param string|null $status Optional status for status-based pushes (e.g., invoice status: 'draft', 'sent', 'paid', 'deleted')
      * @return bool
      */
-    public function shouldPushToQuickbooks(string $entity, string $action, ?string $status = null): bool
+    public function shouldPushToQuickbooks(string $entity): bool
     {
-        // FASTEST CHECK: Raw database column (no object instantiation, no JSON decode)
-        // This is the cheapest possible check - just a null comparison
-        // For companies without QuickBooks, this returns immediately with ~0.001ms overhead
-        if (is_null($this->getRawOriginal('quickbooks'))) {
+        
+        if (is_null($this->getRawOriginal('quickbooks')) || $this->account->isFreeHostedClient()) {
             return false;
         }
-        
+
         // Cache the detailed check for this request lifecycle
         // This prevents re-checking if called multiple times in the same request
         return once(function () use ($entity) {
@@ -1094,17 +1089,22 @@ class Company extends BaseModel
             if (!$this->quickbooks->isConfigured()) {
                 return false;
             }
-            
+
             // Verify entity exists in settings
             if (!isset($this->quickbooks->settings->{$entity})) {
                 return false;
             }
-            
+
             $entitySettings = $this->quickbooks->settings->{$entity};
             $direction = $entitySettings->direction->value;
-            
+
             // Check if sync direction allows push
             return $direction === 'push' || $direction === 'bidirectional';
         });
+    }
+
+    public function docuninjaActive(): bool
+    {
+        return (app()->environment('local') || Ninja::isHosted()) && $this->enable_modules && $this->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS);
     }
 }

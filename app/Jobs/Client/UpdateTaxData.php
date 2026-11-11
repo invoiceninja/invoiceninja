@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,9 +40,7 @@ class UpdateTaxData implements ShouldQueue
      * @param Client $client
      * @param Company $company
      */
-    public function __construct(public Client $client, protected Company $company)
-    {
-    }
+    public function __construct(public Client $client, protected Company $company) {}
 
     /**
      * Execute the job.
@@ -74,7 +72,7 @@ class UpdateTaxData implements ShouldQueue
 
         } catch (\Exception $e) {
             nlog("Exception:: UpdateTaxData::" . $e->getMessage());
-            nlog("problem getting tax data => ".$e->getMessage());
+            nlog("problem getting tax data => " . $e->getMessage());
         }
 
     }
@@ -113,12 +111,12 @@ class UpdateTaxData implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->client->id.$this->company->company_key))->dontRelease()];
+        return [(new WithoutOverlapping($this->client->id . $this->company->company_key))->dontRelease()];
     }
 
     public function failed($exception)
     {
-        nlog("UpdateTaxData failed => ".$exception->getMessage());
+        nlog("UpdateTaxData failed => " . $exception->getMessage());
         config(['queue.failed.driver' => null]);
 
     }

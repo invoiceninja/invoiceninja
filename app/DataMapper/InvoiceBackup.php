@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www/elastic.co/licensing/elastic-license
  */
@@ -32,18 +32,22 @@ class InvoiceBackup implements Castable
      * @param string $redirect  The redirect url for the invoice
      * @param float $adjustable_amount  The adjustable amount for the invoice
      * @param string $notes The notes field - can be multi purpose, but general usage for Verifactu cancellation reason
+     * @param string|null $e_invoice_status The last Storecove document status received for the e-invoice.
+     * @param string|null $e_invoice_cleared_at The first timestamp when Storecove reported the e-invoice as cleared.
      * @return void
      */
     public function __construct(
-        public string $guid = '', 
-        public Cancellation $cancellation = new Cancellation(0,0), 
-        public ?string $parent_invoice_id = null, 
-        public ?string $parent_invoice_number = null, 
-        public ?string $document_type = null, 
-        public Collection $child_invoice_ids = new Collection(), 
-        public ?string $redirect = null, 
+        public string $guid = '',
+        public Cancellation $cancellation = new Cancellation(0, 0),
+        public ?string $parent_invoice_id = null,
+        public ?string $parent_invoice_number = null,
+        public ?string $document_type = null,
+        public Collection $child_invoice_ids = new Collection(),
+        public ?string $redirect = null,
         public float $adjustable_amount = 0,
         public ?string $notes = null,
+        public ?string $e_invoice_status = null,
+        public ?string $e_invoice_cleared_at = null,
     ) {}
 
     /**
@@ -68,6 +72,8 @@ class InvoiceBackup implements Castable
             redirect: $data['redirect'] ?? null,
             adjustable_amount: $data['adjustable_amount'] ?? 0,
             notes: $data['notes'] ?? null,
+            e_invoice_status: $data['e_invoice_status'] ?? null,
+            e_invoice_cleared_at: $data['e_invoice_cleared_at'] ?? null,
         );
     }
 
@@ -103,4 +109,3 @@ class InvoiceBackup implements Castable
         return $this->child_invoice_ids->toArray();
     }
 }
-

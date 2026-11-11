@@ -4,12 +4,14 @@
     <meta name="client-token" content="{{ $client_token ?? '' }}"/>
     <meta name="instant-payment" content="yes" />
 
-    <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.76.2/js/paypal-checkout.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.76.2/js/data-collector.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/client.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/paypal-checkout.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.147.0/js/data-collector.min.js"></script>
 @endsection
 
 @section('gateway_content')
+<div id="braintree-paypal-payment" data-retry-message="{{ ctrans('texts.try_again') }}" data-error-message="{{ ctrans('texts.generic_gateway_error') }}">
+    <meta name="client-token" content="{{ $client_token ?? '' }}" />
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -23,7 +25,7 @@
         <input type="hidden" name="client-data">
     </form>
 
-    <div class="alert alert-failure mb-4" hidden id="errors"></div>
+    <div class="alert alert-failure mb-4" hidden id="errors" role="alert"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
         {{ ctrans('texts.paypal') }}
@@ -32,34 +34,40 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        <ul class="payment-method-list">
         @if(count($tokens) > 0)
             @foreach($tokens as $token)
-                <label class="mr-4 block mt-2">
-                    <input
+            <li class="payment-method-item">
+            <label class="payment-method-label">
+            <input
                         type="radio"
                         data-token="{{ $token->token }}"
                         name="payment-type"
                         class="form-radio cursor-pointer toggle-payment-with-token"/>
-                    <span class="ml-1 cursor-pointer">{{ property_exists($token->meta, 'email') ? $token->meta?->email : 'no email provided'}}</span>
+                    <span class="ml-1">{{ property_exists($token->meta, 'email') ? $token->meta?->email : 'no email provided'}}</span>
                 </label>
+            </li>
             @endforeach
-        @endisset
+        @endif
 
-        <label class="block mt-2">
+        <li class="payment-method-item">
+        <label class="payment-method-label">
             <input
                 type="radio"
                 id="toggle-payment-with-credit-card"
                 class="form-radio cursor-pointer"
                 name="payment-type"
                 checked/>
-            <span class="ml-1 cursor-pointer">{{ __('texts.new_account') }}</span>
+            <span class="ml-1">{{ __('texts.new_account') }}</span>
         </label>
+        </li>
+            </ul>
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
-        <div id="paypal-button"></div>
+        <div id="paypal-button" wire:ignore></div>
 
         <svg id="paypal-spinner" class="animate-spin h-8 w-8 text-primary hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -68,6 +76,7 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-with-token', 'class' => 'hidden'])
+</div>
 @endsection
 
 @section('gateway_footer')

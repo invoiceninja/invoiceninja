@@ -10,136 +10,151 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SNSController;
-use App\Http\Controllers\BaseController;
-use App\Http\Controllers\PingController;
-use App\Http\Controllers\SmtpController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\BrevoController;
-use App\Http\Controllers\ChartController;
-use App\Http\Controllers\EmailController;
-use App\Http\Controllers\QuoteController;
-use App\Http\Controllers\TokenController;
-use App\Http\Controllers\ClientController;
-use App\Http\Controllers\CreditController;
-use App\Http\Controllers\DesignController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\FilterController;
-use App\Http\Controllers\ImportController;
-use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\SearchController;
-use App\Http\Controllers\StaticController;
-use App\Http\Controllers\StripeController;
-use App\Http\Controllers\TwilioController;
-use App\Http\Controllers\VendorController;
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\LicenseController;
-use App\Http\Controllers\MailgunController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\PreviewController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\TaxRateController;
-use App\Http\Controllers\WebCronController;
-use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ActivityController;
-use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\EInvoiceController;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\LocationController;
-use App\Http\Controllers\PostMarkController;
-use App\Http\Controllers\TemplateController;
-use App\Http\Controllers\MigrationController;
-use App\Http\Controllers\SchedulerController;
-use App\Http\Controllers\SubdomainController;
-use App\Http\Controllers\SystemLogController;
-use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ImportJsonController;
-use App\Http\Controllers\QuickbooksController;
-use App\Http\Controllers\SelfUpdateController;
-use App\Http\Controllers\TaskStatusController;
-use App\Http\Controllers\Bank\YodleeController;
-use App\Http\Controllers\CompanyUserController;
-use App\Http\Controllers\PaymentTermController;
-use App\PaymentDrivers\PayPalPPCPPaymentDriver;
-use App\Http\Controllers\EmailHistoryController;
-use App\Http\Controllers\GroupSettingController;
-use App\Http\Controllers\OneTimeTokenController;
-use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Auth\PasswordTimeoutController;
 use App\Http\Controllers\Bank\NordigenController;
-use App\Http\Controllers\CompanyLedgerController;
-use App\Http\Controllers\EInvoiceTokenController;
-use App\Http\Controllers\PurchaseOrderController;
-use App\Http\Controllers\TaskSchedulerController;
-use App\PaymentDrivers\BlockonomicsPaymentDriver;
-use App\Http\Controllers\CompanyGatewayController;
-use App\Http\Controllers\EInvoicePeppolController;
-use App\Http\Controllers\PaymentWebhookController;
-use App\Http\Controllers\RecurringQuoteController;
+use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
+use App\Http\Controllers\BankTransactionRuleController;
+use App\Http\Controllers\CalendarConnectionController;
+use App\Http\Controllers\BaseController;
+use App\Http\Controllers\BrevoController;
+use App\Http\Controllers\ChartController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientGatewayTokenController;
 use App\Http\Controllers\ClientStatementController;
-use App\Http\Controllers\ExpenseCategoryController;
-use App\Http\Controllers\HostedMigrationController;
-use App\Http\Controllers\TemplatePreviewController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CompanyGatewayController;
+use App\Http\Controllers\CompanyLedgerController;
+use App\Http\Controllers\CompanyUserController;
 use App\Http\Controllers\ConnectedAccountController;
+use App\Http\Controllers\CreditController;
+use App\Http\Controllers\DesignController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\EInvoiceController;
+use App\Http\Controllers\EInvoicePeppolController;
+use App\Http\Controllers\EInvoiceTokenController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\EmailHistoryController;
+use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\FilterController;
+use App\Http\Controllers\GroupSettingController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ImportJsonController;
 use App\Http\Controllers\ImportQuickbooksController;
+use App\Http\Controllers\InAppPurchase\AppleController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\MailerController;
+use App\Http\Controllers\MailgunController;
+use App\Http\Controllers\MigrationController;
+use App\Http\Controllers\OneTimeTokenController;
+use App\Http\Controllers\PasskeyController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentNotificationWebhookController;
+use App\Http\Controllers\PaymentTermController;
+use App\Http\Controllers\PaymentWebhookController;
+use App\Http\Controllers\PingController;
+use App\Http\Controllers\PostMarkController;
+use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\PreviewPurchaseOrderController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProtectedDownloadController;
+use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\QuickbooksController;
+use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringInvoiceController;
-use App\Http\Controllers\ProtectedDownloadController;
-use App\Http\Controllers\SubscriptionStepsController;
-use App\Http\Controllers\ClientGatewayTokenController;
-use App\Http\Controllers\Reports\TaskReportController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\BankTransactionRuleController;
-use App\Http\Controllers\InAppPurchase\AppleController;
-use App\Http\Controllers\Reports\QuoteReportController;
-use App\Http\Controllers\Auth\PasswordTimeoutController;
-use App\Http\Controllers\PreviewPurchaseOrderController;
-use App\Http\Controllers\Reports\ClientReportController;
-use App\Http\Controllers\Reports\CreditReportController;
-use App\Http\Controllers\Reports\ReportExportController;
-use App\Http\Controllers\Reports\VendorReportController;
-use App\Http\Controllers\Reports\ExpenseReportController;
-use App\Http\Controllers\Reports\InvoiceReportController;
-use App\Http\Controllers\Reports\PaymentReportController;
-use App\Http\Controllers\Reports\ProductReportController;
-use App\Http\Controllers\Reports\ProfitAndLossController;
-use App\Http\Controllers\Reports\ProjectReportController;
-use App\Http\Controllers\Reports\ReportPreviewController;
+use App\Http\Controllers\RecurringQuoteController;
 use App\Http\Controllers\Reports\ActivityReportController;
 use App\Http\Controllers\Reports\ARDetailReportController;
-use App\Http\Controllers\Reports\DocumentReportController;
 use App\Http\Controllers\Reports\ARSummaryReportController;
-use App\Http\Controllers\Reports\QuoteItemReportController;
-use App\Http\Controllers\Reports\TaxPeriodReportController;
-use App\Http\Controllers\Reports\UserSalesReportController;
-use App\Http\Controllers\Reports\TaxSummaryReportController;
-use App\Http\Controllers\Support\Messages\SendingController;
-use App\Http\Controllers\Reports\ClientSalesReportController;
-use App\Http\Controllers\Reports\InvoiceItemReportController;
-use App\Http\Controllers\PaymentNotificationWebhookController;
-use App\Http\Controllers\Reports\ProductSalesReportController;
 use App\Http\Controllers\Reports\ClientBalanceReportController;
 use App\Http\Controllers\Reports\ClientContactReportController;
-use App\Http\Controllers\Reports\PurchaseOrderReportController;
-use App\Http\Controllers\Reports\RecurringInvoiceReportController;
+use App\Http\Controllers\Reports\ClientReportController;
+use App\Http\Controllers\Reports\ClientSalesReportController;
+use App\Http\Controllers\Reports\CreditReportController;
+use App\Http\Controllers\Reports\DocumentReportController;
+use App\Http\Controllers\Reports\ExpenseReportController;
+use App\Http\Controllers\Reports\InvoiceItemReportController;
+use App\Http\Controllers\Reports\InvoiceReportController;
+use App\Http\Controllers\Reports\LocationReportController;
+use App\Http\Controllers\Reports\PaymentReportController;
+use App\Http\Controllers\Reports\ProductReportController;
+use App\Http\Controllers\Reports\ProductSalesReportController;
+use App\Http\Controllers\Reports\ProfitAndLossController;
+use App\Http\Controllers\Reports\ProjectReportController;
 use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
+use App\Http\Controllers\Reports\PurchaseOrderReportController;
+use App\Http\Controllers\Reports\QuoteItemReportController;
+use App\Http\Controllers\Reports\QuoteReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceItemReportController;
+use App\Http\Controllers\Reports\RecurringInvoiceReportController;
+use App\Http\Controllers\Reports\ReportExportController;
+use App\Http\Controllers\Reports\ReportPreviewController;
+use App\Http\Controllers\Reports\TaskReportController;
+use App\Http\Controllers\Reports\TaxPeriodReportController;
+use App\Http\Controllers\Reports\TaxSummaryReportController;
+use App\Http\Controllers\Reports\UserSalesReportController;
+use App\Http\Controllers\Reports\VendorReportController;
+use App\Http\Controllers\SchedulerController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SelfUpdateController;
+use App\Http\Controllers\SmtpController;
+use App\Http\Controllers\SNSController;
+use App\Http\Controllers\StaticController;
+use App\Http\Controllers\StripeController;
+use App\Http\Controllers\SubdomainController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\SubscriptionStepsController;
+use App\Http\Controllers\Support\Messages\SendingController;
+use App\Http\Controllers\SystemLogController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskSchedulerController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\TaskStatusController;
+use App\Http\Controllers\TaxRateController;
+use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\TemplatePreviewController;
+use App\Http\Controllers\TokenController;
+use App\Http\Controllers\TwilioController;
+use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VendorController;
+use App\Http\Controllers\WebCronController;
+use App\Http\Controllers\WebhookController;
+use App\Models\Location;
+use App\PaymentDrivers\BlockonomicsPaymentDriver;
+use App\PaymentDrivers\PayPalPPCPPaymentDriver;
+use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
-    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
+    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:signup');
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
+    Route::get('api/v1/oidc/config', [LoginController::class, 'oidcConfig'])->name('oidc.config');
+    Route::post('api/v1/oidc/exchange', [LoginController::class, 'oidcExchange'])->name('oidc.exchange')->middleware('throttle:30,1');
+});
+
+Route::group(['middleware' => ['throttle:precheck']], function () {
+    Route::post('api/v1/login/precheck', [LoginController::class, 'precheck'])->name('login.precheck');
 });
 
 Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
+    Route::post('api/v1/passkeys/login/options', [PasskeyController::class, 'loginOptions'])->name('passkeys.login.options');
+});
+
+Route::group(['middleware' => ['throttle:password-reset', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
@@ -177,6 +192,12 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('charts/totals_v2', [ChartController::class, 'totalsV2'])->name('chart.totals_v2');
     Route::post('charts/chart_summary_v2', [ChartController::class, 'chart_summaryV2'])->name('chart.chart_summary_v2');
     Route::post('charts/calculated_fields', [ChartController::class, 'calculatedFields'])->name('chart.calculated_fields');
+    Route::post('charts/analytics_summary', [ChartController::class, 'analytics_summary'])->name('chart.analytics_summary');
+    Route::post('charts/analytics_totals', [ChartController::class, 'analytics_totals'])->name('chart.analytics_totals');
+    Route::post('charts/cashflow_forecast', [ChartController::class, 'cashflow_forecast'])->name('chart.cashflow_forecast');
+    Route::post('charts/client_payment_analytics', [ChartController::class, 'client_payment_analytics'])->name('chart.client_payment_analytics');
+    Route::post('charts/project_analytics/{project}', [ChartController::class, 'project_analytics'])->name('chart.project_analytics');
+    Route::post('charts/project_burnup/{project}', [ChartController::class, 'projectBurnup'])->name('chart.project_burnup');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
     Route::post('check_license', [LicenseController::class, 'check'])->name('license.check');
@@ -184,11 +205,14 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::put('clients/{client}/upload', [ClientController::class, 'upload'])->name('clients.upload');
     Route::post('clients/{client}/purge', [ClientController::class, 'purge'])->name('clients.purge')->middleware('password_protected');
-    Route::post('clients/{client}/updateTaxData', [ClientController::class, 'updateTaxData'])->name('clients.update_tax_data')->middleware('throttle:3,1');
+    Route::post('clients/{client}/updateTaxData', [ClientController::class, 'updateTaxData'])->name('clients.update_tax_data')->middleware('throttle:10,1');
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', [ClientController::class, 'bulk'])->name('clients.bulk');
     Route::post('clients/{client}/documents', [ClientController::class, 'documents'])->name('clients.documents');
     Route::post('clients/{client}/show_settings', [ClientController::class, 'showSettings'])->name('clients.show_settings');
+    Route::post('clients/{client}/peppol_discovery', [ClientController::class, 'peppolDiscovery'])->name('clients.peppol_discovery');
+    Route::post('clients/{client}/check_vat', [ClientController::class, 'checkVat'])->name('clients.check_vat');
+    Route::get('clients/{client}/vat_status', [ClientController::class, 'vatStatus'])->name('clients.vat_status');
 
     Route::post('reactivate_email/{bounce_id}', [ClientController::class, 'reactivateEmail'])->name('clients.reactivate_email');
 
@@ -200,6 +224,13 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('connected_account', [ConnectedAccountController::class, 'index']);
     Route::post('connected_account/gmail', [ConnectedAccountController::class, 'handleGmailOauth']);
+
+    Route::get('calendar_connection', [CalendarConnectionController::class, 'show'])->name('calendar_connection.show');
+    Route::post('calendar_connection/{provider}/complete', [CalendarConnectionController::class, 'complete'])->name('calendar_connection.complete')->middleware('throttle:10,1');
+    Route::get('calendar_connection/calendars', [CalendarConnectionController::class, 'calendars'])->name('calendar_connection.calendars');
+    Route::get('calendar_connection/events', [CalendarConnectionController::class, 'events'])->name('calendar_connection.events');
+    Route::put('calendar_connection/calendars', [CalendarConnectionController::class, 'updateCalendars'])->name('calendar_connection.calendars.update');
+    Route::delete('calendar_connection', [CalendarConnectionController::class, 'destroy'])->name('calendar_connection.destroy');
 
     Route::post('client_statement', [ClientStatementController::class, 'statement'])->name('client.statement');
 
@@ -243,6 +274,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('einvoice/validateEntity', [EInvoiceController::class, 'validateEntity'])->name('einvoice.validateEntity');
     Route::post('einvoice/configurations', [EInvoiceController::class, 'configurations'])->name('einvoice.configurations');
 
+    Route::post('einvoice/peppol/discovery', [EInvoicePeppolController::class, 'discovery'])->name('einvoice.peppol.discovery');
     Route::post('einvoice/peppol/legal_entity', [EInvoicePeppolController::class, 'show'])->name('einvoice.peppol.legal_entity');
     Route::post('einvoice/peppol/setup', [EInvoicePeppolController::class, 'setup'])->name('einvoice.peppol.setup');
     Route::post('einvoice/peppol/disconnect', [EInvoicePeppolController::class, 'disconnect'])->name('einvoice.peppol.disconnect');
@@ -251,9 +283,15 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::delete('einvoice/peppol/remove_additional_legal_identifier', [EInvoicePeppolController::class, 'removeAdditionalTaxIdentifier'])->name('einvoice.peppol.remove_additional_legal_identifier');
     Route::post('einvoice/peppol/send', [EInvoicePeppolController::class, 'retrySend'])->name('einvoice.peppol.retry_send');
 
+    Route::post('einvoice/peppol/sg/c5/activate', [EInvoicePeppolController::class, 'c5Activate'])->name('einvoice.peppol.sg.c5.activate');
+    Route::post('einvoice/peppol/sg/c5/deactivate', [EInvoicePeppolController::class, 'c5Deactivate'])->name('einvoice.peppol.sg.c5.deactivate');
+    // @todo revert to Route::put() after the next hosted release ships the matching admin route verb
+    Route::post('einvoice/peppol/sg/c5/cancel', [EInvoicePeppolController::class, 'c5Cancel'])->name('einvoice.peppol.sg.c5.cancel');
+
     Route::post('einvoice/token/update', EInvoiceTokenController::class)->name('einvoice.token.update');
     Route::get('einvoice/quota', [EInvoiceController::class, 'quota'])->name('einvoice.quota');
     Route::get('einvoice/health_check', [EInvoiceController::class, 'healthcheck'])->name('einvoice.healthcheck');
+    Route::get('einvoice/delivery_map', [EInvoiceController::class, 'deliveryMap'])->name('einvoice.delivery_map');
 
     Route::post('emails', [EmailController::class, 'send'])->name('email.send')->middleware('user_verified');
     Route::post('emails/clientHistory/{client}', [EmailHistoryController::class, 'clientHistory'])->name('email.clientHistory');
@@ -291,12 +329,6 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('locations/bulk', [LocationController::class, 'bulk'])->name('locations.bulk');
 
     Route::post('logout', [LogoutController::class, 'index'])->name('logout');
-
-    Route::post('migrate', [MigrationController::class, 'index'])->name('migrate.start');
-
-    Route::post('migration/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
-    Route::post('migration/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
-    Route::post('migration/start', [MigrationController::class, 'startMigration']);
 
     Route::post('one_time_token', [OneTimeTokenController::class, 'create']);
 
@@ -338,8 +370,10 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, 'downloadEQuote'])->name('quotes.downloadEQuote');
 
     Route::post('quickbooks/sync', [QuickbooksController::class, 'sync'])->name('quickbooks.sync');
-    Route::post('quickbooks/configuration', [QuickbooksController::class, 'configuration'])->name('quickbooks.configuration');
+    Route::post('quickbooks/action', [QuickbooksController::class, 'action'])->name('quickbooks.action');
+    Route::post('quickbooks/settings', [QuickbooksController::class, 'settings'])->name('quickbooks.settings');
     Route::post('quickbooks/disconnect', [QuickbooksController::class, 'disconnect'])->name('quickbooks.disconnect');
+    Route::post('quickbooks/reconnect_url', [QuickbooksController::class, 'reconnectUrl'])->name('quickbooks.reconnect_url');
 
     Route::resource('recurring_expenses', RecurringExpenseController::class);
     Route::post('recurring_expenses/bulk', [RecurringExpenseController::class, 'bulk'])->name('recurring_expenses.bulk');
@@ -364,6 +398,8 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('reports/expenses', ExpenseReportController::class)->middleware('throttle:20,1');
     Route::post('reports/invoices', InvoiceReportController::class)->middleware('throttle:20,1');
     Route::post('reports/invoice_items', InvoiceItemReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/locations', LocationReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/client_locations', LocationReportController::class)->middleware('throttle:20,1');
     Route::post('reports/purchase_orders', PurchaseOrderReportController::class)->middleware('throttle:20,1');
     Route::post('reports/purchase_order_items', PurchaseOrderItemReportController::class)->middleware('throttle:20,1');
     Route::post('reports/quotes', QuoteReportController::class)->middleware('throttle:20,1');
@@ -394,7 +430,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
-    Route::post('support/messages/send', SendingController::class);
+    Route::post('support/messages/send', SendingController::class)->middleware('throttle:support-messages');;
 
     Route::post('self-update', [SelfUpdateController::class, 'update'])->middleware('password_protected');
     Route::post('self-update/check_version', [SelfUpdateController::class, 'checkVersion']);
@@ -409,6 +445,9 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::resource('task_statuses', TaskStatusController::class); // name = (task_statuses. index / create / show / update / destroy / edit
     Route::post('task_statuses/bulk', [TaskStatusController::class, 'bulk'])->name('task_statuses.bulk');
 
+    Route::resource('tags', TagController::class); // name = (tags. index / create / show / update / destroy / edit
+    Route::post('tags/bulk', [TagController::class, 'bulk'])->name('tags.bulk');
+
     Route::resource('tax_rates', TaxRateController::class); // name = (tax_rates. index / create / show / update / destroy / edit
     Route::post('tax_rates/bulk', [TaxRateController::class, 'bulk'])->name('tax_rates.bulk');
 
@@ -420,6 +459,10 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('settings/enable_two_factor', [TwoFactorController::class, 'setupTwoFactor']);
     Route::post('settings/enable_two_factor', [TwoFactorController::class, 'enableTwoFactor']);
     Route::post('settings/disable_two_factor', [TwoFactorController::class, 'disableTwoFactor']);
+    Route::get('settings/passkeys', [PasskeyController::class, 'index'])->name('passkeys.index');
+    Route::post('settings/passkeys/options', [PasskeyController::class, 'registrationOptions'])->name('passkeys.options');
+    Route::post('settings/passkeys', [PasskeyController::class, 'store'])->name('passkeys.store');
+    Route::delete('settings/passkeys/{passkey}', [PasskeyController::class, 'destroy'])->name('passkeys.destroy');
 
     Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:daily-verify');
     Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm')->middleware('throttle:daily-verify');
@@ -442,7 +485,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('/users/{user}/disconnect_mailer', [UserController::class, 'disconnectOauthMailer']);
     Route::post('/users/{user}/disconnect_oauth', [UserController::class, 'disconnectOauth']);
     Route::post('/user/{user}/reconfirm', [UserController::class, 'reconfirm']);
-    Route::post('/user/{user}/purge', [UserController::class, 'purge'])->middleware('password_protected');
+    Route::post('/users/{user}/purge', [UserController::class, 'purge'])->middleware('password_protected');
 
     Route::resource('webhooks', WebhookController::class);
     Route::post('webhooks/bulk', [WebhookController::class, 'bulk'])->name('webhooks.bulk');
@@ -453,6 +496,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     // Route::delete('hooks/{subscription_id}', [SubscriptionController::class, 'unsubscribe'])->name('hooks.unsubscribe');
 
     Route::post('smtp/check', [SmtpController::class, 'check'])->name('smtp.check')->middleware('throttle:10,1');
+    Route::post('mailer/check', [MailerController::class, 'check'])->name('mailer.check')->middleware('throttle:10,1');
 
     Route::post('stripe/update_payment_methods', [StripeController::class, 'update'])->middleware('password_protected')->name('stripe.update');
     Route::post('stripe/import_customers', [StripeController::class, 'import'])->middleware('password_protected')->name('stripe.import');
@@ -495,9 +539,6 @@ Route::post('api/v1/brevo_webhook', [BrevoController::class, 'webhook'])->middle
 Route::post('api/v1/brevo_inbound_webhook', [BrevoController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
 Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');
-Route::post('api/v1/get_migration_account', [HostedMigrationController::class, 'getAccount'])->middleware('guest')->middleware('throttle:100,1');
-Route::post('api/v1/confirm_forwarding', [HostedMigrationController::class, 'confirmForwarding'])->middleware('guest')->middleware('throttle:100,1');
-Route::post('api/v1/check_status', [HostedMigrationController::class, 'checkStatus'])->middleware('guest')->middleware('throttle:100,1');
 Route::post('api/v1/process_webhook', [AppleController::class, 'process_webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/confirm_purchase', [AppleController::class, 'confirm_purchase'])->middleware('throttle:1000,1');
 
@@ -506,10 +547,15 @@ Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdates
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
 
-Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
+Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])
+    ->name('protected_download')
+    ->middleware(['protected_download.signature', 'throttle:300,1']);
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
+Route::get('api/v1/calendar_connection/{provider}/authorize/{hash}', [CalendarConnectionController::class, 'redirectToProvider'])->name('calendar_connection.authorize')->middleware('throttle:10,1');
+
 Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
+Route::get('quickbooks/reconnect/{token}', [ImportQuickbooksController::class, 'reconnect'])->name('quickbooks.reconnect');
 Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

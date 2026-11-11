@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,6 +18,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
+use App\Transformers\LocationTransformer;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,8 @@ class ClientExport extends BaseExport
     private $client_transformer;
 
     private $contact_transformer;
+
+    private $location_transformer;
 
     public Writer $csv;
 
@@ -87,6 +90,7 @@ class ClientExport extends BaseExport
         $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
+        $this->location_transformer = new LocationTransformer();
         $this->decorator = new Decorator();
 
     }
@@ -101,7 +105,7 @@ class ClientExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($client) {
 
                     /** @var \App\Models\Client $client */
@@ -126,15 +130,17 @@ class ClientExport extends BaseExport
             $this->input['report_keys'] = array_values($this->client_report_keys);
         }
 
-        $query = Client::query()->with('contacts')
+        $query = Client::query()->with('contacts', 'locations', 'tags')
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id);
 
-        if (!$this->input['include_deleted'] ?? false) {
+        if (!($this->input['include_deleted'] ?? false)) {
             $query->where('is_deleted', 0);
         }
 
         $query = $this->addDateRange($query, ' clients');
+
+        $query = $this->addTagFilter($query);
 
         $query = $this->filterByUserPermissions($query);
 
@@ -157,7 +163,7 @@ class ClientExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($client) {
 
                   /** @var \App\Models\Client $client */
@@ -167,7 +173,7 @@ class ClientExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Client $client): array
+    protected function buildRow(Client $client): array
     {
         $transformed_contact = false;
 
@@ -179,15 +185,28 @@ class ClientExport extends BaseExport
             $transformed_contact = $this->contact_transformer->transform($contact);
         }
 
+        $transformed_location = [];
+
+        if ($location = $client->locations()->first()) {
+            $transformed_location = $this->location_transformer->transform($location);
+        }
+
         $entity = [];
 
         foreach (array_values($this->input['report_keys']) as $key) {
             $parts = explode('.', $key);
 
-            if (is_array($parts) && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
+            if (str_ends_with($key, '.tags')) {
+                $entity[$key] = $this->decorator->transform($key, $client);
+                continue;
+            }
+
+            if (count($parts) == 2 && $parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$key] = $transformed_client[$parts[1]];
-            } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+            } elseif (count($parts) == 2 && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
+            } elseif (count($parts) == 2 && $parts[0] == 'location' && array_key_exists($parts[1], $transformed_location)) {
+                $entity[$key] = $transformed_location[$parts[1]];
             } else {
                 $entity[$key] = $this->decorator->transform($key, $client);
             }
@@ -233,11 +252,13 @@ class ClientExport extends BaseExport
         }
 
         if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {
-            $entity['client.classification'] = ctrans("texts.{$client->classification}") ?? '';
+            $classification = $client->classification ?? '';    
+            $entity['client.classification'] = ctrans("texts.{$classification}");
         }
 
         if (in_array('client.industry_id', $this->input['report_keys']) && isset($client->industry_id)) {
-            $entity['client.industry_id'] = ctrans("texts.industry_{$client->industry->name}") ?? '';
+            $name = $client->industry->name ?? '';    
+            $entity['client.industry_id'] = ctrans("texts.industry_{$name}");
         }
 
         if (in_array('client.country_id', $this->input['report_keys']) && isset($client->country_id)) {
@@ -248,19 +269,14 @@ class ClientExport extends BaseExport
             $entity['client.shipping_country_id'] = $client->shipping_country ? $client->shipping_country->full_name : '';
         }
 
+        if (in_array('location.country_id', $this->input['report_keys'])) {
+
+            /** @var \App\Models\Location $location */
+            $location = $client->locations()->first();
+            $entity['location.country_id'] = $location->country->full_name ?? '';
+        }
+
         return $entity;
     }
 
-    // private function calculateStatus($client)
-    // {
-    //     if ($client->is_deleted) {
-    //         return ctrans('texts.deleted');
-    //     }
-
-    //     if ($client->deleted_at) {
-    //         return ctrans('texts.archived');
-    //     }
-
-    //     return ctrans('texts.active');
-    // }
 }

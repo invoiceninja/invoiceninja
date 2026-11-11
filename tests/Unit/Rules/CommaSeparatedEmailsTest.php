@@ -12,7 +12,7 @@ class CommaSeparatedEmailsTest extends TestCase
         $rule = new CommaSeparatedEmails();
         $failed = false;
 
-        $rule->validate('emails', 'test@example.com', function () use (&$failed) {
+        $rule->validate('emails', 'test@gmail.com', function () use (&$failed) {
             $failed = true;
         });
 
@@ -24,7 +24,7 @@ class CommaSeparatedEmailsTest extends TestCase
         $rule = new CommaSeparatedEmails();
         $failed = false;
 
-        $rule->validate('emails', 'test1@example.com, test2@example.com, test3@example.com', function () use (&$failed) {
+        $rule->validate('emails', 'test1@gmail.com, test2@gmail.com, test3@gmail.com', function () use (&$failed) {
             $failed = true;
         });
 
@@ -36,7 +36,7 @@ class CommaSeparatedEmailsTest extends TestCase
         $rule = new CommaSeparatedEmails();
         $failed = false;
 
-        $rule->validate('emails', '  test1@example.com  ,  test2@example.com  ', function () use (&$failed) {
+        $rule->validate('emails', '  test1@gmail.com  ,  test2@gmail.com  ', function () use (&$failed) {
             $failed = true;
         });
 
@@ -49,7 +49,7 @@ class CommaSeparatedEmailsTest extends TestCase
         $failed = false;
         $errorMessage = '';
 
-        $rule->validate('emails', 'invalid-email, test@example.com', function ($message) use (&$failed, &$errorMessage) {
+        $rule->validate('emails', 'invalid-email, test@gmail.com', function ($message) use (&$failed, &$errorMessage) {
             $failed = true;
             $errorMessage = $message;
         });
@@ -63,7 +63,7 @@ class CommaSeparatedEmailsTest extends TestCase
         $rule = new CommaSeparatedEmails();
         $failed = false;
 
-        $rule->validate('emails', 'test@example.com, , test2@example.com', function () use (&$failed) {
+        $rule->validate('emails', 'test@gmail.com, , test2@gmail.com', function () use (&$failed) {
             $failed = true;
         });
 
@@ -76,7 +76,7 @@ class CommaSeparatedEmailsTest extends TestCase
         $failed = false;
         $errorMessage = '';
 
-        $rule->validate('emails', 'test1@example.com, test2@example.com, test3@example.com', function ($message) use (&$failed, &$errorMessage) {
+        $rule->validate('emails', 'test1@gmail.com, test2@gmail.com, test3@gmail.com', function ($message) use (&$failed, &$errorMessage) {
             $failed = true;
             $errorMessage = $message;
         });

@@ -35,7 +35,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
     private array $transaction = [
         "financial_transactions" => [],
         "frequency" => 'Once',
-        "installments" => 1
+        "installments" => 1,
     ];
 
     public function __construct(protected RotessaPaymentDriver $rotessa)
@@ -55,16 +55,16 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
             'home_phone' => $data['client']->phone,
             'custom_identifier' => $data['client']->number,
             'name' => $data['client']->name,
-            'id' => null
+            'id' => null,
         ])->all();
 
         $data['gateway'] = $this->rotessa;
         $data['gateway_type_id'] = GatewayType::ACSS;
         $data['account'] = [
             'routing_number' => $data['client']->routing_id,
-            'country' => $data['client']->country->iso_3166_2
+            'country' => $data['client']->country->iso_3166_2,
         ];
-        
+
         $data['address'] = collect($data['client']->toArray())->merge(['country' => $data['client']->country->iso_3166_2 ])->all();
 
         return render('gateways.rotessa.bank_transfer.authorize', $data);
@@ -77,6 +77,10 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
      */
     public function authorizeResponse($request)
     {
+        $request->merge([
+            'home_phone' => $this->normalizePhoneNumber($request->input('home_phone')),
+            'phone' => $this->normalizePhoneNumber($request->input('phone')),
+        ]);
 
         $request->validate([
             'gateway_type_id' => ['required','integer'],
@@ -91,7 +95,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
             'account_number' => ['required'],
             'bank_name' => ['required'],
             'phone' => ['required'],
-            'home_phone' => ['required','size:10'],
+            'home_phone' => ['required','digits:10'],
             'bank_account_type' => ['required_if:country,US'],
             'routing_number' => ['required_if:country,US'],
             'institution_number' => ['required_if:country,CA','numeric','digits:3'],
@@ -106,18 +110,17 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
         try {
             $this->rotessa->findOrCreateCustomer($customer);
         } catch (\Exception $e) {
-
-            $message = json_decode($e->getMessage(), true);
-
-            return redirect()->route('client.payment_methods.index')->withErrors(array_values($message['errors'] ?? [$e->getMessage()]));
-
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors($this->parseApiErrors($e->getMessage()));
         }
 
         if ($request->authorize_then_redirect) {
             $this->rotessa->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
 
             $data = [
-                'invoices' => collect($this->rotessa->payment_hash->data->invoices)->map(fn ($invoice) => $invoice->invoice_id)->toArray(),
+                'invoices' => collect($this->rotessa->payment_hash->data->invoices)->map(fn($invoice) => $invoice->invoice_id)->toArray(),
                 'action' => 'payment',
             ];
 
@@ -130,6 +133,54 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
         }
 
         return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
+    }
+
+    /**
+     * Normalize a North American phone number into bare digits.
+     *
+     * Accepts common formats such as "(867) 202-1634", "867-202-1634",
+     * "+1 (867) 202-1634" or "867.202.1634" and strips them down to the
+     * 10 digit national number Rotessa expects.
+     *
+     * @param string|null $phone
+     * @return string
+     */
+    private function normalizePhoneNumber(?string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $phone);
+
+        if (strlen($digits) === 11 && str_starts_with($digits, '1')) {
+            $digits = substr($digits, 1);
+        }
+
+        return $digits;
+    }
+
+    /**
+     * Translate a Rotessa API error response into a flat list of messages.
+     *
+     * Rotessa returns errors as {"errors":[{"error_code":"...","error_message":"..."}]}.
+     *
+     * @param string $message
+     * @return array<int, string>
+     */
+    private function parseApiErrors(string $message): array
+    {
+        $decoded = json_decode($message, true);
+
+        if (is_array($decoded) && isset($decoded['errors']) && is_array($decoded['errors'])) {
+            $errors = collect($decoded['errors'])
+                ->map(fn ($error) => is_array($error) ? ($error['error_message'] ?? json_encode($error)) : $error)
+                ->filter()
+                ->values()
+                ->all();
+
+            if (count($errors) > 0) {
+                return $errors;
+            }
+        }
+
+        return [$message];
     }
 
     /**
@@ -174,7 +225,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
             }
 
             $transaction = array_merge($this->transaction, [
-                'amount' => $request->input('amount'),
+                'amount' => array_sum(array_column($this->rotessa->payment_hash->invoices(), 'amount')) + $this->rotessa->payment_hash->fee_total,
                 'process_date' => now()->addSeconds($customer->client->utc_offset())->format('Y-m-d'),
                 'comment' => $this->rotessa->getDescription(false),
                 'customer_id' => $customer->gateway_customer_reference,
@@ -253,13 +304,13 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
                 'home_phone' => $data['client']->phone,
                 'custom_identifier' => $data['client']->number,
                 'name' => $data['client']->name,
-                'id' => null
+                'id' => null,
             ])->all();
             $data['gateway'] = $this->rotessa;
             $data['gateway_type_id'] =   GatewayType::ACSS ;
             $data['account'] = [
                 'routing_number' => $data['client']->routing_id,
-                'country' => $data['client']->country->iso_3166_2
+                'country' => $data['client']->country->iso_3166_2,
             ];
             $data['address'] = collect($data['client']->toArray())->merge(['country' => $data['client']->country->iso_3166_2 ])->all();
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,9 @@ use App\Models\Product;
 
 class StoreProductRequest extends Request
 {
+    /** @var class-string */
+    protected ?string $tag_entity_type = Product::class;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -48,9 +51,9 @@ class StoreProductRequest extends Request
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
         $rules['tax_rate3'] = 'bail|sometimes|numeric';
+        $rules['income_account_id'] = 'bail|sometimes|nullable|string|max:64';
 
-
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function prepareForValidation()
@@ -69,13 +72,17 @@ class StoreProductRequest extends Request
             $input['quantity'] = 1;
         }
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
 
-        $input['tax_name1'] =  $input['tax_name1'] ?? '';
-        $input['tax_name2'] =  $input['tax_name2'] ?? '';
-        $input['tax_name3'] =  $input['tax_name3'] ?? '';
+        $input['tax_name1'] ??= '';
+        $input['tax_name2'] ??= '';
+        $input['tax_name3'] ??= '';
+
+        foreach (['notes', 'product_key', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'] as $field) {
+            if (isset($input[$field]) && is_string($input[$field])) {
+                $input[$field] = \App\Services\Pdf\Purify::clean($input[$field], true);
+            }
+        }
 
         $this->replace($input);
     }

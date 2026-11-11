@@ -20,6 +20,8 @@ use Tests\TestCase;
  */
 class NestedCollectionTest extends TestCase
 {
+    public $map;
+    
     protected function setUp(): void
     {
         parent::setUp();

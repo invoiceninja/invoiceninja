@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -53,7 +53,7 @@ class DocumentExport extends BaseExport
             return ['identifier' => $key, 'display_value' => $headerdisplay[$value]];
         })->toArray();
 
-        $report = $query->cursor()
+        $report = $this->streamQuery($query)
                 ->map(function ($document) {
 
                     /** @var \App\Models\Document $document */
@@ -102,7 +102,7 @@ class DocumentExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query->cursor()
+        $this->streamQuery($query)
               ->each(function ($entity) {
                   /** @var mixed $entity */
                   $this->csv->insertOne($this->buildRow($entity));
@@ -111,7 +111,7 @@ class DocumentExport extends BaseExport
         return $this->csv->toString();
     }
 
-    private function buildRow(Document $document): array
+    protected function buildRow(Document $document): array
     {
         $transformed_entity = $this->entity_transformer->transform($document);
 

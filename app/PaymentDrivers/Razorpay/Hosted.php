@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,6 +24,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
@@ -90,7 +91,7 @@ class Hosted implements MethodInterface, LivewireMethodInterface
         if (! property_exists($this->razorpay->payment_hash->data, 'order_id')) {
             $this->razorpay->sendFailureMail('Missing [order_id] property. ');
 
-            throw new PaymentFailed('Missing [order_id] property. Please contact the administrator. Reference: '.$this->razorpay->payment_hash->hash);
+            throw new PaymentFailed('Missing [order_id] property. Please contact the administrator. Reference: ' . $this->razorpay->payment_hash->hash);
         }
 
         try {
@@ -116,31 +117,47 @@ class Hosted implements MethodInterface, LivewireMethodInterface
      */
     public function processSuccessfulPayment(string $payment_id): RedirectResponse
     {
-        $data = [
-            'gateway_type_id' => GatewayType::HOSTED_PAGE,
-            'amount' => array_sum(array_column($this->razorpay->payment_hash->invoices(), 'amount')) + $this->razorpay->payment_hash->fee_total,
-            'payment_type' => PaymentType::HOSTED_PAGE,
-            'transaction_reference' => $payment_id,
-        ];
-
-        $payment_record = $this->razorpay->createPayment($data, Payment::STATUS_COMPLETED);
-
-        SystemLogger::dispatch(
-            ['response' => $payment_id, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_RAZORPAY,
-            $this->razorpay->client,
-            $this->razorpay->client->company,
-        );
+        $payment_record = $this->recordPayment($payment_id);
 
         return redirect()->route('client.payments.show', ['payment' => $this->razorpay->encodePrimaryKey($payment_record->id)]);
     }
 
     /**
+     * Record a captured Razorpay payment once, whether the browser return or the webhook gets here first.
+     *
+     * @param string $payment_id
+     * @return Payment
+     */
+    public function recordPayment(string $payment_id): Payment
+    {
+        return Cache::lock("razorpay-order-{$this->razorpay->payment_hash->data->order_id}", 30)
+            ->block(5, function () use ($payment_id): Payment {
+                $data = [
+                    'gateway_type_id' => GatewayType::HOSTED_PAGE,
+                    'amount' => array_sum(array_column($this->razorpay->payment_hash->invoices(), 'amount')) + $this->razorpay->payment_hash->fee_total,
+                    'payment_type' => PaymentType::HOSTED_PAGE,
+                    'transaction_reference' => $payment_id,
+                ];
+
+                $payment_record = $this->razorpay->createPayment($data, Payment::STATUS_COMPLETED);
+
+                SystemLogger::dispatch(
+                    ['response' => $payment_id, 'data' => $data],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_RAZORPAY,
+                    $this->razorpay->client,
+                    $this->razorpay->client->company,
+                );
+
+                return $payment_record;
+            });
+    }
+
+    /**
      * Handle unsuccessful payment for Razorpay.
      *
-     * @param Exception $exception
+     * @param \Exception $exception
      * @throws PaymentFailed
      * @return void
      */
@@ -173,7 +190,10 @@ class Hosted implements MethodInterface, LivewireMethodInterface
      */
     public function paymentData(array $data): array
     {
+        $notes = ['payment_hash' => $this->razorpay->payment_hash->hash];
+
         $order = $this->razorpay->gateway->order->create([
+            'notes' => $notes,
             'currency' => $this->razorpay->client->currency()->code,
             'amount' => $this->razorpay->convertToRazorpayAmount((float) $this->razorpay->payment_hash->data->amount_with_fee),
         ]);
@@ -189,6 +209,7 @@ class Hosted implements MethodInterface, LivewireMethodInterface
             'currency' => $this->razorpay->client->currency()->code,
             'name' => $this->razorpay->company_gateway->company->present()->name(),
             'order_id' => $order->id,
+            'notes' => $notes,
         ];
 
         return $data;

@@ -5,19 +5,21 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
+use App\DataMapper\ReportData;
 use App\DataMapper\TransactionEventMetadata;
 
 /**
  * Class Bank.
  *
  * @property int $id
+ * @property int $company_id
  * @property int $client_id
  * @property int $invoice_id
  * @property int $payment_id
@@ -34,7 +36,7 @@ use App\DataMapper\TransactionEventMetadata;
  * @property float $payment_applied
  * @property float $payment_refunded
  * @property int|null $payment_status
- * @property array|null $paymentables
+ * @property ReportData|null $reporting_data
  * @property int $event_id
  * @property int $timestamp
  * @property array|null $payment_request
@@ -43,6 +45,7 @@ use App\DataMapper\TransactionEventMetadata;
  * @property float $credit_amount
  * @property int|null $credit_status
  * @property \Carbon\Carbon|null $period
+ * @property-read \App\Models\Invoice|null $invoice
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
  * @mixin \Eloquent
@@ -56,7 +59,7 @@ class TransactionEvent extends StaticModel
     public $casts = [
         'metadata' => TransactionEventMetadata::class,
         'payment_request' => 'array',
-        'paymentables' => 'array',
+        'reporting_data' => ReportData::class,
         'period' => 'date',
     ];
 
@@ -67,5 +70,17 @@ class TransactionEvent extends StaticModel
     public const PAYMENT_DELETED = 3;
 
     public const PAYMENT_CASH = 4;
+
+    public const TAX_REPORTING_EVENTS = [
+        self::INVOICE_UPDATED,
+        self::PAYMENT_REFUNDED,
+        self::PAYMENT_DELETED,
+        self::PAYMENT_CASH,
+    ];
+
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
 
 }

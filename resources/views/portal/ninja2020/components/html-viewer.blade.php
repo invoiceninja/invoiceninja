@@ -79,6 +79,13 @@ span {
                             <div class="item-details">
 
                                 <p class="overflow-ellipsis overflow-hidden px-1 mb-2">{!! App\Services\Pdf\Purify::clean($product['notes']) !!}</p>
+                                @if($show_tags && count($product['tags']) > 0)
+                                    <div class="flex flex-wrap gap-1 px-1 mb-2">
+                                        @foreach($product['tags'] as $tag)
+                                            <span wire:key="product-tag-{{ $loop->parent->index }}-{{ $loop->index }}" class="inline-flex rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">{{ $tag }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                                 <p class="mt-2">
                                     @if($show_quantity)
                                     {{ $product['quantity'] }} x
@@ -185,7 +192,7 @@ span {
         </button>
 
         <div id="terms" class="py-10 border-b-2 border-fuschia-600"  x-show="show_terms">
-            {!! html_entity_decode($terms) !!}
+            {!! \App\Services\Pdf\Purify::clean(html_entity_decode($terms), true) !!}
         </div>
 
     </div>
@@ -200,7 +207,7 @@ span {
         </button>
 
         <div id="terms" class="py-10 border-b-2 border-fuschia-600"  x-show="show_footer">
-            {!! html_entity_decode($entity->footer) !!}
+            {!! \App\Services\Pdf\Purify::clean(html_entity_decode($entity->footer), true) !!}
         </div>
 
     </div>

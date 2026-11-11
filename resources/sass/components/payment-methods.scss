@@ -1,0 +1,11 @@
+.payment-method-list {
+    @apply list-none space-y-2;
+}
+
+.payment-method-item {
+    @apply hover:bg-gray-100 rounded transition-colors duration-150;
+}
+
+.payment-method-label {
+    @apply flex items-center cursor-pointer w-full px-2 py-1;
+}

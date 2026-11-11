@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**
@@ -10,6 +11,11 @@ return new class extends Migration {
      */
     public function up()
     {
+
+        if (! Schema::hasTable('passkey_credentials')) {
+            return;
+        }
+        
         \App\Models\CompanyUser::query()->where('is_admin', 0)->cursor()->each(function ($cu) {
             $permissions = $cu->permissions;
 

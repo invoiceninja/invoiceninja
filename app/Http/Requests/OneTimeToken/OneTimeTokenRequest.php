@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,6 +35,7 @@ class OneTimeTokenRequest extends Request
     {
         return [
             'context' => 'required',
+            'platform' => 'sometimes|nullable|string|in:flutter_native,react',
         ];
     }
 

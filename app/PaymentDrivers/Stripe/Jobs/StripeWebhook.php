@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,11 +44,16 @@ class StripeWebhook implements ShouldQueue
         'source.chargeable',
         'charge.succeeded',
         'charge.failed',
+        'refund.failed',
+        'payment_intent.processing',
         'payment_intent.succeeded',
         'payment_intent.payment_failed',
+        'customer.source.updated',
+        'setup_intent.succeeded',
+        'setup_intent.setup_failed',
         'mandate.updated',
         'checkout.session.completed',
-        'payment_method.automatically_updated'
+        'payment_method.automatically_updated',
     ];
 
     public function __construct(string $company_key, int $company_gateway_id)
@@ -66,7 +71,11 @@ class StripeWebhook implements ShouldQueue
         /** @var \App\Models\CompanyGateway $company_gateway **/
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
-        $stripe = $company_gateway->driver()->init();
+        try {
+            $stripe = $company_gateway->driver()->init();
+        } catch (\Throwable $e) {
+            return;
+        }
 
         $endpoints = \Stripe\WebhookEndpoint::all([], $stripe->stripe_connect_auth);
 
@@ -85,6 +94,7 @@ class StripeWebhook implements ShouldQueue
             \Stripe\WebhookEndpoint::create([
                 'url' => $webhook_url,
                 'enabled_events' => $this->events,
+                'api_version' => $stripe->apiVersion()
             ], $stripe->stripe_connect_auth);
         }
     }
@@ -92,7 +102,7 @@ class StripeWebhook implements ShouldQueue
     public function failed($exception = null)
     {
         nlog("StripeWebhook failed: " . $exception->getMessage());
-        
+
         config(['queue.failed.driver' => null]);
 
     }

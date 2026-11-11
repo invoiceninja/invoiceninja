@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,16 +29,14 @@ class RecurringExpensesCron
     use Dispatchable;
     use GeneratesCounter;
 
-    public $tries = 1;
+    public int $tries = 1;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -48,7 +46,7 @@ class RecurringExpensesCron
     public function handle(): void
     {
         /* Get all expenses where the send date is less than NOW + 30 minutes() */
-        nlog('Sending recurring expenses '.Carbon::now()->format('Y-m-d h:i:s'));
+        nlog('Sending recurring expenses ' . Carbon::now()->format('Y-m-d h:i:s'));
 
         Auth::logout();
 
@@ -61,13 +59,27 @@ class RecurringExpensesCron
                                                         ->whereHas('company', function ($query) {
                                                             $query->where('is_disabled', 0);
                                                         })
+                                                        ->where(function ($query) {
+                                                            $query->whereNull('client_id')
+                                                                ->orWhereHas('client', function ($query) {
+                                                                    $query->withTrashed()
+                                                                        ->where('is_deleted', false);
+                                                                });
+                                                        })
+                                                        ->where(function ($query) {
+                                                            $query->whereNull('vendor_id')
+                                                                ->orWhereHas('vendor', function ($query) {
+                                                                    $query->withTrashed()
+                                                                        ->where('is_deleted', false);
+                                                                });
+                                                        })
                                                         ->with('company')
                                                         ->cursor();
 
-            nlog(now()->format('Y-m-d').' Generating Recurring Expenses. Count = '.$recurring_expenses->count());
+            nlog(now()->format('Y-m-d') . ' Generating Recurring Expenses. Count = ' . $recurring_expenses->count());
 
             $recurring_expenses->each(function ($recurring_expense, $key) {
-                nlog('Current date = '.now()->format('Y-m-d').' Recurring date = '.$recurring_expense->next_send_date);
+                nlog('Current date = ' . now()->format('Y-m-d') . ' Recurring date = ' . $recurring_expense->next_send_date);
 
                 if (! $recurring_expense->company->is_disabled) {
                     $this->generateExpense($recurring_expense);
@@ -89,10 +101,10 @@ class RecurringExpensesCron
                                                             ->with('company')
                                                             ->cursor();
 
-                nlog(now()->format('Y-m-d').' Generating Recurring Expenses. Count = '.$recurring_expenses->count());
+                nlog(now()->format('Y-m-d') . ' Generating Recurring Expenses. Count = ' . $recurring_expenses->count());
 
                 $recurring_expenses->each(function ($recurring_expense, $key) {
-                    nlog('Current date = '.now()->format('Y-m-d').' Recurring date = '.$recurring_expense->next_send_date);
+                    nlog('Current date = ' . now()->format('Y-m-d') . ' Recurring date = ' . $recurring_expense->next_send_date);
 
                     if (! $recurring_expense->company->is_disabled) {
                         $this->generateExpense($recurring_expense);
@@ -102,7 +114,7 @@ class RecurringExpensesCron
         }
     }
 
-    private function generateExpense(RecurringExpense $recurring_expense)
+    private function generateExpense(RecurringExpense $recurring_expense): void
     {
         $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
         $expense->saveQuietly();
@@ -111,9 +123,9 @@ class RecurringExpensesCron
             $expense->payment_date = now()->format('Y-m-d');
         }
 
-        if ((int)$expense->company->settings->currency_id != $expense->currency_id) {
+        if ((int) $expense->company->settings->currency_id != $expense->currency_id) {
             $exchange_rate = new CurrencyApi();
-            $expense->exchange_rate = $exchange_rate->exchangeRate($expense->currency_id, (int)$expense->company->settings->currency_id, Carbon::parse($expense->date));
+            $expense->exchange_rate = $exchange_rate->exchangeRate($expense->currency_id, (int) $expense->company->settings->currency_id, Carbon::parse($expense->date));
         } else {
             $expense->exchange_rate = 1;
         }

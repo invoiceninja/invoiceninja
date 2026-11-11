@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,6 +27,8 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Database\QueryException;
 use App\Events\Statement\StatementWasEmailed;
+use App\Services\EDocument\Gateway\Storecove\RoutingResolver;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 
 class ClientService
 {
@@ -39,9 +41,7 @@ class ClientService
 
     private bool $completed = true;
 
-    public function __construct(private Client $client)
-    {
-    }
+    public function __construct(private Client $client) {}
 
     public function calculateBalance(?Invoice $invoice = null)
     {
@@ -66,14 +66,33 @@ class ClientService
             nlog("DB ERROR " . $throwable->getMessage());
         }
 
-        // if ($invoice && floatval($this->client->balance)  != floatval($pre_client_balance)) {
-        //     $diff = $this->client->balance - $pre_client_balance;
-        //     $invoice->ledger()->insertInvoiceBalance($diff, $this->client->balance, "Update Adjustment Invoice # {$invoice->number} => {$diff}");
-        // }
-
         return $this;
     }
 
+    public function calculatePaidToDate()
+    {
+        try {
+
+            $paid_to_date = Invoice::withTrashed()
+                        ->where('client_id', $this->client->id)
+                        ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                        ->where('is_proforma', false)
+                        ->where('is_deleted', false)
+                        ->sum('paid_to_date');
+
+            DB::connection(config('database.default'))->transaction(function () use ($paid_to_date) {
+                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
+                $this->client->paid_to_date = $paid_to_date;
+                $this->client->saveQuietly();
+            }, 2);
+
+
+        } catch (\Throwable $throwable) {
+            nlog("DB ERROR " . $throwable->getMessage());
+        }
+
+        return $this;
+    }
     /**
      * Seeing too many race conditions under heavy load here.
      *
@@ -302,6 +321,32 @@ class ClientService
     public function showSettingsMap(): array
     {
         return (new MapSettings($this->client))->run();
+    }
+
+    /**
+     * @return array{message: bool}
+     */
+    public function peppolDiscovery(): array
+    {
+        if ($this->client->checkDeliveryNetwork()) {
+            return ['message' => false];
+        }
+
+        $this->client->loadMissing('country', 'company');
+
+        $invoice = Invoice::make([ // @phpstan-ignore-line
+            'client_id' => $this->client->id,
+            'company_id' => $this->client->company_id,
+        ]);
+        $invoice->setRelation('client', $this->client);
+        $invoice->setRelation('company', $this->client->company);
+
+        $storecove = app(Storecove::class);
+
+        return [
+            'message' => (new RoutingResolver($invoice, $storecove->proxy, $storecove->router))
+                ->discoverOnPeppol(),
+        ];
     }
 
     /**

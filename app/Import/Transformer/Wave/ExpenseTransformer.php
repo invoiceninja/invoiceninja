@@ -51,13 +51,13 @@ class ExpenseTransformer extends BaseTransformer
         $transformed = [
             'company_id'  => $this->company->id,
             'vendor_id'   => $this->getVendorIdOrCreate($this->getString($data, 'Vendor')),
-            'number' 	  => $this->getString($data, 'Bill Number'),
+            'number' 	  => $this->getString($data, 'Bill Number', null),
             'public_notes' => $public_notes,
             'date'        => $this->parseDate($data['Transaction Date Added']) ?: now()->format('Y-m-d'), //27-01-2022
             'currency_id' => $this->company->settings->currency_id,
             'category_id' => $this->getOrCreateExpenseCategry($data['Account Name']),
             'amount'	  => $amount,
-            'tax_name1'   => isset($data['Sales Tax Name']) ? $data['Sales Tax Name'] : '',
+            'tax_name1'   => $data['Sales Tax Name'] ?? '',
             'tax_rate1'	  => $tax_rate,
         ];
 

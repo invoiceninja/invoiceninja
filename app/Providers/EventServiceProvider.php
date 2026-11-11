@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,6 +40,7 @@ use App\Events\User\UserLoggedIn;
 use App\Observers\ClientObserver;
 use App\Observers\CreditObserver;
 use App\Observers\VendorObserver;
+use App\Events\User\UserWasPurged;
 use App\Observers\AccountObserver;
 use App\Observers\CompanyObserver;
 use App\Observers\ExpenseObserver;
@@ -74,6 +75,7 @@ use App\Events\Credit\CreditWasViewed;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
+use App\Events\Quote\QuoteWasCancelled;
 use App\Events\Quote\QuoteWasRejected;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Vendor\VendorWasMerged;
@@ -122,6 +124,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasEmailed;
 use App\Events\Payment\PaymentWasUpdated;
+use App\Events\Payment\PaymentApplicationDateChanged;
 use App\Observers\CompanyGatewayObserver;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Expense\ExpenseWasArchived;
@@ -132,6 +135,7 @@ use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Payment\PaymentWasArchived;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
+use App\Listeners\User\PurgedUserActivity;
 use Illuminate\Mail\Events\MessageSending;
 use App\Events\Document\DocumentWasCreated;
 use App\Events\Document\DocumentWasDeleted;
@@ -163,6 +167,7 @@ use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteArchivedActivity;
+use App\Listeners\Quote\QuoteCancelledActivity;
 use App\Listeners\Quote\QuoteRejectedActivity;
 use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
@@ -201,6 +206,7 @@ use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Payment\PaymentBalanceActivity;
+use App\Listeners\Payment\ReconcilePaymentApplicationDateChange;
 use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Quote\QuoteCreatedNotification;
 use App\Listeners\Quote\QuoteEmailedNotification;
@@ -355,6 +361,9 @@ class EventServiceProvider extends ServiceProvider
         UserWasRestored::class => [
             RestoredUserActivity::class,
         ],
+        UserWasPurged::class => [
+            PurgedUserActivity::class,
+        ],
         ContactLoggedIn::class => [
             UpdateContactLastLogin::class,
         ],
@@ -362,6 +371,9 @@ class EventServiceProvider extends ServiceProvider
             PaymentCreatedActivity::class,
             PaymentNotification::class,
             PaymentBalanceActivity::class,
+        ],
+        PaymentApplicationDateChanged::class => [
+            ReconcilePaymentApplicationDateChange::class,
         ],
         PaymentWasDeleted::class => [
             PaymentDeletedActivity::class,
@@ -569,6 +581,9 @@ class EventServiceProvider extends ServiceProvider
             QuoteApprovedWebhook::class,
             QuoteApprovedNotification::class,
         ],
+        QuoteWasCancelled::class => [
+            QuoteCancelledActivity::class,
+        ],
         QuoteWasCreated::class => [
             CreatedQuoteActivity::class,
             QuoteCreatedNotification::class,
@@ -703,8 +718,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // ... Manager won't register drivers that are not added to this listener.
-            \SocialiteProviders\Apple\AppleExtendSocialite::class.'@handle',
-            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class.'@handle',
+            \SocialiteProviders\Apple\AppleExtendSocialite::class . '@handle',
+            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class . '@handle',
+            \App\Libraries\OAuth\Providers\Oidc\OidcExtendSocialite::class . '@handle',
         ],
 
     ];
