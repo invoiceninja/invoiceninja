@@ -65,6 +65,7 @@ export default defineConfig({
             'resources/js/clients/payments/powerboard-credit-card.js',
             'resources/js/clients/payments/blockonomics.js',
             'resources/js/clients/payments/revolut-credit-card.js',
+            'resources/js/clients/payments/revolut-pay.js',
         ]),
         viteStaticCopy({
             targets: [

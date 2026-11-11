@@ -96,7 +96,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 67, 'name' => 'payware', 'is_offsite' => false, 'sort_order' => 29, 'provider' => 'Payware', 'key' => 'b0a6294fca4488c2bab58f3e11e3c623', 'fields' => '{"partnerId":"","vposId":"","paywarePublicKey":"","testMode":false,"timeToLive":"600"}', 'default_gateway_type_id' => 30],
             ['id' => 68, 'name' => 'CHIP', 'provider' => 'ChipInAsia', 'is_offsite' => true, 'sort_order' => 30, 'key' => 'c7a8e2f1b4d90635a3f8e1c9b2d4a6e0', 'fields' => '{"apiKey":"","brandId":""}', 'default_gateway_type_id' => GatewayType::HOSTED_PAGE],
             ['id' => 69, 'name' => 'Helcim', 'is_offsite' => false, 'sort_order' => 31, 'provider' => 'Helcim', 'key' => 'ca3b3f7e4be811c96a8a1f4cafe2a97f', 'fields' => '{"apiToken":"","webhookVerifierToken":""}'],
-            ['id' => 71, 'name' => 'Revolut', 'provider' => 'Revolut', 'is_offsite' => true, 'sort_order' => 33, 'key' => '764562d0ba104d73081499b2a40df091', 'fields' => '{"apiKey":"","signingSecret":"","testMode":false}', 'default_gateway_type_id' => GatewayType::HOSTED_PAGE],
+            ['id' => 71, 'name' => 'Revolut', 'provider' => 'Revolut', 'is_offsite' => true, 'sort_order' => 33, 'key' => '764562d0ba104d73081499b2a40df091', 'fields' => '{"apiKey":"","publicKey":"","signingSecret":"","testMode":false}', 'default_gateway_type_id' => GatewayType::HOSTED_PAGE],
         ];
 
         foreach ($gateways as $gateway) {

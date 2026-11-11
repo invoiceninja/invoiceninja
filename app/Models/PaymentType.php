@@ -92,6 +92,7 @@ class PaymentType extends StaticModel
     public const PAY_LATER = 52;
     public const MOBILE_PAYMENT = 53;
     public const PROMPTPAY = 54;
+    public const REVOLUT_PAY = 55;
 
     public array $type_names = [
         self::BANK_TRANSFER => 'payment_type_Bank Transfer',
@@ -148,6 +149,7 @@ class PaymentType extends StaticModel
         self::BACS => 'payment_type_BACS',
         self::MOBILE_PAYMENT => 'payment_type_Mobile Payment',
         self::PROMPTPAY => 'payment_type_PromptPay',
+        self::REVOLUT_PAY => 'payment_type_Revolut Pay',
     ];
 
     /**
@@ -213,6 +215,7 @@ class PaymentType extends StaticModel
             ['id' => 52, 'name' => 'Pay Later', 'gateway_type_id' => 14],
             ['id' => 53, 'name' => 'Mobile Payment', 'gateway_type_id' => 30],
             ['id' => 54, 'name' => 'PromptPay', 'gateway_type_id' => 31],
+            ['id' => 55, 'name' => 'Revolut Pay', 'gateway_type_id' => 32],
         ];
 
         return collect($types)->map(fn(array $item): \stdClass => (object) $item)->values();

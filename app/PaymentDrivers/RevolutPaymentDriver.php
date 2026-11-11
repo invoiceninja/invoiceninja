@@ -25,6 +25,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\Revolut\CreditCard;
 use App\PaymentDrivers\Revolut\Hosted;
 use App\PaymentDrivers\Revolut\MerchantApi;
+use App\PaymentDrivers\Revolut\RevolutPay;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\RedirectResponse;
@@ -74,6 +75,7 @@ class RevolutPaymentDriver extends BaseDriver
     /** saved_payment_method.type per gateway type. */
     private const SAVED_METHOD_TYPES = [
         GatewayType::CREDIT_CARD => 'card',
+        GatewayType::REVOLUT_PAY => 'revolut_pay',
     ];
 
     public $refundable = true;
@@ -86,6 +88,7 @@ class RevolutPaymentDriver extends BaseDriver
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
+        GatewayType::REVOLUT_PAY => RevolutPay::class,
         GatewayType::HOSTED_PAGE => Hosted::class,
     ];
 
@@ -102,6 +105,7 @@ class RevolutPaymentDriver extends BaseDriver
     {
         return [
             GatewayType::CREDIT_CARD,
+            GatewayType::REVOLUT_PAY,
             GatewayType::HOSTED_PAGE,
         ];
     }
@@ -493,6 +497,13 @@ class RevolutPaymentDriver extends BaseDriver
     {
         $meta = new \stdClass();
         $meta->type = $gateway_type_id;
+
+        if ($gateway_type_id === GatewayType::REVOLUT_PAY) {
+            $meta->brand = ctrans('texts.revolut_pay');
+
+            return $meta;
+        }
+
         $meta->brand = ucfirst(strtolower((string) ($method['card_brand'] ?? '')));
         $meta->last4 = (string) ($method['card_last_four'] ?? '');
 
@@ -857,6 +868,7 @@ class RevolutPaymentDriver extends BaseDriver
     {
         return match ($gateway_type_id) {
             GatewayType::HOSTED_PAGE => PaymentType::HOSTED_PAGE,
+            GatewayType::REVOLUT_PAY => PaymentType::REVOLUT_PAY,
             default => match (strtolower((string) ($this->successfulPaymentMethod($order)['card_brand'] ?? ''))) {
                 'visa' => PaymentType::VISA,
                 'mastercard' => PaymentType::MASTERCARD,

@@ -289,6 +289,7 @@ class Gateway extends StaticModel
             case 71:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['ORDER_COMPLETED', 'ORDER_AUTHORISED', 'ORDER_CANCELLED', 'ORDER_FAILED']],
+                    GatewayType::REVOLUT_PAY => ['refund' => true, 'token_billing' => true, 'webhooks' => ['ORDER_COMPLETED', 'ORDER_AUTHORISED', 'ORDER_CANCELLED', 'ORDER_FAILED']],
                     GatewayType::HOSTED_PAGE => ['refund' => true, 'token_billing' => false, 'webhooks' => ['ORDER_COMPLETED', 'ORDER_AUTHORISED', 'ORDER_CANCELLED', 'ORDER_FAILED']],
                 ]; //Revolut
             default:
