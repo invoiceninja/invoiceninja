@@ -24,6 +24,7 @@ use App\Http\Requests\Terminal\StoreTerminalPaymentIntentRequest;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\Utils\Ninja;
 
 /* In-person card payments (Stripe Terminal) for the mobile apps */
@@ -39,13 +40,16 @@ class TerminalController extends BaseController
             return response()->json(['enabled' => false, 'plan_ok' => false, 'gateways' => []]);
         }
 
+        $company = $user->company();
+
         $gateways = CompanyGateway::query()
-            ->where('company_id', $user->company()->id)
+            ->with('gateway')
+            ->where('company_id', $company->id)
             ->where('is_deleted', 0)
             ->get()
             ->filter(fn (CompanyGateway $company_gateway) => $company_gateway->supportsCardPresent())
-            ->map(function (CompanyGateway $company_gateway) {
-                $card_present = $company_gateway->driver()->cardPresent();
+            ->map(function (CompanyGateway $company_gateway) use ($company) {
+                $card_present = $company_gateway->setRelation('company', $company)->driver()->cardPresent();
 
                 try {
                     $account = $card_present->account();
@@ -123,32 +127,24 @@ class TerminalController extends BaseController
         );
     }
 
-    public function finalize(FinalizeTerminalPaymentIntentRequest $request)
+    public function finalize(FinalizeTerminalPaymentIntentRequest $request, Invoice $invoice)
     {
-        $collection = $request->collection();
-
-        return response()->json($collection->cardPresent()->finalize($collection));
+        return response()->json(CardPresent::forCollection($request->paymentHash(), $invoice->client)->finalize($invoice));
     }
 
-    public function complete(ActionTerminalPaymentIntentRequest $request)
+    public function complete(ActionTerminalPaymentIntentRequest $request, Invoice $invoice)
     {
-        $collection = $request->collection();
-
-        return response()->json($collection->cardPresent()->record($collection));
+        return response()->json(CardPresent::forCollection($request->paymentHash(), $invoice->client)->record($invoice));
     }
 
-    public function cancel(ActionTerminalPaymentIntentRequest $request)
+    public function cancel(ActionTerminalPaymentIntentRequest $request, Invoice $invoice)
     {
-        $collection = $request->collection();
-
-        return response()->json($collection->cardPresent()->cancel($collection));
+        return response()->json(CardPresent::forCollection($request->paymentHash(), $invoice->client)->cancel($invoice));
     }
 
-    public function receipt(SendTerminalReceiptRequest $request)
+    public function receipt(SendTerminalReceiptRequest $request, Invoice $invoice)
     {
-        $collection = $request->collection();
-
-        $collection->cardPresent()->receipt($collection, $request->input('email'));
+        CardPresent::forCollection($request->paymentHash(), $invoice->client)->receipt($request->input('email'));
 
         return response()->json(['message' => ctrans('texts.emailed_payment')]);
     }

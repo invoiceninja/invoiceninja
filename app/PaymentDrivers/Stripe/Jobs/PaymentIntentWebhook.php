@@ -24,7 +24,6 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\Models\TerminalPaymentIntent;
 use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Bus\Queueable;
@@ -84,15 +83,23 @@ class PaymentIntentWebhook implements ShouldQueue
         if (CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
             MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-            $company = Company::query()->where('company_key', $this->company_key)->first();
+            $payment_hash = PaymentHash::query()->where('hash', $this->stripe_request['object']['metadata']['payment_hash'] ?? '')->first();
 
-            $collection = TerminalPaymentIntent::query()
-                ->where('company_id', $company?->id)
-                ->where('payment_intent_id', $this->stripe_request['object']['id'] ?? '')
-                ->first();
+            /* Ours, and taken on the gateway this webhook is for (so the company's) */
+            if (($payment_hash?->data->terminal->payment_intent_id ?? null) != ($this->stripe_request['object']['id'] ?? '')
+                || $payment_hash->data->terminal->company_gateway_id != $this->company_gateway_id) {
+                return;
+            }
 
-            if ($collection && !$collection->isFinal()) {
-                $collection->cardPresent()->record($collection);
+            $invoice = $payment_hash->fee_invoice;
+
+            $collection = CompanyGateway::withTrashed()->find($this->company_gateway_id)
+                ->driver($invoice?->client)
+                ->setPaymentHash($payment_hash)
+                ->cardPresent();
+
+            if (!$collection->isFinal()) {
+                $collection->record($invoice);
             }
 
             return;

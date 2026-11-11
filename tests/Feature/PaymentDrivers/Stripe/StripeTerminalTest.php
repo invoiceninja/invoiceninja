@@ -16,8 +16,6 @@ use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
-use App\Jobs\Cron\ReconcileTerminalPayment;
-use App\Jobs\Cron\TerminalReconcileCron;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -28,13 +26,15 @@ use App\Models\Gateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\Models\TerminalPaymentIntent;
 use App\Models\User;
 use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
+use App\PaymentDrivers\Stripe\Jobs\ReconcileTerminalPayment;
 use App\Repositories\InvoiceRepository;
 use App\Services\Client\PaymentMethod;
 use App\Services\Invoice\AutoBillInvoice;
@@ -139,7 +139,10 @@ class StripeTerminalTest extends TestCase
 
     private function quote(bool $apply_fee): array
     {
-        return $this->company_gateway->fresh()->driver($this->client)->cardPresent()->surcharge()->quote($this->invoice->fresh(), (float) $this->invoice->balance, $apply_fee);
+        /* As a request would: the invoice, its client and their company read now */
+        $invoice = $this->invoice->fresh();
+
+        return $this->company_gateway->fresh()->driver($invoice->client)->cardPresent()->surcharge()->quote($invoice, (float) $invoice->balance, $apply_fee);
     }
 
     private function api(?string $token = null): self
@@ -165,12 +168,43 @@ class StripeTerminalTest extends TestCase
 
     private function finalize(string $payment_intent): TestResponse
     {
-        return $this->api()->postJson("/api/v1/terminal/payment_intents/{$payment_intent}/finalize");
+        return $this->api()->postJson($this->url($payment_intent, 'finalize'));
     }
 
     private function complete(string $payment_intent, ?string $token = null): TestResponse
     {
-        return $this->api($token)->postJson("/api/v1/terminal/payment_intents/{$payment_intent}/complete");
+        return $this->api($token)->postJson($this->url($payment_intent, 'complete'));
+    }
+
+    /* An action on a collection, under the invoice it was taken for */
+    private function url(string $payment_intent, string $action): string
+    {
+        $invoice = Invoice::withTrashed()->find($this->collection($payment_intent)->fee_invoice_id);
+
+        return "/api/v1/invoices/{$invoice->hashed_id}/terminal/payment_intents/{$payment_intent}/{$action}";
+    }
+
+    /* A collection is the payment hash its PaymentIntent pays */
+    private function collection(string $payment_intent): PaymentHash
+    {
+        return PaymentHash::query()->where('data->terminal->payment_intent_id', $payment_intent)->sole();
+    }
+
+    private function collectionStatus(string $payment_intent): int
+    {
+        return $this->collection($payment_intent)->data->terminal->status_id;
+    }
+
+    /* Every collection untouched for this long */
+    private function age(int $minutes): void
+    {
+        PaymentHash::query()->whereNotNull('data->terminal')->update(['created_at' => now()->subMinutes($minutes), 'updated_at' => now()->subMinutes($minutes)]);
+    }
+
+    /* Each collection's reconciliation job, as the queue runs it */
+    private function reconcile(): void
+    {
+        PaymentHash::query()->whereNotNull('data->terminal')->pluck('id')->each(fn ($id) => (new ReconcileTerminalPayment($id, null))->handle());
     }
 
     private function terminalPayments()
@@ -246,7 +280,8 @@ class StripeTerminalTest extends TestCase
         $this->complete($intent['payment_intent_id'])->assertOk();
         $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
         (new PaymentIntentWebhook(['object' => $this->stripe->intents[$intent['payment_intent_id']]], $this->company->company_key, $this->company_gateway->id))->handle();
-        (new TerminalReconcileCron())->handle();
+        $this->age(30);
+        $this->reconcile();
 
         $this->assertSame(1, $this->terminalPayments()->count());
     }
@@ -267,7 +302,9 @@ class StripeTerminalTest extends TestCase
         $intent = $this->collect()->json();
         $this->stripe->charge($intent['payment_intent_id']);
 
-        (new PaymentIntentWebhook(['object' => ['id' => $intent['payment_intent_id'], 'payment_method_types' => ['card_present']]], $this->company->company_key, $this->company_gateway->id))->handle();
+        /* Only what webhookData() queues: the collection is found by the payment hash in its metadata */
+        $object = ['id' => $intent['payment_intent_id'], 'payment_method_types' => ['card_present'], 'metadata' => $this->stripe->intents[$intent['payment_intent_id']]['metadata']];
+        (new PaymentIntentWebhook(['object' => $object], $this->company->company_key, $this->company_gateway->id))->handle();
 
         $this->assertSame(1, $this->terminalPayments()->count());
     }
@@ -277,34 +314,31 @@ class StripeTerminalTest extends TestCase
         $intent = $this->collect()->json();
         $this->stripe->charge($intent['payment_intent_id']);
 
-        (new TerminalReconcileCron())->handle();
+        /* While the device may still finish it, reconciliation leaves it alone */
+        $this->reconcile();
+        $this->assertSame(0, $this->terminalPayments()->count());
+
+        $this->age(30);
+        $this->reconcile();
 
         $this->assertSame(1, $this->terminalPayments()->count());
         $this->assertTrue(SystemLog::query()->where('company_id', $this->company->id)->where('event_id', SystemLog::EVENT_PAYMENT_RECONCILIATION_SUCCESS)->exists());
     }
 
-    public function testAChargeReconciliationCannotRecordIsAlertedOnce(): void
+    public function testAChargeReconciliationCannotRecordIsAlertedAndLeftOpen(): void
     {
         $intent = $this->collect()->json();
         $this->stripe->charge($intent['payment_intent_id']);
-        $collection = TerminalPaymentIntent::query()->where('payment_intent_id', $intent['payment_intent_id'])->sole();
 
-        /* Recording fails for a reason that is not Stripe's, every run */
+        /* Recording fails for a reason that is not Stripe's: the job alerts and fails, and the queue never runs it again */
         ClientContact::query()->where('client_id', $this->client->id)->delete();
 
-        /* Another database's collection with the same id was alerted already */
-        Cache::put("terminal_reconcile_failed:{$collection->id}", true);
-
-        foreach (range(1, 2) as $run) {
-            try {
-                (new ReconcileTerminalPayment($collection->id, null))->handle();
-                $this->fail('recording should have failed');
-            } catch (\Throwable $e) {
-                $this->assertStringNotContainsString('recording should have failed', $e->getMessage());
-            }
-        }
+        $this->age(30);
+        $this->reconcile();
+        $this->reconcile();
 
         $this->assertSame(0, $this->terminalPayments()->count());
+        $this->assertSame(CardPresent::STATUS_OPEN, $this->collectionStatus($intent['payment_intent_id']));
         $this->assertSame(1, SystemLog::query()->where('company_id', $this->company->id)->where('event_id', SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE)->count());
     }
 
@@ -313,12 +347,12 @@ class StripeTerminalTest extends TestCase
         $intent = $this->collect()->json();
         $this->stripe->intents[$intent['payment_intent_id']]['status'] = 'processing';
 
-        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/cancel")->assertOk()->assertJson(['status' => 'processing']);
+        $this->api()->postJson($this->url($intent['payment_intent_id'], 'cancel'))->assertOk()->assertJson(['status' => 'processing']);
 
-        TerminalPaymentIntent::query()->update(['touched_at' => now()->subMinutes(30)]);
-        (new TerminalReconcileCron())->handle();
+        $this->age(30);
+        $this->reconcile();
 
-        $this->assertSame(TerminalPaymentIntent::STATUS_OPEN, TerminalPaymentIntent::query()->where('payment_intent_id', $intent['payment_intent_id'])->sole()->status_id);
+        $this->assertSame(CardPresent::STATUS_OPEN, $this->collectionStatus($intent['payment_intent_id']));
 
         $this->stripe->charge($intent['payment_intent_id']);
         $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
@@ -355,10 +389,10 @@ class StripeTerminalTest extends TestCase
 
         $this->collect()->assertStatus(409)->assertJson(['error_code' => 'collection_open']);
 
-        TerminalPaymentIntent::query()->update(['touched_at' => now()->subMinutes(21), 'created_at' => now()->subMinutes(21)]);
+        $this->age(21);
 
         $this->collect()->assertOk();
-        $this->assertSame(1, TerminalPaymentIntent::query()->where('status_id', TerminalPaymentIntent::STATUS_CANCELLED)->count());
+        $this->assertSame(1, CardPresent::collections($this->invoice)->where('data->terminal->status_id', CardPresent::STATUS_CANCELLED)->count());
     }
 
     public function testAChargedCollectionIsRecordedInsteadOfStartingAnother(): void
@@ -376,7 +410,7 @@ class StripeTerminalTest extends TestCase
         $collection_id = (string) Str::uuid();
         $intent = $this->collect(['collection_id' => $collection_id])->json();
 
-        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/cancel")->assertOk()->assertJson(['status' => 'canceled']);
+        $this->api()->postJson($this->url($intent['payment_intent_id'], 'cancel'))->assertOk()->assertJson(['status' => 'canceled']);
 
         $this->collect(['collection_id' => $collection_id])->assertStatus(409)->assertJson(['error_code' => 'collection_closed']);
     }
@@ -456,12 +490,13 @@ class StripeTerminalTest extends TestCase
     public function testACreateStripeNeverAnsweredFreesTheInvoiceAfterTwoMinutes(): void
     {
         $this->collect()->assertOk();
-        $stuck = TerminalPaymentIntent::query()->where('invoice_id', $this->invoice->id)->sole();
-        $stuck->forceFill(['status_id' => TerminalPaymentIntent::STATUS_CREATING, 'payment_intent_id' => null, 'created_at' => now()->subMinutes(3)])->save();
+        $stuck = CardPresent::collections($this->invoice)->sole();
+        $stuck->created_at = now()->subMinutes(3);
+        $stuck->withData('terminal', array_merge((array) $stuck->data->terminal, ['status_id' => CardPresent::STATUS_CREATING, 'payment_intent_id' => null]));
 
         $this->collect()->assertOk();
 
-        $this->assertSame(TerminalPaymentIntent::STATUS_FAILED, $stuck->fresh()->status_id);
+        $this->assertSame(CardPresent::STATUS_FAILED, $stuck->fresh()->data->terminal->status_id);
     }
 
     public function testAnAmountOverTheBalanceIsRefused(): void
@@ -498,13 +533,17 @@ class StripeTerminalTest extends TestCase
         $this->collect(['company_gateway_id' => $other_gateway->hashed_id])->assertStatus(422);
         $this->api()->postJson("/api/v1/company_gateways/{$other_gateway->hashed_id}/terminal/connection_token")->assertStatus(401);
 
-        TerminalPaymentIntent::query()->create([
-            'company_id' => $other_company->id, 'user_id' => $this->user->id, 'invoice_id' => $other_invoice->id,
-            'company_gateway_id' => $other_gateway->id, 'collection_id' => (string) Str::uuid(), 'payment_intent_id' => 'pi_other_company',
-            'currency' => 'usd', 'amount' => 10, 'status_id' => TerminalPaymentIntent::STATUS_OPEN,
+        PaymentHash::create([
+            'hash' => Str::random(32), 'fee_total' => 0, 'fee_invoice_id' => $other_invoice->id,
+            'data' => ['terminal' => [
+                'collection_id' => (string) Str::uuid(), 'company_gateway_id' => $other_gateway->id, 'user_id' => $this->user->id,
+                'status_id' => CardPresent::STATUS_OPEN, 'payment_intent_id' => 'pi_other_company', 'currency' => 'usd', 'amount' => 10,
+            ]],
         ]);
 
-        $this->complete('pi_other_company')->assertStatus(400);
+        /* Under its own invoice it is another company's; under ours it doesn't exist */
+        $this->complete('pi_other_company')->assertStatus(401);
+        $this->api()->postJson("/api/v1/invoices/{$this->invoice->hashed_id}/terminal/payment_intents/pi_other_company/complete")->assertStatus(400);
     }
 
     public function testPermissions(): void
@@ -826,7 +865,8 @@ class StripeTerminalTest extends TestCase
 
         $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
         $this->complete($intent['payment_intent_id'])->assertOk();
-        (new TerminalReconcileCron())->handle();
+        $this->age(30);
+        $this->reconcile();
 
         $this->assertCount(1, $this->refunds());
         $this->assertSame((int) round($quote['fee_gross'] * 100), (int) $this->refunds()->first()['params']['amount']);
@@ -935,7 +975,8 @@ class StripeTerminalTest extends TestCase
         $refunded = fn () => new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key);
         $refunded()->handle();
 
-        (new TerminalReconcileCron())->handle();
+        $this->age(30);
+        $this->reconcile();
         $refunded()->handle();
 
         $this->assertCount(1, $this->refunds());
@@ -956,7 +997,7 @@ class StripeTerminalTest extends TestCase
         $this->stripe->refuse_refund = 500;
         $this->complete($intent['payment_intent_id'])->assertStatus(500);
         $this->assertSame(0, $this->terminalPayments()->count());
-        $this->assertSame(TerminalPaymentIntent::STATUS_OPEN, TerminalPaymentIntent::query()->where('payment_intent_id', $intent['payment_intent_id'])->value('status_id'));
+        $this->assertSame(CardPresent::STATUS_OPEN, $this->collectionStatus($intent['payment_intent_id']));
 
         $refunded = fn () => new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key);
         $refunded()->handle();
@@ -1062,6 +1103,51 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals(0, (int) $this->invoice->fresh()->auto_bill_tries);
     }
 
+    public function testAutoBillSettlesAnAbandonedCollectionFirst(): void
+    {
+        $intent = $this->collect()->json();
+        $this->age(30);
+
+        (new AutoBillInvoice($this->invoice->fresh(), $this->company->db))->run();
+
+        $this->assertSame(CardPresent::STATUS_CANCELLED, $this->collectionStatus($intent['payment_intent_id']));
+    }
+
+    public function testAutoBillRecordsAChargeNobodyReportedInsteadOfChargingAgain(): void
+    {
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+        $this->age(30);
+
+        (new AutoBillInvoice($this->invoice->fresh(), $this->company->db))->run();
+
+        $this->assertSame(1, $this->terminalPayments()->count());
+        $this->assertSame(Invoice::STATUS_PAID, $this->invoice->fresh()->status_id);
+    }
+
+    public function testAWriteFromAnOlderCopyNeverUndoesARecording(): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        /* Written key by key, as JSON numbers */
+        $this->assertIsFloat($this->collection($intent['payment_intent_id'])->data->amount_with_fee);
+
+        /* A request still holding the collection as it was before the charge */
+        $older = CardPresent::forCollection($this->collection($intent['payment_intent_id']), $this->client);
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+        $this->assertFalse($older->updateState(['status_id' => CardPresent::STATUS_CANCELLED]));
+
+        $terminal = $this->collection($intent['payment_intent_id'])->data->terminal;
+        $this->assertSame(CardPresent::STATUS_RECORDED, $terminal->status_id);
+        $this->assertSame((int) round($quote['fee_gross'] * 100), $terminal->surcharge_refunded);
+    }
+
     public function testNothingLogsOrQueuesCardholderData(): void
     {
         $intent = $this->collect()->json();
@@ -1114,19 +1200,19 @@ class StripeTerminalTest extends TestCase
         $intent = $this->collect()->json();
         $this->stripe->charge($intent['payment_intent_id']);
 
-        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'client@example.com'])
+        $this->api()->postJson($this->url($intent['payment_intent_id'], 'receipt'), ['email' => 'client@example.com'])
             ->assertStatus(409)->assertJson(['error_code' => 'collection_closed']);
 
         $this->complete($intent['payment_intent_id'])->assertOk();
 
-        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'client@example.com'])->assertOk();
+        $this->api()->postJson($this->url($intent['payment_intent_id'], 'receipt'), ['email' => 'client@example.com'])->assertOk();
 
         $update = collect($this->stripe->requests)->first(fn ($request) => str_starts_with($request['path'], '/v1/charges/') && $request['method'] == 'post');
         $this->assertSame('client@example.com', $update['params']['receipt_email']);
         /* Stripe sends these outside the account's email limits: three per payment */
-        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'b@example.com'])->assertOk();
-        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'c@example.com'])->assertOk();
-        $this->api()->postJson("/api/v1/terminal/payment_intents/{$intent['payment_intent_id']}/receipt", ['email' => 'd@example.com'])
+        $this->api()->postJson($this->url($intent['payment_intent_id'], 'receipt'), ['email' => 'b@example.com'])->assertOk();
+        $this->api()->postJson($this->url($intent['payment_intent_id'], 'receipt'), ['email' => 'c@example.com'])->assertOk();
+        $this->api()->postJson($this->url($intent['payment_intent_id'], 'receipt'), ['email' => 'd@example.com'])
             ->assertStatus(429)->assertJson(['error_code' => 'receipt_limit']);
     }
 

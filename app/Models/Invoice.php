@@ -520,17 +520,6 @@ class Invoice extends BaseModel
         }
     }
 
-    /* An in-person card payment is being taken for this invoice */
-    public function hasOpenTerminalCollection(): bool
-    {
-        return TerminalPaymentIntent::query()
-            ->where('company_id', $this->company_id)
-            ->where('invoice_id', $this->id)
-            ->whereIn('status_id', TerminalPaymentIntent::OPEN_STATUSES)
-            ->where('created_at', '>', now()->subDays(30))
-            ->exists();
-    }
-
     public function isPayable(): bool
     {
         if ($this->is_deleted || $this->status_id == self::STATUS_PAID || $this->balance < 0) {

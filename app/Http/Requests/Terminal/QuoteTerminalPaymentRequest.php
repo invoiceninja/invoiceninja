@@ -18,6 +18,8 @@ use Illuminate\Validation\Rule;
 
 class QuoteTerminalPaymentRequest extends TerminalRequest
 {
+    private ?CompanyGateway $company_gateway = null;
+
     public function authorize(): bool
     {
         /** @var \App\Models\User $user */
@@ -62,8 +64,9 @@ class QuoteTerminalPaymentRequest extends TerminalRequest
         $this->replace($input);
     }
 
+    /* Read once: the validator and the controller both use it */
     public function companyGateway(): ?CompanyGateway
     {
-        return CompanyGateway::query()->find($this->input('company_gateway_id'));
+        return $this->company_gateway ??= CompanyGateway::query()->find($this->input('company_gateway_id'));
     }
 }

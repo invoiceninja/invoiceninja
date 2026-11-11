@@ -52,7 +52,8 @@ class SurchargePolicy
         }
 
         $country = ($account ?? $this->card_present->account())['country'];
-        $region = $this->region($country, $company_gateway->company->settings->state ?? '');
+        $company = $this->card_present->company();
+        $region = $this->region($country, $company->settings->state ?? '');
 
         if (!isset(self::CAPS[$country]) || $region == '' || in_array($region, self::BANNED_REGIONS[$country])) {
             return $deny('region');
@@ -62,7 +63,7 @@ class SurchargePolicy
             return $deny('not_acknowledged');
         }
 
-        if ($invoice && ($invoice->is_proforma || $invoice->company->verifactuEnabled() || strlen($invoice->backup->guid ?? '') > 0 || $invoice->isLocked())) {
+        if ($invoice && ($invoice->is_proforma || $company->verifactuEnabled() || strlen($invoice->backup->guid ?? '') > 0 || $invoice->isLocked())) {
             return $deny('invoice');
         }
 
@@ -72,7 +73,8 @@ class SurchargePolicy
     /* The figures the device shows before the card is read */
     public function quote(Invoice $invoice, float $amount, bool $apply_fee, bool $strict = false): array
     {
-        $precision = $invoice->client->currency()->precision;
+        $client = $this->card_present->stripe->client;
+        $precision = $client->currency()->precision;
         $policy = $this->check($invoice);
         $reason = $policy['reason'];
         $fee = ['net' => 0, 'gross' => 0];
@@ -97,7 +99,7 @@ class SurchargePolicy
             'fee_gross' => $fee['gross'],
             'fee_net' => $fee['net'],
             'total' => round($amount + $fee['gross'], $precision),
-            'currency_id' => $invoice->client->getSetting('currency_id'),
+            'currency_id' => $client->getSetting('currency_id'),
             'surcharge_allowed' => $policy['allowed'] && $reason === null,
             'reason' => $reason,
         ];

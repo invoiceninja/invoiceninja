@@ -12,31 +12,21 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\Cron\TerminalReconcileCron;
 use App\Libraries\MultiDB;
-use App\Models\TerminalPaymentIntent;
+use App\Models\PaymentHash;
+use App\PaymentDrivers\Stripe\CardPresent;
 use Illuminate\Console\Command;
 
 class TerminalReconcile extends Command
 {
     protected $signature = 'ninja:terminal-reconcile
-                            {--pi= : A Stripe PaymentIntent id (pi_...) to record}
+                            {hash : The payment_hash in the Stripe PaymentIntent\'s metadata}
                             {--db= : Limit to one database connection name (default: all shards)}';
 
-    protected $description = 'Record in-person (Stripe Terminal) card payments that were charged but not recorded';
+    protected $description = 'Record an in-person (Stripe Terminal) card payment that was charged but not recorded';
 
     public function handle(): int
     {
-        if (! $this->option('pi')) {
-            if ($this->option('db')) {
-                MultiDB::setDB($this->option('db'));
-            }
-
-            (new TerminalReconcileCron())->handle();
-
-            return self::SUCCESS;
-        }
-
         $dbs = $this->option('db') ? [$this->option('db')] : (config('ninja.db.multi_db_enabled') ? MultiDB::$dbs : [config('database.default')]);
 
         foreach ($dbs as $db) {
@@ -44,17 +34,17 @@ class TerminalReconcile extends Command
                 MultiDB::setDB($db);
             }
 
-            $collection = TerminalPaymentIntent::query()->where('payment_intent_id', $this->option('pi'))->first();
+            $payment_hash = PaymentHash::query()->where('hash', $this->argument('hash'))->first();
 
-            if ($collection) {
-                $result = $collection->cardPresent()->record($collection);
-                $this->info($this->option('pi') . ": {$result['status']}");
+            if (isset($payment_hash?->data->terminal)) {
+                $result = CardPresent::forCollection($payment_hash)->record($payment_hash->fee_invoice);
+                $this->info("{$payment_hash->data->terminal->payment_intent_id}: {$result['status']}");
 
                 return self::SUCCESS;
             }
         }
 
-        $this->error($this->option('pi') . ': not found');
+        $this->error($this->argument('hash') . ': no in-person collection');
 
         return self::FAILURE;
     }

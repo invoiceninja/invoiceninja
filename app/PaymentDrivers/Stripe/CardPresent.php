@@ -14,17 +14,21 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\TerminalException;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\Currency;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\Models\TerminalPaymentIntent;
 use App\Models\User;
+use App\PaymentDrivers\Stripe\Jobs\ReconcileTerminalPayment;
 use App\PaymentDrivers\Stripe\Terminal\RecordTerminalPayment;
 use App\PaymentDrivers\Stripe\Terminal\SurchargePolicy;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Number;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -33,13 +37,41 @@ use Stripe\Account;
 use Stripe\Charge;
 use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\IdempotencyException;
 use Stripe\PaymentIntent;
 use Stripe\Terminal\ConnectionToken;
 use Stripe\Terminal\Location;
 
-/* In-person card payments (Stripe Terminal): the device reads the card, we create and record every payment */
+/**
+ * In-person card payments (Stripe Terminal): the device reads the card, we create and record every payment.
+ *
+ * A collection is the PaymentHash its PaymentIntent pays: the invoice and fee are kept where the hash always
+ * keeps them, and the collection's own state under data->terminal. The driver carries the collection's
+ * gateway, client and payment hash; the invoice is passed through each operation.
+ */
 class CardPresent
 {
+    public const STATUS_CREATING = 1;
+
+    public const STATUS_OPEN = 2;
+
+    public const STATUS_RECORDED = 3;
+
+    public const STATUS_CANCELLED = 4;
+
+    public const STATUS_FAILED = 5;
+
+    public const STATUS_ORPHANED = 6;
+
+    public const STATUS_REJECTED = 7;
+
+    /* No second collection on an invoice while one of these exists */
+    public const OPEN_STATUSES = [self::STATUS_CREATING, self::STATUS_OPEN];
+
+    public const SURCHARGE_PATH_RECOLLECT = 'recollect';
+
+    public const SURCHARGE_PATH_NONE = 'none';
+
     /* Stripe's minor unit exponent for each Terminal currency */
     public const CURRENCY_EXPONENTS = [
         'usd' => 2, 'cad' => 2, 'gbp' => 2, 'eur' => 2, 'aud' => 2, 'nzd' => 2, 'sgd' => 2, 'chf' => 2,
@@ -60,14 +92,86 @@ class CardPresent
     {
     }
 
+    /* The driver for an existing collection: its own gateway, its invoice's client and its payment hash */
+    public static function forCollection(PaymentHash $payment_hash, ?Client $client = null): self
+    {
+        return CompanyGateway::withTrashed()
+            ->findOrFail($payment_hash->data->terminal->company_gateway_id)
+            ->driver($client ?? $payment_hash->fee_invoice?->client)
+            ->setPaymentHash($payment_hash)
+            ->cardPresent();
+    }
+
+    /**
+     * An invoice's collections, by the index on fee_invoice_id
+     *
+     * @return Builder<PaymentHash>
+     */
+    public static function collections(Invoice $invoice): Builder
+    {
+        return PaymentHash::query()
+            ->where('fee_invoice_id', $invoice->id)
+            ->whereNotNull('data->terminal');
+    }
+
     public function surcharge(): SurchargePolicy
     {
         return new SurchargePolicy($this);
     }
 
-    public function record(TerminalPaymentIntent $collection, ?PaymentIntent $pi = null): array
+    public function record(?Invoice $invoice, ?PaymentIntent $pi = null): array
     {
-        return (new RecordTerminalPayment($this))->run($collection, $pi);
+        return (new RecordTerminalPayment($this))->run($invoice, $pi);
+    }
+
+    /**
+     * Settles an invoice's open collections now (a charge is recorded, an abandoned one cancelled)
+     * before something else is charged for it: true while one is still being taken.
+     */
+    public static function settle(Invoice $invoice, string $db): bool
+    {
+        $open = fn () => self::collections($invoice)
+            ->whereIn('data->terminal->status_id', self::OPEN_STATUSES)
+            ->where('created_at', '>', now()->subDays(30));
+
+        $open()->pluck('id')->each(fn ($id) => ReconcileTerminalPayment::dispatchSync($id, $db));
+
+        return $open()->exists();
+    }
+
+    /* The collection's own state */
+    public function state(): \stdClass
+    {
+        return $this->stripe->payment_hash->data->terminal;
+    }
+
+    /* Key by key, never the whole of data, and only while it is open: false once another request settled it */
+    public function updateState(array $values, bool $while_open = true): bool
+    {
+        return $this->update(collect($values)->mapWithKeys(fn ($value, $key) => ["data->terminal->{$key}" => $value])->all(), $while_open);
+    }
+
+    /* The base amount: the invoice part of the payment hash, until recording settles it */
+    public function amount(): float
+    {
+        return (float) collect($this->stripe->payment_hash->invoices())->sum('amount');
+    }
+
+    public function isFinal(): bool
+    {
+        return !in_array($this->state()->status_id, self::OPEN_STATUSES);
+    }
+
+    /* Untouched for 20 minutes: abandoned, unless Stripe says it was charged */
+    public function isStale(): bool
+    {
+        return $this->stripe->payment_hash->updated_at->lt(now()->subMinutes(20));
+    }
+
+    /* The client's company where there is a client: the instance createPayment uses too */
+    public function company(): Company
+    {
+        return $this->stripe->client->company ?? $this->stripe->company_gateway->company;
     }
 
     /* Scoped to one of the gateway's own Locations: an unscoped token reaches every reader on the account */
@@ -159,13 +263,12 @@ class CardPresent
     /* One PaymentIntent per collection, at the base amount */
     public function createPaymentIntent(User $user, Invoice $invoice, array $data): array
     {
-        $existing = TerminalPaymentIntent::query()
-            ->where('company_id', $invoice->company_id)
-            ->where('collection_id', $data['collection_id'])
-            ->first();
+        $existing = self::collections($invoice)->where('data->terminal->collection_id', $data['collection_id'])->first();
 
         if ($existing) {
-            return $this->resume($existing, $invoice, $data);
+            $this->stripe->setPaymentHash($existing);
+
+            return $this->resume($invoice, $data);
         }
 
         $account = $this->account();
@@ -174,7 +277,7 @@ class CardPresent
             throw new TerminalException('not_enabled', 422);
         }
 
-        $currency = $invoice->client->currency();
+        $currency = $this->stripe->client->currency();
 
         if ((self::CURRENCY_EXPONENTS[strtolower($currency->code)] ?? -1) != $currency->precision || strtolower($currency->code) != $account['default_currency']) {
             throw new TerminalException('unsupported_currency', 422, [], ['currency' => strtoupper($account['default_currency'])]);
@@ -182,18 +285,12 @@ class CardPresent
 
         $this->settleOpenCollections($invoice);
 
-        $collection = DB::transaction(function () use ($user, $invoice, $data) {
-            /** @var Invoice $invoice */
-            $invoice = Invoice::withTrashed()->lockForUpdate()->find($invoice->id);
+        $payment_hash = DB::transaction(function () use ($user, &$invoice, $data, $currency) {
+            /* Read again under a lock: the balance may have moved since the request was bound */
+            $invoice = Invoice::withTrashed()->lockForUpdate()->find($invoice->id)->setRelation('client', $this->stripe->client);
 
-            $open = TerminalPaymentIntent::query()
-                ->where('company_id', $invoice->company_id)
-                ->where('invoice_id', $invoice->id)
-                ->whereIn('status_id', TerminalPaymentIntent::OPEN_STATUSES)
-                ->first();
-
-            if ($open) {
-                throw $this->collectionOpen($open);
+            if ($open = self::collections($invoice)->whereIn('data->terminal->status_id', self::OPEN_STATUSES)->first()) {
+                throw self::collectionOpen($open);
             }
 
             $this->validateAmount($invoice, $data['amount']);
@@ -201,19 +298,19 @@ class CardPresent
             /* Quoted before a draft is sent, so locking on send does not refuse the surcharge it was shown */
             $quote = $this->surcharge()->quote($invoice, $data['amount'], $data['apply_fee'], true);
 
-            if ($this->toStripe($invoice, $data['expected_total']) != $this->toStripe($invoice, $quote['total'])) {
+            if ($this->toStripe($data['expected_total']) != $this->toStripe($quote['total'])) {
                 throw new TerminalException('amount_mismatch', 409, ['quote' => $quote]);
             }
 
             if ($invoice->status_id == Invoice::STATUS_DRAFT) {
-                if ($invoice->company->verifactuEnabled()) {
+                if ($this->company()->verifactuEnabled()) {
                     throw new TerminalException('send_invoice_first', 422);
                 }
 
                 $invoice = $invoice->service()->markSent()->save();
             }
 
-            $payment_hash = PaymentHash::create([
+            return PaymentHash::create([
                 'hash' => Str::random(32),
                 'data' => [
                     'amount_with_fee' => $quote['amount'],
@@ -226,30 +323,30 @@ class CardPresent
                             'pre_payment' => false,
                         ],
                     ],
+                    'terminal' => [
+                        'collection_id' => $data['collection_id'],
+                        'company_gateway_id' => $this->stripe->company_gateway->id,
+                        'user_id' => $user->id,
+                        'status_id' => self::STATUS_CREATING,
+                        'payment_intent_id' => null,
+                        'currency' => strtolower($currency->code),
+                        'livemode' => $this->livemode(),
+                        /* The surcharge quoted: offered to every credit card read, whatever fee_total is now */
+                        'fee_gross' => $quote['fee_gross'],
+                        'fee_net' => $quote['fee_net'],
+                        'surcharge_path' => null,
+                        'surcharge_refunded' => 0,
+                        'receipts_sent' => 0,
+                    ],
                 ],
                 'fee_total' => 0,
                 'fee_invoice_id' => $invoice->id,
             ]);
-
-            return TerminalPaymentIntent::create([
-                'company_id' => $invoice->company_id,
-                'user_id' => $user->id,
-                'invoice_id' => $invoice->id,
-                'company_gateway_id' => $this->stripe->company_gateway->id,
-                'payment_hash_id' => $payment_hash->id,
-                'collection_id' => $data['collection_id'],
-                'currency' => strtolower($invoice->client->currency()->code),
-                'livemode' => $this->livemode(),
-                'amount' => $quote['amount'],
-                'fee_gross' => $quote['fee_gross'],
-                'fee_net' => $quote['fee_net'],
-                'apply_fee' => $quote['fee_gross'] > 0,
-                'status_id' => TerminalPaymentIntent::STATUS_CREATING,
-                'touched_at' => now(),
-            ]);
         });
 
-        return $this->openPaymentIntent($collection);
+        $this->stripe->setPaymentHash($payment_hash);
+
+        return $this->openPaymentIntent($invoice);
     }
 
     /**
@@ -257,35 +354,35 @@ class CardPresent
      * A credit card with a surcharge: the PaymentIntent is raised, the card read again,
      * and finalize called again, since the customer may present another card.
      */
-    public function finalize(TerminalPaymentIntent $collection): array
+    public function finalize(Invoice $invoice): array
     {
-        if ($collection->status_id != TerminalPaymentIntent::STATUS_OPEN || !$collection->payment_intent_id || !$collection->invoice) {
+        $state = $this->state();
+
+        if ($state->status_id != self::STATUS_OPEN || !$state->payment_intent_id) {
             throw new TerminalException('collection_closed');
         }
 
-        $invoice = $collection->invoice;
-
         /* The client's currency changed since: the PaymentIntent is in one the invoice no longer is */
-        if (strtolower($invoice->client->currency()->code) != $collection->currency) {
-            throw new TerminalException('unsupported_currency', 422, [], ['currency' => strtoupper($collection->currency)]);
+        if (strtolower($this->stripe->client->currency()->code) != $state->currency) {
+            throw new TerminalException('unsupported_currency', 422, [], ['currency' => strtoupper($state->currency)]);
         }
 
         /* Before every decision, for every card: the invoice must still take the amount */
         if ($invoice->is_deleted || in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])
-            || $this->toStripe($invoice, $invoice->balance) < $this->toStripe($invoice, $collection->amount)) {
+            || $this->toStripe($invoice->balance) < $this->toStripe($this->amount())) {
             throw new TerminalException('balance_changed', 409, ['balance' => $invoice->balance]);
         }
 
         /* No surcharge asked for: nothing to read from Stripe */
-        if (!$collection->apply_fee) {
-            $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_NONE, 0);
+        if ($state->fee_gross <= 0) {
+            $this->setSurcharge(self::SURCHARGE_PATH_NONE, 0);
 
-            return $this->finalizeResponse($collection, false);
+            return $this->finalizeResponse(false);
         }
 
         $this->stripe->init();
 
-        $pi = PaymentIntent::retrieve(['id' => $collection->payment_intent_id, 'expand' => ['payment_method']], $this->stripe->stripe_connect_auth);
+        $pi = PaymentIntent::retrieve(['id' => $state->payment_intent_id, 'expand' => ['payment_method']], $this->stripe->stripe_connect_auth);
         $collected = $pi->status == 'requires_confirmation';
         $funding = ($pi->payment_method->type ?? null) == 'card_present' ? ($pi->payment_method->card_present->funding ?? null) : null;
 
@@ -297,20 +394,20 @@ class CardPresent
         $surcharge_allowed = $this->surcharge()->check()['allowed'];
 
         /* After the amount was raised: confirm a credit card, otherwise drop the surcharge and read again */
-        if ($collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT) {
-            /* Set back first, even when the card was not read: it is read again at that amount */
-            if ($this->resetAmount($collection, $pi, $collection->fee_gross) || !$collected) {
-                return $this->finalizeResponse($collection, true);
+        if ($state->surcharge_path == self::SURCHARGE_PATH_RECOLLECT) {
+            /* Set back first, even when the card was not read: it is read again at that amount (runs before the collected check) */
+            if ($this->resetAmount($invoice, $pi, $state->fee_gross) || !$collected) {
+                return $this->finalizeResponse(true);
             }
 
             if ($funding == 'credit' && $surcharge_allowed) {
-                return $this->finalizeResponse($collection, false, $funding);
+                return $this->finalizeResponse(false, $funding);
             }
 
-            PaymentIntent::update($pi->id, ['amount' => $this->toStripe($invoice, $collection->amount), 'description' => $this->description($invoice)], $this->stripe->stripe_connect_auth);
-            $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_NONE, 0);
+            PaymentIntent::update($pi->id, ['amount' => $this->toStripe($this->amount()), 'description' => $this->description($invoice)], $this->stripe->stripe_connect_auth);
+            $this->setSurcharge(self::SURCHARGE_PATH_NONE, 0);
 
-            return $this->finalizeResponse($collection, true, $funding);
+            return $this->finalizeResponse(true, $funding);
         }
 
         if (!$collected) {
@@ -318,40 +415,40 @@ class CardPresent
         }
 
         if ($funding != 'credit' || !$surcharge_allowed) {
-            $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_NONE, 0);
+            $this->setSurcharge(self::SURCHARGE_PATH_NONE, 0);
 
-            return $this->finalizeResponse($collection, $this->resetAmount($collection, $pi, 0), $funding);
+            return $this->finalizeResponse($this->resetAmount($invoice, $pi, 0), $funding);
         }
 
         PaymentIntent::update($pi->id, [
-            'amount' => $this->toStripe($invoice, $collection->amount + $collection->fee_gross),
-            'description' => $this->description($invoice, $collection->fee_gross),
+            'amount' => $this->toStripe($this->amount() + $state->fee_gross),
+            'description' => $this->description($invoice, $state->fee_gross),
         ], $this->stripe->stripe_connect_auth);
 
-        $this->setSurcharge($collection, TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT, $collection->fee_gross);
+        $this->setSurcharge(self::SURCHARGE_PATH_RECOLLECT, $state->fee_gross);
 
-        return $this->finalizeResponse($collection, true, $funding);
+        return $this->finalizeResponse(true, $funding);
     }
 
     /* Cancels only what Stripe cancels: a PaymentIntent in flight is left to be recorded */
-    public function cancel(TerminalPaymentIntent $collection): array
+    public function cancel(?Invoice $invoice): array
     {
-        if ($collection->isFinal()) {
-            return $this->record($collection);
+        if ($this->isFinal()) {
+            return $this->record($invoice);
         }
 
-        if (!$collection->payment_intent_id) {
-            $collection->update(['status_id' => TerminalPaymentIntent::STATUS_FAILED]);
+        if (!$this->state()->payment_intent_id) {
+            $this->updateState(['status_id' => self::STATUS_FAILED]);
 
             return ['status' => 'canceled'];
         }
 
         $this->stripe->init();
 
-        $pi = PaymentIntent::retrieve(['id' => $collection->payment_intent_id, 'expand' => ['latest_charge']], $this->stripe->stripe_connect_auth);
+        $pi = PaymentIntent::retrieve(['id' => $this->state()->payment_intent_id, 'expand' => ['latest_charge']], $this->stripe->stripe_connect_auth);
 
         if ($pi->status == 'succeeded') {
-            return $this->record($collection, $pi);
+            return $this->record($invoice, $pi);
         }
 
         if (in_array($pi->status, self::CANCELLABLE)) {
@@ -362,28 +459,30 @@ class CardPresent
             return ['status' => $pi->status];
         }
 
-        $collection->update(['status_id' => TerminalPaymentIntent::STATUS_CANCELLED]);
+        $this->updateState(['status_id' => self::STATUS_CANCELLED]);
 
         return ['status' => 'canceled'];
     }
 
     /* Stripe's own receipt carries the card network fields */
-    public function receipt(TerminalPaymentIntent $collection, string $email): void
+    public function receipt(string $email): void
     {
-        if ($collection->status_id != TerminalPaymentIntent::STATUS_RECORDED || !$collection->payment) {
+        $payment = $this->stripe->payment_hash->payment;
+
+        if ($this->state()->status_id != self::STATUS_RECORDED || !$payment) {
             throw new TerminalException('collection_closed');
         }
 
         /* Stripe sends it, outside the account's email limits: a few per payment */
-        if ($collection->receipts_sent >= 3) {
+        if ($this->state()->receipts_sent >= 3) {
             throw new TerminalException('receipt_limit', 429);
         }
 
         $this->stripe->init();
 
-        Charge::update($collection->payment->transaction_reference, ['receipt_email' => $email], $this->stripe->stripe_connect_auth);
+        Charge::update($payment->transaction_reference, ['receipt_email' => $email], $this->stripe->stripe_connect_auth);
 
-        $collection->increment('receipts_sent');
+        $this->updateState(['receipts_sent' => $this->state()->receipts_sent + 1], false);
     }
 
     public static function isCardPresent(array $object): bool
@@ -393,169 +492,195 @@ class CardPresent
         return in_array('card_present', $types) || in_array('interac_present', $types);
     }
 
-    public function toStripe(Invoice $invoice, float $amount, ?Currency $currency = null): int
+    /* In the client's currency, unless another is given */
+    public function toStripe(float $amount, ?Currency $currency = null): int
     {
-        $currency ??= $invoice->client->currency();
+        $currency ??= $this->stripe->client->currency();
 
         /* Rounded, not truncated: a zero-decimal currency comes back as the raw float */
         return (int) round($this->stripe->convertToStripeAmount($amount, $currency->precision, $currency));
     }
 
     /* Charged money that was not recorded as expected */
-    public function alert(TerminalPaymentIntent $collection, string $message): void
+    public function alert(string $message): void
     {
-        $this->log($collection, SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE, $message);
+        $this->log(SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE, $message);
 
-        \Sentry\captureMessage("Terminal payment {$collection->payment_intent_id}: {$message}");
+        \Sentry\captureMessage("Terminal payment {$this->state()->payment_intent_id}: {$message}");
     }
 
     /* Never the PaymentIntent itself: it carries a client secret and cardholder data */
-    public function log(TerminalPaymentIntent $collection, int $event_id, string $message): void
+    public function log(int $event_id, string $message): void
     {
-        nlog("terminal: {$message} {$collection->payment_intent_id}");
+        $state = $this->state();
+
+        nlog("terminal: {$message} {$state->payment_intent_id}");
 
         SystemLogger::dispatch(
-            ['message' => $message, 'collection_id' => $collection->collection_id, 'payment_intent' => $collection->payment_intent_id, 'amount' => $collection->amount],
+            ['message' => $message, 'collection_id' => $state->collection_id, 'payment_intent' => $state->payment_intent_id, 'amount' => $this->amount()],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             $event_id,
             SystemLog::TYPE_STRIPE,
-            $collection->invoice?->client,
-            $collection->company,
+            $this->stripe->client,
+            $this->company(),
         );
     }
 
-    private function resume(TerminalPaymentIntent $collection, Invoice $invoice, array $data): array
+    private function resume(Invoice $invoice, array $data): array
     {
-        if ($collection->invoice_id != $invoice->id || $collection->company_gateway_id != $this->stripe->company_gateway->id
-            || $this->toStripe($invoice, $collection->amount) != $this->toStripe($invoice, $data['amount']) || $collection->apply_fee != $data['apply_fee']) {
+        $state = $this->state();
+
+        if ($state->company_gateway_id != $this->stripe->company_gateway->id || ($state->fee_gross > 0) != $data['apply_fee']) {
             throw new TerminalException('amount_mismatch');
         }
 
-        if (in_array($collection->status_id, [TerminalPaymentIntent::STATUS_CANCELLED, TerminalPaymentIntent::STATUS_FAILED, TerminalPaymentIntent::STATUS_REJECTED])) {
+        if (in_array($state->status_id, [self::STATUS_CANCELLED, self::STATUS_FAILED, self::STATUS_REJECTED])) {
             throw new TerminalException('collection_closed');
         }
 
-        if ($collection->isFinal()) {
+        if ($this->isFinal()) {
             throw new TerminalException('already_paid');
         }
 
-        if (!$collection->payment_intent_id) {
-            return $this->openPaymentIntent($collection);
+        /* Recording rewrites the invoice part: compared only while it is open */
+        if ($this->toStripe($this->amount()) != $this->toStripe($data['amount'])) {
+            throw new TerminalException('amount_mismatch');
+        }
+
+        if (!$state->payment_intent_id) {
+            return $this->openPaymentIntent($invoice);
         }
 
         $this->stripe->init();
 
-        $pi = PaymentIntent::retrieve(['id' => $collection->payment_intent_id, 'expand' => ['latest_charge']], $this->stripe->stripe_connect_auth);
+        $pi = PaymentIntent::retrieve(['id' => $state->payment_intent_id, 'expand' => ['latest_charge']], $this->stripe->stripe_connect_auth);
 
         if ($pi->status == 'succeeded') {
-            $this->record($collection, $pi);
+            $this->record($invoice, $pi);
 
             throw new TerminalException('already_paid');
         }
 
         if ($pi->status == 'canceled') {
-            $collection->update(['status_id' => TerminalPaymentIntent::STATUS_CANCELLED]);
+            $this->updateState(['status_id' => self::STATUS_CANCELLED]);
 
             throw new TerminalException('collection_closed');
         }
 
-        $collection->update(['touched_at' => now()]);
+        $this->stripe->payment_hash->touch();
 
-        return $this->intentResponse($collection, $pi);
+        /* Followed until it is final, should the first dispatch have been lost */
+        $this->follow();
+
+        return $this->intentResponse($pi);
     }
 
-    private function openPaymentIntent(TerminalPaymentIntent $collection): array
+    private function openPaymentIntent(Invoice $invoice): array
     {
-        $invoice = $collection->invoice;
+        $state = $this->state();
 
         $this->stripe->init();
 
         try {
             $pi = PaymentIntent::create([
-                'amount' => $this->toStripe($invoice, $collection->amount),
-                'currency' => $collection->currency,
-                'payment_method_types' => $collection->currency == 'cad' ? ['card_present', 'interac_present'] : ['card_present'],
+                'amount' => $this->toStripe($this->amount()),
+                'currency' => $state->currency,
+                'payment_method_types' => $state->currency == 'cad' ? ['card_present', 'interac_present'] : ['card_present'],
                 'capture_method' => 'automatic',
                 'description' => $this->description($invoice),
                 'metadata' => [
-                    'payment_hash' => $collection->payment_hash->hash,
+                    'payment_hash' => $this->stripe->payment_hash->hash,
                     'gateway_type_id' => (string) GatewayType::CARD_PRESENT,
                     'invoice_id' => (string) $invoice->hashed_id,
                     'invoice_number' => (string) $invoice->number,
-                    'collection_id' => $collection->collection_id,
+                    'collection_id' => $state->collection_id,
                 ],
-            ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_{$collection->company_id}_{$collection->invoice_id}_{$collection->collection_id}"]));
-        } catch (ApiConnectionException $e) {
-            throw $e; // Stripe may have created it: resuming with the same key finds out
+            ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_{$invoice->company_id}_{$invoice->id}_{$state->collection_id}"]));
+        } catch (ApiConnectionException|IdempotencyException $e) {
+            throw $e; // Stripe may have created it, or is creating it for the same key: resuming finds out
         } catch (ApiErrorException $e) {
-            $collection->update(['status_id' => TerminalPaymentIntent::STATUS_FAILED]);
+            $this->updateState(['status_id' => self::STATUS_FAILED]);
 
             throw $e;
         }
 
-        $collection->update([
+        $opened = $this->updateState([
             'payment_intent_id' => $pi->id,
-            'status_id' => TerminalPaymentIntent::STATUS_OPEN,
+            'status_id' => self::STATUS_OPEN,
             'livemode' => $pi->livemode,
-            'touched_at' => now(),
         ]);
 
-        return $this->intentResponse($collection, $pi);
+        /* Given up on while Stripe created it: nothing may ever charge it */
+        if (!$opened) {
+            $pi->cancel([], $this->stripe->stripe_connect_auth);
+
+            throw new TerminalException('collection_closed');
+        }
+
+        /* Records the charge should nobody report it, and cancels the collection should it be abandoned */
+        $this->follow();
+
+        return $this->intentResponse($pi);
     }
 
     /* One collection per invoice: a charged one is recorded, a live one refuses, a stale one is cancelled */
     private function settleOpenCollections(Invoice $invoice): void
     {
-        $collections = TerminalPaymentIntent::query()
-            ->where('company_id', $invoice->company_id)
-            ->where('invoice_id', $invoice->id)
-            ->whereIn('status_id', TerminalPaymentIntent::OPEN_STATUSES)
-            ->get();
+        $open = self::collections($invoice)->whereIn('data->terminal->status_id', self::OPEN_STATUSES)->get();
 
-        foreach ($collections as $collection) {
+        foreach ($open as $payment_hash) {
+            /* Another collection: this request's client and invoice, its own gateway */
+            $company_gateway = $payment_hash->data->terminal->company_gateway_id == $this->stripe->company_gateway->id
+                ? $this->stripe->company_gateway
+                : CompanyGateway::withTrashed()->findOrFail($payment_hash->data->terminal->company_gateway_id);
+
+            $collection = $company_gateway->driver($this->stripe->client)->setPaymentHash($payment_hash)->cardPresent();
+
             /* Stripe never answered its create: after two minutes it isn't coming */
-            if (!$collection->payment_intent_id && $collection->created_at->lt(now()->subMinutes(2))) {
-                $collection->update(['status_id' => TerminalPaymentIntent::STATUS_FAILED]);
+            if (!$collection->state()->payment_intent_id && $payment_hash->created_at->lt(now()->subMinutes(2))) {
+                $collection->updateState(['status_id' => self::STATUS_FAILED]);
 
                 continue;
             }
 
             try {
-                $result = $collection->payment_intent_id ? $collection->cardPresent()->record($collection) : ['status' => 'creating'];
+                $result = $collection->state()->payment_intent_id ? $collection->record($invoice) : ['status' => 'creating'];
             } catch (ApiErrorException $e) {
-                throw $this->collectionOpen($collection);
+                throw self::collectionOpen($payment_hash);
             }
 
             if (in_array($result['status'], ['recorded', 'unapplied', 'recording', 'processing'])) {
                 throw new TerminalException('already_paid');
             }
 
-            if ($collection->fresh()->isFinal()) {
+            if ($collection->isFinal()) {
                 continue;
             }
 
             if (!$collection->isStale()) {
-                throw $this->collectionOpen($collection);
+                throw self::collectionOpen($payment_hash);
             }
 
             try {
-                $cancelled = $collection->cardPresent()->cancel($collection->fresh())['status'] == 'canceled';
+                $cancelled = $collection->cancel($invoice)['status'] == 'canceled';
             } catch (ApiErrorException $e) {
                 $cancelled = false;
             }
 
             if (!$cancelled) {
-                throw $this->collectionOpen($collection);
+                throw self::collectionOpen($payment_hash);
             }
         }
     }
 
-    private function collectionOpen(TerminalPaymentIntent $collection): TerminalException
+    private static function collectionOpen(PaymentHash $payment_hash): TerminalException
     {
+        $state = $payment_hash->data->terminal;
+
         return new TerminalException('collection_open', 409, [
-            'payment_intent_id' => $collection->payment_intent_id,
-            'user' => $collection->user?->present()->name(),
-            'age' => (int) $collection->created_at->diffInSeconds(now(), true),
+            'payment_intent_id' => $state->payment_intent_id,
+            'user' => User::withTrashed()->find($state->user_id)?->present()->name(),
+            'age' => (int) $payment_hash->created_at->diffInSeconds(now(), true),
         ]);
     }
 
@@ -570,46 +695,85 @@ class CardPresent
         $min = floatval($fees_and_limits->min_limit ?? -1);
         $max = floatval($fees_and_limits->max_limit ?? -1);
 
-        if ($this->toStripe($invoice, $amount) <= 0 || $this->toStripe($invoice, $amount) > $this->toStripe($invoice, $payable)
+        if ($this->toStripe($amount) <= 0 || $this->toStripe($amount) > $this->toStripe($payable)
             || ($min > 0 && $amount < $min) || ($max > 0 && $amount > $max)) {
             throw ValidationException::withMessages(['amount' => ctrans('texts.terminal_invalid_amount')]);
         }
     }
 
     /* The device confirms the amount we answer: a PaymentIntent left at another one, by an update whose response was lost, is set back (true) and the card read again */
-    private function resetAmount(TerminalPaymentIntent $collection, PaymentIntent $pi, float $surcharge): bool
+    private function resetAmount(Invoice $invoice, PaymentIntent $pi, float $surcharge): bool
     {
-        $amount = $this->toStripe($collection->invoice, $collection->amount + $surcharge);
+        $amount = $this->toStripe($this->amount() + $surcharge);
 
         if ($pi->amount == $amount) {
             return false;
         }
 
-        PaymentIntent::update($pi->id, ['amount' => $amount, 'description' => $this->description($collection->invoice, $surcharge)], $this->stripe->stripe_connect_auth);
+        PaymentIntent::update($pi->id, ['amount' => $amount, 'description' => $this->description($invoice, $surcharge)], $this->stripe->stripe_connect_auth);
 
         return true;
     }
 
-    private function setSurcharge(TerminalPaymentIntent $collection, string $path, float $fee): void
+    /* The fee the PaymentIntent now carries, where every payment hash keeps it */
+    private function setSurcharge(string $path, float $fee): void
     {
-        $payment_hash = $collection->payment_hash;
+        $this->update([
+            'fee_total' => $fee,
+            'data->fee_net' => $fee > 0 ? $this->state()->fee_net : 0,
+            'data->amount_with_fee' => $this->amount() + $fee,
+            'data->terminal->surcharge_path' => $path,
+        ]);
+    }
+
+    /* The reconciliation job; on the sync driver a delayed job runs now and never again, so auto-bill and the next collection settle it there */
+    private function follow(): void
+    {
+        if (config('queue.default') != 'sync') {
+            ReconcileTerminalPayment::dispatch($this->stripe->payment_hash->id, $this->company()->db)->delay(now()->addSeconds(ReconcileTerminalPayment::FIRST_LOOK));
+        }
+    }
+
+    /* One UPDATE of just these columns and JSON paths, mirrored on the instance this operation holds */
+    private function update(array $values, bool $while_open = true): bool
+    {
+        $payment_hash = $this->stripe->payment_hash;
+
+        /* A float goes in as a JSON number, not the string a bound parameter would make it */
+        $changed = PaymentHash::query()
+            ->whereKey($payment_hash->id)
+            ->when($while_open, fn ($query) => $query->whereIn('data->terminal->status_id', self::OPEN_STATUSES))
+            ->update(array_map(fn ($value) => is_float($value) ? DB::raw(json_encode($value)) : $value, $values));
+
+        /* Settled by another request meanwhile: what it wrote stands, and this copy catches up */
+        if (!$changed) {
+            $payment_hash->refresh();
+
+            return false;
+        }
 
         $data = $payment_hash->data;
-        $data->fee_net = $fee > 0 ? $collection->fee_net : 0;
-        $data->amount_with_fee = $collection->amount + $fee;
+
+        foreach ($values as $key => $value) {
+            match (true) {
+                str_starts_with($key, 'data->terminal->') => $data->terminal->{substr($key, 16)} = $value,
+                str_starts_with($key, 'data->') => $data->{substr($key, 6)} = $value,
+                default => $payment_hash->{$key} = $value,
+            };
+        }
 
         $payment_hash->data = $data;
-        $payment_hash->fee_total = $fee;
-        $payment_hash->save();
+        $payment_hash->updated_at = now();
+        $payment_hash->syncOriginal();
 
-        $collection->update(['surcharge_path' => $path, 'touched_at' => now()]);
+        return true;
     }
 
     private function description(Invoice $invoice, ?float $surcharge = null): string
     {
         $description = ctrans('texts.invoice') . ' ' . $invoice->number;
 
-        return $surcharge ? $description . ' (' . ctrans('texts.credit_card_surcharge') . ' ' . Number::formatMoney($surcharge, $invoice->client) . ')' : $description;
+        return $surcharge ? $description . ' (' . ctrans('texts.credit_card_surcharge') . ' ' . Number::formatMoney($surcharge, $this->stripe->client) . ')' : $description;
     }
 
     private function cacheKey(string $name): string
@@ -619,32 +783,34 @@ class CardPresent
         return 'terminal_' . $name . ':' . config('database.default') . ':' . $gateway->id . ':' . md5($gateway->getConfigField('account_id') . $gateway->getConfigField('apiKey'));
     }
 
-    private function intentResponse(TerminalPaymentIntent $collection, PaymentIntent $pi): array
+    private function intentResponse(PaymentIntent $pi): array
     {
+        $state = $this->state();
+
         return [
-            'collection_id' => $collection->collection_id,
+            'collection_id' => $state->collection_id,
             'payment_intent_id' => $pi->id,
             'client_secret' => $pi->client_secret,
-            'amount' => $collection->amount,
-            'fee_gross' => $collection->fee_gross,
-            'total' => $collection->amount + $collection->fee_gross,
-            'currency' => $collection->currency,
-            'livemode' => $collection->livemode,
+            'amount' => $this->amount(),
+            'fee_gross' => $state->fee_gross,
+            'total' => $this->amount() + $state->fee_gross,
+            'currency' => $state->currency,
+            'livemode' => $state->livemode,
         ];
     }
 
-    private function finalizeResponse(TerminalPaymentIntent $collection, bool $recollect, ?string $funding = null): array
+    private function finalizeResponse(bool $recollect, ?string $funding = null): array
     {
-        $collection->refresh();
+        $state = $this->state();
 
-        $surcharge = $collection->surcharge_path == TerminalPaymentIntent::SURCHARGE_PATH_RECOLLECT ? $collection->fee_gross : 0;
+        $surcharge = $state->surcharge_path == self::SURCHARGE_PATH_RECOLLECT ? $state->fee_gross : 0;
 
         return [
-            'path' => $collection->surcharge_path,
+            'path' => $state->surcharge_path,
             'recollect' => $recollect,
             'funding' => $funding,
-            'amount' => $collection->amount + $surcharge,
-            'amount_minor' => $this->toStripe($collection->invoice, $collection->amount + $surcharge),
+            'amount' => $this->amount() + $surcharge,
+            'amount_minor' => $this->toStripe($this->amount() + $surcharge),
             'surcharge' => $surcharge,
         ];
     }

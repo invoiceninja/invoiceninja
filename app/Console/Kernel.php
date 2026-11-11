@@ -18,7 +18,6 @@ use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Cron\AutoBillCron;
-use App\Jobs\Cron\TerminalReconcileCron;
 use App\Jobs\Cron\FranceEReportingCron;
 use App\Jobs\Util\VersionCheck;
 use App\Jobs\Ninja\TaskScheduler;
@@ -63,9 +62,6 @@ class Kernel extends ConsoleKernel
 
         /* Returns the number of jobs in the queue */
         $schedule->job(new QueueSize())->everyFiveMinutes()->withoutOverlapping()->name('queue-size-job')->onOneServer();
-
-        /* Records in person card payments Stripe charged but nobody recorded */
-        $schedule->job(new TerminalReconcileCron())->everyFiveMinutes()->withoutOverlapping()->name('terminal-reconcile-job')->onOneServer();
 
         /* Send reminders */
         $schedule->job(new ReminderJob())->hourly()->withoutOverlapping()->name('reminder-job')->onOneServer();

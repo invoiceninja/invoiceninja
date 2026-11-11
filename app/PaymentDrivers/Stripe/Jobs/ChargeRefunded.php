@@ -23,7 +23,6 @@ use App\Services\Email\EmailObject;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
-use App\Models\TerminalPaymentIntent;
 use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Queue\InteractsWithQueue;
@@ -63,15 +62,6 @@ class ChargeRefunded implements ShouldQueue
         $payment_intent = $source['payment_intent'] ?? null;
         $amount_refunded = $source['amount_refunded'] ?? 0;
 
-        /* A surcharge we refunded when an in-person payment was recorded is not a refund of that payment */
-        if (CardPresent::isCardPresent($source)) {
-            $amount_refunded -= (int) TerminalPaymentIntent::query()->where('company_id', $company->id)->where('payment_intent_id', $payment_intent)->value('surcharge_refunded');
-
-            if ($amount_refunded <= 0) {
-                return;
-            }
-        }
-
         $payment_hash_key = $source['metadata']['payment_hash'] ?? null;
 
         /** @var \App\Models\Payment|null $payment **/
@@ -81,6 +71,15 @@ class ChargeRefunded implements ShouldQueue
         $payment_hash = $payment_hash_key
             ? PaymentHash::query()->where('hash', $payment_hash_key)->first()
             : null;
+
+        /* A surcharge we refunded when an in-person payment was recorded is not a refund of that payment */
+        if (CardPresent::isCardPresent($source)) {
+            $amount_refunded -= (int) ($payment_hash?->data->terminal->surcharge_refunded ?? 0);
+
+            if ($amount_refunded <= 0) {
+                return;
+            }
+        }
 
         if (! $payment) {
             $payment = $payment_hash?->payment;
