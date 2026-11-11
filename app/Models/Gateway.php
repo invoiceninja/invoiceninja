@@ -116,6 +116,8 @@ class Gateway extends StaticModel
             $link = 'https://notes.chip-in.asia/s/faq/p/Qwsatm6PeN';
         } elseif ($this->id == 69) {
             $link = 'https://www.helcim.com/';
+        } elseif ($this->id == 71) {
+            $link = 'https://developer.revolut.com/docs/guides/merchant/get-started';
         }
 
         return $link;
@@ -284,6 +286,10 @@ class Gateway extends StaticModel
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
                 ]; //Helcim
+            case 71:
+                return [
+                    GatewayType::HOSTED_PAGE => ['refund' => true, 'token_billing' => false, 'webhooks' => ['ORDER_COMPLETED', 'ORDER_AUTHORISED', 'ORDER_CANCELLED', 'ORDER_FAILED']],
+                ]; //Revolut
             default:
                 return [];
         }
