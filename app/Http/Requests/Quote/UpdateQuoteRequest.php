@@ -86,15 +86,31 @@ class UpdateQuoteRequest extends Request
         }
 
         $validator->after(function (Validator $validator): void {
-        
-            if (($this->boolean('mark_sent') || $this->boolean('send_email') || $this->boolean('email')) && $this->quote->hasLapsedValidUntil($this->input('due_date', $this->quote->due_date))) {
-                $validator->errors()->add(
-                    'due_date',
-                    ctrans('texts.expired_quote_validation_error'),
-                );
+            $sending = $this->boolean('mark_sent')
+                || $this->boolean('send_email')
+                || $this->boolean('email');
+            $changingDueDate = $this->filled('due_date')
+                && $this->input('due_date') != $this->quote->due_date?->format('Y-m-d');
+
+            if (! $sending && ! $changingDueDate) {
+                return;
             }
 
-            if ($this->filled('due_date') && $this->input('due_date') != $this->quote->due_date?->format('Y-m-d') && $this->quote->hasLapsedValidUntil($this->input('due_date'))) {
+            $candidate = clone $this->quote;
+
+            if (array_key_exists('due_date', $this->all())) {
+                $candidate->due_date = $this->input('due_date');
+            }
+
+            if (! $candidate->hasLapsedValidUntil()) {
+                return;
+            }
+
+            if ($sending) {
+                $validator->errors()->add('due_date', ctrans('texts.expired_quote_validation_error'));
+            }
+
+            if ($changingDueDate) {
                 $validator->errors()->add('due_date', ctrans('texts.quote_due_date_expired'));
             }
         });

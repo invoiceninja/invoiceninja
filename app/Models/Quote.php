@@ -290,7 +290,15 @@ class Quote extends BaseModel
             return false;
         }
 
-        return Carbon::parse($due)->addDay()->lte(now()->setTimezone($this->client->timezone()->name)->startOfDay());
+        $quote_valid_date = Carbon::parse($due)->toDateString();
+
+        $client_date_now = now()
+            ->setTimezone($this->client->timezone()->name)
+            ->toDateString();
+    
+        /** lexigraphical comparison is used to compare the dates as strings */
+        return $quote_valid_date < $client_date_now;
+
     }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo

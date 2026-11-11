@@ -90,32 +90,39 @@ class QuotesTable extends Component
             });
 
         if (count($this->status) > 0) {
-            if (in_array('-1', $this->status)) {
-                $query->where(function ($query) {
-                    $query->whereDate('due_date', '<=', now()->startOfDay())
-                          ->whereNotNull('due_date')
-                          ->where('status_id', '<>', Quote::STATUS_CONVERTED);
-                });
-            }
+            $client = auth()->guard('contact')->user()->client;
+            $today = now($client->timezone()->name)->toDateString();
+            $statuses = array_map('strval', $this->status);
 
-            if (in_array('2', $this->status)) {
-                $query->where(function ($query) {
-                    $query->whereDate('due_date', '>=', now()->startOfDay())
-                          ->orWhereNull('due_date');
-                })->where('status_id', Quote::STATUS_SENT);
-            }
+            $query->where(function (Builder $query) use ($statuses, $today) {
+                if (in_array((string) Quote::STATUS_EXPIRED, $statuses, true)) {
+                    $query->orWhere(function (Builder $query) use ($today) {
+                        $query->where('status_id', Quote::STATUS_SENT)
+                            ->where('due_date', '<', $today);
+                    });
+                }
 
-            if (in_array('3', $this->status)) {
-                $query->whereIn('status_id', [Quote::STATUS_APPROVED, Quote::STATUS_CONVERTED]);
-            }
+                if (in_array((string) Quote::STATUS_SENT, $statuses, true)) {
+                    $query->orWhere(function (Builder $query) use ($today) {
+                        $query->where('status_id', Quote::STATUS_SENT)
+                            ->where(function (Builder $query) use ($today) {
+                                $query->whereNull('due_date')->orWhere('due_date', '>=', $today);
+                            });
+                    });
+                }
 
-            if (in_array('5', $this->status)) {
-                $query->where('status_id', Quote::STATUS_REJECTED);
-            }
+                if (in_array((string) Quote::STATUS_APPROVED, $statuses, true)) {
+                    $query->orWhereIn('status_id', [Quote::STATUS_APPROVED, Quote::STATUS_CONVERTED]);
+                }
 
-            if (in_array('6', $this->status)) {
-                $query->where('status_id', Quote::STATUS_CANCELLED);
-            }
+                if (in_array((string) Quote::STATUS_REJECTED, $statuses, true)) {
+                    $query->orWhere('status_id', Quote::STATUS_REJECTED);
+                }
+
+                if (in_array((string) Quote::STATUS_CANCELLED, $statuses, true)) {
+                    $query->orWhere('status_id', Quote::STATUS_CANCELLED);
+                }
+            });
         }
 
         return $query

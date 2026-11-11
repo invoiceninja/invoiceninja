@@ -78,6 +78,10 @@ class RecurringInvoiceTransformer extends EntityTransformer
     {
         $transformer = new ClientTransformer($this->serializer, $this->user);
 
+        if($this->user?->cannot('view', $invoice->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($invoice->client, $transformer, Client::class);
     }
 

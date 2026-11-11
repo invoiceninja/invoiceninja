@@ -29,6 +29,7 @@ class InvoiceSync implements Castable
         public string $qb_status = '',
         public string $qb_sync_token = '',
         public string $qb_status_message = '',
+        public bool $dn_dirty = false,
     ) {}
 
     /**
@@ -51,6 +52,7 @@ class InvoiceSync implements Castable
             qb_status: $data['qb_status'] ?? '',
             qb_sync_token: $data['qb_sync_token'] ?? '',
             qb_status_message: $data['qb_status_message'] ?? '',
+            dn_dirty: (bool) ($data['dn_dirty'] ?? false),
         );
     }
 

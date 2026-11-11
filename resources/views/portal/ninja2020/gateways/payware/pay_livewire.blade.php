@@ -37,7 +37,7 @@
         <div id="payware-qr-fallback" style="display: none; padding: 1rem; text-align: center; font-size: 0.875rem; color: #6b7280; word-break: break-all;"></div>
 
         <div class="payware-deeplink-container" style="flex-direction: column; align-items: center; padding: 1rem;" id="payware-deeplink-container">
-            <a href="payware://{{ $transaction_id }}" class="button button-primary leading-normal" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: #059669; color: #ffffff; font-weight: 600; font-size: 1rem; border-radius: 0.5rem; text-decoration: none;">
+            <a href="{{ $payware_link }}" class="button button-primary leading-normal" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: #059669; color: #ffffff; font-weight: 600; font-size: 1rem; border-radius: 0.5rem; text-decoration: none;">
                 {{ ctrans('texts.pay_now') }}
             </a>
             <span style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280; text-align: center;">
@@ -69,6 +69,7 @@
     @script
     <script>
     const transactionId = @json($transaction_id);
+    const paywareLink = @json($payware_link);
     const paymentHash = @json($payment_hash);
     const timeToLive = @json($time_to_live);
     const statusUrl = @json($gateway->genericWebhookUrl()) + '?check_status=1&payment_hash=' + encodeURIComponent(@json($payment_hash));
@@ -100,7 +101,7 @@
         const fallback = $('payware-qr-fallback');
         if (fallback) {
             fallback.style.display = 'block';
-            fallback.textContent = 'payware://' + transactionId;
+            fallback.textContent = paywareLink;
         }
     }
 
@@ -115,7 +116,7 @@
             }
             try {
                 new QRCode(qrContainer, {
-                    text: 'payware://' + transactionId,
+                    text: paywareLink,
                     width: 250,
                     height: 250,
                     colorDark: '#000000',

@@ -78,6 +78,10 @@ class PurchaseOrderTransformer extends EntityTransformer
             return null;
         }
 
+        if($this->user?->cannot('view', $purchase_order->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($purchase_order->client, $transformer, Client::class);
     }
 
@@ -85,7 +89,7 @@ class PurchaseOrderTransformer extends EntityTransformer
     {
         $transformer = new InvoiceTransformer($this->serializer, $this->user);
 
-        if (!$purchase_order->invoice) {
+        if (!$purchase_order->invoice || $this->user?->cannot('view', $purchase_order->invoice)) {
             return null;
         }
 
@@ -96,7 +100,7 @@ class PurchaseOrderTransformer extends EntityTransformer
     {
         $transformer = new QuoteTransformer($this->serializer, $this->user);
 
-        if (!$purchase_order->quote) {
+        if (!$purchase_order->quote || $this->user?->cannot('view', $purchase_order->quote)) {
             return null;
         }
 
@@ -107,7 +111,7 @@ class PurchaseOrderTransformer extends EntityTransformer
     {
         $transformer = new ExpenseTransformer($this->serializer, $this->user);
 
-        if (!$purchase_order->expense) {
+        if (!$purchase_order->expense || $this->user?->cannot('view', $purchase_order->expense)) {
             return null;
         }
 

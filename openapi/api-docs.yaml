@@ -8739,6 +8739,39 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
+    post:
+      tags:
+        - tax_rates
+      summary: 'Create a tax rate'
+      description: 'Administrator only.'
+      operationId: storeTaxRate
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaxRateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TaxRate'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
   /api/v1/tax_rates/create:
     get:
       tags:
@@ -10667,6 +10700,62 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
+  '/api/v1/credits/{credit}/{action}':
+    get:
+      tags:
+        - credits
+      summary: 'Perform a credit action'
+      description: 'Requires edit access to the credit. Actions include mark_paid, clone_to_credit, mark_sent, archive, restore, delete, email and send_email. Download returns a PDF rather than JSON. This GET endpoint can mutate records and send mail.'
+      operationId: actionCredit
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: credit
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+        -
+          name: action
+          in: path
+          required: true
+          description: 'Action name. This GET endpoint can mutate the credit.'
+          schema:
+            type: string
+            enum:
+              - mark_paid
+              - clone_to_credit
+              - mark_sent
+              - archive
+              - restore
+              - delete
+              - email
+              - send_email
+              - download
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Credit'
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
   /api/v1/tags:
     get:
       tags:
@@ -11537,6 +11626,42 @@ paths:
           $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
+
+  '/api/v1/locations/{location}/edit':
+    get:
+      tags:
+        - locations
+      summary: 'Get a location for editing'
+      description: 'Requires edit access to the location.'
+      operationId: editLocation
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: location
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
     
   /api/v1/recurring_invoices:
     get:
@@ -14736,6 +14861,109 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
+  '/api/v1/invoices/{invoice}/payment_schedule':
+    post:
+      tags:
+        - invoices
+      summary: 'Create an invoice payment schedule'
+      description: 'Requires edit access to the invoice. Creates a payment scheduler using the existing scheduler repository.'
+      operationId: setInvoicePaymentSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: invoice
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentScheduleRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+    delete:
+      tags:
+        - invoices
+      summary: 'Delete an invoice payment schedule'
+      description: 'Requires edit access to the invoice. Deletes its payment scheduler and resets partial payment fields.'
+      operationId: deleteInvoicePaymentSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: invoice
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Invoice'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/invoices/update_reminders:
+    post:
+      tags:
+        - invoices
+      summary: 'Recalculate company invoice reminders'
+      description: 'Administrator only. Dispatches the existing reminder update job for the authenticated company.'
+      operationId: updateInvoiceReminders
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
 
   /api/v1/projects:
     get:
@@ -17656,6 +17884,128 @@ paths:
           description: 'Server error'
         default:
           $ref: '#/components/responses/default'
+  '/api/v1/clients/{client}/documents':
+    post:
+      tags:
+        - clients
+      summary: 'List client documents'
+      description: 'Read-only POST. Requires view access to the client.'
+      operationId: getClientDocuments
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+        -
+          $ref: '#/components/parameters/per_page_meta'
+        -
+          $ref: '#/components/parameters/page_meta'
+        -
+          name: filter
+          in: query
+          schema:
+            type: string
+        -
+          name: sort
+          in: query
+          schema:
+            type: string
+          description: 'Document column and direction separated by |, for example name|asc.'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/clients/{client}/show_settings':
+    post:
+      tags:
+        - clients
+      summary: 'Get resolved client settings map'
+      description: 'Read-only POST. Requires view access to the client. Returns the effective settings map and its sources.'
+      operationId: getClientSettingsMap
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/clients/{client}/vat_status':
+    get:
+      tags:
+        - clients
+      summary: 'Get cached client VAT status'
+      description: 'Requires view access to the client. A completed cached status is consumed by this request.'
+      operationId: getClientVatStatus
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    nullable: true
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
   /api/v1/purchase_orders:
     get:
       tags:
@@ -17860,7 +18210,6 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/purchase_order/{id}":
     put:
       tags:
         - Purchase Orders
@@ -17900,7 +18249,7 @@ paths:
       - lang: curl
         label: curl
         source: |
-          curl -X PUT https://demo.invoiceninja.com/api/v1/purchase_order/D2J234DFA \
+          curl -X PUT https://demo.invoiceninja.com/api/v1/purchase_orders/D2J234DFA \
             -H "X-API-TOKEN: YOUR-TOKEN" \
             -H "Content-Type: application/json" \
             -H "X-Requested-With: XMLHttpRequest" \
@@ -18863,6 +19212,497 @@ paths:
         default:
           $ref: '#/components/responses/default'
 
+
+  /api/v1/charts/chart_summary:
+    post:
+      tags:
+        - charts
+      summary: 'Get dashboard chart summary'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getChartSummary
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/analytics_summary:
+    post:
+      tags:
+        - charts
+      summary: 'Get analytics summary'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getAnalyticsSummary
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/analytics_totals:
+    post:
+      tags:
+        - charts
+      summary: 'Get analytics totals'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getAnalyticsTotals
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/cashflow_forecast:
+    post:
+      tags:
+        - charts
+      summary: 'Get cash flow forecast'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getCashflowForecast
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartForecastRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/charts/client_payment_analytics:
+    post:
+      tags:
+        - charts
+      summary: 'Get client payment analytics'
+      description: 'Requires administrator access or view_dashboard permission. Results retain the current user visibility scope.'
+      operationId: getClientPaymentAnalytics
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/charts/project_analytics/{project}':
+    post:
+      tags:
+        - charts
+      summary: 'Get project analytics'
+      description: 'Requires view access to an undeleted project. Results retain the current user visibility scope.'
+      operationId: getProjectAnalytics
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: project
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChartDateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/charts/project_burnup/{project}':
+    post:
+      tags:
+        - charts
+      summary: 'Get project burnup'
+      description: 'Requires view access to an undeleted project. Results retain the current user visibility scope.'
+      operationId: getProjectBurnup
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: project
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectBurnupRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  /api/v1/designs/set/default:
+    post:
+      tags:
+        - designs
+      summary: 'Apply a default design'
+      description: 'Administrator only. Updates existing entities at company, group settings or client scope.'
+      operationId: setDefaultDesign
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DesignDefaultRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/documents/{document}':
+    get:
+      tags:
+        - documents
+      summary: 'Show document metadata'
+      description: 'Requires view access to the document through its related entity.'
+      operationId: showDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+    put:
+      tags:
+        - documents
+      summary: 'Update document metadata'
+      description: 'Requires edit access to the document. Updates metadata and touches its related entity.'
+      operationId: updateDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpdateRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  '/api/v1/documents/{document}/edit':
+    get:
+      tags:
+        - documents
+      summary: 'Get document metadata for editing'
+      description: 'Requires edit access to the document.'
+      operationId: editDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Document'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/documents/bulk:
+    post:
+      tags:
+        - documents
+      summary: 'Apply an action to documents'
+      description: 'Archive, restore and delete require edit access to each related entity. Download requires document view access and queues ZIP delivery.'
+      operationId: bulkDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentBulkRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  -
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Document'
+                      meta:
+                        $ref: '#/components/schemas/Meta'
+                  -
+                    type: object
+                    properties:
+                      message:
+                        type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+
+  '/api/v1/emails/clientHistory/{client}':
+    post:
+      tags:
+        - emails
+      summary: 'Get client email history'
+      description: 'Read-only POST. Requires view access to the client.'
+      operationId: getClientEmailHistory
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: client
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+  /api/v1/emails/entityHistory:
+    post:
+      tags:
+        - emails
+      summary: 'Get entity email history'
+      description: 'Read-only POST. The entity must belong to the authenticated company.'
+      operationId: getEntityEmailHistory
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityEmailHistoryRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
 components:
   headers:
     X-MINIMUM-CLIENT-VERSION:
@@ -20018,6 +20858,212 @@ components:
       example: ?filter_deleted_clients=true
   ########################### Generic filters available across all filter ##################################
   schemas:
+    ChartDateRequest:
+      type: object
+      properties:
+        date_range:
+          type: string
+          enum:
+            - last7_days
+            - last30_days
+            - last365_days
+            - this_month
+            - last_month
+            - this_quarter
+            - last_quarter
+            - this_year
+            - last_year
+            - all_time
+            - custom
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        include_drafts:
+          type: boolean
+    ChartForecastRequest:
+      type: object
+      properties:
+        date_range:
+          $ref: '#/components/schemas/ChartDateRequest/properties/date_range'
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        include_drafts:
+          type: boolean
+        bucket_type:
+          type: string
+          enum:
+            - daily
+            - weekly
+            - monthly
+          default: monthly
+    DesignDefaultRequest:
+      type: object
+      properties:
+        entity:
+          type: string
+          enum:
+            - invoice
+            - quote
+            - credit
+            - purchase_order
+            - recurring_invoice
+        design_id:
+          type: string
+          description: 'Design hashed ID.'
+        settings_level:
+          type: string
+          enum:
+            - company
+            - client
+            - group_settings
+          default: company
+        client_id:
+          type: string
+          description: 'Client hashed ID. Required when settings_level is client.'
+        group_settings_id:
+          type: string
+          description: 'Group settings hashed ID. Required when settings_level is group_settings.'
+      required:
+        - entity
+        - design_id
+    DocumentBulkRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            description: 'Document hashed ID.'
+          minItems: 1
+        action:
+          type: string
+          enum:
+            - archive
+            - restore
+            - delete
+            - download
+      required:
+        - ids
+        - action
+    DocumentUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        is_public:
+          type: boolean
+    EntityEmailHistoryRequest:
+      type: object
+      properties:
+        entity:
+          type: string
+          enum:
+            - invoice
+            - quote
+            - credit
+            - recurring_invoice
+            - purchase_order
+        entity_id:
+          type: string
+          description: 'Entity hashed ID belonging to the authenticated company.'
+      required:
+        - entity
+        - entity_id
+    InvoicePaymentScheduleRequest:
+      type: object
+      properties:
+        next_run:
+          type: string
+          format: date
+        frequency_id:
+          type: integer
+          description: 'Required with remaining_cycles. Uses the existing recurring frequency identifiers.'
+        remaining_cycles:
+          type: integer
+          description: 'Required with frequency_id.'
+        parameters:
+          type: object
+          properties:
+            auto_bill:
+              type: boolean
+              default: false
+            schedule:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  date:
+                    type: string
+                    format: date
+                  amount:
+                    type: number
+                  is_amount:
+                    type: boolean
+                required:
+                  - id
+                  - date
+                  - amount
+                  - is_amount
+        schedule:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              amount:
+                type: number
+              is_amount:
+                type: boolean
+            required:
+              - date
+              - amount
+              - is_amount
+          description: 'Alternative schedule input. Amounts must total the invoice amount, or percentages must total 100.'
+      required:
+        - next_run
+      description: 'Supply frequency_id with remaining_cycles, or explicit schedule entries. The server supplies parameters.invoice_id from the route and normalizes the schedule.'
+    ProjectBurnupRequest:
+      type: object
+      properties:
+        date_range:
+          $ref: '#/components/schemas/ChartDateRequest/properties/date_range'
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        include_drafts:
+          type: boolean
+        bucket_type:
+          type: string
+          enum:
+            - daily
+            - weekly
+            - monthly
+          default: daily
+    TaxRateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 'Unique among active tax rates in the authenticated company.'
+        rate:
+          type: number
+      required:
+        - name
+        - rate
     CreditPaymentable:
       properties:
         credit_id:

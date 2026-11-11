@@ -94,6 +94,7 @@ class ConvertQuote
             $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
             $ii->key = $this->createDbHash($invoice->company->db);
             $ii->client_contact_id = $quote_invitation->client_contact_id;
+            $ii->can_sign = $quote_invitation->can_sign;
 
             $invites[] = $ii;
         }

@@ -13,6 +13,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Services\Auth\Passkeys\PasskeyService;
 use App\Utils\AppLinkPath;
 use App\Utils\Ninja;
 use Illuminate\Http\JsonResponse;
@@ -35,12 +36,19 @@ class AppLinksController extends Controller
     /**
      * Routed rather than a file in public/ for the same reason as the Apple
      * document below. Unset fingerprints leave valid JSON that verifies nothing.
+     * `get_login_creds` (Android passkeys) only on the passkey relying party's host.
      */
-    public function assetLinks(): JsonResponse
+    public function assetLinks(Request $request, PasskeyService $passkeys): JsonResponse
     {
+        $relation = ['delegate_permission/common.handle_all_urls'];
+
+        if (strcasecmp($request->getHost(), $passkeys->relyingPartyId()) === 0) {
+            $relation[] = 'delegate_permission/common.get_login_creds';
+        }
+
         return response()->json([
             [
-                'relation' => ['delegate_permission/common.handle_all_urls'],
+                'relation' => $relation,
                 'target' => [
                     'namespace' => 'android_app',
                     'package_name' => config('ninja.app_links.android_package'),

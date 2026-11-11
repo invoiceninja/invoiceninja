@@ -6,6 +6,7 @@
 /storage/debugbar
 /storage/*
 /tests/bootstrap/
+/tests/artifacts/
 /vendor
 /app/Console/Commands/vendor/
 /.idea
@@ -65,3 +66,10 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# PHP CS Fixer configuration
+/.php-cs-fixer.cache
+/.php-cs-fixer.php
+
+# Native MCP local credentials and test artifacts
+/.local/

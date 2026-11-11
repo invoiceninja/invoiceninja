@@ -14,6 +14,7 @@ namespace App\Http\ValidationRules\Quote;
 
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
@@ -36,7 +37,13 @@ class IsExpiredRule implements ValidationRule
             return;
         }
 
-        if(\Carbon\Carbon::parse($value)->addDay()->lte(now()->setTimezone($client->timezone()->name)->startOfDay())) {
+        $quote_valid_date = Carbon::parse($value)->toDateString();
+
+        $client_date_now = now()
+            ->setTimezone($client->timezone()->name)
+            ->toDateString();
+
+        if($quote_valid_date < $client_date_now) {
             $fail(ctrans('texts.quote_due_date_expired'));
         }
 

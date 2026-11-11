@@ -528,15 +528,154 @@ class CompanyResponseScopeTest extends TestCase
         $this->assertArrayNotHasKey('company_users', $response->json('data'));
     }
 
-    public function testUserItemSingularMembershipSelectsTokenCompany(): void
+    public static function userMembershipCases(): array
     {
-        $this->createFixture();
+        $cases = [];
+        foreach (['restricted list' => [false, false], 'admin list' => [true, false], 'admin item' => [true, true]] as $label => $arguments) {
+            foreach ([
+                'plain' => 'company_user',
+                'nested' => 'company_user.company.invoices',
+                'multiple' => 'company_user.account,company_user.user.company_user.company.invoices,company_user.token,company_user',
+            ] as $include_label => $include) {
+                $cases[$label.' '.$include_label] = [...$arguments, $include];
+            }
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('userMembershipCases')]
+    public function testUserResponsesDoNotExpandMembershipChildren(bool $is_admin, bool $is_item, string $include): void
+    {
+        $this->createFixture($is_admin);
+        $invoice_queries = [];
+        DB::listen(function ($query) use (&$invoice_queries) {
+            if (str_contains($query->sql, '`invoices`')) {
+                $invoice_queries[] = $query->sql;
+            }
+        });
+
+        $url = '/api/v1/users'.($is_item ? '/'.$this->user->hashed_id : '');
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->tokens[0],
             'X-API-PASSWORD' => 'company-scope-test',
-        ])->getJson('/api/v1/users/'.$this->user->hashed_id.'?include=company_user.company.invoices')->assertOk();
-        $response->assertJsonPath('data.company_user.company.id', $this->companies[0]->hashed_id);
-        $this->assertStringNotContainsString($this->records[1]['invoice']->number, $response->getContent());
+        ])->getJson($url.'?'.http_build_query(['include' => $include]))->assertOk();
+        $user_data = $is_item ? $response->json('data') : collect($response->json('data'))->firstWhere('id', $this->user->hashed_id);
+        $membership = $user_data['company_user'];
+
+        $this->assertSame($is_admin, $membership['is_admin']);
+        $this->assertFalse($membership['is_owner']);
+        $this->assertSame('', $membership['permissions']);
+        $this->assertArrayHasKey('settings', $membership);
+        foreach (['company', 'account', 'user', 'token'] as $child) {
+            $this->assertArrayNotHasKey($child, $membership);
+        }
+        $this->assertSame([], $invoice_queries, 'User includes must not load nested company invoices.');
+    }
+
+    public static function ordinaryMembershipResponses(): array
+    {
+        $cases = [];
+        foreach (['company item', 'company users', 'current company', 'membership update',
+            'preferences', 'disable two factor', 'connected account', 'gmail'] as $endpoint) {
+            foreach ([false, true] as $is_admin) {
+                $cases[$endpoint.' '.($is_admin ? 'admin' : 'restricted')] = [$endpoint, $is_admin];
+            }
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('ordinaryMembershipResponses')]
+    public function testOrdinaryMembershipResponsesDoNotExpandChildren(string $endpoint, bool $is_admin): void
+    {
+        $this->withoutExceptionHandling();
+        $this->createFixture($is_admin);
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->tokens[0],
+        ]);
+
+        if (! $is_admin) {
+            $this->getJson('/api/v1/invoices')->assertOk()->assertJsonCount(0, 'data');
+            $this->assertFalse(auth()->user()->can('view', $this->records[0]['invoice']));
+            $this->getJson('/api/v1/companies/'.$this->companies[0]->hashed_id.'?include=invoices')
+                ->assertOk()->assertJsonCount(0, 'data.invoices');
+        }
+
+        if (in_array($endpoint, ['connected account', 'gmail'], true)) {
+            // Exercise successful OAuth responses without contacting Google.
+            $google = \Mockery::mock('overload:App\Libraries\OAuth\Providers\Google');
+            $google->shouldReceive('getTokenResponse')->once()->with('membership-test-id-token')->andReturn([
+                'email' => $this->user->email,
+                'sub' => 'membership-test-google-user',
+            ]);
+            $google->shouldReceive('harvestEmail')->andReturn($this->user->email);
+            $google->shouldReceive('harvestSubField')->andReturn('membership-test-google-user');
+            if ($endpoint === 'gmail') {
+                \Mockery::mock('alias:Google\Auth\HttpHandler\HttpHandlerFactory')
+                    ->shouldReceive('build')->once()->andReturn(static fn () => new \GuzzleHttp\Psr7\Response(200, [], json_encode([
+                        'access_token' => 'membership-test-access-token', 'refresh_token' => 'membership-test-refresh-token',
+                    ])));
+            }
+        }
+
+        $prefix = match ($endpoint) {
+            'membership update' => '',
+            'company users' => 'users.company_user.',
+            default => 'company_user.',
+        };
+        $include = implode(',', array_map(
+            static fn (string $path): string => $prefix.$path,
+            ['company.invoices', 'company.company_gateways', 'account', 'token', 'user.company_user.company.invoices']
+        ));
+        $parameters = '?'.http_build_query(['include' => $include]);
+        $invoice_queries = [];
+        DB::listen(function ($query) use (&$invoice_queries) {
+            if (str_contains(strtolower($query->sql), 'invoices')) {
+                $invoice_queries[] = $query->sql;
+            }
+        });
+
+        $response = match ($endpoint) {
+            'company item', 'company users' => $this->getJson('/api/v1/companies/'.$this->companies[0]->hashed_id.$parameters),
+            'current company' => $this->postJson('/api/v1/companies/current'.$parameters),
+            'membership update' => $this->putJson('/api/v1/company_users/'.$this->user->hashed_id.$parameters, [
+                'company_user' => ['settings' => new \stdClass(), 'notifications' => new \stdClass()],
+            ]),
+            'preferences' => $this->putJson('/api/v1/company_users/'.$this->user->hashed_id.'/preferences'.$parameters, [
+                'react_settings' => ['theme' => 'dark'],
+            ]),
+            'disable two factor' => $this->postJson('/api/v1/settings/disable_two_factor'.$parameters),
+            'connected account', 'gmail' => $this->postJson('/api/v1/connected_account'.($endpoint === 'gmail' ? '/gmail' : '').$parameters, [
+                'provider' => 'google', 'id_token' => 'membership-test-id-token', 'server_auth_code' => 'membership-test-auth-code',
+            ]),
+        };
+        $response->assertOk();
+
+        // Check every membership, including those nested under company users.
+        $memberships = [];
+        $inspect = function (array $data) use (&$inspect, &$memberships): void {
+            if (array_key_exists('permissions', $data) && array_key_exists('permissions_updated_at', $data)) {
+                $memberships[] = $data;
+            }
+            foreach ($data as $child) {
+                if (is_array($child)) {
+                    $inspect($child);
+                }
+            }
+        };
+        $inspect($response->json());
+        $this->assertNotEmpty($memberships, 'Membership fields must remain available.');
+        foreach ($memberships as $membership) {
+            $this->assertArrayHasKey('is_admin', $membership);
+            $this->assertArrayHasKey('settings', $membership);
+            foreach (['company', 'user', 'account', 'token'] as $child) {
+                $this->assertArrayNotHasKey($child, $membership);
+            }
+        }
+        $this->assertSame([], $invoice_queries, 'Membership traversal must not query company invoices.');
+        $this->assertStringNotContainsString('company-scope-secret-0', $response->getContent());
     }
 
     public function testNewCompanyRetainsItsTokenAndBecomesDiscoverable(): void

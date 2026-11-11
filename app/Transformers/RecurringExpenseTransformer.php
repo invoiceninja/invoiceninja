@@ -52,6 +52,10 @@ class RecurringExpenseTransformer extends EntityTransformer
     {
         $transformer = new ClientTransformer($this->serializer, $this->user);
 
+        if($this->user?->cannot('view', $recurring_expense->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         if (!$recurring_expense->client) {
             return null;
         }

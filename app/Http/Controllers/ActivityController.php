@@ -218,7 +218,7 @@ class ActivityController extends BaseController
             'subscription',
             'recurring_invoice',
             'recurring_expense',
-            'contact',
+            'contact.client',
             'vendor_contact',
             'company',
         ];

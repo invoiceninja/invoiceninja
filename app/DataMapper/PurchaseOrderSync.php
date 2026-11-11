@@ -25,6 +25,7 @@ class PurchaseOrderSync implements Castable
         public array $invitations = [],
         public bool $dn_completed = false,
         public string $dn_document_hashed_id = '',
+        public bool $dn_dirty = false,
     ) {}
     /**
     * Get the name of the caster class to use when casting from / to this cast target.
@@ -43,6 +44,7 @@ class PurchaseOrderSync implements Castable
             invitations: $data['invitations'] ?? [],
             dn_completed: $data['dn_completed'] ?? false,
             dn_document_hashed_id: $data['dn_document_hashed_id'] ?? '',
+            dn_dirty: (bool) ($data['dn_dirty'] ?? false),
         );
     }
 

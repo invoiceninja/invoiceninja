@@ -127,6 +127,8 @@ trait ChartCalculations
 
     public function getActiveQuotes($data): int|float
     {
+        $today = $this->companyToday();
+
         $result = 0;
 
         $q = Quote::query()
@@ -141,8 +143,8 @@ trait ChartCalculations
                         $query->whereNull('clients.deleted_at')
                             ->where('clients.is_deleted', false);
                     })
-                    ->where(function ($query) {
-                        $query->where('due_date', '>=', $this->companyToday())
+                    ->where(function ($query) use ($today) {
+                        $query->where('due_date', '>=', $today)
                             ->orWhereNull('due_date');
                     });
 
@@ -163,6 +165,8 @@ trait ChartCalculations
 
     public function getUnapprovedQuotes($data): int|float
     {
+        $today = $this->companyToday();
+
         $result = 0;
 
         $q = Quote::query()
@@ -174,8 +178,8 @@ trait ChartCalculations
                         $query->whereNull('clients.deleted_at')
                             ->where('clients.is_deleted', false);
                     })
-                    ->where(function ($qq) {
-                        $qq->where('due_date', '>=', $this->companyToday())->orWhereNull('due_date');
+                    ->where(function ($qq) use ($today) {
+                        $qq->where('due_date', '>=', $today)->orWhereNull('due_date');
                     });
 
         if (in_array($data['period'], ['current','previous']) && ($data['date_range'] ?? null) !== 'all_time') {

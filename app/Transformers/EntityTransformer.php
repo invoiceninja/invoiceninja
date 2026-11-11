@@ -78,4 +78,15 @@ class EntityTransformer extends TransformerAbstract
             'color' => $tag->color,
         ])->values()->all();
     }
+
+    protected function includeAuthorizedCollection($data, $transformer, $entity_type)
+    {
+        if ($this->user) {
+            $data = $data
+                ->filter(fn ($entity) => $this->user->can('view', $entity))
+                ->values();
+        }
+
+        return $this->includeCollection($data, $transformer, $entity_type);
+    }
 }

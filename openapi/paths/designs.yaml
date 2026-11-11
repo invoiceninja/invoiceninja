@@ -1,0 +1,35 @@
+
+  /api/v1/designs/set/default:
+    post:
+      tags:
+        - designs
+      summary: 'Apply a default design'
+      description: 'Administrator only. Updates existing entities at company, group settings or client scope.'
+      operationId: setDefaultDesign
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DesignDefaultRequest'
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'

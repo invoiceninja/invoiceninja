@@ -39,6 +39,10 @@ class AppLinksTest extends TestCase
 
     public function testAssetLinksIsJsonAndNamesTheApp()
     {
+        // As on hosted: the passkey relying party is REACT_URL's host, which
+        // this server does not answer for.
+        config(['ninja.react_url' => 'https://app.example.com']);
+
         $response = $this->get('.well-known/assetlinks.json');
 
         $response->assertStatus(200);
@@ -53,6 +57,31 @@ class AppLinksTest extends TestCase
             $statement['target']['package_name']
         );
         $this->assertIsArray($statement['target']['sha256_cert_fingerprints']);
+    }
+
+    public function testThePasskeyRelyingPartyLetsTheAppUseItsCredentials(): void
+    {
+        // get_login_creds is what lets Android's Credential Manager offer the
+        // app this host's passkeys.
+        config(['ninja.react_url' => 'https://billing.example.com']);
+
+        $this->get('https://billing.example.com/.well-known/assetlinks.json')
+            ->assertOk()
+            ->assertJsonPath('0.relation', [
+                'delegate_permission/common.handle_all_urls',
+                'delegate_permission/common.get_login_creds',
+            ]);
+    }
+
+    public function testNoOtherHostDelegatesItsCredentialsToTheApp(): void
+    {
+        // A client-portal host, or a hosted APP_URL whose relying party is
+        // REACT_URL's host: nothing there is the app's to sign in with.
+        config(['ninja.react_url' => 'https://billing.example.com']);
+
+        $this->get('https://portal.example.com/.well-known/assetlinks.json')
+            ->assertOk()
+            ->assertJsonPath('0.relation', ['delegate_permission/common.handle_all_urls']);
     }
 
     public function testDefaultAssetLinksTrustsPlayAndFdroidSigningCertificates(): void

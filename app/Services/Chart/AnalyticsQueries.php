@@ -450,6 +450,8 @@ trait AnalyticsQueries
      */
     public function getOpenQuotesForForecasting(): array
     {
+        $today = $this->companyToday();
+
         $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
         $user_filter_q = $this->is_admin ? '' : 'AND q.user_id = ' . $this->user->id;
 
@@ -505,7 +507,7 @@ trait AnalyticsQueries
         ", [
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
-            'today' => $this->companyToday(),
+            'today' => $today,
             'company_id_conv' => $this->company->id,
         ]);
     }
@@ -954,6 +956,8 @@ trait AnalyticsQueries
      */
     public function getQuotePipelineChartQuery(string $start_date, string $end_date, int $currency_id): array
     {
+        $today = $this->companyToday();
+
         $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
 
         return DB::select("
@@ -980,7 +984,7 @@ trait AnalyticsQueries
             'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
-            'today' => $this->companyToday(),
+            'today' => $today,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
@@ -1000,6 +1004,8 @@ trait AnalyticsQueries
      */
     public function getAggregateQuotePipelineChartQuery(string $start_date, string $end_date): array
     {
+        $today = $this->companyToday();
+
         $user_filter = $this->is_admin ? '' : 'AND quotes.user_id = ' . $this->user->id;
 
         return DB::select("
@@ -1023,7 +1029,7 @@ trait AnalyticsQueries
             ORDER BY DATE_FORMAT(quotes.date, '%Y-%m-01') ASC
         ", [
             'company_id' => $this->company->id,
-            'today' => $this->companyToday(),
+            'today' => $today,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);

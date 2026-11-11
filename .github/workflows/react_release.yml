@@ -54,7 +54,7 @@ jobs:
           extensions: mysql, mysqlnd, sqlite3, bcmath, gd, curl, zip, openssl, mbstring, xml
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: v5-develop
           fetch-depth: 1
@@ -69,7 +69,7 @@ jobs:
         run: echo "current_date=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
           

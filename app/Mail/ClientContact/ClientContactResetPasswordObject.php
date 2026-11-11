@@ -47,6 +47,7 @@ class ClientContactResetPasswordObject
             'settings' => $settings,
             'company' => $this->company,
             'logo' => $this->company->present()->logo(),
+            'text_body' => ctrans('texts.reset_password'),
         ];
 
         $email_from_name = config('mail.from.name');
@@ -63,6 +64,7 @@ class ClientContactResetPasswordObject
         $mail_obj->markdown = 'email.client.generic';
         $mail_obj->tag = $this->company->company_key;
         $mail_obj->from_name = $email_from_name;
+        $mail_obj->text_view = 'email.auth.password-reset_text';
 
         return $mail_obj;
     }

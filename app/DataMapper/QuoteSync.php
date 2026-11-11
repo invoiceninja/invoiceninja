@@ -28,6 +28,7 @@ class QuoteSync implements Castable
         public string $qb_status = '',
         public string $qb_sync_token = '',
         public string $qb_status_message = '',
+        public bool $dn_dirty = false,
     ) {}
     /**
     * Get the name of the caster class to use when casting from / to this cast target.
@@ -49,6 +50,7 @@ class QuoteSync implements Castable
             qb_status: $data['qb_status'] ?? '',
             qb_sync_token: $data['qb_sync_token'] ?? '',
             qb_status_message: $data['qb_status_message'] ?? '',
+            dn_dirty: (bool) ($data['dn_dirty'] ?? false),
         );
     }
 

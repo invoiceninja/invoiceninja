@@ -74,7 +74,7 @@ class CompanyTransformer extends EntityTransformer
         'designs',
         'account',
         'clients',
-        'contacts',
+        // 'contacts', this should not be exposed/used.
         'invoices',
         'recurring_invoices',
         'tax_rates',
@@ -370,6 +370,10 @@ class CompanyTransformer extends EntityTransformer
     public function includeCompanyGateways(Company $company)
     {
         $transformer = new CompanyGatewayTransformer($this->serializer, $this->user);
+
+        if($this->user && !$this->user->isAdmin()){
+            return $this->includeCollection(collect(), $transformer, CompanyGateway::class);
+        }
 
         return $this->includeCollection($company->company_gateways, $transformer, CompanyGateway::class);
     }

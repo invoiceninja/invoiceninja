@@ -70,6 +70,7 @@
         "josemmo/facturae-php": "^1.7",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "^12",
+        "laravel/mcp": "^1.0",
         "laravel/octane": "^2.6",
         "laravel/scout": "^10.11",
         "laravel/slack-notification-channel": "^3",
@@ -133,7 +134,8 @@
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11|^12",
         "spatie/laravel-ignition": "^2.0",
-        "spaze/phpstan-stripe": "^3.0|^4.0"
+        "spaze/phpstan-stripe": "^3.0|^4.0",
+        "invoiceninja/admin-api": "dev-main"
     },
     "autoload": {
         "psr-4": {

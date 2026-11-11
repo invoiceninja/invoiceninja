@@ -72,6 +72,10 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new ClientTransformer($this->serializer, $this->user);
 
+        if($this->user?->cannot('view', $invoice->client)) {
+            $transformer = new ClientProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($invoice->client, $transformer, Client::class);
     }
 
@@ -83,6 +87,10 @@ class InvoiceTransformer extends EntityTransformer
             return null;
         }
 
+        if($this->user?->cannot('view', $invoice->project)) {
+            $transformer = new ProjectProfileTransformer($this->serializer, $this->user);
+        }
+
         return $this->includeItem($invoice->project, $transformer, Project::class);
     }
 
@@ -90,7 +98,12 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new PaymentTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($invoice->payments, $transformer, Payment::class);
+        return $this->includeAuthorizedCollection(
+            $invoice->payments,
+            $transformer,
+            Payment::class
+        );
+        // return $this->includeCollection($invoice->payments, $transformer, Payment::class);
     }
 
     public function includePaymentables(Invoice $invoice)
@@ -104,7 +117,12 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new CreditTransformer($this->serializer, $this->user);
 
-        return $this->includeCollection($invoice->credits, $transformer, Credit::class);
+        return $this->includeAuthorizedCollection(
+            $invoice->credits,
+            $transformer,
+            Credit::class
+        );
+        // return $this->includeCollection($invoice->credits, $transformer, Credit::class);
     }
 
     /*

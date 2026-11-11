@@ -25,6 +25,7 @@ use App\Events\User\UserWasUpdated;
 use App\Jobs\User\UserEmailChanged;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
+use App\Transformers\EntityTransformer;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Http\Requests\User\BulkUserRequest;
 use App\Http\Requests\User\EditUserRequest;
@@ -63,6 +64,17 @@ class UserController extends BaseController
         parent::__construct();
 
         $this->user_repo = $user_repo;
+    }
+
+    protected function getRequestIncludes($data, ?EntityTransformer $transformer = null): array
+    {
+        $includes = parent::getRequestIncludes($data, $transformer);
+
+        // User responses expose membership fields without expanding membership relations.
+        return array_values(array_unique(array_map(
+            static fn (string $include) => str_starts_with($include, 'company_user.') ? 'company_user' : $include,
+            $includes
+        )));
     }
 
     /**

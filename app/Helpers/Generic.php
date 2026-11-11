@@ -72,3 +72,18 @@ function nrlog($output, $context = []): void
     $output = null;
     $context = null;
 }
+
+/**
+ * Strip markup and decode entities for text/plain email bodies.
+ */
+function plain_email_text(?string $value): string
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+
+    $value = str_replace(['<br>', '<br/>', '<br />'], "\n", $value);
+    $value = strip_tags($value);
+
+    return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}

@@ -1,0 +1,42 @@
+name: invoiceninja-mcp-test
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: tools/mcp/Dockerfile
+    volumes:
+      - ../..:/app
+      - vendor:/app/vendor
+    extra_hosts:
+      - 'mcp-webhook.example.invalid:93.184.216.34'
+    env_file: ../../.env
+    command: [php, artisan, serve, --host=0.0.0.0, --port=8000]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  db:
+    image: mariadb:10.6
+    environment:
+      MARIADB_DATABASE: ninja_mcp_test
+      MARIADB_USER: ninja
+      MARIADB_PASSWORD: ${MCP_TEST_DB_PASSWORD:?Set MCP_TEST_DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${MCP_TEST_DB_PASSWORD:?Set MCP_TEST_DB_PASSWORD in .env}
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+networks:
+  default:
+    internal: true
+volumes:
+  vendor:
+    name: invoiceninja-mcp-test-vendor
+    external: true
+  db:

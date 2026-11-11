@@ -495,3 +495,59 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
+  '/api/v1/credits/{credit}/{action}':
+    get:
+      tags:
+        - credits
+      summary: 'Perform a credit action'
+      description: 'Requires edit access to the credit. Actions include mark_paid, clone_to_credit, mark_sent, archive, restore, delete, email and send_email. Download returns a PDF rather than JSON. This GET endpoint can mutate records and send mail.'
+      operationId: actionCredit
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: credit
+          in: path
+          required: true
+          description: 'Hashed entity ID.'
+          schema:
+            type: string
+        -
+          name: action
+          in: path
+          required: true
+          description: 'Action name. This GET endpoint can mutate the credit.'
+          schema:
+            type: string
+            enum:
+              - mark_paid
+              - clone_to_credit
+              - mark_sent
+              - archive
+              - restore
+              - delete
+              - email
+              - send_email
+              - download
+      responses:
+        200:
+          description: 'Successful response.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Credit'
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'

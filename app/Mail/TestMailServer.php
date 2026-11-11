@@ -38,13 +38,16 @@ class TestMailServer extends Mailable
         $settings->email_style = 'dark';
         $settings->email_alignment = 'left';
 
+        $view_data = [
+            'support_message' => $this->support_messages,
+            'system_info' => '',
+            'laravel_log' => [],
+            'settings' => $settings,
+        ];
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.email'))
-            ->markdown('email.support.message', [
-                'support_message' => $this->support_messages,
-                'system_info' => '',
-                'laravel_log' => [],
-                'settings' => $settings,
-            ]);
+            ->text('email.support.message_text', $view_data)
+            ->view('email.support.message', $view_data);
     }
 }
