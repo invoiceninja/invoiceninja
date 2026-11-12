@@ -75,6 +75,16 @@ class CompanySettingsSaveableTest extends TestCase
         }
     }
 
+    public function testFreePlanKeepsHiddenPaymentTypes(): void
+    {
+        $settings = CompanySettings::defaults();
+        $settings->hidden_payment_types = '3,25';
+
+        $filtered = $this->filterSaver($settings);
+
+        $this->assertSame('3,25', $filtered->hidden_payment_types);
+    }
+
     private function filterSaver($settings)
     {
         $saveable_cast = CompanySettings::$free_plan_casts;
