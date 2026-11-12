@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Stripe\ApiRequestor;
 use Stripe\HttpClient\ClientInterface;
 use Tests\MockAccountData;
@@ -356,6 +357,60 @@ class StripeTerminalTest extends TestCase
 
         $this->stripe->charge($intent['payment_intent_id']);
         $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+    }
+
+    public function testAChargeThatHasNotSucceededIsNotRecorded(): void
+    {
+        $intent = $this->collect()->json();
+        $this->stripe->charge($intent['payment_intent_id']);
+        $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']['status'] = 'pending';
+
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'processing']);
+        $this->assertSame(0, $this->terminalPayments()->count());
+        $this->assertSame(CardPresent::STATUS_OPEN, $this->collectionStatus($intent['payment_intent_id']));
+
+        $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']['status'] = 'succeeded';
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+    }
+
+    public function testFinalizeRecordsAPaymentIntentChargedMeanwhile(): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        $this->finalize($intent['payment_intent_id'])->assertStatus(409)->assertJson(['error_code' => 'already_paid']);
+
+        $this->assertSame(1, $this->terminalPayments()->count());
+        $this->assertSame(CardPresent::STATUS_RECORDED, $this->collectionStatus($intent['payment_intent_id']));
+    }
+
+    public function testFinalizeClosesAPaymentIntentCancelledMeanwhile(): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->intents[$intent['payment_intent_id']]['status'] = 'canceled';
+
+        $this->finalize($intent['payment_intent_id'])->assertStatus(409)->assertJson(['error_code' => 'collection_closed']);
+
+        $this->assertSame(CardPresent::STATUS_CANCELLED, $this->collectionStatus($intent['payment_intent_id']));
+        $this->assertCount(0, collect($this->stripe->requests)->where('method', 'post')->filter(fn ($request) => $request['path'] == "/v1/payment_intents/{$intent['payment_intent_id']}"));
+    }
+
+    public function testFinalizeNeverChangesAPaymentIntentBeingCharged(): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->stripe->intents[$intent['payment_intent_id']]['status'] = 'processing';
+
+        $this->finalize($intent['payment_intent_id'])->assertStatus(409)->assertJson(['error_code' => 'not_collected', 'status' => 'processing']);
+
+        $this->assertSame((int) round((float) $this->invoice->balance * 100), $this->stripe->intents[$intent['payment_intent_id']]['amount']);
+        $this->assertSame(CardPresent::STATUS_OPEN, $this->collectionStatus($intent['payment_intent_id']));
     }
 
     public function testTheSameCollectionReturnsTheSamePaymentIntent(): void
@@ -1042,6 +1097,51 @@ class StripeTerminalTest extends TestCase
         $this->assertEquals($paid_to_date + $balance, (float) $this->client->fresh()->paid_to_date);
     }
 
+    public static function unfinishedRefundStatuses(): array
+    {
+        return [['failed'], ['canceled'], ['requires_action']];
+    }
+
+    #[DataProvider('unfinishedRefundStatuses')]
+    public function testASurchargeRefundStripeDidNotCompleteIsRecordedAsTheClientsMoney(string $status): void
+    {
+        $quote = $this->surcharged();
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        $this->stripe->refund_status = $status;
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'unapplied', 'unapplied' => $quote['fee_gross']]);
+
+        $this->assertCount(1, $this->refunds());
+        $this->assertEquals($quote['total'], (float) $this->terminalPayments()->sole()->amount);
+        $this->assertEquals(0, (float) $this->invoice->fresh()->balance);
+        $this->assertSame(0, (int) ($this->collection($intent['payment_intent_id'])->data->terminal->surcharge_refunded ?? 0));
+        $this->assertSame(1, SystemLog::query()->where('company_id', $this->company->id)->where('event_id', SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE)->count());
+    }
+
+    public function testAPendingSurchargeRefundComesOffThePayment(): void
+    {
+        $quote = $this->surcharged();
+        $balance = (float) $this->invoice->balance;
+
+        $intent = $this->collect(['apply_fee' => true, 'expected_total' => $quote['total']])->json();
+        $this->stripe->collect($intent['payment_intent_id'], 'credit');
+        $this->finalize($intent['payment_intent_id'])->assertJson(['recollect' => true]);
+        $this->stripe->charge($intent['payment_intent_id'], funding: 'debit');
+
+        $this->stripe->refund_status = 'pending';
+        $this->complete($intent['payment_intent_id'])->assertOk()->assertJson(['status' => 'recorded']);
+
+        $this->assertEquals($balance, (float) $this->terminalPayments()->sole()->amount);
+
+        /* Its charge.refunded webhook is not a refund of the payment */
+        (new ChargeRefunded(['object' => $this->stripe->intents[$intent['payment_intent_id']]['latest_charge']], $this->company->company_key))->handle();
+        $this->assertEquals(0, (float) $this->terminalPayments()->sole()->refunded);
+    }
+
     public function testASurchargeChargedToAnInteracCardIsTheClientsMoney(): void
     {
         $quote = $this->surcharged();
@@ -1263,6 +1363,9 @@ final class TerminalStripeFake implements ClientInterface
     /* Stripe answers a refund with this HTTP status: a 4xx refused it, a 5xx refunded it anyway */
     public ?int $refuse_refund = null;
 
+    /* The status Stripe gives a new refund: only a succeeded or pending one counts towards the charge's amount_refunded */
+    public string $refund_status = 'succeeded';
+
     private array $idempotency = [];
 
     private int $sequence = 0;
@@ -1353,9 +1456,11 @@ final class TerminalStripeFake implements ClientInterface
             return $this->idempotency[$key];
         }
 
-        $this->intents[$params['payment_intent']]['latest_charge']['amount_refunded'] += (int) $params['amount'];
+        if (in_array($this->refund_status, ['succeeded', 'pending'])) {
+            $this->intents[$params['payment_intent']]['latest_charge']['amount_refunded'] += (int) $params['amount'];
+        }
 
-        $refund = ['id' => 're_' . (++$this->sequence), 'object' => 'refund', 'status' => 'succeeded', 'amount' => (int) $params['amount'], 'metadata' => $params['metadata'] ?? []];
+        $refund = ['id' => 're_' . (++$this->sequence), 'object' => 'refund', 'status' => $this->refund_status, 'amount' => (int) $params['amount'], 'metadata' => $params['metadata'] ?? []];
         $this->refunds[$params['payment_intent']][] = $refund;
 
         if ($key) {

@@ -383,6 +383,14 @@ class CardPresent
         $this->stripe->init();
 
         $pi = PaymentIntent::retrieve(['id' => $state->payment_intent_id, 'expand' => ['payment_method']], $this->stripe->stripe_connect_auth);
+
+        $this->refuseIfSettled($invoice, $pi);
+
+        /* Being charged (processing): the amount can no longer change */
+        if (!in_array($pi->status, self::CANCELLABLE)) {
+            throw new TerminalException('not_collected', 409, ['status' => $pi->status]);
+        }
+
         $collected = $pi->status == 'requires_confirmation';
         $funding = ($pi->payment_method->type ?? null) == 'card_present' ? ($pi->payment_method->card_present->funding ?? null) : null;
 
@@ -555,6 +563,19 @@ class CardPresent
 
         $pi = PaymentIntent::retrieve(['id' => $state->payment_intent_id, 'expand' => ['latest_charge']], $this->stripe->stripe_connect_auth);
 
+        $this->refuseIfSettled($invoice, $pi);
+
+        $this->stripe->payment_hash->touch();
+
+        /* Followed until it is final, should the first dispatch have been lost */
+        $this->follow();
+
+        return $this->intentResponse($pi);
+    }
+
+    /* Charged or cancelled at Stripe (by reconciliation, or on another device): a charge is recorded, and neither takes another step */
+    private function refuseIfSettled(Invoice $invoice, PaymentIntent $pi): void
+    {
         if ($pi->status == 'succeeded') {
             $this->record($invoice, $pi);
 
@@ -566,13 +587,6 @@ class CardPresent
 
             throw new TerminalException('collection_closed');
         }
-
-        $this->stripe->payment_hash->touch();
-
-        /* Followed until it is final, should the first dispatch have been lost */
-        $this->follow();
-
-        return $this->intentResponse($pi);
     }
 
     private function openPaymentIntent(Invoice $invoice): array

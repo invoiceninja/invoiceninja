@@ -87,6 +87,11 @@ class RecordTerminalPayment
 
         $charge = is_string($pi->latest_charge) ? Charge::retrieve($pi->latest_charge, $this->stripe->stripe_connect_auth) : $pi->latest_charge;
 
+        /* Recorded only once its charge has succeeded too: until then the next look asks again */
+        if (($charge->status ?? null) != 'succeeded') {
+            return ['status' => 'processing'];
+        }
+
         /* Whoever holds the payment hash records, once: the webhook, complete and reconciliation wait their turn */
         try {
             $response = DB::transaction(function () use ($invoice, $pi, $charge) {
@@ -285,7 +290,7 @@ class RecordTerminalPayment
             return 0;
         }
 
-        $refund = $this->surchargeRefund($pi, $charge);
+        $refund = $found = $this->surchargeRefund($pi, $charge);
 
         if (!$refund) {
             try {
@@ -296,11 +301,21 @@ class RecordTerminalPayment
                 ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => "in_terminal_surcharge_{$pi->id}"]));
             } catch (InvalidRequestException|CardException|PermissionException $e) {
                 /* Refused. Anything else (no answer, a 409, a 5xx) may have refunded it: the next attempt finds it */
-                $this->card_present->alert('the surcharge could not be refunded, so it is recorded as the client\'s: refund it in Stripe');
-
-                return 0;
+                $refund = null;
             }
+        }
 
+        /* Only money Stripe returned, or is returning, comes off the payment: Stripe counts a pending refund as refunded, and a failed, canceled or requires_action one returned nothing */
+        if (!in_array($refund?->status, ['succeeded', 'pending'])) {
+            /* Still under way: refunding it by hand as well would refund it twice. Once it completes, ChargeRefunded takes it from the client's money */
+            $this->card_present->alert($refund?->status == 'requires_action'
+                ? 'the surcharge refund is waiting on an action in Stripe, so it is recorded as the client\'s until it completes'
+                : 'the surcharge could not be refunded, so it is recorded as the client\'s: refund it in Stripe');
+
+            return 0;
+        }
+
+        if (!$found) {
             $this->card_present->alert('surcharge refunded: it was charged to a card it does not apply to');
         }
 
