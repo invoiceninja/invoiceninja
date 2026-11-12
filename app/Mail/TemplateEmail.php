@@ -130,11 +130,17 @@ class TemplateEmail extends Mailable
         }
 
         if (!empty($settings->disposition_notification_to ?? '')) {
-            $read_receipt_to = $settings->disposition_notification_to;
+            $this->withSymfonyMessage(function ($message) use ($settings) {
+                $headers = $message->getHeaders();
 
-            $this->withSymfonyMessage(function ($message) use ($read_receipt_to) {
-                $message->getHeaders()->addTextHeader('Disposition-Notification-To', $read_receipt_to);
-                $message->getHeaders()->addTextHeader('Return-Receipt-To', $read_receipt_to);
+                $headers->addMailboxListHeader(
+                    'Disposition-Notification-To',
+                    [$settings->disposition_notification_to]
+                );
+                $headers->addMailboxListHeader(
+                    'Return-Receipt-To',
+                    [$settings->disposition_notification_to]
+                );
             });
         }
 

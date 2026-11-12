@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use Symfony\Component\Mime\Email;
 use App\Services\Email\EmailMailable;
 use App\Services\Email\EmailObject;
 
@@ -18,33 +19,45 @@ class EmailReadReceiptHeadersTest extends TestCase
         return new EmailMailable($email_object);
     }
 
+    private function applyCallbacks(EmailMailable $mailable): Email
+    {
+        $message = new Email();
+
+        foreach ($mailable->callbacks as $callback) {
+            $callback($message);
+        }
+
+        return $message;
+    }
+
     public function testReadReceiptHeadersAreAddedWhenSettingIsSet(): void
     {
         $mailable = $this->makeMailable((object) ['disposition_notification_to' => 'receipts@example.com']);
+        $headers = $this->applyCallbacks($mailable)->getHeaders();
 
-        $this->assertSame([
-            'Disposition-Notification-To' => 'receipts@example.com',
-            'Return-Receipt-To' => 'receipts@example.com',
-        ], $mailable->headers()->text);
+        $this->assertSame(['receipts@example.com'], $headers->get('Disposition-Notification-To')->getAddressStrings());
+        $this->assertSame(['receipts@example.com'], $headers->get('Return-Receipt-To')->getAddressStrings());
     }
 
     public function testReadReceiptHeadersAreNotAddedWhenSettingIsEmpty(): void
     {
         $mailable = $this->makeMailable((object) ['disposition_notification_to' => '']);
+        $headers = $this->applyCallbacks($mailable)->getHeaders();
 
-        $this->assertArrayNotHasKey('Disposition-Notification-To', $mailable->headers()->text);
-        $this->assertArrayNotHasKey('Return-Receipt-To', $mailable->headers()->text);
+        $this->assertFalse($headers->has('Disposition-Notification-To'));
+        $this->assertFalse($headers->has('Return-Receipt-To'));
     }
 
     public function testReadReceiptHeadersAreNotAddedWhenSettingsAreMissing(): void
     {
         $mailable = $this->makeMailable(null);
+        $headers = $this->applyCallbacks($mailable)->getHeaders();
 
-        $this->assertArrayNotHasKey('Disposition-Notification-To', $mailable->headers()->text);
-        $this->assertArrayNotHasKey('Return-Receipt-To', $mailable->headers()->text);
+        $this->assertFalse($headers->has('Disposition-Notification-To'));
+        $this->assertFalse($headers->has('Return-Receipt-To'));
     }
 
-    public function testExistingHeadersArePreserved(): void
+    public function testExistingTextHeadersArePreserved(): void
     {
         $mailable = $this->makeMailable(
             (object) ['disposition_notification_to' => 'receipts@example.com'],
@@ -52,7 +65,6 @@ class EmailReadReceiptHeadersTest extends TestCase
         );
 
         $this->assertSame('abc123', $mailable->headers()->text['x-invitation']);
-        $this->assertSame('receipts@example.com', $mailable->headers()->text['Disposition-Notification-To']);
-        $this->assertSame('receipts@example.com', $mailable->headers()->text['Return-Receipt-To']);
+        $this->assertArrayNotHasKey('Disposition-Notification-To', $mailable->headers()->text);
     }
 }
