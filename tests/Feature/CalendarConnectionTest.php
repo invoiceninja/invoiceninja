@@ -225,6 +225,60 @@ class CalendarConnectionTest extends TestCase
         $this->assertArrayHasKey('handoff', $query);
     }
 
+    public function testOneTimeTokenAcceptsTheFlutterWebPlatform(): void
+    {
+        $this->withHeaders($this->apiHeaders())
+            ->postJson('/api/v1/one_time_token', ['context' => 'calendar_google', 'platform' => 'flutter_web'])
+            ->assertOk();
+
+        $this->withHeaders($this->apiHeaders())
+            ->postJson('/api/v1/one_time_token', ['context' => 'calendar_google', 'platform' => 'flutter_desktop'])
+            ->assertStatus(422);
+    }
+
+    public function testCallbackRedirectsFlutterWebToItsOwnHost(): void
+    {
+        Socialite::shouldReceive('driver')->never();
+
+        config(['ninja.flutter_web_url' => 'https://admin.test']);
+
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE, 'flutter_web');
+
+        $response = $this->get(route('calendar_connection.callback', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'state' => $state,
+            'code' => 'oauth-code',
+        ]));
+
+        $location = $response->headers->get('Location');
+        $this->assertStringStartsWith('https://admin.test/#/calendar_connection/complete?', $location);
+
+        $query = $this->parseUrlFragmentParams($location);
+        $this->assertSame('pending', $query['calendar_connection']);
+        $this->assertArrayHasKey('handoff', $query);
+    }
+
+    public function testCallbackRedirectsFlutterWebToAppUrlWhenItHasNoHostOfItsOwn(): void
+    {
+        // Self-host serves the Flutter web app at its own root.
+        Socialite::shouldReceive('driver')->never();
+
+        config(['ninja.flutter_web_url' => '']);
+
+        $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE, 'flutter_web');
+
+        $response = $this->get(route('calendar_connection.callback', [
+            'provider' => CalendarConnection::PROVIDER_GOOGLE,
+            'state' => $state,
+            'code' => 'oauth-code',
+        ]));
+
+        $this->assertStringStartsWith(
+            'https://api.test/#/calendar_connection/complete?',
+            $response->headers->get('Location'),
+        );
+    }
+
     public function testCallbackIgnoresUnknownPlatformAndDefaultsToReact(): void
     {
         Socialite::shouldReceive('driver')->never();

@@ -156,8 +156,9 @@ class CalendarConnectionController extends BaseController
 
     /**
      * Sends the user back to the client that started the flow, carrying the
-     * one-time handoff. Web clients (React or Flutter web) land on the SPA hash
-     * route via react_url; native apps land on an allow-listed custom scheme.
+     * one-time handoff. React lands on the SPA hash route via react_url, the
+     * Flutter web app on its own host (FLUTTER_WEB_URL, else app_url), and
+     * native apps on an allow-listed custom scheme.
      * Targets come from config — never from client input.
      */
     private function redirectToClient(string $provider, string $status, ?string $handoff = null, ?string $platform = null): RedirectResponse
@@ -175,6 +176,13 @@ class CalendarConnectionController extends BaseController
             $separator = str_contains($scheme, '?') ? '&' : '?';
 
             return redirect()->away($scheme . $separator . $query);
+        }
+
+        // Flutter web: its own host on hosted, the server's root on self-host.
+        if ($platform === 'flutter_web') {
+            $baseUrl = rtrim(config('ninja.flutter_web_url') ?: config('ninja.app_url'), '/#');
+
+            return redirect()->away($baseUrl . '/#/calendar_connection/complete?' . $query);
         }
 
         // Default: React / web clients (or unspecified) — existing behavior, untouched.
