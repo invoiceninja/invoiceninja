@@ -112,4 +112,82 @@ class AppLinksWebClientTest extends TestCase
         $this->get('app/settings/payment_links/Wp1')
             ->assertSee('https://react.example.com/#/settings/subscriptions/Wp1/edit', false);
     }
+
+    public function testHostedSendsABrowserThatLastOpenedTheFlutterWebAppThere()
+    {
+        // React stays the default. The page switches only for a browser whose
+        // invoicing.co landing page last opened the Flutter web app.
+        $this->webClientIsFlutter(false);
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.react_url' => 'https://react.example.com',
+            'ninja.flutter_web_url' => 'https://admin.example.com',
+        ]);
+
+        $this->get('app/invoices/Wp1?company=VolejRejNm')
+            ->assertSee('https://react.example.com/#/invoices/Wp1/edit?company=VolejRejNm', false)
+            // Untranslated, as the apps route it; JSON-escaped in the script.
+            ->assertSee('https:\/\/admin.example.com\/#\/invoices\/Wp1?company=VolejRejNm', false)
+            ->assertSee("localStorage.getItem('invoiceninja.landing.last') === 'app'", false);
+    }
+
+    public function testHostedWithoutAFlutterWebUrlOnlyKnowsReact()
+    {
+        $this->webClientIsFlutter(false);
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.react_url' => 'https://react.example.com',
+            'ninja.flutter_web_url' => '',
+        ]);
+
+        $this->get('app/invoices/Wp1')
+            ->assertSee('https://react.example.com/#/invoices/Wp1/edit', false)
+            ->assertDontSee('invoiceninja.landing.last', false);
+    }
+
+    public function testHostedAndroidFallsBackToTheRememberedFlutterWebApp()
+    {
+        // An intent carries its own fallback, so the page offers one for each web app.
+        $this->webClientIsFlutter(false);
+        config([
+            'ninja.environment' => 'hosted',
+            'ninja.react_url' => 'https://react.example.com',
+            'ninja.flutter_web_url' => 'https://admin.example.com',
+        ]);
+
+        $this->get('app/invoices/Wp1')
+            ->assertSee('S.browser_fallback_url='.rawurlencode('https://react.example.com/#/invoices/Wp1/edit'), false)
+            ->assertSee('S.browser_fallback_url='.rawurlencode('https://admin.example.com/#/invoices/Wp1'), false);
+    }
+
+    public function testSelfHostNeverOffersAFlutterWebUrl()
+    {
+        // Self-host serves its web client at its own root; FLUTTER_WEB_URL is hosted-only.
+        $this->webClientIsFlutter(false);
+        config(['ninja.flutter_web_url' => 'https://admin.example.com']);
+
+        $this->get('app/invoices/Wp1')
+            ->assertDontSee('admin.example.com', false)
+            ->assertDontSee('invoiceninja.landing.last', false);
+    }
+
+    public function testBridgeFollowsTheClientTheServerActuallyServes()
+    {
+        // A Flutter account on a release whose web app is React only (built
+        // before the Flutter app shipped its web build): / serves React, so
+        // links must use React's routes.
+        $this->webClientIsFlutter(true);
+        $public = sys_get_temp_dir().'/app-links-public-'.uniqid();
+        mkdir($public, 0777, true);
+        touch($public.'/bundle.abc123.js');
+        $this->app->usePublicPath($public);
+
+        try {
+            $this->get('app/settings/payment_links/Wp1?company=VolejRejNm')
+                ->assertSee('/#/settings/subscriptions/Wp1/edit?company=VolejRejNm', false);
+        } finally {
+            unlink($public.'/bundle.abc123.js');
+            rmdir($public);
+        }
+    }
 }

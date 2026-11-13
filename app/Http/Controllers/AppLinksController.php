@@ -109,6 +109,11 @@ class AppLinksController extends Controller
 
         $target = $host.'/'.$path.'?'.http_build_query($query);
         $webUrl = $this->webUrl($path, $request->query());
+        $flutterWebUrl = $this->hostedFlutterWebUrl($path, $request->query());
+        $intent = 'intent://'.$target
+            .'#Intent;scheme='.$scheme
+            .';package='.config('ninja.app_links.android_package')
+            .';S.browser_fallback_url=';
 
         // Android gets intent:// rather than the scheme: Chrome answers an
         // unregistered scheme with ERR_UNKNOWN_URL_SCHEME, an error page that
@@ -117,12 +122,10 @@ class AppLinksController extends Controller
         return response()
             ->view('app_links.bridge', [
                 'appUrl' => $scheme.'://'.$target,
-                'intentUrl' => 'intent://'.$target
-                    .'#Intent;scheme='.$scheme
-                    .';package='.config('ninja.app_links.android_package')
-                    .';S.browser_fallback_url='.rawurlencode($webUrl)
-                    .';end',
+                'intentUrl' => $intent.rawurlencode($webUrl).';end',
                 'webUrl' => $webUrl,
+                'flutterWebUrl' => $flutterWebUrl,
+                'flutterIntentUrl' => $flutterWebUrl ? $intent.rawurlencode($flutterWebUrl).';end' : null,
             ])
             ->header('X-Robots-Tag', 'noindex');
     }
@@ -149,6 +152,24 @@ class AppLinksController extends Controller
     }
 
     /**
+     * Hosted only: the same link in the Flutter web app (FLUTTER_WEB_URL), for a
+     * browser whose invoicing.co landing page last opened that app. Its routes
+     * are the apps', so the path is untranslated. Null when not configured.
+     */
+    private function hostedFlutterWebUrl(string $path, array $query): ?string
+    {
+        $base = rtrim((string) config('ninja.flutter_web_url'), '/');
+
+        if (Ninja::isSelfHost() || $base === '') {
+            return null;
+        }
+
+        $suffix = empty($query) ? '' : '?'.http_build_query($query);
+
+        return $base.'/#/'.$path.$suffix;
+    }
+
+    /**
      * Whether `/` serves the Flutter web client rather than React — the same
      * read {@see BaseController::flutterRoute()} makes.
      *
@@ -163,10 +184,16 @@ class AppLinksController extends Controller
         }
 
         try {
-            return Account::first()?->set_react_as_default_ap === false;
+            if (Account::first()?->set_react_as_default_ap !== false) {
+                return false;
+            }
         } catch (\Throwable) {
             return false;
         }
+
+        // As flutterRoute serves it: the Flutter web app when installed, else React
+        // when built; a git checkout with neither still serves admin-portal's app.
+        return Ninja::hasFlutterWebBuild() || ! Ninja::hasReactWebBuild();
     }
 
     private function configList(string $key): array
