@@ -15,6 +15,12 @@ return [
         'android_fingerprints' => env('APP_LINKS_ANDROID_FINGERPRINTS', 'BB:BC:8B:FB:72:4E:F2:56:77:30:31:B1:C9:22:C0:51:D3:5D:EE:3F:CE:BD:59:3A:F7:11:2F:AB:46:7D:E8:88,D1:7F:AC:8D:58:95:99:23:1C:31:CE:52:A5:E6:FD:E7:2B:BA:9B:7D:DC:8B:18:03:07:E2:5C:C6:88:03:C1:7D'),
         'apple_app_ids' => env('APP_LINKS_APPLE_APP_IDS', 'NPC44Y2C98.com.invoiceninja.admin'),
     ],
+    'passkeys' => [
+        // Web origins other than the relying party's own that may sign in with its passkeys (WebAuthn Related
+        // Origin Requests), e.g. https://admin.invoicing.co. Each must also be in the relying party's
+        // /.well-known/webauthn, or the browser refuses before the server is asked.
+        'related_origins' => env('PASSKEY_RELATED_ORIGINS', ''),
+    ],
     'production' => env('NINJA_PROD', false),
     'license' => env('NINJA_LICENSE', ''),
     'version_url' => 'https://pdf.invoicing.co/api/version',
