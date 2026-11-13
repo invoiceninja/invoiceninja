@@ -183,7 +183,8 @@ class PasskeyService
     }
 
     /**
-     * @param string|null $clientDataJSON The ceremony's client data, when verifying one: a related origin needs its own instance.
+     * @param string|null $clientDataJSON The ceremony's client data, when verifying one:
+     *                                    a related origin needs its own instance.
      */
     private function makeWebAuthn(?string $clientDataJSON = null): WebAuthn
     {
@@ -196,15 +197,22 @@ class PasskeyService
         // JSON the client decodes cannot parse. NOTE: the WebAuthn constructor assigns
         // ByteBuffer::$useBase64UrlEncoding from this flag, so it must be passed here —
         // setting the static separately is overwritten by every new WebAuthn().
-        $webAuthn = new WebAuthn(config('ninja.app_name'), $relatedOrigin ? (string) parse_url($relatedOrigin, PHP_URL_HOST) : $rpId, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm'], true);
+        $host = $relatedOrigin ? (string) parse_url($relatedOrigin, PHP_URL_HOST) : $rpId;
+
+        $webAuthn = new WebAuthn(config('ninja.app_name'), $host, ['none', 'packed', 'fido-u2f', 'android-key', 'android-safetynet', 'apple', 'tpm'], true);
 
         // The Android app's origin is `android:apk-key-hash:<hash>`, accepted only for hashes added here.
         $webAuthn->addAndroidKeyHashes(self::androidKeyHashes((string) config('ninja.app_links.android_fingerprints')));
 
         if ($relatedOrigin) {
-            // lbuchs/webauthn checks the origin against the RP ID alone and has no allow-list, so the instance is
-            // built for the related origin's host (passing that check, for this listed origin only) and given back
-            // the real relying party's hash, which the authenticator data must still carry.
+            // lbuchs/webauthn (checked against 2.2.0) checks the origin against the RP ID alone and has no
+            // allow-list, so the instance is built for the related origin's host (passing that check, for this
+            // listed origin only) and given back the real relying party's hash, which the authenticator data must
+            // still carry. processCreate()'s returned rpId is then the related host; it is never stored.
+            if (! property_exists(WebAuthn::class, '_rpIdHash')) {
+                throw new \LogicException('lbuchs/webauthn no longer has _rpIdHash; related passkey origins need updating.');
+            }
+
             (new \ReflectionProperty(WebAuthn::class, '_rpIdHash'))->setValue($webAuthn, hash('sha256', $rpId, true));
         }
 
@@ -221,10 +229,14 @@ class PasskeyService
         $origins = [];
 
         foreach (explode(',', (string) config('ninja.passkeys.related_origins')) as $origin) {
-            $origin = rtrim(trim($origin), '/');
+            // As a browser serialises an origin: lowercase, no trailing slash, no default port. IDNs in punycode.
+            $origin = preg_replace('#:443\z#', '', strtolower(rtrim(trim($origin), '/')));
+            $port = parse_url($origin, PHP_URL_PORT);
 
-            if (preg_match('#\Ahttps://[a-z0-9.-]+(:\d+)?\z#i', $origin) === 1) {
-                $origins[] = strtolower($origin);
+            if (preg_match('#\Ahttps://[a-z0-9.-]+(:\d+)?\z#', $origin) === 1
+                && parse_url($origin, PHP_URL_HOST)
+                && ($port === null || ($port >= 1 && $port <= 65535))) {
+                $origins[] = $origin;
             }
         }
 
@@ -232,13 +244,19 @@ class PasskeyService
     }
 
     /**
-     * The client data's origin, when it is one of the related origins exactly.
+     * The client data's origin, when it is one of the related origins exactly and not framed by another site
+     * (a cross-origin iframe then fails the library's origin check, as anywhere else).
      */
     private function relatedOriginOf(string $clientDataJSON): ?string
     {
-        $origin = json_decode($clientDataJSON, true)['origin'] ?? null;
+        $clientData = json_decode($clientDataJSON, true);
+        $origin = is_array($clientData) ? ($clientData['origin'] ?? null) : null;
 
-        return is_string($origin) && in_array($origin, $this->relatedOrigins(), true) ? $origin : null;
+        if (! is_string($origin) || ($clientData['crossOrigin'] ?? false) === true) {
+            return null;
+        }
+
+        return in_array($origin, $this->relatedOrigins(), true) ? $origin : null;
     }
 
     /**

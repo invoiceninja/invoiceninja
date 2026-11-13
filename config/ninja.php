@@ -18,7 +18,8 @@ return [
     'passkeys' => [
         // Web origins other than the relying party's own that may sign in with its passkeys (WebAuthn Related
         // Origin Requests), e.g. https://admin.invoicing.co. Each must also be in the relying party's
-        // /.well-known/webauthn, or the browser refuses before the server is asked.
+        // /.well-known/webauthn, or the browser refuses before the server is asked. A listed origin can sign
+        // in and register, so list only first-party, hardened ones.
         'related_origins' => env('PASSKEY_RELATED_ORIGINS', ''),
     ],
     'production' => env('NINJA_PROD', false),

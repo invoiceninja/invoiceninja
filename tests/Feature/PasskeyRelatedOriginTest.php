@@ -88,11 +88,22 @@ class PasskeyRelatedOriginTest extends TestCase
         $this->assertSame([], $this->loginOptions()['related_origins']);
     }
 
-    public function testOnlyHttpsOriginsAreListed(): void
+    public function testOnlyHttpsOriginsAreListedAsABrowserWritesThem(): void
     {
-        config(['ninja.passkeys.related_origins' => ' https://Admin.Invoicing.co/ , http://admin.invoicing.co, admin.invoicing.co, https://a.example/path']);
+        config(['ninja.passkeys.related_origins' => ' https://Admin.Invoicing.co/ , https://admin.invoicing.co:443, http://admin.invoicing.co, admin.invoicing.co, https://a.example/path, https://b.example:99999']);
 
         $this->assertSame([$this->related], $this->loginOptions()['related_origins']);
+    }
+
+    public function testAListedOriginWithAPortSignsIn(): void
+    {
+        config(['ninja.passkeys.related_origins' => 'https://admin.invoicing.co:8443']);
+        $options = $this->loginOptions();
+
+        $this->passkeyLogin(
+            $options['challenge_token'],
+            $this->assertionPayload($this->credentialId, $options['publicKey']['challenge'], 'https://admin.invoicing.co:8443')
+        )->assertOk();
     }
 
     public function testAnOriginThatIsNotListedCannotSignIn(): void
@@ -105,6 +116,22 @@ class PasskeyRelatedOriginTest extends TestCase
     public function testALookalikeOfTheListedOriginCannotSignIn(): void
     {
         $this->expectInvalid('https://evil-admin.invoicing.co', 'invalid origin');
+    }
+
+    public function testOnlyTheExactOriginIsRelated(): void
+    {
+        // The library's own check would take a subdomain of the host it is given.
+        $this->expectInvalid('https://x.admin.invoicing.co', 'invalid origin');
+    }
+
+    public function testADifferentPortIsAnotherOrigin(): void
+    {
+        $this->expectInvalid('https://admin.invoicing.co:8443', 'invalid origin');
+    }
+
+    public function testARelatedOriginFramedByAnotherSiteCannotSignIn(): void
+    {
+        $this->expectInvalid($this->related, 'invalid origin', crossOrigin: true);
     }
 
     public function testARelatedOriginStillNeedsTheRelyingPartysAuthenticatorData(): void
@@ -144,20 +171,41 @@ class PasskeyRelatedOriginTest extends TestCase
             ->exists());
     }
 
+    public function testAnUnlistedOriginCannotRegister(): void
+    {
+        config(['ninja.passkeys.related_origins' => '']);
+        $options = $this->registrationOptions();
+
+        $this->authenticated()->postJson('/api/v1/settings/passkeys', [
+            'challenge_token' => $options['challenge_token'],
+            'credential' => $this->attestationPayload(random_bytes(16), $options['publicKey']['challenge'], $this->related),
+            'name' => 'Chrome',
+        ])->assertStatus(422);
+
+        $this->assertSame(1, PasskeyCredential::query()->where('user_id', $this->user->id)->count());
+    }
+
     /** Straight through the service, so the reason for the rejection is visible. */
-    private function expectInvalid(string $origin, string $message): void
+    private function expectInvalid(string $origin, string $message, bool $crossOrigin = false): void
     {
         $service = app(PasskeyService::class);
         $options = json_decode(json_encode($service->getAuthenticationOptions($this->user, true)['data']), true);
+        $payload = $this->assertionPayload($this->credentialId, $options['publicKey']['challenge'], $origin);
+
+        if ($crossOrigin) {
+            // Re-signed client data with crossOrigin set, as a browser reports a ceremony inside a foreign iframe.
+            $clientData = json_decode($this->b64urlDecode($payload['clientDataJSON']), true);
+            $clientData['crossOrigin'] = true;
+            $clientDataJson = json_encode($clientData, JSON_UNESCAPED_SLASHES);
+            $authenticatorData = $this->b64urlDecode($payload['authenticatorData']);
+            $payload['clientDataJSON'] = $this->b64url($clientDataJson);
+            $payload['signature'] = $this->b64url($this->signAssertion($authenticatorData, $clientDataJson));
+        }
 
         $this->expectException(WebAuthnException::class);
         $this->expectExceptionMessage($message);
 
-        $service->authenticate(
-            $this->user,
-            $options['challenge_token'],
-            $this->assertionPayload($this->credentialId, $options['publicKey']['challenge'], $origin)
-        );
+        $service->authenticate($this->user, $options['challenge_token'], $payload);
     }
 
     private function loginOptions(): array
