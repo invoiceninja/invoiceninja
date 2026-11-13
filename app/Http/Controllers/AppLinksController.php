@@ -29,7 +29,8 @@ use Illuminate\Http\Request;
  *
  * The browser fallback goes to whichever web client the instance serves — see
  * {@see self::usesFlutterWebClient()} — on the instance's own origin when
- * self-hosted, and on `react_url` when hosted.
+ * self-hosted, and on `react_url` when hosted, or `flutter_web_url` for a
+ * browser whose landing page last opened the Flutter web app.
  */
 class AppLinksController extends Controller
 {
@@ -184,16 +185,10 @@ class AppLinksController extends Controller
         }
 
         try {
-            if (Account::first()?->set_react_as_default_ap !== false) {
-                return false;
-            }
+            return Account::first()?->set_react_as_default_ap === false;
         } catch (\Throwable) {
             return false;
         }
-
-        // As flutterRoute serves it: the Flutter web app when installed, else React
-        // when built; a git checkout with neither still serves admin-portal's app.
-        return Ninja::hasFlutterWebBuild() || ! Ninja::hasReactWebBuild();
     }
 
     private function configList(string $key): array

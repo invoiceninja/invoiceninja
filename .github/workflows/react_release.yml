@@ -93,18 +93,76 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # The web build attached to the newest published invoiceninja/app release that has one:
-          # public/flutter/ and public/landing/, with their views in resources/views/.
-          # Optional: without it / keeps serving the legacy Flutter app, so a failure here only warns.
-          tag=$(gh api 'repos/invoiceninja/app/releases?per_page=20' --jq '[.[] | select((.draft or .prerelease) | not) | select(any(.assets[]; .name | startswith("invoiceninja-web-")))][0].tag_name') || tag=''
-          if [ -z "$tag" ] || [ "$tag" = "null" ]; then
-            echo "::warning::No invoiceninja/app release with a web build was found; self-hosted / serves React instead."
+          # The new Flutter web app (public/flutter) and the invoicing.co landing page (public/landing), with
+          # their two views, from the newest published invoiceninja/app release that has a web build.
+          # Optional: if any check fails the release ships without them, and self-hosted / keeps serving
+          # the old Flutter app. The views are compiled as PHP, so nothing is trusted on its name alone.
+          set -uo pipefail
+          work=$(mktemp -d)
+          skip() {
+            echo "::warning::$1 This release ships without the new Flutter web app."
+            rm -rf "$work"
             exit 0
+          }
+
+          tag=$(gh api 'repos/invoiceninja/app/releases?per_page=20' --jq '[.[] | select((.draft or .prerelease) | not) | select(any(.assets[]; .name | startswith("invoiceninja-web-")))][0].tag_name') \
+            || skip "Could not list the invoiceninja/app releases."
+          if [ -z "$tag" ] || [ "$tag" = "null" ]; then
+            skip "No invoiceninja/app release has a web build."
           fi
-          gh release download "$tag" --repo invoiceninja/app --pattern 'invoiceninja-web-*.tar.gz' --output flutter-web.tar.gz
-          # Only these, so the archive can never overwrite anything else in the release.
-          tar -xzf flutter-web.tar.gz public/flutter public/landing resources/views/flutter/index.blade.php resources/views/landing/apps.blade.php
-          rm flutter-web.tar.gz
+          gh release download "$tag" --repo invoiceninja/app --pattern 'invoiceninja-web-*.tar.gz' --dir "$work/download" \
+            || skip "Could not download the web build of $tag."
+          archives=("$work"/download/*.tar.gz)
+          [ "${#archives[@]}" -eq 1 ] || skip "$tag has more than one web build."
+          archive="${archives[0]}"
+
+          # Built by invoiceninja/app's own Deploy to Web workflow, not just uploaded under that name.
+          gh attestation verify "$archive" --repo invoiceninja/app --signer-workflow invoiceninja/app/.github/workflows/web.yml >/dev/null \
+            || skip "The web build of $tag has no valid build attestation."
+
+          # Plain files and folders only (no links), under the four paths, and nothing Apache would run or obey.
+          tar -tvzf "$archive" | awk '$1 !~ /^[-d]/ { bad = 1 } END { exit bad }' \
+            || skip "The web build of $tag holds a link or a special file."
+          if tar -tzf "$archive" | grep -Ev '^(public/?|resources/?|resources/views/?|public/(flutter|landing)(/.*)?|resources/views/(flutter|landing)/?|resources/views/flutter/index\.blade\.php|resources/views/landing/apps\.blade\.php)$'; then
+            skip "The web build of $tag holds files outside its four paths."
+          fi
+          if tar -tzf "$archive" | grep -Ei '^public/.*(\.(php[0-9]?|phtml|phar)|/\.htaccess|/\.user\.ini)$'; then
+            skip "The web build of $tag holds a file the web server would execute."
+          fi
+
+          mkdir "$work/out"
+          tar -xzf "$archive" -C "$work/out" --no-same-owner --no-same-permissions \
+            public/flutter public/landing resources/views/flutter/index.blade.php resources/views/landing/apps.blade.php \
+            || skip "The web build of $tag is missing a part."
+
+          # Blade compiles {{ }}, @if (...) and anything else it knows into PHP. The boot view may use only the
+          # variable echoes and @if the server's controller expects; the landing view is one @verbatim block.
+          python3 - "$work/out/resources/views" <<'EOF' || skip "A view in the web build of $tag holds code the server would run."
+          import re, sys
+          views = sys.argv[1]
+          boot = open(f"{views}/flutter/index.blade.php", encoding="utf-8").read()
+          boot = re.sub(r"\{\{--.*?--\}\}", "", boot, flags=re.S)
+          echo = re.compile(r"\{\{ \(?\$[a-z_]+ \?\? (false|'[^'{}()$;]*')\)?( \? '[^'{}$;]*' : '[^'{}$;]*')? \}\}")
+          bad = [m for m in re.findall(r"\{\{.*?\}\}", boot) if not echo.fullmatch(m)]
+          bad += [m for m in re.findall(r"(?<![\w-])@[A-Za-z]+[^\n]*", boot) if not re.fullmatch(r"@(if \(\$[a-z_]+ \?\? false\)|endif|keyframes\b.*)", m.strip())]
+          landing = open(f"{views}/landing/apps.blade.php", encoding="utf-8").read().strip()
+          inner = landing.removeprefix("@verbatim").removesuffix("@endverbatim")
+          if len(inner) != len(landing) - len("@verbatim") - len("@endverbatim") or "@endverbatim" in inner:
+              bad.append("landing view is not one @verbatim block")
+          for name, text in (("boot", boot), ("landing", landing)):
+              if re.search(r"<\?|\{!!|\{\{\{", text):
+                  bad.append(f"{name} view: raw PHP or unescaped output")
+          print("\n".join(bad))
+          sys.exit(1 if bad else 0)
+          EOF
+
+          rm -rf public/flutter public/landing resources/views/flutter resources/views/landing
+          mkdir -p resources/views/flutter resources/views/landing
+          cp -R "$work/out/public/flutter" "$work/out/public/landing" public/
+          cp "$work/out/resources/views/flutter/index.blade.php" resources/views/flutter/
+          cp "$work/out/resources/views/landing/apps.blade.php" resources/views/landing/
+          rm -rf "$work"
+          echo "Added the web build of $tag."
 
       - name: Prepare JS/CSS assets
         run: |

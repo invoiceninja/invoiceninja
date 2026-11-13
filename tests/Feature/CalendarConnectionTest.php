@@ -240,7 +240,8 @@ class CalendarConnectionTest extends TestCase
     {
         Socialite::shouldReceive('driver')->never();
 
-        config(['ninja.flutter_web_url' => 'https://admin.test']);
+        // A trailing slash is trimmed, as react_url's is.
+        config(['ninja.flutter_web_url' => 'https://admin.test/']);
 
         $state = $this->cacheCalendarState(CalendarConnection::PROVIDER_GOOGLE, 'flutter_web');
 

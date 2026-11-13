@@ -27,17 +27,19 @@
 </IfModule>
 
 <IfModule mod_deflate.c>
-    <IfModule mod_filter.c>
-        AddOutputFilterByType DEFLATE application/wasm text/javascript application/javascript application/json
-    </IfModule>
+    # Static files only: FilesMatch never matches index.php's API responses
+    <FilesMatch "\.(wasm|mjs|js|json)$">
+        SetOutputFilter DEFLATE
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_setenvif.c>
+    # The Flutter web app and the landing page carry no version in their file names
+    SetEnvIf Request_URI "/(flutter|landing)/" NINJA_NO_CACHE
 </IfModule>
 
 <IfModule mod_headers.c>
     # Blocks Search Engine Indexing
     Header set X-Robots-Tag "noindex, nofollow"
-
-    # The Flutter web app and the landing page carry no version in their file names
-    <If "%{REQUEST_URI} =~ m#/(flutter|landing)/#">
-        Header set Cache-Control "no-cache"
-    </If>
+    Header set Cache-Control "no-cache" env=NINJA_NO_CACHE
 </IfModule>

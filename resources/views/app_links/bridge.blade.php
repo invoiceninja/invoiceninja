@@ -30,12 +30,9 @@
             try {
                 if (localStorage.getItem('invoiceninja.landing.last') === 'app') {
                     web = @json($flutterWebUrl, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-                    window.inFlutterWeb = true;
                 }
             } catch (e) {}
             @endif
-
-            window.inWebUrl = web;
 
             if (!/Android|iPhone|iPad|iPod/i.test(ua) && !iPadOS) {
                 location.replace(web);
@@ -80,18 +77,30 @@
         <h1>{{ ctrans('texts.open_in_app') }}</h1>
 
         <a class="primary" id="app-link" href="{{ $appUrl }}"
-           data-intent="{{ $intentUrl }}"
-           data-intent-flutter="{{ $flutterIntentUrl ?? '' }}">{{ ctrans('texts.open_in_app') }}</a>
-        <a class="secondary" id="web-link" href="{{ $webUrl }}">{{ ctrans('texts.continue_in_browser') }}</a>
+           data-intent="{{ $intentUrl }}"@if ($flutterWebUrl ?? null)
+           data-intent-flutter="{{ $flutterIntentUrl }}"@endif>{{ ctrans('texts.open_in_app') }}</a>
+        <a class="secondary" id="web-link" href="{{ $webUrl }}"@if ($flutterWebUrl ?? null)
+           data-flutter="{{ $flutterWebUrl }}"@endif>{{ ctrans('texts.continue_in_browser') }}</a>
     </main>
 
     <script>
         (function () {
             var link = document.getElementById('app-link');
             var webLink = document.getElementById('web-link');
-            var web = window.inWebUrl || webLink.href;
+            var flutter = false;
 
-            webLink.href = web;
+            @if ($flutterWebUrl ?? null)
+            // As above: the Flutter web app when the landing page last opened it.
+            try {
+                flutter = localStorage.getItem('invoiceninja.landing.last') === 'app';
+            } catch (e) {}
+
+            if (flutter) {
+                webLink.href = webLink.dataset.flutter;
+            }
+            @endif
+
+            var web = webLink.href;
 
             // Android only, and via intent:// rather than the scheme itself: an
             // unregistered scheme answers with ERR_UNKNOWN_URL_SCHEME, an error
@@ -103,7 +112,7 @@
 
             if (android) {
                 // An intent carries its own fallback, so it names the same web app.
-                link.href = (window.inFlutterWeb && link.dataset.intentFlutter) || link.dataset.intent;
+                link.href = (flutter && link.dataset.intentFlutter) || link.dataset.intent;
                 window.location.href = link.href;
             }
 

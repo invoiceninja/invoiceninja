@@ -20,9 +20,10 @@ use Illuminate\Support\Facades\View;
 use Tests\TestCase;
 
 /**
- * What `/` serves: the hosted landing page, the Flutter web app unpacked from
- * the Flutter app's release (public/flutter, resources/views/flutter), React,
- * or, on a git checkout that has neither build, admin-portal's app.
+ * What `/` serves: the hosted landing page, the new Flutter web app unpacked
+ * from its release (public/flutter, resources/views/flutter), or, where that
+ * isn't installed (a git checkout, a release that couldn't fetch it),
+ * admin-portal's app.
  *
  * Both new views arrive with the release tarball and are not in the repo, so
  * these register stand-ins from a temporary folder, and point the public path
@@ -45,7 +46,7 @@ class FlutterWebRouteTest extends TestCase
         File::ensureDirectoryExists($this->dir.'/views/flutter');
         File::put($this->dir.'/views/landing/apps.blade.php', 'LANDING PAGE');
         File::put($this->dir.'/views/flutter/index.blade.php', 'FLUTTER WEB base={{ $base_href }} hosted={{ $is_hosted ? 1 : 0 }} microsoft={{ $microsoft_client_id }}');
-        View::addLocation($this->dir.'/views');
+        View::prependLocation($this->dir.'/views');
 
         if (Account::count() === 0) {
             Account::factory()->create();
@@ -69,18 +70,14 @@ class FlutterWebRouteTest extends TestCase
     }
 
     /**
-     * A release install: the Flutter web app and/or React's entry bundle.
+     * A release install, with or without the new Flutter web app.
      */
-    private function install(bool $flutter, bool $react): void
+    private function install(bool $flutter): void
     {
         File::ensureDirectoryExists($this->dir.'/public/flutter');
 
         if ($flutter) {
             File::put($this->dir.'/public/flutter/flutter_bootstrap.js', '');
-        }
-
-        if ($react) {
-            File::put($this->dir.'/public/bundle.abc123.js', '');
         }
 
         $this->app->usePublicPath($this->dir.'/public');
@@ -92,6 +89,7 @@ class FlutterWebRouteTest extends TestCase
 
         $this->get('/')
             ->assertStatus(200)
+            ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
             ->assertSee('LANDING PAGE');
     }
 
@@ -141,7 +139,7 @@ class FlutterWebRouteTest extends TestCase
     {
         // Hosted serves it from its own host; a second copy here would be a second origin.
         config(['ninja.environment' => 'hosted']);
-        $this->install(flutter: true, react: true);
+        $this->install(flutter: true);
 
         $this->get('/')
             ->assertStatus(200)
@@ -156,31 +154,19 @@ class FlutterWebRouteTest extends TestCase
             'ninja.app_url' => rtrim(url('/'), '/').'/ninja',
             'services.microsoft.client_id' => 'ms-client-id',
         ]);
-        $this->install(flutter: true, react: true);
+        $this->install(flutter: true);
 
         $this->get('/')
             ->assertStatus(200)
+            ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
             ->assertSee('FLUTTER WEB base=/ninja/flutter/ hosted=0 microsoft=ms-client-id', false);
     }
 
-    public function testSelfHostServesReactWhenOnlyReactIsBuilt()
+    public function testSelfHostKeepsTheOldAppWithoutTheNewOne()
     {
-        // A release built before the Flutter app shipped its web build.
+        // A git checkout, or a release that couldn't fetch the Flutter web build.
         config(['ninja.environment' => 'selfhost']);
-        $this->install(flutter: false, react: true);
-
-        $this->get('/')
-            ->assertStatus(200)
-            ->assertDontSee('FLUTTER WEB')
-            ->assertDontSee('main.foss.dart.js', false)
-            ->assertSee('<div id="root"></div>', false);
-    }
-
-    public function testAGitCheckoutStillServesTheOldApp()
-    {
-        // Neither build is in the repo; React's view alone would be a blank page.
-        config(['ninja.environment' => 'selfhost']);
-        $this->install(flutter: false, react: false);
+        $this->install(flutter: false);
 
         $this->get('/')
             ->assertStatus(200)
@@ -188,10 +174,22 @@ class FlutterWebRouteTest extends TestCase
             ->assertSee('main.foss.dart.js', false);
     }
 
+    public function testTheNewAppNeedsItsViewToo()
+    {
+        // public/flutter without resources/views/flutter: a half-extracted release.
+        config(['ninja.environment' => 'selfhost']);
+        $this->install(flutter: true);
+        File::delete($this->dir.'/views/flutter/index.blade.php');
+
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertSee('main.foss.dart.js', false);
+    }
+
     public function testReactAccountsStayOnReact()
     {
         config(['ninja.environment' => 'selfhost']);
-        $this->install(flutter: true, react: true);
+        $this->install(flutter: true);
         Account::query()->update(['set_react_as_default_ap' => true]);
 
         $this->get('/')
@@ -199,13 +197,14 @@ class FlutterWebRouteTest extends TestCase
             ->assertSee('<div id="root"></div>', false);
     }
 
-    public function testTheBuildQueryNoLongerPicksTheOldAppOnSelfHost()
+    public function testTheOldAppsTestBuildsAreHostedOnly()
     {
+        // ?build=next etc. pick an old-app build; a self-host with the new app has none.
         config(['ninja.environment' => 'selfhost']);
-        $this->install(flutter: true, react: true);
+        $this->install(flutter: true);
 
-        $this->get('/?build=legacy')
+        $this->get('/?build=next')
             ->assertSee('FLUTTER WEB', false)
-            ->assertCookieMissing('flutter_web_build');
+            ->assertDontSee('main.next.dart.js', false);
     }
 }
