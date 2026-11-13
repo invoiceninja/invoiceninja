@@ -89,6 +89,23 @@ jobs:
           cp -r dist/* ../public/
           mv ../public/index.html ../resources/views/react/index.blade.php
 
+      - name: Prepare Flutter FrontEnd
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The web build attached to the newest published invoiceninja/app release that has one:
+          # public/flutter/ and public/landing/, with their views in resources/views/.
+          # Optional: without it / keeps serving the legacy Flutter app, so a failure here only warns.
+          tag=$(gh api 'repos/invoiceninja/app/releases?per_page=20' --jq '[.[] | select((.draft or .prerelease) | not) | select(any(.assets[]; .name | startswith("invoiceninja-web-")))][0].tag_name') || tag=''
+          if [ -z "$tag" ] || [ "$tag" = "null" ]; then
+            echo "::warning::No invoiceninja/app release with a web build was found; self-hosted / serves React instead."
+            exit 0
+          fi
+          gh release download "$tag" --repo invoiceninja/app --pattern 'invoiceninja-web-*.tar.gz' --output flutter-web.tar.gz
+          # Only these, so the archive can never overwrite anything else in the release.
+          tar -xzf flutter-web.tar.gz public/flutter public/landing resources/views/flutter/index.blade.php resources/views/landing/apps.blade.php
+          rm flutter-web.tar.gz
+
       - name: Prepare JS/CSS assets
         run: |
           npm i

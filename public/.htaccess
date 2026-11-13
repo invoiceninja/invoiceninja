@@ -20,7 +20,24 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
+<IfModule mod_mime.c>
+    # The Flutter web app (public/flutter) boots from a WASM module and ES modules
+    AddType application/wasm .wasm
+    AddType text/javascript .mjs
+</IfModule>
+
+<IfModule mod_deflate.c>
+    <IfModule mod_filter.c>
+        AddOutputFilterByType DEFLATE application/wasm text/javascript application/javascript application/json
+    </IfModule>
+</IfModule>
+
 <IfModule mod_headers.c>
     # Blocks Search Engine Indexing
     Header set X-Robots-Tag "noindex, nofollow"
+
+    # The Flutter web app and the landing page carry no version in their file names
+    <If "%{REQUEST_URI} =~ m#/(flutter|landing)/#">
+        Header set Cache-Control "no-cache"
+    </If>
 </IfModule>
