@@ -25,9 +25,10 @@ use Tests\TestCase;
  * isn't installed (a git checkout, a release that couldn't fetch it),
  * admin-portal's app.
  *
- * Both new views arrive with the release tarball and are not in the repo, so
- * these register stand-ins from a temporary folder, and point the public path
- * at a temporary install.
+ * Both pages arrive with the release tarball and are not in the repo, so these
+ * put stand-ins in a temporary view folder, and point the public path at a
+ * temporary install. They are plain HTML the server fills or serves as a file:
+ * nothing from the release is compiled.
  */
 class FlutterWebRouteTest extends TestCase
 {
@@ -44,8 +45,8 @@ class FlutterWebRouteTest extends TestCase
         $this->dir = sys_get_temp_dir().'/flutter-web-route-'.uniqid();
         File::ensureDirectoryExists($this->dir.'/views/landing');
         File::ensureDirectoryExists($this->dir.'/views/flutter');
-        File::put($this->dir.'/views/landing/apps.blade.php', 'LANDING PAGE');
-        File::put($this->dir.'/views/flutter/index.blade.php', 'FLUTTER WEB base={{ $base_href }} hosted={{ $is_hosted ? 1 : 0 }} microsoft={{ $microsoft_client_id }}');
+        File::put($this->dir.'/views/landing/index.html', 'LANDING PAGE');
+        File::put($this->dir.'/views/flutter/index.html', 'FLUTTER WEB base=__IN_BASE_HREF__ hosted=__IN_HOSTED__ microsoft=__IN_MICROSOFT_CLIENT_ID__ rc=__IN_RC__ new=[__IN_SOMETHING_NEWER__] {{ 6 * 7 }} @php echo 42; @endphp');
         View::prependLocation($this->dir.'/views');
 
         if (Account::count() === 0) {
@@ -127,7 +128,7 @@ class FlutterWebRouteTest extends TestCase
     public function testHostedFallsBackToTheOldAppWhenTheLandingPageIsNotInstalled()
     {
         config(['ninja.environment' => 'hosted', 'ninja.hosted_landing' => true]);
-        File::delete($this->dir.'/views/landing/apps.blade.php');
+        File::delete($this->dir.'/views/landing/index.html');
 
         $this->get('/')
             ->assertStatus(200)
@@ -162,6 +163,22 @@ class FlutterWebRouteTest extends TestCase
             ->assertSee('FLUTTER WEB base=/ninja/flutter/ hosted=0 microsoft=ms-client-id', false);
     }
 
+    public function testTheBootPageIsFilledWithEscapedValuesAndNeverCompiled()
+    {
+        config(['ninja.environment' => 'selfhost']);
+        $this->install(flutter: true);
+
+        $this->get('/?rc=<b>"x"</b>')
+            ->assertStatus(200)
+            ->assertHeader('Content-Type', 'text/html; charset=UTF-8')
+            ->assertSee('rc=&lt;b&gt;&quot;x&quot;&lt;/b&gt;', false)
+            // A token this server doesn't know yet is left empty.
+            ->assertSee('new=[]', false)
+            // Blade in the page is just text.
+            ->assertSee('{{ 6 * 7 }} @php echo 42; @endphp', false)
+            ->assertDontSee('42 ', false);
+    }
+
     public function testSelfHostKeepsTheOldAppWithoutTheNewOne()
     {
         // A git checkout, or a release that couldn't fetch the Flutter web build.
@@ -179,7 +196,7 @@ class FlutterWebRouteTest extends TestCase
         // public/flutter without resources/views/flutter: a half-extracted release.
         config(['ninja.environment' => 'selfhost']);
         $this->install(flutter: true);
-        File::delete($this->dir.'/views/flutter/index.blade.php');
+        File::delete($this->dir.'/views/flutter/index.html');
 
         $this->get('/')
             ->assertStatus(200)

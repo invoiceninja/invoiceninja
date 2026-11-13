@@ -1130,8 +1130,10 @@ class BaseController extends Controller
             }
 
             /* Hosted: the landing page, before the redirects below drop ?signup, ?rc and UTM tags */
-            if (Ninja::isHosted() && config('ninja.hosted_landing') && ! request()->has('build') && view()->exists('landing.apps')) {
-                return response()->view('landing.apps')->header('X-Frame-Options', 'SAMEORIGIN', false);
+            if (Ninja::isHosted() && config('ninja.hosted_landing') && ! request()->has('build') && $landing = Ninja::flutterWebFile('landing/index.html')) {
+                return response((string) file_get_contents($landing))
+                    ->header('Content-Type', 'text/html; charset=UTF-8')
+                    ->header('X-Frame-Options', 'SAMEORIGIN', false);
             }
 
             /* Clean up URLs and remove query parameters from the URL*/
@@ -1181,11 +1183,19 @@ class BaseController extends Controller
 
             /* Self-host: the new Flutter web app, unpacked from its release into public/flutter */
             if (Ninja::isSelfHost() && Ninja::hasFlutterWebBuild()) {
-                $data['is_hosted'] = false;
-                $data['base_href'] = $canvas_path . '/flutter/';
-                $data['microsoft_client_id'] = config('services.microsoft.client_id');
+                $page = Ninja::flutterWebPage([
+                    'HOSTED' => '0',
+                    'SIGNUP' => $data['signup'] === 'true' ? 'true' : '',
+                    'RC' => $data['rc'],
+                    'WHITE_LABEL' => $data['white_label'] ? '1' : '',
+                    'BASE_HREF' => $canvas_path.'/flutter/',
+                    'MICROSOFT_CLIENT_ID' => (string) config('services.microsoft.client_id'),
+                    'TITLE' => $data['white_label'] ? '' : 'Invoice Ninja',
+                ]);
 
-                return response()->view('flutter.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+                return response($page)
+                    ->header('Content-Type', 'text/html; charset=UTF-8')
+                    ->header('X-Frame-Options', 'SAMEORIGIN', false);
             }
 
             return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);

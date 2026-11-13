@@ -94,73 +94,64 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # The new Flutter web app (public/flutter) and the invoicing.co landing page (public/landing), with
-          # their two views, from the newest published invoiceninja/app release that has a web build.
-          # Optional: if any check fails the release ships without them, and self-hosted / keeps serving
-          # the old Flutter app. The views are compiled as PHP, so nothing is trusted on its name alone.
+          # their two pages, from the newest published invoiceninja/app release that has a web build.
+          # Static files only: the server fills the boot page's tokens and serves the landing page as a
+          # file, compiling nothing. Optional: if anything fails, the release ships without them and
+          # self-hosted / keeps serving the old Flutter app.
           set -uo pipefail
           work=$(mktemp -d)
           skip() {
-            echo "::warning::$1 This release ships without the new Flutter web app."
+            echo "::$1::$2 This release ships without the new Flutter web app."
             rm -rf "$work"
             exit 0
           }
 
           tag=$(gh api 'repos/invoiceninja/app/releases?per_page=20' --jq '[.[] | select((.draft or .prerelease) | not) | select(any(.assets[]; .name | startswith("invoiceninja-web-")))][0].tag_name') \
-            || skip "Could not list the invoiceninja/app releases."
+            || skip warning "Could not list the invoiceninja/app releases."
           if [ -z "$tag" ] || [ "$tag" = "null" ]; then
-            skip "No invoiceninja/app release has a web build."
+            skip warning "No invoiceninja/app release has a web build."
           fi
           gh release download "$tag" --repo invoiceninja/app --pattern 'invoiceninja-web-*.tar.gz' --dir "$work/download" \
-            || skip "Could not download the web build of $tag."
-          archives=("$work"/download/*.tar.gz)
-          [ "${#archives[@]}" -eq 1 ] || skip "$tag has more than one web build."
+            || skip warning "Could not download the web build of $tag."
+          archives=("$work"/download/invoiceninja-web-*.tar.gz)
+          [ "${#archives[@]}" -eq 1 ] && [ -f "${archives[0]}" ] || skip error "$tag has no single web build."
           archive="${archives[0]}"
 
-          # Built by invoiceninja/app's own Deploy to Web workflow, not just uploaded under that name.
-          gh attestation verify "$archive" --repo invoiceninja/app --signer-workflow invoiceninja/app/.github/workflows/web.yml >/dev/null \
-            || skip "The web build of $tag has no valid build attestation."
+          # Built by invoiceninja/app's own web.yml, from main or a release tag, on GitHub's runners.
+          gh attestation verify "$archive" --repo invoiceninja/app \
+            --cert-identity-regex '^https://github\.com/invoiceninja/app/\.github/workflows/web\.yml@refs/(heads/main|tags/v[0-9]+\.[0-9]+\.[0-9]+)$' \
+            --deny-self-hosted-runners >/dev/null \
+            || skip error "The web build of $tag has no valid build attestation."
 
-          # Plain files and folders only (no links), under the four paths, and nothing Apache would run or obey.
+          # Plain files and folders only, under the four paths, with the extensions a web build has.
           tar -tvzf "$archive" | awk '$1 !~ /^[-d]/ { bad = 1 } END { exit bad }' \
-            || skip "The web build of $tag holds a link or a special file."
-          if tar -tzf "$archive" | grep -Ev '^(public/?|resources/?|resources/views/?|public/(flutter|landing)(/.*)?|resources/views/(flutter|landing)/?|resources/views/flutter/index\.blade\.php|resources/views/landing/apps\.blade\.php)$'; then
-            skip "The web build of $tag holds files outside its four paths."
+            || skip error "The web build of $tag holds a link or a special file."
+          if tar -tzf "$archive" | grep -E '(^|/)\.\.?(/|$)'; then
+            skip error "The web build of $tag holds a relative path."
           fi
-          if tar -tzf "$archive" | grep -Ei '^public/.*(\.(php[0-9]?|phtml|phar)|/\.htaccess|/\.user\.ini)$'; then
-            skip "The web build of $tag holds a file the web server would execute."
+          if tar -tzf "$archive" | grep -Ev '^(public/?|resources/?|resources/views/?|resources/views/(flutter|landing)/?|resources/views/(flutter|landing)/index\.html|public/(flutter|landing)/)'; then
+            skip error "The web build of $tag holds files outside its four paths."
+          fi
+          if tar -tzf "$archive" | grep -Ev '/$' | grep -Eiv '(/[^/.]+|/\.gitkeep|\.(js|mjs|wasm|json|html|css|png|jpg|jpeg|gif|webp|svg|ico|ttf|otf|woff|woff2|frag|bin|txt|map))$'; then
+            skip error "The web build of $tag holds a file type a web build doesn't have."
+          fi
+          # Nor a name an Apache handler would run whatever it ends with (x.php.png), nor a dotfile
+          # (.htaccess, .user.ini) other than an asset folder's empty .gitkeep.
+          if tar -tzf "$archive" | grep -Ei '\.(php[0-9]?|pht|phtml|phar|phps|cgi|pl|shtml)(\.|/|$)'; then
+            skip error "The web build of $tag holds a file the web server could execute."
+          fi
+          if tar -tzf "$archive" | grep -E '/\.' | grep -Ev '/\.gitkeep$'; then
+            skip error "The web build of $tag holds a dotfile."
           fi
 
           mkdir "$work/out"
           tar -xzf "$archive" -C "$work/out" --no-same-owner --no-same-permissions \
-            public/flutter public/landing resources/views/flutter/index.blade.php resources/views/landing/apps.blade.php \
-            || skip "The web build of $tag is missing a part."
-
-          # Blade compiles {{ }}, @if (...) and anything else it knows into PHP. The boot view may use only the
-          # variable echoes and @if the server's controller expects; the landing view is one @verbatim block.
-          python3 - "$work/out/resources/views" <<'EOF' || skip "A view in the web build of $tag holds code the server would run."
-          import re, sys
-          views = sys.argv[1]
-          boot = open(f"{views}/flutter/index.blade.php", encoding="utf-8").read()
-          boot = re.sub(r"\{\{--.*?--\}\}", "", boot, flags=re.S)
-          echo = re.compile(r"\{\{ \(?\$[a-z_]+ \?\? (false|'[^'{}()$;]*')\)?( \? '[^'{}$;]*' : '[^'{}$;]*')? \}\}")
-          bad = [m for m in re.findall(r"\{\{.*?\}\}", boot) if not echo.fullmatch(m)]
-          bad += [m for m in re.findall(r"(?<![\w-])@[A-Za-z]+[^\n]*", boot) if not re.fullmatch(r"@(if \(\$[a-z_]+ \?\? false\)|endif|keyframes\b.*)", m.strip())]
-          landing = open(f"{views}/landing/apps.blade.php", encoding="utf-8").read().strip()
-          inner = landing.removeprefix("@verbatim").removesuffix("@endverbatim")
-          if len(inner) != len(landing) - len("@verbatim") - len("@endverbatim") or "@endverbatim" in inner:
-              bad.append("landing view is not one @verbatim block")
-          for name, text in (("boot", boot), ("landing", landing)):
-              if re.search(r"<\?|\{!!|\{\{\{", text):
-                  bad.append(f"{name} view: raw PHP or unescaped output")
-          print("\n".join(bad))
-          sys.exit(1 if bad else 0)
-          EOF
+            public/flutter public/landing resources/views/flutter/index.html resources/views/landing/index.html \
+            || skip error "The web build of $tag is missing a part."
 
           rm -rf public/flutter public/landing resources/views/flutter resources/views/landing
-          mkdir -p resources/views/flutter resources/views/landing
-          cp -R "$work/out/public/flutter" "$work/out/public/landing" public/
-          cp "$work/out/resources/views/flutter/index.blade.php" resources/views/flutter/
-          cp "$work/out/resources/views/landing/apps.blade.php" resources/views/landing/
+          mv "$work/out/public/flutter" "$work/out/public/landing" public/
+          mv "$work/out/resources/views/flutter" "$work/out/resources/views/landing" resources/views/
           rm -rf "$work"
           echo "Added the web build of $tag."
 
