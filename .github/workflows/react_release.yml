@@ -129,10 +129,11 @@ jobs:
           if tar -tzf "$archive" | grep -E '(^|/)\.\.?(/|$)'; then
             skip error "The web build of $tag holds a relative path."
           fi
-          if tar -tzf "$archive" | grep -Ev '^(public/?|resources/?|resources/views/?|resources/views/(flutter|landing)/?|resources/views/(flutter|landing)/index\.html|public/(flutter|landing)/)'; then
+          if tar -tzf "$archive" | grep -Ev '^(public/|resources/|resources/views/|resources/views/(flutter|landing)/|resources/views/(flutter|landing)/index\.html|public/(flutter|landing)/.*)$'; then
             skip error "The web build of $tag holds files outside its four paths."
           fi
-          if tar -tzf "$archive" | grep -Ev '/$' | grep -Eiv '(/[^/.]+|/\.gitkeep|\.(js|mjs|wasm|json|html|css|png|jpg|jpeg|gif|webp|svg|ico|ttf|otf|woff|woff2|frag|bin|txt|map))$'; then
+          # The two pages are the only HTML: a host that hands .html to PHP or SSI never sees one in public/.
+          if tar -tzf "$archive" | grep -E '^public/' | grep -Ev '/$' | grep -Eiv '(/[^/.]+|/\.gitkeep|\.(js|mjs|wasm|json|css|png|jpg|jpeg|gif|webp|svg|ico|ttf|otf|woff|woff2|frag|bin|txt|map))$'; then
             skip error "The web build of $tag holds a file type a web build doesn't have."
           fi
           # Nor a name an Apache handler would run whatever it ends with (x.php.png), nor a dotfile
