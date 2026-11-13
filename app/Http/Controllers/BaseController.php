@@ -1129,6 +1129,11 @@ class BaseController extends Controller
                 return redirect()->secure(request()->getRequestUri());
             }
 
+            /* Hosted: the landing page for every app, ahead of the redirects below so ?signup, ?rc and UTM tags reach the app the visitor picks. Any ?build= skips it. */
+            if (Ninja::isHosted() && config('ninja.hosted_landing') && ! request()->has('build') && view()->exists('landing.apps')) {
+                return response()->view('landing.apps')->header('X-Frame-Options', 'SAMEORIGIN', false);
+            }
+
             /* Clean up URLs and remove query parameters from the URL*/
             if (request()->has('login') && request()->input('login') == 'true') {
                 return redirect('/')->with(['login' => 'true']);
@@ -1172,9 +1177,23 @@ class BaseController extends Controller
 
             if (Ninja::isSelfHost() && $account->set_react_as_default_ap) {
                 return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
-            } else {
-                return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
             }
+
+            /* Self-host: the Flutter web app from the Flutter app's release (public/flutter). Hosted serves it from its own host. */
+            if (Ninja::isSelfHost() && Ninja::hasFlutterWebBuild()) {
+                $data['is_hosted'] = false;
+                $data['base_href'] = $canvas_path . '/flutter/';
+                $data['microsoft_client_id'] = config('services.microsoft.client_id');
+
+                return response()->view('flutter.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+            }
+
+            /* Self-host without it: React when the release built it. Only a git checkout, which has neither, falls through. */
+            if (Ninja::isSelfHost() && Ninja::hasReactWebBuild()) {
+                return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+            }
+
+            return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
         }
 
         return redirect('/setup');

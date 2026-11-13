@@ -32,6 +32,24 @@ class Ninja
         return config('ninja.environment') === 'hosted';
     }
 
+    /**
+     * The Flutter web app from the Flutter app's release: public/flutter/ and its view.
+     * A git checkout has neither.
+     */
+    public static function hasFlutterWebBuild(): bool
+    {
+        return file_exists(public_path('flutter/flutter_bootstrap.js')) && view()->exists('flutter.index');
+    }
+
+    /**
+     * The React web app from the release: its entry bundle in public/.
+     * A git checkout has only the view's stub.
+     */
+    public static function hasReactWebBuild(): bool
+    {
+        return count(glob(public_path('bundle.*.js')) ?: []) > 0;
+    }
+
     public static function isNinja()
     {
         return config('ninja.production');
