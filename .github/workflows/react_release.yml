@@ -75,8 +75,8 @@ jobs:
           
       - name: Prepare React FrontEnd
         run: |
-          git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
-          cd ui
+          git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/web.git
+          cd web
           git checkout develop
           sed -i 's/VITE_IS_TEST=true/VITE_IS_TEST=false/' .env.example
           echo VITE_PUSHER_APP_KEY=f0111a02782708da651f >> .env.example
@@ -99,7 +99,7 @@ jobs:
           rm -rf node_modules
           rm -rf .git
           rm .env || true
-          rm -rf ui || true
+          rm -rf web || true
           # Set permissions: directories 755, files 644
           find . -path ./vendor -prune -o -type f -exec chmod 644 {} \+
           find . -path ./vendor -prune -o -type d -exec chmod 755 {} \+
