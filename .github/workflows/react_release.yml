@@ -121,26 +121,21 @@ jobs:
             --deny-self-hosted-runners >/dev/null \
             || skip error "$build has no valid build attestation."
 
-          # Plain files and folders only, under the two paths, with the extensions a web build has.
+          # Attestation proves invoiceninja/app's web.yml built this, but a build from that repo must still
+          # never run code on this server. Only the two folders are extracted, and they must hold no link,
+          # no relative path, no dotfile (.htaccess, .user.ini; an asset folder's empty .gitkeep is fine),
+          # and no name Apache would hand to PHP, CGI or SSI, wherever it sits in the name (x.php.png).
+          list=$(tar -tzf "$archive") || skip error "$build can't be read."
           tar -tvzf "$archive" | awk '$1 !~ /^[-d]/ { bad = 1 } END { exit bad }' \
             || skip error "$build holds a link or a special file."
-          if tar -tzf "$archive" | grep -E '(^|/)\.\.?(/|$)'; then
+          if grep -E '(^|/)\.\.?(/|$)' <<< "$list"; then
             skip error "$build holds a relative path."
           fi
-          if tar -tzf "$archive" | grep -Ev '^(public/|resources/|resources/views/|resources/views/flutter/|resources/views/flutter/index\.html|public/flutter/.*)$'; then
-            skip error "$build holds files outside its two paths."
-          fi
-          # The boot page is the only HTML: a host that hands .html to PHP or SSI never sees one in public/.
-          if tar -tzf "$archive" | grep -E '^public/' | grep -Ev '/$' | grep -Eiv '(/[^/.]+|/\.gitkeep|\.(js|mjs|wasm|json|css|png|jpg|jpeg|gif|webp|svg|ico|ttf|otf|woff|woff2|frag|bin|txt|map))$'; then
-            skip error "$build holds a file type a web build doesn't have."
-          fi
-          # Nor a name an Apache handler would run whatever it ends with (x.php.png), nor a dotfile
-          # (.htaccess, .user.ini) other than an asset folder's empty .gitkeep.
-          if tar -tzf "$archive" | grep -Ei '\.(php[0-9]?|pht|phtml|phar|phps|cgi|pl|shtml)(\.|/|$)'; then
-            skip error "$build holds a file the web server could execute."
-          fi
-          if tar -tzf "$archive" | grep -E '/\.' | grep -Ev '/\.gitkeep$'; then
+          if grep -E '/\.' <<< "$list" | grep -Ev '/\.gitkeep$'; then
             skip error "$build holds a dotfile."
+          fi
+          if grep -Ei '\.(php[0-9]?|pht|phtml|phar|phps|cgi|pl|shtml)(\.|/|$)|^public/.*\.html?$' <<< "$list"; then
+            skip error "$build holds a file the web server could run."
           fi
 
           mkdir "$work/out"
