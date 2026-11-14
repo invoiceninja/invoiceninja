@@ -129,6 +129,21 @@ class TemplateEmail extends Mailable
             }
         }
 
+        if (!empty($settings->disposition_notification_to ?? '')) {
+            $this->withSymfonyMessage(function ($message) use ($settings) {
+                $headers = $message->getHeaders();
+
+                $headers->addMailboxListHeader(
+                    'Disposition-Notification-To',
+                    [$settings->disposition_notification_to]
+                );
+                $headers->addMailboxListHeader(
+                    'Return-Receipt-To',
+                    [$settings->disposition_notification_to]
+                );
+            });
+        }
+
         $this->subject(str_replace("<br>", "", $this->build_email->getSubject()))
             ->text('email.template.text', [
                 'text_body' => $this->build_email->getTextBody(),

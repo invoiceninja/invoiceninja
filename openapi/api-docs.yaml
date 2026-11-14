@@ -29606,6 +29606,11 @@ components:
           description: "A comma separate list of BCC emails"
           type: string
           example: "email@gmail.com, contact@gmail.com"
+        disposition_notification_to:
+          description: "Address for read receipts. Sent as both the Disposition-Notification-To and Return-Receipt-To (Outlook) headers"
+          type: string
+          format: email
+          example: "email@gmail.com"
         pdf_email_attachment:
           description: "Toggles whether to attach PDF as attachment"
           type: boolean
