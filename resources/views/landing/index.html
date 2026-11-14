@@ -98,8 +98,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 h1 { font-size: clamp(40px, 6vw, 64px); line-height: 1; letter-spacing: -0.045em; font-weight: 700; }
 .lede { font-size: 19px; line-height: 1.5; color: var(--ink2); text-wrap: pretty; }
 .portal { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 14px; color: var(--ink2); padding: 8px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-.portal:hover { border-color: var(--border-hover); color: var(--ink); }
-.portal b { color: var(--link); font-weight: 500; white-space: nowrap; }
+.portal b { color: var(--ink); font-weight: 500; }
 
 .web { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
@@ -182,7 +181,7 @@ footer a:hover { color: var(--ink); }
   .item { padding: 14px 16px; }
   .stores { flex-basis: 100%; align-items: flex-start; padding-left: 56px; }
   .groups.mobile-first { display: flex; flex-direction: column-reverse; }
-  .portal { width: 100%; justify-content: space-between; }
+  .portal { width: 100%; display: block; line-height: 1.5; }
   footer { margin-top: -8px; }
 }
 </style>
@@ -193,7 +192,8 @@ footer a:hover { color: var(--ink); }
 
   <header>
     <a class="logo" href="https://invoiceninja.com" aria-label="Invoice Ninja home"></a>
-    <a class="portal" href="https://invoicing.co/client/"><span>Paying an invoice?</span><b>Open the client portal →</b></a>
+    <!-- A client portal lives on its company's own subdomain or domain, so the only way in is the invoice email's link. -->
+    <p class="portal"><span>Paying an invoice?</span> <b>Open the link in the invoice email you received.</b></p>
   </header>
 
   <div id="banner-moved" class="banner" role="status" hidden>
