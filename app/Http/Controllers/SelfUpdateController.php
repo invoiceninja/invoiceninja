@@ -16,6 +16,7 @@ use App\Exceptions\FilePermissionsFailure;
 use App\Http\Requests\SelfUpdate\SelfUpdateRequest;
 use App\Models\Account;
 use App\Models\Company;
+use App\Utils\FlutterWebUpdate;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
@@ -41,11 +42,6 @@ class SelfUpdateController extends BaseController
         'bootstrap/cache/routes-v7.php',
         'bootstrap/cache/livewire-components.php',
         'public/index.html',
-    ];
-
-    private array $replaced_directory_list = [
-        'public/flutter',
-        'resources/views/flutter',
     ];
 
     public function __construct() {}
@@ -106,16 +102,31 @@ class SelfUpdateController extends BaseController
 
         $phar = new \PharData($file);
 
-        /* The Flutter web app is replaced whole: a release without it must not keep serving an old one */
-        foreach ($this->replaced_directory_list as $directory) {
-            if (Storage::disk('base')->directoryExists($directory)) {
-                Storage::disk('base')->deleteDirectory($directory);
-            }
+        /* The Flutter web app is staged and checked before anything changes, then swapped in whole */
+        $flutter_web = new FlutterWebUpdate(base_path(), storage_path('app/flutter-web-update'));
+
+        try {
+            $flutter_web->stage($phar);
+        } catch (\Throwable $e) {
+            nlog('Flutter web app: '.$e->getMessage());
+
+            return response()->json(['message' => 'The release could not be prepared, so nothing was changed. Please try again.'], 500);
         }
 
-        $phar->extractTo(base_path(), null, true);
+        try {
+            $flutter_web->setAside();
+            $phar->extractTo(base_path(), null, true);
+        } catch (\Throwable $e) {
+            $flutter_web->restore();
+
+            throw $e;
+        }
 
         nlog('Finished extracting files');
+
+        if (! $flutter_web->install()) {
+            nlog('Flutter web app: the new copy could not be put in place, so the previous one was restored');
+        }
 
         unlink($file);
 
