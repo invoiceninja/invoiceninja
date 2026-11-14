@@ -115,6 +115,41 @@ class CompanySettingsTest extends TestCase
         $this->assertSame(['$invoice.number'], $savedSettings->pdf_variables->invoice_details);
     }
 
+    public function testCompanyCanSaveHiddenPaymentTypes(): void
+    {
+        $settings = $this->company->settings;
+        unset($settings->hidden_payment_types);
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->assertSame('', $this->company->fresh()->getSetting('hidden_payment_types'));
+
+        $settings->hidden_payment_types = '3,25';
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-Token' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), ['settings' => (array) $settings]);
+
+        $response->assertStatus(200);
+
+        $this->assertSame('3,25', $response->json('data.settings.hidden_payment_types'));
+        $this->assertSame('3,25', $this->company->fresh()->settings->hidden_payment_types);
+    }
+
+    public function testHiddenPaymentTypesMustBeAString(): void
+    {
+        $settings = $this->company->settings;
+        $settings->hidden_payment_types = 25;
+
+        $this->expectException(ValidationException::class);
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-Token' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), ['settings' => (array) $settings]);
+    }
+
     public function testIntegerEdgeCases()
     {
         $settings = $this->company->settings;

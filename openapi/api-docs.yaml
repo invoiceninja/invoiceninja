@@ -30393,6 +30393,10 @@ components:
           description: 'When true, newly uploaded documents are public by default'
           type: boolean
           example: true
+        hidden_payment_types:
+          description: 'Comma separated payment type ids hidden from the manual payment type pickers'
+          type: string
+          example: '3,25'
         france_reporting_enabled:
           description: 'When true, French tax reporting extras are enabled'
           type: boolean
@@ -31453,6 +31457,10 @@ components:
           description: 'When true, newly uploaded documents are public by default'
           type: boolean
           example: true
+        hidden_payment_types:
+          description: 'Comma separated payment type ids hidden from the manual payment type pickers'
+          type: string
+          example: '3,25'
         france_reporting_enabled:
           description: 'When true, French tax reporting extras are enabled'
           type: boolean

@@ -547,9 +547,11 @@ class CompanySettings extends BaseSettings
 
     public bool $global_tag_inheritance = false;
     public bool $documents_public_by_default = true;
+    public string $hidden_payment_types = ''; //comma separated payment type ids
     
 
     public static $casts = [
+        'hidden_payment_types' => 'string',
         'documents_public_by_default' => 'bool',
         'global_tag_inheritance' => 'bool',
         'france_reporting_enabled' => 'bool',
@@ -878,6 +880,7 @@ class CompanySettings extends BaseSettings
         'use_unapplied_payment' => 'string',
         'valid_until' => 'string',
         'default_expense_payment_type_id' => 'string',
+        'hidden_payment_types' => 'string',
         'client_manual_payment_notification' => 'bool',
         'client_online_payment_notification' => 'bool',
         'send_email_on_mark_paid' => 'bool',
