@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 /**
- * Self-update's swap of the Flutter web app (SelfUpdateController::update), on a temporary
- * install and real tar archives: the new copy is staged and checked before anything changes,
- * and the previous one is kept until the new one is in place.
+ * Self-update's handling of the Flutter web app (SelfUpdateController::update), on a temporary
+ * install and real tar archives: the release's copy is checked before anything changes, and the
+ * installed copy is kept until the new one is in place.
  */
 class FlutterWebUpdateTest extends TestCase
 {
@@ -48,6 +48,7 @@ class FlutterWebUpdateTest extends TestCase
 
     protected function tearDown(): void
     {
+        @chmod($this->base.'/public', 0755);
         File::deleteDirectory($this->dir);
 
         parent::tearDown();
@@ -55,26 +56,20 @@ class FlutterWebUpdateTest extends TestCase
 
     public function testTheNewCopyReplacesTheOldOneWhole()
     {
-        $release = $this->release('full', [
-            'public/flutter/flutter_bootstrap.js' => 'new bootstrap',
-            'public/flutter/assets/new.png' => 'new',
-            'resources/views/flutter/index.html' => 'new page',
-            'app/Kept.php' => 'new app code',
-        ]);
+        $release = $this->fullRelease();
         $update = new FlutterWebUpdate($this->base, $this->staging);
 
         $this->assertTrue($update->stage($release));
-        $update->setAside();
+        $this->assertDirectoryDoesNotExist($this->staging);
+        $this->assertTrue($update->setAside());
         $release->extractTo($this->base, null, true);
-        $this->assertTrue($update->install());
+        $this->assertTrue($update->finish());
 
         $this->assertSame('new bootstrap', file_get_contents($this->base.'/public/flutter/flutter_bootstrap.js'));
         $this->assertSame('new page', file_get_contents($this->base.'/resources/views/flutter/index.html'));
         $this->assertFileExists($this->base.'/public/flutter/assets/new.png');
         $this->assertFileDoesNotExist($this->base.'/public/flutter/old_only.js');
-        $this->assertDirectoryDoesNotExist($this->base.'/public/flutter.previous');
-        $this->assertDirectoryDoesNotExist($this->base.'/resources/views/flutter.previous');
-        $this->assertDirectoryDoesNotExist($this->staging);
+        $this->assertNoLeftovers();
     }
 
     public function testAnIncompleteCopyIsRefusedBeforeAnythingChanges()
@@ -93,7 +88,7 @@ class FlutterWebUpdateTest extends TestCase
         }
 
         $this->assertInstallIsTheOldOne();
-        $this->assertDirectoryDoesNotExist($this->staging);
+        $this->assertNoLeftovers();
     }
 
     public function testACopyWithoutItsBootPageIsRefusedBeforeAnythingChanges()
@@ -112,80 +107,103 @@ class FlutterWebUpdateTest extends TestCase
         }
 
         $this->assertInstallIsTheOldOne();
-        $this->assertDirectoryDoesNotExist($this->staging);
+        $this->assertNoLeftovers();
     }
 
     public function testAFailedExtractionRestoresThePreviousCopy()
     {
-        $release = $this->release('full', [
-            'public/flutter/flutter_bootstrap.js' => 'new bootstrap',
-            'resources/views/flutter/index.html' => 'new page',
-        ]);
         $update = new FlutterWebUpdate($this->base, $this->staging);
 
-        $update->stage($release);
+        $update->stage($this->fullRelease());
         $update->setAside();
         // Half an extraction: a new file lands where the old copy was.
         $this->writeFiles($this->base, ['public/flutter/flutter_bootstrap.js' => 'half-written']);
         $update->restore();
 
         $this->assertInstallIsTheOldOne();
-        $this->assertDirectoryDoesNotExist($this->base.'/public/flutter.previous');
-        $this->assertDirectoryDoesNotExist($this->staging);
+        $this->assertNoLeftovers();
     }
 
-    public function testAFailedSwapRestoresThePreviousCopy()
+    public function testAnIncompleteExtractionRestoresThePreviousCopy()
     {
-        $release = $this->release('full', [
-            'public/flutter/flutter_bootstrap.js' => 'new bootstrap',
-            'resources/views/flutter/index.html' => 'new page',
-        ]);
+        $release = $this->fullRelease();
         $update = new FlutterWebUpdate($this->base, $this->staging);
 
         $update->stage($release);
         $update->setAside();
         $release->extractTo($this->base, null, true);
-        // The staged copy is gone by the time it should move into place.
-        File::deleteDirectory($this->staging);
+        File::delete($this->base.'/resources/views/flutter/index.html');
 
-        $this->assertFalse($update->install());
+        $this->assertFalse($update->finish());
         $this->assertInstallIsTheOldOne();
+        $this->assertNoLeftovers();
     }
 
-    public function testAReleaseWithoutTheAppRemovesTheOldOne()
+    public function testAReleaseWithoutTheAppKeepsTheInstalledOne()
     {
-        // Self-hosted / then falls back to the app every release carries, not an old build.
         $release = $this->release('without', ['app/Kept.php' => 'new app code']);
         $update = new FlutterWebUpdate($this->base, $this->staging);
 
         $this->assertFalse($update->stage($release));
-        $update->setAside();
         $release->extractTo($this->base, null, true);
-        $this->assertTrue($update->install());
+        $this->assertTrue($update->finish());
 
-        $this->assertDirectoryDoesNotExist($this->base.'/public/flutter');
-        $this->assertDirectoryDoesNotExist($this->base.'/resources/views/flutter');
-        $this->assertDirectoryDoesNotExist($this->base.'/public/flutter.previous');
+        $this->assertInstallIsTheOldOne();
         $this->assertSame('new app code', file_get_contents($this->base.'/app/Kept.php'));
+        $this->assertNoLeftovers();
     }
 
     public function testAFirstInstallThatFailsLeavesNoHalfCopy()
     {
         File::deleteDirectory($this->base.'/public/flutter');
         File::deleteDirectory($this->base.'/resources/views/flutter');
-        $release = $this->release('full', [
-            'public/flutter/flutter_bootstrap.js' => 'new bootstrap',
-            'resources/views/flutter/index.html' => 'new page',
-        ]);
         $update = new FlutterWebUpdate($this->base, $this->staging);
 
-        $update->stage($release);
-        $update->setAside();
+        $update->stage($this->fullRelease());
+        $this->assertTrue($update->setAside());
         $this->writeFiles($this->base, ['public/flutter/flutter_bootstrap.js' => 'half-written']);
         $update->restore();
 
         $this->assertDirectoryDoesNotExist($this->base.'/public/flutter');
         $this->assertDirectoryDoesNotExist($this->base.'/resources/views/flutter');
+        $this->assertNoLeftovers();
+    }
+
+    public function testAFolderThatCantBeSetAsideIsExtractedOverAsBefore()
+    {
+        if (function_exists('posix_getuid') && posix_getuid() === 0) {
+            $this->markTestSkipped('root can rename in a read-only folder');
+        }
+
+        // public/ isn't writable, so public/flutter can't be renamed; its files still can be.
+        chmod($this->base.'/public', 0555);
+        $release = $this->fullRelease();
+        $update = new FlutterWebUpdate($this->base, $this->staging);
+
+        $update->stage($release);
+        $this->assertFalse($update->setAside());
+        $this->assertInstallIsTheOldOne();
+        $this->assertDirectoryDoesNotExist($this->base.'/resources/views/flutter.previous');
+
+        $release->extractTo($this->base, null, true);
+        $this->assertTrue($update->finish());
+        $this->assertSame('new bootstrap', file_get_contents($this->base.'/public/flutter/flutter_bootstrap.js'));
+        $this->assertSame('new page', file_get_contents($this->base.'/resources/views/flutter/index.html'));
+    }
+
+    public function testAnInterruptedUpdatesPreviousCopyIsKept()
+    {
+        // An update died after setAside(): only public/flutter.previous holds the app.
+        rename($this->base.'/public/flutter', $this->base.'/public/flutter.previous');
+        $update = new FlutterWebUpdate($this->base, $this->staging);
+
+        $update->stage($this->fullRelease());
+        $update->setAside();
+        $this->writeFiles($this->base, ['public/flutter/flutter_bootstrap.js' => 'half-written']);
+        $update->restore();
+
+        $this->assertInstallIsTheOldOne();
+        $this->assertNoLeftovers();
     }
 
     private function assertInstallIsTheOldOne(): void
@@ -193,6 +211,23 @@ class FlutterWebUpdateTest extends TestCase
         $this->assertSame('old bootstrap', file_get_contents($this->base.'/public/flutter/flutter_bootstrap.js'));
         $this->assertSame('old', file_get_contents($this->base.'/public/flutter/old_only.js'));
         $this->assertSame('old page', file_get_contents($this->base.'/resources/views/flutter/index.html'));
+    }
+
+    private function assertNoLeftovers(): void
+    {
+        $this->assertDirectoryDoesNotExist($this->base.'/public/flutter.previous');
+        $this->assertDirectoryDoesNotExist($this->base.'/resources/views/flutter.previous');
+        $this->assertDirectoryDoesNotExist($this->staging);
+    }
+
+    private function fullRelease(): \PharData
+    {
+        return $this->release('full', [
+            'public/flutter/flutter_bootstrap.js' => 'new bootstrap',
+            'public/flutter/assets/new.png' => 'new',
+            'resources/views/flutter/index.html' => 'new page',
+            'app/Kept.php' => 'new app code',
+        ]);
     }
 
     /** @param array<string, string> $files */
@@ -204,15 +239,22 @@ class FlutterWebUpdateTest extends TestCase
         }
     }
 
-    /** @param array<string, string> $files */
+    /**
+     * Gzipped, with folder entries and no ./ prefix, as the real release is (tar -zcvf … *,
+     * named .tar).
+     *
+     * @param array<string, string> $files
+     */
     private function release(string $name, array $files): \PharData
     {
         $source = $this->dir.'/'.$name.'-source';
         $this->writeFiles($source, $files);
 
-        $release = new \PharData($this->dir.'/'.$name.'.tar');
-        $release->buildFromDirectory($source);
+        $path = $this->dir.'/'.$name.'.tar';
+        // COPYFILE_DISABLE: no macOS ._ metadata entries.
+        exec('cd '.escapeshellarg($source).' && COPYFILE_DISABLE=1 tar -zcf '.escapeshellarg($path).' *', $output, $status);
+        $this->assertSame(0, $status, 'tar failed');
 
-        return $release;
+        return new \PharData($path);
     }
 }

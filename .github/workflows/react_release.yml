@@ -96,8 +96,8 @@ jobs:
           # The new Flutter web app (public/flutter) and its boot page (resources/views/flutter/index.html),
           # from the latest invoiceninja/app release. Static files only: the
           # server fills the boot page's tokens, compiling nothing. Optional: if anything fails, the release
-          # ships without it and self-hosted / keeps serving the old Flutter app. (The hosted landing page
-          # is committed, in public/landing and resources/views/landing.)
+          # ships without it, and a self-hosted server keeps the web app it has (FlutterWebUpdate). (The
+          # hosted landing page is committed, in public/landing and resources/views/landing.)
           set -uo pipefail
           work=$(mktemp -d)
           skip() {

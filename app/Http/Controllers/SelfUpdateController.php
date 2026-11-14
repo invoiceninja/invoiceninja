@@ -102,19 +102,23 @@ class SelfUpdateController extends BaseController
 
         $phar = new \PharData($file);
 
-        /* The Flutter web app is staged and checked before anything changes, then swapped in whole */
+        /* The Flutter web app is checked before anything changes, and the installed copy kept until the new one is in place */
         $flutter_web = new FlutterWebUpdate(base_path(), storage_path('app/flutter-web-update'));
 
         try {
-            $flutter_web->stage($phar);
+            $carries_flutter_web = $flutter_web->stage($phar);
         } catch (\Throwable $e) {
             nlog('Flutter web app: '.$e->getMessage());
+            @unlink($file);
 
             return response()->json(['message' => 'The release could not be prepared, so nothing was changed. Please try again.'], 500);
         }
 
-        try {
+        if ($carries_flutter_web) {
             $flutter_web->setAside();
+        }
+
+        try {
             $phar->extractTo(base_path(), null, true);
         } catch (\Throwable $e) {
             $flutter_web->restore();
@@ -124,9 +128,7 @@ class SelfUpdateController extends BaseController
 
         nlog('Finished extracting files');
 
-        if (! $flutter_web->install()) {
-            nlog('Flutter web app: the new copy could not be put in place, so the previous one was restored');
-        }
+        $flutter_web->finish();
 
         unlink($file);
 
