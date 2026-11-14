@@ -94,7 +94,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # The new Flutter web app (public/flutter) and its boot page (resources/views/flutter/index.html),
-          # from the newest published invoiceninja/app release that has a web build. Static files only: the
+          # from the latest invoiceninja/app release. Static files only: the
           # server fills the boot page's tokens, compiling nothing. Optional: if anything fails, the release
           # ships without it and self-hosted / keeps serving the old Flutter app. (The hosted landing page
           # is committed, in public/landing and resources/views/landing.)
@@ -106,55 +106,53 @@ jobs:
             exit 0
           }
 
-          tag=$(gh api 'repos/invoiceninja/app/releases?per_page=20' --jq '[.[] | select((.draft or .prerelease) | not) | select(any(.assets[]; .name | startswith("invoiceninja-web-")))][0].tag_name') \
-            || skip warning "Could not list the invoiceninja/app releases."
-          if [ -z "$tag" ] || [ "$tag" = "null" ]; then
-            skip warning "No invoiceninja/app release has a web build."
-          fi
-          gh release download "$tag" --repo invoiceninja/app --pattern 'invoiceninja-web-*.tar.gz' --dir "$work/download" \
-            || skip warning "Could not download the web build of $tag."
-          archives=("$work"/download/invoiceninja-web-*.tar.gz)
-          [ "${#archives[@]}" -eq 1 ] && [ -f "${archives[0]}" ] || skip error "$tag has no single web build."
+          # No tag means the latest published, non-draft, non-prerelease release.
+          gh release download --repo invoiceninja/app --pattern 'invoiceninja-web-*.tar.gz' --dir "$work" \
+            || skip warning "The latest invoiceninja/app release has no web build, or GitHub couldn't be reached."
+          archives=("$work"/invoiceninja-web-*.tar.gz)
+          # An unmatched glob stays as one literal word, so the -f matters as much as the count.
+          [ "${#archives[@]}" -eq 1 ] && [ -f "${archives[0]}" ] || skip error "Expected exactly one web build in the latest invoiceninja/app release."
           archive="${archives[0]}"
+          build=$(basename "$archive")
 
           # Built by invoiceninja/app's own web.yml, from main or a release tag, on GitHub's runners.
           gh attestation verify "$archive" --repo invoiceninja/app \
             --cert-identity-regex '^https://github\.com/invoiceninja/app/\.github/workflows/web\.yml@refs/(heads/main|tags/v[0-9]+\.[0-9]+\.[0-9]+)$' \
             --deny-self-hosted-runners >/dev/null \
-            || skip error "The web build of $tag has no valid build attestation."
+            || skip error "$build has no valid build attestation."
 
           # Plain files and folders only, under the two paths, with the extensions a web build has.
           tar -tvzf "$archive" | awk '$1 !~ /^[-d]/ { bad = 1 } END { exit bad }' \
-            || skip error "The web build of $tag holds a link or a special file."
+            || skip error "$build holds a link or a special file."
           if tar -tzf "$archive" | grep -E '(^|/)\.\.?(/|$)'; then
-            skip error "The web build of $tag holds a relative path."
+            skip error "$build holds a relative path."
           fi
           if tar -tzf "$archive" | grep -Ev '^(public/|resources/|resources/views/|resources/views/flutter/|resources/views/flutter/index\.html|public/flutter/.*)$'; then
-            skip error "The web build of $tag holds files outside its two paths."
+            skip error "$build holds files outside its two paths."
           fi
           # The boot page is the only HTML: a host that hands .html to PHP or SSI never sees one in public/.
           if tar -tzf "$archive" | grep -E '^public/' | grep -Ev '/$' | grep -Eiv '(/[^/.]+|/\.gitkeep|\.(js|mjs|wasm|json|css|png|jpg|jpeg|gif|webp|svg|ico|ttf|otf|woff|woff2|frag|bin|txt|map))$'; then
-            skip error "The web build of $tag holds a file type a web build doesn't have."
+            skip error "$build holds a file type a web build doesn't have."
           fi
           # Nor a name an Apache handler would run whatever it ends with (x.php.png), nor a dotfile
           # (.htaccess, .user.ini) other than an asset folder's empty .gitkeep.
           if tar -tzf "$archive" | grep -Ei '\.(php[0-9]?|pht|phtml|phar|phps|cgi|pl|shtml)(\.|/|$)'; then
-            skip error "The web build of $tag holds a file the web server could execute."
+            skip error "$build holds a file the web server could execute."
           fi
           if tar -tzf "$archive" | grep -E '/\.' | grep -Ev '/\.gitkeep$'; then
-            skip error "The web build of $tag holds a dotfile."
+            skip error "$build holds a dotfile."
           fi
 
           mkdir "$work/out"
           tar -xzf "$archive" -C "$work/out" --no-same-owner --no-same-permissions \
             public/flutter resources/views/flutter/index.html \
-            || skip error "The web build of $tag is missing a part."
+            || skip error "$build is missing a part."
 
           rm -rf public/flutter resources/views/flutter
           mv "$work/out/public/flutter" public/
           mv "$work/out/resources/views/flutter" resources/views/
           rm -rf "$work"
-          echo "Added the web build of $tag."
+          echo "Added $build."
 
       - name: Prepare JS/CSS assets
         run: |
