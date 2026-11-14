@@ -45,9 +45,7 @@ class SelfUpdateController extends BaseController
 
     private array $replaced_directory_list = [
         'public/flutter',
-        'public/landing',
         'resources/views/flutter',
-        'resources/views/landing',
     ];
 
     public function __construct() {}
@@ -108,7 +106,7 @@ class SelfUpdateController extends BaseController
 
         $phar = new \PharData($file);
 
-        /* The Flutter web app and landing page are replaced whole: a release without them must not keep serving the old ones */
+        /* The Flutter web app is replaced whole: a release without it must not keep serving an old one */
         foreach ($this->replaced_directory_list as $directory) {
             if (Storage::disk('base')->directoryExists($directory)) {
                 Storage::disk('base')->deleteDirectory($directory);

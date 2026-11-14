@@ -3,9 +3,7 @@
 /public/storage
 /public/react
 /public/flutter
-/public/landing
 /resources/views/flutter
-/resources/views/landing
 /storage/*.key
 /storage/debugbar
 /storage/*

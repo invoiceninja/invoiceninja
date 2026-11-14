@@ -42,8 +42,8 @@ class Ninja
     }
 
     /**
-     * A page the Flutter app's release unpacked under resources/views, found where views are.
-     * Plain HTML, read as a file: nothing from another repository's release is compiled.
+     * A plain HTML page under resources/views (the Flutter web app's boot page, unpacked from its
+     * release, or the committed landing page), found where views are. Read as a file, never compiled.
      */
     public static function flutterWebFile(string $name): ?string
     {
