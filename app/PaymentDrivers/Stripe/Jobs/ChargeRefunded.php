@@ -23,6 +23,7 @@ use App\Services\Email\EmailObject;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -48,7 +49,11 @@ class ChargeRefunded implements ShouldQueue
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
-        nlog($this->stripe_request);
+
+        /* An in-person charge carries cardholder data */
+        if (!CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
+            nlog($this->stripe_request);
+        }
 
         $company = Company::query()->where('company_key', $this->company_key)->first();
 
@@ -66,6 +71,15 @@ class ChargeRefunded implements ShouldQueue
         $payment_hash = $payment_hash_key
             ? PaymentHash::query()->where('hash', $payment_hash_key)->first()
             : null;
+
+        /* A surcharge we refunded when an in-person payment was recorded is not a refund of that payment */
+        if (CardPresent::isCardPresent($source)) {
+            $amount_refunded -= (int) ($payment_hash?->data->terminal->surcharge_refunded ?? 0);
+
+            if ($amount_refunded <= 0) {
+                return;
+            }
+        }
 
         if (! $payment) {
             $payment = $payment_hash?->payment;
@@ -102,6 +116,33 @@ class ChargeRefunded implements ShouldQueue
 
             $amount_refunded -= $payment->refunded;
 
+        }
+
+        /* An in-person payment can carry money no invoice took: a refund comes out of that first */
+        if (CardPresent::isCardPresent($source)) {
+            $precision = $payment->client->currency()->precision;
+            $unapplied = round($payment->amount - $payment->applied - $payment->refunded + $payment->paymentables->where('paymentable_type', 'invoices')->sum('refunded'), $precision);
+            $unapplied_refund = min($amount_refunded, max(0, $unapplied));
+
+            if ($unapplied_refund > 0) {
+                $payment->refund([
+                    'id' => $payment->id,
+                    'amount' => $unapplied_refund,
+                    'date' => now()->format('Y-m-d'),
+                    'gateway_refund' => false,
+                    'email_receipt' => false,
+                    'via_webhook' => true,
+                ]);
+
+                $amount_refunded = round($amount_refunded - $unapplied_refund, $precision);
+            }
+
+            if ($amount_refunded <= 0) {
+                $payment->private_notes .= 'Refunded via Stripe  ';
+                $payment->saveQuietly();
+
+                return;
+            }
         }
 
         $invoice_collection = $payment->paymentables

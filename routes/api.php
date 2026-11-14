@@ -114,6 +114,7 @@ use App\Http\Controllers\SmtpController;
 use App\Http\Controllers\SNSController;
 use App\Http\Controllers\StaticController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\SubdomainController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SubscriptionStepsController;
@@ -250,6 +251,17 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('company_gateways/{company_gateway}/test', [CompanyGatewayController::class, 'test'])->name('company_gateways.test');
     Route::post('company_gateways/{company_gateway}/clone', [CompanyGatewayController::class, 'clone'])->name('company_gateways.clone');
     Route::post('company_gateways/{company_gateway}/import_customers', [CompanyGatewayController::class, 'importCustomers'])->name('company_gateways.import_customers');
+
+    Route::get('terminal/config', [TerminalController::class, 'config'])->name('terminal.config');
+    Route::post('company_gateways/{company_gateway}/terminal/connection_token', [TerminalController::class, 'connectionToken'])->name('terminal.connection_token')->middleware('throttle:20,1,terminal_connection_token');
+    Route::post('company_gateways/{company_gateway}/terminal/locations', [TerminalController::class, 'storeLocation'])->name('terminal.locations')->middleware('throttle:10,1,terminal_locations');
+    Route::post('company_gateways/{company_gateway}/terminal/surcharge_acknowledgement', [TerminalController::class, 'acknowledgeSurcharge'])->name('terminal.surcharge_acknowledgement');
+    Route::get('invoices/{invoice}/terminal/quote', [TerminalController::class, 'quote'])->name('terminal.quote');
+    Route::post('invoices/{invoice}/terminal/payment_intents', [TerminalController::class, 'storePaymentIntent'])->name('terminal.payment_intents.store')->middleware('throttle:20,1,terminal_payment_intents');
+    Route::post('invoices/{invoice}/terminal/payment_intents/{payment_intent}/finalize', [TerminalController::class, 'finalize'])->name('terminal.payment_intents.finalize');
+    Route::post('invoices/{invoice}/terminal/payment_intents/{payment_intent}/complete', [TerminalController::class, 'complete'])->name('terminal.payment_intents.complete');
+    Route::post('invoices/{invoice}/terminal/payment_intents/{payment_intent}/cancel', [TerminalController::class, 'cancel'])->name('terminal.payment_intents.cancel');
+    Route::post('invoices/{invoice}/terminal/payment_intents/{payment_intent}/receipt', [TerminalController::class, 'receipt'])->name('terminal.payment_intents.receipt')->middleware('throttle:10,1,terminal_receipt');
 
     Route::put('company_users/{user}', [CompanyUserController::class, 'update']);
     Route::put('company_users/{user}/preferences', [CompanyUserController::class, 'updatePreferences']);

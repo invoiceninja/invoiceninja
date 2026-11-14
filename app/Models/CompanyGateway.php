@@ -372,6 +372,22 @@ class CompanyGateway extends BaseModel
         return $this->getConfigField('publishableKey');
     }
 
+    /* In-person card payments (Stripe Terminal) are switched on for this gateway */
+    public function supportsCardPresent(): bool
+    {
+        if ($this->is_deleted || $this->deleted_at || !array_key_exists(GatewayType::CARD_PRESENT, $this->gateway->getMethods())) {
+            return false;
+        }
+
+        if ($this->gateway_key == 'd14dd26a47cecc30fdd65700bfb67b34' && strlen($this->getConfigField('account_id') ?? '') < 2) {
+            return false;
+        }
+
+        $fees_and_limits = $this->getFeesAndLimits(GatewayType::CARD_PRESENT);
+
+        return $fees_and_limits && ($fees_and_limits->is_enabled ?? false);
+    }
+
     public function getFeesAndLimits($gateway_type_id)
     {
         if (is_null($this->fees_and_limits) || empty($this->fees_and_limits) || !property_exists($this->fees_and_limits, $gateway_type_id)) {
