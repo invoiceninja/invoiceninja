@@ -5999,7 +5999,7 @@ paths:
                   description: 'The client app requesting the token'
                   type: string
                   nullable: true
-                  enum: [flutter_native, react]
+                  enum: [flutter_native, flutter_web, react]
                 institution_id:
                   description: 'Bank institution id, for bank integration tokens'
                   type: string

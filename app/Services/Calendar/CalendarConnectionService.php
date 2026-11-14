@@ -92,8 +92,8 @@ class CalendarConnectionService
     /**
      * The platform hint bound to an OAuth state, read WITHOUT consuming the
      * cache entry (completeConnection still pulls it). Used by the public
-     * callback to pick the redirect target (only `flutter_native` is acted on;
-     * anything else falls back to React). Returns null for unknown/expired state.
+     * callback to pick the redirect target (`flutter_native` and `flutter_web`
+     * are acted on; anything else falls back to React). Returns null for unknown/expired state.
      */
     public function platformForState(string $state): ?string
     {

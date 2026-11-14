@@ -32,6 +32,43 @@ class Ninja
         return config('ninja.environment') === 'hosted';
     }
 
+    /**
+     * The new Flutter web app, unpacked from its release by react_release.yml.
+     * A git checkout has neither file.
+     */
+    public static function hasFlutterWebBuild(): bool
+    {
+        return file_exists(public_path('flutter/flutter_bootstrap.js')) && self::flutterWebFile('flutter/index.html') !== null;
+    }
+
+    /**
+     * A page the Flutter app's release unpacked under resources/views, found where views are.
+     * Plain HTML, read as a file: nothing from another repository's release is compiled.
+     */
+    public static function flutterWebFile(string $name): ?string
+    {
+        foreach (view()->getFinder()->getPaths() as $path) {
+            if (is_file($path.'/'.$name)) {
+                return $path.'/'.$name;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The Flutter web app's boot page, its __IN_*__ tokens filled with escaped values.
+     * A token this server doesn't know is left empty.
+     *
+     * @param array<string, string> $values Keyed by token name, e.g. 'BASE_HREF'
+     */
+    public static function flutterWebPage(array $values): string
+    {
+        $html = (string) file_get_contents((string) self::flutterWebFile('flutter/index.html'));
+
+        return (string) preg_replace_callback('/__IN_([A-Z_]+)__/', fn ($match) => e($values[$match[1]] ?? ''), $html);
+    }
+
     public static function isNinja()
     {
         return config('ninja.production');

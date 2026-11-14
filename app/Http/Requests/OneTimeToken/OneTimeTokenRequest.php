@@ -35,7 +35,7 @@ class OneTimeTokenRequest extends Request
     {
         return [
             'context' => 'required',
-            'platform' => 'sometimes|nullable|string|in:flutter_native,react',
+            'platform' => 'sometimes|nullable|string|in:flutter_native,flutter_web,react',
         ];
     }
 

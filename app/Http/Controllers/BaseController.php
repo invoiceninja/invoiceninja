@@ -1129,6 +1129,13 @@ class BaseController extends Controller
                 return redirect()->secure(request()->getRequestUri());
             }
 
+            /* Hosted: the landing page, before the redirects below drop ?signup, ?rc and UTM tags */
+            if (Ninja::isHosted() && config('ninja.hosted_landing') && ! request()->has('build') && $landing = Ninja::flutterWebFile('landing/index.html')) {
+                return response((string) file_get_contents($landing))
+                    ->header('Content-Type', 'text/html; charset=UTF-8')
+                    ->header('X-Frame-Options', 'SAMEORIGIN', false);
+            }
+
             /* Clean up URLs and remove query parameters from the URL*/
             if (request()->has('login') && request()->input('login') == 'true') {
                 return redirect('/')->with(['login' => 'true']);
@@ -1172,9 +1179,26 @@ class BaseController extends Controller
 
             if (Ninja::isSelfHost() && $account->set_react_as_default_ap) {
                 return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
-            } else {
-                return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
             }
+
+            /* Self-host: the new Flutter web app, unpacked from its release into public/flutter */
+            if (Ninja::isSelfHost() && Ninja::hasFlutterWebBuild()) {
+                $page = Ninja::flutterWebPage([
+                    'HOSTED' => '0',
+                    'SIGNUP' => $data['signup'] === 'true' ? 'true' : '',
+                    'RC' => $data['rc'],
+                    'WHITE_LABEL' => $data['white_label'] ? '1' : '',
+                    'BASE_HREF' => $canvas_path.'/flutter/',
+                    'MICROSOFT_CLIENT_ID' => (string) config('services.microsoft.client_id'),
+                    'TITLE' => $data['white_label'] ? '' : 'Invoice Ninja',
+                ]);
+
+                return response($page)
+                    ->header('Content-Type', 'text/html; charset=UTF-8')
+                    ->header('X-Frame-Options', 'SAMEORIGIN', false);
+            }
+
+            return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
         }
 
         return redirect('/setup');

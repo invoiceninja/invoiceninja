@@ -43,6 +43,13 @@ class SelfUpdateController extends BaseController
         'public/index.html',
     ];
 
+    private array $replaced_directory_list = [
+        'public/flutter',
+        'public/landing',
+        'resources/views/flutter',
+        'resources/views/landing',
+    ];
+
     public function __construct() {}
 
     public function update(SelfUpdateRequest $request)
@@ -100,6 +107,14 @@ class SelfUpdateController extends BaseController
         nlog('Extracting tar');
 
         $phar = new \PharData($file);
+
+        /* The Flutter web app and landing page are replaced whole: a release without them must not keep serving the old ones */
+        foreach ($this->replaced_directory_list as $directory) {
+            if (Storage::disk('base')->directoryExists($directory)) {
+                Storage::disk('base')->deleteDirectory($directory);
+            }
+        }
+
         $phar->extractTo(base_path(), null, true);
 
         nlog('Finished extracting files');
