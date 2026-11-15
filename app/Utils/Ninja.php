@@ -33,12 +33,25 @@ class Ninja
     }
 
     /**
-     * The new Flutter web app, unpacked from its release by react_release.yml.
-     * A git checkout has neither file.
+     * The new Flutter web app, unpacked from its release by react_release.yml: its boot page, and the
+     * build folder the page names. A git checkout has neither.
      */
     public static function hasFlutterWebBuild(): bool
     {
-        return file_exists(public_path('flutter/flutter_bootstrap.js')) && self::flutterWebFile('flutter/index.html') !== null;
+        $page = self::flutterWebFile('flutter/index.html');
+        $id = $page === null ? null : self::flutterWebBuildId((string) file_get_contents($page));
+
+        return $id !== null && is_file(public_path("flutter/{$id}/flutter_bootstrap.js"));
+    }
+
+    /**
+     * The build's folder under public/flutter/ that a boot page loads from: its base href is
+     * <base href="__IN_BASE_HREF__<id>/">, so every URL the app loads changes with each build and
+     * can be cached without rules on the server.
+     */
+    public static function flutterWebBuildId(string $page): ?string
+    {
+        return preg_match('#<base href="__IN_BASE_HREF__([0-9a-f]{8,64})/">#', $page, $match) === 1 ? $match[1] : null;
     }
 
     /**

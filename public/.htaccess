@@ -33,13 +33,7 @@
     </FilesMatch>
 </IfModule>
 
-<IfModule mod_setenvif.c>
-    # The Flutter web app and the landing page carry no version in their file names
-    SetEnvIf Request_URI "/(flutter|landing)/" NINJA_NO_CACHE
-</IfModule>
-
 <IfModule mod_headers.c>
     # Blocks Search Engine Indexing
     Header set X-Robots-Tag "noindex, nofollow"
-    Header set Cache-Control "no-cache" env=NINJA_NO_CACHE
 </IfModule>

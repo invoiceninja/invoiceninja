@@ -13,30 +13,40 @@
 namespace App\Utils;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Self-update's handling of the Flutter web app (public/flutter and its boot page in
  * resources/views/flutter), which a release carries only when react_release.yml could add it.
+ * The installed copy is kept until a new one has landed whole. apply() runs it all:
  *
- * 1. stage():    the release's copy is extracted to a staging folder and checked, before anything
- *                in the install changes. A broken copy stops the update there.
- * 2. setAside(): for a release that carries the app, the installed copy is renamed to
+ * 1. recover():  a <folder>.previous left by an interrupted update is put back first.
+ * 2. stage():    the release's copy is extracted to a staging folder and checked.
+ * 3. setAside(): for a release that carries the app, the installed copy is renamed to
  *                <folder>.previous, so the release extracts into empty folders.
- * 3. The whole release is extracted, as before.
- * 4. finish():   the new copy is checked where it landed, and .previous deleted; if it is
- *                incomplete, the previous copy is put back. restore() puts it back when step 3
- *                fails.
+ * 4. The whole release is extracted.
+ * 5. finish():   a copy that staged whole and landed whole replaces the previous one; otherwise
+ *                the previous copy is put back. restore() puts it back when step 4 throws.
  *
- * A release without the app leaves the installed copy as it is: the app reads the server's
- * x-minimum-client-version and asks to be updated if it is too old.
+ * The invariant that makes an interruption safe: a .previous, while it exists, is always the
+ * whole installed copy. It is made by one rename and retired by another (to .discard) before it
+ * is deleted.
+ *
+ * A release without the app, or with a broken one, leaves the installed copy as it is: the app
+ * reads the server's x-minimum-client-version and asks to be updated if it is too old.
  */
 class FlutterWebUpdate
 {
     /** Relative to the install, each replaced whole. */
     public const DIRECTORIES = ['public/flutter', 'resources/views/flutter'];
 
-    /** What a usable copy holds: the files Ninja::hasFlutterWebBuild() looks for. */
-    public const REQUIRED = ['public/flutter/flutter_bootstrap.js', 'resources/views/flutter/index.html'];
+    /** The boot page, which names the build's folder under public/flutter/ (Ninja::flutterWebBuildId()). */
+    public const BOOT_PAGE = 'resources/views/flutter/index.html';
+
+    /** Whether the release has any of the app, and whether what it has staged whole. */
+    private bool $carried = false;
+
+    private bool $valid = false;
 
     /** @var list<string> The folders setAside() took charge of: renamed, or absent. */
     private array $setAside = [];
@@ -46,30 +56,79 @@ class FlutterWebUpdate
     }
 
     /**
-     * Returns false for a release without the app. Throws, having changed nothing in the
-     * install, for a release whose copy can't be extracted whole.
+     * Extracts the release over the install. Throws only what the extraction throws, after
+     * putting the installed copy back.
+     */
+    public function apply(\PharData $release): void
+    {
+        $this->recover();
+        $this->stage($release);
+
+        if ($this->carried) {
+            $this->setAside();
+        }
+
+        try {
+            $release->extractTo($this->base, null, true);
+        } catch (\Throwable $e) {
+            $this->restore();
+
+            throw $e;
+        }
+
+        $this->finish();
+    }
+
+    /** Puts back any .previous an interrupted update left, and clears its .discard. */
+    public function recover(): void
+    {
+        foreach (self::DIRECTORIES as $directory) {
+            $live = $this->path($directory);
+            File::deleteDirectory($live.'.discard');
+
+            if (is_dir($live.'.previous')) {
+                // The .previous is whole; the live folder may be half of a newer copy.
+                File::deleteDirectory($live);
+
+                if (! @rename($live.'.previous', $live)) {
+                    $this->warn("could not put {$directory}.previous back after an interrupted update");
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks the release's copy before anything in the install changes. Returns whether the
+     * release carries the app; a copy that can't be extracted whole is logged and left out.
      */
     public function stage(\PharData $release): bool
     {
-        File::deleteDirectory($this->staging);
+        $this->valid = false;
+        $this->carried = false;
 
-        $carried = array_filter(self::REQUIRED, fn (string $path) => isset($release[$path]));
+        foreach ([...self::DIRECTORIES, self::BOOT_PAGE] as $path) {
+            if (isset($release[$path])) {
+                $this->carried = true;
+            }
+        }
 
-        if ($carried === []) {
+        if (! $this->carried) {
             return false;
         }
+
+        File::deleteDirectory($this->staging);
 
         try {
             // A trailing slash extracts the folder's entries, with or without folder entries in the archive.
             $release->extractTo($this->staging, array_map(fn (string $directory) => $directory.'/', self::DIRECTORIES), true);
 
-            foreach (self::REQUIRED as $path) {
-                if (! is_file($this->staging.'/'.$path)) {
-                    throw new \RuntimeException("The release's Flutter web app has no {$path}.");
-                }
+            if (! $this->whole($this->staging)) {
+                throw new \RuntimeException('its boot page names no build folder holding flutter_bootstrap.js');
             }
+
+            $this->valid = true;
         } catch (\Throwable $e) {
-            throw new \RuntimeException("The release's Flutter web app could not be staged: {$e->getMessage()}", 0, $e);
+            $this->warn("the release's copy can't be used, so the installed one is kept: {$e->getMessage()}");
         } finally {
             File::deleteDirectory($this->staging);
         }
@@ -85,25 +144,15 @@ class FlutterWebUpdate
     {
         foreach (self::DIRECTORIES as $directory) {
             $live = $this->path($directory);
-            $previous = $live.'.previous';
 
-            if (! is_dir($live)) {
-                // Nothing to rename, but restore() must still clear a half-extracted copy here. A
-                // .previous with no live folder is what an interrupted update leaves: the only copy, kept.
-                $this->setAside[] = $directory;
-
-                continue;
-            }
-
-            File::deleteDirectory($previous);
-
-            if (! @rename($live, $previous)) {
-                nlog("Flutter web app: could not set {$directory} aside, so the release extracts over it");
+            if (is_dir($live) && ! @rename($live, $live.'.previous')) {
+                $this->warn("could not set {$directory} aside, so the release extracts over it");
                 $this->restore();
 
                 return false;
             }
 
+            // Absent folders too: restore() must clear a half-extracted copy there.
             $this->setAside[] = $directory;
         }
 
@@ -122,7 +171,7 @@ class FlutterWebUpdate
             File::deleteDirectory($live);
 
             if (is_dir($live.'.previous') && ! @rename($live.'.previous', $live)) {
-                nlog("Flutter web app: could not put {$directory} back; the previous copy is in {$directory}.previous");
+                $this->warn("could not put {$directory} back; the next update will (it is in {$directory}.previous)");
             }
         }
 
@@ -130,8 +179,8 @@ class FlutterWebUpdate
     }
 
     /**
-     * After the release is extracted. Returns false when the new copy is incomplete, in which
-     * case the previous one is back in place.
+     * After the release is extracted. Returns false when the previous copy was put back, because
+     * the release's copy didn't stage whole or didn't land whole.
      */
     public function finish(): bool
     {
@@ -139,17 +188,27 @@ class FlutterWebUpdate
             return true;
         }
 
-        foreach (self::REQUIRED as $path) {
-            if (! is_file($this->path($path))) {
-                nlog("Flutter web app: the release extracted no {$path}, so the previous copy was put back");
-                $this->restore();
+        if (! $this->valid || ! $this->whole($this->base)) {
+            $this->restore();
 
-                return false;
-            }
+            return false;
         }
 
         foreach ($this->setAside as $directory) {
-            File::deleteDirectory($this->path($directory).'.previous');
+            $previous = $this->path($directory).'.previous';
+
+            if (! is_dir($previous)) {
+                continue;
+            }
+
+            // Retired by one rename first, so a .previous never exists half-deleted.
+            if (@rename($previous, $this->path($directory).'.discard')) {
+                File::deleteDirectory($this->path($directory).'.discard');
+            } else {
+                // Left in place, the next update's recover() would bring the old copy back.
+                $this->warn("could not retire {$directory}.previous, so it is deleted in place");
+                File::deleteDirectory($previous);
+            }
         }
 
         $this->setAside = [];
@@ -157,8 +216,26 @@ class FlutterWebUpdate
         return true;
     }
 
+    /** What Ninja::hasFlutterWebBuild() asks of an install, asked of a folder laid out like one. */
+    private function whole(string $root): bool
+    {
+        $page = $root.'/'.self::BOOT_PAGE;
+        $id = is_file($page) ? Ninja::flutterWebBuildId((string) file_get_contents($page)) : null;
+
+        return $id !== null && is_file("{$root}/public/flutter/{$id}/flutter_bootstrap.js");
+    }
+
     private function path(string $relative): string
     {
         return $this->base.'/'.$relative;
+    }
+
+    /** Logged whatever the logging setting (nlog is silent by default). Never throws. */
+    private function warn(string $message): void
+    {
+        try {
+            Log::warning('Self-update, Flutter web app: '.$message);
+        } catch (\Throwable) {
+        }
     }
 }

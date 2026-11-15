@@ -102,7 +102,8 @@ jobs:
           work=$(mktemp -d)
           skip() {
             echo "::$1::$2 This release ships without the new Flutter web app."
-            rm -rf "$work"
+            chmod -R u+rwX "$work" 2>/dev/null
+            rm -rf "$work" || true
             exit 0
           }
 
@@ -123,18 +124,19 @@ jobs:
 
           # Attestation proves invoiceninja/app's web.yml built this, but a build from that repo must still
           # never run code on this server. Only the two folders are extracted, and they must hold no link,
-          # no relative path, no dotfile (.htaccess, .user.ini; an asset folder's empty .gitkeep is fine),
-          # and no name Apache would hand to PHP, CGI or SSI, wherever it sits in the name (x.php.png).
+          # no absolute or relative path, no dotfile (.htaccess, .user.ini; an asset folder's empty .gitkeep is fine),
+          # and no name Apache would hand to PHP, CGI or SSI, wherever it sits in the name (x.php.png,
+          # x.html.png, a trailing space or ::$DATA).
           list=$(tar -tzf "$archive") || skip error "$build can't be read."
           tar -tvzf "$archive" | awk '$1 !~ /^[-d]/ { bad = 1 } END { exit bad }' \
             || skip error "$build holds a link or a special file."
-          if grep -E '(^|/)\.\.?(/|$)' <<< "$list"; then
-            skip error "$build holds a relative path."
+          if grep -E '^/|(^|/)\.\.?(/|$)' <<< "$list"; then
+            skip error "$build holds an absolute or relative path."
           fi
           if grep -E '/\.' <<< "$list" | grep -Ev '/\.gitkeep$'; then
             skip error "$build holds a dotfile."
           fi
-          if grep -Ei '\.(php[0-9]?|pht|phtml|phar|phps|cgi|pl|shtml)(\.|/|$)|^public/.*\.html?$' <<< "$list"; then
+          if grep -Ei '\.(php[0-9]?|pht|phtml|phar|phps|cgi|pl|shtml)([^[:alnum:]]|$)|^public/.*\.html?([^[:alnum:]]|$)' <<< "$list"; then
             skip error "$build holds a file the web server could run."
           fi
 
@@ -142,6 +144,16 @@ jobs:
           tar -xzf "$archive" -C "$work/out" --no-same-owner --no-same-permissions \
             public/flutter resources/views/flutter/index.html \
             || skip error "$build is missing a part."
+          # Folders readable and traversable, whatever modes the archive gave them.
+          chmod -R u+rwX,go+rX "$work/out" || skip error "$build's files can't be made readable."
+          # What Ninja::hasFlutterWebBuild() and self-update look for: the boot page names the build's
+          # folder (public/flutter/<id>/, new with each build, so nothing needs cache rules), and that
+          # folder holds the bootstrap.
+          page="$work/out/resources/views/flutter/index.html"
+          [ -f "$page" ] || skip error "$build's boot page isn't a file."
+          id=$(sed -nE 's#.*<base href="__IN_BASE_HREF__([0-9a-f]{8,64})/">.*#\1#p' "$page" | head -1) || id=""
+          [ -n "$id" ] && [ -f "$work/out/public/flutter/$id/flutter_bootstrap.js" ] \
+            || skip error "$build's boot page names no build folder holding flutter_bootstrap.js."
 
           rm -rf public/flutter resources/views/flutter
           mv "$work/out/public/flutter" public/

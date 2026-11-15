@@ -46,7 +46,7 @@ class FlutterWebRouteTest extends TestCase
         File::ensureDirectoryExists($this->dir.'/views/landing');
         File::ensureDirectoryExists($this->dir.'/views/flutter');
         File::put($this->dir.'/views/landing/index.html', 'LANDING PAGE');
-        File::put($this->dir.'/views/flutter/index.html', 'FLUTTER WEB base=__IN_BASE_HREF__ hosted=__IN_HOSTED__ microsoft=__IN_MICROSOFT_CLIENT_ID__ rc=__IN_RC__ new=[__IN_SOMETHING_NEWER__] {{ 6 * 7 }} @php echo 42; @endphp');
+        File::put($this->dir.'/views/flutter/index.html', '<base href="__IN_BASE_HREF__0123456789ab/"> FLUTTER WEB base=__IN_BASE_HREF__ hosted=__IN_HOSTED__ microsoft=__IN_MICROSOFT_CLIENT_ID__ rc=__IN_RC__ new=[__IN_SOMETHING_NEWER__] {{ 6 * 7 }} @php echo 42; @endphp');
         View::prependLocation($this->dir.'/views');
 
         if (Account::count() === 0) {
@@ -78,7 +78,9 @@ class FlutterWebRouteTest extends TestCase
         File::ensureDirectoryExists($this->dir.'/public/flutter');
 
         if ($flutter) {
-            File::put($this->dir.'/public/flutter/flutter_bootstrap.js', '');
+            // The folder the boot page's base href names.
+            File::ensureDirectoryExists($this->dir.'/public/flutter/0123456789ab');
+            File::put($this->dir.'/public/flutter/0123456789ab/flutter_bootstrap.js', '');
         }
 
         $this->app->usePublicPath($this->dir.'/public');
@@ -178,7 +180,21 @@ class FlutterWebRouteTest extends TestCase
         $this->get('/')
             ->assertStatus(200)
             ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
+            ->assertSee('<base href="/ninja/flutter/0123456789ab/">', false)
             ->assertSee('FLUTTER WEB base=/ninja/flutter/ hosted=0 microsoft=ms-client-id', false);
+    }
+
+    public function testTheNewAppNeedsTheBuildFolderItsBootPageNames()
+    {
+        // A boot page and a build from different releases: never served together.
+        config(['ninja.environment' => 'selfhost']);
+        $this->install(flutter: true);
+        File::moveDirectory($this->dir.'/public/flutter/0123456789ab', $this->dir.'/public/flutter/ffffffffffff');
+
+        $this->get('/')
+            ->assertStatus(200)
+            ->assertDontSee('FLUTTER WEB')
+            ->assertSee('main.foss.dart.js', false);
     }
 
     public function testTheBootPageIsFilledWithEscapedValuesAndNeverCompiled()

@@ -102,33 +102,10 @@ class SelfUpdateController extends BaseController
 
         $phar = new \PharData($file);
 
-        /* The Flutter web app is checked before anything changes, and the installed copy kept until the new one is in place */
-        $flutter_web = new FlutterWebUpdate(base_path(), storage_path('app/flutter-web-update'));
-
-        try {
-            $carries_flutter_web = $flutter_web->stage($phar);
-        } catch (\Throwable $e) {
-            nlog('Flutter web app: '.$e->getMessage());
-            @unlink($file);
-
-            return response()->json(['message' => 'The release could not be prepared, so nothing was changed. Please try again.'], 500);
-        }
-
-        if ($carries_flutter_web) {
-            $flutter_web->setAside();
-        }
-
-        try {
-            $phar->extractTo(base_path(), null, true);
-        } catch (\Throwable $e) {
-            $flutter_web->restore();
-
-            throw $e;
-        }
+        /* Extracts the release, keeping the installed Flutter web app until a new one has landed whole */
+        (new FlutterWebUpdate(base_path(), storage_path('app/flutter-web-update')))->apply($phar);
 
         nlog('Finished extracting files');
-
-        $flutter_web->finish();
 
         unlink($file);
 

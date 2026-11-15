@@ -12,8 +12,8 @@
 <title>Invoice Ninja</title>
 <meta name="description" content="Open Invoice Ninja in your browser, or get the apps for Mac, Windows, Linux, iPhone, iPad and Android.">
 <style>
-@font-face { font-family: "Inter Tight"; src: url("/landing/fonts/InterTight.ttf"); font-weight: 100 900; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url("/landing/fonts/JetBrainsMono.ttf"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Inter Tight"; src: url("/landing/fonts/InterTight.ttf?v=b81b73dcb6"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("/landing/fonts/JetBrainsMono.ttf?v=48715a42ec"); font-weight: 100 900; font-display: swap; }
 
 /* Tokens: the app's Sand (light) and Carbon (dark) palettes, lib/app/design_tokens.dart */
 :root {
@@ -30,8 +30,8 @@
   --card-shadow: 0 1px 0 rgba(0,0,0,.02), 0 12px 32px -16px rgba(31,86,196,.35);
   --shot-shadow-web: 0 -1px 0 #D3DCF2, 0 8px 24px rgba(20,40,90,.12);
   --shot-shadow-app: 0 -1px 0 #E0DDD5, 0 8px 24px rgba(0,0,0,.08);
-  --logo: url("/landing/img/logo_light.png");
-  --flutter-shot: url("/landing/img/web-flutter-light.jpg");
+  --logo: url("/landing/img/logo_light.png?v=f4fd11aced");
+  --flutter-shot: url("/landing/img/web-flutter-light.jpg?v=6a95e8bb12");
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -47,8 +47,8 @@
     --paid: #4CC38A; --paid-soft: #153028;
     --warn: #E0B05A; --warn-soft: #2A2112;
     --card-shadow: none; --shot-shadow-web: 0 8px 24px rgba(0,0,0,.5); --shot-shadow-app: 0 8px 24px rgba(0,0,0,.5);
-    --logo: url("/landing/img/logo_dark.png");
-    --flutter-shot: url("/landing/img/web-flutter-dark.jpg");
+    --logo: url("/landing/img/logo_dark.png?v=c904ed152e");
+    --flutter-shot: url("/landing/img/web-flutter-dark.jpg?v=3df11171fe");
     color-scheme: dark;
   }
 }
@@ -64,8 +64,8 @@
   --paid: #4CC38A; --paid-soft: #153028;
   --warn: #E0B05A; --warn-soft: #2A2112;
   --card-shadow: none; --shot-shadow-web: 0 8px 24px rgba(0,0,0,.5); --shot-shadow-app: 0 8px 24px rgba(0,0,0,.5);
-  --logo: url("/landing/img/logo_dark.png");
-  --flutter-shot: url("/landing/img/web-flutter-dark.jpg");
+  --logo: url("/landing/img/logo_dark.png?v=c904ed152e");
+  --flutter-shot: url("/landing/img/web-flutter-dark.jpg?v=3df11171fe");
   color-scheme: dark;
 }
 
@@ -107,7 +107,7 @@ h1 { font-size: clamp(40px, 6vw, 64px); line-height: 1; letter-spacing: -0.045em
 .panel.web-p { background: var(--panel-web); }
 .panel.app-p { background: var(--panel-app); }
 .shot { width: 100%; height: 100%; border-radius: 8px 8px 0 0; background: var(--surface) left top / cover no-repeat; }
-.shot.react { background-image: url("/landing/img/web-react.jpg"); box-shadow: var(--shot-shadow-web); }
+.shot.react { background-image: url("/landing/img/web-react.jpg?v=64e6791221"); box-shadow: var(--shot-shadow-web); }
 .shot.flutter { background-image: var(--flutter-shot); box-shadow: var(--shot-shadow-app); }
 .body { padding: 26px 28px 28px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
 .title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 27px; }
@@ -185,7 +185,7 @@ footer a:hover { color: var(--ink); }
   footer { margin-top: -8px; }
 }
 </style>
-<script src="/landing/icons.js"></script>
+<script src="/landing/icons.js?v=7864c2fd42"></script>
 </head>
 <body>
 <div class="page">
@@ -268,8 +268,8 @@ footer a:hover { color: var(--ink); }
   <section class="sec" aria-labelledby="h-team">
     <div class="sec-head"><h2 id="h-team">More from the Invoice Ninja team</h2></div>
     <div class="team-links">
-      <a href="https://docuninja.co"><img src="/landing/img/ninja-icon.png" alt=""><span><strong>DocuNinja</strong><span class="desc">Document signing</span></span></a>
-      <a href="https://eventschedule.com"><img src="/landing/img/eventschedule.png" alt=""><span><strong>Event Schedule</strong><span class="desc">Free event calendar and ticketing</span></span></a>
+      <a href="https://docuninja.co"><img src="/landing/img/ninja-icon.png?v=e0a0e00b49" alt=""><span><strong>DocuNinja</strong><span class="desc">Document signing</span></span></a>
+      <a href="https://eventschedule.com"><img src="/landing/img/eventschedule.png?v=22bd28174c" alt=""><span><strong>Event Schedule</strong><span class="desc">Free event calendar and ticketing</span></span></a>
     </div>
   </section>
 
