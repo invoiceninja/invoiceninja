@@ -29,7 +29,8 @@ use Illuminate\Http\Request;
  *
  * The browser fallback goes to whichever web client the instance serves — see
  * {@see self::usesFlutterWebClient()} — on the instance's own origin when
- * self-hosted, and on `react_url` when hosted.
+ * self-hosted, and on `react_url` when hosted, or `flutter_web_url` for a
+ * browser whose landing page last opened the Flutter web app.
  */
 class AppLinksController extends Controller
 {
@@ -109,6 +110,11 @@ class AppLinksController extends Controller
 
         $target = $host.'/'.$path.'?'.http_build_query($query);
         $webUrl = $this->webUrl($path, $request->query());
+        $flutterWebUrl = $this->hostedFlutterWebUrl($path, $request->query());
+        $intent = 'intent://'.$target
+            .'#Intent;scheme='.$scheme
+            .';package='.config('ninja.app_links.android_package')
+            .';S.browser_fallback_url=';
 
         // Android gets intent:// rather than the scheme: Chrome answers an
         // unregistered scheme with ERR_UNKNOWN_URL_SCHEME, an error page that
@@ -117,12 +123,10 @@ class AppLinksController extends Controller
         return response()
             ->view('app_links.bridge', [
                 'appUrl' => $scheme.'://'.$target,
-                'intentUrl' => 'intent://'.$target
-                    .'#Intent;scheme='.$scheme
-                    .';package='.config('ninja.app_links.android_package')
-                    .';S.browser_fallback_url='.rawurlencode($webUrl)
-                    .';end',
+                'intentUrl' => $intent.rawurlencode($webUrl).';end',
                 'webUrl' => $webUrl,
+                'flutterWebUrl' => $flutterWebUrl,
+                'flutterIntentUrl' => $flutterWebUrl ? $intent.rawurlencode($flutterWebUrl).';end' : null,
             ])
             ->header('X-Robots-Tag', 'noindex');
     }
@@ -146,6 +150,24 @@ class AppLinksController extends Controller
         $base = rtrim((string) config('ninja.react_url') ?: url('/'), '/');
 
         return $base.'/#/'.AppLinkPath::forWebClient($path).$suffix;
+    }
+
+    /**
+     * Hosted only: the same link in the Flutter web app (FLUTTER_WEB_URL), for a
+     * browser whose invoicing.co landing page last opened that app. Its routes
+     * are the apps', so the path is untranslated. Null when not configured.
+     */
+    private function hostedFlutterWebUrl(string $path, array $query): ?string
+    {
+        $base = rtrim((string) config('ninja.flutter_web_url'), '/');
+
+        if (Ninja::isSelfHost() || $base === '') {
+            return null;
+        }
+
+        $suffix = empty($query) ? '' : '?'.http_build_query($query);
+
+        return $base.'/#/'.$path.$suffix;
     }
 
     /**

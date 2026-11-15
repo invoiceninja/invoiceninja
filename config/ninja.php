@@ -6,6 +6,11 @@ return [
     'admin_token' => env('NINJA_ADMIN_TOKEN', ''),
     'license_url' => 'https://app.invoiceninja.com',
     'react_url' => env('REACT_URL', env('APP_URL', '')),
+    // Hosted only, the Flutter web app's host (https://admin.invoicing.co). Set it with HOSTED_LANDING,
+    // or its calendar OAuth returns to the landing page.
+    'flutter_web_url' => env('FLUTTER_WEB_URL', ''),
+    // Hosted only: / serves the landing page (resources/views/landing) instead of the old Flutter app.
+    'hosted_landing' => env('HOSTED_LANDING', false),
     'calendar' => [
         'native_redirect' => env('CALENDAR_NATIVE_REDIRECT', 'invoiceninja://calendar_connection/complete'),
     ],

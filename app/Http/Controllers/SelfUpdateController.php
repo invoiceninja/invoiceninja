@@ -16,6 +16,7 @@ use App\Exceptions\FilePermissionsFailure;
 use App\Http\Requests\SelfUpdate\SelfUpdateRequest;
 use App\Models\Account;
 use App\Models\Company;
+use App\Utils\FlutterWebUpdate;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
@@ -100,7 +101,9 @@ class SelfUpdateController extends BaseController
         nlog('Extracting tar');
 
         $phar = new \PharData($file);
-        $phar->extractTo(base_path(), null, true);
+
+        /* Extracts the release, keeping the installed Flutter web app until a new one has landed whole */
+        (new FlutterWebUpdate(base_path(), storage_path('app/flutter-web-update')))->apply($phar);
 
         nlog('Finished extracting files');
 

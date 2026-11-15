@@ -32,6 +32,61 @@ class Ninja
         return config('ninja.environment') === 'hosted';
     }
 
+    /**
+     * The new Flutter web app, unpacked from its release by react_release.yml: its boot page, and the
+     * build folder the page names. A git checkout has neither.
+     */
+    public static function hasFlutterWebBuild(): bool
+    {
+        $page = self::flutterWebFile('flutter/index.html');
+        $id = $page === null ? null : self::flutterWebBuildId((string) file_get_contents($page));
+
+        return $id !== null && is_file(public_path("flutter/{$id}/flutter_bootstrap.js"));
+    }
+
+    /**
+     * The build's folder under public/flutter/ that a boot page loads from: its base href is
+     * <base href="__IN_BASE_HREF__<id>/">, so every URL the app loads changes with each build and
+     * can be cached without rules on the server.
+     */
+    public static function flutterWebBuildId(string $page): ?string
+    {
+        // Exactly one base tag, as react_release.yml checks: with two, a browser and a regex could disagree.
+        if (preg_match_all('#<base[^a-z0-9_-]#i', $page) !== 1) {
+            return null;
+        }
+
+        return preg_match('#<base href="__IN_BASE_HREF__([0-9a-f]{8,64})/">#', $page, $match) === 1 ? $match[1] : null;
+    }
+
+    /**
+     * A plain HTML page under resources/views (the Flutter web app's boot page, unpacked from its
+     * release, or the committed landing page), found where views are. Read as a file, never compiled.
+     */
+    public static function flutterWebFile(string $name): ?string
+    {
+        foreach (view()->getFinder()->getPaths() as $path) {
+            if (is_file($path.'/'.$name)) {
+                return $path.'/'.$name;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The Flutter web app's boot page, its __IN_*__ tokens filled with escaped values.
+     * A token this server doesn't know is left empty.
+     *
+     * @param array<string, string> $values Keyed by token name, e.g. 'BASE_HREF'
+     */
+    public static function flutterWebPage(array $values): string
+    {
+        $html = (string) file_get_contents((string) self::flutterWebFile('flutter/index.html'));
+
+        return (string) preg_replace_callback('/__IN_([A-Z_]+)__/', fn ($match) => e($values[$match[1]] ?? ''), $html);
+    }
+
     public static function isNinja()
     {
         return config('ninja.production');
