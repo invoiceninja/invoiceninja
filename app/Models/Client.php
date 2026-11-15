@@ -1147,6 +1147,10 @@ class Client extends BaseModel implements HasLocalePreference
             return "Client has no country set!";
         }
 
+        if (\App\Services\EDocument\Support\GlnIdentifier::isValid((string) $this->routing_id)) {
+            return null;
+        }
+        
         $country_code = $this->country->iso_3166_2;
 
         $router = new \App\Services\EDocument\Gateway\Storecove\StorecoveRouter();
