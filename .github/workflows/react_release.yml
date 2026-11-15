@@ -156,7 +156,7 @@ jobs:
           # cache rules), and that folder holding the bootstrap.
           page="$work/out/resources/views/flutter/index.html"
           [ -f "$page" ] || skip error "$build's boot page isn't a file."
-          awk '{ n += gsub(/<[Bb][Aa][Ss][Ee][^A-Za-z0-9_-]/, "") } END { exit n != 1 }' "$page" \
+          tr '\r\n' '  ' < "$page" | awk '{ n += gsub(/<[Bb][Aa][Ss][Ee][^A-Za-z0-9_-]/, "") } END { exit n != 1 }' \
             || skip error "$build's boot page doesn't have exactly one <base>."
           id=$(sed -nE 's#.*<base href="__IN_BASE_HREF__([0-9a-f]{8,64})/">.*#\1#p' "$page") || id=""
           [ -n "$id" ] && [ -f "$work/out/public/flutter/$id/flutter_bootstrap.js" ] \

@@ -34,7 +34,8 @@ use Illuminate\Support\Facades\Log;
  *               put back and whatever the release added is deleted. rollBack() does the same
  *               when step 4 throws.
  *
- * Page writes are a rename of a written file, so a page is never half there. A release without
+ * This class writes a page by renaming a written file, so its own writes are never half there
+ * (the extraction's write is the release's, and recover() covers it). A release without
  * the app, or with a broken one, leaves the installed app as it is: the app reads the server's
  * x-minimum-client-version and asks to be updated if it is too old.
  */
@@ -57,12 +58,12 @@ class FlutterWebUpdate
 
     /**
      * Extracts the release over the install. Throws only what the extraction throws, after
-     * putting the installed app back.
+     * putting the installed app back; every other step only logs a failure.
      */
     public function apply(\PharData $release): void
     {
-        $this->recover();
-        $this->stage($release);
+        $this->guarded(fn () => $this->recover());
+        $this->guarded(fn () => $this->stage($release));
 
         if (! $this->carried) {
             $release->extractTo($this->base, null, true);
@@ -70,17 +71,17 @@ class FlutterWebUpdate
             return;
         }
 
-        $this->save();
+        $this->guarded(fn () => $this->save());
 
         try {
             $release->extractTo($this->base, null, true);
         } catch (\Throwable $e) {
-            $this->rollBack();
+            $this->guarded(fn () => $this->rollBack());
 
             throw $e;
         }
 
-        $this->finish();
+        $this->guarded(fn () => $this->finish());
     }
 
     /** Puts back the page an interrupted update saved, if the live one doesn't name a whole build. */
@@ -92,8 +93,13 @@ class FlutterWebUpdate
             return;
         }
 
-        if ($this->buildOf($this->page()) === null && $this->buildOf((string) file_get_contents($saved)) !== null) {
-            $this->writePage((string) file_get_contents($saved));
+        $page = (string) file_get_contents($saved);
+
+        if ($this->buildOf($this->page()) === null && $this->buildOf($page) !== null) {
+            if (! $this->writePage($page)) {
+                return; // Kept for the next update to try again.
+            }
+
             $this->warn('put back the boot page an interrupted update saved');
         }
 
@@ -139,8 +145,8 @@ class FlutterWebUpdate
         $page = $this->page();
         $this->savedPage = $this->buildOf($page) !== null ? $page : null;
 
-        if ($this->savedPage !== null) {
-            $this->atomicWrite($this->path(self::BOOT_PAGE).'.previous', $page);
+        if ($this->savedPage !== null && ! $this->atomicWrite($this->path(self::BOOT_PAGE).'.previous', $page)) {
+            $this->warn('could not save the boot page to disk; it is kept in memory for this update');
         }
     }
 
@@ -169,8 +175,17 @@ class FlutterWebUpdate
     public function rollBack(): void
     {
         if ($this->savedPage !== null) {
+            $id = (string) Ninja::flutterWebBuildId($this->savedPage);
             $this->writePage($this->savedPage);
-            $this->prune([(string) Ninja::flutterWebBuildId($this->savedPage)]);
+
+            if (Ninja::flutterWebBuildId($this->page()) !== $id) {
+                // The page couldn't be put back: keep every build and the saved copy, for recover().
+                $this->warn('could not put the boot page back; the next update will');
+
+                return;
+            }
+
+            $this->prune([$id]);
         } else {
             // There was no whole app before this update, so nothing here is worth keeping.
             @unlink($this->path(self::BOOT_PAGE));
@@ -196,20 +211,51 @@ class FlutterWebUpdate
         return is_file($page) ? (string) file_get_contents($page) : '';
     }
 
-    private function writePage(string $contents): void
+    private function writePage(string $contents): bool
     {
-        $this->atomicWrite($this->path(self::BOOT_PAGE), $contents);
+        $page = $this->path(self::BOOT_PAGE);
+
+        if ($this->atomicWrite($page, $contents)) {
+            return true;
+        }
+
+        // A folder that can't take a new file may still let its page be rewritten in place.
+        if (is_file($page) && @file_put_contents($page, $contents, LOCK_EX) !== false) {
+            return true;
+        }
+
+        $this->warn('could not write the boot page');
+
+        return false;
     }
 
-    /** Written beside the target, then renamed over it: a reader sees the old file or the new one. */
-    private function atomicWrite(string $path, string $contents): void
+    /**
+     * Written beside the target, then renamed over it: a reader sees the old file or the new one.
+     * Returns whether it was written; never throws.
+     */
+    private function atomicWrite(string $path, string $contents): bool
     {
-        File::ensureDirectoryExists(dirname($path));
         $temporary = $path.'.tmp';
 
-        if (file_put_contents($temporary, $contents) === false || ! @rename($temporary, $path)) {
-            @unlink($temporary);
-            $this->warn('could not write '.basename(dirname($path)).'/'.basename($path));
+        try {
+            if (@file_put_contents($temporary, $contents) !== false && @rename($temporary, $path)) {
+                return true;
+            }
+        } catch (\Throwable) {
+        }
+
+        @unlink($temporary);
+
+        return false;
+    }
+
+    /** Runs a step whose failure must not stop the update (the release's code is in place, migrations follow). */
+    private function guarded(callable $step): void
+    {
+        try {
+            $step();
+        } catch (\Throwable $e) {
+            $this->warn($e->getMessage());
         }
     }
 

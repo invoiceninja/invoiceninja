@@ -54,9 +54,11 @@ class FlutterWebUpdateTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (['public', 'resources/views', 'zzz'] as $folder) {
+        foreach (['public', 'resources/views', 'resources/views/flutter', 'zzz'] as $folder) {
             @chmod($this->base.'/'.$folder, 0755);
         }
+
+        @chmod($this->base.'/resources/views/flutter/index.html', 0644);
 
         File::deleteDirectory($this->dir);
 
@@ -161,7 +163,7 @@ class FlutterWebUpdateTest extends TestCase
         $this->assertNoLeftovers();
     }
 
-    public function testFoldersThatCantBeRenamedDontMatter()
+    public function testReadOnlyParentFoldersDontMatter()
     {
         // Nothing is renamed, so read-only parents are fine.
         $this->skipIfRoot();
@@ -172,6 +174,58 @@ class FlutterWebUpdateTest extends TestCase
 
         $this->assertServesTheNewApp();
         $this->assertBuilds([self::NEW, self::OLD]);
+        $this->assertNoLeftovers();
+    }
+
+    public function testAReadOnlyBootPageFolderDoesntStopTheUpdate()
+    {
+        // No new file can go in resources/views/flutter (the saved copy stays in memory), but the
+        // page itself can still be rewritten, as the release's extraction does.
+        $this->skipIfRoot();
+        chmod($this->base.'/resources/views/flutter', 0555);
+
+        $this->update()->apply($this->fullRelease());
+
+        $this->assertServesTheNewApp();
+        $this->assertNoLeftovers();
+    }
+
+    public function testAReadOnlyBootPageFolderStillGetsThePagePutBack()
+    {
+        $this->skipIfRoot();
+        chmod($this->base.'/resources/views/flutter', 0555);
+
+        $this->update()->apply($this->release('mismatched', [
+            'public/flutter/'.self::NEW.'/flutter_bootstrap.js' => 'new bootstrap',
+            'resources/views/flutter/index.html' => $this->page('cccccccc2222'),
+            'app/Kept.php' => 'new app code',
+        ]));
+
+        $this->assertServesTheOldApp();
+        $this->assertBuilds([self::OLD]);
+        $this->assertSame('new app code', file_get_contents($this->base.'/app/Kept.php'));
+    }
+
+    public function testAPageThatCantBePutBackIsLeftForTheNextUpdate()
+    {
+        $this->skipIfRoot();
+        $this->interruptAfterSaving();
+        $this->writeFiles($this->base, ['resources/views/flutter/index.html' => '<base href="__IN_BASE_HR']);
+        // The page can't be written either way (a folder where its temporary file goes, and the
+        // page read-only), while the folder itself stays writable.
+        File::ensureDirectoryExists($this->base.'/resources/views/flutter/index.html.tmp');
+        chmod($this->base.'/resources/views/flutter/index.html', 0444);
+
+        // The update goes on, and keeps the saved page.
+        $this->update()->apply($this->release('without', ['app/Kept.php' => 'new app code']));
+        $this->assertSame('new app code', file_get_contents($this->base.'/app/Kept.php'));
+        $this->assertFileExists($this->base.'/resources/views/flutter/index.html.previous');
+
+        File::deleteDirectory($this->base.'/resources/views/flutter/index.html.tmp');
+        chmod($this->base.'/resources/views/flutter/index.html', 0644);
+        $this->update()->apply($this->release('without', ['app/Kept.php' => 'newer app code']));
+
+        $this->assertServesTheOldApp();
         $this->assertNoLeftovers();
     }
 
@@ -211,9 +265,9 @@ class FlutterWebUpdateTest extends TestCase
         $this->assertNoLeftovers();
     }
 
-    public function testAnUpdateInterruptedWhilePruningLeavesTheAppWorking()
+    public function testAPartlyDeletedOlderBuildIsPrunedByTheNextUpdate()
     {
-        // Died in finish() while deleting an older build.
+        // As an update that died in finish() while deleting an older build leaves it.
         $this->writeFiles($this->base, ['public/flutter/'.self::OLDER.'/half.js' => 'half-deleted']);
 
         $this->update()->apply($this->fullRelease());
