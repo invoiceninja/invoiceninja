@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -196,6 +197,7 @@ class SelfBilledInvoiceFixturesTest extends TestCase
         }
 
         $stored = $invoice->fresh();
+        $this->assertTrue(Str::isUuid($stored->backup->guid));
         $this->assertTrue($stored->isSelfBilled());
         $this->assertTrue($stored->isTaxImmutable());
         $this->assertSame($number, data_get($stored->e_invoice, 'Invoice.ID.value'));
@@ -215,6 +217,7 @@ class SelfBilledInvoiceFixturesTest extends TestCase
         $repeated = $this->importFixture($file);
 
         $this->assertSame($invoice->id, $repeated->id);
+        $this->assertSame($invoice->backup->guid, $repeated->fresh()->backup->guid);
         $this->assertSame($invoice_count, Invoice::count());
         $this->assertSame(1, $invoice->documents()->where('name', "self-billed-{$invoice->id}.xml")->count());
     }

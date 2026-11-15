@@ -21,6 +21,8 @@ use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Ninja;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use InvoiceNinja\EInvoice\Models\Peppol\Invoice as PeppolInvoice;
 use UnexpectedValueException;
 
@@ -72,10 +74,7 @@ class SelfBilledInvoice
         $source_document['ID']['value'] = $source_number;
         $source_document['InvoiceTypeCode']['value'] = 389;
 
-        return $company->getConnection()->transaction(function () use ($document, $company, $client_data, $source_number, $source_document, $received_guid) {
-            // Serialize imports for this company, including client resolution and invoice numbering.
-            $company->newQuery()->whereKey($company->id)->lockForUpdate()->firstOrFail();
-
+        return DB::transaction(function () use ($document, $company, $client_data, $source_number, $source_document, $received_guid) {
             $client = $this->findOrCreateClient($client_data, $company);
             $existing = Invoice::withTrashed()
                 ->where('company_id', $company->id)
@@ -99,11 +98,19 @@ class SelfBilledInvoice
                     throw new UnexpectedValueException('Self-billed invoice identity already exists with different document contents.');
                 }
 
+                $guid = $received_guid ?: $existing->backup->guid ?: trim((string) data_get($document, 'UUID.value', '')) ?: Str::uuid()->toString();
+
+                if ($existing->backup->guid !== $guid) {
+                    $existing->backup->guid = $guid;
+                    $existing->saveQuietly();
+                }
+
                 return $existing;
             }
 
             $invoice = InvoiceFactory::create($company->id, $company->owner()->id);
             $invoice->e_invoice = ['Invoice' => $source_document];
+            $invoice->backup->guid = $received_guid ?: trim((string) data_get($document, 'UUID.value', '')) ?: Str::uuid()->toString();
 
             $invoice_data = [
                 'client_id' => $client->id,

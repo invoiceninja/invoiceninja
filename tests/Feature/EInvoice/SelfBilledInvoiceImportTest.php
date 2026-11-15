@@ -21,6 +21,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Modules\Admin\Jobs\Storecove\ReceiveDocument;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -77,7 +78,7 @@ class SelfBilledInvoiceImportTest extends TestCase
         $this->assertEquals(25, $invoice->line_items[0]->cost);
         $this->assertEquals(10, $invoice->line_items[0]->discount);
         $this->assertEquals(10, $invoice->total_taxes);
-        $this->assertSame('', $invoice->backup->guid);
+        $this->assertTrue(Str::isUuid($invoice->fresh()->backup->guid));
         $this->assertFalse(property_exists($invoice->backup, 'self_billing'));
         $this->assertSame(389, data_get($invoice->fresh()->e_invoice, 'Invoice.InvoiceTypeCode.value'));
         $this->assertSame('SELF-389-001', data_get($invoice->fresh()->e_invoice, 'Invoice.ID.value'));
@@ -98,6 +99,7 @@ class SelfBilledInvoiceImportTest extends TestCase
         $repeated = $this->importXml($wrapped_xml);
 
         $this->assertSame($invoice->id, $repeated->id);
+        $this->assertSame($invoice->backup->guid, $repeated->fresh()->backup->guid);
         $this->assertTrue($repeated->trashed());
         $this->assertSame(2, $repeated->documents()->count());
     }
@@ -113,6 +115,47 @@ class SelfBilledInvoiceImportTest extends TestCase
         $this->assertSame($this->client->id, $invoice->client_id);
         $this->assertSame('Existing client note', $invoice->client->public_notes);
         $this->assertSame('Buyer-issued invoice', $invoice->public_notes);
+    }
+
+    public function testUploadUsesDocumentUuidUntilReceiptGuidIsAvailable(): void
+    {
+        $document_guid = 'e58b2b56-c18e-448a-92ce-00a3fa075794';
+        $xml = str_replace('<cbc:IssueDate>', '<cbc:UUID>' . $document_guid . '</cbc:UUID><cbc:IssueDate>', $this->xml());
+        $invoice = $this->importXml($xml);
+
+        $this->assertSame($document_guid, $invoice->fresh()->backup->guid);
+
+        $file = TempFile::UploadedFileFromRaw($xml, 'received.xml', 'application/xml');
+        $received = (new UblEDocument($file, $this->company))->run('received-document-guid');
+
+        $this->assertSame($invoice->id, $received->id);
+        $this->assertSame('received-document-guid', $received->fresh()->backup->guid);
+    }
+
+    public function testRepeatedImportPopulatesMissingGuid(): void
+    {
+        $invoice = $this->importXml();
+        $invoice->backup->guid = '';
+        $invoice->saveQuietly();
+
+        $repeated = $this->importXml();
+
+        $this->assertSame($invoice->id, $repeated->id);
+        $this->assertTrue(Str::isUuid($repeated->fresh()->backup->guid));
+    }
+
+    public function testImportedGuidPreventsPeppolResendingWithoutSourceDocument(): void
+    {
+        $invoice = $this->importXml();
+        $invoice->e_invoice = null;
+        $invoice->saveQuietly();
+
+        $storecove = $this->createMock(Storecove::class);
+        $storecove->expects($this->never())->method('sendJsonDocument');
+        (new SendEDocument(Invoice::class, $invoice->id, $this->company->db))->handle($storecove);
+
+        $this->assertSame(Invoice::STATUS_DRAFT, $invoice->fresh()->status_id);
+        Http::assertNothingSent();
     }
 
     #[DataProvider('countryCodes')]
@@ -207,6 +250,7 @@ class SelfBilledInvoiceImportTest extends TestCase
 
         $invoice = Invoice::where('company_id', $this->company->id)->where('number', 'SELF-389-001')->firstOrFail();
         $this->assertSame(Invoice::STATUS_DRAFT, $invoice->status_id);
+        $this->assertSame('received-389-guid', $invoice->backup->guid);
         $this->assertTrue($invoice->documents()->where('name', 'received-389-guid.xml')->exists());
         Http::assertSentCount(1);
     }
@@ -235,6 +279,7 @@ class SelfBilledInvoiceImportTest extends TestCase
         $invoice = $reflection->getProperty('entity')->getValue($job);
         $this->assertInstanceOf(Invoice::class, $invoice);
         $this->assertSame(Invoice::STATUS_DRAFT, $invoice->status_id);
+        $this->assertSame('hosted-389-guid', $invoice->fresh()->backup->guid);
         $this->assertTrue($invoice->documents()->where('name', 'hosted-389-guid.xml')->exists());
     }
 
@@ -268,6 +313,8 @@ class SelfBilledInvoiceImportTest extends TestCase
 
         $this->assertSame($draft->id, $invoice->id);
         $this->assertSame(Invoice::STATUS_DRAFT, $invoice->status_id);
+        $this->assertSame('received-after-upload', $invoice->fresh()->backup->guid);
+        $this->assertSame('received-after-upload', $this->importXml()->fresh()->backup->guid);
         $this->assertTrue($invoice->documents()->where('name', 'received-after-upload.xml')->exists());
         $this->assertEquals(0, $invoice->balance);
     }
@@ -374,6 +421,7 @@ class SelfBilledInvoiceImportTest extends TestCase
         $clone = CloneInvoiceFactory::create($invoice, $this->user->id);
 
         $this->assertFalse($clone->isSelfBilled());
+        $this->assertSame('', $clone->backup->guid);
         $this->assertNull($clone->e_invoice);
         $this->assertFalse($clone->isTaxImmutable());
         $this->assertTrue($invoice->fresh()->isSelfBilled());

@@ -59,6 +59,8 @@ class ZipEntity implements ShouldQueue
 
     private string $archive = '';
 
+    public bool $xml_only = false;
+
     /**
      * @param class-string<BaseModel> $entity_class
      */
@@ -67,7 +69,10 @@ class ZipEntity implements ShouldQueue
         public Company $company,
         public User $user,
         public string $entity_class,
-    ) {}
+        bool $xml_only = false,
+    ) {
+        $this->xml_only = $xml_only;
+    }
 
     public function handle(ArchiveWriter $archive_writer, TemporaryDownloadPublisher $publisher): void
     {
@@ -151,6 +156,8 @@ class ZipEntity implements ShouldQueue
 
         if ($this->entity_class === Document::class) {
             $entities = $query->with('documentable')->get();
+        } elseif ($this->xml_only) {
+            $entities = $query->get();
         } else {
             $entities = $query
                 ->whereHas('invitations')
@@ -186,6 +193,15 @@ class ZipEntity implements ShouldQueue
                 continue;
             }
 
+            if ($this->xml_only) {
+                $entries[] = [
+                    'contents' => $this->invoiceXml($entity),
+                    'file_name' => $entity->getFileName('xml'),
+                ];
+
+                continue;
+            }
+
             if ($this->shouldIncludeEDocument($entity)) {
                 try {
                     $entries[] = [
@@ -214,6 +230,19 @@ class ZipEntity implements ShouldQueue
         }
 
         return $this;
+    }
+
+    private function invoiceXml(Invoice $invoice): string
+    {
+        if ($invoice->backup->guid) {
+            return $invoice->documents()
+                ->where('type', 'xml')
+                ->latest('id')
+                ->firstOrFail()
+                ->getFile();
+        }
+
+        return $invoice->service()->getEDocument();
     }
 
     private function shouldIncludeEDocument(BaseModel $entity): bool
@@ -253,7 +282,8 @@ class ZipEntity implements ShouldQueue
 
         $entity_translation_string = $this->getEntityString();
 
-        $file_name = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans("texts.{$entity_translation_string}")) . '.zip';
+        $file_name = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans("texts.{$entity_translation_string}"))
+            . ($this->xml_only ? '_xml' : '') . '.zip';
 
         $result = $publisher->publish(
             contents: $this->archive,

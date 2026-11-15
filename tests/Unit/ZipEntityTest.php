@@ -44,6 +44,14 @@ class ZipEntityTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public function testPreviouslyQueuedJobsDefaultToPdfModeWhenRestored(): void
+    {
+        $job = (new \ReflectionClass(ZipEntity::class))->newInstanceWithoutConstructor();
+        $job->__unserialize([]);
+
+        $this->assertFalse($job->xml_only);
+    }
+
     public function testInvoiceArchiveUsesProtectedDownloadPublisher(): void
     {
         config([

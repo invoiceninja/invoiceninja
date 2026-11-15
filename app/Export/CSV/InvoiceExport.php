@@ -13,9 +13,11 @@
 namespace App\Export\CSV;
 
 use App\Export\Decorators\Decorator;
+use App\Jobs\Entity\ZipEntity;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\User;
 use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
@@ -114,8 +116,30 @@ class InvoiceExport extends BaseExport
             $this->queuePdfs($query);
         }
 
+        if ($this->input['xml_email_attachment'] ?? false) {
+            $this->queueXmls($query);
+        }
+
         return $query;
 
+    }
+
+    private function queueXmls(Builder $query): void
+    {
+        $invoice_ids = $query->pluck('id');
+
+        if ($invoice_ids->isEmpty()) {
+            return;
+        }
+
+        $user = $this->company->owner();
+
+        if ($this->input['user_id'] ?? false) {
+            $user = User::where('account_id', $this->company->account_id)
+                ->find($this->input['user_id']) ?? $user;
+        }
+
+        ZipEntity::dispatch($invoice_ids, $this->company, $user, Invoice::class, xml_only: true);
     }
 
     public function returnJson()

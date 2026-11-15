@@ -151,10 +151,9 @@ class ClientPaymentFailureObject
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'url' => $this->invoices->first()->invitations->first()->getPaymentLink(),
             'button' => ctrans('texts.pay_now'),
-            'additional_info' => false,
+            'additional_info' => $this->error ?? '',
             'company' => $this->company,
             'text_body' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(',', $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
-            'additional_info' => $this->error ?? '',
         ];
 
         return $data;

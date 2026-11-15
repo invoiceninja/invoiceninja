@@ -437,12 +437,7 @@ class BaseRule implements RuleInterface
 
         $subregion = $seller_country === 'GB' ? 'GB' : $seller_country;
 
-        $this->reverse_tax_rate = (float) ($this->client->company->tax_data
-            ?->regions
-            ?->{$region}
-            ?->subregions
-            ?->{$subregion}
-            ?->tax_rate ?? 0);
+        $this->reverse_tax_rate = (float) ($this->client->company->tax_data->regions->{$region}->subregions->{$subregion}->tax_rate ?? 0);
 
         return $this;
     }
