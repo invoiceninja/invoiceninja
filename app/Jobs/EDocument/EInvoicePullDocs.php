@@ -295,7 +295,7 @@ class EInvoicePullDocs implements ShouldQueue
 
             if (SelfBilledInvoice::isSelfBilledInvoice($xml)) {
                 $file = TempFile::UploadedFileFromRaw($xml, $document['guid'] . '.xml', 'application/xml');
-                $entity = (new UblEDocument($file, $company))->run($document['guid'], mark_sent: true);
+                $entity = (new UblEDocument($file, $company))->run($document['guid']);
             } else {
                 if ($document['document']['invoice']['self_billing_mode'] ?? false) {
                     throw new \UnexpectedValueException('Self-billed document requires a supported type 389 UBL invoice.');

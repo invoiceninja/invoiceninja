@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Invoice xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+    <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:selfbilling:3.0</cbc:CustomizationID>
+    <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0</cbc:ProfileID>
+    <cbc:ID>Snippet1</cbc:ID>
+    <cbc:IssueDate>2017-11-13</cbc:IssueDate>
+    <cbc:DueDate>2017-12-01</cbc:DueDate>
+    <cbc:InvoiceTypeCode>389</cbc:InvoiceTypeCode>
+    <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
+    <cbc:AccountingCost>4025:123:4343</cbc:AccountingCost>
+    <cbc:BuyerReference>0150abc</cbc:BuyerReference>
+    <cac:AccountingSupplierParty>
+        <cac:Party>
+            <cbc:EndpointID schemeID="0088">7300010000001</cbc:EndpointID>
+            <cac:PartyIdentification>
+                <cbc:ID>99887766</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PartyName>
+                <cbc:Name>SupplierTradingName Ltd.</cbc:Name>
+            </cac:PartyName>
+            <cac:PostalAddress>
+                <cbc:StreetName>Main street 1</cbc:StreetName>
+                <cbc:AdditionalStreetName>Postbox 123</cbc:AdditionalStreetName>
+                <cbc:CityName>London</cbc:CityName>
+                <cbc:PostalZone>GB 123 EW</cbc:PostalZone>
+                <cac:Country>
+                    <cbc:IdentificationCode>GB</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>GB1232434</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>SupplierOfficialName Ltd</cbc:RegistrationName>
+                <cbc:CompanyID>GB983294</cbc:CompanyID>
+                <cbc:CompanyLegalForm>AdditionalLegalInformation</cbc:CompanyLegalForm>   
+            </cac:PartyLegalEntity>
+            <cac:Contact>
+                <cbc:Name>John Doe</cbc:Name>
+                <cbc:Telephone>9384203984</cbc:Telephone>
+                <cbc:ElectronicMail>john.doe@foo.bar</cbc:ElectronicMail>
+            </cac:Contact>
+        </cac:Party>
+    </cac:AccountingSupplierParty>
+
+    <cac:AccountingCustomerParty>
+        <cac:Party>
+            <cbc:EndpointID schemeID="0002">FR23342</cbc:EndpointID>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="0002">FR23342</cbc:ID>
+            </cac:PartyIdentification>
+            <cac:PartyName>
+                <cbc:Name>BuyerTradingName AS</cbc:Name>
+            </cac:PartyName>
+            <cac:PostalAddress>
+                <cbc:StreetName>Hovedgatan 32</cbc:StreetName>
+                <cbc:AdditionalStreetName>Po box 878</cbc:AdditionalStreetName>
+                <cbc:CityName>Stockholm</cbc:CityName>
+                <cbc:PostalZone>456 34</cbc:PostalZone>
+             <cac:Country>
+                    <cbc:IdentificationCode>SE</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:PostalAddress>
+            <cac:PartyTaxScheme>
+                <cbc:CompanyID>SE4598375937</cbc:CompanyID>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:PartyTaxScheme>
+            <cac:PartyLegalEntity>
+                <cbc:RegistrationName>Buyer Official Name</cbc:RegistrationName>
+                <cbc:CompanyID schemeID="0183">39937423947</cbc:CompanyID>
+            </cac:PartyLegalEntity>
+        </cac:Party>
+    </cac:AccountingCustomerParty>
+    <cac:Delivery>
+        <cbc:ActualDeliveryDate>2017-11-01</cbc:ActualDeliveryDate>
+        <cac:DeliveryLocation>
+            <cbc:ID schemeID="0088">7300010000001</cbc:ID>
+            <cac:Address>
+                <cbc:StreetName>Delivery street 2</cbc:StreetName>
+                <cbc:AdditionalStreetName>Building 56</cbc:AdditionalStreetName>
+                <cbc:CityName>Stockholm</cbc:CityName>
+                <cbc:PostalZone>21234</cbc:PostalZone>
+                <cbc:CountrySubentity>Södermalm</cbc:CountrySubentity>
+                <cac:AddressLine>
+                    <cbc:Line>Gate 15</cbc:Line>
+                </cac:AddressLine>
+                <cac:Country>
+                    <cbc:IdentificationCode>SE</cbc:IdentificationCode>
+                </cac:Country>
+            </cac:Address>
+        </cac:DeliveryLocation>
+        <cac:DeliveryParty>
+            <cac:PartyName>
+                <cbc:Name>Delivery party Name</cbc:Name>
+            </cac:PartyName>
+        </cac:DeliveryParty>
+    </cac:Delivery>
+    <cac:PaymentMeans>
+        <cbc:PaymentMeansCode name="Credit transfer">30</cbc:PaymentMeansCode>
+        <cbc:PaymentID>Snippet1</cbc:PaymentID>
+        <cac:PayeeFinancialAccount>
+            <cbc:ID>IBAN32423940</cbc:ID>
+            <cbc:Name>AccountName</cbc:Name>
+            <cac:FinancialInstitutionBranch>
+                <cbc:ID>BIC324098</cbc:ID>
+            </cac:FinancialInstitutionBranch>
+        </cac:PayeeFinancialAccount>
+    </cac:PaymentMeans>
+    <cac:PaymentTerms>
+        <cbc:Note>Payment within 10 days, 2% discount</cbc:Note>
+    </cac:PaymentTerms>
+ 
+    <cac:AllowanceCharge>
+        <cbc:ChargeIndicator>true</cbc:ChargeIndicator>
+        <cbc:AllowanceChargeReason>Cleaning</cbc:AllowanceChargeReason>
+        <cbc:Amount currencyID="EUR">200</cbc:Amount>
+        <cac:TaxCategory>
+            <cbc:ID>S</cbc:ID>
+            <cbc:Percent>25</cbc:Percent>
+            <cac:TaxScheme>
+                <cbc:ID>VAT</cbc:ID>
+            </cac:TaxScheme>
+        </cac:TaxCategory>
+    </cac:AllowanceCharge>
+    
+    <cac:AllowanceCharge>
+        <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+        <cbc:AllowanceChargeReason>Discount</cbc:AllowanceChargeReason>
+        <cbc:Amount currencyID="EUR">100</cbc:Amount>
+        <cac:TaxCategory>
+            <cbc:ID>S</cbc:ID>
+            <cbc:Percent>25</cbc:Percent>
+            <cac:TaxScheme>
+                <cbc:ID>VAT</cbc:ID>
+            </cac:TaxScheme>
+        </cac:TaxCategory>
+    </cac:AllowanceCharge>
+ 
+    <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="EUR">1550.00</cbc:TaxAmount>
+        
+        <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="EUR">5000.0</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="EUR">1250</cbc:TaxAmount>
+            <cac:TaxCategory>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>25</cbc:Percent>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:TaxCategory>
+        </cac:TaxSubtotal>
+        
+        <cac:TaxSubtotal>
+            <cbc:TaxableAmount currencyID="EUR">2000.0</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="EUR">300</cbc:TaxAmount>
+            <cac:TaxCategory>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>15</cbc:Percent>        
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:TaxCategory>
+        </cac:TaxSubtotal>
+    </cac:TaxTotal>
+   
+    <cac:LegalMonetaryTotal>
+        <cbc:LineExtensionAmount currencyID="EUR">6900</cbc:LineExtensionAmount>
+        <cbc:TaxExclusiveAmount currencyID="EUR">7000</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="EUR">8550</cbc:TaxInclusiveAmount>
+        <cbc:AllowanceTotalAmount currencyID="EUR">100</cbc:AllowanceTotalAmount>
+        <cbc:ChargeTotalAmount currencyID="EUR">200</cbc:ChargeTotalAmount>
+        <cbc:PayableAmount currencyID="EUR">8550</cbc:PayableAmount>
+    </cac:LegalMonetaryTotal>
+   
+   
+    <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+        <cbc:Note>Testing note on line level</cbc:Note>
+        <cbc:InvoicedQuantity unitCode="C62">10</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="EUR">4000.00</cbc:LineExtensionAmount>
+    
+        <cbc:AccountingCost>Konteringsstreng</cbc:AccountingCost>
+        <cac:InvoicePeriod>
+            <cbc:StartDate>2017-12-01</cbc:StartDate>
+            <cbc:EndDate>2017-12-05</cbc:EndDate>
+        </cac:InvoicePeriod>
+        <cac:OrderLineReference>
+            <cbc:LineID>123</cbc:LineID>
+        </cac:OrderLineReference>
+        <cac:Item>
+            <cbc:Description>Description of item</cbc:Description>
+            <cbc:Name>item name</cbc:Name>
+            <cac:SellersItemIdentification>
+                <cbc:ID>97iugug876</cbc:ID>
+            </cac:SellersItemIdentification>
+            <cac:StandardItemIdentification>
+                <cbc:ID schemeID="0088">7300010000001</cbc:ID>
+            </cac:StandardItemIdentification>
+            <cac:OriginCountry>
+                <cbc:IdentificationCode>NO</cbc:IdentificationCode>
+            </cac:OriginCountry>
+            <cac:CommodityClassification>
+                <cbc:ItemClassificationCode listID="SRV">09348023</cbc:ItemClassificationCode>
+            </cac:CommodityClassification>     
+            <cac:ClassifiedTaxCategory>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>25.0</cbc:Percent>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:ClassifiedTaxCategory>
+         
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="EUR">400</cbc:PriceAmount>
+        </cac:Price>
+    </cac:InvoiceLine>
+    
+    <cac:InvoiceLine>
+        <cbc:ID>2</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="C62">10</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="EUR">2000.00</cbc:LineExtensionAmount> 
+
+        <cbc:AccountingCost>Konteringsstreng</cbc:AccountingCost>
+        <cac:Item>
+            <cbc:Description>Description of item</cbc:Description>
+            <cbc:Name>item name</cbc:Name>
+            <cac:SellersItemIdentification>
+                <cbc:ID>97iugug876</cbc:ID>
+            </cac:SellersItemIdentification>
+            <cac:StandardItemIdentification>
+                <cbc:ID schemeID="0088">7300010000001</cbc:ID>
+            </cac:StandardItemIdentification>
+            <cac:CommodityClassification>
+                <cbc:ItemClassificationCode listID="SRV">86776</cbc:ItemClassificationCode>
+            </cac:CommodityClassification>
+   
+            <cac:ClassifiedTaxCategory>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>15.0</cbc:Percent>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:ClassifiedTaxCategory>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="EUR">200</cbc:PriceAmount>
+        </cac:Price>
+    </cac:InvoiceLine>
+
+    <cac:InvoiceLine>
+        <cbc:ID>3</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="C62">10</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="EUR">900.00</cbc:LineExtensionAmount>    
+
+        <cbc:AccountingCost>Konteringsstreng</cbc:AccountingCost>     
+        <cac:Item>
+            <cbc:Description>Description of item</cbc:Description>
+            <cbc:Name>item name</cbc:Name>
+            <cac:SellersItemIdentification>
+                <cbc:ID>97iugug876</cbc:ID>
+            </cac:SellersItemIdentification>
+            <cac:StandardItemIdentification>
+                <cbc:ID schemeID="0160">873649827489</cbc:ID>
+            </cac:StandardItemIdentification>
+            <cac:CommodityClassification>
+                <cbc:ItemClassificationCode listID="SRV">86776</cbc:ItemClassificationCode>
+            </cac:CommodityClassification>
+            <cac:ClassifiedTaxCategory>
+                <cbc:ID>S</cbc:ID>
+                <cbc:Percent>25.0</cbc:Percent>
+                <cac:TaxScheme>
+                    <cbc:ID>VAT</cbc:ID>
+                </cac:TaxScheme>
+            </cac:ClassifiedTaxCategory>
+            <cac:AdditionalItemProperty>
+                <cbc:Name>AdditionalItemName</cbc:Name>
+                <cbc:Value>AdditionalItemValue</cbc:Value>
+            </cac:AdditionalItemProperty>
+        </cac:Item>
+        <cac:Price>
+            <cbc:PriceAmount currencyID="EUR">90</cbc:PriceAmount>
+        </cac:Price>
+
+    </cac:InvoiceLine>    
+</Invoice>
+
+
