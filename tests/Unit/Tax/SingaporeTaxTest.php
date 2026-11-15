@@ -67,7 +67,7 @@ class SingaporeTaxTest extends TestCase
         $tax_model = new TaxModel($model);
 
         $this->assertTrue(property_exists($tax_model->regions, 'SG'));
-        $this->assertEquals('eta', $tax_model->version);
+        $this->assertEquals('theta', $tax_model->version);
         $this->assertEquals(9, $tax_model->regions->SG->subregions->SG->tax_rate);
     }
 }

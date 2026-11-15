@@ -9,6 +9,7 @@
                 <form action="{{ route('client.set_password') }}" method="post" >
                     <input type="hidden" name="entity_type" value="{{ $entity_type }}">
                     <input type="hidden" name="invitation_key" value="{{ $invitation_key }}">
+                    <input type="hidden" name="hash" value="{{ $hash }}">
                     @csrf
                     <div class="flex flex-col">
                         <div class="flex justify-between items-center">

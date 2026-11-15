@@ -31,6 +31,7 @@ trait IndexableItems
                     'notes' => (string) ($item->notes ?? ''),
                     'discount' => (float) ($item->discount ?? 0),
                     'is_amount_discount' => (bool) ($item->is_amount_discount ?? false),
+                    'is_optional' => (bool) ($item->is_optional ?? false),
                     'tax_name1' => (string) ($item->tax_name1 ?? ''),
                     'tax_rate1' => (float) ($item->tax_rate1 ?? 0),
                     'tax_name2' => (string) ($item->tax_name2 ?? ''),

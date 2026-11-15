@@ -113,7 +113,9 @@ class InvitationController extends Controller
             $client_contact->save();
         }
 
-        if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
+        $clientHash = request()->input('client_hash');
+
+        if (is_string($clientHash) && is_string($invitation->contact->client->client_hash) && hash_equals($invitation->contact->client->client_hash, $clientHash)) {
             request()->session()->invalidate();
             request()->session()->regenerate(true);
             request()->session()->regenerateToken();
@@ -233,17 +235,11 @@ class InvitationController extends Controller
 
     public function setPasswordForm(Request $request)
     {
-        if (!in_array($request->entity_type, ['invoice', 'quote', 'credit', 'recurring_invoice'])) {
-            abort(404);
-        }
-
-        if (!hash_equals(hash_hmac('sha256', $request->invitation_key, config('app.key')), $request->hash ?? '')) {
-            abort(403);
-        }
+        $invitationKey = $this->passwordInvitationKey($request);
 
         $entity_obj = 'App\Models\\' . ucfirst(Str::camel($request->entity_type)) . 'Invitation';
 
-        $invitation = $entity_obj::where('key', $request->invitation_key)
+        $invitation = $entity_obj::where('key', $invitationKey)
                                     ->whereHas($request->entity_type, function ($query) {
                                         $query->where('is_deleted', 0);
                                     })
@@ -260,16 +256,18 @@ class InvitationController extends Controller
             'root' => 'themes',
             'entity_type' => $request->entity_type,
             'entity_translation' => ctrans('texts.' . $request->entity_type),
-            'invitation_key' => $request->invitation_key,
+            'invitation_key' => $invitationKey,
+            'hash' => $request->input('hash'),
         ]);
     }
 
     public function handlePasswordSet(Request $request)
     {
+        $invitationKey = $this->passwordInvitationKey($request);
         $entity_obj = 'App\Models\\' . ucfirst(Str::camel($request->entity_type)) . 'Invitation';
         $key = $request->entity_type . '_id';
 
-        $invitation = $entity_obj::where('key', $request->invitation_key)
+        $invitation = $entity_obj::where('key', $invitationKey)
                                     ->whereHas($request->entity_type, function ($query) {
                                         $query->where('is_deleted', 0);
                                     })
@@ -439,5 +437,25 @@ class InvitationController extends Controller
         $data['logo'] = $invite->company->present()->logo();
 
         return $this->render('generic.unsubscribe', $data);
+    }
+
+    private function passwordInvitationKey(Request $request): string
+    {
+        if (! in_array($request->entity_type, ['invoice', 'quote', 'credit', 'recurring_invoice'], true)) {
+            abort(404);
+        }
+
+        $invitationKey = $request->input('invitation_key');
+        $hmac = $request->input('hash');
+
+        if (! is_string($invitationKey) || $invitationKey === '' || ! is_string($hmac) || $hmac === '') {
+            abort(404);
+        }
+
+        if (! hash_equals(hash_hmac('sha256', $invitationKey, (string) config('app.key')), $hmac)) {
+            abort(403);
+        }
+
+        return $invitationKey;
     }
 }

@@ -43,4 +43,6 @@ interface RuleInterface
     public function setEntity($entity): self;
 
     public function shouldCalcTax(): bool;
+
+    public function getReverseTaxRate(): float;
 }
