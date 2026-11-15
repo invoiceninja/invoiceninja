@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Merges the JUnit files uploaded by the tests/ci nodes into a single
+ * class => seconds map that tests/ci uses to balance the nodes.
+ *
+ * Usage: tests/ci-merge-timings <junit_dir> <output_file>
+ */
+[, $junit_dir, $output_file] = $argv + [null, null, null];
+
+if (!$junit_dir || !$output_file) {
+    fwrite(STDERR, "Usage: tests/ci-merge-timings <junit_dir> <output_file>\n");
+    exit(1);
+}
+
+$totals = [];
+$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($junit_dir, FilesystemIterator::SKIP_DOTS));
+
+foreach ($files as $file) {
+    if ($file->getExtension() !== 'xml') {
+        continue;
+    }
+
+    $xml = simplexml_load_file($file->getPathname());
+
+    if ($xml === false) {
+        continue;
+    }
+
+    // Test time per class for this file, data provider cases included
+    $file_times = [];
+
+    foreach ($xml->xpath('//testcase') as $testcase) {
+        $class = (string) $testcase['class'];
+
+        if ($class !== '') {
+            $file_times[$class] = ($file_times[$class] ?? 0) + (float) $testcase['time'];
+        }
+    }
+
+    // The same class runs once per PHP version, so average across files
+    foreach ($file_times as $class => $seconds) {
+        $totals[$class]['seconds'] = ($totals[$class]['seconds'] ?? 0) + $seconds;
+        $totals[$class]['runs'] = ($totals[$class]['runs'] ?? 0) + 1;
+    }
+}
+
+if (count($totals) === 0) {
+    fwrite(STDERR, "No test timings found in {$junit_dir}\n");
+    exit(1);
+}
+
+$timings = array_map(fn (array $total) => round($total['seconds'] / $total['runs'], 3), $totals);
+ksort($timings);
+
+@mkdir(dirname($output_file), 0777, true);
+file_put_contents($output_file, json_encode($timings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+echo sprintf("Wrote %d classes, %.1f min total, to %s\n", count($timings), array_sum($timings) / 60, $output_file);
