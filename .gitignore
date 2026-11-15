@@ -3,11 +3,7 @@
 /public/storage
 /public/react
 /public/flutter
-/public/flutter.previous
-/public/flutter.discard
 /resources/views/flutter
-/resources/views/flutter.previous
-/resources/views/flutter.discard
 /storage/*.key
 /storage/debugbar
 /storage/*

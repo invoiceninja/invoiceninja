@@ -18,13 +18,14 @@ use Tests\TestCase;
 
 /**
  * Self-update's handling of the Flutter web app (SelfUpdateController::update calls apply()),
- * on a temporary install and gzipped tar archives shaped like the release: the installed copy is
- * kept until a new one has landed whole, through failures and interrupted updates.
- *
- * A build lives in public/flutter/<id>/, the folder its boot page's base href names.
+ * on a temporary install and gzipped tar archives shaped like the release. A build lives in
+ * public/flutter/<id>/, the folder its boot page's base href names; the installed app keeps
+ * working through every failure and interrupted update.
  */
 class FlutterWebUpdateTest extends TestCase
 {
+    private const OLDER = '000000000000';
+
     private const OLD = 'aaaaaaaa0000';
 
     private const NEW = 'bbbbbbbb1111';
@@ -62,61 +63,73 @@ class FlutterWebUpdateTest extends TestCase
         parent::tearDown();
     }
 
-    public function testTheNewCopyReplacesTheOldOneWhole()
+    public function testTheNewBuildIsServedAndThePreviousOneKeptForOpenTabs()
     {
         $this->update()->apply($this->fullRelease());
 
-        $this->assertInstallIsTheNewOne();
-        $this->assertDirectoryDoesNotExist($this->base.'/public/flutter/'.self::OLD);
+        $this->assertServesTheNewApp();
+        $this->assertBuilds([self::NEW, self::OLD]);
         $this->assertNoLeftovers();
     }
 
-    public function testAReleaseWithoutTheAppKeepsTheInstalledOne()
+    public function testOnlyOnePreviousBuildIsKept()
+    {
+        $this->writeFiles($this->base, ['public/flutter/'.self::OLDER.'/flutter_bootstrap.js' => 'older']);
+
+        $this->update()->apply($this->fullRelease());
+
+        $this->assertServesTheNewApp();
+        $this->assertBuilds([self::NEW, self::OLD]);
+    }
+
+    public function testAReleaseWithoutTheAppLeavesTheInstalledOne()
     {
         $this->update()->apply($this->release('without', ['app/Kept.php' => 'new app code']));
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheOldApp();
         $this->assertSame('new app code', file_get_contents($this->base.'/app/Kept.php'));
         $this->assertNoLeftovers();
     }
 
-    public function testAnIncompleteCopyKeepsTheInstalledOneAndTheUpdateGoesOn()
+    public function testAnIncompleteCopyKeepsTheInstalledAppAndTheUpdateGoesOn()
     {
         $this->update()->apply($this->release('incomplete', [
             'public/flutter/'.self::NEW.'/flutter_bootstrap.js' => 'new bootstrap',
             'app/Kept.php' => 'new app code',
         ]));
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheOldApp();
+        $this->assertBuilds([self::OLD]);
         $this->assertSame('new app code', file_get_contents($this->base.'/app/Kept.php'));
         $this->assertNoLeftovers();
     }
 
-    public function testACopyWithoutItsBootPageKeepsTheInstalledOne()
+    public function testACopyWithoutItsBootPageKeepsTheInstalledApp()
     {
         $this->update()->apply($this->release('no-boot-page', [
             'public/flutter/'.self::NEW.'/flutter_bootstrap.js' => 'new bootstrap',
             'resources/views/flutter/other.html' => 'not the boot page',
-            'app/Kept.php' => 'new app code',
         ]));
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheOldApp();
+        $this->assertBuilds([self::OLD]);
         $this->assertFileDoesNotExist($this->base.'/resources/views/flutter/other.html');
         $this->assertNoLeftovers();
     }
 
-    public function testACopyWhoseBootPageNamesAnotherFolderKeepsTheInstalledOne()
+    public function testACopyWhoseBootPageNamesAMissingFolderKeepsTheInstalledApp()
     {
         $this->update()->apply($this->release('mismatched', [
             'public/flutter/'.self::NEW.'/flutter_bootstrap.js' => 'new bootstrap',
             'resources/views/flutter/index.html' => $this->page('cccccccc2222'),
         ]));
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheOldApp();
+        $this->assertBuilds([self::OLD]);
         $this->assertNoLeftovers();
     }
 
-    public function testAFailedExtractionPutsThePreviousCopyBack()
+    public function testAFailedExtractionPutsTheInstalledAppBack()
     {
         $this->expectExtractionToFailAfterTheApp();
 
@@ -127,11 +140,12 @@ class FlutterWebUpdateTest extends TestCase
             $this->assertStringNotContainsString('did not fail', $e->getMessage());
         }
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheOldApp();
+        $this->assertBuilds([self::OLD]);
         $this->assertNoLeftovers();
     }
 
-    public function testAFailedFirstInstallLeavesNoHalfCopy()
+    public function testAFailedFirstInstallLeavesNothingHalfInstalled()
     {
         File::deleteDirectory($this->base.'/public/flutter');
         File::deleteDirectory($this->base.'/resources/views/flutter');
@@ -142,101 +156,79 @@ class FlutterWebUpdateTest extends TestCase
         } catch (\Throwable) {
         }
 
+        $this->assertFileDoesNotExist($this->base.'/resources/views/flutter/index.html');
         $this->assertDirectoryDoesNotExist($this->base.'/public/flutter');
-        $this->assertDirectoryDoesNotExist($this->base.'/resources/views/flutter');
         $this->assertNoLeftovers();
     }
 
-    public function testAFirstFolderThatCantBeSetAsideIsExtractedOverAsBefore()
+    public function testFoldersThatCantBeRenamedDontMatter()
     {
+        // Nothing is renamed, so read-only parents are fine.
         $this->skipIfRoot();
         chmod($this->base.'/public', 0555);
-
-        $this->update()->apply($this->fullRelease());
-
-        $this->assertInstallIsTheNewOne();
-        $this->assertNoLeftovers();
-    }
-
-    public function testASecondFolderThatCantBeSetAsideUndoesTheFirst()
-    {
-        $this->skipIfRoot();
         chmod($this->base.'/resources/views', 0555);
-        $update = $this->update();
-
-        $update->stage($this->fullRelease());
-        $this->assertFalse($update->setAside());
-        $this->assertInstallIsTheOldOne();
-        $this->assertNoLeftovers();
-
-        $this->update()->apply($this->fullRelease());
-        $this->assertInstallIsTheNewOne();
-        $this->assertNoLeftovers();
-    }
-
-    public function testAnUpdateAfterOneInterruptedMidExtractionStartsFromThePreviousCopy()
-    {
-        $this->interruptAnUpdateMidExtraction();
 
         $this->update()->apply($this->fullRelease());
 
-        $this->assertInstallIsTheNewOne();
+        $this->assertServesTheNewApp();
+        $this->assertBuilds([self::NEW, self::OLD]);
         $this->assertNoLeftovers();
     }
 
-    public function testAFailedUpdateAfterAnInterruptedOnePutsTheWholePreviousCopyBack()
+    public function testAnUpdateAfterOneInterruptedMidExtractionGoesThrough()
     {
-        $this->interruptAnUpdateMidExtraction();
-        $this->expectExtractionToFailAfterTheApp();
+        // Died with the new build half-written and the page still the old one.
+        $this->interruptAfterSaving();
+        $this->writeFiles($this->base, ['public/flutter/'.self::NEW.'/main.dart.js' => 'half-written']);
 
-        try {
-            $this->update()->apply($this->failingRelease());
-        } catch (\Throwable) {
-        }
+        $this->update()->apply($this->fullRelease());
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheNewApp();
+        $this->assertBuilds([self::NEW, self::OLD]);
         $this->assertNoLeftovers();
     }
 
-    public function testAReleaseWithoutTheAppAfterAnInterruptedUpdateBringsThePreviousCopyBack()
+    public function testAPageHalfWrittenByAnInterruptedUpdateIsPutBack()
     {
-        $this->interruptAnUpdateMidExtraction();
+        $this->interruptAfterSaving();
+        $this->writeFiles($this->base, ['resources/views/flutter/index.html' => '<base href="__IN_BASE_HR']);
 
         $this->update()->apply($this->release('without', ['app/Kept.php' => 'new app code']));
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheOldApp();
         $this->assertNoLeftovers();
     }
 
-    public function testAnInterruptedRestoreIsFinishedByTheNextUpdate()
+    public function testAnUpdateInterruptedAfterItsPageLandedKeepsTheNewApp()
     {
-        // restore() died after deleting the live folder, before renaming .previous back.
-        rename($this->base.'/public/flutter', $this->base.'/public/flutter.previous');
+        // Died in finish(): the new page and build are whole, the saved page and old build remain.
+        $this->interruptAfterSaving();
+        $this->fullRelease()->extractTo($this->base, null, true);
 
         $this->update()->apply($this->release('without', ['app/Kept.php' => 'new app code']));
 
-        $this->assertInstallIsTheOldOne();
+        $this->assertServesTheNewApp();
         $this->assertNoLeftovers();
     }
 
-    public function testAnInterruptedFinishLeavesNothingBehind()
+    public function testAnUpdateInterruptedWhilePruningLeavesTheAppWorking()
     {
-        // finish() died while deleting a retired copy.
-        $this->writeFiles($this->base, ['public/flutter.discard/half.js' => 'half-deleted']);
+        // Died in finish() while deleting an older build.
+        $this->writeFiles($this->base, ['public/flutter/'.self::OLDER.'/half.js' => 'half-deleted']);
 
-        $this->update()->apply($this->release('without', ['app/Kept.php' => 'new app code']));
+        $this->update()->apply($this->fullRelease());
 
-        $this->assertInstallIsTheOldOne();
-        $this->assertNoLeftovers();
+        $this->assertServesTheNewApp();
+        $this->assertBuilds([self::NEW, self::OLD]);
     }
 
-    /** An update that set the copy aside, then died part-way through the release's app. */
-    private function interruptAnUpdateMidExtraction(): void
+    /** An update that saved the page, then died before finishing. */
+    private function interruptAfterSaving(): void
     {
         $update = $this->update();
-        $update->stage($this->fullRelease());
-        $this->assertTrue($update->setAside());
-        $this->writeFiles($this->base, ['public/flutter/'.self::NEW.'/flutter_bootstrap.js' => 'half-written']);
+        $this->assertTrue($update->stage($this->fullRelease()));
+        $update->save();
+        $this->assertFileExists($this->base.'/resources/views/flutter/index.html.previous');
     }
 
     /** The release's last entry (zzz/) can't be written, so extractTo throws after the app landed. */
@@ -265,28 +257,34 @@ class FlutterWebUpdateTest extends TestCase
         return "<!DOCTYPE html>\n<head>\n  <base href=\"__IN_BASE_HREF__{$id}/\">\n</head>\n";
     }
 
-    private function assertInstallIsTheOldOne(): void
+    private function assertServesTheOldApp(): void
     {
+        $this->assertSame($this->page(self::OLD), file_get_contents($this->base.'/resources/views/flutter/index.html'));
         $this->assertSame('old bootstrap', file_get_contents($this->base.'/public/flutter/'.self::OLD.'/flutter_bootstrap.js'));
         $this->assertSame('old', file_get_contents($this->base.'/public/flutter/'.self::OLD.'/old_only.js'));
-        $this->assertSame($this->page(self::OLD), file_get_contents($this->base.'/resources/views/flutter/index.html'));
-        $this->assertDirectoryDoesNotExist($this->base.'/public/flutter/'.self::NEW);
     }
 
-    private function assertInstallIsTheNewOne(): void
+    private function assertServesTheNewApp(): void
     {
-        $this->assertSame('new bootstrap', file_get_contents($this->base.'/public/flutter/'.self::NEW.'/flutter_bootstrap.js'));
         $this->assertSame($this->page(self::NEW), file_get_contents($this->base.'/resources/views/flutter/index.html'));
+        $this->assertSame('new bootstrap', file_get_contents($this->base.'/public/flutter/'.self::NEW.'/flutter_bootstrap.js'));
         $this->assertFileExists($this->base.'/public/flutter/'.self::NEW.'/assets/new.png');
+    }
+
+    /** @param array<string> $expected The build folders public/flutter should hold, and nothing else. */
+    private function assertBuilds(array $expected): void
+    {
+        $actual = array_values(array_diff((array) scandir($this->base.'/public/flutter'), ['.', '..']));
+        sort($actual);
+        sort($expected);
+        $this->assertSame($expected, $actual);
     }
 
     private function assertNoLeftovers(): void
     {
-        foreach (FlutterWebUpdate::DIRECTORIES as $directory) {
-            $this->assertDirectoryDoesNotExist($this->base.'/'.$directory.'.previous');
-            $this->assertDirectoryDoesNotExist($this->base.'/'.$directory.'.discard');
-        }
-
+        $views = $this->base.'/resources/views/flutter';
+        $this->assertFileDoesNotExist($views.'/index.html.previous');
+        $this->assertFileDoesNotExist($views.'/index.html.tmp');
         $this->assertDirectoryDoesNotExist($this->staging);
     }
 

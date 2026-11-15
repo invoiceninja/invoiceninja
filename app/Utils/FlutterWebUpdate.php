@@ -16,40 +16,40 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Self-update's handling of the Flutter web app (public/flutter and its boot page in
- * resources/views/flutter), which a release carries only when react_release.yml could add it.
- * The installed copy is kept until a new one has landed whole. apply() runs it all:
+ * Self-update's handling of the Flutter web app, which a release carries only when
+ * react_release.yml could add it: a build in public/flutter/<id>/, never changed once written,
+ * and its boot page, resources/views/flutter/index.html, whose base href names <id>
+ * (Ninja::flutterWebBuildId()). The page is the only thing that switches, so it is the only
+ * thing to protect. apply() runs it all:
  *
- * 1. recover():  a <folder>.previous left by an interrupted update is put back first.
- * 2. stage():    the release's copy is extracted to a staging folder and checked.
- * 3. setAside(): for a release that carries the app, the installed copy is renamed to
- *                <folder>.previous, so the release extracts into empty folders.
- * 4. The whole release is extracted.
- * 5. finish():   a copy that staged whole and landed whole replaces the previous one; otherwise
- *                the previous copy is put back. restore() puts it back when step 4 throws.
+ * 1. recover(): if the live page doesn't name a whole build, but the page an interrupted update
+ *    saved does, that page is put back.
+ * 2. stage():   the release's copy is extracted to a staging folder and checked.
+ * 3. save():    for a release that carries the app, a whole live page is copied to
+ *               index.html.previous.
+ * 4. The whole release is extracted: its build lands in a new folder beside the old one, and its
+ *    page over the old page.
+ * 5. finish():  a copy that staged whole and landed whole stays, with the previous build kept
+ *               for tabs still open on it and older ones deleted. Otherwise the saved page is
+ *               put back and whatever the release added is deleted. rollBack() does the same
+ *               when step 4 throws.
  *
- * The invariant that makes an interruption safe: a .previous, while it exists, is always the
- * whole installed copy. It is made by one rename and retired by another (to .discard) before it
- * is deleted.
- *
- * A release without the app, or with a broken one, leaves the installed copy as it is: the app
- * reads the server's x-minimum-client-version and asks to be updated if it is too old.
+ * Page writes are a rename of a written file, so a page is never half there. A release without
+ * the app, or with a broken one, leaves the installed app as it is: the app reads the server's
+ * x-minimum-client-version and asks to be updated if it is too old.
  */
 class FlutterWebUpdate
 {
-    /** Relative to the install, each replaced whole. */
-    public const DIRECTORIES = ['public/flutter', 'resources/views/flutter'];
+    public const BUILDS = 'public/flutter';
 
-    /** The boot page, which names the build's folder under public/flutter/ (Ninja::flutterWebBuildId()). */
     public const BOOT_PAGE = 'resources/views/flutter/index.html';
 
-    /** Whether the release has any of the app, and whether what it has staged whole. */
     private bool $carried = false;
 
     private bool $valid = false;
 
-    /** @var list<string> The folders setAside() took charge of: renamed, or absent. */
-    private array $setAside = [];
+    /** The live page save() found naming a whole build, kept in memory too in case the copy couldn't be written. */
+    private ?string $savedPage = null;
 
     public function __construct(private string $base, private string $staging)
     {
@@ -57,21 +57,25 @@ class FlutterWebUpdate
 
     /**
      * Extracts the release over the install. Throws only what the extraction throws, after
-     * putting the installed copy back.
+     * putting the installed app back.
      */
     public function apply(\PharData $release): void
     {
         $this->recover();
         $this->stage($release);
 
-        if ($this->carried) {
-            $this->setAside();
+        if (! $this->carried) {
+            $release->extractTo($this->base, null, true);
+
+            return;
         }
+
+        $this->save();
 
         try {
             $release->extractTo($this->base, null, true);
         } catch (\Throwable $e) {
-            $this->restore();
+            $this->rollBack();
 
             throw $e;
         }
@@ -79,22 +83,21 @@ class FlutterWebUpdate
         $this->finish();
     }
 
-    /** Puts back any .previous an interrupted update left, and clears its .discard. */
+    /** Puts back the page an interrupted update saved, if the live one doesn't name a whole build. */
     public function recover(): void
     {
-        foreach (self::DIRECTORIES as $directory) {
-            $live = $this->path($directory);
-            File::deleteDirectory($live.'.discard');
+        $saved = $this->path(self::BOOT_PAGE).'.previous';
 
-            if (is_dir($live.'.previous')) {
-                // The .previous is whole; the live folder may be half of a newer copy.
-                File::deleteDirectory($live);
-
-                if (! @rename($live.'.previous', $live)) {
-                    $this->warn("could not put {$directory}.previous back after an interrupted update");
-                }
-            }
+        if (! is_file($saved)) {
+            return;
         }
+
+        if ($this->buildOf($this->page()) === null && $this->buildOf((string) file_get_contents($saved)) !== null) {
+            $this->writePage((string) file_get_contents($saved));
+            $this->warn('put back the boot page an interrupted update saved');
+        }
+
+        @unlink($saved);
     }
 
     /**
@@ -104,13 +107,7 @@ class FlutterWebUpdate
     public function stage(\PharData $release): bool
     {
         $this->valid = false;
-        $this->carried = false;
-
-        foreach ([...self::DIRECTORIES, self::BOOT_PAGE] as $path) {
-            if (isset($release[$path])) {
-                $this->carried = true;
-            }
-        }
+        $this->carried = isset($release[self::BUILDS]) || isset($release[self::BOOT_PAGE]);
 
         if (! $this->carried) {
             return false;
@@ -120,9 +117,9 @@ class FlutterWebUpdate
 
         try {
             // A trailing slash extracts the folder's entries, with or without folder entries in the archive.
-            $release->extractTo($this->staging, array_map(fn (string $directory) => $directory.'/', self::DIRECTORIES), true);
+            $release->extractTo($this->staging, [self::BUILDS.'/', dirname(self::BOOT_PAGE).'/'], true);
 
-            if (! $this->whole($this->staging)) {
+            if ($this->buildOf((string) @file_get_contents($this->staging.'/'.self::BOOT_PAGE), $this->staging) === null) {
                 throw new \RuntimeException('its boot page names no build folder holding flutter_bootstrap.js');
             }
 
@@ -136,93 +133,110 @@ class FlutterWebUpdate
         return true;
     }
 
-    /**
-     * Returns false when a folder can't be renamed (its parent isn't writable): whatever was
-     * renamed is put back, and the release then extracts over the installed copy, as it always has.
-     */
-    public function setAside(): bool
+    /** Copies a live page that names a whole build to index.html.previous, for finish() or a later recover(). */
+    public function save(): void
     {
-        foreach (self::DIRECTORIES as $directory) {
-            $live = $this->path($directory);
+        $page = $this->page();
+        $this->savedPage = $this->buildOf($page) !== null ? $page : null;
 
-            if (is_dir($live) && ! @rename($live, $live.'.previous')) {
-                $this->warn("could not set {$directory} aside, so the release extracts over it");
-                $this->restore();
-
-                return false;
-            }
-
-            // Absent folders too: restore() must clear a half-extracted copy there.
-            $this->setAside[] = $directory;
+        if ($this->savedPage !== null) {
+            $this->atomicWrite($this->path(self::BOOT_PAGE).'.previous', $page);
         }
-
-        return true;
     }
 
     /**
-     * Puts each folder setAside() took back as it was, dropping whatever was extracted in its
-     * place. Never throws: it runs while another failure is being handled.
-     */
-    public function restore(): void
-    {
-        foreach ($this->setAside as $directory) {
-            $live = $this->path($directory);
-
-            File::deleteDirectory($live);
-
-            if (is_dir($live.'.previous') && ! @rename($live.'.previous', $live)) {
-                $this->warn("could not put {$directory} back; the next update will (it is in {$directory}.previous)");
-            }
-        }
-
-        $this->setAside = [];
-    }
-
-    /**
-     * After the release is extracted. Returns false when the previous copy was put back, because
+     * After the release is extracted. Returns false when the installed app was put back, because
      * the release's copy didn't stage whole or didn't land whole.
      */
     public function finish(): bool
     {
-        if ($this->setAside === []) {
+        $live = $this->buildOf($this->page());
+
+        if ($this->valid && $live !== null) {
+            $previous = $this->savedPage === null ? null : Ninja::flutterWebBuildId($this->savedPage);
+            @unlink($this->path(self::BOOT_PAGE).'.previous');
+            $this->prune(array_filter([$live, $previous]));
+
             return true;
         }
 
-        if (! $this->valid || ! $this->whole($this->base)) {
-            $this->restore();
+        $this->rollBack();
 
-            return false;
+        return false;
+    }
+
+    /** Puts the saved page back (or, with none, clears the half-installed app) and drops what the release added. */
+    public function rollBack(): void
+    {
+        if ($this->savedPage !== null) {
+            $this->writePage($this->savedPage);
+            $this->prune([(string) Ninja::flutterWebBuildId($this->savedPage)]);
+        } else {
+            // There was no whole app before this update, so nothing here is worth keeping.
+            @unlink($this->path(self::BOOT_PAGE));
+            File::deleteDirectory($this->path(self::BUILDS));
         }
 
-        foreach ($this->setAside as $directory) {
-            $previous = $this->path($directory).'.previous';
+        @unlink($this->path(self::BOOT_PAGE).'.previous');
+    }
 
-            if (! is_dir($previous)) {
+    /** The page's build folder, if the page names one that holds flutter_bootstrap.js under $root. */
+    private function buildOf(string $page, ?string $root = null): ?string
+    {
+        $id = Ninja::flutterWebBuildId($page);
+        $root ??= $this->base;
+
+        return $id !== null && is_file("{$root}/".self::BUILDS."/{$id}/flutter_bootstrap.js") ? $id : null;
+    }
+
+    private function page(): string
+    {
+        $page = $this->path(self::BOOT_PAGE);
+
+        return is_file($page) ? (string) file_get_contents($page) : '';
+    }
+
+    private function writePage(string $contents): void
+    {
+        $this->atomicWrite($this->path(self::BOOT_PAGE), $contents);
+    }
+
+    /** Written beside the target, then renamed over it: a reader sees the old file or the new one. */
+    private function atomicWrite(string $path, string $contents): void
+    {
+        File::ensureDirectoryExists(dirname($path));
+        $temporary = $path.'.tmp';
+
+        if (file_put_contents($temporary, $contents) === false || ! @rename($temporary, $path)) {
+            @unlink($temporary);
+            $this->warn('could not write '.basename(dirname($path)).'/'.basename($path));
+        }
+    }
+
+    /**
+     * Deletes every build folder (and stray file) in public/flutter but $keep, and anything in
+     * resources/views/flutter but the page and its saved copy.
+     *
+     * @param array<string> $keep
+     */
+    private function prune(array $keep): void
+    {
+        $this->deleteAllBut($this->path(self::BUILDS), $keep);
+        $this->deleteAllBut(dirname($this->path(self::BOOT_PAGE)), [basename(self::BOOT_PAGE), basename(self::BOOT_PAGE).'.previous']);
+    }
+
+    /** @param array<string> $keep Names in $folder to leave; dotfiles included in the rest. */
+    private function deleteAllBut(string $folder, array $keep): void
+    {
+        foreach (is_dir($folder) ? (array) scandir($folder) : [] as $name) {
+            if (in_array($name, ['.', '..', ...$keep], true)) {
                 continue;
             }
 
-            // Retired by one rename first, so a .previous never exists half-deleted.
-            if (@rename($previous, $this->path($directory).'.discard')) {
-                File::deleteDirectory($this->path($directory).'.discard');
-            } else {
-                // Left in place, the next update's recover() would bring the old copy back.
-                $this->warn("could not retire {$directory}.previous, so it is deleted in place");
-                File::deleteDirectory($previous);
-            }
+            is_dir("{$folder}/{$name}") && ! is_link("{$folder}/{$name}")
+                ? File::deleteDirectory("{$folder}/{$name}")
+                : @unlink("{$folder}/{$name}");
         }
-
-        $this->setAside = [];
-
-        return true;
-    }
-
-    /** What Ninja::hasFlutterWebBuild() asks of an install, asked of a folder laid out like one. */
-    private function whole(string $root): bool
-    {
-        $page = $root.'/'.self::BOOT_PAGE;
-        $id = is_file($page) ? Ninja::flutterWebBuildId((string) file_get_contents($page)) : null;
-
-        return $id !== null && is_file("{$root}/public/flutter/{$id}/flutter_bootstrap.js");
     }
 
     private function path(string $relative): string
