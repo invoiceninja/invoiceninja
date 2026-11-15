@@ -51,6 +51,11 @@ class Ninja
      */
     public static function flutterWebBuildId(string $page): ?string
     {
+        // Exactly one base tag, as react_release.yml checks: with two, a browser and a regex could disagree.
+        if (preg_match_all('#<base[^a-z0-9_-]#i', $page) !== 1) {
+            return null;
+        }
+
         return preg_match('#<base href="__IN_BASE_HREF__([0-9a-f]{8,64})/">#', $page, $match) === 1 ? $match[1] : null;
     }
 
