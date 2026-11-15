@@ -25,6 +25,7 @@ use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
 use App\Repositories\UserRepository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Session;
 use App\Http\Middleware\PasswordProtection;
 use Illuminate\Validation\ValidationException;
@@ -47,6 +48,8 @@ class UserTest extends TestCase
             ThrottleRequests::class,
             PasswordProtection::class
         );
+
+        Bus::fake();
 
         // $this->makeTestData();
 
@@ -86,6 +89,8 @@ class UserTest extends TestCase
             'settings' => $settings,
         ]);
 
+        config(['ninja.ninja_default_company_id' => $company->id]);
+        
         // $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
         // $cu->is_owner = true;
         // $cu->is_admin = true;

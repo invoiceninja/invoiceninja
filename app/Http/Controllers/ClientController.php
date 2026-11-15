@@ -98,11 +98,11 @@ class ClientController extends BaseController
      */
     public function index(ClientFilters $filters)
     {
-        set_time_limit(45);
+        return $this->withinTimeLimit(45, function () use ($filters) {
+            $clients = Client::filter($filters)->with('tags');
 
-        $clients = Client::filter($filters)->with('tags');
-
-        return $this->listResponse($clients);
+            return $this->listResponse($clients);
+        });
     }
 
     /**

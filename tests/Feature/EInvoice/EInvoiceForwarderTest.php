@@ -4,6 +4,7 @@ namespace Tests\Feature\EInvoice;
 
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Invoice;
 use Tests\TestCase;
 use App\DataMapper\CompanySettings;
 use App\Services\Email\Email;
@@ -104,6 +105,24 @@ class EInvoiceForwarderTest extends TestCase
         }
     }
 
+    public function testHostedSelfBilledInvoiceForwardsToInvoiceEmail(): void
+    {
+        $this->setForwardingEmails('invoice-forward@example.test', 'expense-forward@example.test');
+        $job = $this->makeReceiveDocumentJob();
+        $this->setPrivateProperty($job, 'entity', new Invoice());
+        Bus::fake();
+
+        $this->invokePrivateMethod($job, 'store');
+
+        Bus::assertDispatched(Email::class, function (Email $job) {
+            return $this->hasRecipient($job, 'invoice-forward@example.test')
+                && $job->email_object->attachments[0]['name'] === 'received-document-guid.xml';
+        });
+        Bus::assertNotDispatched(Email::class, function (Email $job) {
+            return $this->hasRecipient($job, 'expense-forward@example.test');
+        });
+    }
+
     private function setForwardingEmails(string $invoice_email, string $expense_email): void
     {
         $settings = $this->company->settings;
@@ -145,7 +164,7 @@ class EInvoiceForwarderTest extends TestCase
 
         $this->setPrivateProperty($job, 'hosted_platform', true);
         $this->setPrivateProperty($job, 'company', $this->company);
-        $this->setPrivateProperty($job, 'expense', $expense);
+        $this->setPrivateProperty($job, 'entity', $expense);
         $this->setPrivateProperty($job, 'original_base64_xml', base64_encode('<Invoice>hosted</Invoice>'));
 
         return $job;

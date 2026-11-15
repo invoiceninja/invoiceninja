@@ -642,6 +642,11 @@ class Invoice extends BaseModel
         });
     }
 
+    public function isSelfBilled(): bool
+    {
+        return trim((string) data_get($this->e_invoice, 'Invoice.InvoiceTypeCode.value')) === '389';
+    }
+
     /**
      * Determines whether automatic tax calculation
      * should be blocked from mutating this invoice.
@@ -654,6 +659,10 @@ class Invoice extends BaseModel
      */
     public function isTaxImmutable(): bool
     {
+        if ($this->isSelfBilled()) {
+            return true;
+        }
+
         return in_array($this->status_id, [
             self::STATUS_PAID,
             self::STATUS_CANCELLED,

@@ -16,6 +16,8 @@ use App\Http\Requests\Request;
 
 class ImportRequest extends Request
 {
+    use ValidatesClientImportLimit;
+
     /**
      * Determine if the user is authorized to make this request.
      *

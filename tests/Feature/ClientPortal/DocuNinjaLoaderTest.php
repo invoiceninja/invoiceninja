@@ -16,10 +16,20 @@ use Tests\TestCase;
 use Livewire\Livewire;
 use Tests\MockAccountData;
 use App\DataMapper\InvoiceSync;
+use App\DataMapper\QuoteSync;
+use App\DataMapper\PurchaseOrderSync;
+use App\Repositories\InvoiceRepository;
+use App\Repositories\QuoteRepository;
+use App\Repositories\PurchaseOrderRepository;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Event;
 use App\Livewire\Flow2\DocuNinjaLoader;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use InvoiceNinja\AdminApi\Observers\InvoiceObserver;
+use InvoiceNinja\AdminApi\Observers\QuoteObserver;
+use InvoiceNinja\AdminApi\Observers\PurchaseOrderObserver;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Regression tests for the DocuNinja signable failure path.
@@ -44,7 +54,21 @@ class DocuNinjaLoaderTest extends TestCase
 
         $this->makeTestData();
 
-        config(['ninja.docuninja_api_url' => 'https://api.docuninja.test']);
+        foreach ([$this->company, $this->client->group_settings] as $settings_entity) {
+            $settings = $settings_entity->settings;
+            $settings->company_logo = '';
+            $settings_entity->settings = $settings;
+            $settings_entity->saveQuietly();
+        }
+
+        Http::preventStrayRequests();
+
+        config([
+            'ninja.docuninja_api_url' => 'https://api.docuninja.test',
+            'ninja.pdf_generator' => 'simulator',
+            'ninja.invoiceninja_hosted_pdf_generation' => false,
+            'ninja.phantomjs_pdf_generation' => false,
+        ]);
     }
 
     /**
@@ -76,6 +100,183 @@ class DocuNinjaLoaderTest extends TestCase
         if (! class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class)) {
             $this->markTestSkipped('invoiceninja/admin-api is not installed');
         }
+    }
+
+    public static function entityTypes(): array
+    {
+        return [['invoice'], ['quote'], ['purchase_order']];
+    }
+
+    private function linkedInvitation(string $entity_type, bool $dirty = false)
+    {
+        $entity = $this->{$entity_type};
+        $invitation = $entity->invitations->first();
+        $invitation->can_sign = true;
+        $invitation->saveQuietly();
+
+        $sync = match ($entity_type) {
+            'invoice' => new InvoiceSync(),
+            'quote' => new QuoteSync(),
+            'purchase_order' => new PurchaseOrderSync(),
+        };
+        $sync->qb_id = 'QB-123';
+        if ($entity_type !== 'purchase_order') {
+            $sync->qb_sync_token = '7';
+        }
+        $sync->dn_dirty = $dirty;
+        $sync->addInvitation($invitation->key, 'document-uuid', 'invitation-uuid', 'stored-signature');
+        $entity->sync = $sync;
+        $entity->saveQuietly();
+
+        return $invitation;
+    }
+
+    #[DataProvider('entityTypes')]
+    public function testDocumentUpdatesMarkExistingSigningPdfDirty(string $entity_type): void
+    {
+        $this->skipWithoutAdminApi();
+        $this->linkedInvitation($entity_type);
+        $entity = $this->{$entity_type};
+        $observer = match ($entity_type) {
+            'invoice' => new InvoiceObserver(),
+            'quote' => new QuoteObserver(),
+            'purchase_order' => new PurchaseOrderObserver(),
+        };
+        $repository = match ($entity_type) {
+            'invoice' => new InvoiceRepository(),
+            'quote' => new QuoteRepository(),
+            'purchase_order' => new PurchaseOrderRepository(),
+        };
+        $invitations = $entity->sync->invitations;
+        Http::fake();
+
+        // Exercise the repository's manually emitted update event without waiting
+        // for the test transaction to commit before invoking the observer.
+        Event::listen('eloquent.updated: '.get_class($entity), fn ($updated) => $observer->updated($updated));
+        $repository->save(['public_notes' => 'Revised scope'], $entity);
+
+        $entity->refresh();
+        $this->assertTrue($entity->sync->dn_dirty);
+        $this->assertSame($invitations, $entity->sync->invitations);
+        $this->assertSame('QB-123', $entity->sync->qb_id);
+        Http::assertNothingSent();
+    }
+
+    #[DataProvider('entityTypes')]
+    public function testCompletedAndUnlinkedDocumentsAreNotMarkedDirty(string $entity_type): void
+    {
+        $this->skipWithoutAdminApi();
+        $this->linkedInvitation($entity_type);
+        $entity = $this->{$entity_type};
+        $observer = match ($entity_type) {
+            'invoice' => new InvoiceObserver(),
+            'quote' => new QuoteObserver(),
+            'purchase_order' => new PurchaseOrderObserver(),
+        };
+        $sync = $entity->sync;
+        $sync->dn_completed = true;
+        $entity->sync = $sync;
+        $entity->saveQuietly();
+
+        $observer->updated($entity);
+        $this->assertFalse($entity->fresh()->sync->dn_dirty);
+
+        $sync->dn_completed = false;
+        $sync->invitations = [];
+        $entity->sync = $sync;
+        $entity->saveQuietly();
+
+        $observer->updated($entity);
+        $this->assertFalse($entity->fresh()->sync->dn_dirty);
+    }
+
+    #[DataProvider('entityTypes')]
+    public function testDirtyStoredInvitationRefreshesPdfWithoutRewritingCredentials(string $entity_type): void
+    {
+        $this->skipWithoutAdminApi();
+        $invitation = $this->linkedInvitation($entity_type, true);
+        $entity = $this->{$entity_type};
+        $invitations = $entity->sync->invitations;
+        Http::fake(['*refresh_ninja_pdf' => Http::response(['success' => true])]);
+
+        Livewire::test(DocuNinjaLoader::class, [
+            'invitation_id' => $invitation->id,
+            '_key' => $this->bootContext($entity_type),
+        ])->call('loadDocuNinjaData')
+            ->assertDispatched('docuninja-loader-ready')
+            ->assertNotDispatched('docuninja-signature-captured')
+            ->assertSet('isReady', true)
+            ->assertSet('error', null);
+
+        $entity->refresh();
+        $this->assertFalse($entity->sync->dn_dirty);
+        $this->assertSame($invitations, $entity->sync->invitations);
+        $this->assertSame('QB-123', $entity->sync->qb_id);
+        if ($entity_type !== 'purchase_order') {
+            $this->assertSame('7', $entity->sync->qb_sync_token);
+        }
+        Http::assertSentCount(1);
+        Http::assertSent(fn ($request) => $request['entity_type'] === $entity_type
+            && $request['entity_id'] === $entity->hashed_id
+            && $request['company_key'] === $entity->company->company_key
+            && $request['document_id'] === 'document-uuid'
+            && strlen(base64_decode($request['file'], true)) > 0);
+    }
+
+    #[DataProvider('entityTypes')]
+    public function testRefreshFailureKeepsFlagAndPreventsSigningUntilRetry(string $entity_type): void
+    {
+        $this->skipWithoutAdminApi();
+        $invitation = $this->linkedInvitation($entity_type, true);
+        $entity = $this->{$entity_type};
+        $invitations = $entity->sync->invitations;
+        Http::fake(['*refresh_ninja_pdf' => Http::sequence()->pushStatus(503)->push(['success' => true])]);
+
+        $component = Livewire::test(DocuNinjaLoader::class, [
+            'invitation_id' => $invitation->id,
+            '_key' => $this->bootContext($entity_type),
+        ])->call('loadDocuNinjaData')
+            ->assertNotDispatched('docuninja-loader-ready')
+            ->assertNotDispatched('docuninja-signature-captured')
+            ->assertSet('isReady', false);
+
+        $this->assertTrue($entity->fresh()->sync->dn_dirty);
+        $this->assertSame($invitations, $entity->fresh()->sync->invitations);
+
+        $component->call('retryLoading')
+            ->assertDispatched('docuninja-loader-ready')
+            ->assertSet('isReady', true)
+            ->assertSet('error', null);
+
+        $this->assertFalse($entity->fresh()->sync->dn_dirty);
+        Http::assertSentCount(2);
+    }
+
+    #[DataProvider('entityTypes')]
+    public function testAnEditDuringRefreshLeavesFlagPendingWithoutBlockingSigning(string $entity_type): void
+    {
+        $this->skipWithoutAdminApi();
+        $invitation = $this->linkedInvitation($entity_type, true);
+        $entity = $this->{$entity_type};
+        Http::fake(function () use ($entity) {
+            $entity->newQuery()->where('id', $entity->id)->update([
+                'public_notes' => 'Edited during refresh',
+                'updated_at' => now()->addMinute()->format('Y-m-d H:i:s.u'),
+            ]);
+
+            return Http::response(['success' => true]);
+        });
+
+        Livewire::test(DocuNinjaLoader::class, [
+            'invitation_id' => $invitation->id,
+            '_key' => $this->bootContext($entity_type),
+        ])->call('loadDocuNinjaData')
+            ->assertDispatched('docuninja-loader-ready')
+            ->assertSet('isReady', true)
+            ->assertSet('error', null);
+
+        $this->assertTrue($entity->fresh()->sync->dn_dirty);
+        $this->assertSame('Edited during refresh', $entity->fresh()->public_notes);
     }
 
     /**
@@ -148,11 +349,15 @@ class DocuNinjaLoaderTest extends TestCase
      * The happy path must still persist the invitation and hand off to the
      * DocuNinja component.
      */
-    public function testSuccessfulSignablePersistsInvitationAndSignalsReady()
+    #[DataProvider('entityTypes')]
+    public function testSuccessfulSignablePersistsInvitationAndSignalsReady(string $entity_type): void
     {
         $this->skipWithoutAdminApi();
 
-        $invitation = $this->signingInvitation();
+        $entity = $this->{$entity_type};
+        $invitation = $entity->invitations->first();
+        $invitation->can_sign = true;
+        $invitation->saveQuietly();
 
         Http::fake([
             '*signable_entity*' => Http::response([
@@ -161,12 +366,12 @@ class DocuNinjaLoaderTest extends TestCase
                 'sig' => 'signature-payload',
                 'success' => true,
                 'error' => null,
-            ], 200),
+            ], 201),
         ]);
 
         Livewire::test(DocuNinjaLoader::class, [
             'invitation_id' => $invitation->id,
-            '_key' => $this->bootContext(),
+            '_key' => $this->bootContext($entity_type),
         ])
             ->call('loadDocuNinjaData')
             ->assertDispatched('docuninja-loader-ready')
@@ -174,14 +379,17 @@ class DocuNinjaLoaderTest extends TestCase
             ->assertSet('isReady', true)
             ->assertSet('error', null);
 
-        $this->invoice->refresh();
+        $entity->refresh();
 
-        $stored = $this->invoice->sync->getInvitation($invitation->key);
+        $stored = $entity->sync->getInvitation($invitation->key);
 
         $this->assertNotNull($stored);
         $this->assertSame('doc-uuid-1', $stored['dn_id']);
         $this->assertSame('doc-invitation-uuid-1', $stored['dn_invitation_id']);
         $this->assertSame('signature-payload', $stored['dn_sig']);
+        $this->assertCount(1, $entity->sync->invitations);
+        $this->assertFalse($entity->sync->dn_dirty);
+        Http::assertSentCount(1);
     }
 
     /**
@@ -195,7 +403,7 @@ class DocuNinjaLoaderTest extends TestCase
     {
         $invitation = $this->signingInvitation();
 
-        $sync = new InvoiceSync();
+        $sync = new InvoiceSync(dn_dirty: true);
         $sync->addInvitation($invitation->key, 'doc-uuid-5', 'doc-invitation-uuid-5', 'captured-signature');
         $sync->dn_completed = true;
         $this->invoice->sync = $sync;

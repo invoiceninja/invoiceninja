@@ -25,7 +25,7 @@ class SchedulerTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($scheduler->id),
             'name' => (string) $scheduler->name,
             'frequency_id' => (string) $scheduler->frequency_id,
-            'next_run' => $scheduler->next_run_client->format('Y-m-d'),
+            'next_run' => $scheduler->next_run_client?->format('Y-m-d'),
             'template' => (string) $scheduler->template,
             'is_paused' => (bool) $scheduler->is_paused,
             'parameters' => (array) $scheduler->parameters,

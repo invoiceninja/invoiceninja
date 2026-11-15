@@ -13,12 +13,20 @@
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints\Valid;
+use InvoiceNinja\EInvoice\Models\Peppol\DeliveryType\Delivery;
 use InvoiceNinja\EInvoice\Models\Peppol\PeriodType\InvoicePeriod;
 
 class InvoiceLevel
 {
     /** @var InvoicePeriod[] */
+    #[Valid]
     #[SerializedName('cac:InvoicePeriod')]
     public array $InvoicePeriod;
+
+    /** @var Delivery[] */
+    #[Valid]
+    #[SerializedName('cac:Delivery')]
+    public array $Delivery;
 
 }

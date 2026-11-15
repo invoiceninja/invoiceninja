@@ -372,7 +372,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data = null;
 
 
-        $this->export_data['payments'] = $this->company->payments()->orderBy('number', 'DESC')->cursor()->map(function ($payment) {
+        $this->export_data['payments'] = $this->company->payments()->with('paymentables')->orderBy('number', 'DESC')->lazy(100)->map(function ($payment) {
             $payment = $this->transformBasicEntities($payment);
             $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id', 'transaction_id']);
 

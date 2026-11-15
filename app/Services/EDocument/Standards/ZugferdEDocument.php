@@ -93,6 +93,7 @@ class ZugferdEDocument extends AbstractService
             ->setRoutingNumber()
             ->setIdNumber()
             ->setDeliveryAddress()
+            ->setDocumentServiceDates()
             ->setDocumentTaxes()        // 1. First set taxes
             ->setPaymentMeans()         // 2. Then payment means
             ->setPaymentTerms()         // 3. Then payment terms
@@ -586,9 +587,28 @@ class ZugferdEDocument extends AbstractService
             );
         }
 
-        if (isset($this->document->e_invoice->Invoice->Delivery[0]->ActualDeliveryDate)) {
-            $this->xdocument->setDocumentSupplyChainEvent(new \DateTime($this->document->e_invoice->Invoice->Delivery[0]->ActualDeliveryDate));
+        return $this;
+    }
+
+    private function setDocumentServiceDates(): self
+    {
+        if ($period = $this->document->e_invoice->Invoice->InvoicePeriod[0] ?? null) {
+            $start_date = $period->StartDate->date ?? $period->StartDate ?? null;
+            $end_date = $period->EndDate->date ?? $period->EndDate ?? null;
+
+            if (!empty($start_date) || !empty($end_date)) {
+                $this->xdocument->setDocumentBillingPeriod(
+                    !empty($start_date) ? new DateTime($start_date) : null,
+                    !empty($end_date) ? new DateTime($end_date) : null,
+                    null
+                );
+
+                return $this;
+            }
         }
+
+        $service_date = $this->document->e_invoice->Invoice->Delivery[0]->ActualDeliveryDate ?? null;
+        $this->xdocument->setDocumentSupplyChainEvent(isset($service_date) ? new DateTime($service_date) : $this->getDocumentDate());
 
         return $this;
     }
@@ -613,7 +633,6 @@ class ZugferdEDocument extends AbstractService
         $company_tax_registration = $this->setCompanyTaxRegistration();
 
         $this->xdocument
-            ->setDocumentSupplyChainEvent($this->getDocumentDate())
             ->setDocumentSeller($this->company->getSetting('name'))
             ->setDocumentSellerAddress($this->company->getSetting("address1"), $this->company->getSetting("address2"), "", $this->company->getSetting("postal_code"), $this->company->getSetting("city"), $this->company->country()->iso_3166_2, $this->company->getSetting("state"))
             ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $user_or_company_phone, "", $this->document->user->email)

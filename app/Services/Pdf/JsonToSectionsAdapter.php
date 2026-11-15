@@ -1107,6 +1107,18 @@ class JsonToSectionsAdapter
 
                 // no break
             case 'tax_rate1':
+                $lineTaxLabel = LineTaxLabelResolver::resolve(
+                    $item,
+                    $this->service->company->country()->iso_3166_2,
+                    fn (float $rate): string => $this->service->config->formatValueNoTrailingZeroes($rate)
+                );
+
+                if ($lineTaxLabel !== null) {
+                    return $lineTaxLabel;
+                }
+
+                return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';
+
             case 'tax_rate2':
             case 'tax_rate3':
                 return $this->service->config->formatValueNoTrailingZeroes((float) $value) . '%';

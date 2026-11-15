@@ -142,4 +142,35 @@ class StorecoveRoutingServicesTest extends TestCase
             ],
         ], $deliveryMap->all()['BE']);
     }
+
+    public function testFinlandAllowsEitherIdentifierFieldWithoutRequiringAnOperatorOrVat(): void
+    {
+        $rules = new StorecoveRoutingRules([
+            'FI' => ['B+G', 'FI:OVT2', 'FI:VAT', 'FI:OVT2'],
+        ]);
+        $required_fields = new StorecoveRequiredClientFields($rules);
+        $delivery_map = new StorecoveDeliveryMap($rules, $required_fields);
+
+        foreach (['business', 'government'] as $classification) {
+            $this->assertSame([], $required_fields->for('FI', $classification));
+            $this->assertSame([], $delivery_map->all()['FI']['required_fields'][$classification]);
+            $this->assertTrue($delivery_map->all()['FI']['classifications'][$classification]);
+        }
+
+        $this->assertFalse($delivery_map->all()['FI']['classifications']['individual']);
+    }
+
+    public function testAddingOvt2PreservesLegacyOvtValidation(): void
+    {
+        $einvoice_config = require dirname(__DIR__, 3) . '/config/einvoice.php';
+        $validator = new StorecoveIdentifierValidator($einvoice_config['identifier_regex']);
+        $resolver = new StorecoveSchemeResolver($einvoice_config['iso6523_map']);
+
+        $this->assertFalse($validator->validFormat('FI:OVT', 'NOTANOVT'));
+        $this->assertTrue($validator->validFormat('FI:OVT', '003712345678'));
+        $this->assertTrue($validator->validFormat('FI:OVT2', '003712345678TST01'));
+        $this->assertFalse($validator->validFormat('FI:OVT2', '123456789012'));
+        $this->assertSame('0037', $resolver->iso6523('FI:OVT'));
+        $this->assertSame('0216', $resolver->iso6523('FI:OVT2'));
+    }
 }

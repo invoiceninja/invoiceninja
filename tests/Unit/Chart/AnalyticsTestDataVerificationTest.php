@@ -67,11 +67,63 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->cs = new ChartService($this->analyticsCompany, $this->analyticsUser, true);
     }
 
+    /**
+     * Verify the complete dataset in one transaction so process isolation does
+     * not rebuild the analytics fixture for every read-only assertion group.
+     */
+    public function testAnalyticsDataset(): void
+    {
+        $this->assertInvoiceCounts();
+        $this->assertEveryMonthHasThreeInvoices();
+        $this->assertAllInvoicesHaveDueDates();
+        $this->assertPaymentDelayChartIsNotFlat();
+        $this->assertLatePaymentRateChartIsNotFlat();
+        $this->assertOutstandingChartIsNonZeroAndGrowing();
+        $this->assertOutstandingTotalMatchesSentInvoiceBalances();
+        $this->assertCompanyPaymentSummaryExactValues();
+        $this->assertCurrencyParityTotals();
+        $this->assertCurrencyParityAnalyticsTotals();
+        $this->assertCurrencyParityChartSummary();
+        $this->assertCurrencyParityAnalyticsSummary();
+        $this->assertInvoicedTotal();
+        $this->assertRevenueTotal();
+        $this->assertExpenseTotal();
+        $this->assertMrrAndArr();
+        $this->assertRecurringExpenses();
+        $this->assertRecurringInvoiceStatuses();
+        $this->assertRecurringExpenseStatuses();
+        $this->assertQuoteCounts();
+        $this->assertQuotePipelineChartHasData();
+        $this->assertExpenseCounts();
+        $this->assertExpensesSpreadAcrossAllMonths();
+        $this->assertProjectCounts();
+        $this->assertProjectCurrentHoursMatchTaskDurations();
+        $this->assertTasksHaveStatusAndTimeLogs();
+        $this->assertTaskStatusDistribution();
+        $this->assertLargeProjectVisualizationDatasetExists();
+        $this->assertProjectAnalyticsEndpoint();
+        $this->assertAllChartEndpointsProduceData();
+        $this->assertPerCurrencyChartEndpointsProduceData();
+        $this->assertPaymentablesTimestampsAreBackdated();
+        $this->assertAgingBucketsHaveData();
+        $this->assertAgingTotalMatchesOutstandingTotal();
+        $this->assertAgingResponseJsonStructure();
+        $this->assertAgingBucketsCurrencyParity();
+        $this->assertAllPaymentDatesAreInCurrentYear();
+        $this->assertAllInvoiceDatesAreInCurrentYear();
+        $this->assertClientPaymentAnalyticsEndpoint();
+        $this->assertSomeInvoicesLinkedToProjects();
+        $this->assertSomeExpensesLinkedToProjects();
+        $this->assertDoneTasksAreLinkedToProjectInvoices();
+        $this->assertSomeExpensesAreLinkedToInvoices();
+        $this->assertProjectAnalyticsReflectsInvoicedAndUnbilledTasks();
+    }
+
     // =======================================================================
     // INVOICE COUNTS & STATUSES
     // =======================================================================
 
-    public function testInvoiceCounts(): void
+    private function assertInvoiceCounts(): void
     {
         $invoices = Invoice::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -90,7 +142,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEquals(15, $draft, '15 draft (3 baseline + 12 large project invoices)');
     }
 
-    public function testEveryMonthHasThreeInvoices(): void
+    private function assertEveryMonthHasThreeInvoices(): void
     {
         $year = now()->year;
         $invoices = Invoice::where('company_id', $this->analyticsCompany->id)
@@ -106,7 +158,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testAllInvoicesHaveDueDates(): void
+    private function assertAllInvoicesHaveDueDates(): void
     {
         $withoutDue = Invoice::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -120,7 +172,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // PAYMENT DELAY — VARYING PER MONTH (NOT FLAT)
     // =======================================================================
 
-    public function testPaymentDelayChartIsNotFlat(): void
+    private function assertPaymentDelayChartIsNotFlat(): void
     {
         $summary = $this->cs->analytics_summary($this->startDate, $this->endDate);
         $delayPoints = $summary[999]['payment_delay'];
@@ -145,7 +197,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // LATE PAYMENT RATE — VARYING PER MONTH (NOT FLAT)
     // =======================================================================
 
-    public function testLatePaymentRateChartIsNotFlat(): void
+    private function assertLatePaymentRateChartIsNotFlat(): void
     {
         $summary = $this->cs->analytics_summary($this->startDate, $this->endDate);
         $latePoints = $summary[999]['late_payment_rate'];
@@ -166,7 +218,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // OUTSTANDING — NON-ZERO, GROWING, IN EVERY MONTH
     // =======================================================================
 
-    public function testOutstandingChartIsNonZeroAndGrowing(): void
+    private function assertOutstandingChartIsNonZeroAndGrowing(): void
     {
         $chart = $this->cs->chart_summary($this->startDate, $this->endDate);
         $outstanding = $chart[999]['outstanding'];
@@ -178,7 +230,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertGreaterThan($values[0], end($values), 'Outstanding should grow cumulatively');
     }
 
-    public function testOutstandingTotalMatchesSentInvoiceBalances(): void
+    private function assertOutstandingTotalMatchesSentInvoiceBalances(): void
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
         $outstandingAmount = (float) ($totals[999]['outstanding']->amount ?? 0);
@@ -198,7 +250,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // COMPANY PAYMENT SUMMARY — EXACT VALUES
     // =======================================================================
 
-    public function testCompanyPaymentSummaryExactValues(): void
+    private function assertCompanyPaymentSummaryExactValues(): void
     {
         $totals = $this->cs->analytics_totals($this->startDate, $this->endDate);
         $pa = $totals[999]['payment_analytics'];
@@ -215,7 +267,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // CURRENCY PARITY — USD vs ALL must match for single-currency data
     // =======================================================================
 
-    public function testCurrencyParityTotals(): void
+    private function assertCurrencyParityTotals(): void
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
 
@@ -237,7 +289,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEqualsWithDelta($usdExpenses, $allExpenses, 0.01, 'USD and ALL expenses must match');
     }
 
-    public function testCurrencyParityAnalyticsTotals(): void
+    private function assertCurrencyParityAnalyticsTotals(): void
     {
         $at = $this->cs->analytics_totals($this->startDate, $this->endDate);
 
@@ -276,7 +328,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         );
     }
 
-    public function testCurrencyParityChartSummary(): void
+    private function assertCurrencyParityChartSummary(): void
     {
         $chart = $this->cs->chart_summary($this->startDate, $this->endDate);
 
@@ -286,7 +338,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertCount(count($chart[1]['expenses']), $chart[999]['expenses'], 'USD and ALL expense chart point count must match');
     }
 
-    public function testCurrencyParityAnalyticsSummary(): void
+    private function assertCurrencyParityAnalyticsSummary(): void
     {
         $summary = $this->cs->analytics_summary($this->startDate, $this->endDate);
 
@@ -315,7 +367,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // TOTALS — INVOICED, PAID, EXPENSES (exact values)
     // =======================================================================
 
-    public function testInvoicedTotal(): void
+    private function assertInvoicedTotal(): void
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
         $invoiced = (float) ($totals[999]['invoices']->invoiced_amount ?? 0);
@@ -336,7 +388,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEqualsWithDelta($expected, $invoiced, 0.01, 'Invoiced total should match non-draft invoice aggregate');
     }
 
-    public function testRevenueTotal(): void
+    private function assertRevenueTotal(): void
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
         $revenue = (float) ($totals[999]['revenue']->paid_to_date ?? 0);
@@ -358,7 +410,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEqualsWithDelta($expected, $revenue, 0.01, 'Revenue total should match aggregate payment query');
     }
 
-    public function testExpenseTotal(): void
+    private function assertExpenseTotal(): void
     {
         $totals = $this->cs->totals($this->startDate, $this->endDate);
         $expenses = (float) ($totals[999]['expenses']->amount ?? 0);
@@ -425,7 +477,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // RECURRING — MRR/ARR & RECURRING EXPENSES
     // =======================================================================
 
-    public function testMrrAndArr(): void
+    private function assertMrrAndArr(): void
     {
         $totals = $this->cs->analytics_totals($this->startDate, $this->endDate);
         $mrr = $totals[999]['mrr'];
@@ -434,7 +486,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEquals(19800.00, (float) $mrr->arr, 'ARR = $19,800');
     }
 
-    public function testRecurringExpenses(): void
+    private function assertRecurringExpenses(): void
     {
         $totals = $this->cs->analytics_totals($this->startDate, $this->endDate);
         $re = $totals[999]['recurring_expenses'];
@@ -444,7 +496,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEquals(3, (int) $re->count);
     }
 
-    public function testRecurringInvoiceStatuses(): void
+    private function assertRecurringInvoiceStatuses(): void
     {
         $ris = RecurringInvoice::where('company_id', $this->analyticsCompany->id)->get();
         $this->assertCount(3, $ris);
@@ -456,7 +508,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEquals(1, $paused, '1 paused recurring invoice');
     }
 
-    public function testRecurringExpenseStatuses(): void
+    private function assertRecurringExpenseStatuses(): void
     {
         $res = RecurringExpense::where('company_id', $this->analyticsCompany->id)->get();
         $this->assertCount(3, $res);
@@ -471,21 +523,25 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // QUOTES
     // =======================================================================
 
-    public function testQuoteCounts(): void
+    private function assertQuoteCounts(): void
     {
         // The September sent quote expires in October; inspect the fixture before then.
         $this->travelTo(Carbon::create(now()->year, 9, 15, 12, 0, 0, 'UTC'));
 
-        $quotes = Quote::where('company_id', $this->analyticsCompany->id)
-            ->where('is_deleted', false)
-            ->get();
+        try {
+            $quotes = Quote::where('company_id', $this->analyticsCompany->id)
+                ->where('is_deleted', false)
+                ->get();
 
-        $this->assertCount(12, $quotes, '12 quotes (1/month)');
-        $this->assertEquals(8, $quotes->where('status_id', Quote::STATUS_APPROVED)->count(), '8 approved');
-        $this->assertEquals(4, $quotes->where('status_id', Quote::STATUS_SENT)->count(), '4 sent');
+            $this->assertCount(12, $quotes, '12 quotes (1/month)');
+            $this->assertEquals(8, $quotes->where('status_id', Quote::STATUS_APPROVED)->count(), '8 approved');
+            $this->assertEquals(4, $quotes->where('status_id', Quote::STATUS_SENT)->count(), '4 sent');
+        } finally {
+            $this->travelBack();
+        }
     }
 
-    public function testQuotePipelineChartHasData(): void
+    private function assertQuotePipelineChartHasData(): void
     {
         $summary = $this->cs->analytics_summary($this->startDate, $this->endDate);
         $this->assertNotEmpty($summary[999]['quote_pipeline'], 'Quote pipeline chart should have data');
@@ -495,7 +551,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // EXPENSES
     // =======================================================================
 
-    public function testExpenseCounts(): void
+    private function assertExpenseCounts(): void
     {
         $count = Expense::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -503,7 +559,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEquals(84, $count, '84 expenses (24 baseline + 60 large project expenses)');
     }
 
-    public function testExpensesSpreadAcrossAllMonths(): void
+    private function assertExpensesSpreadAcrossAllMonths(): void
     {
         $year = now()->year;
         $expenses = Expense::where('company_id', $this->analyticsCompany->id)
@@ -523,7 +579,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // PROJECTS & TASKS
     // =======================================================================
 
-    public function testProjectCounts(): void
+    private function assertProjectCounts(): void
     {
         $projects = Project::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -540,7 +596,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testProjectCurrentHoursMatchTaskDurations(): void
+    private function assertProjectCurrentHoursMatchTaskDurations(): void
     {
         $projects = Project::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -555,7 +611,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testTasksHaveStatusAndTimeLogs(): void
+    private function assertTasksHaveStatusAndTimeLogs(): void
     {
         $tasks = Task::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -584,7 +640,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testTaskStatusDistribution(): void
+    private function assertTaskStatusDistribution(): void
     {
         $statuses = TaskStatus::where('company_id', $this->analyticsCompany->id)
             ->orderBy('status_order')
@@ -605,7 +661,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertGreaterThan(0, $backlog, 'Should have Backlog tasks');
     }
 
-    public function testLargeProjectVisualizationDatasetExists(): void
+    private function assertLargeProjectVisualizationDatasetExists(): void
     {
         $largeProjectIds = Project::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -622,7 +678,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertEquals(5, ExpenseCategory::where('company_id', $this->analyticsCompany->id)->where('is_deleted', false)->count(), 'Large project expenses should have category variety');
     }
 
-    public function testProjectAnalyticsEndpoint(): void
+    private function assertProjectAnalyticsEndpoint(): void
     {
         $pa = $this->cs->project_analytics();
 
@@ -648,7 +704,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // CHART DATA POINTS — ALL ENDPOINTS PRODUCE DATA
     // =======================================================================
 
-    public function testAllChartEndpointsProduceData(): void
+    private function assertAllChartEndpointsProduceData(): void
     {
         $chart = $this->cs->chart_summary($this->startDate, $this->endDate);
 
@@ -665,7 +721,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertNotEmpty($summary[999]['quote_pipeline']);
     }
 
-    public function testPerCurrencyChartEndpointsProduceData(): void
+    private function assertPerCurrencyChartEndpointsProduceData(): void
     {
         $chart = $this->cs->chart_summary($this->startDate, $this->endDate);
 
@@ -685,7 +741,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // PAYMENTABLES TIMESTAMPS BACKDATED
     // =======================================================================
 
-    public function testPaymentablesTimestampsAreBackdated(): void
+    private function assertPaymentablesTimestampsAreBackdated(): void
     {
         $payments = Payment::where('company_id', $this->analyticsCompany->id)
             ->where('status_id', 4)
@@ -715,7 +771,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // AGING BUCKETS
     // =======================================================================
 
-    public function testAgingBucketsHaveData(): void
+    private function assertAgingBucketsHaveData(): void
     {
         $totals = $this->cs->analytics_totals($this->startDate, $this->endDate);
         $aging = $totals[999]['aging'];
@@ -734,7 +790,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
      * The aging response now includes a `total` field with the sum of all buckets.
      * This must match the outstanding total from the main totals() endpoint.
      */
-    public function testAgingTotalMatchesOutstandingTotal(): void
+    private function assertAgingTotalMatchesOutstandingTotal(): void
     {
         $analyticsTotals = $this->cs->analytics_totals($this->startDate, $this->endDate);
         $mainTotals = $this->cs->totals($this->startDate, $this->endDate);
@@ -777,7 +833,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
      * Verify the aging response encodes to JSON with all expected fields
      * and that values are numeric when cast (frontend sums them).
      */
-    public function testAgingResponseJsonStructure(): void
+    private function assertAgingResponseJsonStructure(): void
     {
         $analyticsTotals = $this->cs->analytics_totals($this->startDate, $this->endDate);
 
@@ -811,7 +867,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testAgingBucketsCurrencyParity(): void
+    private function assertAgingBucketsCurrencyParity(): void
     {
         $totals = $this->cs->analytics_totals($this->startDate, $this->endDate);
 
@@ -833,7 +889,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // PAYMENTS — DATES IN CORRECT YEAR
     // =======================================================================
 
-    public function testAllPaymentDatesAreInCurrentYear(): void
+    private function assertAllPaymentDatesAreInCurrentYear(): void
     {
         $year = now()->year;
         $payments = Payment::where('company_id', $this->analyticsCompany->id)
@@ -847,7 +903,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testAllInvoiceDatesAreInCurrentYear(): void
+    private function assertAllInvoiceDatesAreInCurrentYear(): void
     {
         $year = now()->year;
         $invoices = Invoice::where('company_id', $this->analyticsCompany->id)
@@ -865,7 +921,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // CLIENT PAYMENT ANALYTICS
     // =======================================================================
 
-    public function testClientPaymentAnalyticsEndpoint(): void
+    private function assertClientPaymentAnalyticsEndpoint(): void
     {
         $cpa = $this->cs->client_payment_analytics();
 
@@ -880,7 +936,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // INVOICES LINKED TO PROJECTS
     // =======================================================================
 
-    public function testSomeInvoicesLinkedToProjects(): void
+    private function assertSomeInvoicesLinkedToProjects(): void
     {
         $linkedCount = Invoice::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -890,7 +946,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         $this->assertGreaterThan(0, $linkedCount, 'Some invoices should be linked to projects');
     }
 
-    public function testSomeExpensesLinkedToProjects(): void
+    private function assertSomeExpensesLinkedToProjects(): void
     {
         $linkedCount = Expense::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -904,7 +960,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
     // TASKS & EXPENSES LINKED TO INVOICES (backward FK that analytics reads)
     // =======================================================================
 
-    public function testDoneTasksAreLinkedToProjectInvoices(): void
+    private function assertDoneTasksAreLinkedToProjectInvoices(): void
     {
         $statuses = TaskStatus::where('company_id', $this->analyticsCompany->id)
             ->orderBy('status_order')
@@ -936,7 +992,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testSomeExpensesAreLinkedToInvoices(): void
+    private function assertSomeExpensesAreLinkedToInvoices(): void
     {
         $expenses = Expense::where('company_id', $this->analyticsCompany->id)
             ->where('is_deleted', false)
@@ -955,7 +1011,7 @@ class AnalyticsTestDataVerificationTest extends TestCase
         }
     }
 
-    public function testProjectAnalyticsReflectsInvoicedAndUnbilledTasks(): void
+    private function assertProjectAnalyticsReflectsInvoicedAndUnbilledTasks(): void
     {
         $pa = $this->cs->project_analytics();
 

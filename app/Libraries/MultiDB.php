@@ -507,6 +507,10 @@ class MultiDB
 
     public static function findAndSetDbByClientHash($client_hash): bool
     {
+        if (! is_string($client_hash) || $client_hash === '') {
+            return false;
+        }
+
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {

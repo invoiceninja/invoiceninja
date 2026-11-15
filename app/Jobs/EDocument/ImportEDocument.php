@@ -15,6 +15,7 @@ namespace App\Jobs\EDocument;
 use Exception;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Utils\TempFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -38,14 +39,14 @@ class ImportEDocument implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return Expense
+     * @return Expense|Invoice
      * @throws \Exception
      */
-    public function handle(): Expense
+    public function handle(): Expense|Invoice
     {
         $file = TempFile::UploadedFileFromRaw($this->file_content, $this->file_name, $this->file_mime_type);
 
-        return (new ParseEDocument($file, $this->company))->run();
+        return (new ParseEDocument($file, $this->company, import_invoices: true))->run();
 
     }
 

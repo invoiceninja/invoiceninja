@@ -173,14 +173,16 @@ class BatchPushToQuickbooksTest extends TestCase
 
     public function test_it_releases_the_job_when_push_enabled_and_rate_limited(): void
     {
+        Bus::fake();
+
         $company = $this->connectQuickbooks($this->company, 'push');
+
+        $this->rateLimiter()->enterBackoff(120);
 
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $company->id,
         ]);
-
-        $this->rateLimiter()->enterBackoff(120);
 
         $this->assertTrue($company->shouldPushToQuickbooks('client'));
 
@@ -239,6 +241,8 @@ class BatchPushToQuickbooksTest extends TestCase
 
     public function test_it_ignores_entities_of_an_unconfigured_type(): void
     {
+        Bus::fake();
+
         $company = $this->connectQuickbooks($this->company, 'push');
 
         $client = Client::factory()->create([

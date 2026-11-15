@@ -5,12 +5,37 @@ namespace Tests\Unit;
 use App\Casts\InvoiceSyncCast;
 use App\Casts\QuoteSyncCast;
 use App\DataMapper\QuoteSync;
+use App\Models\Invoice;
+use App\Models\Quote;
+use App\Models\PurchaseOrder;
 use App\Enum\InvoiceQbStatus;
 use Illuminate\Database\Eloquent\Model;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class QuoteSyncCastTest extends TestCase
 {
+    public static function documentModels(): array
+    {
+        return [[Invoice::class], [Quote::class], [PurchaseOrder::class]];
+    }
+
+    #[DataProvider('documentModels')]
+    public function testDirtyFlagDefaultsToFalseAndSurvivesCasting(string $model_class): void
+    {
+        $model = new $model_class();
+        $model->setRawAttributes(['sync' => '{"qb_id":"QB-123"}'], true);
+
+        $this->assertFalse($model->sync->dn_dirty);
+
+        $model->sync->dn_dirty = true;
+        $stored = $model->getAttributes()['sync'];
+        $model->setRawAttributes(['sync' => $stored], true);
+
+        $this->assertTrue($model->sync->dn_dirty);
+        $this->assertSame('QB-123', $model->sync->qb_id);
+    }
+
     public function test_it_round_trips_quickbooks_status_fields(): void
     {
         $cast = new QuoteSyncCast();

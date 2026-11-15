@@ -92,6 +92,9 @@ class InvoiceController extends Controller
         $default_flow = auth()->guard('contact')->user()->client->getSetting('payment_flow') == 'default';
 
         if ($default_flow) {
+
+            $data['gateway_available'] = $invoice->isPayable() && ! empty(auth()->guard('contact')->user()->client->service()->getPaymentMethods(-1));
+
             $docuninja_active = $invoice->company->docuninjaActive();
             $signature_required = $invoice->client->getSetting('require_invoice_signature');
             $signature_accepted = $invoice->sync?->dn_completed;

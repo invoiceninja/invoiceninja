@@ -17,6 +17,8 @@ use App\Models\Activity;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Services\EDocument\Imports\SelfBilledInvoice;
+use App\Services\EDocument\Imports\UblEDocument;
 use App\Services\EDocument\Gateway\Storecove\EInvoiceForwarder;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\Email\Email;
@@ -265,9 +267,9 @@ class EInvoicePullDocs implements ShouldQueue
     /**
      * Processes received documents pulled from the hosted server.
      *
-     * Creates expenses and vendors from each Storecove invoice, saves
-     * HTML/XML/attachments to the expense, and forwards the XML to
-     * the company's expense forwarding email if configured. Flushes the
+     * Creates invoices for type 389 documents and expenses for other invoices,
+     * saves HTML/XML/attachments, and forwards XML to the corresponding
+     * invoice or expense forwarding address if configured. Flushes the
      * documents from S3 after processing.
      *
      * @param  array<int, array>  $received_documents
@@ -279,7 +281,6 @@ class EInvoicePullDocs implements ShouldQueue
     {
 
         $storecove = new Storecove();
-        $forwarder = EInvoiceForwarder::forExpenses($company);
 
         foreach ($received_documents as $document) {
 
@@ -290,15 +291,32 @@ class EInvoicePullDocs implements ShouldQueue
                 continue;
             }
 
-            $storecove_invoice = $storecove->expense->getStorecoveInvoice(json_encode($document['document']['invoice']));
-            $expense = $storecove->expense->createExpense($storecove_invoice, $company);
+            $xml = base64_decode($document['original_base64_xml'] ?? '', true) ?: '';
+
+            if (SelfBilledInvoice::isSelfBilledInvoice($xml)) {
+                $file = TempFile::UploadedFileFromRaw($xml, $document['guid'] . '.xml', 'application/xml');
+                $entity = (new UblEDocument($file, $company))->run($document['guid'], mark_sent: true);
+            } else {
+                if ($document['document']['invoice']['self_billing_mode'] ?? false) {
+                    throw new \UnexpectedValueException('Self-billed document requires a supported type 389 UBL invoice.');
+                }
+
+                $storecove_invoice = $storecove->expense->getStorecoveInvoice(json_encode($document['document']['invoice']));
+                $entity = $storecove->expense->createExpense($storecove_invoice, $company);
+            }
+
+            $forwarder = $entity instanceof Invoice
+                ? EInvoiceForwarder::forInvoices($company)
+                : EInvoiceForwarder::forExpenses($company);
 
             $file_name = $document['guid'];
 
             if (strlen($document['html'] ?? '') > 5) {
 
                 $upload_document = TempFile::UploadedFileFromRaw($document['html'], "{$file_name}.html", 'text/html');
-                $this->saveDocument($upload_document, $expense, true);
+                if (!$entity->documents()->where('name', "{$file_name}.html")->exists()) {
+                    $this->saveDocument($upload_document, $entity, true);
+                }
                 $upload_document = null;
             }
 
@@ -309,14 +327,18 @@ class EInvoicePullDocs implements ShouldQueue
                     "{$file_name}.pdf",
                     'application/pdf'
                 );
-                $this->saveDocument($upload_document, $expense, true);
+                if (!$entity->documents()->where('name', "{$file_name}.pdf")->exists()) {
+                    $this->saveDocument($upload_document, $entity, true);
+                }
                 $upload_document = null;
             }
 
             if (strlen($document['original_base64_xml'] ?? '') > 5) {
 
                 $upload_document = TempFile::UploadedFileFromBase64($document['original_base64_xml'], "{$file_name}.xml", 'application/xml');
-                $this->saveDocument($upload_document, $expense, true);
+                if (!($entity instanceof Invoice)) {
+                    $this->saveDocument($upload_document, $entity, true);
+                }
                 $upload_document = null;
 
                 if ($forwarder->isConfigured()) {
@@ -328,7 +350,9 @@ class EInvoicePullDocs implements ShouldQueue
                 foreach ($document['document']['invoice']['attachments'] as $attachment) {
 
                     $upload_document = TempFile::UploadedFileFromBase64($attachment['document'], $attachment['filename'], $attachment['mime_type']);
-                    $this->saveDocument($upload_document, $expense, true);
+                    if (!$entity->documents()->where('name', $attachment['filename'])->exists()) {
+                        $this->saveDocument($upload_document, $entity, true);
+                    }
                     $upload_document = null;
 
                 }

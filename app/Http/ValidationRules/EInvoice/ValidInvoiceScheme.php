@@ -16,7 +16,8 @@ use App\Services\EDocument\Standards\Validation\Peppol\InvoiceLevel;
 use Closure;
 use InvoiceNinja\EInvoice\EInvoice;
 use Illuminate\Validation\Validator;
-use InvoiceNinja\EInvoice\Models\Peppol\Invoice;
+use InvoiceNinja\EInvoice\Validation\Constraints\RelativeDateExpression;
+use InvoiceNinja\EInvoice\Validation\ValidationGroups;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\ValidatorAwareRule;
 
@@ -39,57 +40,31 @@ class ValidInvoiceScheme implements ValidationRule, ValidatorAwareRule
 
             $r = new EInvoice();
 
-            $errors = $r->validatePayload($value['Invoice'], InvoiceLevel::class);
+            $errors = $r->validatePayload($value['Invoice'], InvoiceLevel::class, ['Default', ValidationGroups::INVOICE_SETTINGS]);
 
-            foreach ($errors as $key => $msg) {
+            foreach ($errors as $violation) {
+                $field_path = str_replace(['[', ']'], ['.', ''], $violation->getPropertyPath());
+                $error_key = (str_starts_with($field_path, 'InvoicePeriod') ? 'e_invoice.' : 'e_invoice.Invoice.') . $field_path;
+                $message = $violation->getMessage();
+
+                if ($violation->getConstraint() instanceof RelativeDateExpression) {
+                    $period_index = explode('.', $field_path)[1];
+                    $date_field = $violation->getParameters()['{{ field }}'] ?? 'StartDate';
+                    $error_key = "e_invoice.InvoicePeriod.Description.{$period_index}.{$date_field}";
+                    $message = ctrans($violation->getCode() === RelativeDateExpression::PAIR_REQUIRED_ERROR
+                        ? 'texts.start_and_end_date_required'
+                        : 'texts.invalid_date_create_syntax');
+                }
 
                 $this->validator->errors()->add(
-                    "e_invoice.{$key}",
-                    "{$key} - {$msg}"
+                    $error_key,
+                    $message
                 );
 
             }
 
-            if (isset($value['Invoice']['InvoicePeriod'][0]['Description'])) {
-                $parts = explode('|', $value['Invoice']['InvoicePeriod'][0]['Description']);
-                $parts_count = count($parts);
-
-                if ($parts_count == 2) {
-                    if (!$this->isValidDateSyntax($parts[0])) {
-
-                        $this->validator->errors()->add(
-                            "e_invoice.InvoicePeriod.Description.0.StartDate",
-                            ctrans('texts.invalid_date_create_syntax')
-                        );
-
-                    } elseif (!$this->isValidDateSyntax($parts[1])) {
-
-                        $this->validator->errors()->add(
-                            "e_invoice.InvoicePeriod.Description.0.EndDate",
-                            ctrans('texts.invalid_date_create_syntax')
-                        );
-
-                    }
-
-                } elseif ($parts_count == 1 && strlen($value['Invoice']['InvoicePeriod'][0]['Description']) > 2) {
-                    $this->validator->errors()->add(
-                        "e_invoice.InvoicePeriod.Description.0.StartDate",
-                        ctrans('texts.start_and_end_date_required')
-                    );
-                }
-            }
         }
 
-    }
-
-    private function isValidDateSyntax(string $date_string): bool
-    {
-        try {
-            $date = date_create($date_string);
-            return $date !== false && $date instanceof \DateTime;
-        } catch (\Exception $e) {
-            return false;
-        }
     }
 
     /**

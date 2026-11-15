@@ -94,6 +94,16 @@ class DocuNinjaLoader extends Component
                 && isset($invitation->{$this->entity_type}->sync)
                 && $dn_invite = $invitation->{$this->entity_type}->sync->getInvitation($invitation->key)) {
 
+                if (in_array($this->entity_type, ['invoice', 'quote', 'purchase_order'], true)
+                    && $entity->sync->dn_dirty) {
+                    if (!class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class)) {
+                        throw new \RuntimeException(ctrans('texts.docuninja_unavailable'));
+                    }
+
+                    (new \InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja())
+                        ->signable->refreshIfDirty($invitation);
+                }
+
                 $signable = [
                     'document_id' => $dn_invite['dn_id'],
                     'document_invitation_id' => $dn_invite['dn_invitation_id'],
@@ -149,7 +159,7 @@ class DocuNinjaLoader extends Component
                     $signable['sig']
                 );
                 $invitation->{$this->entity_type}->sync = $sync;
-                $invitation->{$this->entity_type}->save();
+                $invitation->{$this->entity_type}->saveQuietly();
 
             }
 

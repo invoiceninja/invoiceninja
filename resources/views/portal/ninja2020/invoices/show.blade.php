@@ -63,7 +63,9 @@
                                 <input type="hidden" name="action" value="payment">
 
                                 @if($settings->client_portal_allow_under_payment || $settings->client_portal_allow_over_payment)
-                                    <button class="button button-primary bg-primary">{{ ctrans('texts.pay_now') }}</button>
+                                    @if($gateway_available)
+                                        <button class="button button-primary bg-primary">{{ ctrans('texts.pay_now') }}</button>
+                                    @endif
                                 @else
                                     @livewire('pay-now-dropdown', ['total' => $invoice->getPayableAmount(), 'company_id' => $company->id, 'db' => $company->db])
                                 @endif

@@ -25,8 +25,10 @@ class VerifyHash
      */
     public function handle($request, Closure $next)
     {
-        if ($request->has('payment_hash')) {
-            $ph = PaymentHash::query()->with('fee_invoice')->where('hash', $request->payment_hash)->first();
+        $paymentHash = $request->input('payment_hash');
+
+        if (is_string($paymentHash) && $paymentHash !== '') {
+            $ph = PaymentHash::query()->with('fee_invoice')->where('hash', $paymentHash)->first();
 
             if ($ph) {
                 auth()->guard('contact')->loginUsingId($ph->fee_invoice->invitations->first()->contact->id, true);

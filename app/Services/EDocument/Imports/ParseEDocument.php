@@ -16,6 +16,7 @@ use Exception;
 use App\Utils\Ninja;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Services\AbstractService;
 use Illuminate\Http\UploadedFile;
 
@@ -24,18 +25,18 @@ class ParseEDocument extends AbstractService
     /**
      * @throws Exception
      */
-    public function __construct(private UploadedFile $file, private Company $company) {}
+    public function __construct(private UploadedFile $file, private Company $company, private bool $import_invoices = false) {}
 
     /**
      * Execute the service.
-     * the service will parse the file with all available libraries of the system and will return an expense, when possible
+     * Parse locally before using external providers. Invoice imports are enabled explicitly by the upload job.
      *
      * @developer the function should be implemented with local first aproach to save costs of external providers (like mindee ocr)
      *
-     * @return Expense
+     * @return Expense|Invoice
      * @throws \Throwable
      */
-    public function run(): Expense
+    public function run(): Expense|Invoice
     {
         /** @var \App\Models\Account $account */
         $account = $this->company->owner()->account;
@@ -59,8 +60,13 @@ class ParseEDocument extends AbstractService
         }
 
         if ($isXml) {
-            try {
+            // Once classified as self-billing, import errors must not fall back to an expense.
+            if ($this->import_invoices && SelfBilledInvoice::isSelfBilledInvoice($content)) {
                 return (new UblEDocument($this->file, $this->company))->run();
+            }
+
+            try {
+                return (new UblEDocument($this->file, $this->company, $this->import_invoices))->run();
             } catch (\Throwable $e) {
                 nlog('UBL import exception: ' . $e->getMessage());
             }

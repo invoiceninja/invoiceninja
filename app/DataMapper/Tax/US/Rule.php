@@ -76,6 +76,7 @@ class Rule extends BaseRule implements RuleInterface
             Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced($item),
             Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item),
             Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated($item),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $this->reverseTax($item),
             default => $this->default($item),
         };
 
@@ -208,7 +209,8 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function reverseTax($item): self
     {
-        $this->default($item);
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = '';
 
         return $this;
     }

@@ -16,6 +16,7 @@ use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Factory\VendorFactory;
 use App\Factory\ExpenseFactory;
 use App\Services\AbstractService;
@@ -33,23 +34,56 @@ class UblEDocument extends AbstractService
     /**
      * @throws \Throwable
      */
-    public function __construct(public UploadedFile $file, public Company $company)
+    public function __construct(public UploadedFile $file, public Company $company, private bool $import_invoices = true)
     {
         # curl -X POST http://localhost:8000/api/v1/edocument/upload -H "Content-Type: multipart/form-data" -H "X-API-TOKEN: 7tdDdkz987H3AYIWhNGXy8jTjJIoDhkAclCDLE26cTCj1KYX7EBHC66VEitJwWhn" -H "X-Requested-With: XMLHttpRequest" -F _method=PUT -F documents[]=@einvoice.xml
     }
 
     /**
-     * Parses a UBL XML file into a Peppol model and creates an expense with vendor.
+     * Imports a UBL document as an expense, or a type 389 document as an invoice.
      *
      * @throws \Throwable
-     * @return \App\Models\Expense
+     * @return Expense|Invoice
      */
-    public function run(): \App\Models\Expense
+    public function run(?string $received_guid = null, bool $mark_sent = false): Expense|Invoice
     {
 
         $e = new EInvoice();
         $xml = $this->extractInvoiceUbl($this->file->get());
         $invoice = $e->decode('Peppol', $xml, 'xml');
+
+        if ($this->import_invoices && $invoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\Invoice
+            && trim((string) data_get($invoice, 'InvoiceTypeCode.value')) === '389') {
+            $entity = (new SelfBilledInvoice())->createInvoice($invoice, $this->company, $received_guid, $mark_sent);
+            $file_name = $received_guid ? $received_guid . '.xml' : "self-billed-{$entity->id}.xml";
+
+            if (!$entity->documents()->where('name', $file_name)->exists()) {
+                $document = \App\Utils\TempFile::UploadedFileFromRaw($this->file->get(), $file_name, 'application/xml');
+                $this->saveDocument($document, $entity, true);
+            }
+
+            foreach (data_get($invoice, 'AdditionalDocumentReference', []) as $attachment) {
+                $binary = data_get($attachment, 'Attachment.EmbeddedDocumentBinaryObject');
+
+                if ($binary && data_get($binary, 'value')) {
+                    $file_name = data_get($binary, 'filename', 'attachment.pdf');
+
+                    if ($entity->documents()->where('name', $file_name)->exists()) {
+                        continue;
+                    }
+
+                    $document = \App\Utils\TempFile::UploadedFileFromBase64(
+                        data_get($binary, 'value'),
+                        $file_name,
+                        data_get($binary, 'mimeCode', 'application/pdf'),
+                    );
+                    $this->saveDocument($document, $entity, true);
+                }
+            }
+
+            return $entity;
+        }
+
         return $this->buildAndSaveExpense($invoice);
 
     }
@@ -68,7 +102,9 @@ class UblEDocument extends AbstractService
         $xml = str_replace(['<?xml version="1.0" encoding="UTF-8"?>', "<?xml version='1.0' encoding='UTF-8'?>"], '', $xml);
 
         $dom = new \DOMDocument();
-        $dom->loadXML($xml);
+        if (!$dom->loadXML($xml, LIBXML_NONET) || $dom->doctype) {
+            throw new \UnexpectedValueException('Invalid UBL XML document.');
+        }
 
         $xpath = new \DOMXPath($dom);
 

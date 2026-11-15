@@ -31,6 +31,11 @@ class CloneInvoiceFactory
 
         $clone_invoice->sync = null;
         $clone_invoice->backup = null; // @phpstan-ignore-line
+
+        if ($invoice->isSelfBilled()) {
+            $clone_invoice->e_invoice = null;
+        }
+
         return $clone_invoice;
     }
 }

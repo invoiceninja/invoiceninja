@@ -6562,7 +6562,8 @@ $lang = array(
     'oidc_no_token' => 'No authentication token was returned. Please return to the login page and try again.',
     'back_to_login' => 'Back to login',
     'paid_in_full' => 'Paid in full',
-
+    'needs_your_attention' => 'Needs your attention',
+    'days_late' => ':count day/s late',
 );
 
 return $lang;

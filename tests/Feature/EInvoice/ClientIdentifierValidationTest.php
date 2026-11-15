@@ -615,7 +615,7 @@ class ClientIdentifierValidationTest extends TestCase
         $this->assertTrue($this->hasErrorForField($errors, 'vat_number'));
     }
 
-    public function testFiBusinessWithOpidOvtAndVatPasses(): void
+    public function testFiBusinessIgnoresLegacyOperatorId(): void
     {
         $client = $this->makeClient([
             'country_id' => 246,
@@ -632,7 +632,7 @@ class ClientIdentifierValidationTest extends TestCase
         $this->assertFalse($this->hasErrorForField($errors, 'vat_number'));
     }
 
-    public function testFiBusinessMissingOpidIsBlocked(): void
+    public function testFiBusinessWithoutOperatorIdPasses(): void
     {
         $client = $this->makeClient([
             'country_id' => 246,
@@ -644,23 +644,22 @@ class ClientIdentifierValidationTest extends TestCase
 
         $errors = $this->clientErrors($client);
 
-        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
+        $this->assertSame([], $errors);
     }
 
-    public function testFiRoutingIdWithOvtEndpointDefersToHandler(): void
+    public function testFiRoutingIdWithOvtEndpointPasses(): void
     {
         $client = $this->makeClient([
             'country_id' => 246,
             'classification' => 'business',
             'vat_number' => 'FI12345678',
-            'id_number' => '003712345678',
+            'id_number' => '',
             'routing_id' => '0216:003712345678',
         ]);
 
         $errors = $this->clientErrors($client);
 
-        $this->assertTrue($this->hasErrorForField($errors, 'routing_id'));
-        $this->assertStringContainsStringIgnoringCase('FI:OPID', $this->firstErrorLabel($errors, 'routing_id') ?? '');
+        $this->assertSame([], $errors);
     }
 
     public function testItDomesticConsumerRequiresCodiceFiscaleAndCuuo(): void

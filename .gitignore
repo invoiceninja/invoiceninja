@@ -8,6 +8,7 @@
 /storage/debugbar
 /storage/*
 /tests/bootstrap/
+/tests/artifacts/
 /vendor
 /app/Console/Commands/vendor/
 /.idea

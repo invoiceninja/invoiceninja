@@ -33,7 +33,13 @@ trait VerifiesUserEmail
      */
     public function confirm()
     {
-        $user = User::where('confirmation_code', request()->confirmation_code)->first();
+        $confirmationCode = request()->route('confirmation_code');
+
+        if (! is_string($confirmationCode) || $confirmationCode === '') {
+            abort(404);
+        }
+
+        $user = User::where('confirmation_code', $confirmationCode)->first();
         $react = request()->has('react') ? true : false;
 
         \Illuminate\Support\Facades\Auth::guard('web')->logout();
@@ -65,8 +71,8 @@ trait VerifiesUserEmail
             ]);
         }
 
-        if (is_null($user->password) || empty($user->password) || Hash::check('', $user->password)) {
-            return $this->render('auth.confirmation_with_password', ['confirmation_code' => request()->confirmation_code, 'root' => 'themes', 'user_id' => $user->hashed_id, 'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/')]);
+        if ($this->userHasNoPassword($user)) {
+            return $this->render('auth.confirmation_with_password', ['confirmation_code' => $confirmationCode, 'root' => 'themes', 'user_id' => $user->hashed_id, 'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/')]);
         }
 
         return $this->render('auth.confirmed', [
@@ -78,18 +84,26 @@ trait VerifiesUserEmail
 
     public function confirmWithPassword(Request $request)
     {
+        $confirmationCode = $request->route('confirmation_code');
+
+        if (! is_string($confirmationCode) || $confirmationCode === '') {
+            abort(404);
+        }
 
         $user = User::where('id', $this->decodePrimaryKey($request->user_id))
-                    ->where('confirmation_code', $request->confirmation_code)
+                    ->where('confirmation_code', $confirmationCode)
                     ->whereNotNull('confirmation_code')
                     ->firstOrFail();
 
+        if (! $this->userHasNoPassword($user)) {
+            abort(404);
+        }
+
         $react = request()->has('react') ? true : false;
 
-        $validator = Validator::make(request()->all(), [
+        $validator = Validator::make($request->all(), [
             'password' => 'min:6|required_with:password_confirmation|same:password_confirmation',
             'password_confirmation' => 'min:6',
-            'confirmation_code' => 'required|exists:users,confirmation_code',
         ]);
 
         if ($validator->fails()) {
@@ -120,5 +134,10 @@ trait VerifiesUserEmail
             'message' => ctrans('texts.security_confirmation'),
             'redirect_url' => $react ? config('ninja.react_url') . "/#/" : url('/'),
         ]);
+    }
+
+    private function userHasNoPassword(User $user): bool
+    {
+        return is_null($user->password) || $user->password === '' || Hash::check('', $user->password);
     }
 }

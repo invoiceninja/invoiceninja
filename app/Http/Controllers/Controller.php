@@ -37,4 +37,23 @@ class Controller extends BaseController
     {
         return render($path, $options);
     }
+
+    /**
+     * Run a callback under a temporary execution limit, then restore the previous one.
+     *
+     * set_time_limit() applies to the whole PHP process. HTTP tests share that process,
+     * so a limit left in place kills whatever test happens to be running when it expires.
+     */
+    protected function withinTimeLimit(int $seconds, callable $callback): mixed
+    {
+        $previous_limit = (int) ini_get('max_execution_time');
+
+        set_time_limit($seconds);
+
+        try {
+            return $callback();
+        } finally {
+            set_time_limit($previous_limit);
+        }
+    }
 }

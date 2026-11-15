@@ -12,7 +12,6 @@
 
 namespace Tests\Feature;
 
-use Mockery;
 use App\Exceptions\BatchPdfException;
 use App\Factory\CompanyUserFactory;
 use App\Helpers\Cache\Atomic;
@@ -33,6 +32,7 @@ use App\Services\PdfMaker\BatchPdfService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
+use Mockery;
 use Tests\TestCase;
 
 /**
@@ -206,6 +206,8 @@ class BulkActionAuthorizationTest extends TestCase
 
     public function testBulkDownloadInvoicesAllowedForOwner(): void
     {
+        Bus::fake([ZipEntity::class]);
+
         // Invoices owned by the restricted user should be accessible
         $invoice1 = Invoice::factory()->create([
             'company_id' => $this->company->id,
@@ -228,6 +230,14 @@ class BulkActionAuthorizationTest extends TestCase
             ]);
 
         $response->assertStatus(200);
+
+        Bus::assertDispatched(
+            ZipEntity::class,
+            fn (ZipEntity $job): bool => $job->entity_ids->all() === [$invoice1->id, $invoice2->id]
+                && $job->company->is($this->company)
+                && $job->user->is($this->restrictedUser)
+                && $job->entity_class === Invoice::class,
+        );
     }
 
     public function testBulkCloneInvoiceToQuoteIsRejectedByValidation(): void

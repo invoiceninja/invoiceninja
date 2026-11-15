@@ -17,17 +17,30 @@ use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 use App\Services\EDocument\Support\GlnIdentifier;
 
 /**
- * Finland (Finvoice / Storecove): operator id (FI:OPID) in routing_id, OVT in id_number.
+ * Finland: explicit GLN first, then FI:OVT2 from ID Number or routing_id.
  */
 class FI extends BaseCountry
 {
     public function getCandidates(object $client, string $classification, object $router): array
     {
-        if (in_array($classification, ['business', 'government'], true)) {
+        if ($gln = GlnIdentifier::tryParse((string) ($client->routing_id ?? ''))) {
+            return [['scheme' => '0088', 'id' => $gln]];
+        }
+
+        if (!in_array($classification, ['business', 'government'], true)) {
             return [];
         }
 
-        return parent::getCandidates($client, $classification, $router);
+        foreach ([$client->id_number ?? '', $client->routing_id ?? ''] as $raw_identifier) {
+            $identifier = preg_replace('/^(?:0216|FI:OVT2):/', '', trim((string) $raw_identifier));
+            $identifier = preg_replace('/[\s.\-]/', '', $identifier);
+
+            if ($this->identifierValidator()->matchesSchemeFormat('FI:OVT2', $identifier)) {
+                return [['scheme' => 'FI:OVT2', 'id' => $identifier]];
+            }
+        }
+
+        return [];
     }
 
     public function consumesBareRoutingId(?string $classification): bool
@@ -35,133 +48,35 @@ class FI extends BaseCountry
         return in_array($classification, ['business', 'government'], true);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * B2B/B2G: Finvoice routing requires FI:OPID (routing_id) with FI:OVT (id_number) and FI:VAT.
-     */
-    public function validateReceiverRoutingIdentifiers(Client $client, string $classification, StorecoveRouter $router, ?string $senderCountryCode = null): array
+    public function validateReceiverRoutingIdentifiers(Client $client, string $classification, StorecoveRouter $router, ?string $sender_country_code = null): array
     {
-        $routingRaw = trim($client->routing_id ?? '');
-
-        if ($routingRaw !== '' && GlnIdentifier::isValid($routingRaw)) {
+        if ($this->getCandidates($client, $classification, $router) !== []) {
             return [];
         }
 
-        if (!in_array($classification, ['business', 'government'], true)) {
-            return parent::validateReceiverRoutingIdentifiers($client, $classification, $router, $senderCountryCode);
-        }
+        $field = trim((string) ($client->id_number ?? '')) === ''
+            && trim((string) ($client->routing_id ?? '')) !== ''
+                ? 'routing_id'
+                : 'id_number';
 
-        return $this->validateFinlandBusinessGovernment($client);
+        return [[
+            'field' => $field,
+            'label' => 'Provide a valid Finnish OVT (FI:OVT2) in ID Number or routing_id, e.g. 003712345678, or a GLN as 0088: followed by 13 digits.',
+        ]];
     }
 
-    /**
-     * Peppol / EAS endpoint form for OVT — not a Finvoice operator id.
-     */
-    public static function isOvtEndpointRoutingId(string $routingId): bool
-    {
-        $routingId = trim($routingId);
-
-        if (!str_contains($routingId, ':')) {
-            return false;
-        }
-
-        [$scheme] = explode(':', $routingId, 2);
-
-        return in_array($scheme, ['0216', '0037', 'FI:OVT'], true);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * B2B/B2G: Peppol buyer EndpointID is OVT (id_number). routing_id holds FI:OPID for Storecove only.
-     */
     public function resolveClientEndpointScheme(Client $client, StorecoveRouter $router): array
     {
-        $routingId = trim((string) ($client->routing_id ?? ''));
-
-        if ($gln = $this->glnEndpointFromIdentifier($routingId)) {
-            return $gln;
-        }
-
-        $classification = $client->classification ?? 'business';
-
-        if (!in_array($classification, ['business', 'government'], true)) {
-            return parent::resolveClientEndpointScheme($client, $router);
-        }
-
-        $ovtClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
-
-        if (strlen($ovtClean) >= 2 && $this->identifierValidator()->matchesSchemeFormat('FI:OVT', $ovtClean)) {
-            return [
-                'scheme' => $this->schemeResolver()->iso6523('FI:OVT'),
-                'id' => $ovtClean,
-            ];
-        }
+        $identifier = $this->getCandidates($client, $client->classification ?? 'business', $router)[0] ?? null;
 
         return [
-            'scheme' => '',
-            'id' => '',
+            'scheme' => $identifier === null ? '' : $this->schemeResolver()->iso6523($identifier['scheme']),
+            'id' => $identifier['id'] ?? '',
         ];
     }
 
-    /**
-     * @return array<int, array{field: string, label: string}>
-     */
-    private function validateFinlandBusinessGovernment(Client $client): array
+    protected function resolvePrimaryStorecoveReceiverPair(object $client, StorecoveRouter $router, string $country, string $classification): ?array
     {
-        $routingRaw = trim($client->routing_id ?? '');
-        $ovtClean = preg_replace("/[^a-zA-Z0-9]/", "", $client->id_number ?? '');
-        $vatRaw = trim($client->vat_number ?? '');
-        $opidClean = preg_replace("/[^a-zA-Z0-9]/", "", $routingRaw);
-
-        $errors = [];
-
-        if ($routingRaw !== '' && self::isOvtEndpointRoutingId($routingRaw)) {
-            $errors[] = [
-                'field' => 'routing_id',
-                'label' => 'Finvoice operator id (FI:OPID) belongs in routing_id; put the OVT identifier in ID Number.',
-            ];
-
-            return $errors;
-        }
-
-        $ovtOk = strlen($ovtClean) >= 2 && $this->identifierValidator()->validFormat('FI:OVT', $ovtClean);
-        $opidOk = strlen($opidClean) >= 2
-            && !str_contains($routingRaw, ':')
-            && $this->identifierValidator()->validFormat('FI:OPID', $opidClean);
-        $vatOk = strlen($vatRaw) >= 2 && $this->identifierValidator()->validFormat('FI:VAT', $vatRaw, checkDigit: false);
-
-        if (!$ovtOk) {
-            $example = $this->identifierValidator()->formatExample('FI:OVT');
-            $errors[] = [
-                'field' => 'id_number',
-                'label' => $example
-                    ? "Finnish OVT (FI:OVT) is required in ID Number — e.g. {$example}."
-                    : 'Finnish OVT (FI:OVT) is required in ID Number for Finvoice delivery.',
-            ];
-        }
-
-        if (!$opidOk) {
-            $example = $this->identifierValidator()->formatExample('FI:OPID');
-            $errors[] = [
-                'field' => 'routing_id',
-                'label' => $example
-                    ? "Finvoice operator id (FI:OPID) is required in routing_id — e.g. {$example}."
-                    : 'Finvoice operator id (FI:OPID) is required in routing_id.',
-            ];
-        }
-
-        if (!$vatOk) {
-            $example = $this->identifierValidator()->formatExample('FI:VAT');
-            $errors[] = [
-                'field' => 'vat_number',
-                'label' => $example
-                    ? "Finnish VAT (FI:VAT) is required — e.g. {$example}."
-                    : 'Finnish VAT (FI:VAT) is required for Finvoice delivery.',
-            ];
-        }
-
-        return $errors;
+        return $this->getCandidates($client, $classification, $router)[0] ?? null;
     }
 }

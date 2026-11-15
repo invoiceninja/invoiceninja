@@ -1106,7 +1106,14 @@ class PdfBuilder
             }
 
             if (isset($item->tax_rate1)) {
-                $data[$key][$table_type . '.tax_rate1'] = $this->service->config->formatValueNoTrailingZeroes(floatval($item->tax_rate1)) . '%';
+                $line_tax_label = LineTaxLabelResolver::resolve(
+                    $item,
+                    $this->service->company->country()->iso_3166_2,
+                    fn (float $rate): string => $this->service->config->formatValueNoTrailingZeroes($rate)
+                );
+
+                $data[$key][$table_type . '.tax_rate1'] = $line_tax_label
+                    ?? $this->service->config->formatValueNoTrailingZeroes(floatval($item->tax_rate1)) . '%';
                 $data[$key][$table_type . '.tax1'] = &$data[$key][$table_type . '.tax_rate1'];
             }
 
@@ -1573,7 +1580,7 @@ class PdfBuilder
                     ]];
                 }
             } elseif ($variable == '$line_taxes') {
-                $taxes = $this->service->config->entity->calc()->getTaxMap();
+                $taxes = $this->service->config->entity->calc()->getTaxMapForDisplay();
 
                 if (!$taxes) {
                     continue;
