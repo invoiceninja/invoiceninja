@@ -278,7 +278,7 @@ class PdfConfiguration
             throw new \Exception('Unable to resolve entity', 500);
         }
 
-        $this->setTaxMap($this->entity->calc()->getTaxMap());
+        $this->setTaxMap($this->entity->calc()->getTaxMapForDisplay());
         $this->setTotalTaxMap($this->entity->calc()->getTotalTaxMap());
 
         $this->path = $this->path . $this->entity->numberFormatter() . '.pdf';

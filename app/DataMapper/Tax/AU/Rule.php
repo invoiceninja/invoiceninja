@@ -90,7 +90,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function reverseTax($item): self
     {
-        $this->tax_rate1 = 10;
+        $this->tax_rate1 = 0;
         $this->tax_name1 = 'GST';
 
         return $this;
