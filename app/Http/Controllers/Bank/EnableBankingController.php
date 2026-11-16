@@ -227,9 +227,10 @@ class EnableBankingController extends BaseController
 
         // prevent rerun of this method with same ref
         Cache::delete($data['state']);
-        // Strip the hash-router prefix so the SPA router does not capture this server redirect
-        $context['redirect'] = str_replace('#/', '', $context['redirect'] ?? '');
+
         // Successfull Response => Redirect
+        // Keep the redirect untouched (incl. the "#/" hash-router prefix), consistent with the
+        // user-aborted and failed redirects and with the Nordigen flow.
         return response()->redirectTo($context['redirect'] . '?action=enablebanking_connect&status=success&bank_integrations=' . implode(',', $bank_integration_ids));
     }
 
