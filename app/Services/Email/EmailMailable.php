@@ -34,14 +34,9 @@ class EmailMailable extends Mailable
      */
     public function __construct(public EmailObject $email_object)
     {
-        if (!empty($this->email_object->settings?->disposition_notification_to ?? '')) {
-            $read_receipt_to = $this->email_object->settings->disposition_notification_to;
-
-            $this->withSymfonyMessage(function ($message) use ($read_receipt_to) {
-                $headers = $message->getHeaders();
-
-                $headers->addMailboxListHeader('Disposition-Notification-To', [$read_receipt_to]);
-                $headers->addMailboxListHeader('Return-Receipt-To', [$read_receipt_to]);
+        foreach ($this->email_object->mailbox_headers as $name => $addresses) {
+            $this->withSymfonyMessage(function ($message) use ($name, $addresses) {
+                $message->getHeaders()->addMailboxListHeader($name, $addresses);
             });
         }
     }

@@ -432,6 +432,15 @@ class EmailDefaults
      */
     private function setHeaders(): self
     {
+        if (!empty($this->settings->disposition_notification_to ?? '')) {
+            $read_receipt_to = $this->settings->disposition_notification_to;
+
+            $this->email->email_object->mailbox_headers = array_merge($this->email->email_object->mailbox_headers, [
+                'Disposition-Notification-To' => [$read_receipt_to],
+                'Return-Receipt-To' => [$read_receipt_to],
+            ]);
+        }
+
         if ($this->email->email_object->invitation_key) {
             $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key]);
             // $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key,'List-Unsubscribe' =>  URL::signedRoute('client.email_preferences', ['entity' => $this->email->email_object->invitation->getEntityString(), 'invitation_key' => $this->email->email_object->invitation->key])]);
