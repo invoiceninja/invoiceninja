@@ -81,7 +81,7 @@ class EnableBankingController extends BaseController
         // Find the selected ASPSP
         $selected_aspsp = array_values(array_filter($aspsps['aspsps'], function ($aspsp) use ($data) {
             return $aspsp['name'] === $data['aspsp_name'] && $aspsp['country'] === $data['aspsp_country'];
-        }))[0];
+        }))[0] ?? null;
 
         if (!$selected_aspsp) {
             return $this->failed('aspsp-invalid', $context, $company);
@@ -93,7 +93,8 @@ class EnableBankingController extends BaseController
                 $selected_aspsp['name'],
                 $selected_aspsp['country'],
                 config('ninja.app_url') . '/enablebanking/confirm',
-                $request->token
+                $request->token,
+                isset($selected_aspsp['maximum_consent_validity']) ? (int) $selected_aspsp['maximum_consent_validity'] : null
             );
         } catch (\Exception $e) {
             $debug = "{$e->getMessage()} ({$e->getCode()})";

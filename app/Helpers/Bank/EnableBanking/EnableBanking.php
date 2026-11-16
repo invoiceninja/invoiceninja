@@ -102,12 +102,23 @@ class EnableBanking
     }
 
     /**
-     * Start authorization process
+     * Default consent validity (180 days) when the ASPSP does not report its maximum.
      */
-    public function startAuthorization(string $aspsp_name, string $aspsp_country, string $redirect_url, string $state): array
+    public const DEFAULT_CONSENT_VALIDITY = 180 * 24 * 60 * 60;
+
+    /**
+     * Start authorization process
+     *
+     * @param int|null $maximum_consent_validity Maximum consent validity of the ASPSP in seconds
+     *                                           (`maximum_consent_validity` from /aspsps)
+     */
+    public function startAuthorization(string $aspsp_name, string $aspsp_country, string $redirect_url, string $state, ?int $maximum_consent_validity = null): array
     {
-        $valid_until = time() + 2 * 7 * 24 * 60 * 60; // 2 weeks
-        
+        // Request the longest consent the bank allows, so users rarely need to reconnect.
+        // A one hour margin keeps valid_until within the ASPSP maximum by the time the request is handled.
+        $consent_validity = ($maximum_consent_validity ?: self::DEFAULT_CONSENT_VALIDITY) - 60 * 60;
+        $valid_until = time() + $consent_validity;
+
         $body = [
             'access' => [ 'valid_until' => date('c', $valid_until) ],
             'aspsp' => [ 
