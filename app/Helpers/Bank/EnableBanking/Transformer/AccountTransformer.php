@@ -95,7 +95,10 @@ class AccountTransformer
                 // status (READY/EXPIRED) from the session in ProcessBankTransactionsEnableBanking.
                 'account_status' => '',
                 'account_number' => $this->maskAccountNumber($account['account_id']['iban'] ?? ''),
+                // The uid changes with every session; the identification_hash is stable across
+                // sessions and is used to recognise the same account when reconnecting.
                 'provider_account_id' => $account['uid'],
+                'identification_hash' => $account['identification_hash'] ?? '',
                 // EnableBanking exposes no history window; default to 90 days for the initial sync.
                 'provider_history' => 90,
                 'nickname' => $account['name'] ?? '',

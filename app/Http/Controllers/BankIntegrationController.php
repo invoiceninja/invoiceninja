@@ -353,9 +353,9 @@ class BankIntegrationController extends BaseController
 
         BankIntegration::where('account_id', $user->account_id)
                        ->where("integration_type", BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
-                       ->whereNotNull('enablebanking_account_id')
+                       ->whereNotNull('nordigen_account_id') // EnableBanking account uid (reused Nordigen column)
                        ->each(function (BankIntegration $bank_integration) use ($enablebanking) {
-            $account = $enablebanking->getAccount($bank_integration->enablebanking_account_id);
+            $account = $enablebanking->getAccount($bank_integration->nordigen_account_id);
 
             if (is_array($account) && isset($account['code']) && $account['code'] == 429) {
                 $bank_integration->bank_account_status = "429 Rate limit reached, check back later....";

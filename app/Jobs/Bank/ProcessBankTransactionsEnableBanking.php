@@ -74,13 +74,13 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
 
         // UPDATE ACCOUNT
         try {
+            // updateAccount() sets $this->enablebanking_account only when the session is still active
             $this->updateAccount();
-            $this->enablebanking_account = true;
         } catch (\Exception $e) {
-            nlog("EnableBanking: {$this->bank_integration->enablebanking_account_id} - exited abnormally => " . $e->getMessage());
+            nlog("EnableBanking: {$this->bank_integration->nordigen_account_id} - exited abnormally => " . $e->getMessage());
 
             $content = [
-                "Processing transactions for account: {$this->bank_integration->enablebanking_account_id} failed",
+                "Processing transactions for account: {$this->bank_integration->nordigen_account_id} failed",
                 "Exception Details => ",
                 $e->getMessage(),
             ];
@@ -99,10 +99,10 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
         try {
             $this->processTransactions();
         } catch (\Exception $e) {
-            nlog("EnableBanking: {$this->bank_integration->enablebanking_account_id} - exited abnormally => " . $e->getMessage());
+            nlog("EnableBanking: {$this->bank_integration->nordigen_account_id} - exited abnormally => " . $e->getMessage());
 
             $content = [
-                "Processing transactions for account: {$this->bank_integration->enablebanking_account_id} failed",
+                "Processing transactions for account: {$this->bank_integration->nordigen_account_id} failed",
                 "Exception Details => ",
                 $e->getMessage(),
             ];
@@ -118,8 +118,10 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
 
     private function updateAccount()
     {
-        $session_active = $this->bank_integration->enablebanking_session_expired_at > now() &&
-            $this->enablebanking->isSessionActive($this->bank_integration->enablebanking_session_id);
+        // The session id is stored in requisition_id (reused Nordigen column). The session status
+        // reported by EnableBanking also covers expiry (valid_until), so no separate date check is needed.
+        $session_active = !empty($this->bank_integration->requisition_id) &&
+            $this->enablebanking->isSessionActive($this->bank_integration->requisition_id);
 
         //Return early if the session is not active
         if (!$session_active) {
@@ -127,7 +129,7 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
             $this->bank_integration->bank_account_status = 'EXPIRED';
             $this->bank_integration->save();
 
-            nlog("EnableBanking: session inactive: " . $this->bank_integration->enablebanking_session_id);
+            nlog("EnableBanking: session inactive: " . $this->bank_integration->requisition_id);
 
             // Session expired, send notification
             $this->enablebanking->disabledAccountEmail($this->bank_integration);
@@ -147,7 +149,7 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
         //Get transactions
         $transactions = $this->enablebanking->getTransactions(
             $this->company,
-            $this->bank_integration->enablebanking_account_id,
+            $this->bank_integration->nordigen_account_id,
             $this->from_date
         );
 

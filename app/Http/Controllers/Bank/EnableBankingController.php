@@ -181,9 +181,6 @@ class EnableBankingController extends BaseController
                 $bank_integration->company_id = $company->id;
                 $bank_integration->account_id = $company->account_id;
                 $bank_integration->user_id = $company->owner()->id;
-                $bank_integration->enablebanking_session_id = $session['session_id']; // used by ProcessBankTransactionsEnableBanking::updateAccount() to verify the session is still active
-                $bank_integration->enablebanking_account_id = $account['provider_account_id'];
-                $bank_integration->enablebanking_session_expired_at = new \DateTime($session['access']['valid_until'] ?? 'now');
                 $bank_integration->bank_account_type = $account['account_type'];
                 $bank_integration->bank_account_name = $account['account_name'];
                 $bank_integration->bank_account_number = $account['account_number'];
@@ -193,6 +190,18 @@ class EnableBankingController extends BaseController
             } finally {
 
                 if ($bank_integration) {
+
+                    // EnableBanking reuses the Nordigen columns (no extra migration):
+                    // - nordigen_account_id     => account uid (changes with every session)
+                    // - requisition_id          => session id (checked by ProcessBankTransactionsEnableBanking::updateAccount())
+                    // - nordigen_institution_id => identification_hash (stable across sessions, see findIntegrationBy())
+                    // Always store the new values, also when reconnecting an existing integration.
+                    $bank_integration->nordigen_account_id = $account['provider_account_id'];
+                    $bank_integration->requisition_id = $session['session_id'];
+
+                    if (!empty($account['identification_hash'])) {
+                        $bank_integration->nordigen_institution_id = $account['identification_hash'];
+                    }
 
                     $bank_integration->auto_sync = true;
                     $bank_integration->disabled_upstream = false;
@@ -211,6 +220,7 @@ class EnableBankingController extends BaseController
         $company->account->bank_integrations
             ->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
             ->where('auto_sync', true)
+            ->where('disabled_upstream', false)
             ->each(function ($bank_integration) {
                 ProcessBankTransactionsEnableBanking::dispatch($bank_integration)->delay(now()->addHour());
             });
@@ -245,18 +255,35 @@ class EnableBankingController extends BaseController
     }
 
     /**
-     * Find the first available Bank Integration from its EnableBanking account or session.
+     * Find the existing Bank Integration for an EnableBanking account.
      *
-     * @param array{provider_account_id: string} $account
+     * The account uid changes with every session, so an existing integration is matched on the
+     * stable identification_hash (stored in nordigen_institution_id). The uid (stored in
+     * nordigen_account_id) is only used as a fallback when no hash is available.
+     *
+     * @param array{provider_account_id: string, identification_hash?: string} $account
      */
     private function findIntegrationBy(
         array   $account,
         Company $company,
     ): BankIntegration {
+        $hash = $account['identification_hash'] ?? '';
+
         return BankIntegration::withTrashed()
             ->where('company_id', $company->id)
-            ->where('enablebanking_account_id', $account['provider_account_id'])
+            ->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
             ->where('is_deleted', 0)
+            ->where(function ($query) use ($account, $hash) {
+                if (!empty($hash)) {
+                    $query->where('nordigen_institution_id', $hash)
+                        ->orWhere('nordigen_account_id', $account['provider_account_id']);
+
+                    return;
+                }
+
+                $query->where('nordigen_account_id', $account['provider_account_id']);
+            })
+            ->orderByDesc('id')
             ->firstOrFail();
     }
 }
