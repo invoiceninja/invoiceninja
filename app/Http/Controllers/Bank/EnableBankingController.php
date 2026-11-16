@@ -99,7 +99,7 @@ class EnableBankingController extends BaseController
             $debug = "{$e->getMessage()} ({$e->getCode()})";
             nlog("EnableBanking: Could not start authorization with {$selected_aspsp['name']}: {$debug}");
 
-            return $this->failed('auth-failure', $context, $company);
+            return $this->failed('auth-failure', $context, $company, $this->errorCode($e));
         }
 
         // save cache
@@ -151,7 +151,7 @@ class EnableBankingController extends BaseController
             $session = $enablebanking->createSession($data['code']);
         } catch (\Exception $e) {
             nlog("EnableBanking: Could not create session: {$e->getMessage()}");
-            return $this->failed('session-creation-failed', $context, $company);
+            return $this->failed('session-creation-failed', $context, $company, $this->errorCode($e));
         }
 
         // Check validity of session
@@ -238,7 +238,7 @@ class EnableBankingController extends BaseController
      * Handles failure scenarios for EnableBanking bank integrations
      *
      */
-    private function failed(string $reason, array $context, $company = null): View
+    private function failed(string $reason, array $context, $company = null, ?string $error_code = null): View
     {
         $companyData = $company ? [
             'company' => $company,
@@ -251,8 +251,22 @@ class EnableBankingController extends BaseController
             ...$companyData,
             'lang' => $context['lang'],
             'failed_reason' => explode('&', $reason)[0],
+            'error_code' => $error_code,
             'redirectUrl' => $url . '?action=enablebanking_connect&status=failed&reason=' . $reason,
         ]);
+    }
+
+    /**
+     * Extract the EnableBanking API error code (e.g. REDIRECT_URI_NOT_ALLOWED) from an exception
+     * raised by the EnableBanking helper, which embeds the raw API response body in its message.
+     */
+    private function errorCode(\Throwable $e): ?string
+    {
+        if (preg_match('/"error"\s*:\s*"([A-Z0-9_]+)"/', $e->getMessage(), $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     /**

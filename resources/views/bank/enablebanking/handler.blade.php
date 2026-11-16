@@ -244,6 +244,9 @@
                 @else
                     {{ ctrans('texts.enablebanking_handler_error_contents_unknown', [], $lang ?? 'en') }}: {{ $failed_reason }}
                 @endif
+                @if(!empty($error_code))
+                    <code>{{ $error_code }}</code>
+                @endif
             </p>
             <div class="text-center mt-4">
                 <a href="{{ $redirectUrl }}" class="btn-primary">
