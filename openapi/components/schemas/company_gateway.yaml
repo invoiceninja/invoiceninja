@@ -9,6 +9,9 @@
           description: 'The gateway key (hash)'
           type: string
           example: '2'
+        gateway:
+          description: 'The gateway provider details, when included'
+          $ref: '#/components/schemas/Gateway'
         accepted_credit_cards:
           description: 'Bitmask representation of cards'
           type: integer
@@ -114,5 +117,3 @@
           description: 'When the gateway was last changed, as a Unix timestamp in seconds'
           type: integer
       type: object
-    
-    

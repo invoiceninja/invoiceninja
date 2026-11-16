@@ -3,12 +3,14 @@
       properties:
         min_limit:
           description: 'The minimum amount accepted for this gateway'
-          type: string
-          example: '2'
+          type: number
+          format: float
+          example: 2.0
         max_limit:
           description: 'The maximum amount accepted for this gateway'
-          type: string
-          example: '2'
+          type: number
+          format: float
+          example: 2.0
         fee_amount:
           description: 'The gateway fee amount'
           type: number

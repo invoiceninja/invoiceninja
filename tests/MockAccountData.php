@@ -865,12 +865,12 @@ trait MockAccountData
             $data[1]['fee_amount'] = 0.00;
             $data[1]['fee_percent'] = 0.000;
             $data[1]['fee_tax_name1'] = '';
-            $data[1]['fee_tax_rate1'] = '';
+            $data[1]['fee_tax_rate1'] = 0.0;
             $data[1]['fee_tax_name2'] = '';
-            $data[1]['fee_tax_rate2'] = '';
+            $data[1]['fee_tax_rate2'] = 0.0;
             $data[1]['fee_tax_name3'] = '';
             $data[1]['fee_tax_rate3'] = 0;
-            $data[1]['fee_cap'] = '';
+            $data[1]['fee_cap'] = 0.0;
             $data[1]['is_enabled'] = true;
 
             $cg = new CompanyGateway();
