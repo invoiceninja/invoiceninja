@@ -39,6 +39,7 @@ class GenericReportRequest extends Request
             'send_email' => 'required|bool',
             'document_email_attachment' => 'sometimes|bool',
             'pdf_email_attachment' => 'sometimes|bool',
+            'xml_email_attachment' => 'sometimes|bool',
             'include_deleted' => 'required|bool',
             'product_key' => 'sometimes|string|nullable',
             'template_id' => 'sometimes|string|nullable',
@@ -105,6 +106,7 @@ class GenericReportRequest extends Request
             $input['report_keys'] = [];
             $input['document_email_attachment'] = false;
             $input['pdf_email_attachment'] = false;
+            $input['xml_email_attachment'] = false;
         }
 
         $this->replace($input);

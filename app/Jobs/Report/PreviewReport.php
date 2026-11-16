@@ -119,6 +119,7 @@ class PreviewReport implements ShouldQueue
 
         $request['document_email_attachment'] = false;
         $request['pdf_email_attachment'] = false;
+        $request['xml_email_attachment'] = false;
 
         return $request;
     }

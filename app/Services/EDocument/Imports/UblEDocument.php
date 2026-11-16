@@ -45,7 +45,7 @@ class UblEDocument extends AbstractService
      * @throws \Throwable
      * @return Expense|Invoice
      */
-    public function run(?string $received_guid = null, bool $mark_sent = false): Expense|Invoice
+    public function run(?string $received_guid = null): Expense|Invoice
     {
 
         $e = new EInvoice();
@@ -54,7 +54,7 @@ class UblEDocument extends AbstractService
 
         if ($this->import_invoices && $invoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\Invoice
             && trim((string) data_get($invoice, 'InvoiceTypeCode.value')) === '389') {
-            $entity = (new SelfBilledInvoice())->createInvoice($invoice, $this->company, $received_guid, $mark_sent);
+            $entity = (new SelfBilledInvoice())->createInvoice($invoice, $this->company, $received_guid);
             $file_name = $received_guid ? $received_guid . '.xml' : "self-billed-{$entity->id}.xml";
 
             if (!$entity->documents()->where('name', $file_name)->exists()) {

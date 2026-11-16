@@ -85,10 +85,10 @@ class ActivityRepository extends BaseRepository
 
         $entity = $entity->fresh();
 
-        if (get_class($entity) == Invoice::class
-            || get_class($entity) == Quote::class
-            || get_class($entity) == Credit::class
-            || get_class($entity) == RecurringInvoice::class
+        if ($entity instanceof Invoice
+            || $entity instanceof Quote
+            || $entity instanceof Credit
+            || $entity instanceof RecurringInvoice
         ) {
             $backup = new Backup();
             $entity->load('client');

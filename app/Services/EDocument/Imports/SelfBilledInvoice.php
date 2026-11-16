@@ -14,16 +14,15 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
-use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
-use App\Repositories\PaymentRepository;
 use App\Utils\Ninja;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use InvoiceNinja\EInvoice\Models\Peppol\Invoice as PeppolInvoice;
 use UnexpectedValueException;
 
@@ -55,7 +54,7 @@ class SelfBilledInvoice
         }
     }
 
-    public function createInvoice(PeppolInvoice $document, Company $company, ?string $received_guid = null, bool $mark_sent = false): Invoice
+    public function createInvoice(PeppolInvoice $document, Company $company, ?string $received_guid = null): Invoice
     {
         $party = data_get($document, 'AccountingCustomerParty.Party');
         $source_number = trim((string) data_get($document, 'ID.value', ''));
@@ -75,10 +74,7 @@ class SelfBilledInvoice
         $source_document['ID']['value'] = $source_number;
         $source_document['InvoiceTypeCode']['value'] = 389;
 
-        return $company->getConnection()->transaction(function () use ($document, $company, $client_data, $source_number, $source_document, $received_guid, $mark_sent) {
-            // Serialize imports for this company, including client resolution and invoice numbering.
-            $company->newQuery()->whereKey($company->id)->lockForUpdate()->firstOrFail();
-
+        return DB::transaction(function () use ($document, $company, $client_data, $source_number, $source_document, $received_guid) {
             $client = $this->findOrCreateClient($client_data, $company);
             $existing = Invoice::withTrashed()
                 ->where('company_id', $company->id)
@@ -102,8 +98,11 @@ class SelfBilledInvoice
                     throw new UnexpectedValueException('Self-billed invoice identity already exists with different document contents.');
                 }
 
-                if ($mark_sent && !$existing->trashed() && !$existing->is_deleted && $existing->status_id === Invoice::STATUS_DRAFT) {
-                    return $this->activateInvoice($existing, $document);
+                $guid = $received_guid ?: $existing->backup->guid ?: trim((string) data_get($document, 'UUID.value', '')) ?: Str::uuid()->toString();
+
+                if ($existing->backup->guid !== $guid) {
+                    $existing->backup->guid = $guid;
+                    $existing->saveQuietly();
                 }
 
                 return $existing;
@@ -111,6 +110,7 @@ class SelfBilledInvoice
 
             $invoice = InvoiceFactory::create($company->id, $company->owner()->id);
             $invoice->e_invoice = ['Invoice' => $source_document];
+            $invoice->backup->guid = $received_guid ?: trim((string) data_get($document, 'UUID.value', '')) ?: Str::uuid()->toString();
 
             $invoice_data = [
                 'client_id' => $client->id,
@@ -137,10 +137,6 @@ class SelfBilledInvoice
 
             if ($expected_total === null || round($invoice->amount - (float) $expected_total - $rounding_amount, $precision) != 0) {
                 throw new UnexpectedValueException('Self-billed invoice totals do not match the received document.');
-            }
-
-            if ($mark_sent) {
-                $invoice = $this->activateInvoice($invoice, $document);
             }
 
             event(new InvoiceWasCreated($invoice, $company, Ninja::eventVars($invoice->user_id)));
@@ -170,35 +166,6 @@ class SelfBilledInvoice
         return $value;
     }
 
-    private function activateInvoice(Invoice $invoice, PeppolInvoice $document): Invoice
-    {
-        $invoice = $invoice->service()->markSent()->save();
-        $prepaid_amount = (float) data_get($document, 'LegalMonetaryTotal.PrepaidAmount.amount', 0);
-
-        if ($prepaid_amount > 0) {
-            if ($prepaid_amount > $invoice->amount) {
-                throw new UnexpectedValueException('Self-billed invoice prepayment exceeds the invoice amount.');
-            }
-
-            (new PaymentRepository(new CreditRepository()))->save([
-                'client_id' => $invoice->client_id,
-                'amount' => $prepaid_amount,
-                'date' => $invoice->date,
-                'transaction_reference' => data_get($invoice->e_invoice, 'Invoice.ID.value'),
-                'invoices' => [['invoice_id' => $invoice->id, 'amount' => $prepaid_amount]],
-            ], PaymentFactory::create($invoice->company_id, $invoice->user_id, $invoice->client_id));
-            $invoice->refresh();
-        }
-
-        $payable_amount = data_get($document, 'LegalMonetaryTotal.PayableAmount.amount');
-
-        if ($payable_amount !== null && round($invoice->balance - (float) $payable_amount, $invoice->client->currency()->precision) != 0) {
-            throw new UnexpectedValueException('Self-billed invoice balance does not match the received payable amount.');
-        }
-
-        return $invoice;
-    }
-
     private function clientData(object $party, PeppolInvoice $document): array
     {
         $vat_number = '';
@@ -210,12 +177,17 @@ class SelfBilledInvoice
             }
         }
 
-        $currency_code = data_get($document, 'DocumentCurrencyCode.value');
-        $currency = app('currencies')->firstWhere('code', $currency_code);
-        $country_code = data_get($party, 'PostalAddress.Country.IdentificationCode.value');
-        $country = app('countries')->firstWhere('iso_3166_2', $country_code);
+        $currency_code = strtoupper(trim((string) data_get($document, 'DocumentCurrencyCode.value')));
 
-        if (!$currency || !$country) {
+        /** @var ?\App\Models\Currency $currency */
+        $currency = app('currencies')->firstWhere('code', $currency_code);
+        $country_code = strtoupper(trim((string) data_get($party, 'PostalAddress.Country.IdentificationCode.value')));
+
+        /** @var ?\App\Models\Country $country */
+        $country = app('countries')->first(fn ($country) =>
+            $country->iso_3166_2 === $country_code || $country->iso_3166_3 === $country_code);
+
+        if (!$currency || $country_code === '' || !$country) {
             throw new UnexpectedValueException('Self-billed invoice has an unsupported currency or buyer country.');
         }
 
