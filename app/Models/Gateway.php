@@ -171,6 +171,7 @@ class Gateway extends StaticModel
                     GatewayType::ACSS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'charge.refunded', 'refund.failed', 'charge.failed', 'payment_intent.succeeded', 'payment_intent.payment_failed']],
                     GatewayType::FPX => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'charge.refunded', 'refund.failed', 'charge.failed',]],
                     GatewayType::PROMPTPAY => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_intent.succeeded', 'payment_intent.processing', 'payment_intent.payment_failed', 'charge.refunded', 'refund.failed', 'charge.failed']],
+                    GatewayType::CARD_PRESENT => ['refund' => true, 'token_billing' => false, 'webhooks' => ['payment_intent.succeeded', 'charge.refunded']],
                 ];
             case 39:
                 return [
