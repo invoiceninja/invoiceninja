@@ -17,6 +17,8 @@ use App\Utils\Ninja;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Mail\TemplateEmail;
+use App\Mail\VendorTemplateEmail;
 use App\Models\SystemLog;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
@@ -112,6 +114,30 @@ class NinjaMailerJob implements ShouldQueue
         /* Run time we set the email tag */
         $this->nmo->mailable->tag($this->company->company_key);
 
+        $this->setHeaders();
+
+        $this->deliver();
+
+        $this->nmo = null;
+        $this->company = null;
+
+        $this->cleanUpMailers();
+    }
+
+    private function setHeaders(): void
+    {
+        if (($this->nmo->mailable instanceof TemplateEmail || $this->nmo->mailable instanceof VendorTemplateEmail)
+            && !empty($this->nmo->settings->disposition_notification_to ?? '')) {
+            $read_receipt_to = $this->nmo->settings->disposition_notification_to;
+
+            $this->nmo->mailable->withSymfonyMessage(function ($message) use ($read_receipt_to) {
+                $headers = $message->getHeaders();
+
+                $headers->addMailboxListHeader('Disposition-Notification-To', [$read_receipt_to]);
+                $headers->addMailboxListHeader('Return-Receipt-To', [$read_receipt_to]);
+            });
+        }
+
         /* If we have an invitation present, we pass the invitation key into the email headers*/
         if ($this->nmo->invitation) {
             $this->nmo
@@ -121,13 +147,6 @@ class NinjaMailerJob implements ShouldQueue
                     // $message->getHeaders()->addTextHeader('List-Unsubscribe', $this->nmo->mailable->viewData->email_preferences);
                 });
         }
-
-        $this->deliver();
-
-        $this->nmo = null;
-        $this->company = null;
-
-        $this->cleanUpMailers();
     }
 
     private function deliver(): void

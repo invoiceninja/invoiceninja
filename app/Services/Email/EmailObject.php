@@ -107,6 +107,9 @@ class EmailObject
     /** @var array{key: value} $args */
     public array $headers = [];
 
+    /** @var array<string, array<string>> $mailbox_headers */
+    public array $mailbox_headers = [];
+
     public ?string $entity_class = null;
 
     /** @var array{key: value} $args */
