@@ -174,7 +174,7 @@ class PaymentController extends Controller
     public function response(PaymentResponseRequest $request)
     {
         /** @var \App\Models\CompanyGateway $gateway **/
-        $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
+        $gateway = $request->getCompanyGateway();
         $payment_hash = PaymentHash::with('fee_invoice')->where('hash', $request->payment_hash)->firstOrFail();
 
         $invoice = $payment_hash->fee_invoice;
