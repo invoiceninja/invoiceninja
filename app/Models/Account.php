@@ -54,6 +54,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $utm_campaign
  * @property string|null $utm_term
  * @property string|null $utm_content
+ * @property array|null $attribution
  * @property string $latest_version
  * @property int $report_errors
  * @property string|null $referral_code
@@ -143,6 +144,7 @@ class Account extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'onboarding' => 'object',
+        'attribution' => 'array',
         'billing_context' => BillingContext::class,
         'set_react_as_default_ap' => 'bool',
         'promo_expires' => 'date',
