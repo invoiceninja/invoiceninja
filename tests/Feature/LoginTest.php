@@ -266,6 +266,33 @@ class LoginTest extends TestCase
         $this->assertEquals(['password'], $response->json('methods'));
     }
 
+    public function testPrecheckRequiresTheSecretWhenSelfHosted()
+    {
+        config(['ninja.environment' => 'selfhost', 'ninja.api_secret' => 'password']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => 'password',
+        ])->postJson('/api/v1/login/precheck', [
+            'email' => 'this-account-does-not-exist@gmail.com',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertTrue($response->json('secret_required'));
+    }
+
+    public function testPrecheckDoesNotRequireTheSecretWhenHosted()
+    {
+        // ApiSecretCheck never checks the secret on hosted
+        config(['ninja.environment' => 'hosted', 'ninja.api_secret' => 'password']);
+
+        $response = $this->postJson('/api/v1/login/precheck', [
+            'email' => 'this-account-does-not-exist@gmail.com',
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertFalse($response->json('secret_required'));
+    }
+
     public function testApiLoginSucceedsWithPasswordWhenPasskeyExists()
     {
         Account::all()->each(function ($account) {
