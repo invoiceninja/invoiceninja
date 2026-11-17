@@ -578,6 +578,17 @@ trait GeneratesCounter
     }
 
     /**
+     * Whether the pattern contains a counter placeholder that applyNumberPattern() replaces.
+     *
+     * @param  string|null  $pattern
+     * @return bool
+     */
+    private function hasCounterToken(?string $pattern): bool
+    {
+        return preg_match('/{\$(counter|client_counter|clientCounter|group_counter)}/', $pattern ?? '') === 1;
+    }
+
+    /**
      * Replaces pattern placeholders with counter, date, and entity values.
      *
      * @param  BaseModel  $entity
@@ -767,7 +778,7 @@ trait GeneratesCounter
         //If it is a quote - we need to
         $pattern = $this->getNumberPattern($entity, $client);
 
-        if (strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)) {
+        if (strlen($pattern) > 1 && ! $this->hasCounterToken($pattern)) {
             $pattern = $pattern . '{$counter}';
         }
 
@@ -807,7 +818,7 @@ trait GeneratesCounter
 
         $pattern = $pattern_string ? $company->getSetting($pattern_string) : '';
 
-        if (stripos($pattern, 'counter') === false) {
+        if (! $this->hasCounterToken($pattern)) {
             $pattern .= '{$counter}';
         }
 
@@ -851,7 +862,7 @@ trait GeneratesCounter
 
         $pattern = $client->getSetting($pattern_string);
 
-        if (stripos($pattern ?? '', 'counter') === false) {
+        if (! $this->hasCounterToken($pattern)) {
             $pattern .= '{$counter}';
         }
 
