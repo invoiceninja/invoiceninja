@@ -20,6 +20,8 @@ use App\Utils\Ninja;
 
 class CreateAccountRequest extends Request
 {
+    private const ATTRIBUTION_KEY_PATTERN = '/^utm_[a-z0-9_]{1,59}$/';
+
     private array $fake_domains = [
         'generator.email',
         'emailfake.com',
@@ -211,7 +213,7 @@ class CreateAccountRequest extends Request
             'utm_content'       => 'sometimes|nullable|string|max:191',
             'attribution'       => ['sometimes', 'nullable', 'array', 'max:20', function ($attribute, $value, $fail) {
                 foreach (array_keys($value) as $key) {
-                    if (! preg_match('/^utm_[a-z0-9_]{1,59}$/', (string) $key)) {
+                    if (! preg_match(self::ATTRIBUTION_KEY_PATTERN, (string) $key)) {
                         $fail('The attribution contains an unsupported key.');
 
                         return;
@@ -249,6 +251,30 @@ class CreateAccountRequest extends Request
         });
     }
 
+    /**
+     * First touch wins: an explicit attribution payload is validated as sent,
+     * otherwise fall back to the attribution cookie set before the signup redirect.
+     */
+    public static function attributionFrom(mixed $attribution, ?string $cookie): mixed
+    {
+        if ($attribution !== null) {
+            return $attribution;
+        }
+
+        $cookie = json_decode((string) $cookie, true);
+
+        if (! is_array($cookie)) {
+            return null;
+        }
+
+        $cookie = array_filter($cookie, fn ($value, $key) => is_string($key)
+            && is_string($value)
+            && strlen($value) <= 191
+            && preg_match(self::ATTRIBUTION_KEY_PATTERN, $key), ARRAY_FILTER_USE_BOTH);
+
+        return array_slice($cookie, 0, 20, true) ?: null;
+    }
+
     public function prepareForValidation()
     {
 
@@ -257,6 +283,8 @@ class CreateAccountRequest extends Request
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');
+
+        $input['attribution'] = self::attributionFrom($input['attribution'] ?? null, request()->cookie('ninja_attribution'));
 
         $this->replace($input);
     }
