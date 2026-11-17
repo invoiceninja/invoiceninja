@@ -31,7 +31,7 @@ class SignupAttributionTest extends TestCase
         Bus::fake();
 
         config([
-            'ninja.environment' => 'selfhost',
+            'ninja.environment' => 'hosted',
         ]);
     }
 
