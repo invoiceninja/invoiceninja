@@ -147,6 +147,56 @@ class DocumentFilters extends QueryFilters
     {
         return $this->builder;
     }
+
+    /**
+     * with_trashed
+     *
+     * There is no is_deleted prop, so just return the builder.
+     *
+     * @param  string $value
+     * @return Builder
+     */
+    public function with_trashed($value)
+    {
+        return $this->builder;
+    }
+
+    /**
+     * filter_deleted_clients
+     *
+     * There is no client relation, so just return the builder.
+     *
+     * @param  string $value
+     * @return Builder
+     */
+    public function filter_deleted_clients($value)
+    {
+        return $this->builder;
+    }
+
+    /**
+     * without_deleted_clients
+     *
+     * There is no client relation, so just return the builder.
+     *
+     * @return Builder
+     */
+    public function without_deleted_clients(): Builder
+    {
+        return $this->builder;
+    }
+
+    /**
+     * without_deleted_vendors
+     *
+     * There is no vendor relation, so just return the builder.
+     *
+     * @return Builder
+     */
+    public function without_deleted_vendors(): Builder
+    {
+        return $this->builder;
+    }
     
     /**
      * Filters the query by the users company ID.

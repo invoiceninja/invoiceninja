@@ -17,6 +17,7 @@ use App\Models\Task;
 use App\Models\Document;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -441,6 +442,36 @@ class DocumentsApiTest extends TestCase
         $ids = array_column($response->json('data'), 'id');
         $this->assertContains($companyDoc->hashed_id, $ids);
         $this->assertContains($clientDoc->hashed_id, $ids);
+    }
+
+    public static function sharedListFilterProvider(): array
+    {
+        return [
+            'with_trashed' => ['with_trashed=false'],
+            'filter_deleted_clients' => ['filter_deleted_clients=true'],
+            'without_deleted_clients' => ['without_deleted_clients=true'],
+            'without_deleted_vendors' => ['without_deleted_vendors=true'],
+        ];
+    }
+
+    #[DataProvider('sharedListFilterProvider')]
+    public function testSharedListFiltersDoNotFailOnDocuments(string $query)
+    {
+        Document::query()->withTrashed()->cursor()->each(fn($d) => $d->forceDelete());
+
+        $d = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'client.pdf',
+            'type' => 'pdf',
+        ]);
+        $this->client->documents()->save($d);
+
+        $response = $this->withHeaders(['X-API-TOKEN' => $this->token])
+            ->getJson("/api/v1/documents?{$query}&per_page=200")
+            ->assertStatus(200);
+
+        $this->assertEquals([$d->hashed_id], array_column($response->json('data'), 'id'));
     }
 
     public function testDocumentTypeFilterOrsValuesWithinAGroup()
