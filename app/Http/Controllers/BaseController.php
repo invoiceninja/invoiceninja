@@ -1115,6 +1115,10 @@ class BaseController extends Controller
      */
     private function rememberAttribution(): void
     {
+        if (! Ninja::isHosted()) {
+            return;
+        }
+
         if (request()->hasCookie('ninja_attribution')) {
             return;
         }
