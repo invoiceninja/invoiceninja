@@ -15,17 +15,26 @@ namespace App\Http\Requests\Email;
 use App\Http\Requests\Request;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class EntityEmailHistoryRequest extends Request
 {
     use MakesHash;
 
-    private string $entity_plural = '';
+    private const ENTITY_CLASSES = [
+        'invoice' => Invoice::class,
+        'quote' => Quote::class,
+        'credit' => Credit::class,
+        'recurring_invoice' => RecurringInvoice::class,
+        'purchase_order' => PurchaseOrder::class,
+    ];
+
+    private string $entity_plural = 'invoices';
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -42,23 +51,32 @@ class EntityEmailHistoryRequest extends Request
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
         return [
-            'entity' => 'bail|required|string|in:invoice,quote,credit,recurring_invoice,purchase_order',
-            'entity_id' => ['bail','required',Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
+            'entity' => ['bail', 'required', Rule::in(array_keys(self::ENTITY_CLASSES))],
+            'entity_id' => ['bail', 'required', Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
         ];
     }
 
-    public function prepareForValidation()
+    public function prepareForValidation(): void
     {
         $input = $this->all();
 
-        $this->entity_plural = Str::plural($input['entity'] ?? '');
-        $input['entity_id'] = $this->decodePrimaryKey($input['entity_id'] ?? '');
+        if (array_key_exists('entity_id', $input)) {
+            $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
+        }
+
+        if (isset($input['entity'])) {
+            $entity_class = self::ENTITY_CLASSES[$input['entity']] ?? $input['entity'];
+
+            if (in_array($entity_class, self::ENTITY_CLASSES, true)) {
+                $this->entity_plural = (new $entity_class())->getTable();
+            }
+        }
 
         $this->replace($input);
     }
@@ -79,7 +97,7 @@ class EntityEmailHistoryRequest extends Request
 
         if($entity){
 
-            return $entity::where('company_id', $user->company()->id)->where('id', $this->input('entity_id'))->first();
+            return $entity::withTrashed()->where('company_id', $user->company()->id)->where('id', $this->input('entity_id'))->first();
         }
 
         return $entity;
