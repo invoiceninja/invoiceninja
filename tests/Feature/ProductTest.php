@@ -13,6 +13,7 @@
 namespace Tests\Feature;
 
 use App\DataMapper\InvoiceItem;
+use App\Jobs\Product\UpdateOrCreateProduct;
 use Tests\TestCase;
 use App\Models\Invoice;
 use App\Models\Product;
@@ -147,6 +148,47 @@ class ProductTest extends TestCase
         $this->assertEquals(10, $line_items[0]->product_cost);
 
 
+    }
+
+    public function testProductsWithAMonthYearRangeAreNotUpdatedFromInvoices()
+    {
+        $ranged = Product::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'product_key' => 'ranged',
+            'notes' => 'Retainer [MONTHYEAR|MONTHYEAR+2]',
+        ]);
+
+        $plain = Product::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'product_key' => 'plain',
+            'notes' => 'Retainer',
+        ]);
+
+        $items = [];
+
+        foreach (['ranged', 'plain'] as $product_key) {
+            $item = new InvoiceItem();
+            $item->product_key = $product_key;
+            $item->quantity = 1;
+            $item->cost = 10;
+            $item->notes = 'Retainer January 2026 - March 2026';
+
+            $items[] = $item;
+        }
+
+        $i = Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'line_items' => $items,
+        ]);
+
+        (new UpdateOrCreateProduct($i->line_items, $i, $this->company))->handle();
+
+        $this->assertEquals('Retainer [MONTHYEAR|MONTHYEAR+2]', $ranged->fresh()->notes);
+        $this->assertEquals('Retainer January 2026 - March 2026', $plain->fresh()->notes);
     }
 
     public function testSetTaxId()

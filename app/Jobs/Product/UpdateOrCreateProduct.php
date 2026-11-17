@@ -96,7 +96,7 @@ class UpdateOrCreateProduct implements ShouldQueue
             /* If a user is using placeholders in their descriptions, do not update the products */
             $string_hit = false;
 
-            foreach ([':MONTH',':YEAR',':QUARTER',':WEEK'] as $string) {
+            foreach ([':MONTH',':YEAR',':QUARTER',':WEEK', 'MONTHYEAR'] as $string) {
                 if (stripos($product->notes ?? '', $string) !== false) {
                     $string_hit = true;
                 }
