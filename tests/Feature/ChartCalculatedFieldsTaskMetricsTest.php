@@ -364,6 +364,68 @@ class ChartCalculatedFieldsTaskMetricsTest extends TestCase
         $this->assertSame(2, $allTimeDue->json());
     }
 
+    public function testPreviousPeriodOfACustomRangeIsTheSameLengthBeforeIt(): void
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->update(['is_deleted' => true]);
+
+        $this->createMetricTask(['due_date' => '2026-06-30']);
+        $this->createMetricTask(['due_date' => '2026-07-01']);
+        $this->createMetricTask(['due_date' => '2026-07-31']);
+        $this->createMetricTask(['due_date' => '2026-08-01']);
+
+        $previousDue = $this->postMetric([
+            'period' => 'previous',
+            'field' => 'tasks_due',
+            'calculation' => 'count',
+        ])->assertOk();
+
+        $this->assertSame(2, $previousDue->json());
+    }
+
+    public function testPreviousPeriodWithoutADateRangeUsesTheStartAndEndDates(): void
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->update(['is_deleted' => true]);
+
+        $this->createMetricTask(['due_date' => '2026-07-20']);
+        $this->createMetricTask(['due_date' => '2026-08-20']);
+
+        $previousDue = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/charts/calculated_fields', [
+            'start_date' => '2026-08-01',
+            'end_date' => '2026-08-31',
+            'period' => 'previous',
+            'field' => 'tasks_due',
+            'calculation' => 'count',
+        ])->assertOk();
+
+        $this->assertSame(1, $previousDue->json());
+    }
+
+    public function testPreviousPeriodOfTheLast365DaysIsTheYearBeforeIt(): void
+    {
+        Task::query()
+            ->where('company_id', $this->company->id)
+            ->update(['is_deleted' => true]);
+
+        $this->createMetricTask(['due_date' => '2024-08-25']);
+        $this->createMetricTask(['due_date' => '2025-01-15']);
+
+        $previousDue = $this->postMetric([
+            'date_range' => 'last365_days',
+            'period' => 'previous',
+            'field' => 'tasks_due',
+            'calculation' => 'count',
+        ])->assertOk();
+
+        $this->assertSame(1, $previousDue->json());
+    }
+
     public function testOverdueTasksUseTheCompanyLocalDateBoundary(): void
     {
         Task::query()

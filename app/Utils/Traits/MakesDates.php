@@ -169,8 +169,11 @@ trait MakesDates
     {
         $first_month_of_year = ($company?->first_month_of_year) ?: 1;
         $fin_year_start = now();
+
+        // Without a date_range, the current period is start_date - end_date
+        $date_range = $data['date_range'] ?? EmailStatement::CUSTOM_RANGE;
         
-        if (in_array($data['date_range'], ['this_year', 'last_year'])) {
+        if (in_array($date_range, ['this_year', 'last_year'])) {
             $fin_year_start = \Carbon\Carbon::createFromDate(now()->year, $first_month_of_year, 1);
 
             if (now()->lt($fin_year_start)) {
@@ -180,15 +183,28 @@ trait MakesDates
             // For this_year previous = 1 year back, for last_year previous = 2 years back
             $fin_year_start->subYearNoOverflow();
 
-            if ($data['date_range'] == 'last_year') {
+            if ($date_range == 'last_year') {
                 $fin_year_start->subYearNoOverflow();
             }
         }
 
-        return match ($data['date_range']) {
+        // For a custom range previous = the same number of days, ending the day before it starts
+        if ($date_range == EmailStatement::CUSTOM_RANGE) {
+            try {
+                $custom_start_date = Carbon::parse($data['start_date']);
+                $custom_days = (int) $custom_start_date->diffInDays(Carbon::parse($data['end_date'])) + 1;
+
+                $data['end_date'] = $custom_start_date->copy()->subDay()->format('Y-m-d');
+                $data['start_date'] = $custom_start_date->subDays($custom_days)->format('Y-m-d');
+            } catch (\Exception $e) {
+                // Invalid dates are left for validation to reject
+            }
+        }
+
+        return match ($date_range) {
             EmailStatement::LAST7 => [now()->subDays(14)->format('Y-m-d'), now()->subDays(7)->format('Y-m-d')],
             EmailStatement::LAST30 => [now()->subDays(60)->format('Y-m-d'), now()->subDays(30)->format('Y-m-d')],
-            EmailStatement::LAST365 => [now()->subDays(739)->format('Y-m-d'), now()->subDays(365)->format('Y-m-d')],
+            EmailStatement::LAST365 => [now()->subDays(730)->format('Y-m-d'), now()->subDays(365)->format('Y-m-d')],
             EmailStatement::THIS_MONTH => [now()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
             EmailStatement::LAST_MONTH => [now()->subMonthsNoOverflow(2)->firstOfMonth()->format('Y-m-d'), now()->subMonthsNoOverflow(2)->lastOfMonth()->format('Y-m-d')],
             EmailStatement::THIS_QUARTER => [now()->subQuarterNoOverflow()->startOfQuarter()->format('Y-m-d'), now()->subQuarterNoOverflow()->endOfQuarter()->format('Y-m-d')],
