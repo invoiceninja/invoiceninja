@@ -63,6 +63,10 @@ class CreateAccount
         $sp794f3f = new Account();
         $sp794f3f->fill($this->request);
 
+        if (is_array($this->request['attribution'] ?? null)) {
+            $this->applyAttribution($sp794f3f, $this->request['attribution']);
+        }
+
         if (array_key_exists('rc', $this->request)) {
             $sp794f3f->referral_code = $this->request['rc'];
         }
@@ -146,6 +150,17 @@ class CreateAccount
                  ->queue();
 
         return $sp794f3f;
+    }
+
+    public function applyAttribution(Account $account, array $attribution): void
+    {
+        $account->attribution = $attribution;
+
+        foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as $key) {
+            if (isset($attribution[$key])) {
+                $account->{$key} = $attribution[$key];
+            }
+        }
     }
 
     private function getDomain($email)
