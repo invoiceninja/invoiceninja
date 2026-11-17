@@ -83,18 +83,27 @@ class DocumentFilters extends QueryFilters
     {
         $types = explode(',', $types);
 
-        foreach ($types as $type) {
-            match ($type) {
-                'private' => $this->builder->where('is_public', 0),
-                'public' => $this->builder->where('is_public', 1),
-                'pdf' => $this->builder->where('type', 'pdf'),
-                'image' => $this->builder->whereIn('type', ['png','jpeg','jpg','gif','svg']),
-                'other' => $this->builder->whereNotIn('type', ['pdf','png','jpeg','jpg','gif','svg']),
-                default => $this->builder,
-            };
-        }
+        // Values are ORed within the visibility and file type groups, the groups are ANDed
+        $this->builder->where(function ($query) use ($types) {
+            foreach ($types as $type) {
+                match ($type) {
+                    'private' => $query->orWhere('is_public', 0),
+                    'public' => $query->orWhere('is_public', 1),
+                    default => $query,
+                };
+            }
+        });
 
-        return $this->builder;
+        return $this->builder->where(function ($query) use ($types) {
+            foreach ($types as $type) {
+                match ($type) {
+                    'pdf' => $query->orWhere('type', 'pdf'),
+                    'image' => $query->orWhereIn('type', ['png','jpeg','jpg','gif','svg']),
+                    'other' => $query->orWhereNotIn('type', ['pdf','png','jpeg','jpg','gif','svg']),
+                    default => $query,
+                };
+            }
+        });
     }
 
     /**
