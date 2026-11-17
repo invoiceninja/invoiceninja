@@ -128,6 +128,7 @@ class OpenApiContractTest extends TestCase
         'chart totals' => ['post', '/api/v1/charts/totals', [], self::RANGE],
         'chart totals v2' => ['post', '/api/v1/charts/totals_v2', [], self::RANGE],
         'chart summary v2' => ['post', '/api/v1/charts/chart_summary_v2', [], self::RANGE],
+        'chart entity totals' => ['post', '/api/v1/charts/entity_totals', [], ['entity' => 'invoices']],
         'chart calculated fields' => ['post', '/api/v1/charts/calculated_fields', [], ['field' => 'active_invoices', 'calculation' => 'sum', 'period' => 'current', 'format' => 'money'] + self::RANGE],
         'invoice action' => ['get', '/api/v1/invoices/{id}/{action}', ['id' => '{invoice}', 'action' => 'mark_sent']],
         'quote action' => ['get', '/api/v1/quotes/{id}/{action}', ['id' => '{quote}', 'action' => 'mark_sent']],

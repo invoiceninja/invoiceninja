@@ -24,6 +24,7 @@ use App\Models\RecurringInvoice;
 use App\Models\User;
 use App\Services\Chart\CashFlowForecastService;
 use App\Services\Chart\ClientPaymentAnalyticsService;
+use App\Utils\BcMath;
 
 class ChartService
 {
@@ -270,6 +271,51 @@ class ChartService
     }
 
     /* Totals */
+
+    /* Entity Totals */
+
+    /**
+     * entity_totals
+     *
+     * Per currency amount and count of the records in an entity list,
+     * keyed by currency id.
+     *
+     * @param  string $entity
+     * @return array
+     */
+    public function entity_totals(string $entity): array
+    {
+        $totals = match ($entity) {
+            'clients' => $this->getClientTotalsQuery(),
+            'invoices' => $this->getInvoiceTotalsQuery(),
+            'quotes' => $this->getQuoteTotalsQuery(),
+            'credits' => $this->getCreditTotalsQuery(),
+            'payments' => $this->getPaymentTotalsQuery(),
+            'recurring_invoices' => $this->getRecurringInvoiceTotalsQuery(),
+            'purchase_orders' => $this->getPurchaseOrderTotalsQuery(),
+            'expenses' => $this->getExpenseTotalsQuery(),
+            'recurring_expenses' => $this->getRecurringExpenseTotalsQuery(),
+        };
+
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
+
+        $data = [];
+
+        foreach ($totals as $total) {
+            $currency_id = (int) $total->effective_currency_id;
+            $precision = $currencies->firstWhere('id', $currency_id)->precision ?? 2;
+
+            $data[$currency_id] = [
+                'amount' => BcMath::round($total->amount ?? 0, $precision),
+                'count' => (int) $total->count,
+            ];
+        }
+
+        return $data;
+    }
+
+    /* Entity Totals */
 
     /* Helpers */
 

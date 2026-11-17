@@ -1,0 +1,427 @@
+<?php
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace Tests\Feature;
+
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\CompanyUser;
+use App\Models\Credit;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
+use App\Models\User;
+use App\Models\Vendor;
+use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\MockAccountData;
+use Tests\TestCase;
+
+class ChartEntityTotalsTest extends TestCase
+{
+    use DatabaseTransactions;
+    use MockAccountData;
+
+    private const ENTITIES = ['clients', 'invoices', 'quotes', 'credits', 'payments', 'recurring_invoices', 'purchase_orders', 'expenses', 'recurring_expenses'];
+
+    private const ARCHIVED = ['deleted_at' => '2026-06-01 00:00:00'];
+
+    private const DELETED = ['is_deleted' => true];
+
+    private Company $metricCompany;
+
+    private string $metricToken;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Carbon::setTestNow(Carbon::parse('2026-06-15 12:00:00 UTC'));
+        $this->makeTestData();
+
+        $settings = CompanySettings::defaults();
+        $settings->currency_id = '1';
+        $settings->timezone_id = (string) app('timezones')->firstWhere('name', 'Europe/London')->id;
+
+        $this->metricCompany = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+        ]);
+
+        $this->metricToken = $this->companyToken($this->user, true);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
+    /**
+     * entity => [included records, excluded records], each record [attributes, client attributes].
+     * Every included record totals 100.
+     */
+    public static function entityTotals(): array
+    {
+        return [
+            'clients' => ['clients', [
+                [[], []],
+                [[], []],
+            ], [
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+            ]],
+            'invoices' => ['invoices', [
+                [['status_id' => Invoice::STATUS_SENT], []],
+                [['status_id' => Invoice::STATUS_PARTIAL, 'amount' => 150], []],
+            ], [
+                [['status_id' => Invoice::STATUS_DRAFT], []],
+                [['status_id' => Invoice::STATUS_PAID], []],
+                [['status_id' => Invoice::STATUS_CANCELLED], []],
+                [['status_id' => Invoice::STATUS_REVERSED], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
+            ]],
+            'quotes' => ['quotes', [
+                [['status_id' => Quote::STATUS_SENT], []],
+                [['status_id' => Quote::STATUS_APPROVED], []],
+                [['due_date' => null], []],
+                [['due_date' => '2026-06-15'], []],
+            ], [
+                [['status_id' => Quote::STATUS_DRAFT], []],
+                [['status_id' => Quote::STATUS_CONVERTED], []],
+                [['status_id' => Quote::STATUS_APPROVED, 'invoice_id' => 1], []],
+                [['status_id' => Quote::STATUS_REJECTED], []],
+                [['status_id' => Quote::STATUS_CANCELLED], []],
+                [['due_date' => '2026-06-14'], []],
+                [['status_id' => Quote::STATUS_APPROVED, 'due_date' => '2026-06-14'], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
+            ]],
+            'credits' => ['credits', [
+                [['status_id' => Credit::STATUS_SENT], []],
+                [['status_id' => Credit::STATUS_PARTIAL, 'amount' => 150], []],
+            ], [
+                [['status_id' => Credit::STATUS_DRAFT], []],
+                [['status_id' => Credit::STATUS_APPLIED], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
+            ]],
+            'payments' => ['payments', [
+                [['status_id' => Payment::STATUS_COMPLETED, 'amount' => 150, 'applied' => 50], []],
+                // a refund against an invoice leaves payments.applied unchanged
+                [['status_id' => Payment::STATUS_PARTIALLY_REFUNDED, 'amount' => 300, 'applied' => 200, 'refunded' => 50], []],
+            ], [
+                [['status_id' => Payment::STATUS_PENDING], []],
+                [['status_id' => Payment::STATUS_CANCELLED], []],
+                [['status_id' => Payment::STATUS_FAILED], []],
+                [['status_id' => Payment::STATUS_REFUNDED, 'refunded' => 100], []],
+                [['applied' => 100], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
+            ]],
+            'recurring_invoices' => ['recurring_invoices', [
+                [[], []],
+            ], [
+                [['status_id' => RecurringInvoice::STATUS_DRAFT], []],
+                [['status_id' => RecurringInvoice::STATUS_PAUSED], []],
+                [['status_id' => RecurringInvoice::STATUS_COMPLETED], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
+            ]],
+            'purchase_orders' => ['purchase_orders', [
+                [['status_id' => PurchaseOrder::STATUS_SENT], []],
+                [['status_id' => PurchaseOrder::STATUS_ACCEPTED], []],
+            ], [
+                [['status_id' => PurchaseOrder::STATUS_DRAFT], []],
+                [['status_id' => PurchaseOrder::STATUS_RECEIVED], []],
+                [['status_id' => PurchaseOrder::STATUS_CANCELLED], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+            ]],
+            'expenses' => ['expenses', [
+                [[], []],
+                [['client_id' => null], []],
+            ], [
+                [['should_be_invoiced' => false], []],
+                [['invoice_id' => 1], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
+            ]],
+            'recurring_expenses' => ['recurring_expenses', [
+                [[], []],
+                [['remaining_cycles' => 3], []],
+            ], [
+                [['remaining_cycles' => 0], []],
+                [['remaining_cycles' => null], []],
+                [['status_id' => RecurringInvoice::STATUS_DRAFT], []],
+                [['status_id' => RecurringInvoice::STATUS_PAUSED], []],
+                [['status_id' => RecurringInvoice::STATUS_COMPLETED], []],
+                [self::ARCHIVED, []],
+                [self::DELETED, []],
+            ]],
+        ];
+    }
+
+    #[DataProvider('entityTotals')]
+    public function testEntityTotalsArePerCurrency(string $entity, array $included, array $excluded): void
+    {
+        foreach (array_merge($included, $excluded) as [$attributes, $client_attributes]) {
+            $this->createRecord($entity, $attributes, $client_attributes, 2);
+        }
+
+        // Falls back to the company currency
+        $this->createRecord($entity);
+
+        $this->postEntityTotals($entity, $this->metricToken)
+            ->assertStatus(200)
+            ->assertExactJson([
+                'data' => [
+                    '1' => ['amount' => '100.00', 'count' => 1],
+                    '2' => ['amount' => number_format(100 * count($included), 2, '.', ''), 'count' => count($included)],
+                ],
+            ]);
+    }
+
+    public function testEntityTotalsWithoutRecordsAreAnEmptyObject(): void
+    {
+        foreach (self::ENTITIES as $entity) {
+            $response = $this->postEntityTotals($entity, $this->metricToken);
+
+            $response->assertStatus(200);
+            $this->assertSame('{"data":{}}', $response->getContent());
+        }
+    }
+
+    public function testUnknownEntityIsRejected(): void
+    {
+        $this->postEntityTotals('tasks', $this->metricToken)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('entity');
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->metricToken,
+        ])->postJson('/api/v1/charts/entity_totals', [])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('entity');
+    }
+
+    public static function permissions(): array
+    {
+        return [
+            'own and assigned records' => [false, 2],
+            'every record' => [true, 3],
+        ];
+    }
+
+    #[DataProvider('permissions')]
+    public function testEntityTotalsAreScopedToTheRecordsTheUserCanList(bool $can_view_entity, int $count): void
+    {
+        $user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => $this->createDbHash(config('database.default')),
+            'email' => uniqid('restricted') . '@gmail.com',
+        ]);
+
+        $token = $this->companyToken($user, false);
+
+        // clients come first, before the other entities add clients of their own
+        foreach (self::ENTITIES as $entity) {
+            $this->createRecord($entity, ['user_id' => $user->id], [], 2);
+            $this->createRecord($entity, ['assigned_user_id' => $user->id], [], 2);
+            $this->createRecord($entity, [], [], 2);
+
+            $permissions = $can_view_entity ? ['view_' . Str::singular($entity)] : [];
+
+            // view_client alone hides client balances
+            if ($can_view_entity && $entity == 'clients') {
+                $permissions[] = 'view_invoice';
+            }
+
+            CompanyUser::query()
+                ->where('user_id', $user->id)
+                ->where('company_id', $this->metricCompany->id)
+                ->update(['permissions' => json_encode($permissions)]);
+
+            $this->postEntityTotals($entity, $token)
+                ->assertStatus(200)
+                ->assertJsonPath('data.2.count', $count);
+        }
+    }
+
+    public function testClientTotalsAreHiddenFromUsersWhoCannotSeeClientBalances(): void
+    {
+        $user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => $this->createDbHash(config('database.default')),
+            'email' => uniqid('restricted') . '@gmail.com',
+        ]);
+
+        $token = $this->companyToken($user, false, '["view_client"]');
+
+        $this->postEntityTotals('clients', $token)->assertStatus(403);
+        $this->postEntityTotals('invoices', $token)->assertStatus(200);
+
+        CompanyUser::query()
+            ->where('user_id', $user->id)
+            ->where('company_id', $this->metricCompany->id)
+            ->update(['permissions' => '["view_client","view_invoice"]']);
+
+        $this->postEntityTotals('clients', $token)->assertStatus(200);
+    }
+
+    private function postEntityTotals(string $entity, string $token)
+    {
+        return $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token,
+        ])->postJson('/api/v1/charts/entity_totals', ['entity' => $entity]);
+    }
+
+    private function companyToken(User $user, bool $is_admin, string $permissions = ''): string
+    {
+        $company_user = CompanyUserFactory::create($user->id, $this->metricCompany->id, $this->account->id);
+        $company_user->is_owner = false;
+        $company_user->is_admin = $is_admin;
+        $company_user->is_locked = false;
+        $company_user->permissions = $permissions;
+        $company_user->save();
+
+        $token = Str::random(64);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $this->metricCompany->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'entity totals token';
+        $company_token->token = $token;
+        $company_token->is_system = true;
+        $company_token->save();
+
+        return $token;
+    }
+
+    /**
+     * Creates an eligible record totalling 100 unless the attributes say otherwise.
+     * A null currency leaves the client, vendor or record currency unset.
+     */
+    private function createRecord(string $entity, array $attributes = [], array $client_attributes = [], ?int $currency_id = null): void
+    {
+        $settings = ClientSettings::defaults();
+
+        if ($currency_id) {
+            $settings->currency_id = (string) $currency_id;
+        }
+
+        $client_attributes = array_merge([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+            'settings' => $settings,
+            'balance' => 100,
+        ], $client_attributes);
+
+        if ($entity == 'clients') {
+            Client::factory()->create(array_merge($client_attributes, $attributes));
+
+            return;
+        }
+
+        $client = Client::factory()->create($client_attributes);
+
+        $attributes = array_merge([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+        ], $attributes);
+
+        match ($entity) {
+            'invoices' => Invoice::factory()->create(array_merge([
+                'client_id' => $client->id,
+                'status_id' => Invoice::STATUS_SENT,
+                'amount' => 100,
+                'balance' => 100,
+            ], $attributes)),
+            'quotes' => Quote::factory()->create(array_merge([
+                'client_id' => $client->id,
+                'status_id' => Quote::STATUS_SENT,
+                'invoice_id' => null,
+                'due_date' => '2026-12-31',
+                'amount' => 100,
+                'balance' => 100,
+            ], $attributes)),
+            'credits' => Credit::factory()->create(array_merge([
+                'client_id' => $client->id,
+                'status_id' => Credit::STATUS_SENT,
+                'amount' => 100,
+                'balance' => 100,
+            ], $attributes)),
+            'payments' => Payment::factory()->create(array_merge([
+                'client_id' => $client->id,
+                'currency_id' => $currency_id ?? 1,
+                'status_id' => Payment::STATUS_COMPLETED,
+                'amount' => 100,
+                'applied' => 0,
+                'refunded' => 0,
+            ], $attributes)),
+            'recurring_invoices' => RecurringInvoice::factory()->create(array_merge([
+                'client_id' => $client->id,
+                'status_id' => RecurringInvoice::STATUS_ACTIVE,
+                'amount' => 100,
+                'balance' => 100,
+            ], $attributes)),
+            'purchase_orders' => PurchaseOrder::factory()->create(array_merge([
+                'vendor_id' => Vendor::factory()->create([
+                    'company_id' => $this->metricCompany->id,
+                    'user_id' => $this->user->id,
+                    'currency_id' => $currency_id,
+                ])->id,
+                'status_id' => PurchaseOrder::STATUS_SENT,
+                'amount' => 100,
+                'balance' => 100,
+            ], $attributes)),
+            'expenses' => Expense::factory()->create(array_merge([
+                'client_id' => $client->id,
+                'currency_id' => $currency_id,
+                'should_be_invoiced' => true,
+                'invoice_id' => null,
+                'amount' => 100,
+            ], $attributes)),
+            'recurring_expenses' => RecurringExpense::factory()->create(array_merge([
+                'currency_id' => $currency_id,
+                'status_id' => RecurringInvoice::STATUS_ACTIVE,
+                'remaining_cycles' => -1,
+                'amount' => 100,
+            ], $attributes)),
+        };
+    }
+}
