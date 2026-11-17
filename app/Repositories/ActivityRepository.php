@@ -74,7 +74,7 @@ class ActivityRepository extends BaseRepository
     /**
      * Creates a backup.
      *
-     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\Expense $entity
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\Expense | \App\Models\RecurringInvoice $entity
      * @param \App\Models\Activity $activity  The activity
      */
     public function createBackup($entity, $activity)
