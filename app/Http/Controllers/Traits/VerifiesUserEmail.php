@@ -61,6 +61,7 @@ trait VerifiesUserEmail
         }
 
         $user->email_verified_at = now();
+        $user->confirmation_code = null;
         $user->save();
 
         if (isset($user->oauth_user_id)) {

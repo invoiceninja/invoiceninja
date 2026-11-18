@@ -6568,6 +6568,17 @@ $lang = array(
     'paid_in_full' => 'Paid in full',
     'needs_your_attention' => 'Needs your attention',
     'days_late' => ':count day/s late',
+    'attach_xml' => 'Attach XML',
+    'e_invoice_line_fields' => 'E-Invoice Line Fields',
+    'e_invoice_line_fields_help' => 'Choose which PEPPOL / UBL fields appear on each line item.',
+    'order_line_reference' => 'Line order reference',
+    'order_line_reference_help' => 'The buyer\'s reference for this order line.',
+    'buyer_item_identifier' => 'Buyer item identifier',
+    'buyer_item_identifier_help' => 'The buyer\'s identifier for this item.',
+    'seller_item_identifier' => 'Seller item identifier',
+    'seller_item_identifier_help' => 'The seller\'s identifier for this item.',
+    'order_reference' => 'Order reference',
+    'order_reference_help' => 'The buyer\'s reference for this order.',
 );
 
 return $lang;

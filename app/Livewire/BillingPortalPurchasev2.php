@@ -634,7 +634,7 @@ class BillingPortalPurchasev2 extends Component
         }
 
         if (config('ninja.ninja_default_company_id') == $this->subscription()->company_id && in_array($this->subscription()->service()->products()->first()?->product_key, ['peppol_500','peppol_1000','selfhost_peppol_500','selfhost_peppol_1000'])) {
-            $context = $this->subscription()->service()->products()->first()?->product_key;
+            $context = $this->subscription()->service()->products()->first()->product_key ?? '';
         }
 
         Cache::put($this->hash, [

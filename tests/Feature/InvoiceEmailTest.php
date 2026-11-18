@@ -24,6 +24,7 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -235,6 +236,87 @@ class InvoiceEmailTest extends TestCase
 
         $this->assertEquals(1, $count);
 
+    }
+
+    public function testEntityEmailHistoryRejectsEntityOutsideTheAllowlist(): void
+    {
+        foreach (['user', 'not_a_real_entity'] as $entity) {
+            [$response, $queries] = $this->postEntityHistory([
+                'entity' => $entity,
+                'entity_id' => $this->invoice->hashed_id,
+            ]);
+
+            $response->assertUnprocessable();
+            $response->assertJsonValidationErrors('entity');
+
+            $table = Str::plural($entity);
+
+            $this->assertFalse(
+                $this->existsQueryTargets($queries, $table),
+                "Exists check queried {$table} for entity {$entity}."
+            );
+        }
+    }
+
+    public function testEntityEmailHistoryChecksExistenceOnTheAllowlistedTable(): void
+    {
+        $cases = [
+            'invoice' => [$this->invoice->hashed_id, 'invoices'],
+            'quote' => [$this->quote->hashed_id, 'quotes'],
+            'credit' => [$this->credit->hashed_id, 'credits'],
+            'recurring_invoice' => [$this->recurring_invoice->hashed_id, 'recurring_invoices'],
+            'purchase_order' => [$this->purchase_order->hashed_id, 'purchase_orders'],
+        ];
+
+        foreach ($cases as $entity => [$hashed_id, $table]) {
+            [$response, $queries] = $this->postEntityHistory([
+                'entity' => $entity,
+                'entity_id' => $hashed_id,
+            ]);
+
+            $response->assertOk();
+
+            $this->assertTrue(
+                $this->existsQueryTargets($queries, $table),
+                "Expected an exists query against {$table} for {$entity}."
+            );
+        }
+    }
+
+    /**
+     * @return array{0: \Illuminate\Testing\TestResponse, 1: array<int, string>}
+     */
+    private function postEntityHistory(array $data): array
+    {
+        $connection = DB::connection();
+        $connection->flushQueryLog();
+        $connection->enableQueryLog();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/emails/entityHistory/', $data);
+
+        $queries = array_column($connection->getQueryLog(), 'query');
+        $connection->disableQueryLog();
+
+        return [$response, $queries];
+    }
+
+    /**
+     * @param  array<int, string>  $queries
+     */
+    private function existsQueryTargets(array $queries, string $table): bool
+    {
+        $pattern = '/from\s+[`"]?' . preg_quote($table, '/') . '[`"]?(?:\s|$)/i';
+
+        foreach ($queries as $query) {
+            if (stripos($query, 'aggregate') !== false && preg_match($pattern, $query) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

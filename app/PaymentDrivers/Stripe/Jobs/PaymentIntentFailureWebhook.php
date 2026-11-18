@@ -67,15 +67,26 @@ class PaymentIntentFailureWebhook implements ShouldQueue
 
             $payment = self::findPaymentByStripeReference($company->id, $transaction);
 
-            if ($payment) {
+            if ($payment && $payment->status_id == Payment::STATUS_PENDING) {
                 $client = $payment->client;
 
-                if ($payment->status_id == Payment::STATUS_PENDING) {
-                    $payment->service()->deletePayment();
-                }
-
+                $payment->service()->deletePayment();
                 $payment->status_id = Payment::STATUS_FAILED;
                 $payment->save();
+
+
+                /** return early for klarna cancellations */
+                $is_klarna = (
+                    data_get($transaction, 'last_payment_error.payment_method_type')
+                    ?? data_get($transaction, 'last_payment_error.payment_method.type')
+                ) === 'klarna';
+
+                if (
+                    $is_klarna
+                    && data_get($transaction, 'last_payment_error.message') === 'Customer cancelled checkout on Klarna'
+                ) {
+                    continue;
+                }
 
                 $payment_hash = PaymentHash::query()->where('payment_id', $payment->id)->first();
 
@@ -88,8 +99,11 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                     $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
                 }
 
-                if (array_key_exists('failure_message', $transaction)) {
-                    $error .= "\n\n" . $transaction['failure_message'];
+                $failure_message = data_get($transaction, 'last_payment_error.message')
+                    ?? ($transaction['failure_message'] ?? null);
+
+                if (is_string($failure_message) && $failure_message !== '') {
+                    $error .= "\n\n" . $failure_message;
                 }
 
                 PaymentFailedMailer::dispatch(
