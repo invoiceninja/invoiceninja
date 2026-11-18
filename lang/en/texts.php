@@ -6568,6 +6568,9 @@ $lang = array(
     'paid_in_full' => 'Paid in full',
     'needs_your_attention' => 'Needs your attention',
     'days_late' => ':count day/s late',
+    'revolut_pay' => 'Revolut Pay',
+    'payment_type_Revolut Pay' => 'Revolut Pay',
+    'revolut_pay_another_account' => 'Another Revolut Pay account',
 );
 
 return $lang;
