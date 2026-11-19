@@ -85,7 +85,7 @@ class EnableBankingTransformerTest extends TestCase
         $this->assertEquals(1.23, $data['amount']);
         $this->assertEquals('CREDIT', $data['base_type']);
         $this->assertEquals('2020-01-03', $data['date']);
-        // debtor takes precedence over creditor for participant data
+        // on a credit the debtor (payer) is the counterparty
         $this->assertEquals('FI0455231152453547', $data['participant']);
         $this->assertEquals('MyPreferredAisp', $data['participant_name']);
         $this->assertEquals('Invoice 1234', $data['description']);
@@ -196,6 +196,46 @@ class EnableBankingTransformerTest extends TestCase
         ]));
 
         $this->assertStringContainsString('MyPreferredAisp', $data['description']);
+    }
+
+    public function testParticipantIsTheDebtorOnCredit()
+    {
+        $data = (new TransactionTransformer($this->company))->transformTransaction($this->sampleTransaction([
+            'credit_debit_indicator' => 'CRDT',
+            'debtor' => ['name' => 'Customer BV'],
+            'debtor_account' => ['iban' => 'BE71096123456769'],
+            'creditor' => ['name' => 'My Company'],
+            'creditor_account' => ['iban' => 'BE68539007547034'],
+        ]));
+
+        $this->assertEquals('Customer BV', $data['participant_name']);
+        $this->assertEquals('BE71096123456769', $data['participant']);
+    }
+
+    public function testParticipantIsTheCreditorOnDebit()
+    {
+        $data = (new TransactionTransformer($this->company))->transformTransaction($this->sampleTransaction([
+            'credit_debit_indicator' => 'DBIT',
+            'debtor' => ['name' => 'My Company'],
+            'debtor_account' => ['iban' => 'BE68539007547034'],
+            'creditor' => ['name' => 'Supplier NV'],
+            'creditor_account' => ['iban' => 'BE71096123456769'],
+        ]));
+
+        $this->assertEquals('Supplier NV', $data['participant_name']);
+        $this->assertEquals('BE71096123456769', $data['participant']);
+    }
+
+    public function testParticipantFallsBackToTheOtherSide()
+    {
+        $data = (new TransactionTransformer($this->company))->transformTransaction($this->sampleTransaction([
+            'credit_debit_indicator' => 'DBIT',
+            'debtor' => ['name' => 'Only Debtor'],
+            'debtor_account' => ['iban' => 'BE68539007547034'],
+        ]));
+
+        $this->assertEquals('Only Debtor', $data['participant_name']);
+        $this->assertEquals('BE68539007547034', $data['participant']);
     }
 
     public function testSelectBalancePrefersClosingBooked()

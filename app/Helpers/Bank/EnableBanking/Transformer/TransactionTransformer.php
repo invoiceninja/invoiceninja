@@ -204,9 +204,14 @@ class TransactionTransformer implements BankRevenueInterface
         $note = data_get($transaction, 'note');
         $description = $this->description($transaction);
 
-        // participant data
-        $participant = data_get($transaction, 'debtor_account.iban') ?? data_get($transaction, 'creditor_account.iban');
-        $participant_name = data_get($transaction, 'debtor.name') ?? data_get($transaction, 'creditor.name');
+        // Counterparty: on a CREDIT the debtor paid us, on a DEBIT we paid the creditor.
+        // Banks often include both sides (incl. our own name/IBAN), so never prefer the
+        // debtor on outgoing payments. The other side is only used as a fallback.
+        $counterparty = $base_type === 'CREDIT' ? 'debtor' : 'creditor';
+        $own_side = $base_type === 'CREDIT' ? 'creditor' : 'debtor';
+
+        $participant = data_get($transaction, "{$counterparty}_account.iban") ?? data_get($transaction, "{$own_side}_account.iban");
+        $participant_name = data_get($transaction, "{$counterparty}.name") ?? data_get($transaction, "{$own_side}.name");
 
         if (!$description) {
             $description = ctrans('texts.enablebanking_transaction_description', [
