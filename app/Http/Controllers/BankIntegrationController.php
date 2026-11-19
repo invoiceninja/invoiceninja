@@ -27,6 +27,7 @@ use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
 use App\Jobs\Bank\ProcessBankTransactionsYodlee;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
+use App\Jobs\Bank\ProcessBankTransactionsEnableBanking;
 use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\User;
@@ -225,6 +226,17 @@ class BankIntegrationController extends BaseController
                 /** @var \App\Models\BankIntegration $bank_integration */
                 ProcessBankTransactionsNordigen::dispatch($bank_integration);
             });
+        }
+
+        if (config('ninja.enablebanking.application_id') && config('ninja.enablebanking.key_path') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isEnterprisePaidClient()))) {
+            $user_account->bank_integrations
+                ->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
+                ->where('auto_sync', true)
+                ->where('disabled_upstream', false)
+                ->each(function ($bank_integration) {
+                    /** @var \App\Models\BankIntegration $bank_integration */
+                    ProcessBankTransactionsEnableBanking::dispatch($bank_integration);
+                });
         }
 
         Cache::put("throttle_polling:{$user_account->key}", true, 300);

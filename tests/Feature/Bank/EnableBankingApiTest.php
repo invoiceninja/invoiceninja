@@ -13,6 +13,8 @@
 namespace Tests\Feature\Bank;
 
 use App\Helpers\Bank\EnableBanking\EnableBanking;
+use App\Jobs\Bank\ProcessBankTransactionsEnableBanking;
+use Illuminate\Support\Facades\Bus;
 use App\Models\BankIntegration;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -182,6 +184,9 @@ class EnableBankingApiTest extends TestCase
     {
         Cache::forget("throttle_polling:{$this->account->key}");
 
+        // the sync job itself is covered separately; only assert what refresh_accounts does
+        Bus::fake();
+
         return $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -212,5 +217,25 @@ class EnableBankingApiTest extends TestCase
         $this->assertEquals(10, (float) $bank_integration->balance);
         $this->assertEquals('READY', $bank_integration->bank_account_status);
         $this->assertFalse((bool) $bank_integration->disabled_upstream);
+    }
+
+    public function testRefreshAccountsDispatchesTheTransactionSync()
+    {
+        $this->fakeAccountDetails();
+        $this->enableBankingIntegration();
+
+        $this->refreshAccounts()->assertStatus(200);
+
+        Bus::assertDispatched(ProcessBankTransactionsEnableBanking::class, 1);
+    }
+
+    public function testRefreshAccountsSkipsDisabledIntegrations()
+    {
+        $this->fakeAccountDetails();
+        $this->enableBankingIntegration(['disabled_upstream' => true]);
+
+        $this->refreshAccounts()->assertStatus(200);
+
+        Bus::assertNotDispatched(ProcessBankTransactionsEnableBanking::class);
     }
 }
