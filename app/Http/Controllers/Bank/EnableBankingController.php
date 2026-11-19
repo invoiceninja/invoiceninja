@@ -59,9 +59,9 @@ class EnableBankingController extends BaseController
         }
 
         $enablebanking = new EnableBanking();
-        $aspsps = $enablebanking->getAspsps();
+        $aspsps = data_get($enablebanking->getAspsps(), 'aspsps');
 
-        if (empty($aspsps['aspsps'])) {
+        if (empty($aspsps) || !is_array($aspsps)) {
             return $this->failed('aspsps-not-available', $context, $company);
         }
 
@@ -71,7 +71,7 @@ class EnableBankingController extends BaseController
                 'lang' => $lang,
                 'company' => $company,
                 'account' => $company->account,
-                'aspsps' => $aspsps['aspsps'],
+                'aspsps' => $aspsps,
                 'aspsp_name' => $data['aspsp_name'] ?? null,
                 'aspsp_country' => $data['aspsp_country'] ?? null,
                 'redirectUrl' => $context['redirect'] . '?action=enablebanking_connect&status=user-aborted'
@@ -79,9 +79,9 @@ class EnableBankingController extends BaseController
         }
 
         // Find the selected ASPSP
-        $selected_aspsp = array_values(array_filter($aspsps['aspsps'], function ($aspsp) use ($data) {
-            return $aspsp['name'] === $data['aspsp_name'] && $aspsp['country'] === $data['aspsp_country'];
-        }))[0] ?? null;
+        $selected_aspsp = collect($aspsps)->first(function ($aspsp) use ($data) {
+            return data_get($aspsp, 'name') === $data['aspsp_name'] && data_get($aspsp, 'country') === $data['aspsp_country'];
+        });
 
         if (!$selected_aspsp) {
             return $this->failed('aspsp-invalid', $context, $company);
@@ -94,7 +94,7 @@ class EnableBankingController extends BaseController
                 $selected_aspsp['country'],
                 config('ninja.app_url') . '/enablebanking/confirm',
                 $request->token,
-                isset($selected_aspsp['maximum_consent_validity']) ? (int) $selected_aspsp['maximum_consent_validity'] : null
+                data_get($selected_aspsp, 'maximum_consent_validity') ? (int) data_get($selected_aspsp, 'maximum_consent_validity') : null
             );
         } catch (\Exception $e) {
             $debug = "{$e->getMessage()} ({$e->getCode()})";
@@ -156,11 +156,15 @@ class EnableBankingController extends BaseController
         }
 
         // Check validity of session
-        if (empty($session['session_id'])) {
+        $session_id = data_get($session, 'session_id');
+
+        if (empty($session_id)) {
             return $this->failed('session-invalid', $context, $company);
         }
 
-        if (empty($session['accounts'])) {
+        $session_accounts = data_get($session, 'accounts');
+
+        if (empty($session_accounts) || !is_array($session_accounts)) {
             return $this->failed('session-no-accounts', $context, $company);
         }
 
@@ -168,7 +172,7 @@ class EnableBankingController extends BaseController
         $bank_integration_ids = [];
         $it = new AccountTransformer();
 
-        $accounts = $it->transform($session['accounts']);
+        $accounts = $it->transform($session_accounts);
 
         foreach ($accounts as $account) {
             $bank_integration = false;
@@ -185,7 +189,9 @@ class EnableBankingController extends BaseController
                 $bank_integration->bank_account_type = $account['account_type'];
                 $bank_integration->bank_account_name = $account['account_name'];
                 $bank_integration->bank_account_number = $account['account_number'];
-                $bank_integration->provider_name = $session['aspsp'] ? $session['aspsp']['name'].' '.$session['aspsp']['country'] : 'EnableBanking';
+                $bank_integration->provider_name = data_get($session, 'aspsp.name')
+                    ? trim(data_get($session, 'aspsp.name') . ' ' . data_get($session, 'aspsp.country', ''))
+                    : 'EnableBanking';
                 $bank_integration->nickname = $account['nickname'];
                 $bank_integration->currency = $account['account_currency'];
             } finally {
@@ -198,7 +204,7 @@ class EnableBankingController extends BaseController
                     // - nordigen_institution_id => identification_hash (stable across sessions, see findIntegrationBy())
                     // Always store the new values, also when reconnecting an existing integration.
                     $bank_integration->nordigen_account_id = $account['provider_account_id'];
-                    $bank_integration->requisition_id = $session['session_id'];
+                    $bank_integration->requisition_id = $session_id;
 
                     if (!empty($account['identification_hash'])) {
                         $bank_integration->nordigen_institution_id = $account['identification_hash'];

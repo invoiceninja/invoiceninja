@@ -148,81 +148,120 @@ class TransactionTransformer implements BankRevenueInterface
         $this->company = $company;
     }
 
+    /**
+     * Transform an EnableBanking transactions response (or a list of raw transactions).
+     *
+     * Only booked transactions (status BOOK) are kept.
+     */
     public function transform($transactionResponse)
     {
-        $data = [];
+        $transactions = data_get($transactionResponse, 'transactions');
 
-        if (!array_key_exists(
-            'transactions',
-            $transactionResponse,
-        )) {
+        if (!is_array($transactions)) {
             throw new \Exception('invalid dataset');
         }
 
-        foreach ($transactionResponse["transactions"] as $transaction) {
-            if ($transaction['status'] !== 'BOOK') {
+        $data = [];
+
+        foreach ($transactions as $transaction) {
+            if (data_get($transaction, 'status') !== 'BOOK') {
                 continue;
             }
 
-            $data[] = $this->transformTransaction($transaction);
+            $transformed = $this->transformTransaction($transaction);
+
+            if ($transformed) {
+                $data[] = $transformed;
+            }
         }
 
         return $data;
     }
 
-    public function transformTransaction($transaction)
+    /**
+     * Transform a single EnableBanking transaction.
+     *
+     * Only transaction_amount, credit_debit_indicator and status are required by the
+     * EnableBanking API; every other field is optional and read with data_get().
+     *
+     * @see https://enablebanking.com/docs/api/reference/#transaction
+     */
+    public function transformTransaction($transaction): ?array
     {
-        if (array_key_exists('entry_reference', $transaction)) {
-            $transactionId = $transaction['entry_reference'];
-        } else {
-            nlog('Invalid Input for enablebanking transaction transformer: ' . $transaction);
-            throw new \Exception('invalid dataset: missing entry_reference - Please report this error to the developer');
+        $date = data_get($transaction, 'booking_date')
+            ?? data_get($transaction, 'value_date')
+            ?? data_get($transaction, 'transaction_date');
+
+        if (!$date) {
+            nlog('EnableBanking: skipping transaction without date: ' . json_encode($transaction));
+
+            return null;
         }
 
-        $amount = (float) $transaction['transaction_amount']['amount'] ?? 0;
-        $base_type = ($transaction['credit_debit_indicator'] ?? '') === 'CRDT' ? 'CREDIT' : 'DEBIT';
-        $description = $transaction['note'] ?? null;
+        $amount = (float) data_get($transaction, 'transaction_amount.amount', 0);
+        $currency = data_get($transaction, 'transaction_amount.currency', 'EUR');
+        $base_type = data_get($transaction, 'credit_debit_indicator') === 'CRDT' ? 'CREDIT' : 'DEBIT';
+        $note = data_get($transaction, 'note');
+        $description = $note;
 
         // participant data
-        $participant = array_key_exists('debtor_account', $transaction) && is_array($transaction['debtor_account']) && array_key_exists('iban', $transaction['debtor_account']) ?
-            $transaction['debtor_account']['iban'] :
-            (array_key_exists('creditor_account', $transaction) && is_array($transaction['creditor_account']) && array_key_exists('iban', $transaction['creditor_account']) ?
-                $transaction['creditor_account']['iban'] : null);
-        $participant_name = array_key_exists('debtor', $transaction) && is_array($transaction['debtor']) && array_key_exists('name', $transaction['debtor']) ?
-            $transaction['debtor']['name'] :
-            (array_key_exists('creditor', $transaction) && is_array($transaction['creditor']) && array_key_exists('name', $transaction['creditor']) ?
-                $transaction['creditor']['name'] : null);
+        $participant = data_get($transaction, 'debtor_account.iban') ?? data_get($transaction, 'creditor_account.iban');
+        $participant_name = data_get($transaction, 'debtor.name') ?? data_get($transaction, 'creditor.name');
 
-        if (!$description)
-        {
-            $description = ctrans('texts.enablebanking_transaction_description',
-                [
-                    'type' => $base_type == 'DEBIT' ? ctrans('texts.payment_type_Debit') : ctrans('texts.payment_type_Credit'),
-                    'participant' => $participant_name
-                ]);
+        if (!$description) {
+            $description = ctrans('texts.enablebanking_transaction_description', [
+                'type' => $base_type == 'DEBIT' ? ctrans('texts.payment_type_Debit') : ctrans('texts.payment_type_Credit'),
+                'participant' => $participant_name,
+            ]);
         }
 
-        // enrich description with currencyExchange informations
-        if ($transaction['exchange_rate']) {
-            $targetAmount = round($amount * (float) ($transaction['exchange_rate']['exchange_rate'] ?? 1), 2);
-            $description .= '\n' . ctrans('texts.exchange_rate') . ' : ' . $amount . " " . ($transaction['exchange_rate']['instructed_amount']['currency'] ?? '?') . " = " . $targetAmount . " " . ($transaction['exchange_rate']['unit_currency'] ?? '?') . ")";
+        // enrich description with currency exchange information
+        $exchange_rate = data_get($transaction, 'exchange_rate.exchange_rate');
+
+        if ($exchange_rate) {
+            $target_amount = round($amount * (float) $exchange_rate, 2);
+            $description .= '\n' . ctrans('texts.exchange_rate') . ' : ' . $amount . ' ' . data_get($transaction, 'exchange_rate.instructed_amount.currency', '?') . ' = ' . $target_amount . ' ' . data_get($transaction, 'exchange_rate.unit_currency', '?');
         }
 
-        $data = [
+        return [
             'transaction_id' => 0,
-            'nordigen_transaction_id' => $transactionId,
+            'nordigen_transaction_id' => $this->transactionId($transaction, $date),
             'amount' => abs($amount),
-            'currency_id' => $this->convertCurrency($transaction['transaction_amount']['currency']),
+            'currency_id' => $this->convertCurrency($currency),
             'category_id' => null,
-            'category_type' => $transaction['note'] ?? '',
-            'date' => $transaction['booking_date'],
+            'category_type' => $note ?? '',
+            'date' => $date,
             'description' => $description,
             'participant' => $participant,
             'participant_name' => $participant_name,
             'base_type' => $base_type,
         ];
+    }
 
-        return $data;
+    /**
+     * Determine a stable identifier for the transaction (used for de-duplication).
+     *
+     * entry_reference and transaction_id are both optional in the EnableBanking API. When
+     * neither is present, fall back to a deterministic hash of the immutable transaction data.
+     */
+    private function transactionId(array $transaction, string $date): string
+    {
+        $id = data_get($transaction, 'entry_reference') ?? data_get($transaction, 'transaction_id');
+
+        if ($id) {
+            return (string) $id;
+        }
+
+        return 'eb_' . sha1(json_encode([
+            $date,
+            data_get($transaction, 'transaction_amount.amount'),
+            data_get($transaction, 'transaction_amount.currency'),
+            data_get($transaction, 'credit_debit_indicator'),
+            data_get($transaction, 'remittance_information'),
+            data_get($transaction, 'reference_number'),
+            data_get($transaction, 'debtor_account.iban'),
+            data_get($transaction, 'creditor_account.iban'),
+        ]));
     }
 
     private function convertCurrency(string $code)

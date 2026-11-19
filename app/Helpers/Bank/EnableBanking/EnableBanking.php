@@ -95,7 +95,7 @@ class EnableBanking
         $result = $this->request('https://api.enablebanking.com/aspsps');
 
         if ($result['success']) {
-            return json_decode($result['body'], true);
+            return json_decode($result['body'], true) ?? [];
         }
         
         throw new \Exception('EnableBanking API error: ' . $result['body']);
@@ -134,8 +134,14 @@ class EnableBanking
         
         if ($result['success']) {
             $response = json_decode($result['body'], true);
+            $url = data_get($response, 'url');
+
+            if (!$url) {
+                throw new \Exception('EnableBanking authorization error: missing url in response: ' . $result['body']);
+            }
+
             return [
-                'url' => $response['url'],
+                'url' => $url,
                 'state' => $state
             ];
         }
@@ -152,7 +158,7 @@ class EnableBanking
         $result = $this->request('https://api.enablebanking.com/sessions', 'POST', $body);
 
         if ($result['success']) {
-            return json_decode($result['body'], true);
+            return json_decode($result['body'], true) ?? [];
         }
         
         throw new \Exception('EnableBanking session creation error: ' . $result['body']);
@@ -166,7 +172,7 @@ class EnableBanking
         $result = $this->request("https://api.enablebanking.com/accounts/{$account_id}/balances");
 
         if ($result['success']) {
-            return json_decode($result['body'], true);
+            return json_decode($result['body'], true) ?? [];
         }
         
         throw new \Exception('EnableBanking get account balances error: ' . $result['body']);
@@ -232,7 +238,7 @@ class EnableBanking
         
         if ($result['success']) {
             $session = json_decode($result['body'], true);
-            return isset($session['status']) && $session['status'] === 'AUTHORIZED';
+            return data_get($session, 'status') === 'AUTHORIZED';
         }
         
         return false;

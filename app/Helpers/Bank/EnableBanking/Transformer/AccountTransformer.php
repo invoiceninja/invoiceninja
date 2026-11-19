@@ -78,35 +78,37 @@ class AccountTransformer
         $transformed_accounts = [];
         
         foreach ($enablebanking_accounts as $account) {
-            $accountId = $account['account_id']['iban'] ?? $account['account_id']['other']['identification'] ?? $account['uid'] ?? '';
+            $uid = data_get($account, 'uid');
 
-            if (empty($accountId)) {
+            if (empty($uid)) {
+                nlog('EnableBanking: skipping account without uid: ' . json_encode($account));
                 continue;
             }
 
-            $balances = $enable_banking->getAccountBalances($account['uid']);
-            $balance = $this->selectBalance($balances['balances'] ?? []);
+            $iban = data_get($account, 'account_id.iban') ?? '';
+            $balances = $enable_banking->getAccountBalances($uid);
+            $balance = $this->selectBalance(data_get($balances, 'balances', []) ?? []);
 
             $transformed_accounts[] = [
-                'id' => $accountId,
-                'account_type' => $account['cash_account_type'] ?? 'CACC',
-                'account_name' => $account['name'] ?? '',
+                'id' => $iban ?: (data_get($account, 'account_id.other.identification') ?? $uid),
+                'account_type' => data_get($account, 'cash_account_type') ?? 'CACC',
+                'account_name' => data_get($account, 'name') ?? '',
                 // EnableBanking exposes no account status field; the job derives the real
                 // status (READY/EXPIRED) from the session in ProcessBankTransactionsEnableBanking.
                 'account_status' => '',
-                'account_number' => $this->maskAccountNumber($account['account_id']['iban'] ?? ''),
+                'account_number' => $this->maskAccountNumber($iban),
                 // The uid changes with every session; the identification_hash is stable across
                 // sessions and is used to recognise the same account when reconnecting.
-                'provider_account_id' => $account['uid'],
-                'identification_hash' => $account['identification_hash'] ?? '',
+                'provider_account_id' => $uid,
+                'identification_hash' => data_get($account, 'identification_hash') ?? '',
                 // EnableBanking exposes no history window; default to 90 days for the initial sync.
                 'provider_history' => 90,
-                'nickname' => $account['name'] ?? '',
-                'current_balance' => $balance['balance_amount']['amount'] ?? 0,
-                'account_currency' => $balance['balance_amount']['currency'] ?? 'EUR',
+                'nickname' => data_get($account, 'name') ?? '',
+                'current_balance' => data_get($balance, 'balance_amount.amount') ?? 0,
+                'account_currency' => data_get($balance, 'balance_amount.currency') ?? data_get($account, 'currency') ?? 'EUR',
             ];
         }
-        
+
         return $transformed_accounts;
     }
     
@@ -122,7 +124,7 @@ class AccountTransformer
     protected function selectBalance(array $balances): array
     {
         foreach ($balances as $balance) {
-            if (($balance['balance_type'] ?? null) === 'CLBD') {
+            if (data_get($balance, 'balance_type') === 'CLBD') {
                 return $balance;
             }
         }

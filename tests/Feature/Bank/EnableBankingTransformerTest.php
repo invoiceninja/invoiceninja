@@ -48,7 +48,6 @@ class EnableBankingTransformerTest extends TestCase
             'status' => 'BOOK',
             'booking_date' => '2020-01-03',
             'note' => 'Invoice 1234',
-            'exchange_rate' => null,
             'debtor' => ['name' => 'MyPreferredAisp'],
             'debtor_account' => ['iban' => 'FI0455231152453547'],
         ], $overrides);
@@ -106,14 +105,66 @@ class EnableBankingTransformerTest extends TestCase
         $this->assertEquals(50.00, $data['amount']);
     }
 
-    public function testTransformTransactionThrowsWithoutEntryReference()
+    public function testTransformTransactionFallsBackToTransactionId()
     {
-        $this->expectException(\Exception::class);
+        $transaction = $this->sampleTransaction(['transaction_id' => 'tx-42']);
+        unset($transaction['entry_reference']);
 
+        $data = (new TransactionTransformer($this->company))->transformTransaction($transaction);
+
+        $this->assertEquals('tx-42', $data['nordigen_transaction_id']);
+    }
+
+    public function testTransformTransactionHashesWhenNoIdentifierIsPresent()
+    {
         $transaction = $this->sampleTransaction();
         unset($transaction['entry_reference']);
 
-        (new TransactionTransformer($this->company))->transformTransaction($transaction);
+        $transformer = new TransactionTransformer($this->company);
+        $first = $transformer->transformTransaction($transaction);
+        $second = $transformer->transformTransaction($transaction);
+
+        $this->assertStringStartsWith('eb_', $first['nordigen_transaction_id']);
+        // deterministic, so the same transaction is de-duplicated on the next sync
+        $this->assertEquals($first['nordigen_transaction_id'], $second['nordigen_transaction_id']);
+    }
+
+    public function testTransformTransactionOnlyRequiresMandatoryFields()
+    {
+        // Only transaction_amount, credit_debit_indicator and status are required by the API.
+        $data = (new TransactionTransformer($this->company))->transformTransaction([
+            'transaction_amount' => ['currency' => 'EUR', 'amount' => '12.50'],
+            'credit_debit_indicator' => 'DBIT',
+            'status' => 'BOOK',
+            'value_date' => '2020-02-01',
+        ]);
+
+        $this->assertEquals(12.50, $data['amount']);
+        $this->assertEquals('DEBIT', $data['base_type']);
+        $this->assertEquals('2020-02-01', $data['date']);
+        $this->assertNull($data['participant']);
+        $this->assertNotEmpty($data['description']);
+    }
+
+    public function testTransformTransactionSkipsTransactionWithoutDate()
+    {
+        $transaction = $this->sampleTransaction();
+        unset($transaction['booking_date']);
+
+        $this->assertNull((new TransactionTransformer($this->company))->transformTransaction($transaction));
+    }
+
+    public function testTransformTransactionAddsExchangeRate()
+    {
+        $data = (new TransactionTransformer($this->company))->transformTransaction($this->sampleTransaction([
+            'exchange_rate' => [
+                'unit_currency' => 'USD',
+                'exchange_rate' => '2',
+                'instructed_amount' => ['currency' => 'EUR', 'amount' => '1.23'],
+            ],
+        ]));
+
+        $this->assertStringContainsString('= 2.46 USD', $data['description']);
     }
 
     public function testSelectBalancePrefersClosingBooked()
