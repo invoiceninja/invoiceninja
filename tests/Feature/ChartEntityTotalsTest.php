@@ -173,6 +173,11 @@ class ChartEntityTotalsTest extends TestCase
             'expenses' => ['expenses', [
                 [[], []],
                 [['client_id' => null], []],
+                // exclusive taxes are added, as the expense lists show them
+                [['uses_inclusive_taxes' => false, 'amount' => 80, 'tax_name1' => 'VAT', 'tax_rate1' => 25], []],
+                [['uses_inclusive_taxes' => false, 'amount' => 90, 'calculate_tax_by_amount' => true, 'tax_amount1' => 10, 'tax_amount2' => 0, 'tax_amount3' => 0], []],
+                [['uses_inclusive_taxes' => true, 'tax_name1' => 'VAT', 'tax_rate1' => 10], []],
+                [['uses_inclusive_taxes' => false, 'tax_rate1' => 10], []],
             ], [
                 [['should_be_invoiced' => false], []],
                 [['invoice_id' => 1], []],
@@ -185,6 +190,11 @@ class ChartEntityTotalsTest extends TestCase
                 [[], []],
                 [['remaining_cycles' => 3], []],
                 [['client_id' => null], []],
+                // exclusive taxes are added, as the expense lists show them
+                [['uses_inclusive_taxes' => false, 'amount' => 80, 'tax_name1' => 'VAT', 'tax_rate1' => 25], []],
+                [['uses_inclusive_taxes' => false, 'amount' => 90, 'calculate_tax_by_amount' => true, 'tax_amount1' => 10, 'tax_amount2' => 0, 'tax_amount3' => 0], []],
+                [['uses_inclusive_taxes' => true, 'tax_name1' => 'VAT', 'tax_rate1' => 10], []],
+                [['uses_inclusive_taxes' => false, 'tax_rate1' => 10], []],
             ], [
                 [['remaining_cycles' => 0], []],
                 [['remaining_cycles' => null], []],
@@ -307,6 +317,35 @@ class ChartEntityTotalsTest extends TestCase
         $this->postEntityTotals('payments', $this->metricToken)
             ->assertStatus(200)
             ->assertExactJson(['data' => ['1' => ['amount' => '50.00', 'count' => 1]]]);
+    }
+
+    public static function expenseTaxRounding(): array
+    {
+        // 5% + 5% of the amount, each rate rounded to the currency precision on its own
+        return [
+            'two places' => [1, 10.10, '11.12'],
+            'no places' => [45, 10, '12'],
+            'three places' => [89, 10.01, '11.012'],
+        ];
+    }
+
+    #[DataProvider('expenseTaxRounding')]
+    public function testExpenseTaxesAreRoundedOneRateAtATime(int $currency_id, float $amount, string $total): void
+    {
+        foreach (['expenses', 'recurring_expenses'] as $entity) {
+            $this->createRecord($entity, [
+                'uses_inclusive_taxes' => false,
+                'amount' => $amount,
+                'tax_name1' => 'VAT',
+                'tax_rate1' => 5,
+                'tax_name2' => 'GST',
+                'tax_rate2' => 5,
+            ], [], $currency_id);
+
+            $this->postEntityTotals($entity, $this->metricToken)
+                ->assertStatus(200)
+                ->assertExactJson(['data' => [(string) $currency_id => ['amount' => $total, 'count' => 1]]]);
+        }
     }
 
     public function testEntityTotalsWithoutRecordsAreAnEmptyObject(): void

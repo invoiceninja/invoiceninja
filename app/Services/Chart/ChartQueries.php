@@ -948,12 +948,14 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            SUM(expenses.amount) as amount,
+            SUM({$this->expenseAmountWithTax('expenses')}) as amount,
             COUNT(expenses.id) as count,
             IFNULL(expenses.currency_id, :company_currency) as effective_currency_id
             FROM expenses
             LEFT JOIN clients
             ON clients.id = expenses.client_id
+            LEFT JOIN currencies
+            ON currencies.id = IFNULL(expenses.currency_id, :precision_currency)
             WHERE expenses.company_id = :company_id
             AND expenses.should_be_invoiced = 1
             AND expenses.invoice_id IS NULL
@@ -964,6 +966,7 @@ trait ChartQueries
             GROUP BY effective_currency_id
         ", [
             'company_currency' => (int) $this->company->settings->currency_id,
+            'precision_currency' => (int) $this->company->settings->currency_id,
             'company_id' => $this->company->id,
         ]);
     }
@@ -975,12 +978,14 @@ trait ChartQueries
         // Active schedules with cycles left, as in RecurringExpensesCron (-1 is endless)
         return DB::select("
             SELECT
-            SUM(recurring_expenses.amount) as amount,
+            SUM({$this->expenseAmountWithTax('recurring_expenses')}) as amount,
             COUNT(recurring_expenses.id) as count,
             IFNULL(recurring_expenses.currency_id, :company_currency) as effective_currency_id
             FROM recurring_expenses
             LEFT JOIN clients
             ON clients.id = recurring_expenses.client_id
+            LEFT JOIN currencies
+            ON currencies.id = IFNULL(recurring_expenses.currency_id, :precision_currency)
             WHERE recurring_expenses.company_id = :company_id
             AND recurring_expenses.status_id = 2
             AND recurring_expenses.remaining_cycles != 0
@@ -991,6 +996,7 @@ trait ChartQueries
             GROUP BY effective_currency_id
         ", [
             'company_currency' => (int) $this->company->settings->currency_id,
+            'precision_currency' => (int) $this->company->settings->currency_id,
             'company_id' => $this->company->id,
         ]);
     }
