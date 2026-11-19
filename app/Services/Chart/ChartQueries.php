@@ -978,11 +978,14 @@ trait ChartQueries
             COUNT(recurring_expenses.id) as count,
             IFNULL(recurring_expenses.currency_id, :company_currency) as effective_currency_id
             FROM recurring_expenses
+            LEFT JOIN clients
+            ON clients.id = recurring_expenses.client_id
             WHERE recurring_expenses.company_id = :company_id
             AND recurring_expenses.status_id = 2
             AND recurring_expenses.remaining_cycles != 0
             AND recurring_expenses.is_deleted = 0
             AND recurring_expenses.deleted_at IS NULL
+            AND (clients.id IS NULL OR (clients.is_deleted = 0 AND clients.deleted_at IS NULL))
             {$user_filter}
             GROUP BY effective_currency_id
         ", [

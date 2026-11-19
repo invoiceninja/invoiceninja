@@ -181,6 +181,7 @@ class ChartEntityTotalsTest extends TestCase
             'recurring_expenses' => ['recurring_expenses', [
                 [[], []],
                 [['remaining_cycles' => 3], []],
+                [['client_id' => null], []],
             ], [
                 [['remaining_cycles' => 0], []],
                 [['remaining_cycles' => null], []],
@@ -189,6 +190,8 @@ class ChartEntityTotalsTest extends TestCase
                 [['status_id' => RecurringInvoice::STATUS_COMPLETED], []],
                 [self::ARCHIVED, []],
                 [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
             ]],
         ];
     }
@@ -539,6 +542,7 @@ class ChartEntityTotalsTest extends TestCase
                 'amount' => 100,
             ], $attributes)),
             'recurring_expenses' => RecurringExpense::factory()->create(array_merge([
+                'client_id' => $client->id,
                 'currency_id' => $currency_id,
                 'status_id' => RecurringInvoice::STATUS_ACTIVE,
                 'remaining_cycles' => -1,
