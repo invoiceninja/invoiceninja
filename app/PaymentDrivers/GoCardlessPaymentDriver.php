@@ -342,6 +342,8 @@ class GoCardlessPaymentDriver extends BaseDriver
             return response()->json([], 200);
         }
 
+        nlog($request->events);
+        
         GoCardlessWebhook::dispatch($request->events, $request->company_key, $this->decodePrimaryKey($request->company_gateway_id))->delay(2);
 
         return response()->json([], 200);

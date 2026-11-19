@@ -25,6 +25,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use League\OpenAPIValidation\PSR7\Exception\ValidationFailed;
 use League\OpenAPIValidation\PSR7\OperationAddress;
@@ -338,11 +339,23 @@ class OpenApiContractTest extends TestCase
 
         // On hosted, inviting the only user of an account sends the email from the
         // Invoice Ninja company (NINJA_COMPANY_ID), which tests don't have.
-        User::factory()->create(['account_id' => $this->account->id]);
+        User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => 'contract-user-'.Str::uuid().'@example.com',
+        ]);
 
         // Parsing the spec takes a few seconds, so it is shared when tests run in one process.
         $this->validator = self::$parsed ??= (new ValidatorBuilder())->fromYamlFile(base_path('openapi/api-docs.yaml'))->getResponseValidator();
         $this->requestValidator = new RoutedServerRequestValidator($this->validator->getSchema());
+    }
+
+    protected function tearDown(): void
+    {
+        try {
+            $this->account?->delete();
+        } finally {
+            parent::tearDown();
+        }
     }
 
     /** Plain data only: phpunit.xml runs tests in separate processes, so rows get serialized. */

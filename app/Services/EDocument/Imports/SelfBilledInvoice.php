@@ -184,7 +184,7 @@ class SelfBilledInvoice
         $country_code = strtoupper(trim((string) data_get($party, 'PostalAddress.Country.IdentificationCode.value')));
 
         /** @var ?\App\Models\Country $country */
-        $country = app('countries')->first(fn ($country) =>
+        $country = app('countries')->first(fn (\App\Models\Country $country) =>
             $country->iso_3166_2 === $country_code || $country->iso_3166_3 === $country_code);
 
         if (!$currency || $country_code === '' || !$country) {

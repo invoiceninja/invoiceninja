@@ -12,11 +12,13 @@
 
 namespace Tests\Unit;
 
+use App\Events\Quote\QuoteWasRestored;
 use App\Events\User\UserWasArchived;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
 use App\Events\User\UserWasRestored;
 use App\Events\User\UserWasUpdated;
+use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
@@ -186,6 +188,36 @@ class ActivityRepositoryTest extends TestCase
             'deleted' => [UserWasDeleted::class, DeletedUserActivity::class, Activity::DELETE_USER],
             'restored' => [UserWasRestored::class, RestoredUserActivity::class, Activity::RESTORE_USER],
         ];
+    }
+
+    public function testQuoteRestoredActivityRecordsTheQuoteAndTheRestoringUser(): void
+    {
+        $restoringUser = User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => Str::uuid() . '@example.test',
+        ]);
+        $restoringUser->setCompany($this->company);
+
+        $eventVars = [
+            'ip' => '10.0.0.3',
+            'token' => null,
+            'is_system' => false,
+            'user_id' => $restoringUser->id,
+        ];
+
+        $event = new QuoteWasRestored($this->quote, false, $this->company, $eventVars);
+        (new QuoteRestoredActivity($this->activityRepository))->handle($event);
+
+        $activity = Activity::query()
+            ->where('company_id', $this->company->id)
+            ->where('activity_type_id', Activity::RESTORE_QUOTE)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($activity);
+        $this->assertEquals($this->quote->id, $activity->quote_id);
+        $this->assertEquals($restoringUser->id, $activity->user_id);
+        $this->assertNotEquals($this->quote->user_id, $activity->user_id);
     }
 
 }

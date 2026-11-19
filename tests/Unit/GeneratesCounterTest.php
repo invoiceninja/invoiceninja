@@ -761,6 +761,16 @@ class GeneratesCounterTest extends TestCase
         $this->assertEquals(date('Y').'0002', $this->getNextClientNumber($client));
     }
 
+    public function testPatternWithoutACounterPlaceholderAppendsCounter()
+    {
+        $this->setCompanyClientNumberPattern('Counter-');
+
+        $client = $this->clientWithCompanySettings();
+
+        $this->assertEquals('Counter-0001', $this->getNextClientNumber($client));
+        $this->assertEquals('Counter-0002', $this->getNextClientNumber($client));
+    }
+
     public function testClientNumberCounterIncrementsOnCompany()
     {
         $settings = $this->company->settings;
@@ -832,6 +842,17 @@ class GeneratesCounterTest extends TestCase
 
         $this->assertEquals(date('Y').'0001', $this->nextCompanyEntityNumber($entity, $model));
         $this->assertEquals(date('Y').'0002', $this->nextCompanyEntityNumber($entity, $model));
+    }
+
+    #[DataProvider('companyScopedEntityProvider')]
+    public function testCompanyScopedPatternWithoutACounterPlaceholderAppendsCounter(string $entity, string $factory, string $pattern_key)
+    {
+        $this->setCompanyNumberPattern($pattern_key, 'Counter-');
+
+        $model = $factory::create($this->company->id, $this->user->id);
+
+        $this->assertEquals('Counter-0001', $this->nextCompanyEntityNumber($entity, $model));
+        $this->assertEquals('Counter-0002', $this->nextCompanyEntityNumber($entity, $model));
     }
 
     #[DataProvider('companyScopedEntityProvider')]

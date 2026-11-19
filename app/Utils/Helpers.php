@@ -335,6 +335,17 @@ class Helpers
 
                 $number = preg_replace('/[^0-9]/', '', $_value[1]); // :MONTH+1. || :MONTH+2! => 1 || 2
 
+                if ($number === '') { // :YEAR-:YEAR+1 => the operator is a separator, not a calculation
+                    $value = preg_replace(
+                        sprintf('/%s/', $matches->keys()->first()),
+                        $replacements['literal'][$matches->keys()->first()],
+                        $value,
+                        1
+                    );
+
+                    continue;
+                }
+
                 $target = "/{$matches->keys()->first()}\\{$_operation}{$number}/"; // /:$KEYWORD\\$OPERATION$VALUE => /:MONTH\\+1
 
                 $output = (int) $raw + (int) $_value[1];

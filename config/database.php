@@ -159,8 +159,13 @@ return [
 
         'client' => 'predis',
 
+        'options' => [
+            'prefix' => env('REDIS_PREFIX', ''),
+        ],
+
         'default' => [
             'host'     => env('REDIS_HOST', '127.0.0.1'),
+            'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD', null),
             'port'     => env('REDIS_PORT', 6379),
             'database' => env('REDIS_DB', 0),
@@ -168,6 +173,7 @@ return [
 
         'cache' => [
             'host'     => env('REDIS_HOST', '127.0.0.1'),
+            'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD', null),
             'port'     => env('REDIS_PORT', 6379),
             'database' => env('REDIS_CACHE_DB', 1),
@@ -187,6 +193,7 @@ return [
                 'sentinel_timeout' => 3.0,
                 // 'load_balancing' => false,
                 'parameters' => [
+                    'username' => env('REDIS_USERNAME'),
                     'password' => env('REDIS_PASSWORD', null),
                     'database' => env('REDIS_DB', 0),
                 ],
@@ -206,6 +213,7 @@ return [
                 'service' =>  env('REDIS_SENTINEL_SERVICE', 'mymaster'),
                 'sentinel_timeout' => 3.0,
                 'parameters' => [
+                    'username' => env('REDIS_USERNAME'),
                     'password' => env('REDIS_PASSWORD', null),
                     'database' => env('REDIS_CACHE_DB', 1),
                 ],

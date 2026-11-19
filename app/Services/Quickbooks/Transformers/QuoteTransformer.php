@@ -207,8 +207,8 @@ class QuoteTransformer extends BaseTransformer
                 $item->is_amount_discount = data_get($qb_item, 'DiscountAmount', 0) > 0 ? true : false;
                 $item->type_id = stripos(data_get($qb_item, 'ItemAccountRef.name') ?? '', 'Service') !== false ? '2' : '1';
                 $item->tax_id = $taxCodeRef == 'NON' ? Product::PRODUCT_TYPE_EXEMPT : $item->type_id;
-                $item->tax_rate1 = (float) $taxCodeRef == 'NON' ? 0 : $tax_array[0];
-                $item->tax_name1 = $taxCodeRef == 'NON' ? '' : $tax_array[1];
+                $item->tax_rate1 = ($taxCodeRef == 'NON') ? 0 : (float) $tax_array[0];
+                $item->tax_name1 = ($taxCodeRef == 'NON') ? '' : $tax_array[1];
 
                 $items[] = (object) $item;
             }
@@ -223,8 +223,8 @@ class QuoteTransformer extends BaseTransformer
                 $item->discount = 0;
                 $item->is_amount_discount = true;
 
-                $item->tax_rate1 = (float) $include_discount == 'true' ? $tax_array[0] : 0;
-                $item->tax_name1 = $include_discount == 'true' ? $tax_array[1] : '';
+                $item->tax_rate1 = ($include_discount == 'true') ? (float)$tax_array[0] : 0;
+                $item->tax_name1 = ($include_discount == 'true') ? $tax_array[1] : '';
 
                 $item->type_id = '1';
                 $item->tax_id = Product::PRODUCT_TYPE_PHYSICAL;

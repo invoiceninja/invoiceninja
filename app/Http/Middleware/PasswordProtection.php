@@ -12,7 +12,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
 use Closure;
@@ -71,20 +70,16 @@ class PasswordProtection
                 $google = new Google();
                 $user = $google->getTokenResponse(request()->header('X-API-OAUTH-PASSWORD'));
 
-                if (is_array($user)) {
-                    $query = [
-                        'oauth_user_id' => $google->harvestSubField($user),
-                        'oauth_provider_id' => 'google',
-                    ];
-
+                //The token must belong to the signed in user
+                if (is_array($user) && $google->harvestSubField($user) === auth()->user()->oauth_user_id) {
                     //If OAuth and user also has a password set  - check both
-                    if ($existing_user = MultiDB::hasUser($query) && auth()->user()->company()->oauth_password_required && auth()->user()->has_password && Hash::check(auth()->user()->password, $x_api_password)) {
+                    if (auth()->user()->company()->oauth_password_required && auth()->user()->has_password && $x_api_password && Hash::check($x_api_password, auth()->user()->password)) {
                         nlog("existing user with password");
 
                         Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);
 
                         return $next($request);
-                    } elseif ($existing_user = MultiDB::hasUser($query) && !auth()->user()->company()->oauth_password_required) {
+                    } elseif (!auth()->user()->company()->oauth_password_required) {
                         nlog("existing user without password");
 
                         Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);

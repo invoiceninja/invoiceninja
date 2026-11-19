@@ -320,6 +320,24 @@ class ActivityApiTest extends TestCase
         $this->assertEquals('These are notes', $arr['data']['notes']);
     }
 
+    public function testActivityBankTransactionNotesAreRejected()
+    {
+        $this->withExceptionHandling();
+
+        $data = [
+            'entity' => 'bank_transactions',
+            'entity_id' => $this->bank_transaction->hashed_id,
+            'notes' => 'These are notes'
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/activities/notes', $data);
+
+        $response->assertStatus(422);
+    }
+
     public function testActivityEntity()
     {
 

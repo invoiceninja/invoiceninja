@@ -10,6 +10,7 @@
  */
 namespace App\Http\Requests\ClientPortal\Payments;
 
+use App\Models\CompanyGateway;
 use App\Models\PaymentHash;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -85,6 +86,16 @@ class PaymentResponseRequest extends FormRequest
             ]);
 
         }
+    }
+
+    public function getCompanyGateway()
+    {
+        $contact = auth()->guard('contact')->user();
+
+        return CompanyGateway::query()
+                        ->where('company_id', $contact->company_id)
+                        ->where('id', $this->company_gateway_id)
+                        ->firstOrFail();
     }
 
     public function shouldUseToken(): bool
