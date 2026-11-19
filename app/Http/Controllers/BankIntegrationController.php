@@ -345,31 +345,33 @@ class BankIntegrationController extends BaseController
 
     private function refreshAccountsEnableBanking(User $user)
     {
-        if (!(config('ninja.enablebanking.key_path') || config('ninja.enablebanking.application_id'))) {
+        if (!(config('ninja.enablebanking.application_id') && config('ninja.enablebanking.key_path'))) {
+            return;
+        }
+
+        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $user->account->isEnterprisePaidClient()))) {
             return;
         }
 
         $enablebanking = new EnableBanking();
 
         BankIntegration::where('account_id', $user->account_id)
-                       ->where("integration_type", BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
+                       ->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
                        ->whereNotNull('nordigen_account_id') // EnableBanking account uid (reused Nordigen column)
                        ->each(function (BankIntegration $bank_integration) use ($enablebanking) {
-            $account = $enablebanking->getAccount($bank_integration->nordigen_account_id);
+                           $account = $enablebanking->getAccount($bank_integration->nordigen_account_id);
 
-            if (is_array($account) && isset($account['code']) && $account['code'] == 429) {
-                $bank_integration->bank_account_status = "429 Rate limit reached, check back later....";
-                $bank_integration->save();
-                return;
-            }
+                           // Rate limited or (transient) error: leave the integration untouched and retry later.
+                           if (!$account || isset($account['error'])) {
+                               return;
+                           }
 
-            $bank_integration->disabled_upstream = false;
-            $bank_integration->bank_account_status = $account['account_status'];
-            $bank_integration->balance = $account['current_balance'];
-            $bank_integration->currency = $account['account_currency'];
-
-            $bank_integration->save();
-        });
+                           // Only refresh the balance. The status (READY/EXPIRED/...) is derived from the
+                           // session by ProcessBankTransactionsEnableBanking, the account details carry none.
+                           $bank_integration->balance = $account['current_balance'];
+                           $bank_integration->currency = $account['account_currency'];
+                           $bank_integration->save();
+                       });
     }
 
     /**

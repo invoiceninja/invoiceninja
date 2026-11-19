@@ -16,7 +16,6 @@ use App\Models\Company;
 use App\Models\BankIntegration;
 use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Mail\Mailables\Address;
@@ -179,32 +178,36 @@ class EnableBanking
     }
 
     /**
-     * Get account details
+     * Get the details of a single account, transformed with the AccountTransformer.
+     *
+     * @return array|null The transformed account, or ['error' => string, 'code' => int] when the
+     *                    account could not be read (code 429 when rate limited).
      */
-    public function getAccount(string $account_id): array
+    public function getAccount(string $account_id): ?array
     {
         try {
             $result = $this->request("https://api.enablebanking.com/accounts/{$account_id}/details");
 
-            if ($result['success']) {
-                $account = json_decode($result['body'], true);
-                $it = new AccountTransformer();
-                return $it->transform([$account]);
-            }
-        }
-        catch (ClientException $e) {
-            $response = $e->getResponse();
-            $statusCode = $response->getStatusCode();
-
-            if ($statusCode === 429) {
+            if ($result['status'] === 429) {
                 nlog("EnableBanking Rate Limit hit for account {$account_id}");
+
                 return ['error' => 'EnableBanking Rate Limit Reached', 'code' => 429];
             }
+
+            if (!$result['success']) {
+                nlog("EnableBanking getAccount() failed => {$account_id} => {$result['status']} {$result['body']}");
+
+                return ['error' => $result['body'], 'code' => $result['status']];
+            }
+
+            $account = json_decode($result['body'], true) ?? [];
+
+            // the transformer works on a list of accounts; /details returns a single account
+            return (new AccountTransformer())->transform([$account])[0] ?? null;
         } catch (\Exception $e) {
-
             nlog("EnableBanking getAccount() failed => {$account_id} => " . $e->getMessage());
-            return ['error' => $e->getMessage(), 'requisition' => true, 'code' => 401];
 
+            return ['error' => $e->getMessage(), 'code' => 500];
         }
     }
 
