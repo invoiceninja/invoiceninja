@@ -202,7 +202,7 @@ class TransactionTransformer implements BankRevenueInterface
         $currency = data_get($transaction, 'transaction_amount.currency', 'EUR');
         $base_type = data_get($transaction, 'credit_debit_indicator') === 'CRDT' ? 'CREDIT' : 'DEBIT';
         $note = data_get($transaction, 'note');
-        $description = $note;
+        $description = $this->description($transaction);
 
         // participant data
         $participant = data_get($transaction, 'debtor_account.iban') ?? data_get($transaction, 'creditor_account.iban');
@@ -220,7 +220,7 @@ class TransactionTransformer implements BankRevenueInterface
 
         if ($exchange_rate) {
             $target_amount = round($amount * (float) $exchange_rate, 2);
-            $description .= '\n' . ctrans('texts.exchange_rate') . ' : ' . $amount . ' ' . data_get($transaction, 'exchange_rate.instructed_amount.currency', '?') . ' = ' . $target_amount . ' ' . data_get($transaction, 'exchange_rate.unit_currency', '?');
+            $description .= "\n" . ctrans('texts.exchange_rate') . ' : ' . $amount . ' ' . data_get($transaction, 'exchange_rate.instructed_amount.currency', '?') . ' = ' . $target_amount . ' ' . data_get($transaction, 'exchange_rate.unit_currency', '?');
         }
 
         return [
@@ -236,6 +236,36 @@ class TransactionTransformer implements BankRevenueInterface
             'participant_name' => $participant_name,
             'base_type' => $base_type,
         ];
+    }
+
+    /**
+     * Build the description from all the fields that can carry it.
+     *
+     * Banks spread the payment details over remittance_information (a list of lines), the
+     * structured reference_number and the PSU note. Combine the non-empty, unique values.
+     */
+    private function description(array $transaction): string
+    {
+        $remittance = data_get($transaction, 'remittance_information') ?? [];
+
+        $lines = collect(is_array($remittance) ? $remittance : [$remittance])
+            ->filter(fn ($line) => is_scalar($line) && trim((string) $line) !== '')
+            ->map(fn ($line) => trim((string) $line));
+
+        // reference_number is often repeated inside a remittance line; only add it when it is not
+        $reference = trim((string) data_get($transaction, 'reference_number', ''));
+
+        if ($reference !== '' && !$lines->contains(fn ($line) => str_contains($line, $reference))) {
+            $lines->push($reference);
+        }
+
+        $note = trim((string) data_get($transaction, 'note', ''));
+
+        if ($note !== '') {
+            $lines->push($note);
+        }
+
+        return $lines->unique()->implode("\n");
     }
 
     /**

@@ -167,6 +167,37 @@ class EnableBankingTransformerTest extends TestCase
         $this->assertStringContainsString('= 2.46 USD', $data['description']);
     }
 
+    public function testDescriptionCombinesRemittanceReferenceAndNote()
+    {
+        $data = (new TransactionTransformer($this->company))->transformTransaction($this->sampleTransaction([
+            'remittance_information' => ['Invoice 2026-001', 'Gift for Alex'],
+            'reference_number' => '+++090/9337/55493+++',
+            'note' => 'Invoice 1234',
+        ]));
+
+        $this->assertEquals("Invoice 2026-001\nGift for Alex\n+++090/9337/55493+++\nInvoice 1234", $data['description']);
+    }
+
+    public function testDescriptionSkipsDuplicatesAndRepeatedReference()
+    {
+        $data = (new TransactionTransformer($this->company))->transformTransaction($this->sampleTransaction([
+            'remittance_information' => ['RF07850352502356628678117', 'Ref RF07850352502356628678117', 'Gift for Alex', 'Gift for Alex'],
+            'reference_number' => 'RF07850352502356628678117',
+            'note' => null,
+        ]));
+
+        $this->assertEquals("RF07850352502356628678117\nRef RF07850352502356628678117\nGift for Alex", $data['description']);
+    }
+
+    public function testDescriptionFallsBackToGeneratedText()
+    {
+        $data = (new TransactionTransformer($this->company))->transformTransaction($this->sampleTransaction([
+            'note' => null,
+        ]));
+
+        $this->assertStringContainsString('MyPreferredAisp', $data['description']);
+    }
+
     public function testSelectBalancePrefersClosingBooked()
     {
         $balance = $this->invokeSelectBalance([
