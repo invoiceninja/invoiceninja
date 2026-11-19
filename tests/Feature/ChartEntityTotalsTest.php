@@ -133,9 +133,9 @@ class ChartEntityTotalsTest extends TestCase
             ]],
             'payments' => ['payments', [
                 [['status_id' => Payment::STATUS_COMPLETED, 'amount' => 150, 'applied' => 50], []],
-                // a refund against an invoice leaves payments.applied unchanged
-                [['status_id' => Payment::STATUS_PARTIALLY_REFUNDED, 'amount' => 300, 'applied' => 200, 'refunded' => 50], []],
+                [['status_id' => Payment::STATUS_PARTIALLY_REFUNDED, 'amount' => 150, 'refunded' => 50], []],
             ], [
+                [['status_id' => Payment::STATUS_PARTIALLY_REFUNDED, 'amount' => 150, 'applied' => 100, 'refunded' => 50], []],
                 [['status_id' => Payment::STATUS_PENDING], []],
                 [['status_id' => Payment::STATUS_CANCELLED], []],
                 [['status_id' => Payment::STATUS_FAILED], []],
@@ -211,6 +211,96 @@ class ChartEntityTotalsTest extends TestCase
                     '2' => ['amount' => number_format(100 * count($included), 2, '.', ''), 'count' => count($included)],
                 ],
             ]);
+    }
+
+    public function testPaymentTotalsLeaveOutRefundsOfTheUnappliedAmount(): void
+    {
+        $client = Client::factory()->create([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        // 100 unapplied, 50 of it refunded
+        $unapplied = $this->postPayment(['client_id' => $client->hashed_id, 'amount' => 100]);
+        $this->postRefund(['id' => $unapplied, 'amount' => 50]);
+
+        // 50 unapplied, beside an invoice refund
+        $invoice = $this->createSentInvoice($client, 100);
+        $applied = $this->postPayment([
+            'client_id' => $client->hashed_id,
+            'amount' => 150,
+            'invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => 100]],
+        ]);
+        $this->postRefund(['id' => $applied, 'invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => 40]]]);
+
+        // 20 unapplied, beside an invoice refund that returns the credit first
+        $credit_invoice = $this->createSentInvoice($client, 100);
+        $credit = Credit::factory()->create([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'status_id' => Credit::STATUS_SENT,
+            'amount' => 30,
+            'balance' => 30,
+        ]);
+        $with_credit = $this->postPayment([
+            'client_id' => $client->hashed_id,
+            'amount' => 90,
+            'invoices' => [['invoice_id' => $credit_invoice->hashed_id, 'amount' => 100]],
+            'credits' => [['credit_id' => $credit->hashed_id, 'amount' => 30]],
+        ]);
+        $this->postRefund(['id' => $with_credit, 'invoices' => [['invoice_id' => $credit_invoice->hashed_id, 'amount' => 50]]]);
+
+        $this->postEntityTotals('payments', $this->metricToken)
+            ->assertStatus(200)
+            ->assertExactJson(['data' => ['1' => ['amount' => '120.00', 'count' => 3]]]);
+
+        // deleting the invoice keeps the refund on its paymentable
+        $invoice->service()->markDeleted()->save();
+
+        $this->postEntityTotals('payments', $this->metricToken)
+            ->assertStatus(200)
+            ->assertExactJson(['data' => ['1' => ['amount' => '120.00', 'count' => 3]]]);
+    }
+
+    public function testDeletingAReversalCreditRefundsTheInvoicePayment(): void
+    {
+        $client = Client::factory()->create([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $invoice = $this->createSentInvoice($client, 100);
+        $this->postPayment([
+            'client_id' => $client->hashed_id,
+            'amount' => 150,
+            'invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => 100]],
+        ]);
+
+        $credit = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->metricToken,
+        ])->postJson('/api/v1/credits', [
+            'client_id' => $client->hashed_id,
+            'invoice_id' => $invoice->hashed_id,
+            'line_items' => [['product_key' => 'reversal', 'cost' => 100, 'quantity' => 1]],
+        ])->assertStatus(200)->json('data.id');
+
+        $this->postEntityTotals('payments', $this->metricToken)
+            ->assertStatus(200)
+            ->assertExactJson(['data' => ['1' => ['amount' => '50.00', 'count' => 1]]]);
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->metricToken,
+        ])->postJson('/api/v1/credits/bulk', ['action' => 'delete', 'ids' => [$credit]])
+            ->assertStatus(200);
+
+        $this->assertEquals(100, Payment::where('company_id', $this->metricCompany->id)->first()->refunded);
+
+        $this->postEntityTotals('payments', $this->metricToken)
+            ->assertStatus(200)
+            ->assertExactJson(['data' => ['1' => ['amount' => '50.00', 'count' => 1]]]);
     }
 
     public function testEntityTotalsWithoutRecordsAreAnEmptyObject(): void
@@ -307,6 +397,38 @@ class ChartEntityTotalsTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
         ])->postJson('/api/v1/charts/entity_totals', ['entity' => $entity]);
+    }
+
+    private function createSentInvoice(Client $client, float $amount): Invoice
+    {
+        return Invoice::factory()->create([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'status_id' => Invoice::STATUS_SENT,
+            'amount' => $amount,
+            'balance' => $amount,
+            'paid_to_date' => 0,
+        ]);
+    }
+
+    private function postPayment(array $data): string
+    {
+        return $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->metricToken,
+        ])->postJson('/api/v1/payments', array_merge(['date' => '2026-06-15'], $data))
+            ->assertStatus(200)
+            ->json('data.id');
+    }
+
+    private function postRefund(array $data): void
+    {
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->metricToken,
+        ])->postJson('/api/v1/payments/refund', array_merge(['date' => '2026-06-15', 'gateway_refund' => false], $data))
+            ->assertStatus(200);
     }
 
     private function companyToken(User $user, bool $is_admin, string $permissions = ''): string

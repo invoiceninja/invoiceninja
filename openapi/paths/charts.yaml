@@ -68,7 +68,7 @@
                 - entity
               properties:
                 entity:
-                  description: 'clients: balance. invoices: balance of sent and partial invoices. quotes: amount of sent and approved quotes that are not converted or expired. credits: balance of sent and partial credits. payments: unapplied amount of completed and partially refunded payments. recurring_invoices: amount of active recurring invoices. purchase_orders: balance of sent and accepted purchase orders. expenses: amount of expenses to be invoiced that are not invoiced. recurring_expenses: amount of active recurring expenses with cycles remaining.'
+                  description: 'clients: balance. invoices: balance of sent and partial invoices. quotes: amount of sent and approved quotes that are not converted or expired. credits: balance of sent and partial credits. payments: unapplied amount, less refunds of it, of completed and partially refunded payments. recurring_invoices: amount of active recurring invoices. purchase_orders: balance of sent and accepted purchase orders. expenses: amount of expenses to be invoiced that are not invoiced. recurring_expenses: amount of active recurring expenses with cycles remaining.'
                   type: string
                   enum:
                     - clients

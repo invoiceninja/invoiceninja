@@ -12,6 +12,7 @@
 
 namespace App\Services\Chart;
 
+use App\Models\Credit;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -845,18 +846,36 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : "AND (payments.user_id = {$this->user->id} OR payments.assigned_user_id = {$this->user->id})";
 
-        // Unapplied amounts, refunds never reduce payments.applied - see PaymentAppliedValidAmount
+        // Unapplied amounts less their refunds. payments.refunded also holds refunds of applied amounts: invoice refunds less the credits
+        // they returned - see RefundPayment - and deleted reversal credits, the credit paymentables with no amount - see CreditService::deleteCredit
         return DB::select("
             SELECT
-            SUM(payments.amount - payments.applied) as amount,
+            SUM(payments.amount - payments.applied - payments.refunded + IFNULL(applied_refunds.refunded, 0)) as amount,
             COUNT(payments.id) as count,
             IFNULL(payments.currency_id, :company_currency) as effective_currency_id
             FROM payments
             JOIN clients
             ON payments.client_id = clients.id
+            LEFT JOIN (
+                SELECT
+                paymentables.payment_id,
+                SUM(CASE
+                    WHEN paymentables.paymentable_type = 'invoices' THEN paymentables.refunded
+                    WHEN paymentables.amount = 0 THEN paymentables.refunded
+                    ELSE -paymentables.refunded
+                END) as refunded
+                FROM paymentables
+                JOIN payments
+                ON payments.id = paymentables.payment_id
+                WHERE payments.company_id = :paymentables_company_id
+                AND paymentables.paymentable_type IN ('invoices', :credit_type)
+                AND paymentables.refunded > 0
+                GROUP BY paymentables.payment_id
+            ) as applied_refunds
+            ON applied_refunds.payment_id = payments.id
             WHERE payments.company_id = :company_id
             AND payments.status_id IN (4,5)
-            AND payments.amount > payments.applied
+            AND payments.amount - payments.applied - payments.refunded + IFNULL(applied_refunds.refunded, 0) > 0
             AND payments.is_deleted = 0
             AND payments.deleted_at IS NULL
             AND clients.is_deleted = 0
@@ -865,6 +884,8 @@ trait ChartQueries
             GROUP BY effective_currency_id
         ", [
             'company_currency' => (int) $this->company->settings->currency_id,
+            'credit_type' => Credit::class,
+            'paymentables_company_id' => $this->company->id,
             'company_id' => $this->company->id,
         ]);
     }
