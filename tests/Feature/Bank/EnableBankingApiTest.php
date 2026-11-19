@@ -16,6 +16,7 @@ use App\Helpers\Bank\EnableBanking\EnableBanking;
 use App\Jobs\Bank\ProcessBankTransactionsEnableBanking;
 use Illuminate\Support\Facades\Bus;
 use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Http;
@@ -237,5 +238,88 @@ class EnableBankingApiTest extends TestCase
         $this->refreshAccounts()->assertStatus(200);
 
         Bus::assertNotDispatched(ProcessBankTransactionsEnableBanking::class);
+    }
+
+    private function runSyncJob(BankIntegration $bank_integration): void
+    {
+        Bus::fake(); // matching job + notification e-mail
+
+        (new ProcessBankTransactionsEnableBanking($bank_integration))->handle();
+
+        $bank_integration->refresh();
+    }
+
+    public static function terminalSessionStatuses(): array
+    {
+        return array_map(fn ($status) => [$status], EnableBanking::SESSION_TERMINAL_STATUSES);
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('terminalSessionStatuses')]
+    public function testSyncDisablesIntegrationOnFinalSessionStatus(string $status)
+    {
+        Http::fake(['api.enablebanking.com/sessions/*' => Http::response(['status' => $status])]);
+        $bank_integration = $this->enableBankingIntegration();
+
+        $this->runSyncJob($bank_integration);
+
+        $this->assertTrue((bool) $bank_integration->disabled_upstream);
+        $this->assertEquals($status, $bank_integration->bank_account_status);
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/transactions'));
+    }
+
+    public static function transientSessionResponses(): array
+    {
+        return [
+            'rate limited' => [429, ['error' => 'TOO_MANY_REQUESTS']],
+            'server error' => [500, ['error' => 'INTERNAL_ERROR']],
+            'pending authorization' => [200, ['status' => 'PENDING_AUTHORIZATION']],
+            'returned from bank' => [200, ['status' => 'RETURNED_FROM_BANK']],
+            'missing status' => [200, []],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('transientSessionResponses')]
+    public function testSyncLeavesIntegrationUntouchedOnTransientSessionState(int $code, array $body)
+    {
+        Http::fake(['api.enablebanking.com/sessions/*' => Http::response($body, $code)]);
+        $bank_integration = $this->enableBankingIntegration();
+
+        $this->runSyncJob($bank_integration);
+
+        $this->assertFalse((bool) $bank_integration->disabled_upstream);
+        $this->assertEquals('READY', $bank_integration->bank_account_status);
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/transactions'));
+    }
+
+    public function testSyncDisablesIntegrationWithoutSession()
+    {
+        Http::fake();
+        $bank_integration = $this->enableBankingIntegration(['requisition_id' => null]);
+
+        $this->runSyncJob($bank_integration);
+
+        $this->assertTrue((bool) $bank_integration->disabled_upstream);
+        $this->assertEquals('INVALID', $bank_integration->bank_account_status);
+        Http::assertNothingSent();
+    }
+
+    public function testSyncImportsTransactionsForAnAuthorizedSession()
+    {
+        Http::fake([
+            'api.enablebanking.com/sessions/*' => Http::response(['status' => 'AUTHORIZED']),
+            'api.enablebanking.com/accounts/acc-uid/transactions*' => Http::response([
+                'transactions' => [$this->transaction('sync-1'), $this->transaction('sync-2')],
+                'continuation_key' => null,
+            ]),
+        ]);
+        $bank_integration = $this->enableBankingIntegration(['bank_account_status' => 'EXPIRED']);
+
+        $this->runSyncJob($bank_integration);
+
+        $this->assertFalse((bool) $bank_integration->disabled_upstream);
+        $this->assertEquals('READY', $bank_integration->bank_account_status);
+        $this->assertEquals(2, BankTransaction::where('bank_integration_id', $bank_integration->id)
+            ->whereIn('nordigen_transaction_id', ['sync-1', 'sync-2'])
+            ->count());
     }
 }

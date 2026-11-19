@@ -281,18 +281,38 @@ class EnableBanking
     }
 
     /**
-     * Check if session is still active
+     * Session statuses that are final: the session can never be used again and the user
+     * has to reconnect the bank. Every other status is either AUTHORIZED or transient.
+     *
+     * @see https://enablebanking.com/docs/api/reference/#sessionstatus
      */
-    public function isSessionActive(string $session_id): bool
+    public const SESSION_TERMINAL_STATUSES = ['EXPIRED', 'REVOKED', 'CLOSED', 'CANCELLED', 'INVALID'];
+
+    /**
+     * Get the status of a session (e.g. AUTHORIZED, EXPIRED, REVOKED).
+     *
+     * Returns null when the status could not be determined (rate limit, server error,
+     * timeout, ...), so callers can tell a transient failure apart from a final status.
+     */
+    public function sessionStatus(string $session_id): ?string
     {
-        $result = $this->request("https://api.enablebanking.com/sessions/{$session_id}");
-        
-        if ($result['success']) {
-            $session = json_decode($result['body'], true);
-            return data_get($session, 'status') === 'AUTHORIZED';
+        try {
+            $result = $this->request("https://api.enablebanking.com/sessions/{$session_id}");
+        } catch (\Exception $e) {
+            nlog("EnableBanking: could not read session {$session_id} => " . $e->getMessage());
+
+            return null;
         }
-        
-        return false;
+
+        if (!$result['success']) {
+            nlog("EnableBanking: could not read session {$session_id} => {$result['status']} {$result['body']}");
+
+            return null;
+        }
+
+        $status = data_get(json_decode($result['body'], true) ?? [], 'status');
+
+        return is_string($status) ? $status : null;
     }
 
     /**

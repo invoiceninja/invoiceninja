@@ -118,21 +118,30 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
 
     private function updateAccount()
     {
-        // The session id is stored in requisition_id (reused Nordigen column). The session status
-        // reported by EnableBanking also covers expiry (valid_until), so no separate date check is needed.
-        $session_active = !empty($this->bank_integration->requisition_id) &&
-            $this->enablebanking->isSessionActive($this->bank_integration->requisition_id);
+        // The session id is stored in requisition_id (reused Nordigen column). Without it the
+        // integration can never sync again, so it has to be reconnected.
+        if (empty($this->bank_integration->requisition_id)) {
+            $this->disable('INVALID');
 
-        //Return early if the session is not active
-        if (!$session_active) {
-            $this->bank_integration->disabled_upstream = true;
-            $this->bank_integration->bank_account_status = 'EXPIRED';
-            $this->bank_integration->save();
+            return;
+        }
 
-            nlog("EnableBanking: session inactive: " . $this->bank_integration->requisition_id);
+        $status = $this->enablebanking->sessionStatus($this->bank_integration->requisition_id);
 
-            // Session expired, send notification
+        // Final status (expired, revoked by the user, closed, ...): disable and ask to reconnect.
+        // The session status also covers the consent expiry (valid_until).
+        if (in_array($status, EnableBanking::SESSION_TERMINAL_STATUSES, true)) {
+            $this->disable($status);
+
             $this->enablebanking->disabledAccountEmail($this->bank_integration);
+
+            return;
+        }
+
+        // Not (yet) authorized or the status could not be read (rate limit, server error,
+        // timeout): transient. Leave the integration untouched and retry on the next cycle.
+        if ($status !== 'AUTHORIZED') {
+            nlog("EnableBanking: session {$this->bank_integration->requisition_id} status == " . ($status ?? 'unknown') . ', retrying later');
 
             return;
         }
@@ -142,6 +151,15 @@ class ProcessBankTransactionsEnableBanking implements ShouldQueue
         $this->bank_integration->bank_account_status = "READY";
         $this->bank_integration->save();
 
+    }
+
+    private function disable(string $status): void
+    {
+        $this->bank_integration->disabled_upstream = true;
+        $this->bank_integration->bank_account_status = $status;
+        $this->bank_integration->save();
+
+        nlog("EnableBanking: session '{$this->bank_integration->requisition_id}' inactive (status={$status}) for account: {$this->bank_integration->nordigen_account_id}");
     }
 
     private function processTransactions()
