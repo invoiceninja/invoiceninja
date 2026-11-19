@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CompanyUser\UpdateCompanyUserFlutterSettingsRequest;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserPreferencesRequest;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Models\CompanyUser;
@@ -20,6 +21,8 @@ use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class CompanyUserController extends BaseController
 {
@@ -158,6 +161,66 @@ class CompanyUserController extends BaseController
 
         $company_user->react_settings = $request->react_settings;
         $company_user->save();
+
+        return $this->itemResponse($user->fresh());
+    }
+
+    /**
+     * Applies a patch to the flutter_settings of the user in the current company.
+     *
+     * Each key of flutter_settings is a dot separated path, a null value removes
+     * the path along with any parent it leaves empty, and setting a path through
+     * a value that is not an object replaces that value. The settings are merged
+     * rather than replaced so that one device can not overwrite the changes
+     * another device made since it last loaded them.
+     */
+    public function updateFlutterSettings(UpdateCompanyUserFlutterSettingsRequest $request, User $user)
+    {
+        /** @var \App\Models\User $auth_user */
+        $auth_user = auth()->user();
+        $company = $auth_user->company();
+
+        DB::transaction(function () use ($request, $user, $company) {
+            $company_user = CompanyUser::query()
+                ->where('user_id', $user->id)
+                ->where('company_id', $company->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $company_user) {
+                throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
+            }
+
+            $flutter_settings = json_decode(json_encode($company_user->flutter_settings ?? []), true);
+
+            foreach ($request->input('flutter_settings') as $path => $value) {
+                if (is_null($value)) {
+                    Arr::forget($flutter_settings, $path);
+
+                    // An empty parent would be returned as [] rather than {}.
+                    $parent = $path;
+
+                    while (str_contains($parent, '.')) {
+                        $parent = substr($parent, 0, strrpos($parent, '.'));
+
+                        if (Arr::get($flutter_settings, $parent) !== []) {
+                            break;
+                        }
+
+                        Arr::forget($flutter_settings, $parent);
+                    }
+                } else {
+                    Arr::set($flutter_settings, $path, $value);
+                }
+            }
+
+            $company_user->flutter_settings = (object) $flutter_settings;
+            $company_user->save();
+        });
+
+        $this->entity_type = User::class;
+
+        $this->entity_transformer = UserTransformer::class;
 
         return $this->itemResponse($user->fresh());
     }
