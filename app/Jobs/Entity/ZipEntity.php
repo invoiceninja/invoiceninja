@@ -201,7 +201,7 @@ class ZipEntity implements ShouldQueue
                 if ($this->xml_only) {
                     $entries[] = [
                         'contents' => $this->invoiceXml($entity),
-                        'file_name' => $entity->getFileName('xml'),
+                        'file_name' => $entity->getDownloadFileName('xml'),
                     ];
 
                     continue;
@@ -211,7 +211,7 @@ class ZipEntity implements ShouldQueue
                     try {
                         $entries[] = [
                             'contents' => $entity instanceof Invoice ? $this->invoiceXml($entity) : $this->generateXml($entity),
-                            'file_name' => $entity->getFileName('xml'),
+                            'file_name' => $entity->getDownloadFileName('xml'),
                         ];
                     } catch (Throwable $exception) {
                         nlog("could not create e invoice for {$entity->id}");
@@ -222,7 +222,7 @@ class ZipEntity implements ShouldQueue
 
                 $entries[] = [
                     'contents' => (new CreateRawPdf($entity->invitations->first()))->handle(),
-                    'file_name' => $entity->getFileName(),
+                    'file_name' => $entity->getDownloadFileName(),
                 ];
             } catch (Throwable $exception) {
                 $name = $entity instanceof Document ? $entity->name : $entity->number;

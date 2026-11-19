@@ -137,6 +137,25 @@ class CompanySettingsTest extends TestCase
         $this->assertSame('3,25', $this->company->fresh()->settings->hidden_payment_types);
     }
 
+    public function testCompanyCanSaveFileNamePatterns(): void
+    {
+        $settings = $this->company->settings;
+        $settings->invoice_filename_pattern = '$company.name - $entity - $number';
+        $settings->purchase_order_filename_pattern = '$vendor.name - $number';
+        $settings->filename_slug = true;
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-Token' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), ['settings' => (array) $settings]);
+
+        $response->assertStatus(200);
+
+        $this->assertSame('$company.name - $entity - $number', $response->json('data.settings.invoice_filename_pattern'));
+        $this->assertSame('$vendor.name - $number', $this->company->fresh()->settings->purchase_order_filename_pattern);
+        $this->assertTrue($this->company->fresh()->settings->filename_slug);
+    }
+
     public function testHiddenPaymentTypesMustBeAString(): void
     {
         $settings = $this->company->settings;

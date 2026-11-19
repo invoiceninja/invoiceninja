@@ -124,7 +124,7 @@ class CreditEmailEngine extends BaseEmailEngine
             //     $pdf = $this->credit->documentMerge($pdf);
             // }
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->credit->numberFormatter() . '.pdf']]);
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->credit->getDownloadFileName()]]);
         }
 
         //attach third party documents

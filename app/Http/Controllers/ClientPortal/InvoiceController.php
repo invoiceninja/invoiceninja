@@ -329,7 +329,7 @@ class InvoiceController extends Controller
 
             return response()->streamDownload(function () use ($invoice) {
                 echo $invoice->service()->getInvoicePdf(auth()->guard('contact')->user());
-            }, $invoice->getFileName(), ['Content-Type' => 'application/pdf']);
+            }, $invoice->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
         }
 
         return $this->buildZip($invoices);
@@ -345,11 +345,11 @@ class InvoiceController extends Controller
 
                 if ($invoice->client->getSetting('enable_e_invoice')) {
                     $xml = $invoice->service()->getEInvoice();
-                    $zipFile->addFromString($invoice->getFileName("xml"), $xml);
+                    $zipFile->addFromString($invoice->getDownloadFileName("xml"), $xml);
                 }
 
                 $file = $invoice->service()->getRawInvoicePdf();
-                $zip_file_name = $invoice->getFileName();
+                $zip_file_name = $invoice->getDownloadFileName();
                 $zipFile->addFromString($zip_file_name, $file);
             }
 

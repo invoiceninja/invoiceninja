@@ -682,7 +682,7 @@ class PurchaseOrderController extends BaseController
 
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
-                }, $purchase_order->numberFormatter() . ".pdf", ['Content-Type' => 'application/pdf']);
+                }, $purchase_order->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->purchase_order_repository->restore($purchase_order);
@@ -879,7 +879,7 @@ class PurchaseOrderController extends BaseController
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, $purchase_order->numberFormatter() . ".pdf", $headers);
+        }, $purchase_order->getDownloadFileName(), $headers);
     }
     /**
      * @OA\Get(
@@ -936,7 +936,7 @@ class PurchaseOrderController extends BaseController
         $purchase_order = $invitation->purchase_order;
 
         $file = $purchase_order->service()->getEPurchaseOrder($contact);
-        $file_name = $purchase_order->getFileName("xml");
+        $file_name = $purchase_order->getDownloadFileName('xml');
 
         $headers = ['Content-Type' => 'application/xml'];
 

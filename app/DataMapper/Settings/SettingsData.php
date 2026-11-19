@@ -476,6 +476,16 @@ class SettingsData
 
     public string $classification = '';
 
+    public string $invoice_filename_pattern = '';
+
+    public string $quote_filename_pattern = '';
+
+    public string $credit_filename_pattern = '';
+
+    public string $purchase_order_filename_pattern = '';
+
+    public bool $filename_slug = false;
+
     private mixed $object;
 
     public function cast(mixed $object)

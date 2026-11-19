@@ -246,7 +246,7 @@ class PurchaseOrderController extends Controller
 
             return response()->streamDownload(function () use ($file) {
                 echo $file;
-            }, $invitation->purchase_order->numberFormatter() . ".pdf", ['Content-Type' => 'application/pdf']);
+            }, $invitation->purchase_order->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
         }
 
         return $this->buildZip($purchase_order_invitations);
@@ -260,7 +260,7 @@ class PurchaseOrderController extends Controller
             foreach ($invitations as $invitation) {
 
                 $file = (new CreateRawPdf($invitation))->handle();
-                $zipFile->addFromString($invitation->purchase_order->numberFormatter() . ".pdf", $file);
+                $zipFile->addFromString($invitation->purchase_order->getDownloadFileName(), $file);
             }
 
             $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';

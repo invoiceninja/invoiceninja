@@ -95,7 +95,7 @@ class InvitationController extends Controller
 
         App::setLocale($invitation->contact->preferredLocale());
 
-        $file_name = $invitation->purchase_order->numberFormatter() . '.pdf';
+        $file_name = $invitation->purchase_order->getDownloadFileName();
 
         $file = $invitation->purchase_order->service()->getPurchaseOrderPdf();
 

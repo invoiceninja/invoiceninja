@@ -43,6 +43,18 @@ class EmailAttachmentFileNameTest extends TestCase
         $this->assertSame([str_replace(' ', '_', ctrans('texts.invoice')) . '_2024.001-e_invoice.xml'], $names);
     }
 
+    public function testEInvoiceAttachmentUsesTheFileNamePattern(): void
+    {
+        $settings = $this->client->settings;
+        $settings->invoice_filename_pattern = '$entity $number';
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $names = $this->attachmentNames($this->invoiceWithEDocument('2024.001'));
+
+        $this->assertSame([ctrans('texts.invoice') . ' 2024.001.xml'], $names);
+    }
+
     /**
      * The email attachment names for an invoice whose e-invoice is attached on
      * its own (not merged into the PDF), with the PDF left out.
@@ -59,6 +71,7 @@ class EmailAttachmentFileNameTest extends TestCase
         $email_object = new EmailObject();
         $email_object->entity = $invoice;
         $email_object->invitation = $this->invoice->invitations()->first();
+        $email_object->contact = $email_object->invitation->contact;
         $email_object->settings = $settings;
         $email_object->email_template_subject = 'email_subject_invoice';
 
