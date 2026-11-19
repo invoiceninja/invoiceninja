@@ -369,7 +369,7 @@ class EmailDefaults
             }
 
             if ($xml_string) {
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0] . "-e_invoice.xml"]]);
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => pathinfo($this->email->email_object->entity->getFileName('xml'), PATHINFO_FILENAME) . "-e_invoice.xml"]]);
             }
 
         }
