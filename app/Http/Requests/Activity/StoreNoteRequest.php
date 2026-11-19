@@ -36,7 +36,7 @@ class StoreNoteRequest extends Request
         $user = auth()->user();
 
         $rules = [
-            'entity' => 'required|bail|in:invoices,quotes,credits,recurring_invoices,clients,vendors,credits,payments,projects,tasks,expenses,recurring_expenses,bank_transactions,purchase_orders',
+            'entity' => 'required|bail|in:invoices,quotes,credits,recurring_invoices,clients,vendors,payments,projects,tasks,expenses,recurring_expenses,purchase_orders',
             'entity_id' => ['required','bail', Rule::exists($this->entity, 'id')->where('company_id', $user->company()->id)],
             'notes' => 'required|bail',
         ];

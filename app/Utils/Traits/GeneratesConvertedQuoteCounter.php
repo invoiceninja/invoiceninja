@@ -53,7 +53,7 @@ trait GeneratesConvertedQuoteCounter
 
         $pattern = $settings->quote_number_pattern;
 
-        if (strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)) {
+        if (strlen($pattern) > 1 && ! $this->hasCounterToken($pattern)) {
             $pattern = $pattern . '{$counter}';
         }
 
@@ -79,7 +79,7 @@ trait GeneratesConvertedQuoteCounter
 
         $pattern = $settings->invoice_number_pattern;
 
-        if (strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)) {
+        if (strlen($pattern) > 1 && ! $this->hasCounterToken($pattern)) {
             $pattern = $pattern . '{$counter}';
         }
 
@@ -672,6 +672,17 @@ trait GeneratesConvertedQuoteCounter
 
         $company->settings = $settings;
         $company->save();
+    }
+
+    /**
+     * Whether the pattern contains a counter placeholder that applyNumberPattern() replaces.
+     *
+     * @param  string|null  $pattern
+     * @return bool
+     */
+    private function hasCounterToken(?string $pattern): bool
+    {
+        return preg_match('/{\$(counter|client_counter|clientCounter|group_counter)}/', $pattern ?? '') === 1;
     }
 
     /**

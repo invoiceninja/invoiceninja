@@ -123,6 +123,24 @@ class JsonDesignPageOverridesTest extends TestCase
         $this->assertStringContainsString('size: A3 landscape', $result);
     }
 
+    public function testB5LandscapeIsRecognized(): void
+    {
+        $html = '<html><head><style>@page { size: A4; }</style></head></html>';
+
+        $result = $this->service()->applyPageOverrides($html, $this->settings('B5', 'landscape'));
+
+        $this->assertStringContainsString('size: B5 landscape', $result);
+    }
+
+    public function testJisB4IsRecognized(): void
+    {
+        $html = '<html><head><style>@page { size: A4; }</style></head></html>';
+
+        $result = $this->service()->applyPageOverrides($html, $this->settings('JIS-B4'));
+
+        $this->assertStringContainsString('size: JIS-B4 portrait', $result);
+    }
+
     public function testLowercaseInputNormalizesToCanonicalCasing(): void
     {
         $html = '<html><head><style>@page { size: A4; }</style></head></html>';

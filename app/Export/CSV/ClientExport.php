@@ -138,7 +138,7 @@ class ClientExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query, ' clients');
+        $query = $this->addDateRange($query, 'clients');
 
         $query = $this->addTagFilter($query);
 

@@ -12,8 +12,11 @@
 
 namespace Tests\Feature\Export;
 
+use App\Export\CSV\ClientExport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\DB;
+use League\Csv\Reader;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -104,6 +107,32 @@ class ClientCsvTest extends TestCase
         ])->post('/api/v1/reports/clients', $data);
 
         $response->assertStatus(200);
+    }
+
+    public function testClientExportFiltersByTheRequestedDateKey()
+    {
+        DB::table('clients')->where('id', $this->client->id)->update([
+            'created_at' => now()->subYears(5),
+            'updated_at' => now()->subDays(3),
+        ]);
+
+        $export = new ClientExport($this->company, [
+            'date_range' => 'custom',
+            'start_date' => now()->subDays(7)->format('Y-m-d'),
+            'end_date' => now()->format('Y-m-d'),
+            'date_key' => 'updated_at',
+            'include_deleted' => false,
+            'report_keys' => ['client.name'],
+            'send_email' => false,
+            'user_id' => $this->user->id,
+        ]);
+
+        $reader = Reader::fromString($export->run());
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords());
+
+        $this->assertCount(1, $records);
+        $this->assertEquals($this->client->name, reset($records)['Name']);
     }
 
     public function testContactExportCsv()

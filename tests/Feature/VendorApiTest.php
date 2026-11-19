@@ -379,6 +379,100 @@ class VendorApiTest extends TestCase
 
     }
 
+    public function testVendorContactSendEmailIsRespected()
+    {
+        $data = [
+            'name' => $this->faker->firstName(),
+            'contacts' => [
+                ['email' => 'primary@example.com', 'is_primary' => true, 'send_email' => true],
+                ['email' => 'secondary@example.com', 'is_primary' => false, 'send_email' => false],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $contacts = collect($arr['data']['contacts']);
+
+        $this->assertTrue($contacts->firstWhere('email', 'primary@example.com')['send_email']);
+        $this->assertFalse($contacts->firstWhere('email', 'secondary@example.com')['send_email']);
+
+        $data['contacts'] = $contacts->map(function ($contact) {
+            return [
+                'id' => $contact['id'],
+                'email' => $contact['email'],
+                'is_primary' => $contact['is_primary'],
+                'send_email' => $contact['send_email'],
+            ];
+        })->toArray();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/vendors/'.$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
+        $contacts = collect($response->json()['data']['contacts']);
+
+        $this->assertTrue($contacts->firstWhere('email', 'primary@example.com')['send_email']);
+        $this->assertFalse($contacts->firstWhere('email', 'secondary@example.com')['send_email']);
+    }
+
+    public function testVendorKeepsAContactThatReceivesEmail()
+    {
+        $data = [
+            'name' => $this->faker->firstName(),
+            'contacts' => [
+                ['email' => 'primary@example.com', 'send_email' => false],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertTrue($arr['data']['contacts'][0]['send_email']);
+
+        $data['contacts'][0]['id'] = $arr['data']['contacts'][0]['id'];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/vendors/'.$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
+        $this->assertTrue($response->json()['data']['contacts'][0]['send_email']);
+
+        $data['contacts'] = [
+            ['email' => 'secondary@example.com', 'send_email' => false],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/vendors/'.$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
+        $contacts = $response->json()['data']['contacts'];
+
+        $this->assertCount(1, $contacts);
+        $this->assertEquals('secondary@example.com', $contacts[0]['email']);
+        $this->assertTrue($contacts[0]['send_email']);
+    }
+
     public function testVendorGet()
     {
         $response = $this->withHeaders([

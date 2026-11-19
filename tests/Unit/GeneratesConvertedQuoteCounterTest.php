@@ -154,4 +154,63 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $this->assertEquals('Q0100', $quote->number);
         $this->assertEquals('I0100', $invoice->number);
     }
+
+    public function testCounterExtractionWithoutACounterPlaceholder()
+    {
+        $this->account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+        ]);
+
+        $user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => $this->createDbHash(config('database.default')),
+            'email' => uniqid('testuser') . '@gmail.com',
+        ]);
+
+        $this->company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $this->client = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        ClientContact::factory()->create([
+            'user_id' => $user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
+        ]);
+
+        $settings = $this->client->getMergedSettings();
+        $settings->invoice_number_counter = 1;
+        $settings->invoice_number_pattern = 'Counter-I';
+        $settings->quote_number_pattern = 'Counter-Q';
+        $settings->shared_invoice_quote_counter = 1;
+        $settings->timezone_id = '31';
+        $this->company->settings = $settings;
+
+        $this->company->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $quote = Quote::factory()->create([
+            'user_id' => $this->client->user_id,
+            'company_id' => $this->client->company_id,
+            'client_id' => $this->client->id,
+        ]);
+
+        $quote = $quote->service()->markSent()->convert()->save();
+
+        $invoice = Invoice::find($quote->invoice_id);
+
+        $this->assertNotNull($invoice);
+
+        $this->assertEquals('Counter-Q0001', $quote->number);
+        $this->assertEquals('Counter-I0001', $invoice->number);
+    }
 }
