@@ -22048,7 +22048,7 @@ paths:
       tags:
         - charts
       summary: 'Get entity totals'
-      description: 'Returns the amount and record count of an entity list per currency id. Archived and deleted records are excluded, as are records of archived or deleted clients. Results retain the current user visibility scope of the entity list. Client totals require permission to view client balances.'
+      description: 'Returns the amount and record count of an entity list per currency id. Archived and deleted records are excluded, as are records of archived or deleted clients and purchase orders of archived or deleted vendors. Results retain the current user visibility scope of the entity list. Client totals require permission to view client balances.'
       operationId: getChartEntityTotals
       parameters:
         -

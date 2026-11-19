@@ -77,6 +77,7 @@ class ChartEntityTotalsTest extends TestCase
 
     /**
      * entity => [included records, excluded records], each record [attributes, client attributes].
+     * A purchase order's client attributes are its vendor's.
      * Every included record totals 100.
      */
     public static function entityTotals(): array
@@ -166,6 +167,8 @@ class ChartEntityTotalsTest extends TestCase
                 [['status_id' => PurchaseOrder::STATUS_CANCELLED], []],
                 [self::ARCHIVED, []],
                 [self::DELETED, []],
+                [[], self::ARCHIVED],
+                [[], self::DELETED],
             ]],
             'expenses' => ['expenses', [
                 [[], []],
@@ -469,20 +472,20 @@ class ChartEntityTotalsTest extends TestCase
             $settings->currency_id = (string) $currency_id;
         }
 
-        $client_attributes = array_merge([
+        $client_defaults = [
             'company_id' => $this->metricCompany->id,
             'user_id' => $this->user->id,
             'settings' => $settings,
             'balance' => 100,
-        ], $client_attributes);
+        ];
 
         if ($entity == 'clients') {
-            Client::factory()->create(array_merge($client_attributes, $attributes));
+            Client::factory()->create(array_merge($client_defaults, $client_attributes, $attributes));
 
             return;
         }
 
-        $client = Client::factory()->create($client_attributes);
+        $client = Client::factory()->create(array_merge($client_defaults, $client_attributes));
 
         $attributes = array_merge([
             'company_id' => $this->metricCompany->id,
@@ -525,11 +528,11 @@ class ChartEntityTotalsTest extends TestCase
                 'balance' => 100,
             ], $attributes)),
             'purchase_orders' => PurchaseOrder::factory()->create(array_merge([
-                'vendor_id' => Vendor::factory()->create([
+                'vendor_id' => Vendor::factory()->create(array_merge([
                     'company_id' => $this->metricCompany->id,
                     'user_id' => $this->user->id,
                     'currency_id' => $currency_id,
-                ])->id,
+                ], $client_attributes))->id,
                 'status_id' => PurchaseOrder::STATUS_SENT,
                 'amount' => 100,
                 'balance' => 100,

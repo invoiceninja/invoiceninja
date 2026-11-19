@@ -933,6 +933,7 @@ trait ChartQueries
             AND purchase_orders.status_id IN (2,3)
             AND purchase_orders.is_deleted = 0
             AND purchase_orders.deleted_at IS NULL
+            AND (vendors.id IS NULL OR (vendors.is_deleted = 0 AND vendors.deleted_at IS NULL))
             {$user_filter}
             GROUP BY effective_currency_id
         ", [
