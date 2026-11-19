@@ -209,24 +209,72 @@ class EnableBanking
     }
 
     /**
-     * Get transactions for an account
+     * Safety net against a misbehaving ASPSP that keeps returning new continuation keys.
+     * Not a documented limit: far above normal use (500 pages of even ~25 transactions
+     * covers ~12.500 transactions), it only prevents the job from running forever.
+     */
+    public const MAX_TRANSACTION_PAGES = 500;
+
+    /**
+     * Get all (booked) transactions for an account.
+     *
+     * EnableBanking paginates the transactions: as long as the response contains a
+     * continuation_key, the next page is requested with it. Pages can be empty while
+     * still carrying a key, so iterate on the key and not on the transactions.
+     *
+     * @see https://enablebanking.com/docs/api/reference/#get-account-transactions
      */
     public function getTransactions(Company $company, string $account_id, ?string $date_from = null): array
     {
         $params = [];
+
         if ($date_from) {
-            $params['date_from'] = $date_from;
+            // the API expects a plain date (YYYY-MM-DD)
+            $params['date_from'] = \Carbon\Carbon::parse($date_from)->format('Y-m-d');
         }
-        
-        $result = $this->request("https://api.enablebanking.com/accounts/{$account_id}/transactions", 'GET', $params);
-        if ($result['success']) {
-            $transactions = json_decode($result['body'], true);
-            
-            $it = new TransactionTransformer($company);
-            return $it->transform($transactions);
-        }
-        
-        throw new \Exception('EnableBanking get transactions error: ' . $result['body']);
+
+        $transactions = [];
+        $seen_keys = [];
+        $page = 0;
+
+        do {
+            $result = $this->request("https://api.enablebanking.com/accounts/{$account_id}/transactions", 'GET', $params);
+
+            if (!$result['success']) {
+                throw new \Exception('EnableBanking get transactions error: ' . $result['body']);
+            }
+
+            $response = json_decode($result['body'], true) ?? [];
+            $page_transactions = data_get($response, 'transactions') ?? [];
+
+            if (is_array($page_transactions)) {
+                array_push($transactions, ...array_values($page_transactions));
+            }
+
+            $continuation_key = data_get($response, 'continuation_key');
+            $page++;
+
+            if (empty($continuation_key)) {
+                break;
+            }
+
+            if (in_array($continuation_key, $seen_keys, true)) {
+                nlog("EnableBanking: repeated continuation_key for account {$account_id}, stopping after {$page} pages");
+                break;
+            }
+
+            if ($page >= self::MAX_TRANSACTION_PAGES) {
+                nlog("EnableBanking: reached the maximum of " . self::MAX_TRANSACTION_PAGES . " transaction pages for account {$account_id}");
+                break;
+            }
+
+            $seen_keys[] = $continuation_key;
+            $params['continuation_key'] = $continuation_key;
+        } while (true);
+
+        $it = new TransactionTransformer($company);
+
+        return $it->transform(['transactions' => $transactions]);
     }
 
     /**
