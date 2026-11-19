@@ -322,4 +322,26 @@ class EnableBankingApiTest extends TestCase
             ->whereIn('nordigen_transaction_id', ['sync-1', 'sync-2'])
             ->count());
     }
+
+    public function testGetTransactionsEndpointSyncsEnableBanking()
+    {
+        Http::fake([
+            'api.enablebanking.com/sessions/*' => Http::response(['status' => 'AUTHORIZED']),
+            'api.enablebanking.com/accounts/acc-uid/transactions*' => Http::response([
+                'transactions' => [$this->transaction('endpoint-1')],
+                'continuation_key' => null,
+            ]),
+        ]);
+        Bus::fake();
+        $bank_integration = $this->enableBankingIntegration();
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_integrations/get_transactions/' . $bank_integration->hashed_id)->assertStatus(200);
+
+        $this->assertEquals(1, BankTransaction::where('bank_integration_id', $bank_integration->id)
+            ->where('nordigen_transaction_id', 'endpoint-1')
+            ->count());
+    }
 }

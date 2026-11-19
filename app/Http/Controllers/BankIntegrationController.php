@@ -452,6 +452,13 @@ class BankIntegrationController extends BaseController
             });
         }
 
+        if (config('ninja.enablebanking.application_id') && config('ninja.enablebanking.key_path') && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise'))) {
+            $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)->where('auto_sync', true)->where('disabled_upstream', false)->cursor()->each(function ($bank_integration) {
+                /** @var \App\Models\BankIntegration $bank_integration */
+                (new ProcessBankTransactionsEnableBanking($bank_integration))->handle();
+            });
+        }
+
         return response()->json(['message' => 'Fetching transactions....'], 200);
     }
 }
