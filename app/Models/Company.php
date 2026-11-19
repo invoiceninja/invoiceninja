@@ -736,6 +736,11 @@ class Company extends BaseModel
         return $this->settings->company_logo ?: null;
     }
 
+    public function getLogoDark(): ?string
+    {
+        return $this->settings->company_logo_dark ?: null;
+    }
+
     public function locale()
     {
         return $this->getLocale();
