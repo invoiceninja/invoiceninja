@@ -321,10 +321,10 @@ class ChartEntityTotalsTest extends TestCase
 
     public static function expenseTaxRounding(): array
     {
-        // 5% + 5% of the amount, each rate rounded to the currency precision on its own
+        // 5% + 5% of the amount, each rate rounded to the currency precision on its own, two places for a zero precision
         return [
             'two places' => [1, 10.10, '11.12'],
-            'no places' => [45, 10, '12'],
+            'no places' => [45, 10, '11'],
             'three places' => [89, 10.01, '11.012'],
         ];
     }

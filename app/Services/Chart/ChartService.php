@@ -321,8 +321,8 @@ class ChartService
 
     /**
      * The amount of an expense with its exclusive taxes added, as the expense lists show it: stored tax amounts when
-     * the taxes are by amount, else each named rate rounded on its own. Rounded to the currency precision, as in
-     * Expense::getNetAmount, where the React list falls back to two places for a zero precision currency.
+     * the taxes are by amount, else each named rate rounded on its own. Rounded to the currency precision, or two places
+     * when it is zero or missing, as the React list does.
      *
      * The dashboard expense figure (getExpenseQuery) differs: it adds the stored tax amounts to rate taxes as well.
      *
@@ -331,7 +331,7 @@ class ChartService
      */
     private function expenseAmountWithTax(string $table): string
     {
-        $precision = 'COALESCE(CAST(currencies.precision AS UNSIGNED), 2)';
+        $precision = 'COALESCE(NULLIF(CAST(currencies.precision AS UNSIGNED), 0), 2)';
 
         return "CASE
                 WHEN {$table}.uses_inclusive_taxes = 1 THEN {$table}.amount
