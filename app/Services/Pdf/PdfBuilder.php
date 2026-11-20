@@ -1947,6 +1947,16 @@ class PdfBuilder
 
         $elements = [
             ['element' => 'div', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
+        ];
+
+        // A purchase order has no client details section, so without the client's name the vendor would get an address with no
+        // recipient (drop-shipping). Invoices and quotes already name the client in their client details section.
+        if ($this->service->document_type == PdfService::PURCHASE_ORDER) {
+            $elements[] = ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.name'], 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.name']];
+        }
+
+        $elements = [
+            ...$elements,
             ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_location_name'], 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_location_name']],
             ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_address1'], 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
             ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_address2'], 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],
