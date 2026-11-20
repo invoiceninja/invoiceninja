@@ -606,18 +606,34 @@ class RevolutPaymentDriver extends BaseDriver
      */
     public function pageOrder(int $gateway_type_id, array $extra = []): array
     {
-        $order = $this->reusableOrder($gateway_type_id);
+        $lock = Cache::lock(
+            "revolut_order_create_{$this->payment_hash->hash}",
+            60
+        );
 
-        if ($order) {
-            return $order;
+        if (! $lock->get()) {
+            throw new PaymentFailed(
+                'This payment is already being prepared. Please try again shortly.',
+                409
+            );
         }
 
-        // Saving a method needs the Revolut customer on the order.
-        if ($gateway_type_id !== GatewayType::HOSTED_PAGE && $this->canSavePaymentMethods() && ($customer_id = $this->revolutCustomerId())) {
-            $extra['customer'] = ['id' => $customer_id];
-        }
+        try {
+            $this->payment_hash->refresh();
 
-        return $this->createOrder($gateway_type_id, $extra);
+            if ($order = $this->reusableOrder($gateway_type_id)) {
+                return $order;
+            }
+
+            // Saving a method needs the Revolut customer on the order.
+            if ($gateway_type_id !== GatewayType::HOSTED_PAGE && $this->canSavePaymentMethods() && ($customer_id = $this->revolutCustomerId())) {
+                $extra['customer'] = ['id' => $customer_id];
+            }
+
+            return $this->createOrder($gateway_type_id, $extra);
+        } finally {
+            $lock->release();
+        }
     }
 
     /**

@@ -23,6 +23,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\RevolutPaymentDriver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -225,6 +226,27 @@ class RevolutPaymentDriverTest extends TestCase
         ]), [], [], [], ['CONTENT_TYPE' => 'application/json'], $body)->assertOk();
 
         $this->assertSame(1, Payment::where('transaction_reference', 'order_1')->where('status_id', Payment::STATUS_COMPLETED)->count());
+    }
+
+    public function testNoOrderIsCreatedWhileThePaymentIsBeingPrepared(): void
+    {
+        $this->buildDriver(100.00);
+
+        Http::fake();
+
+        $lock = Cache::lock("revolut_order_create_{$this->payment_hash->hash}", 60);
+        $lock->get();
+
+        try {
+            $this->driver->pageOrder(GatewayType::HOSTED_PAGE);
+            $this->fail('Expected PaymentFailed');
+        } catch (PaymentFailed $e) {
+            $this->assertSame(409, $e->getCode());
+        } finally {
+            $lock->release();
+        }
+
+        Http::assertNothingSent();
     }
 
     public function testWebhookForAnotherOrderIsIgnored(): void
