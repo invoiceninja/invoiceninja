@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\BankIntegrationFactory;
 use App\Filters\BankIntegrationFilters;
+use App\Helpers\Bank\EnableBanking\EnableBanking;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
@@ -26,6 +27,7 @@ use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
 use App\Jobs\Bank\ProcessBankTransactionsYodlee;
 use App\Jobs\Bank\ProcessBankTransactionsNordigen;
+use App\Jobs\Bank\ProcessBankTransactionsEnableBanking;
 use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\User;
@@ -205,6 +207,8 @@ class BankIntegrationController extends BaseController
 
         $this->refreshAccountsNordigen($user);
 
+        $this->refreshAccountsEnableBanking($user);
+
         if (Cache::get("throttle_polling:{$user_account->key}")) {
             return response()->json(BankIntegration::query()->company(), 200);
         }
@@ -222,6 +226,17 @@ class BankIntegrationController extends BaseController
                 /** @var \App\Models\BankIntegration $bank_integration */
                 ProcessBankTransactionsNordigen::dispatch($bank_integration);
             });
+        }
+
+        if (config('ninja.enablebanking.application_id') && config('ninja.enablebanking.key_path') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isEnterprisePaidClient()))) {
+            $user_account->bank_integrations
+                ->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
+                ->where('auto_sync', true)
+                ->where('disabled_upstream', false)
+                ->each(function ($bank_integration) {
+                    /** @var \App\Models\BankIntegration $bank_integration */
+                    ProcessBankTransactionsEnableBanking::dispatch($bank_integration);
+                });
         }
 
         Cache::put("throttle_polling:{$user_account->key}", true, 300);
@@ -340,6 +355,37 @@ class BankIntegrationController extends BaseController
         });
     }
 
+    private function refreshAccountsEnableBanking(User $user)
+    {
+        if (!(config('ninja.enablebanking.application_id') && config('ninja.enablebanking.key_path'))) {
+            return;
+        }
+
+        if (!(Ninja::isSelfHost() || (Ninja::isHosted() && $user->account->isEnterprisePaidClient()))) {
+            return;
+        }
+
+        $enablebanking = new EnableBanking();
+
+        BankIntegration::where('account_id', $user->account_id)
+                       ->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
+                       ->whereNotNull('nordigen_account_id') // EnableBanking account uid (reused Nordigen column)
+                       ->each(function (BankIntegration $bank_integration) use ($enablebanking) {
+                           $account = $enablebanking->getAccount($bank_integration->nordigen_account_id);
+
+                           // Rate limited or (transient) error: leave the integration untouched and retry later.
+                           if (!$account || isset($account['error'])) {
+                               return;
+                           }
+
+                           // Only refresh the balance. The status (READY/EXPIRED/...) is derived from the
+                           // session by ProcessBankTransactionsEnableBanking, the account details carry none.
+                           $bank_integration->balance = $account['current_balance'];
+                           $bank_integration->currency = $account['account_currency'];
+                           $bank_integration->save();
+                       });
+    }
+
     /**
      * Return the remote list of accounts stored on the third party provider
      * and update our local cache.
@@ -405,6 +451,13 @@ class BankIntegrationController extends BaseController
             $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('auto_sync', true)->cursor()->each(function ($bank_integration) {
                 /** @var \App\Models\BankIntegration $bank_integration */
                 (new ProcessBankTransactionsNordigen($bank_integration))->handle();
+            });
+        }
+
+        if (config('ninja.enablebanking.application_id') && config('ninja.enablebanking.key_path') && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise'))) {
+            $account->bank_integrations()->where('integration_type', BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)->where('auto_sync', true)->where('disabled_upstream', false)->cursor()->each(function ($bank_integration) {
+                /** @var \App\Models\BankIntegration $bank_integration */
+                (new ProcessBankTransactionsEnableBanking($bank_integration))->handle();
             });
         }
 
