@@ -20,6 +20,28 @@ use App\Utils\Ninja;
 
 class CreateAccountRequest extends Request
 {
+    private const ATTRIBUTION_KEY_PATTERN = '/^utm_[a-z0-9_]{1,59}$/';
+
+    private const ATTRIBUTION_KEYS = [
+        'gclid',
+        'gbraid',
+        'wbraid',
+        'fbclid',
+        'fbc',
+        'fbp',
+        'twclid',
+        'oppref',
+        'obref',
+    ];
+
+    private const LEGACY_UTM_KEYS = [
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
+        'utm_term',
+        'utm_content',
+    ];
+
     private array $fake_domains = [
         'generator.email',
         'emailfake.com',
@@ -204,11 +226,11 @@ class CreateAccountRequest extends Request
             'email'             => ['bail', 'required', 'max:255', 'email:rfc,dns', 'indisposable:mx', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()],
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
-            'utm_source'        => 'sometimes|nullable|string',
-            'utm_medium'        => 'sometimes|nullable|string',
-            'utm_campaign'      => 'sometimes|nullable|string',
-            'utm_term'          => 'sometimes|nullable|string',
-            'utm_content'       => 'sometimes|nullable|string',
+            'utm_source'        => 'sometimes|nullable|string|max:191',
+            'utm_medium'        => 'sometimes|nullable|string|max:191',
+            'utm_campaign'      => 'sometimes|nullable|string|max:191',
+            'utm_term'          => 'sometimes|nullable|string|max:191',
+            'utm_content'       => 'sometimes|nullable|string|max:191',
             // 'cf-turnstile'      => 'required_if:token_name,web_client|string',
         ];
     }
@@ -239,6 +261,44 @@ class CreateAccountRequest extends Request
         });
     }
 
+    /**
+     * Attribution is marketing metadata nobody signing up controls, so drop
+     * anything unexpected instead of failing the signup.
+     */
+    public static function sanitizeAttribution(mixed $value): ?array
+    {
+        if (! is_array($value)) {
+            return null;
+        }
+
+        $attribution = [];
+
+        foreach ($value as $key => $item) {
+            $key = (string) $key;
+
+            $supported = in_array($key, self::ATTRIBUTION_KEYS, true)
+                || preg_match(self::ATTRIBUTION_KEY_PATTERN, $key);
+
+            if (! $supported || ! is_string($item) || strlen($item) > 191) {
+                continue;
+            }
+
+            $attribution[$key] = $item;
+        }
+
+        return array_slice($attribution, 0, 20, true) ?: null;
+    }
+
+    /**
+     * First touch wins: an explicit attribution payload wins, otherwise fall
+     * back to the attribution cookie set before the signup redirect.
+     */
+    public static function attributionFrom(mixed $attribution, ?string $cookie): ?array
+    {
+        return self::sanitizeAttribution($attribution)
+            ?? self::sanitizeAttribution(json_decode((string) $cookie, true));
+    }
+
     public function prepareForValidation()
     {
 
@@ -247,6 +307,24 @@ class CreateAccountRequest extends Request
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');
+
+        $input['attribution'] = self::attributionFrom($input['attribution'] ?? null, request()->cookie('ninja_attribution'));
+
+        // The deployed web app still posts the five utm fields; clamp them so a
+        // value the visitor doesn't control can neither 422 nor hit the column.
+        foreach (self::LEGACY_UTM_KEYS as $key) {
+            if (! array_key_exists($key, $input)) {
+                continue;
+            }
+
+            if (! is_string($input[$key])) {
+                unset($input[$key]);
+
+                continue;
+            }
+
+            $input[$key] = mb_substr($input[$key], 0, 191);
+        }
 
         $this->replace($input);
     }

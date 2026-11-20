@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;
+use App\Http\Middleware\ThrottleRequestsWithPredis;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Tests\TestCase;
+
+class SignupAttributionEndpointTest extends TestCase
+{
+    use DatabaseTransactions;
+
+    protected $connectionsToTransact = ['db-ninja-01'];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['database.default' => 'db-ninja-01']);
+
+        $this->withoutMiddleware([ThrottleRequests::class, ThrottleRequestsWithPredis::class]);
+
+        Http::fake();
+        Bus::fake();
+
+        config(['ninja.environment' => 'hosted']);
+    }
+
+    public function testAttributionPayloadIsStoredOnTheAccount(): void
+    {
+        $email = $this->email();
+
+        $this->postJson($this->signupUrl(), $this->payload($email, [
+            'attribution' => [
+                'utm_source'   => 'facebook',
+                'utm_medium'   => 'cpc',
+                'utm_campaign' => 'january_launch',
+            ],
+        ]))->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertSame([
+            'utm_source'   => 'facebook',
+            'utm_medium'   => 'cpc',
+            'utm_campaign' => 'january_launch',
+        ], $account->attribution);
+
+        $this->assertSame('facebook', $account->utm_source);
+        $this->assertSame('cpc', $account->utm_medium);
+        $this->assertSame('january_launch', $account->utm_campaign);
+    }
+
+    public function testClickIdsAreStoredAndUnknownKeysAreIgnored(): void
+    {
+        $email = $this->email();
+
+        $this->postJson($this->signupUrl(), $this->payload($email, [
+            'attribution' => [
+                'utm_source' => 'facebook',
+                'fbclid'     => 'abc123',
+                'gclid'      => 'def456',
+                'rc'         => 'friend',
+                'ref'        => 'newsletter',
+            ],
+        ]))->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertSame([
+            'utm_source' => 'facebook',
+            'fbclid'     => 'abc123',
+            'gclid'      => 'def456',
+        ], $account->attribution);
+    }
+
+    public function testOversizedAttributionDoesNotBlockSignup(): void
+    {
+        $email = $this->email();
+
+        $attribution = ['utm_source' => str_repeat('a', 500)];
+
+        for ($i = 0; $i < 25; $i++) {
+            $attribution['utm_key'.$i] = 'value';
+        }
+
+        $this->postJson($this->signupUrl(), $this->payload($email, [
+            'attribution' => $attribution,
+        ]))->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertCount(20, $account->attribution);
+        $this->assertArrayNotHasKey('utm_source', $account->attribution);
+    }
+
+    public function testOversizedLegacyUtmFieldsDoNotBlockSignup(): void
+    {
+        $email = $this->email();
+
+        $this->postJson($this->signupUrl(), $this->payload($email, [
+            'utm_source' => str_repeat('a', 500),
+            'utm_medium' => ['nested'],
+        ]))->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertSame(str_repeat('a', 191), $account->utm_source);
+        $this->assertNull($account->utm_medium);
+    }
+
+    public function testAttributionCookieIsUsedWhenThePayloadHasNone(): void
+    {        $email = $this->email();
+
+        $this->withCredentials()->withUnencryptedCookie('ninja_attribution', json_encode([
+            'utm_source' => 'google',
+            'utm_medium' => 'cpc',
+        ]));
+
+        $this->postJson($this->signupUrl(), $this->payload($email))->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertSame([
+            'utm_source' => 'google',
+            'utm_medium' => 'cpc',
+        ], $account->attribution);
+
+        $this->assertSame('google', $account->utm_source);
+    }
+
+    private function signupUrl(): string
+    {
+        return '/api/v1/signup?include=token,user.company_user,company,account';
+    }
+
+    private function email(): string
+    {
+        return 'signup-'.Str::lower(Str::random(12)).'@gmail.com';
+    }
+
+    private function payload(string $email, array $overrides = []): array
+    {
+        return array_merge([
+            'email'                 => $email,
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+            'terms_of_service'      => true,
+            'privacy_policy'        => true,
+            'name'                  => 'Attribution Test',
+        ], $overrides);
+    }
+}
