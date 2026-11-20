@@ -183,6 +183,8 @@ class SystemLog extends Model
 
     public const TYPE_HELCIM = 331;
 
+    public const TYPE_DELUXE = 332;
+
     public const TYPE_QUOTA_EXCEEDED = 400;
 
     public const TYPE_UPSTREAM_FAILURE = 401;
@@ -355,6 +357,8 @@ class SystemLog extends Model
                 return "Forte";
             case self::TYPE_HELCIM:
                 return "Helcim";
+            case self::TYPE_DELUXE:
+                return "Deluxe";
             default:
                 return 'undefined';
         }
