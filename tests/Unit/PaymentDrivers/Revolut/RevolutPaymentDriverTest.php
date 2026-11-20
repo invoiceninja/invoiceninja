@@ -209,6 +209,24 @@ class RevolutPaymentDriverTest extends TestCase
         $this->assertSame(0, Payment::where('transaction_reference', 'order_1')->count());
     }
 
+    public function testUnsignedWebhookIsRecordedWhenNoSigningSecretIsSet(): void
+    {
+        $this->buildDriver(100.00);
+        $this->company_gateway->setConfig(['apiKey' => 'sk_test', 'testMode' => true]);
+        $this->company_gateway->save();
+
+        Http::fake(['*/api/orders/order_1' => Http::response($this->order('completed', 10000))]);
+
+        $body = json_encode(['event' => 'ORDER_COMPLETED', 'order_id' => 'order_1', 'merchant_order_ext_ref' => $this->payment_hash->hash]);
+
+        $this->call('POST', route('payment_webhook', [
+            'company_key' => $this->company->company_key,
+            'company_gateway_id' => $this->company_gateway->hashed_id,
+        ]), [], [], [], ['CONTENT_TYPE' => 'application/json'], $body)->assertOk();
+
+        $this->assertSame(1, Payment::where('transaction_reference', 'order_1')->where('status_id', Payment::STATUS_COMPLETED)->count());
+    }
+
     public function testWebhookForAnotherOrderIsIgnored(): void
     {
         $this->buildDriver(100.00);

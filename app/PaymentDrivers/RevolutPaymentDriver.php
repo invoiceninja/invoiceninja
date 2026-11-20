@@ -528,13 +528,7 @@ class RevolutPaymentDriver extends BaseDriver
     {
         $signing_secret = trim((string) $this->company_gateway->getConfigField('signingSecret'));
 
-        if ($signing_secret === '') {
-            nlog('Revolut webhook ignored: no signing secret configured');
-
-            return response()->json([], 200);
-        }
-
-        if (! $this->verifyWebhookSignature(
+        if ($signing_secret !== '' && ! $this->verifyWebhookSignature(
             $request->getContent(),
             (string) $request->header('Revolut-Request-Timestamp'),
             (string) $request->header('Revolut-Signature'),
