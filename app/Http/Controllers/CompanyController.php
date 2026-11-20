@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\CompanyUser;
 use Illuminate\Http\Response;
+use App\Libraries\OAuth\OAuth;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\Uploadable;
@@ -590,8 +591,18 @@ class CompanyController extends BaseController
 
             $account->delete();
 
+            if (auth()->user()->oauth_provider_id == 'apple' && $request->filled('apple_authorization_code') && $request->header('X-API-OAUTH-PASSWORD')) {
+                $authorization_code = $request->input('apple_authorization_code');
+                $id_token = $request->header('X-API-OAUTH-PASSWORD');
+                $redirect_uri = $request->input('apple_redirect_uri');
+
+                dispatch(function () use ($authorization_code, $id_token, $redirect_uri) {
+                    OAuth::revokeAppleToken($authorization_code, $id_token, $redirect_uri);
+                })->afterResponse();
+            }
+
             if (Ninja::isHosted()) {
-                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->all(), auth()->user()->email);
+                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->except(['apple_authorization_code', 'apple_redirect_uri']), auth()->user()->email);
 
                 $ip = $request->ip();
                 $email = auth()->user()->email;

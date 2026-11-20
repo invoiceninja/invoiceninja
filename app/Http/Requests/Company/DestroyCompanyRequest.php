@@ -25,4 +25,14 @@ class DestroyCompanyRequest extends Request
     {
         return auth()->user()->isOwner();
     }
+
+    public function rules()
+    {
+        $rules = [];
+
+        $rules['apple_authorization_code'] = 'bail|sometimes|nullable|string';
+        $rules['apple_redirect_uri'] = 'bail|sometimes|nullable|string';
+
+        return $rules;
+    }
 }
