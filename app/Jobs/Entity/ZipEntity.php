@@ -32,6 +32,7 @@ use App\Services\Download\ArchiveWriter;
 use App\Services\Download\TemporaryDownloadPublisher;
 use App\Services\EDocument\UblDocumentKind;
 use App\Services\EDocument\UblXmlEncoder;
+use App\Utils\FileNamePattern;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesDates;
@@ -164,7 +165,7 @@ class ZipEntity implements ShouldQueue
         if ($this->entity_class === Document::class) {
             $entities = $query->with('documentable')->get();
         } elseif ($this->xml_only) {
-            $entities = $query->get();
+            $entities = $query->with(FileNamePattern::relations($this->entity_class))->get();
         } else {
             $entities = $query
                 ->whereHas('invitations')
@@ -172,6 +173,7 @@ class ZipEntity implements ShouldQueue
                     'invitations' => fn ($query) => $query
                         ->orderByDesc('signature_date')
                         ->orderByDesc('id'),
+                    ...FileNamePattern::relations($this->entity_class),
                 ])
                 ->get();
         }

@@ -23,6 +23,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\FileNamePattern;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
@@ -313,6 +314,7 @@ class InvoiceController extends Controller
     private function downloadInvoicePDF(array $ids)
     {
         $invoices = Invoice::query()
+                            ->with(FileNamePattern::relations(Invoice::class))
                             ->whereIn('id', $ids)
                             ->withTrashed()
                             ->whereClientId(auth()->guard('contact')->user()->client_id)

@@ -32403,7 +32403,7 @@ components:
           type: string
           example: '3,25'
         invoice_filename_pattern:
-          description: 'The file name of an invoice PDF and e-invoice, using the email template variables such as $number, $entity, $date and $client.name (dates are written Y-m-d). Must contain $number; blank uses the default name'
+          description: 'The file name of an invoice PDF and e-invoice, using the email template variables such as $number, $entity, $date and $client.name (dates are written Y-m-d). Must contain $number and be at most 150 characters; blank uses the default name'
           type: string
           example: '$company.name - $entity - $number'
         quote_filename_pattern:
@@ -33754,7 +33754,7 @@ components:
           type: string
           example: '3,25'
         invoice_filename_pattern:
-          description: 'The file name of an invoice PDF and e-invoice, using the email template variables such as $number, $entity, $date and $client.name (dates are written Y-m-d). Must contain $number; blank uses the default name'
+          description: 'The file name of an invoice PDF and e-invoice, using the email template variables such as $number, $entity, $date and $client.name (dates are written Y-m-d). Must contain $number and be at most 150 characters; blank uses the default name'
           type: string
           example: '$company.name - $entity - $number'
         quote_filename_pattern:

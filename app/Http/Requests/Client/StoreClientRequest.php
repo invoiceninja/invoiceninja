@@ -58,6 +58,10 @@ class StoreClientRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
         $rules['settings'] = new ValidClientGroupSettingsRule();
+        $rules['settings.invoice_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.quote_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.credit_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.purchase_order_filename_pattern'] = 'sometimes|nullable|string|max:150';
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [

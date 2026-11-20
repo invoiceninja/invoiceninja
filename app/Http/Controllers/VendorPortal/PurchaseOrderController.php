@@ -30,6 +30,7 @@ use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
+use App\Utils\FileNamePattern;
 
 class PurchaseOrderController extends Controller
 {
@@ -229,7 +230,7 @@ class PurchaseOrderController extends Controller
     public function downloadPurchaseOrders($ids)
     {
         $purchase_order_invitations = PurchaseOrderInvitation::query()
-                            ->with('purchase_order', 'company')
+                            ->with(['purchase_order', 'company', ...FileNamePattern::relations(PurchaseOrder::class, 'purchase_order.')])
                             ->whereIn('purchase_order_id', $ids)
                             ->where('vendor_contact_id', auth()->guard('vendor')->user()->id)
                             ->withTrashed()

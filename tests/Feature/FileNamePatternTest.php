@@ -12,10 +12,28 @@
 
 namespace Tests\Feature;
 
+use App\Events\Socket\DownloadAvailable;
+use App\Jobs\Entity\ZipEntity;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Util\UnlinkFile;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Language;
+use App\Models\PurchaseOrder;
+use App\Services\Download\ArchiveWriter;
+use App\Services\Download\TemporaryDownloadPublisher;
+use App\Utils\FileNamePattern;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use PhpZip\ZipFile;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -23,6 +41,7 @@ class FileNamePatternTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+    use MakesHash;
 
     protected function setUp(): void
     {
@@ -197,6 +216,164 @@ class FileNamePatternTest extends TestCase
         $name = $this->invoice()->customFileName();
 
         $this->assertSame(str_repeat('Acme ', 8) . '- 0042.pdf', $name);
+    }
+
+    public function testSeveralLongValuesKeepTheNumber(): void
+    {
+        $this->setCompanySetting('invoice_filename_pattern', '$client.custom1 $client.custom2 $client.custom3 $client.custom4 $number');
+        $this->setLongCustomValues();
+
+        $this->assertSame(
+            str_repeat('1', 35) . ' ' . str_repeat('2', 35) . ' ' . str_repeat('3', 35) . ' ' . str_repeat('4', 35) . ' 0042.pdf',
+            $this->invoice()->customFileName()
+        );
+    }
+
+    public function testDocumentsWithLongNamesGetTheirOwnZipEntries(): void
+    {
+        config([
+            'filesystems.default' => 'public',
+            'filesystems.protected_download_disk' => 'protected-downloads',
+            'filesystems.protected_download_allow_unsigned' => false,
+        ]);
+
+        Storage::fake('public');
+        Storage::fake('protected-downloads');
+        Cache::flush();
+        URL::forceRootUrl('https://example.test');
+        Queue::fake([NinjaMailerJob::class, UnlinkFile::class]);
+        Event::fake([DownloadAvailable::class]);
+
+        $this->setCompanySetting('invoice_filename_pattern', '$client.custom1 $client.custom2 $client.custom3 $client.custom4 $number');
+        $this->setLongCustomValues();
+
+        $second = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'number' => '0043',
+        ]);
+
+        $invitation = new InvoiceInvitation();
+        $invitation->company_id = $this->company->id;
+        $invitation->user_id = $this->user->id;
+        $invitation->client_contact_id = $this->contact->id;
+        $invitation->invoice_id = $second->id;
+        $invitation->key = Str::random(40);
+        $invitation->save();
+
+        (new ZipEntity([$this->invoice->id, $second->id], $this->company, $this->user, Invoice::class))
+            ->handle(new ArchiveWriter(), new TemporaryDownloadPublisher());
+
+        $files = Storage::disk('protected-downloads')->allFiles($this->company->file_path() . 'downloads');
+        $archive = (new ZipFile())->openFromString(Storage::disk('protected-downloads')->get($files[0]));
+
+        try {
+            $first_name = $this->invoice()->customFileName();
+            $second_name = Invoice::find($second->id)->customFileName();
+
+            $this->assertNotSame($first_name, $second_name);
+            $this->assertContains($first_name, $archive->getListFiles());
+            $this->assertContains($second_name, $archive->getListFiles());
+        } finally {
+            $archive->close();
+        }
+    }
+
+    public function testANameThatWouldLoseItsNumberKeepsTheDefaultName(): void
+    {
+        $this->setCompanySetting('invoice_filename_pattern', str_repeat('a', 150) . ' $number');
+
+        $invoice = $this->invoice();
+
+        $this->assertNull($invoice->customFileName());
+        $this->assertSame($invoice->getFileName(), $invoice->getDownloadFileName());
+    }
+
+    public function testEagerLoadedDocumentsNeedNoQueries(): void
+    {
+        $this->setCompanySetting('invoice_filename_pattern', '$client.name $contact.last_name $number');
+
+        $contact = $this->client->contacts()->first();
+        $contact->last_name = 'Smith';
+        $contact->save();
+
+        // Reads the languages into the cache.
+        $this->invoice()->customFileName();
+
+        $invoice = Invoice::with(FileNamePattern::relations(Invoice::class))->find($this->invoice->id);
+
+        DB::enableQueryLog();
+
+        $this->assertSame('Acme Ltd Smith 0042.pdf', $invoice->customFileName());
+        $this->assertSame('Acme Ltd Smith 0042.xml', $invoice->customFileName('xml'));
+        $this->assertSame([], DB::getQueryLog());
+
+        DB::disableQueryLog();
+    }
+
+    public function testEagerLoadedPurchaseOrdersNeedNoQueries(): void
+    {
+        $this->setCompanySetting('purchase_order_filename_pattern', '$vendor.name $contact.first_name $entity $number');
+
+        // A vendor's own language is read through a relation.
+        $this->vendor->name = 'Supplies Co';
+        $this->vendor->language_id = Language::where('locale', 'de')->first()->id;
+        $this->vendor->save();
+
+        $this->purchase_order->number = 'PO1';
+        $this->purchase_order->save();
+
+        // Reads the languages into the cache.
+        $this->purchase_order->fresh()->customFileName();
+
+        $purchase_order = PurchaseOrder::with(FileNamePattern::relations(PurchaseOrder::class))->find($this->purchase_order->id);
+
+        DB::enableQueryLog();
+
+        $name = $purchase_order->customFileName();
+        $this->assertStringStartsWith('Supplies Co ', $name);
+        $this->assertStringEndsWith(' PO1.pdf', $name);
+        $this->assertSame([], DB::getQueryLog());
+
+        DB::disableQueryLog();
+    }
+
+    public function testAPatternIsAtMost150Characters(): void
+    {
+        $headers = [
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-Token' => $this->token,
+        ];
+
+        $settings = $this->company->settings;
+        $settings->invoice_filename_pattern = str_repeat('a', 143) . '$number';
+
+        $this->withHeaders($headers)->putJson('/api/v1/companies/' . $this->encodePrimaryKey($this->company->id), ['settings' => $settings])
+            ->assertStatus(200);
+
+        $settings->invoice_filename_pattern = str_repeat('a', 144) . '$number';
+
+        $this->withHeaders($headers)->putJson('/api/v1/companies/' . $this->encodePrimaryKey($this->company->id), ['settings' => $settings])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('settings.invoice_filename_pattern');
+
+        $this->withHeaders($headers)->putJson('/api/v1/clients/' . $this->client->hashed_id, ['settings' => ['invoice_filename_pattern' => str_repeat('a', 144) . '$number']])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('settings.invoice_filename_pattern');
+
+        $this->withHeaders($headers)->putJson('/api/v1/group_settings/' . $this->client->group_settings->hashed_id, ['settings' => ['invoice_filename_pattern' => str_repeat('a', 144) . '$number']])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('settings.invoice_filename_pattern');
+    }
+
+    private function setLongCustomValues(): void
+    {
+        foreach ([1, 2, 3, 4] as $i) {
+            $this->client->{'custom_value' . $i} = str_repeat((string) $i, 60);
+        }
+
+        $this->client->save();
     }
 
     public function testPurchaseOrdersUseTheVendor(): void
