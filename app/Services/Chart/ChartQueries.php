@@ -874,7 +874,7 @@ trait ChartQueries
             ) as applied_refunds
             ON applied_refunds.payment_id = payments.id
             WHERE payments.company_id = :company_id
-            AND payments.status_id IN (4,5)
+            AND payments.status_id IN (4,5,6)
             AND payments.amount - payments.applied - payments.refunded + IFNULL(applied_refunds.refunded, 0) > 0
             AND payments.is_deleted = 0
             AND payments.deleted_at IS NULL

@@ -279,6 +279,40 @@ class ChartEntityTotalsTest extends TestCase
             ->assertExactJson(['data' => ['1' => ['amount' => '120.00', 'count' => 3]]]);
     }
 
+    public function testRefundedPaymentWithAnUnappliedAmountIsCounted(): void
+    {
+        $client = Client::factory()->create([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        // 120 cash and a 50 credit on a 150 invoice leaves 20 unapplied
+        $invoice = $this->createSentInvoice($client, 150);
+        $credit = Credit::factory()->create([
+            'company_id' => $this->metricCompany->id,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'status_id' => Credit::STATUS_SENT,
+            'amount' => 50,
+            'balance' => 50,
+        ]);
+        $payment = $this->postPayment([
+            'client_id' => $client->hashed_id,
+            'amount' => 120,
+            'invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => 150]],
+            'credits' => [['credit_id' => $credit->hashed_id, 'amount' => 50]],
+        ]);
+
+        // refunding 120 of the invoice marks the payment refunded, the 20 still unapplied
+        $this->postRefund(['id' => $payment, 'invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => 120]]]);
+
+        $this->assertEquals(Payment::STATUS_REFUNDED, Payment::where('company_id', $this->metricCompany->id)->first()->status_id);
+
+        $this->postEntityTotals('payments', $this->metricToken)
+            ->assertStatus(200)
+            ->assertExactJson(['data' => ['1' => ['amount' => '20.00', 'count' => 1]]]);
+    }
+
     public function testDeletingAReversalCreditRefundsTheInvoicePayment(): void
     {
         $client = Client::factory()->create([
