@@ -22,6 +22,18 @@ class CreateAccountRequest extends Request
 {
     private const ATTRIBUTION_KEY_PATTERN = '/^utm_[a-z0-9_]{1,59}$/';
 
+    private const ATTRIBUTION_KEYS = [
+        'gclid',
+        'gbraid',
+        'wbraid',
+        'fbclid',
+        'fbc',
+        'fbp',
+        'twclid',
+        'oppref',
+        'obref',
+    ];
+
     private array $fake_domains = [
         'generator.email',
         'emailfake.com',
@@ -211,16 +223,6 @@ class CreateAccountRequest extends Request
             'utm_campaign'      => 'sometimes|nullable|string|max:191',
             'utm_term'          => 'sometimes|nullable|string|max:191',
             'utm_content'       => 'sometimes|nullable|string|max:191',
-            'attribution'       => ['sometimes', 'nullable', 'array', 'max:20', function ($attribute, $value, $fail) {
-                foreach (array_keys($value) as $key) {
-                    if (! preg_match(self::ATTRIBUTION_KEY_PATTERN, (string) $key)) {
-                        $fail('The attribution contains an unsupported key.');
-
-                        return;
-                    }
-                }
-            }],
-            'attribution.*'     => 'nullable|string|max:191',
             // 'cf-turnstile'      => 'required_if:token_name,web_client|string',
         ];
     }
@@ -252,27 +254,41 @@ class CreateAccountRequest extends Request
     }
 
     /**
-     * First touch wins: an explicit attribution payload is validated as sent,
-     * otherwise fall back to the attribution cookie set before the signup redirect.
+     * Attribution is marketing metadata nobody signing up controls, so drop
+     * anything unexpected instead of failing the signup.
      */
-    public static function attributionFrom(mixed $attribution, ?string $cookie): mixed
+    public static function sanitizeAttribution(mixed $value): ?array
     {
-        if ($attribution !== null) {
-            return $attribution;
-        }
-
-        $cookie = json_decode((string) $cookie, true);
-
-        if (! is_array($cookie)) {
+        if (! is_array($value)) {
             return null;
         }
 
-        $cookie = array_filter($cookie, fn ($value, $key) => is_string($key)
-            && is_string($value)
-            && strlen($value) <= 191
-            && preg_match(self::ATTRIBUTION_KEY_PATTERN, $key), ARRAY_FILTER_USE_BOTH);
+        $attribution = [];
 
-        return array_slice($cookie, 0, 20, true) ?: null;
+        foreach ($value as $key => $item) {
+            $key = (string) $key;
+
+            $supported = in_array($key, self::ATTRIBUTION_KEYS, true)
+                || preg_match(self::ATTRIBUTION_KEY_PATTERN, $key);
+
+            if (! $supported || ! is_string($item) || strlen($item) > 191) {
+                continue;
+            }
+
+            $attribution[$key] = $item;
+        }
+
+        return array_slice($attribution, 0, 20, true) ?: null;
+    }
+
+    /**
+     * First touch wins: an explicit attribution payload wins, otherwise fall
+     * back to the attribution cookie set before the signup redirect.
+     */
+    public static function attributionFrom(mixed $attribution, ?string $cookie): ?array
+    {
+        return self::sanitizeAttribution($attribution)
+            ?? self::sanitizeAttribution(json_decode((string) $cookie, true));
     }
 
     public function prepareForValidation()

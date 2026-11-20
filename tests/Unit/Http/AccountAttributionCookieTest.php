@@ -25,9 +25,12 @@ class AccountAttributionCookieTest extends TestCase
         );
     }
 
-    public function testInvalidAttributionIsLeftForValidationToReject(): void
+    public function testInvalidAttributionFallsBackToCookie(): void
     {
-        $this->assertSame('junk', CreateAccountRequest::attributionFrom('junk', json_encode(['utm_source' => 'cookie'])));
+        $this->assertSame(
+            ['utm_source' => 'cookie'],
+            CreateAccountRequest::attributionFrom('junk', json_encode(['utm_source' => 'cookie']))
+        );
     }
 
     public function testCookieIsUsedWhenNoAttributionIsPosted(): void
@@ -45,14 +48,20 @@ class AccountAttributionCookieTest extends TestCase
         $this->assertNull(CreateAccountRequest::attributionFrom(null, json_encode([])));
     }
 
-    public function testCookieKeysOutsideTheAllowlistAreDropped(): void
+    public function testClickIdsAndUtmKeysAreKeptAndUnknownKeysAreDropped(): void
     {
         $this->assertSame(
-            ['utm_source' => 'facebook'],
+            [
+                'utm_source' => 'facebook',
+                'fbclid'     => 'abc123',
+                'gclid'      => 'def456',
+            ],
             CreateAccountRequest::attributionFrom(null, json_encode([
                 'utm_source' => 'facebook',
                 'fbclid'     => 'abc123',
+                'gclid'      => 'def456',
                 'rc'         => 'friend',
+                'email'      => 'user@example.com',
             ]))
         );
     }
