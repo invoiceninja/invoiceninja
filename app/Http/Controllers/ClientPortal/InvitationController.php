@@ -215,7 +215,7 @@ class InvitationController extends Controller
             return response()->json(["message" => "no record found"], 400);
         }
 
-        $file_name = $invitation->{$entity}->numberFormatter() . '.pdf';
+        $file_name = $invitation->{$entity}->getDownloadFileName();
 
         $file = (new CreateRawPdf($invitation))->handle();
 

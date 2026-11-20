@@ -43,6 +43,10 @@ class StoreGroupSettingRequest extends Request
         $rules['name'] = 'required|unique:group_settings,name,null,null,company_id,' . $user->companyId();
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
+        $rules['settings.invoice_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.quote_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.credit_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.purchase_order_filename_pattern'] = 'sometimes|nullable|string|max:150';
 
         return $rules;
     }

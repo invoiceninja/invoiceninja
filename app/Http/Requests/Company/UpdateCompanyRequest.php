@@ -104,6 +104,10 @@ class UpdateCompanyRequest extends Request
         $rules['settings.e_invoice_forward_email'] = 'sometimes|nullable|email';
         $rules['settings.e_expense_forward_email'] = 'sometimes|nullable|email';
         $rules['settings.skip_automatic_email_with_peppol'] = 'sometimes|boolean';
+        $rules['settings.invoice_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.quote_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.credit_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.purchase_order_filename_pattern'] = 'sometimes|nullable|string|max:150';
         // $rules['settings.france_reporting_enabled'] = [
         //     'bail',
         //     'sometimes',

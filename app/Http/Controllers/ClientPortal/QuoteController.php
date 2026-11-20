@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Http\Requests\ClientPortal\Quotes\ShowQuoteRequest;
 use App\Http\Requests\ClientPortal\Quotes\ShowQuotesRequest;
 use App\Http\Requests\ClientPortal\Quotes\ProcessQuotesInBulkRequest;
+use App\Utils\FileNamePattern;
 
 class QuoteController extends Controller
 {
@@ -197,7 +198,7 @@ class QuoteController extends Controller
         $client_contact = auth()->user();
 
         $quote_invitations = QuoteInvitation::query()
-            ->with('quote')
+            ->with(['quote', ...FileNamePattern::relations(Quote::class, 'quote.')])
             ->whereIn('quote_id', $ids)
             ->where('client_contact_id', $client_contact->id)
             ->withTrashed()
@@ -214,7 +215,7 @@ class QuoteController extends Controller
             $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
             return response()->streamDownload(function () use ($file) {
                 echo $file;
-            }, $invitation->quote->numberFormatter() . ".pdf", ['Content-Type' => 'application/pdf']);
+            }, $invitation->quote->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
         }
 
         return $this->buildZip($quote_invitations);
@@ -227,7 +228,7 @@ class QuoteController extends Controller
         try {
             foreach ($quote_invitations as $invitation) {
                 $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
-                $zipFile->addFromString($invitation->quote->numberFormatter() . '.pdf', $file);
+                $zipFile->addFromString($invitation->quote->getDownloadFileName(), $file);
             }
 
             $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.quotes')) . '.zip';

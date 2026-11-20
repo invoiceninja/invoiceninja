@@ -293,6 +293,29 @@ class GroupSettingTest extends TestCase
         $this->assertEquals(0, $arr['data']['archived_at']);
     }
 
+    public function testGroupSettingsKeepFileNamePatterns(): void
+    {
+        $settings = new \stdClass();
+        $settings->currency_id = '1';
+        $settings->invoice_filename_pattern = '$client.name $number';
+        $settings->filename_slug = true;
+
+        $data = [
+            'name' => 'file names',
+            'settings' => $settings,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/group_settings', $data);
+
+        $response->assertStatus(200);
+
+        $this->assertSame('$client.name $number', $response->json('data.settings.invoice_filename_pattern'));
+        $this->assertTrue($response->json('data.settings.filename_slug'));
+    }
+
     public function testArchiveGroupSettings()
     {
         $settings = new \stdClass();

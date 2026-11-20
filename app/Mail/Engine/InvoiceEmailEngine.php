@@ -136,7 +136,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
             //     $pdf = $this->invoice->documentMerge($pdf);
             // }
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter() . '.pdf']]);
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->getDownloadFileName()]]);
         }
 
         //attach third party documents

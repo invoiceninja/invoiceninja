@@ -287,11 +287,11 @@ class ActivityController extends BaseController
         $activity->company->setLocale();
 
         if (isset($activity->invoice_id)) {
-            $filename = $activity->invoice->numberFormatter() . '.pdf';
+            $filename = $activity->invoice->getDownloadFileName();
         } elseif (isset($activity->quote_id)) {
-            $filename = $activity->quote->numberFormatter() . '.pdf';
+            $filename = $activity->quote->getDownloadFileName();
         } elseif (isset($activity->credit_id)) {
-            $filename = $activity->credit->numberFormatter() . '.pdf';
+            $filename = $activity->credit->getDownloadFileName();
         } else {
             $filename = 'backup.pdf';
         }

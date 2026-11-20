@@ -6579,6 +6579,19 @@ $lang = array(
     'seller_item_identifier_help' => 'The seller\'s identifier for this item.',
     'order_reference' => 'Order reference',
     'order_reference_help' => 'The buyer\'s reference for this order.',
+    'file_names' => 'File Names',
+    'file_names_help' => 'The name of the PDF your clients and vendors receive by email, download or in the portal. E-invoice files get the same name.',
+    'invoice_filename_pattern' => 'Invoice File Name',
+    'quote_filename_pattern' => 'Quote File Name',
+    'credit_filename_pattern' => 'Credit File Name',
+    'purchase_order_filename_pattern' => 'Purchase Order File Name',
+    'filename_slug' => 'Simplified File Names',
+    'filename_slug_help' => 'Lowercase, with dashes for spaces, e.g. :value',
+    'filename_slug_unset_help' => 'Lowercase, with dashes for spaces. Applies to the custom file names above.',
+    'file_name_number_required' => 'Add :variable so each document gets its own file name.',
+    'presets' => 'Presets',
+    'set_all_file_names_to' => 'Set every file name to',
+    'use_invoice_file_name_for_all' => 'Use Invoice File Name for All',
 );
 
 return $lang;

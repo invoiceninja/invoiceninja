@@ -550,9 +550,19 @@ class CompanySettings extends BaseSettings
     public bool $global_tag_inheritance = false;
     public bool $documents_public_by_default = true;
     public string $hidden_payment_types = ''; //comma separated payment type ids
+    public string $invoice_filename_pattern = ''; //eg $company.name - $entity - $number, blank uses the default name
+    public string $quote_filename_pattern = '';
+    public string $credit_filename_pattern = '';
+    public string $purchase_order_filename_pattern = '';
+    public bool $filename_slug = false; //lowercase file names with dashes, eg acme-ltd-invoice-0042.pdf
     
 
     public static $casts = [
+        'invoice_filename_pattern' => 'string',
+        'quote_filename_pattern' => 'string',
+        'credit_filename_pattern' => 'string',
+        'purchase_order_filename_pattern' => 'string',
+        'filename_slug' => 'bool',
         'hidden_payment_types' => 'string',
         'documents_public_by_default' => 'bool',
         'global_tag_inheritance' => 'bool',
@@ -884,6 +894,11 @@ class CompanySettings extends BaseSettings
         'valid_until' => 'string',
         'default_expense_payment_type_id' => 'string',
         'hidden_payment_types' => 'string',
+        'invoice_filename_pattern' => 'string',
+        'quote_filename_pattern' => 'string',
+        'credit_filename_pattern' => 'string',
+        'purchase_order_filename_pattern' => 'string',
+        'filename_slug' => 'bool',
         'client_manual_payment_notification' => 'bool',
         'client_online_payment_notification' => 'bool',
         'send_email_on_mark_paid' => 'bool',

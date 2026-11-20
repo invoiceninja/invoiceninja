@@ -69,6 +69,10 @@ class UpdateClientRequest extends Request
         $rules['e_invoice'] = ['sometimes','nullable', new ValidClientScheme()];
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
+        $rules['settings.invoice_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.quote_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.credit_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.purchase_order_filename_pattern'] = 'sometimes|nullable|string|max:150';
         $rules['contacts'] = 'array';
         $rules['contacts.*.id'] = ['bail','nullable','sometimes', Rule::exists('client_contacts', 'id')->where('client_id', $this->client->id)->where('company_id', $user->company()->id)];
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';

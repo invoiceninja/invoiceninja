@@ -131,7 +131,7 @@ class QuoteEmailEngine extends BaseEmailEngine
             //     $pdf = $this->quote->documentMerge($pdf);
             // }
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->quote->numberFormatter() . '.pdf']]);
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->quote->getDownloadFileName()]]);
         }
 
         //attach third party documents

@@ -675,7 +675,7 @@ class CreditController extends BaseController
 
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
-                }, $credit->numberFormatter() . '.pdf', ['Content-Type' => 'application/pdf']);
+                }, $credit->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -778,7 +778,7 @@ class CreditController extends BaseController
 
         return response()->streamDownload(function () use ($file) {
             echo $file;
-        }, $credit->numberFormatter() . '.pdf', $headers);
+        }, $credit->getDownloadFileName(), $headers);
 
     }
     /**
@@ -836,7 +836,7 @@ class CreditController extends BaseController
         $credit = $invitation->credit;
 
         $file = $credit->service()->getECredit($contact);
-        $file_name = $credit->getFileName("xml");
+        $file_name = $credit->getDownloadFileName('xml');
 
         $headers = ['Content-Type' => 'application/xml'];
 

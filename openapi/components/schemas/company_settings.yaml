@@ -876,6 +876,26 @@
           description: 'Comma separated payment type ids hidden from the manual payment type pickers'
           type: string
           example: '3,25'
+        invoice_filename_pattern:
+          description: 'The file name of an invoice PDF and e-invoice, using the email template variables such as $number, $entity, $date and $client.name (dates are written Y-m-d). Must contain $number and be at most 150 characters; blank uses the default name'
+          type: string
+          example: '$company.name - $entity - $number'
+        quote_filename_pattern:
+          description: 'The file name of a quote PDF, see invoice_filename_pattern'
+          type: string
+          example: '$number'
+        credit_filename_pattern:
+          description: 'The file name of a credit PDF, see invoice_filename_pattern'
+          type: string
+          example: '$number'
+        purchase_order_filename_pattern:
+          description: 'The file name of a purchase order PDF, see invoice_filename_pattern. Uses $vendor.name and the other vendor variables'
+          type: string
+          example: '$vendor.name - $number'
+        filename_slug:
+          description: 'When true, file names from a pattern are lowercase with dashes, eg acme-ltd-invoice-0042.pdf'
+          type: boolean
+          example: false
         france_reporting_enabled:
           description: 'When true, French tax reporting extras are enabled'
           type: boolean

@@ -16,6 +16,7 @@ use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
 use App\Services\PdfMaker\PdfMerge;
+use App\Utils\FileNamePattern;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
@@ -183,6 +184,34 @@ class BaseModel extends Model
     public function getEFileName($extension = 'pdf')
     {
         return ctrans("texts.e_invoice") . "_" . $this->numberFormatter() . '.' . $extension;
+    }
+
+    /**
+     * The file name the company's file name pattern gives this document,
+     * or null when it has none.
+     *
+     * @param string $extension
+     * @return string|null
+     */
+    public function customFileName($extension = 'pdf'): ?string
+    {
+        if (! ($this instanceof Invoice || $this instanceof Quote || $this instanceof Credit || $this instanceof PurchaseOrder)) {
+            return null;
+        }
+
+        return (new FileNamePattern($this))->make($extension);
+    }
+
+    /**
+     * The name of the file a client or vendor receives: the file name pattern
+     * when the company set one, else getFileName().
+     *
+     * @param string $extension
+     * @return string
+     */
+    public function getDownloadFileName($extension = 'pdf')
+    {
+        return $this->customFileName($extension) ?? $this->getFileName($extension);
     }
 
     // public function numberFormatter()
