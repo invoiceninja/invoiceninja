@@ -12,6 +12,7 @@
 
 namespace App\Services\Chart;
 
+use App\Models\Credit;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -730,6 +731,273 @@ trait ChartQueries
             'company_id' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
+        ]);
+    }
+
+    /**
+     * Entity Totals
+     *
+     * Per currency totals for the entity lists. Archived and deleted records are
+     * excluded, as are records of archived or deleted clients, matching the lists.
+     */
+    public function getClientTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (clients.user_id = {$this->user->id} OR clients.assigned_user_id = {$this->user->id})";
+
+        return DB::select("
+            SELECT
+            SUM(clients.balance) as amount,
+            COUNT(clients.id) as count,
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as effective_currency_id
+            FROM clients
+            WHERE clients.company_id = :company_id
+            AND clients.is_deleted = 0
+            AND clients.deleted_at IS NULL
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    public function getInvoiceTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (invoices.user_id = {$this->user->id} OR invoices.assigned_user_id = {$this->user->id})";
+
+        return DB::select("
+            SELECT
+            SUM(invoices.balance) as amount,
+            COUNT(invoices.id) as count,
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as effective_currency_id
+            FROM clients
+            JOIN invoices
+            ON invoices.client_id = clients.id
+            WHERE invoices.company_id = :company_id
+            AND invoices.status_id IN (2,3)
+            AND invoices.is_deleted = 0
+            AND invoices.deleted_at IS NULL
+            AND clients.is_deleted = 0
+            AND clients.deleted_at IS NULL
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    public function getQuoteTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (quotes.user_id = {$this->user->id} OR quotes.assigned_user_id = {$this->user->id})";
+
+        return DB::select("
+            SELECT
+            SUM(quotes.amount) as amount,
+            COUNT(quotes.id) as count,
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as effective_currency_id
+            FROM clients
+            JOIN quotes
+            ON quotes.client_id = clients.id
+            WHERE quotes.company_id = :company_id
+            AND quotes.status_id IN (2,3)
+            AND quotes.invoice_id IS NULL
+            AND (quotes.due_date IS NULL OR quotes.due_date >= :today)
+            AND quotes.is_deleted = 0
+            AND quotes.deleted_at IS NULL
+            AND clients.is_deleted = 0
+            AND clients.deleted_at IS NULL
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'today' => $this->companyToday(),
+        ]);
+    }
+
+    public function getCreditTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (credits.user_id = {$this->user->id} OR credits.assigned_user_id = {$this->user->id})";
+
+        return DB::select("
+            SELECT
+            SUM(credits.balance) as amount,
+            COUNT(credits.id) as count,
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as effective_currency_id
+            FROM clients
+            JOIN credits
+            ON credits.client_id = clients.id
+            WHERE credits.company_id = :company_id
+            AND credits.status_id IN (2,3)
+            AND credits.is_deleted = 0
+            AND credits.deleted_at IS NULL
+            AND clients.is_deleted = 0
+            AND clients.deleted_at IS NULL
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    public function getPaymentTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (payments.user_id = {$this->user->id} OR payments.assigned_user_id = {$this->user->id})";
+
+        // Unapplied amounts less their refunds. payments.refunded also holds refunds of applied amounts: invoice refunds less the credits
+        // they returned - see RefundPayment - and deleted reversal credits, the credit paymentables with no amount - see CreditService::deleteCredit
+        return DB::select("
+            SELECT
+            SUM(payments.amount - payments.applied - payments.refunded + IFNULL(applied_refunds.refunded, 0)) as amount,
+            COUNT(payments.id) as count,
+            IFNULL(payments.currency_id, :company_currency) as effective_currency_id
+            FROM payments
+            JOIN clients
+            ON payments.client_id = clients.id
+            LEFT JOIN (
+                SELECT
+                paymentables.payment_id,
+                SUM(CASE
+                    WHEN paymentables.paymentable_type = 'invoices' THEN paymentables.refunded
+                    WHEN paymentables.amount = 0 THEN paymentables.refunded
+                    ELSE -paymentables.refunded
+                END) as refunded
+                FROM paymentables
+                JOIN payments
+                ON payments.id = paymentables.payment_id
+                WHERE payments.company_id = :paymentables_company_id
+                AND paymentables.paymentable_type IN ('invoices', :credit_type)
+                AND paymentables.refunded > 0
+                GROUP BY paymentables.payment_id
+            ) as applied_refunds
+            ON applied_refunds.payment_id = payments.id
+            WHERE payments.company_id = :company_id
+            AND payments.status_id IN (4,5,6)
+            AND payments.amount - payments.applied - payments.refunded + IFNULL(applied_refunds.refunded, 0) > 0
+            AND payments.is_deleted = 0
+            AND payments.deleted_at IS NULL
+            AND clients.is_deleted = 0
+            AND clients.deleted_at IS NULL
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'credit_type' => Credit::class,
+            'paymentables_company_id' => $this->company->id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    public function getRecurringInvoiceTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (recurring_invoices.user_id = {$this->user->id} OR recurring_invoices.assigned_user_id = {$this->user->id})";
+
+        return DB::select("
+            SELECT
+            SUM(recurring_invoices.amount) as amount,
+            COUNT(recurring_invoices.id) as count,
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) as effective_currency_id
+            FROM clients
+            JOIN recurring_invoices
+            ON recurring_invoices.client_id = clients.id
+            WHERE recurring_invoices.company_id = :company_id
+            AND recurring_invoices.status_id = 2
+            AND recurring_invoices.is_deleted = 0
+            AND recurring_invoices.deleted_at IS NULL
+            AND clients.is_deleted = 0
+            AND clients.deleted_at IS NULL
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    public function getPurchaseOrderTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (purchase_orders.user_id = {$this->user->id} OR purchase_orders.assigned_user_id = {$this->user->id})";
+
+        // Purchase orders are in the vendor currency - see VendorHtmlEngine
+        return DB::select("
+            SELECT
+            SUM(purchase_orders.balance) as amount,
+            COUNT(purchase_orders.id) as count,
+            IFNULL(vendors.currency_id, :company_currency) as effective_currency_id
+            FROM purchase_orders
+            LEFT JOIN vendors
+            ON vendors.id = purchase_orders.vendor_id
+            WHERE purchase_orders.company_id = :company_id
+            AND purchase_orders.status_id IN (2,3)
+            AND purchase_orders.is_deleted = 0
+            AND purchase_orders.deleted_at IS NULL
+            AND (vendors.id IS NULL OR (vendors.is_deleted = 0 AND vendors.deleted_at IS NULL))
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    public function getExpenseTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (expenses.user_id = {$this->user->id} OR expenses.assigned_user_id = {$this->user->id})";
+
+        return DB::select("
+            SELECT
+            SUM({$this->expenseAmountWithTax('expenses')}) as amount,
+            COUNT(expenses.id) as count,
+            IFNULL(expenses.currency_id, :company_currency) as effective_currency_id
+            FROM expenses
+            LEFT JOIN clients
+            ON clients.id = expenses.client_id
+            LEFT JOIN currencies
+            ON currencies.id = IFNULL(expenses.currency_id, :precision_currency)
+            WHERE expenses.company_id = :company_id
+            AND expenses.should_be_invoiced = 1
+            AND expenses.invoice_id IS NULL
+            AND expenses.is_deleted = 0
+            AND expenses.deleted_at IS NULL
+            AND (clients.id IS NULL OR (clients.is_deleted = 0 AND clients.deleted_at IS NULL))
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'precision_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+        ]);
+    }
+
+    public function getRecurringExpenseTotalsQuery(): array
+    {
+        $user_filter = $this->is_admin ? '' : "AND (recurring_expenses.user_id = {$this->user->id} OR recurring_expenses.assigned_user_id = {$this->user->id})";
+
+        // Active schedules with cycles left, as in RecurringExpensesCron (-1 is endless)
+        return DB::select("
+            SELECT
+            SUM({$this->expenseAmountWithTax('recurring_expenses')}) as amount,
+            COUNT(recurring_expenses.id) as count,
+            IFNULL(recurring_expenses.currency_id, :company_currency) as effective_currency_id
+            FROM recurring_expenses
+            LEFT JOIN clients
+            ON clients.id = recurring_expenses.client_id
+            LEFT JOIN currencies
+            ON currencies.id = IFNULL(recurring_expenses.currency_id, :precision_currency)
+            WHERE recurring_expenses.company_id = :company_id
+            AND recurring_expenses.status_id = 2
+            AND recurring_expenses.remaining_cycles != 0
+            AND recurring_expenses.is_deleted = 0
+            AND recurring_expenses.deleted_at IS NULL
+            AND (clients.id IS NULL OR (clients.is_deleted = 0 AND clients.deleted_at IS NULL))
+            {$user_filter}
+            GROUP BY effective_currency_id
+        ", [
+            'company_currency' => (int) $this->company->settings->currency_id,
+            'precision_currency' => (int) $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
         ]);
     }
 }

@@ -15196,6 +15196,74 @@ paths:
           $ref: '#/components/responses/422'
         default:
           $ref: '#/components/responses/default'
+  /api/v1/charts/entity_totals:
+    post:
+      tags:
+        - charts
+      summary: 'Get entity totals'
+      description: 'Returns the amount and record count of an entity list per currency id. Archived and deleted records are excluded, as are records of archived or deleted clients and purchase orders of archived or deleted vendors. Results retain the current user visibility scope of the entity list. Client totals require permission to view client balances.'
+      operationId: getChartEntityTotals
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - entity
+              properties:
+                entity:
+                  description: 'clients: balance. invoices: balance of sent and partial invoices. quotes: amount of sent and approved quotes that are not converted or expired. credits: balance of sent and partial credits. payments: unapplied amount, less refunds of it, of completed and partially refunded payments. recurring_invoices: amount of active recurring invoices. purchase_orders: balance of sent and accepted purchase orders. expenses: amount with exclusive taxes of expenses to be invoiced that are not invoiced. recurring_expenses: amount with exclusive taxes of active recurring expenses with cycles remaining.'
+                  type: string
+                  enum:
+                    - clients
+                    - invoices
+                    - quotes
+                    - credits
+                    - payments
+                    - recurring_invoices
+                    - purchase_orders
+                    - expenses
+                    - recurring_expenses
+      responses:
+        200:
+          description: 'Entity totals keyed by currency id'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        amount:
+                          type: string
+                          example: '123.45'
+                        count:
+                          type: integer
+                          example: 3
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
   /api/v1/charts/analytics_summary:
     post:
       tags:
