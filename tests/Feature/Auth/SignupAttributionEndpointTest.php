@@ -109,6 +109,21 @@ class SignupAttributionEndpointTest extends TestCase
         $this->assertArrayNotHasKey('utm_source', $account->attribution);
     }
 
+    public function testOversizedLegacyUtmFieldsDoNotBlockSignup(): void
+    {
+        $email = $this->email();
+
+        $this->postJson($this->signupUrl(), $this->payload($email, [
+            'utm_source' => str_repeat('a', 500),
+            'utm_medium' => ['nested'],
+        ]))->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertSame(str_repeat('a', 191), $account->utm_source);
+        $this->assertNull($account->utm_medium);
+    }
+
     public function testAttributionCookieIsUsedWhenThePayloadHasNone(): void
     {        $email = $this->email();
 

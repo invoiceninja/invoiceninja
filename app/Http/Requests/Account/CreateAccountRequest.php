@@ -34,6 +34,14 @@ class CreateAccountRequest extends Request
         'obref',
     ];
 
+    private const LEGACY_UTM_KEYS = [
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
+        'utm_term',
+        'utm_content',
+    ];
+
     private array $fake_domains = [
         'generator.email',
         'emailfake.com',
@@ -301,6 +309,22 @@ class CreateAccountRequest extends Request
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');
 
         $input['attribution'] = self::attributionFrom($input['attribution'] ?? null, request()->cookie('ninja_attribution'));
+
+        // The deployed web app still posts the five utm fields; clamp them so a
+        // value the visitor doesn't control can neither 422 nor hit the column.
+        foreach (self::LEGACY_UTM_KEYS as $key) {
+            if (! array_key_exists($key, $input)) {
+                continue;
+            }
+
+            if (! is_string($input[$key])) {
+                unset($input[$key]);
+
+                continue;
+            }
+
+            $input[$key] = mb_substr($input[$key], 0, 191);
+        }
 
         $this->replace($input);
     }
