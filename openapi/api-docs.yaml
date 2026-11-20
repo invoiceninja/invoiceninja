@@ -12588,6 +12588,69 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
+  "/api/v1/company_users/{user}/flutter_settings":
+    put:
+      tags:
+        - company_users
+      summary: "Update the flutter settings of a company user"
+      description: |
+        Applies a patch to the flutter_settings of the authenticated user in the current company and returns the user.
+        Each key of flutter_settings is a dot separated path into the stored object; a null value removes that path.
+        Paths not named are left as they are, so devices that change different paths do not overwrite each other.
+      operationId: putCompanyUsersUserFlutterSettings
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: user
+          in: path
+          description: "The hashed id of the authenticated user"
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - flutter_settings
+              properties:
+                flutter_settings:
+                  type: object
+                  additionalProperties: true
+                  example:
+                    dashboard.panels: ["overview|1", "activity|0"]
+                    saved_views.4f1c2e9a-5b7d-4c3e-9a1f-2d8e6b0c7a51: { name: "Overdue", entity_type: "invoice" }
+                    welcome: null
+      responses:
+        200:
+          description: "The user, with the updated flutter_settings under company_user when included"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
   /api/v1/recurring_invoices:
     get:
       tags:
@@ -35196,6 +35259,10 @@ components:
           description: 'Dedicated settings object for the react web application'
           type: object
           readOnly: true
+        flutter_settings:
+          description: 'Dedicated settings object for the flutter applications, updated with PUT /api/v1/company_users/{user}/flutter_settings'
+          type: object
+          readOnly: true
         is_owner:
           description: 'Determines whether the user owns this company'
           type: boolean
@@ -35268,6 +35335,10 @@ components:
           readOnly: true
         react_settings:
           description: 'Dedicated settings object for the react web application'
+          type: object
+          readOnly: true
+        flutter_settings:
+          description: 'Dedicated settings object for the flutter applications, updated with PUT /api/v1/company_users/{user}/flutter_settings'
           type: object
           readOnly: true
         is_owner:

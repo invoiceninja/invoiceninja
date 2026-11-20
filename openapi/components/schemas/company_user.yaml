@@ -12,6 +12,10 @@
           description: 'Dedicated settings object for the react web application'
           type: object
           readOnly: true
+        flutter_settings:
+          description: 'Dedicated settings object for the flutter applications, updated with PUT /api/v1/company_users/{user}/flutter_settings'
+          type: object
+          readOnly: true
         is_owner:
           description: 'Determines whether the user owns this company'
           type: boolean
@@ -84,6 +88,10 @@
           readOnly: true
         react_settings:
           description: 'Dedicated settings object for the react web application'
+          type: object
+          readOnly: true
+        flutter_settings:
+          description: 'Dedicated settings object for the flutter applications, updated with PUT /api/v1/company_users/{user}/flutter_settings'
           type: object
           readOnly: true
         is_owner:

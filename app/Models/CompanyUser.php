@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $permissions_updated_at
  * @property string $ninja_portal_url
  * @property object|null $react_settings
+ * @property object|null $flutter_settings
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\CompanyUser $cu
@@ -101,6 +102,7 @@ class CompanyUser extends Pivot
         'notifications' => 'object',
         'permissions' => 'string',
         'react_settings' => 'object',
+        'flutter_settings' => 'object',
     ];
 
     protected $fillable = [
@@ -135,7 +137,7 @@ class CompanyUser extends Pivot
      */
     public function user_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
+        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'flutter_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
     /**
@@ -143,7 +145,7 @@ class CompanyUser extends Pivot
      */
     public function company_pivot(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
+        return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'flutter_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
 
     /**
