@@ -169,7 +169,7 @@ class DocumentFilters extends QueryFilters
      * @param  string $value
      * @return Builder
      */
-    public function filter_deleted_clients($value)
+    public function filter_deleted_clients($value = null)
     {
         return $this->builder;
     }

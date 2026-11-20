@@ -14,12 +14,14 @@ namespace App\Http\Controllers;
 
 use App\Services\Chart\ChartService;
 use App\Http\Requests\Chart\ShowChartRequest;
+use App\Http\Requests\Chart\ShowEntityTotalsRequest;
 use App\Http\Requests\Chart\ShowForecastRequest;
 use App\Http\Requests\Chart\ShowProjectAnalyticsRequest;
 use App\Http\Requests\Chart\ShowProjectBurnUpRequest;
 use App\Http\Requests\Chart\ShowCalculatedFieldRequest;
 use App\Models\Project;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class ChartController extends BaseController
 {
@@ -94,6 +96,32 @@ class ChartController extends BaseController
             $request->input('end_date'),
             $request->input('date_range') === 'all_time',
         ), 200);
+    }
+
+    /**
+     * Per currency totals for the records of an entity list.
+     *
+     * Scoped like the list itself (BaseController::listResponse) rather than
+     * the dashboard, so the totals agree with the records the user can list.
+     *
+     * @param ShowEntityTotalsRequest $request
+     */
+    public function entity_totals(ShowEntityTotalsRequest $request)
+    {
+        /** @var \App\Models\User auth()->user() */
+        $user = auth()->user();
+        $entity = $request->input('entity');
+
+        if ($entity == 'clients' && $user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+            return response()->json(['message' => ctrans('texts.access_denied')], 403);
+        }
+
+        // Users without view_{entity} see only the records they created or are assigned to
+        $view_all = $user->hasPermission('view_' . Str::singular($entity));
+
+        $cs = new ChartService($user->company(), $user, $view_all);
+
+        return response()->json(['data' => (object) $cs->entity_totals($entity)], 200);
     }
 
     public function analytics_summary(ShowChartRequest $request)

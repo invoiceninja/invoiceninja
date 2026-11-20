@@ -189,6 +189,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('charts/totals_v2', [ChartController::class, 'totalsV2'])->name('chart.totals_v2');
     Route::post('charts/chart_summary_v2', [ChartController::class, 'chart_summaryV2'])->name('chart.chart_summary_v2');
+    Route::post('charts/entity_totals', [ChartController::class, 'entity_totals'])->name('chart.entity_totals');
     Route::post('charts/calculated_fields', [ChartController::class, 'calculatedFields'])->name('chart.calculated_fields');
     Route::post('charts/analytics_summary', [ChartController::class, 'analytics_summary'])->name('chart.analytics_summary');
     Route::post('charts/analytics_totals', [ChartController::class, 'analytics_totals'])->name('chart.analytics_totals');
