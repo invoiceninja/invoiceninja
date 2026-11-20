@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Utils\Ninja;
+use App\Http\Requests\Account\CreateAccountRequest;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Design;
@@ -1123,9 +1124,9 @@ class BaseController extends Controller
             return;
         }
 
-        $attribution = array_filter(request()->query(), fn ($key) => str_starts_with($key, 'utm_'), ARRAY_FILTER_USE_KEY);
+        $attribution = CreateAccountRequest::sanitizeAttribution(request()->query());
 
-        if ($attribution === []) {
+        if ($attribution === null) {
             return;
         }
 
