@@ -130,11 +130,15 @@ class SystemHealth
 
         try {
             $pending = DB::table('jobs')->count();
-            $failed = DB::table('failed_jobs')->count();
 
-            if ($failed > 0) {
-                $failed_job = DB::table('failed_jobs')->latest('failed_at')->first();
-                $last_error = $failed_job->exception;
+            /* Only the database failed drivers log to failed_jobs, with any other driver (null by default) the rows left there are historical */
+            if (in_array(config('queue.failed.driver'), ['database', 'database-uuids'], true)) {
+                $failed = DB::table('failed_jobs')->count();
+
+                if ($failed > 0) {
+                    $failed_job = DB::table('failed_jobs')->latest('failed_at')->first();
+                    $last_error = $failed_job->exception;
+                }
             }
         } catch (\Exception $e) {
         }
