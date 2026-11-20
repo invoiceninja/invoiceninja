@@ -49,7 +49,7 @@ class SystemHealthTest extends TestCase
         $this->assertTrue($results['extensions'][2]['zip']);
     }
 
-    public function testQueueDataIgnoresFailedJobsWhenFailedDriverIsNull(): void
+    public function testQueueDataOnlyReadsFailedJobsForDatabaseFailedDrivers(): void
     {
         DB::table('failed_jobs')->insert([
             'uuid' => (string) Str::uuid(),
@@ -60,21 +60,23 @@ class SystemHealthTest extends TestCase
             'failed_at' => now()->addYear(),
         ]);
 
-        config(['queue.failed.driver' => null]);
-        app()->forgetInstance('queue.failer');
+        foreach ([null, 'null', 'file'] as $driver) {
+            config(['queue.failed.driver' => $driver]);
 
-        $queue_data = SystemHealth::check(true, false)['queue_data'];
+            $queue_data = SystemHealth::check(true, false)['queue_data'];
 
-        $this->assertSame(0, $queue_data['failed']);
-        $this->assertSame('', $queue_data['last_error']);
+            $this->assertSame(0, $queue_data['failed']);
+            $this->assertSame('', $queue_data['last_error']);
+        }
 
-        config(['queue.failed.driver' => 'database-uuids']);
-        app()->forgetInstance('queue.failer');
+        foreach (['database', 'database-uuids'] as $driver) {
+            config(['queue.failed.driver' => $driver]);
 
-        $queue_data = SystemHealth::check(true, false)['queue_data'];
+            $queue_data = SystemHealth::check(true, false)['queue_data'];
 
-        $this->assertGreaterThan(0, $queue_data['failed']);
-        $this->assertSame('Historical failure', $queue_data['last_error']);
+            $this->assertGreaterThan(0, $queue_data['failed']);
+            $this->assertSame('Historical failure', $queue_data['last_error']);
+        }
     }
 
     /**

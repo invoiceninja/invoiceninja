@@ -21,7 +21,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Queue\Failed\NullFailedJobProvider;
 
 /**
  * Class SystemHealth.
@@ -132,8 +131,8 @@ class SystemHealth
         try {
             $pending = DB::table('jobs')->count();
 
-            /* With the null failed driver nothing is logged, so any rows left in failed_jobs are historical */
-            if (! app('queue.failer') instanceof NullFailedJobProvider) {
+            /* Only the database failed drivers log to failed_jobs, with any other driver (null by default) the rows left there are historical */
+            if (in_array(config('queue.failed.driver'), ['database', 'database-uuids'], true)) {
                 $failed = DB::table('failed_jobs')->count();
 
                 if ($failed > 0) {
