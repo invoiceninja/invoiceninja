@@ -13,6 +13,7 @@
 namespace Tests\Feature\Auth;
 
 use App\DataMapper\CompanySettings;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
@@ -38,6 +39,7 @@ class CompanyTokenRotationTest extends TestCase
             ThrottleRequests::class
         );
 
+        config(['ninja.company_token_grace_days' => 7]);
     }
 
     public function test_stale_system_token_rotates_on_successful_login(): void
@@ -100,8 +102,10 @@ class CompanyTokenRotationTest extends TestCase
         $this->assertSame(now()->timestamp, $token->created_at);
     }
 
-    public function test_old_token_no_longer_authenticates_after_rotation(): void
+    public function test_old_token_no_longer_authenticates_after_rotation_without_grace_period(): void
     {
+        config(['ninja.company_token_grace_days' => 0]);
+
         $context = $this->createLoginContext();
         $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
         $old_token = $token->token;
@@ -111,6 +115,226 @@ class CompanyTokenRotationTest extends TestCase
         $this->withHeaders([
             'X-API-TOKEN' => $old_token,
         ])->getJson('/api/v1/statics')->assertStatus(403);
+    }
+
+    public function test_rotation_keeps_previous_token_for_grace_period(): void
+    {
+        $this->travelTo(Carbon::parse('2026-06-01 12:00:00'));
+
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+
+        $this->assertSame($old_token, $token->previous_token);
+        $this->assertTrue(Carbon::parse($token->previous_token_expires_at)->equalTo(now()->addDays(7)));
+    }
+
+    public function test_rotation_without_grace_period_keeps_no_previous_token(): void
+    {
+        config(['ninja.company_token_grace_days' => 0]);
+
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+
+        $this->assertNull($token->previous_token);
+        $this->assertNull($token->previous_token_expires_at);
+    }
+
+    public function test_old_token_authenticates_during_grace_period(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->getJson('/api/v1/clients')->assertStatus(200);
+    }
+
+    public function test_refresh_with_old_token_returns_new_token(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->postJson('/api/v1/refresh');
+
+        $response->assertStatus(200);
+
+        $this->assertSame($token->token, $response->json('data.0.token.token'));
+        $this->assertStringNotContainsString($old_token, $response->getContent());
+    }
+
+    public function test_old_token_no_longer_authenticates_after_grace_period(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $this->travel(7)->days();
+        $this->travel(1)->minutes();
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->getJson('/api/v1/statics')->assertStatus(403);
+    }
+
+    public function test_old_token_of_deleted_token_does_not_authenticate(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+        $token->delete();
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->getJson('/api/v1/statics')->assertStatus(403);
+    }
+
+    public function test_previous_token_of_non_system_token_does_not_authenticate(): void
+    {
+        config(['ninja.environment' => 'selfhost']);
+
+        $context = $this->createLoginContext();
+        $manual_token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(1), false);
+        $previous_token = Str::random(64);
+
+        CompanyToken::query()->whereKey($manual_token->id)->update([
+            'previous_token' => $previous_token,
+            'previous_token_expires_at' => now()->addDays(7),
+        ]);
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $manual_token->token,
+        ])->getJson('/api/v1/statics')->assertStatus(200);
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $previous_token,
+        ])->getJson('/api/v1/statics')->assertStatus(403);
+    }
+
+    public function test_previous_token_is_not_serialized(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+
+        $this->assertSame($old_token, $token->previous_token);
+        $this->assertArrayNotHasKey('previous_token', $token->toArray());
+        $this->assertStringNotContainsString($old_token, json_encode($token->withoutRelations()));
+    }
+
+    public function test_grace_period_disabled_rejects_old_token_already_in_grace(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        config(['ninja.company_token_grace_days' => 0]);
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->getJson('/api/v1/statics')->assertStatus(403);
+    }
+
+    public function test_logout_ends_old_token_grace_period(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $token->token,
+        ])->postJson('/api/v1/logout')->assertStatus(200);
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->getJson('/api/v1/statics')->assertStatus(403);
+    }
+
+    public function test_logout_with_old_token_during_grace_period(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+        $new_token = $token->token;
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->postJson('/api/v1/logout')->assertStatus(200);
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $old_token,
+        ])->getJson('/api/v1/statics')->assertStatus(403);
+
+        $this->withHeaders([
+            'X-API-TOKEN' => $new_token,
+        ])->getJson('/api/v1/statics')->assertStatus(403);
+    }
+
+    public function test_old_token_found_across_databases_during_grace_period(): void
+    {
+        $context = $this->createLoginContext();
+        $token = $this->createCompanyToken($context['user'], $context['company'], now()->subDays(31));
+        $old_token = $token->token;
+
+        $this->login($context['user']->email)->assertStatus(200);
+
+        $token->refresh();
+
+        $databases = MultiDB::$dbs;
+        $default = config('database.default');
+
+        try {
+            MultiDB::$dbs = [$default];
+
+            $this->assertTrue(MultiDB::findAndSetDb($old_token));
+            $this->assertSame($token->id, MultiDB::getCompanyToken($old_token)?->id);
+
+            $this->travel(8)->days();
+
+            $this->assertFalse(MultiDB::findAndSetDb($old_token));
+            $this->assertNull(MultiDB::getCompanyToken($old_token));
+        } finally {
+            MultiDB::$dbs = $databases;
+            MultiDB::setDb($default);
+        }
     }
 
     public function test_new_token_authenticates_after_rotation(): void

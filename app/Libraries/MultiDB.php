@@ -345,6 +345,22 @@ class MultiDB
             }
         }
 
+        if (config('ninja.company_token_grace_days') > 0) {
+            foreach (self::$dbs as $db) {
+                self::setDB($db);
+
+                if ($ct = CompanyToken::with([
+                    'user.account',
+                    'company',
+                    'account',
+                    'cu',
+                ])->gracePeriodToken($token)->first()) {
+
+                    return $ct;
+                }
+            }
+        }
+
         self::setDB($current_db);
 
         return null;
@@ -360,6 +376,16 @@ class MultiDB
                 self::setDb($db);
 
                 return true;
+            }
+        }
+
+        if (config('ninja.company_token_grace_days') > 0) {
+            foreach (self::$dbs as $db) {
+                if (CompanyToken::on($db)->gracePeriodToken($token)->exists()) {
+                    self::setDb($db);
+
+                    return true;
+                }
             }
         }
 

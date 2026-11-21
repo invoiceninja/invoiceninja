@@ -42,8 +42,20 @@ class TokenAuth
             'account',
             'cu',
         ])->where('token', $request->header('X-API-TOKEN'))->first())) {
+        } elseif ($request->header('X-API-TOKEN') && config('ninja.company_token_grace_days') > 0 && ($company_token = CompanyToken::with([
+            'user.account',
+            'company',
+            'account',
+            'cu',
+        ])->gracePeriodToken($request->header('X-API-TOKEN'))->first())) {
         } else {
             return response()->json(['message' => 'Invalid token'], 403);
+        }
+
+        // A rotated token in its grace period: LogoutController, Ninja::eventVars() and
+        // UserTransformer read the header, not the TruthSource, so hand them the current token.
+        if ($company_token->token !== $request->header('X-API-TOKEN')) {
+            $request->headers->set('X-API-TOKEN', $company_token->token);
         }
 
         $user = $company_token->user;

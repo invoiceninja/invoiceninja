@@ -39,6 +39,10 @@ class CompanyTokenRotator
             return false;
         }
 
+        // The user's other devices share this token: the old one keeps working
+        // for the grace period, so they can pick up the new one from /refresh.
+        $grace_days = (int) config('ninja.company_token_grace_days');
+
         $updated = CompanyToken::query()
             ->whereKey($company_token->id)
             ->where('is_system', true)
@@ -46,6 +50,8 @@ class CompanyTokenRotator
             ->where('created_at', $company_token->getRawOriginal('created_at'))
             ->update([
                 'token' => Str::random(64),
+                'previous_token' => $grace_days > 0 ? $company_token->token : null,
+                'previous_token_expires_at' => $grace_days > 0 ? now()->addDays($grace_days) : null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

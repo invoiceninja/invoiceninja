@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $user_id
  * @property string|null $token
  * @property string|null $name
+ * @property string|null $previous_token
+ * @property string|null $previous_token_expires_at
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
@@ -60,6 +62,10 @@ class CompanyToken extends BaseModel
         'user',
     ];
 
+    protected $hidden = [
+        'previous_token',
+    ];
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -72,6 +78,21 @@ class CompanyToken extends BaseModel
     public function getEntityType()
     {
         return self::class;
+    }
+
+    /**
+     * Matches a token the rotator replaced, while its grace period lasts.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeGracePeriodToken($query, string $token): \Illuminate\Database\Eloquent\Builder
+    {
+        $query->where('previous_token', $token)
+              ->where('previous_token_expires_at', '>', now())
+              ->where('is_system', true);
+
+        return $query;
     }
 
     public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -43,6 +43,9 @@ return [
     'minimum_client_version' => '5.0.203',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
+    // Days a rotated company token still authenticates, so the user's other devices aren't signed out.
+    // 0 disables it. Keep it under the 30 day rotation interval.
+    'company_token_grace_days' => (int) env('COMPANY_TOKEN_GRACE_DAYS', 7),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
     'google_analytics_url' => env('GOOGLE_ANALYTICS_URL', 'https://www.google-analytics.com/collect'),
     'key_length' => 32,

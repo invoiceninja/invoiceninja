@@ -72,6 +72,14 @@ class LogoutController extends BaseController
                 $company_token->save();
             });
 
+        $ct->company
+            ->tokens()
+            ->where('is_system', true)
+            ->update([
+                'previous_token' => null,
+                'previous_token_expires_at' => null,
+            ]);
+
         return response()->json(['message' => 'All tokens deleted'], 200);
     }
 }
