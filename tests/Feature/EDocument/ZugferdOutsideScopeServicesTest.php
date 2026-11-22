@@ -58,6 +58,8 @@ class ZugferdOutsideScopeServicesTest extends TestCase
         bool $uses_inclusive_taxes,
         string $profile
     ): void {
+        $this->requireSaxon();
+
         $document = $this->makeDocument(
             array_map(fn (int $tax_id): InvoiceItem => $this->lineItem($tax_id, $tax_name), $tax_ids),
             $client_country,
@@ -146,6 +148,8 @@ class ZugferdOutsideScopeServicesTest extends TestCase
     #[DataProvider('documentAdjustments')]
     public function testOutsideScopeDiscountAndSurchargeUseOneConsistentBreakdown(bool $taxable_surcharge, bool $is_credit, bool $uses_inclusive_taxes): void
     {
+        $this->requireSaxon();
+
         $document = $this->makeDocument(
             [$this->lineItem()],
             is_credit: $is_credit,
@@ -185,6 +189,8 @@ class ZugferdOutsideScopeServicesTest extends TestCase
 
     public function testFullyDiscountedOutsideScopeServicesRetainTheirZeroAmountBreakdown(): void
     {
+        $this->requireSaxon();
+
         $document = $this->makeDocument([$this->lineItem()], document_attributes: ['discount' => 100]);
         $xml = $this->exportXml($document);
         $xpath = $this->xpath($xml);
@@ -249,6 +255,8 @@ class ZugferdOutsideScopeServicesTest extends TestCase
 
     public function testExemptLinesDoNotInheritExportOrOutsideScopeReasonCodes(): void
     {
+        $this->requireSaxon();
+
         $xml = $this->exportXml($this->makeDocument([$this->lineItem(Product::PRODUCT_TYPE_EXEMPT)]));
         $xpath = $this->xpath($xml);
 
@@ -262,6 +270,8 @@ class ZugferdOutsideScopeServicesTest extends TestCase
     #[DataProvider('chargedTaxSlots')]
     public function testChargedTaxOutsideTheFirstLineSlotCannotDisappearIntoOutsideScope(int $tax_slot): void
     {
+        $this->requireSaxon();
+
         $item = $this->lineItem();
         $document_attributes = [];
         if ($tax_slot === 0) {
@@ -298,6 +308,8 @@ class ZugferdOutsideScopeServicesTest extends TestCase
 
     public function testUnusedDocumentTaxRatesDoNotBlockOutsideScopeServices(): void
     {
+        $this->requireSaxon();
+
         $document = $this->makeDocument([$this->lineItem()], document_attributes: ['tax_name1' => '', 'tax_rate1' => 19]);
         $this->assertSame(0.0, (float) $document->total_taxes);
         $xml = $this->exportXml($document);
@@ -333,6 +345,8 @@ class ZugferdOutsideScopeServicesTest extends TestCase
         string $expected_category,
         ?string $expected_reason
     ): void {
+        $this->requireSaxon();
+
         $document = $this->makeDocument(
             [$this->lineItem($tax_id, $tax_name, $tax_rate)],
             $client_country,
@@ -527,4 +541,14 @@ class ZugferdOutsideScopeServicesTest extends TestCase
 
         return array_map(static fn ($node): string => trim($node->textContent), iterator_to_array($nodes));
     }
+
+    private function requireSaxon(): void
+    {
+        try {
+            new \Saxon\SaxonProcessor();
+        } catch (\Throwable $e) {
+            $this->markTestSkipped('Saxon processor not installed – skipping XSLT validation');
+        }
+    }
+
 }
