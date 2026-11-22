@@ -324,7 +324,7 @@
                             {% for row in group.rows %}
                                 <tr>
                                     {% for cell in row %}
-                                        <td{% if loop.first %} class="align-left"{% endif %}>
+                                        <td class="{% if loop.first %}align-left{% endif %}">
                                             {% if loop.first %}
                                                 {{ cell|slice(0,25) }}
                                             {% else %}
@@ -360,7 +360,7 @@
                         {% for row in monthly_invoices %}
                             <tr>
                                 {% for cell in row %}
-                                    <td{% if loop.first %} class="align-left"{% endif %}>
+                                    <td class="{% if loop.first %}align-left{% endif %}">
                                         {% if loop.first %}
                                             {{ cell|slice(0,25) }}
                                         {% else %}
@@ -401,7 +401,7 @@
                             {% for row in group.rows %}
                                 <tr>
                                     {% for cell in row %}
-                                        <td{% if loop.first %} class="align-left"{% endif %}>
+                                        <td class="{% if loop.first %}align-left{% endif %}">
                                             {% if loop.first %}
                                                 {{ cell|slice(0,25) }}
                                             {% else %}
@@ -437,7 +437,7 @@
                         {% for row in monthly_payments %}
                             <tr>
                                 {% for cell in row %}
-                                    <td{% if loop.first %} class="align-left"{% endif %}>
+                                    <td class="{% if loop.first %}align-left{% endif %}">
                                         {% if loop.first %}
                                             {{ cell|slice(0,25) }}
                                         {% else %}

@@ -34,14 +34,6 @@
           description: 'The private notes of the vendor. These notes are only visible to users with appropriate permissions.'
           type: string
           example: 'Shhh, do not tell the vendor'
-        industry_id:
-          description: 'The industry id of the vendor. This is a unique identifier for the industry.'
-          type: string
-          example: '1'
-        size_id:
-          description: 'The size id of the vendor. This is a unique identifier for the size of the vendor.'
-          type: string
-          example: ''
         address1:
           description: 'The first line of the vendor''s address.'
           type: string
@@ -110,31 +102,19 @@
           description: 'The language id of the vendor. This is a unique identifier for the language.'
           type: string
           example: '1'
-        vendor_hash:
-          description: 'The vendor hash of the vendor. This is a unique identifier for the vendor.'
-          type: string
-          example: 'aaa-sss-www'
-          readOnly: true
-        transaction_name:
-          description: 'The transaction name of the vendor.'
-          type: string
-          example: 'aaa-sss-www'
         last_login:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 134341234234
           readOnly: true
         display_name:
@@ -160,9 +140,13 @@
           items:
             $ref: '#/components/schemas/TagAssignment'
         archived_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the vendor was archived, as a Unix timestamp in seconds; 0 when it is not archived'
+          type: integer
           example: 1434342123
           readOnly: true
+        documents:
+          description: 'The documents attached to the vendor'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
       type: object

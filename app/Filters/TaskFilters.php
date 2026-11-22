@@ -297,11 +297,10 @@ class TaskFilters extends QueryFilters
 
 
     /**
-     * Tasks whose coarse activity span overlaps a calendar window (e.g. one month).
+     * Tasks whose calculated start date falls within an inclusive calendar window.
+     * Also includes running tasks that started before the window.
      *
      * Pass the window bounds as Y-m-d,Y-m-d — typically first and last day of month X.
-     * Task span: calculated_start_date .. today (running) or DATE(updated_at).
-     * Intersection: task_start <= window_end AND task_end >= window_start.
      */
     public function activity_dates(string $activity_dates = ''): Builder
     {
@@ -326,16 +325,15 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
-        $today = now()->setTimezone(auth()->user()->company()->timezone()->name ?? 'UTC')->toDateString();
-
         return $this->builder
-            ->whereNotNull('calculated_start_date')
             ->where('calculated_start_date', '!=', '0000-00-00')
-            ->where('calculated_start_date', '<=', $window_end)
-            ->whereRaw(
-                '(CASE WHEN tasks.is_running = 1 THEN ? ELSE DATE(tasks.updated_at) END) >= ?',
-                [$today, $window_start]
-            );
+            ->where(function ($query) use ($window_start, $window_end) {
+                $query->whereBetween('calculated_start_date', [$window_start, $window_end])
+                    ->orWhere(function ($running_query) use ($window_start) {
+                        $running_query->where('is_running', true)
+                            ->where('calculated_start_date', '<', $window_start);
+                    });
+            });
     }
 
     /**

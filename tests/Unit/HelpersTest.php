@@ -73,6 +73,17 @@ class HelpersTest extends TestCase
         $this->assertSame('Retainer payment for Q2', $value);
     }
 
+    public function testReservedKeywordFollowedByASeparatorKeepsTheSeparator(): void
+    {
+        $value = Helpers::processReservedKeywords(
+            'Season :YEAR-:YEAR+1',
+            $this->entity(),
+            Carbon::create(2026, 1, 15, 0, 0, 0, 'UTC'),
+        );
+
+        $this->assertSame('Season 2026-2027', $value);
+    }
+
     public function testRangeContainingASlashNeverErasesTheSurroundingText(): void
     {
         $description = 'Period: [MONTHYEAR|MONTHYEAR/2]. Keep this description.';

@@ -1131,7 +1131,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
 
     private function lineTaxLabels(): string
     {
-        $tax_map = $this->entity_calc->getTaxMap();
+        $tax_map = $this->entity_calc->getTaxMapForDisplay();
 
         $data = '';
 
@@ -1172,7 +1172,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
 
     private function lineTaxValues(): string
     {
-        $tax_map = $this->entity_calc->getTaxMap();
+        $tax_map = $this->entity_calc->getTaxMapForDisplay();
 
         $data = '';
 

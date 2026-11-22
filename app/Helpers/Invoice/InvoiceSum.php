@@ -35,6 +35,8 @@ class InvoiceSum
 
     public $tax_map;
 
+    public $reverse_tax_map;
+
     public $invoice_item;
 
     public $total_taxes = 0;
@@ -73,6 +75,7 @@ class InvoiceSum
         $this->rappen_rounding = $this->client->getSetting('enable_rappen_rounding');
 
         $this->tax_map = new Collection();
+        $this->reverse_tax_map = new Collection();
 
     }
 
@@ -414,6 +417,28 @@ class InvoiceSum
             $this->total_taxes += $total_line_tax;
         }
 
+        $this->setReverseTaxMap();
+
+        return $this;
+    }
+
+    private function setReverseTaxMap(): self
+    {
+        $this->reverse_tax_map = collect();
+        $values = $this->invoice_items->getGroupedReverseTaxes();
+
+        foreach ($values->pluck('key')->unique() as $key) {
+            $rows = $values->filter(fn ($value) => $value['key'] === $key);
+
+            $this->reverse_tax_map->push([
+                'name' => $rows->pluck('tax_name')->first(),
+                'total' => round($rows->sum('total'), $this->precision),
+                'tax_id' => $rows->pluck('tax_id')->first(),
+                'tax_rate' => $rows->pluck('tax_rate')->first(),
+                'base_amount' => round($rows->sum('base_amount'), $this->precision),
+            ]);
+        }
+
         return $this;
     }
 
@@ -440,6 +465,16 @@ class InvoiceSum
     public function getTaxMap()
     {
         return $this->tax_map;
+    }
+
+    public function getReverseTaxMap()
+    {
+        return $this->reverse_tax_map;
+    }
+
+    public function getTaxMapForDisplay()
+    {
+        return $this->tax_map->concat($this->reverse_tax_map);
     }
 
     public function getBalance()

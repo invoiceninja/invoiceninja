@@ -13,12 +13,9 @@
 namespace App\Http\Requests\ClientPortal;
 
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
 
 class UpdateClientRequest extends Request
 {
-    use MakesHash;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,7 +23,7 @@ class UpdateClientRequest extends Request
      */
     public function authorize(): bool
     {
-        return $this->encodePrimaryKey(auth()->user()->id) === request()->segment(3);
+        return $this->user('contact')?->is($this->route('client_contact')) ?? false;
     }
 
     public function rules()

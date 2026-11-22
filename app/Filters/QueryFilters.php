@@ -485,7 +485,7 @@ abstract class QueryFilters
         return $this->builder->where('vendor_id', $this->decodePrimaryKey($vendor_id));
     }
 
-    public function filter_deleted_clients($value)
+    public function filter_deleted_clients($value = null)
     {
         if ($value == 'true') {
             return $this->builder->whereHas('client', function (Builder $query) {

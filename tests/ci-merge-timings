@@ -1,0 +1,111 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Merge PHPUnit JUnit XML into the class => seconds map read by tests/ci.
+ *
+ * The timings job does not install Composer, so this stays on the PHP standard library.
+ *
+ * Usage: tests/ci-merge-timings <junit-dir> <output.json>
+ *
+ * Testcase times for a class are summed within each file. The same class is
+ * recorded once per PHP version, and the slowest sample is kept.
+ */
+
+if ($argc !== 3) {
+    fwrite(STDERR, "Usage: tests/ci-merge-timings <junit-dir> <output.json>\n");
+    exit(1);
+}
+
+[, $input, $output] = $argv;
+
+if (! is_dir($input)) {
+    fwrite(STDERR, "JUnit directory not found: {$input}\n");
+    exit(1);
+}
+
+$files = [];
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($input, FilesystemIterator::SKIP_DOTS)
+);
+
+foreach ($iterator as $file) {
+    if ($file->isFile() && str_ends_with(strtolower($file->getFilename()), '.xml')) {
+        $files[] = $file->getPathname();
+    }
+}
+
+if ($files === []) {
+    fwrite(STDERR, "No JUnit XML files under {$input}\n");
+    exit(1);
+}
+
+sort($files);
+
+/** @var array<string, float> $best */
+$best = [];
+$parsed = 0;
+
+foreach ($files as $path) {
+    $xml = simplexml_load_file($path);
+
+    if ($xml === false) {
+        fwrite(STDERR, "Skipping unreadable JUnit file: {$path}\n");
+        continue;
+    }
+
+    $parsed++;
+    $sums = [];
+
+    foreach ($xml->xpath('//testcase') ?: [] as $case) {
+        $class = junit_class_name($case);
+
+        if ($class === '') {
+            continue;
+        }
+
+        $sums[$class] = ($sums[$class] ?? 0.0) + (float) ($case['time'] ?? 0);
+    }
+
+    foreach ($sums as $class => $seconds) {
+        if (! isset($best[$class]) || $seconds > $best[$class]) {
+            $best[$class] = $seconds;
+        }
+    }
+}
+
+if ($parsed === 0 || $best === []) {
+    fwrite(STDERR, "No testcase timings found under {$input}\n");
+    exit(1);
+}
+
+ksort($best, SORT_STRING);
+
+$directory = dirname($output);
+
+if (! is_dir($directory) && ! mkdir($directory, 0777, true) && ! is_dir($directory)) {
+    fwrite(STDERR, "Could not create {$directory}\n");
+    exit(1);
+}
+
+$json = json_encode($best, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+if ($json === false || file_put_contents($output, $json."\n") === false) {
+    fwrite(STDERR, "Could not write {$output}\n");
+    exit(1);
+}
+
+fwrite(STDOUT, sprintf("Wrote %d class timings to %s\n", count($best), $output));
+
+function junit_class_name(SimpleXMLElement $case): string
+{
+    $class = trim((string) ($case['class'] ?? ''));
+
+    if ($class !== '') {
+        return $class;
+    }
+
+    $classname = trim((string) ($case['classname'] ?? ''));
+
+    return $classname === '' ? '' : str_replace('.', '\\', $classname);
+}

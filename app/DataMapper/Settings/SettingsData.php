@@ -226,6 +226,8 @@ class SettingsData
 
     public string $bcc_email = ''; //@TODO
 
+    public string $disposition_notification_to = '';
+
     public bool $pdf_email_attachment = false; //@implemented
 
     public bool $ubl_email_attachment = false; //@implemented

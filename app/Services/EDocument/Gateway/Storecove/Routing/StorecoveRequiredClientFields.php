@@ -37,14 +37,16 @@ class StorecoveRequiredClientFields
             return [];
         }
 
+        // Finnish recipients can use GLN or OVT in routing_id, or OVT in id_number.
+        // Neither identifier field is individually required.
+        if ($country === 'FI' && in_array($classification, ['business', 'government'], true)) {
+            return [];
+        }
+
         $required = $this->fromRoutingRule($country, $classification);
 
         if ($country === 'IT' && in_array($classification, ['business', 'government'], true)) {
             $required['routing_id'] = 'IT:CUUO';
-        }
-
-        if ($country === 'FI' && in_array($classification, ['business', 'government'], true)) {
-            $required['routing_id'] = 'FI:OPID';
         }
 
         return $required;

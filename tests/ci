@@ -2,50 +2,214 @@
 <?php
 
 /*
- * This script assumes you're in a Laravel project that has access
- * to the Str, Collection and Symfony's Process class.
+ * Shard PHPUnit across CI_NODE_TOTAL runners.
+ *
+ * --list-tests follows phpunit.xml suite order, so tests/Unit is one contiguous
+ * block at the front. Collection::split() handed that block to the first runners.
+ * Every class is packed onto the lightest runner instead: by recorded class time
+ * when timings exist, otherwise by listed test count (process isolation pays for
+ * each test). Classes with no sample are estimated from the median seconds per test.
  */
+
 require_once 'vendor/autoload.php';
 
-/**
- * Lists PHPunit tests in the following format:
- *  - Tests\Support\UuidTest::it_can_create_a_uuid_from_a_string
- *  - Tests\Support\UuidTest::it_can_not_create_a_uuid_from_null
- *  - ...
- */
-$process = new \Symfony\Component\Process\Process(['./vendor/bin/phpunit', '--list-tests']);
-$process->mustRun();
-
-$tests = \Illuminate\Support\Str::of($process->getOutput())
-    ->explode("\n") // Break the output from new lines into an array
-    ->filter(fn (string $test) => str_contains($test, ' - ')) // Only lines with " - "
-    ->map(fn (string $test) => addslashes(
-        \Illuminate\Support\Str::of($test)
-            ->replace('- ', '') // Strip the "- "
-            ->trim()
-            ->explode('::') // Only the class, not the method
-            ->get(0)
-    ))
-    ->filter(fn (string $test) => !empty($test)) // Make sure there are no empty lines
-    ->unique() // We only need unique classes
-    // ->split(10)
-    // ->get(1);
-    ->split((int) getenv('CI_NODE_TOTAL')) // Split it into equally sized chunks
-    ->get((int) getenv('CI_NODE_INDEX')); // Get the index we need for this instance
-
-/**
- * Run phpunit with a filter:
- * phpunit --filter 'TestClass|AnotherTestClass|...'
- */
-$process = new \Symfony\Component\Process\Process(['php', 'artisan', 'test', '--testdox', '--filter', $tests->join('|')], timeout: null);
-$process->start();
-
-// Make sure we have live data output
-foreach ($process as $type => $data) {
-    echo $data;
+if (PHP_SAPI === 'cli' && isset($argv[0]) && realpath($argv[0]) === __FILE__) {
+    ci_main();
 }
 
-$process->wait();
+function ci_main(): void
+{
+    $node_total = (int) getenv('CI_NODE_TOTAL');
+    $node_index = (int) getenv('CI_NODE_INDEX');
 
-// Exit using PHPUnit's exit code to have the action pass/fail
-exit($process->getExitCode());
+    if ($node_total < 1 || $node_index < 0 || $node_index >= $node_total) {
+        fwrite(STDERR, "CI_NODE_TOTAL and CI_NODE_INDEX must select a node\n");
+        exit(1);
+    }
+
+    $process = new \Symfony\Component\Process\Process(['./vendor/bin/phpunit', '--list-tests']);
+    $process->mustRun();
+
+    $counts = ci_class_counts($process->getOutput());
+
+    if ($counts === []) {
+        fwrite(STDERR, "No tests found\n");
+        exit(1);
+    }
+
+    $timings_file = 'tests/_output/ci-timings/timings.json';
+    $timings = is_file($timings_file) ? json_decode(file_get_contents($timings_file), true) : null;
+    $timed = is_array($timings) && $timings !== [];
+
+    $weights = ci_weights($counts, $timed ? $timings : null);
+    $buckets = ci_assign($weights, $node_total);
+    $classes = $buckets[$node_index];
+
+    $load = 0.0;
+    foreach ($classes as $class) {
+        $load += $weights[$class];
+    }
+
+    if ($timed) {
+        echo sprintf(
+            "Split by time: node %d of %d, %d classes, ~%.1f min\n",
+            $node_index,
+            $node_total,
+            count($classes),
+            $load / 60
+        );
+    } else {
+        echo sprintf(
+            "No timings found, split by test count: node %d of %d, %d classes, %d tests\n",
+            $node_index,
+            $node_total,
+            count($classes),
+            (int) $load
+        );
+    }
+
+    if ($classes === []) {
+        echo "No tests for this node\n";
+        exit(0);
+    }
+
+    $junit_file = 'tests/_output/junit.xml';
+    @mkdir(dirname($junit_file), 0777, true);
+
+    $process = new \Symfony\Component\Process\Process(
+        ['php', 'artisan', 'test', '--testdox', '--log-junit', $junit_file, '--filter', ci_filter($classes)],
+        timeout: null
+    );
+    $process->start();
+
+    foreach ($process as $type => $data) {
+        echo $data;
+    }
+
+    $process->wait();
+
+    exit($process->getExitCode());
+}
+
+/**
+ * Class => listed tests, including data-provider cases.
+ *
+ * @return array<string, int>
+ */
+function ci_class_counts(string $output): array
+{
+    $counts = [];
+
+    foreach (preg_split("/\R/", $output) as $line) {
+        $line = trim($line);
+
+        if (! str_starts_with($line, '- ')) {
+            continue;
+        }
+
+        $class = explode('::', substr($line, 2), 2)[0];
+
+        if ($class === '') {
+            continue;
+        }
+
+        $counts[$class] = ($counts[$class] ?? 0) + 1;
+    }
+
+    return $counts;
+}
+
+/**
+ * @param array<string, int> $counts
+ * @param array<string, float|int>|null $timings
+ *
+ * @return array<string, float>
+ */
+function ci_weights(array $counts, ?array $timings): array
+{
+    $weights = [];
+
+    if ($timings === null || $timings === []) {
+        foreach ($counts as $class => $cases) {
+            $weights[$class] = (float) max(1, $cases);
+        }
+
+        return $weights;
+    }
+
+    $per_case = [];
+
+    foreach ($counts as $class => $cases) {
+        if ($cases > 0 && isset($timings[$class]) && (float) $timings[$class] > 0) {
+            $per_case[] = ((float) $timings[$class]) / $cases;
+        }
+    }
+
+    sort($per_case);
+    $median_per_case = $per_case === [] ? 1.0 : $per_case[intdiv(count($per_case), 2)];
+
+    if ($median_per_case <= 0) {
+        $median_per_case = 1.0;
+    }
+
+    foreach ($counts as $class => $cases) {
+        $cases = max(1, $cases);
+        $weights[$class] = (isset($timings[$class]) && (float) $timings[$class] > 0)
+            ? (float) $timings[$class]
+            : $median_per_case * $cases;
+    }
+
+    return $weights;
+}
+
+/**
+ * Heaviest class first, onto the lightest runner. Name order breaks ties so
+ * every runner computes the same buckets.
+ *
+ * @param array<string, float> $weights
+ *
+ * @return list<list<string>>
+ */
+function ci_assign(array $weights, int $node_total): array
+{
+    $classes = array_keys($weights);
+
+    usort($classes, function (string $a, string $b) use ($weights): int {
+        $by_weight = $weights[$b] <=> $weights[$a];
+
+        return $by_weight !== 0 ? $by_weight : strcmp($a, $b);
+    });
+
+    $loads = array_fill(0, $node_total, 0.0);
+    $buckets = array_fill(0, $node_total, []);
+
+    foreach ($classes as $class) {
+        $node = 0;
+
+        for ($i = 1; $i < $node_total; $i++) {
+            if ($loads[$i] < $loads[$node]) {
+                $node = $i;
+            }
+        }
+
+        $loads[$node] += $weights[$class];
+        $buckets[$node][] = $class;
+    }
+
+    return $buckets;
+}
+
+/**
+ * Anchored so a class name cannot match another class that contains it.
+ *
+ * @param list<string> $classes
+ */
+function ci_filter(array $classes): string
+{
+    $parts = array_map(
+        fn (string $class) => '^'.preg_quote($class, '/').'::',
+        $classes
+    );
+
+    return '/'.implode('|', $parts).'/';
+}

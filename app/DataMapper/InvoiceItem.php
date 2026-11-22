@@ -12,6 +12,7 @@
 
 namespace App\DataMapper;
 
+#[\AllowDynamicProperties]
 class InvoiceItem
 {
     public $quantity = 0;

@@ -86,6 +86,10 @@ class AppServiceProvider extends ServiceProvider
 
         /* Ensure we don't have stale state in jobs */
         Queue::before(function (JobProcessing $event) {
+            if ($event->connectionName === 'sync') {
+                return;
+            }
+
             App::forgetInstance(TruthSource::class);
         });
 

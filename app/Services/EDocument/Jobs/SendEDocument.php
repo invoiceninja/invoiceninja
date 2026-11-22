@@ -71,6 +71,10 @@ class SendEDocument implements ShouldQueue
             return; // Model not found.
         }
 
+        if ($model instanceof \App\Models\Invoice && $model->isSelfBilled()) {
+            return;
+        }
+
         if (isset($model->backup->guid) && is_string($model->backup->guid) && strlen($model->backup->guid) > 3) {
             nlog("Already sent!");
             return; //Do not double send.

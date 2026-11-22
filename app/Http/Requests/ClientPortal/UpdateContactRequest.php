@@ -13,12 +13,10 @@
 namespace App\Http\Requests\ClientPortal;
 
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class UpdateContactRequest extends Request
 {
-    use MakesHash;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,7 +24,7 @@ class UpdateContactRequest extends Request
      */
     public function authorize(): bool
     {
-        return $this->encodePrimaryKey(auth()->user()->id) === request()->segment(3);
+        return $this->user('contact')?->is($this->route('client_contact')) ?? false;
     }
 
     public function rules()
@@ -34,7 +32,11 @@ class UpdateContactRequest extends Request
         return [
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|email:rfc,dns|unique:client_contacts,email,' . auth()->user()->id,
+            'email' => [
+                'required',
+                'email:rfc,dns',
+                Rule::unique('client_contacts', 'email')->ignore($this->user('contact')),
+            ],
             'password' => 'sometimes|nullable|min:6|confirmed',
         ];
     }

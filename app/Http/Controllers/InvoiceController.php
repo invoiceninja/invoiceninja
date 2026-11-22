@@ -126,19 +126,20 @@ class InvoiceController extends BaseController
      */
     public function index(InvoiceFilters $filters)
     {
-        set_time_limit(45);
+        return $this->withinTimeLimit(45, function () use ($filters) {
+            $invoices = Invoice::filter($filters)->with('tags');
 
-        $invoices = Invoice::filter($filters)->with('tags');
-
-        /** Fixes for N+1 eager loading */
-        foreach ($this->getRequestIncludes([]) as $include) {
-            if (explode('.', $include)[0] === 'payments') {
+            /** Fixes for N+1 eager loading */
+            foreach ($this->getRequestIncludes([]) as $include) {
+                if (explode('.', $include)[0] === 'payments') {
                     $invoices->with('payments.documents');
-        
+
                     break;
                 }
             }
-        return $this->listResponse($invoices);
+
+            return $this->listResponse($invoices);
+        });
     }
 
     /**

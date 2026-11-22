@@ -1,8 +1,6 @@
     RecurringInvoiceRequest:
       required:
         - client_id
-        - date
-        - due_date
         - frequency_id
       properties:
         client_id:

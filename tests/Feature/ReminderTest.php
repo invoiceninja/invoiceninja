@@ -702,7 +702,9 @@ class ReminderTest extends TestCase
         $this->assertNotNull($this->invoice->reminder2_sent);
         $this->assertNotNull($this->invoice->reminder_last_sent);
 
-        $fee = collect($this->invoice->line_items)->where('cost', 102)->first();
+        $fee = collect($this->invoice->line_items)
+            ->where('type_id', 5)
+            ->firstWhere('cost', 102);
 
         $this->assertEquals(102, $fee->cost);
         $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
@@ -714,7 +716,9 @@ class ReminderTest extends TestCase
         $this->assertNotNull($this->invoice->reminder3_sent);
         $this->assertNotNull($this->invoice->reminder_last_sent);
 
-        $fee = collect($this->invoice->line_items)->where('cost', 103)->first();
+        $fee = collect($this->invoice->line_items)
+            ->where('type_id', 5)
+            ->firstWhere('cost', 103);
 
         $this->assertEquals(103, $fee->cost);
         $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);

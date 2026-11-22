@@ -75,8 +75,8 @@ jobs:
           
       - name: Prepare React FrontEnd
         run: |
-          git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
-          cd ui
+          git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/web.git
+          cd web
           git checkout develop
           sed -i 's/VITE_IS_TEST=true/VITE_IS_TEST=false/' .env.example
           echo VITE_PUSHER_APP_KEY=f0111a02782708da651f >> .env.example
@@ -89,6 +89,85 @@ jobs:
           cp -r dist/* ../public/
           mv ../public/index.html ../resources/views/react/index.blade.php
 
+      - name: Prepare Flutter FrontEnd
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The new Flutter web app (public/flutter) and its boot page (resources/views/flutter/index.html),
+          # from the latest invoiceninja/app release. Static files only: the
+          # server fills the boot page's tokens, compiling nothing. Optional: if anything fails, the release
+          # ships without it, and a self-hosted server keeps the web app it has (FlutterWebUpdate). (The
+          # hosted landing page is committed, in public/landing and resources/views/landing.)
+          set -uo pipefail
+          work=$(mktemp -d)
+          skip() {
+            echo "::$1::$2 This release ships without the new Flutter web app."
+            chmod -R u+rwX "$work" 2>/dev/null || true
+            rm -rf "$work" || true
+            exit 0
+          }
+
+          # No tag means the latest published, non-draft, non-prerelease release.
+          timeout 300 gh release download --repo invoiceninja/app --pattern 'invoiceninja-web-*.tar.gz' --dir "$work" \
+            || skip warning "The latest invoiceninja/app release has no web build, or GitHub couldn't be reached."
+          archives=("$work"/invoiceninja-web-*.tar.gz)
+          # An unmatched glob stays as one literal word, so the -f matters as much as the count.
+          [ "${#archives[@]}" -eq 1 ] && [ -f "${archives[0]}" ] || skip error "Expected exactly one web build in the latest invoiceninja/app release."
+          archive="${archives[0]}"
+          build=$(basename "$archive")
+
+          # Built by invoiceninja/app's own web.yml, from main or a release tag, on GitHub's runners.
+          timeout 300 gh attestation verify "$archive" --repo invoiceninja/app \
+            --cert-identity-regex '^https://github\.com/invoiceninja/app/\.github/workflows/web\.yml@refs/(heads/main|tags/v[0-9]+\.[0-9]+\.[0-9]+)$' \
+            --deny-self-hosted-runners >/dev/null \
+            || skip error "$build has no valid build attestation."
+
+          # Attestation proves invoiceninja/app's web.yml built this, not that it can't run code here, so
+          # nothing in it may be a file the server could execute. tools/web_deploy/check_server_tarball.sh
+          # in invoiceninja/app runs these same checks before the tarball is attached: keep them identical.
+          list=$(tar -tzf "$archive") || skip error "$build can't be read."
+          tar -tvzf "$archive" | awk '$1 !~ /^[-d]/ { bad = 1 } END { exit bad }' \
+            || skip error "$build holds a link or a special file."
+          if grep -E '^/|(^|/)\.\.?(/|$)' <<< "$list"; then
+            skip error "$build holds an absolute or relative path."
+          fi
+          if grep -E '/\.' <<< "$list" | grep -Ev '/\.gitkeep$'; then
+            skip error "$build holds a dotfile."
+          fi
+          # Under public/, only the file types a web build has (or none: NOTICES, LICENSE).
+          if grep -E '^public/' <<< "$list" | grep -Ev '/$' \
+            | grep -Eiv '(/[^/.]+|/\.gitkeep|\.(js|mjs|wasm|json|css|png|jpg|jpeg|gif|webp|svg|ico|ttf|otf|woff|woff2|frag|bin|txt|map))$'; then
+            skip error "$build holds a file type a web build doesn't have."
+          fi
+          # Nor, anywhere in a name, an extension a server might hand to a handler (x.php.png, x.html.png).
+          if grep -Ei '\.(php[0-9]*|pht|phtml|phar|phps|cgi|fcgi|pl|plx|ppl|perl|py|rb|sh|shtml?|stm|html?|asp|aspx|jsp|cfm)([^[:alnum:]]|$)' <<< "$list" \
+            | grep -Ev '^resources/views/flutter/index\.html$'; then
+            skip error "$build holds a name the web server could run."
+          fi
+
+          mkdir "$work/out"
+          tar -xzf "$archive" -C "$work/out" --no-same-owner --no-same-permissions \
+            public/flutter resources/views/flutter/index.html \
+            || skip error "$build is missing a part."
+          # Folders readable and traversable, whatever modes the archive gave them.
+          chmod -R u+rwX,go+rX "$work/out" || skip error "$build's files can't be made readable."
+          # What Ninja::hasFlutterWebBuild() and self-update look for: a boot page with exactly one base
+          # href, naming the build's folder (public/flutter/<id>/, new with each build, so nothing needs
+          # cache rules), and that folder holding the bootstrap.
+          page="$work/out/resources/views/flutter/index.html"
+          [ -f "$page" ] || skip error "$build's boot page isn't a file."
+          tr '\r\n' '  ' < "$page" | awk '{ n += gsub(/<[Bb][Aa][Ss][Ee][^A-Za-z0-9_-]/, "") } END { exit n != 1 }' \
+            || skip error "$build's boot page doesn't have exactly one <base>."
+          id=$(sed -nE 's#.*<base href="__IN_BASE_HREF__([0-9a-f]{8,64})/">.*#\1#p' "$page") || id=""
+          [ -n "$id" ] && [ -f "$work/out/public/flutter/$id/flutter_bootstrap.js" ] \
+            || skip error "$build's boot page names no build folder holding flutter_bootstrap.js."
+
+          rm -rf public/flutter resources/views/flutter
+          mv "$work/out/public/flutter" public/
+          mv "$work/out/resources/views/flutter" resources/views/
+          rm -rf "$work"
+          echo "Added $build."
+
       - name: Prepare JS/CSS assets
         run: |
           npm i
@@ -99,7 +178,7 @@ jobs:
           rm -rf node_modules
           rm -rf .git
           rm .env || true
-          rm -rf ui || true
+          rm -rf web || true
           # Set permissions: directories 755, files 644
           find . -path ./vendor -prune -o -type f -exec chmod 644 {} \+
           find . -path ./vendor -prune -o -type d -exec chmod 755 {} \+

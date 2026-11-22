@@ -1,8 +1,6 @@
     PurchaseOrderRequest:
       required:
         - vendor_id
-        - date
-        - due_date
       properties:
         vendor_id:
           description: 'The hashed ID of the vendor'

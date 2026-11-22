@@ -25,6 +25,13 @@ class UpdateReminder extends AbstractService
     /* We only support setting reminders based on the due date, not the partial due date */
     public function run()
     {
+        if ($this->invoice->isSelfBilled()) {
+            $this->invoice->next_send_date = null;
+            $this->invoice->saveQuietly();
+
+            return $this->invoice;
+        }
+
         if (! $this->settings) {
             $this->settings = $this->invoice->client->getMergedSettings();
         }

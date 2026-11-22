@@ -239,7 +239,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -301,7 +304,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -406,7 +412,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -463,6 +472,13 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -524,7 +540,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -578,7 +597,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -674,7 +696,12 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -728,7 +755,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Quote'
         401:
           $ref: "#/components/responses/401"
         403:
@@ -770,6 +800,11 @@
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: "#/components/responses/401"
         403:
@@ -831,7 +866,10 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Quote"
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:

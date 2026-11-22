@@ -1,9 +1,5 @@
     CompanyLedger:
       properties:
-        entity_id:
-          description: 'This field will reference one of the following entity hashed ID payment_id, invoice_id or credit_id'
-          type: string
-          example: AS3df3A
         notes:
           description: 'The notes which reference this entry of the ledger'
           type: string
@@ -20,12 +16,28 @@
           example: 10.00
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         created_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
+        activity_id:
+          description: 'The unhashed numeric id of the activity that created the entry'
+          type: integer
+        archived_at:
+          description: 'Always 0: ledger entries cannot be archived'
+          type: integer
+        credit_id:
+          description: 'The credit hashed id, present when the entry belongs to a credit'
+          type: string
+        invoice_id:
+          description: 'The invoice hashed id, present when the entry belongs to an invoice'
+          type: string
+        client_id:
+          description: 'The client hashed id, present when the entry belongs to a client'
+          type: string
+        payment_id:
+          description: 'The payment hashed id, present when the entry belongs to a payment'
+          type: string
       type: object

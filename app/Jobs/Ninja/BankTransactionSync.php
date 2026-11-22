@@ -94,7 +94,7 @@ class BankTransactionSync implements ShouldQueue
                         try {
                             (new ProcessBankTransactionsNordigen($bank_integration))->handle();
                         } catch (\Exception $e) {
-                            nlog("Exception:: BankTransactioSync::" . $e->getMessage());
+                            nlog("Exception:: BankTransactionSync::" . $e->getMessage());
                             sleep(20);
                         }
 

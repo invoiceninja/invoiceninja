@@ -102,6 +102,8 @@ class BaseRule implements RuleInterface
 
         'GB' => 'UK', //Great Britain
 
+        'IM' => 'UK', // Isle of Man (UK VAT area)
+
         'SG' => 'SG', // Singapore
     ];
 
@@ -115,6 +117,8 @@ class BaseRule implements RuleInterface
 
     public string $tax_name3 = '';
     public float $tax_rate3 = 0;
+
+    protected float $reverse_tax_rate = 0;
 
     protected ?Client $client;
 
@@ -263,7 +267,7 @@ class BaseRule implements RuleInterface
             'US' => $this->client_subregion = $this->invoice->client->tax_data->geoState ?? $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
-            'UK' => $this->client_subregion = 'GB',
+            'UK' => $this->client_subregion = $this->client->country->iso_3166_2 === 'IM' ? 'IM' : 'GB',
             'SG' => $this->client_subregion = 'SG',
             default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
@@ -364,6 +368,12 @@ class BaseRule implements RuleInterface
     public function tax($item = null): self
     {
 
+        $this->reverse_tax_rate = 0;
+
+        if (is_object($item) && property_exists($item, 'tax_id') && intval($item->tax_id) === Product::PRODUCT_TYPE_REVERSE_TAX) {
+            $this->setReverseTaxRate();
+        }
+
         if ($this->client->is_tax_exempt || !property_exists($item, 'tax_id')) {
 
             return $this->taxExempt($item);
@@ -394,6 +404,47 @@ class BaseRule implements RuleInterface
 
         return $this;
 
+    }
+
+    /**
+     * Resolve the standard domestic rate used only for reverse-tax disclosure.
+     */
+    protected function setReverseTaxRate(): self
+    {
+        if ($this->client->is_tax_exempt) {
+            return $this;
+        }
+
+        $seller_country = $this->client->company->country()->iso_3166_2;
+        $client_country = $this->client->country->iso_3166_2;
+
+        $same_territory = match ($seller_country) {
+            'GB' => in_array($client_country, ['GB', 'IM'], true),
+            'SG', 'AD' => $client_country === $seller_country,
+            default => in_array($seller_country, $this->eu_country_codes, true)
+                && $client_country === $seller_country,
+        };
+
+        if (!$same_territory || $seller_country === 'US') {
+            return $this;
+        }
+
+        $region = match (true) {
+            $seller_country === 'GB' => 'UK',
+            in_array($seller_country, $this->eu_country_codes, true) => 'EU',
+            default => $seller_country,
+        };
+
+        $subregion = $seller_country === 'GB' ? 'GB' : $seller_country;
+
+        $this->reverse_tax_rate = (float) ($this->client->company->tax_data->regions->{$region}->subregions->{$subregion}->tax_rate ?? 0);
+
+        return $this;
+    }
+
+    public function getReverseTaxRate(): float
+    {
+        return $this->reverse_tax_rate;
     }
 
     public function zeroRated($item): self

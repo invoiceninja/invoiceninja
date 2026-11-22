@@ -604,7 +604,7 @@ class VendorHtmlEngine
 
     private function lineTaxLabels(): string
     {
-        $tax_map = $this->entity_calc->getTaxMap();
+        $tax_map = $this->entity_calc->getTaxMapForDisplay();
 
         $data = '';
 
@@ -653,7 +653,7 @@ class VendorHtmlEngine
     /*
     private function makeLineTaxes() :string
     {
-       $tax_map = $this->entity_calc->getTaxMap();
+       $tax_map = $this->entity_calc->getTaxMapForDisplay();
 
        $data = '';
 
@@ -793,7 +793,7 @@ html {
 
     private function lineTaxValues(): string
     {
-        $tax_map = $this->entity_calc->getTaxMap();
+        $tax_map = $this->entity_calc->getTaxMapForDisplay();
 
         $data = '';
 

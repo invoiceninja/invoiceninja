@@ -16,6 +16,7 @@ use Tests\TestCase;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Product;
 use Tests\MockAccountData;
@@ -29,6 +30,7 @@ use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Comprehensive country-level tests for the PEPPOL e-invoice pipeline.
@@ -121,7 +123,6 @@ class PeppolCountryTest extends TestCase
                 'vat' => 'FI12345678', 'id_number' => '003712345678', 'tax_rate' => 25.5, 'tax_name' => 'ALV',
                 'city' => 'Helsinki', 'state' => 'Uusimaa', 'postal_code' => '00100', 'currency' => '3',
                 'address1' => 'Mannerheimintie 1',
-                'routing_id' => '003721291126',
             ],
             'FR' => [
                 'vat' => 'FRAA123456789', 'id_number' => '12345678901234', 'tax_rate' => 20, 'tax_name' => 'TVA',
@@ -325,7 +326,7 @@ class PeppolCountryTest extends TestCase
      * validate XSD (always) and XSLT (when Saxon available),
      * optionally dump XML to disk.
      */
-    private function runAndValidate(Invoice $invoice, string $label): array
+    private function runAndValidate(Invoice|Credit $invoice, string $label): array
     {
         $fresh = $invoice->fresh();
 
@@ -375,6 +376,7 @@ class PeppolCountryTest extends TestCase
             'peppol'    => $peppol,
             'xml'       => $xml,
             'storecove' => $storecoveInvoice,
+            'adapter'   => $storecove->adapter,
         ];
     }
 
@@ -555,10 +557,73 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'FI => FI (business)');
 
-        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
-        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT)');
-        $this->assertSame('0037', $customerEndpoint->schemeID);
-        $this->assertSame('003712345678', $customerEndpoint->value);
+        $customer_endpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customer_endpoint, 'FI buyer must have EndpointID (OVT)');
+        $this->assertSame('0216', $customer_endpoint->schemeID);
+        $this->assertSame('003712345678', $customer_endpoint->value);
+    }
+
+    public static function finnishRecipientAddresses(): array
+    {
+        return [
+            'GLN first' => ['003712345678', '0088:5401205000102', '0088', '5401205000102'],
+            'ID Number before routing OVT' => ['003712345678', '0216:003709824102', '0216', '003712345678'],
+            'malformed GLN uses ID Number' => ['003712345678', '0088:123', '0216', '003712345678'],
+            'bare routing OVT fallback' => ['', '003709824102', '0216', '003709824102'],
+            'prefixed routing OVT fallback' => ['', '0216:003709824102', '0216', '003709824102'],
+            'friendly routing OVT fallback' => ['INVALID', 'FI:OVT2:003709824102', '0216', '003709824102'],
+            'credit GLN first' => ['003712345678', '0088:5401205000102', '0088', '5401205000102', true],
+            'credit OVT fallback' => ['', '0216:003709824102', '0216', '003709824102', true],
+        ];
+    }
+
+    #[DataProvider('finnishRecipientAddresses')]
+    public function testFinnishRecipientAddressSurvivesSerialization(string $id_number, string $routing_id, string $expected_scheme, string $expected_id, bool $is_credit = false): void
+    {
+        $data = $this->buildScenario([
+            'company_country' => 'AT',
+            'client_country' => 'FI',
+            'client_id_number' => $id_number,
+            'client_routing_id' => $routing_id,
+        ]);
+        $document = $data['invoice'];
+        if ($is_credit) {
+            $document = Credit::factory()->create([
+                'client_id' => $data['client']->id,
+                'company_id' => $data['company']->id,
+                'user_id' => $this->user->id,
+                'date' => $data['invoice']->date,
+                'due_date' => $data['invoice']->due_date,
+                'line_items' => $data['invoice']->line_items,
+                'uses_inclusive_taxes' => false,
+                'discount' => 0,
+                'is_amount_discount' => false,
+                'tax_rate1' => 0, 'tax_name1' => '',
+                'tax_rate2' => 0, 'tax_name2' => '',
+                'tax_rate3' => 0, 'tax_name3' => '',
+            ])->calc()->getCredit();
+            $document->service()->createInvitations()->markSent()->save();
+        }
+        $result = $this->runAndValidate($document, 'AT => FI recipient address');
+
+        $xml = new \DOMDocument();
+        $this->assertTrue($xml->loadXML($result['xml']));
+        $xpath = new \DOMXPath($xml);
+        $endpoint = $xpath->query('//*[local-name()="AccountingCustomerParty"]/*[local-name()="Party"]/*[local-name()="EndpointID"]')->item(0);
+        $this->assertNotNull($endpoint);
+        $this->assertSame($expected_scheme, $endpoint->getAttribute('schemeID'));
+        $this->assertSame($expected_id, $endpoint->textContent);
+
+        $identifiers = $result['storecove']->getAccountingCustomerParty()->getPublicIdentifiers();
+        $this->assertSame($expected_scheme === '0088' ? '0088' : 'FI:OVT2', $identifiers[0]->getScheme());
+        $this->assertSame($expected_id, $identifiers[0]->getId());
+
+        $payload = $result['adapter']->getDocument();
+        $this->assertSame([], $payload['errors']);
+        $this->assertSame([
+            'scheme' => $expected_scheme === '0088' ? '0088' : 'FI:OVT2',
+            'id' => $expected_id,
+        ], $payload['document']['accounting_customer_party']['public_identifiers'][0]);
     }
 
     // ── FR (France) ──
@@ -1013,18 +1078,18 @@ class PeppolCountryTest extends TestCase
         ]);
         $result = $this->runAndValidate($data['invoice'], 'AT => FI (B2B)');
 
-        // Finland requires both FI:OVT (routing) and FI:VAT (tax) in publicIdentifiers.
+        // Finland requires both FI:OVT2 (routing) and FI:VAT (tax) in publicIdentifiers.
         // Storecove rejects the invoice if the receiver has no VAT-scheme identifier when VAT is present.
-        $publicIdentifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
-        $schemes = array_map(fn ($pi) => $pi->getScheme(), $publicIdentifiers);
+        $public_identifiers = $result['storecove']->getAccountingCustomerParty()?->getPublicIdentifiers() ?? [];
+        $schemes = array_map(fn ($pi) => $pi->getScheme(), $public_identifiers);
 
-        $this->assertContains('FI:OVT', $schemes, 'FI receiver must have FI:OVT (routing) in publicIdentifiers');
+        $this->assertContains('FI:OVT2', $schemes, 'FI receiver must have FI:OVT2 (routing) in publicIdentifiers');
         $this->assertContains('FI:VAT', $schemes, 'FI receiver must have FI:VAT in publicIdentifiers when invoice has VAT');
 
-        $customerEndpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
-        $this->assertNotNull($customerEndpoint, 'FI buyer must have EndpointID (OVT) when routing_id is OPID');
-        $this->assertSame('0037', $customerEndpoint->schemeID);
-        $this->assertSame('003712345678', $customerEndpoint->value);
+        $customer_endpoint = $result['peppol']->AccountingCustomerParty->Party->EndpointID ?? null;
+        $this->assertNotNull($customer_endpoint, 'FI buyer must have EndpointID (OVT2) without an operator id');
+        $this->assertSame('0216', $customer_endpoint->schemeID);
+        $this->assertSame('003712345678', $customer_endpoint->value);
     }
 
     public function testSE_to_DK_Business(): void

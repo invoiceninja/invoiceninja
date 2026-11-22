@@ -44,6 +44,14 @@ class ZipEntityTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public function testPreviouslyQueuedJobsDefaultToPdfModeWhenRestored(): void
+    {
+        $job = (new \ReflectionClass(ZipEntity::class))->newInstanceWithoutConstructor();
+        $job->__unserialize([]);
+
+        $this->assertFalse($job->xml_only);
+    }
+
     public function testInvoiceArchiveUsesProtectedDownloadPublisher(): void
     {
         config([
@@ -263,6 +271,192 @@ class ZipEntityTest extends TestCase
         $this->expectExceptionMessage('Unsupported entity class');
 
         (new ZipEntity([], $company, new User(), Company::class))->handle(new ArchiveWriter(), new TemporaryDownloadPublisher());
+    }
+
+    #[DataProvider('recoverableDocumentTypes')]
+    public function testMissingGeneratedDocumentIsRestoredOnItsOriginalDisk(string $extension, bool $throw): void
+    {
+        $this->prepareDocumentRecovery($throw);
+        $document = $this->makeMissingDocument($this->invoice->getFileName($extension));
+        // XML can have been classified as text/plain when it was uploaded.
+        $document->type = $extension === 'xml' ? 'txt' : 'pdf';
+        $document->save();
+
+        $archive = $this->exportDocuments([$document->id]);
+        $contents = $document->fresh()->getFile();
+
+        $this->assertIsString($contents);
+        $this->assertNotSame('', $contents);
+        $this->assertSame(strlen($contents), (int) $document->fresh()->size);
+        $this->assertSame($contents, $archive->getEntryContents($archive->getListFiles()[0]));
+        $this->assertNotContains('export_errors.txt', $archive->getListFiles());
+
+        if ($extension === 'xml') {
+            $xml = new \DOMDocument();
+            $this->assertTrue($xml->loadXML($contents));
+            $this->assertStringContainsString($this->invoice->number, $contents);
+        } else {
+            $this->assertStringStartsWith('%PDF-', $contents);
+        }
+
+        $archive->close();
+    }
+
+    public function testMissingEmbeddedPdfIsRestoredFromStoredSourceData(): void
+    {
+        $this->prepareDocumentRecovery();
+        $pdf = "%PDF-1.4\nOriginal embedded PDF\n%%EOF";
+        $this->invoice->e_invoice = ['Invoice' => [
+            'InvoiceTypeCode' => ['value' => 389],
+            'AdditionalDocumentReference' => [[
+                'Attachment' => ['EmbeddedDocumentBinaryObject' => [
+                    'filename' => 'original.pdf',
+                    'mimeCode' => 'application/pdf',
+                    'value' => base64_encode($pdf),
+                ]],
+            ]],
+        ]];
+        $this->invoice->save();
+        $document = $this->makeMissingDocument('original.pdf');
+
+        $archive = $this->exportDocuments([$document->id]);
+
+        $this->assertSame($pdf, $document->fresh()->getFile());
+        $this->assertSame($pdf, $archive->getEntryContents($archive->getListFiles()[0]));
+        $archive->close();
+    }
+
+    public function testSelfBilledXmlRecoveryPreservesReceivedTypeAndSourceNumber(): void
+    {
+        $this->prepareDocumentRecovery();
+        $this->invoice->e_invoice = ['Invoice' => [
+            'ID' => ['value' => 'BUYER-ISSUED-123'],
+            'InvoiceTypeCode' => ['value' => 389],
+            'DocumentCurrencyCode' => ['value' => 'USD'],
+            'IssueDate' => '2026-11-01',
+            'InvoiceLine' => [[
+                'ID' => ['value' => '1'],
+                'InvoicedQuantity' => ['amount' => '-2', 'unitCode' => 'C62'],
+            ]],
+        ]];
+        $this->invoice->save();
+        $document = $this->makeMissingDocument('received-original.xml');
+
+        $archive = $this->exportDocuments([$document->id]);
+        $xml = new \DOMDocument();
+        $this->assertTrue($xml->loadXML($document->fresh()->getFile()));
+        $xpath = new \DOMXPath($xml);
+        $xpath->registerNamespace('cbc', 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2');
+        $this->assertSame('389', $xpath->evaluate('string(/*/cbc:InvoiceTypeCode)'));
+        $this->assertSame('BUYER-ISSUED-123', $xpath->evaluate('string(/*/cbc:ID)'));
+        $this->assertSame('-2', $xpath->evaluate('string(//cbc:InvoicedQuantity)'));
+        $archive->close();
+    }
+
+    public function testUnrecoverableAttachmentDoesNotAbortOtherDocuments(): void
+    {
+        $this->prepareDocumentRecovery();
+        $missing = $this->makeMissingDocument('unavailable-upload.pdf');
+        $readable = $this->makeMissingDocument('readable.txt');
+        Storage::disk($readable->disk)->put($readable->url, 'readable attachment');
+
+        $archive = $this->exportDocuments([$missing->id, $readable->id]);
+
+        $this->assertCount(2, $archive->getListFiles());
+        $this->assertStringContainsString('unavailable-upload.pdf', $archive->getEntryContents('export_errors.txt'));
+        $entry = collect($archive->getListFiles())->first(fn ($name) => str_ends_with($name, '_readable.txt'));
+        $this->assertSame('readable attachment', $archive->getEntryContents($entry));
+        Storage::disk($missing->disk)->assertMissing($missing->url);
+        $archive->close();
+    }
+
+    public function testExistingUnreadableFileIsNotOverwritten(): void
+    {
+        $this->prepareDocumentRecovery();
+        $document = $this->makeMissingDocument($this->invoice->getFileName('xml'));
+        Storage::disk($document->disk)->put($document->url, 'existing original file');
+        $unreadable = Mockery::mock(Document::class)->makePartial();
+        $unreadable->setRawAttributes($document->getAttributes());
+        $unreadable->shouldReceive('getFile')->once()->andThrow(new RuntimeException('Temporary read failure'));
+        $job = new ZipEntity([$document->id], $this->company, $this->user, Document::class);
+
+        try {
+            (new \ReflectionMethod(ZipEntity::class, 'readDocument'))->invoke($job, $unreadable);
+            $this->fail('Existing unreadable file should not be replaced.');
+        } catch (RuntimeException $exception) {
+            $this->assertStringContainsString('exists but could not be read', $exception->getMessage());
+        }
+
+        $this->assertSame('existing original file', $document->getFile());
+    }
+
+    public function testRecoveryWriteFailureDoesNotAbortOtherDocuments(): void
+    {
+        $this->prepareDocumentRecovery();
+        $missing = $this->makeMissingDocument($this->invoice->getFileName('xml'));
+        $readable = $this->makeMissingDocument('readable.txt');
+        Storage::disk($readable->disk)->put($readable->url, 'readable attachment');
+        $disk = Mockery::mock(Storage::disk($missing->disk));
+        $disk->shouldReceive('put')->with($missing->url, Mockery::type('string'))->once()->andReturn(false);
+        Storage::set($missing->disk, $disk);
+
+        $archive = $this->exportDocuments([$missing->id, $readable->id]);
+
+        $this->assertCount(2, $archive->getListFiles());
+        $this->assertStringContainsString($missing->name, $archive->getEntryContents('export_errors.txt'));
+        $entry = collect($archive->getListFiles())->first(fn ($name) => str_ends_with($name, '_readable.txt'));
+        $this->assertSame('readable attachment', $archive->getEntryContents($entry));
+        $this->assertSame($missing->size, $missing->fresh()->size);
+        $archive->close();
+    }
+
+    public static function recoverableDocumentTypes(): array
+    {
+        return [
+            'XML returning null' => ['xml', false],
+            'XML throwing a read error' => ['xml', true],
+            'generated PDF' => ['pdf', false],
+        ];
+    }
+
+    private function prepareDocumentRecovery(bool $throw = false): void
+    {
+        config([
+            'filesystems.default' => 'public',
+            'filesystems.protected_download_disk' => 'protected-downloads',
+            'ninja.pdf_generator' => 'simulator',
+        ]);
+        Storage::fake('public');
+        Storage::fake('protected-downloads');
+        Storage::fake('source-documents', ['throw' => $throw]);
+        $this->makeTestData();
+        Queue::fake([NinjaMailerJob::class, UnlinkFile::class]);
+        Event::fake([DownloadAvailable::class]);
+    }
+
+    private function makeMissingDocument(string $name): Document
+    {
+        $document = Document::factory()->make([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => $name,
+            'type' => pathinfo($name, PATHINFO_EXTENSION),
+            'disk' => 'source-documents',
+            'url' => 'documents/' . $name,
+        ]);
+        $this->invoice->documents()->save($document);
+
+        return $document;
+    }
+
+    private function exportDocuments(array $document_ids): ZipFile
+    {
+        (new ZipEntity($document_ids, $this->company, $this->user, Document::class))
+            ->handle(new ArchiveWriter(), new TemporaryDownloadPublisher());
+        $files = Storage::disk('protected-downloads')->allFiles($this->company->file_path() . 'downloads');
+        $this->assertCount(1, $files);
+
+        return (new ZipFile())->openFromString(Storage::disk('protected-downloads')->get($files[0]));
     }
 
     public function testInvoiceArchiveFailureDoesNotPublishDownload(): void

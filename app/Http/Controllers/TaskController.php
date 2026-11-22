@@ -701,7 +701,11 @@ class TaskController extends BaseController
 
                 $task_record->status_order = $_key;
                 $task_record->status_id = $sort_status_id;
-                $task_record->save();
+
+                if ($task_record->isDirty(['status_order', 'status_id'])) {
+                    $task_record->save();
+                } 
+                
             }
         }
 

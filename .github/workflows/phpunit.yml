@@ -7,6 +7,10 @@ on:
     branches:
       - v5-develop
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
 name: phpunit
 jobs:
   run:
@@ -16,8 +20,8 @@ jobs:
       
     strategy:
       matrix:
-        operating-system: ['ubuntu-24.04']
-        php-versions: ['8.2','8.3','8.4','8.5']
+        operating-system: ['ubuntu-26.04']
+        php-versions: ['8.3','8.4','8.5']
         phpunit-versions: ['latest']
         ci_node_total: [ 8 ]
         ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
@@ -48,16 +52,19 @@ jobs:
       
     services:
       mariadb:
-        image: mariadb:10.6
+        image: mariadb:11.4
         ports:
           - 32768:3306
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: ninja
           MYSQL_PASSWORD: ninja
           MYSQL_DATABASE: ninja
           MYSQL_ROOT_PASSWORD: ninja
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
       redis:
         image: redis
         ports:
@@ -69,18 +76,6 @@ jobs:
       run: |
         sudo echo "127.0.0.1 ninja.test" | sudo tee -a /etc/hosts
 
-    - name: Start MariaDB service
-      run: |
-        sudo systemctl start mysql.service
-    - name: Verify MariaDB connection
-      env:
-        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
-        DB_PORT1: ${{ job.services.mariadb.ports[3306] }}
-
-      run: |
-        while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
-          sleep 1
-        done
     - name: Setup PHP shivammathur/setup-php@v2
       uses: shivammathur/setup-php@v2
       with:
@@ -136,6 +131,20 @@ jobs:
       run: |
         php artisan migrate && php artisan db:seed
   
+    - name: Restore test timings
+      uses: actions/cache/restore@v6
+      with:
+        path: tests/_output/ci-timings
+        key: ci-timings-${{ github.run_id }}
+        restore-keys: |
+          ci-timings-
+
+    - name: Cache Snappdf Chromium
+      uses: actions/cache@v6
+      with:
+        path: vendor/beganovich/snappdf/versions
+        key: snappdf-chromium-v1-${{ runner.os }}
+
     - name: Run Testsuite
       run: |
         cat .env
@@ -150,3 +159,45 @@ jobs:
         QUEUE_CONNECTION: sync
         CACHE_DRIVER: array
         SESSION_DRIVER: array
+
+    - name: Upload JUnit timings
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: junit-${{ matrix.php-versions }}-${{ matrix.ci_node_index }}
+        path: tests/_output/junit.xml
+        if-no-files-found: ignore
+        retention-days: 1
+
+  timings:
+    name: update test timings
+    needs: run
+    if: github.event_name == 'push' && github.ref == 'refs/heads/v5-develop' && needs.run.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 1
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+
+    - name: Download JUnit timings
+      uses: actions/download-artifact@v6
+      with:
+        pattern: junit-*
+        path: junit
+
+    - name: Merge timings
+      run: tests/ci-merge-timings junit tests/_output/ci-timings/timings.json
+
+    - name: Save test timings
+      uses: actions/cache/save@v6
+      with:
+        path: tests/_output/ci-timings
+        key: ci-timings-${{ github.run_id }}

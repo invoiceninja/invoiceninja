@@ -38,14 +38,12 @@
           readOnly: true
         updated_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
           readOnly: true
         email_error:

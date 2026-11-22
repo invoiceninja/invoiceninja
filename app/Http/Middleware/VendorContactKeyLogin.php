@@ -95,9 +95,11 @@ class VendorContactKeyLogin
 
                 return redirect($this->setRedirectPath());
             }
-        } elseif ($request->has('vendor_hash') && config('ninja.db.multi_db_enabled')) {
-            if (MultiDB::findAndSetDbByClientHash($request->input('vendor_hash'))) {
-                if ($client = Vendor::query()->where('vendor_hash', $request->input('vendor_hash'))->first()) {
+        } elseif ($this->stringInput($request, 'vendor_hash') && config('ninja.db.multi_db_enabled')) {
+            $vendorHash = $request->input('vendor_hash');
+
+            if (MultiDB::findAndSetDbByClientHash($vendorHash)) {
+                if ($client = Vendor::query()->where('vendor_hash', $vendorHash)->first()) {
                     $primary_contact = $client->primary_contact()->first();
 
                     if (empty($primary_contact->email)) {
@@ -110,8 +112,8 @@ class VendorContactKeyLogin
                     return redirect($this->setRedirectPath());
                 }
             }
-        } elseif ($request->has('vendor_hash')) {
-            if ($client = Vendor::query()->where('vendor_hash', $request->input('vendor_hash'))->first()) {
+        } elseif ($vendorHash = $this->stringInput($request, 'vendor_hash')) {
+            if ($client = Vendor::query()->where('vendor_hash', $vendorHash)->first()) {
                 $primary_contact = $client->primary_contact()->first();
 
                 if (empty($primary_contact->email)) {
@@ -148,5 +150,12 @@ class VendorContactKeyLogin
     private function setRedirectPath()
     {
         return 'vendor/purchase_orders';
+    }
+
+    private function stringInput(Request $request, string $key): ?string
+    {
+        $value = $request->input($key);
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 }

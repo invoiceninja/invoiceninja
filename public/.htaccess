@@ -20,6 +20,19 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
+<IfModule mod_mime.c>
+    # The Flutter web app (public/flutter) boots from a WASM module and ES modules
+    AddType application/wasm .wasm
+    AddType text/javascript .mjs
+</IfModule>
+
+<IfModule mod_deflate.c>
+    # Static files only: FilesMatch never matches index.php's API responses
+    <FilesMatch "\.(wasm|mjs|js|json)$">
+        SetOutputFilter DEFLATE
+    </FilesMatch>
+</IfModule>
+
 <IfModule mod_headers.c>
     # Blocks Search Engine Indexing
     Header set X-Robots-Tag "noindex, nofollow"

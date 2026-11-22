@@ -125,6 +125,7 @@ class WebhookSingle implements ShouldQueue
         ];
 
         $client = $this->makeHttpClient([
+            'allow_redirects' => false,
             'headers' => array_merge(
                 $this->normalizeHeaders($base_headers),
                 $this->normalizeHeaders($headers),

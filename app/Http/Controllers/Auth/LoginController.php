@@ -150,7 +150,7 @@ class LoginController extends BaseController
 
         return response()->json([
             'methods' => $methods,
-            'secret_required' => (bool) config('ninja.api_secret'),
+            'secret_required' => config('ninja.api_secret') && !Ninja::isHosted(),
         ], 200);
     }
 

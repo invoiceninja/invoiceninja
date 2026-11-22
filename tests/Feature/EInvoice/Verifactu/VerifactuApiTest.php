@@ -40,6 +40,12 @@ class VerifactuApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        if(empty(config('services.verifactu.ssl_key')))
+        {
+            $this->markTestSkipped('Verifactu SSL key is not set');
+        }
+
         $this->makeTestData();
     }
 

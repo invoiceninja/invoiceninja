@@ -609,6 +609,30 @@ trait AnalyticsQueries
     }
 
     /**
+     * Aging bucket boundaries, as dates in the company's timezone.
+     *
+     * A named parameter can only be bound once, so the 120 day
+     * boundary is bound twice under different names.
+     */
+    private function agingBucketDates(): array
+    {
+        $today = \Carbon\Carbon::parse($this->companyToday());
+
+        return [
+            'today' => $today->toDateString(),
+            'today_sub_1' => $today->copy()->subDays(1)->toDateString(),
+            'today_sub_30' => $today->copy()->subDays(30)->toDateString(),
+            'today_sub_31' => $today->copy()->subDays(31)->toDateString(),
+            'today_sub_60' => $today->copy()->subDays(60)->toDateString(),
+            'today_sub_61' => $today->copy()->subDays(61)->toDateString(),
+            'today_sub_90' => $today->copy()->subDays(90)->toDateString(),
+            'today_sub_91' => $today->copy()->subDays(91)->toDateString(),
+            'today_sub_120' => $today->copy()->subDays(120)->toDateString(),
+            'today_sub_120_plus' => $today->copy()->subDays(120)->toDateString(),
+        ];
+    }
+
+    /**
      * Advance a Carbon date by a recurring frequency.
      */
     private function advanceByFrequency(\Carbon\Carbon $date, int $frequencyId): ?\Carbon\Carbon
@@ -1049,6 +1073,8 @@ trait AnalyticsQueries
      */
     public function getLatePaymentRateChartQuery(string $start_date, string $end_date, int $currency_id): array
     {
+        $today = $this->companyToday();
+
         $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         return DB::select("
@@ -1056,7 +1082,7 @@ trait AnalyticsQueries
                 ROUND(
                     SUM(CASE
                         WHEN invoices.status_id = 4 AND MIN_pay.first_payment_date > invoices.due_date THEN 1
-                        WHEN invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE() THEN 1
+                        WHEN invoices.status_id IN (2, 3) AND invoices.due_date < :today THEN 1
                         ELSE 0
                     END)
                     / NULLIF(COUNT(*), 0), 4
@@ -1073,7 +1099,7 @@ trait AnalyticsQueries
             AND invoices.due_date IS NOT NULL
             AND (
                 invoices.status_id = 4
-                OR (invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE())
+                OR (invoices.status_id IN (2, 3) AND invoices.due_date < :today_overdue)
             )
             AND (invoices.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
@@ -1085,6 +1111,8 @@ trait AnalyticsQueries
             'currency_id' => $currency_id,
             'company_id' => $this->company->id,
             'company_id_pay' => $this->company->id,
+            'today' => $today,
+            'today_overdue' => $today,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
@@ -1102,6 +1130,8 @@ trait AnalyticsQueries
      */
     public function getAggregateLatePaymentRateChartQuery(string $start_date, string $end_date): array
     {
+        $today = $this->companyToday();
+
         $user_filter = $this->is_admin ? '' : 'AND invoices.user_id = ' . $this->user->id;
 
         return DB::select("
@@ -1109,7 +1139,7 @@ trait AnalyticsQueries
                 ROUND(
                     SUM(CASE
                         WHEN invoices.status_id = 4 AND MIN_pay.first_payment_date > invoices.due_date THEN 1
-                        WHEN invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE() THEN 1
+                        WHEN invoices.status_id IN (2, 3) AND invoices.due_date < :today THEN 1
                         ELSE 0
                     END)
                     / NULLIF(COUNT(*), 0), 4
@@ -1126,7 +1156,7 @@ trait AnalyticsQueries
             AND invoices.due_date IS NOT NULL
             AND (
                 invoices.status_id = 4
-                OR (invoices.status_id IN (2, 3) AND invoices.due_date < CURDATE())
+                OR (invoices.status_id IN (2, 3) AND invoices.due_date < :today_overdue)
             )
             AND (invoices.date BETWEEN :start_date AND :end_date)
             {$user_filter}
@@ -1135,6 +1165,8 @@ trait AnalyticsQueries
         ", [
             'company_id' => $this->company->id,
             'company_id_pay' => $this->company->id,
+            'today' => $today,
+            'today_overdue' => $today,
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
@@ -1155,12 +1187,12 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 SUM(invoices.balance) as total,
-                SUM(CASE WHEN invoices.due_date IS NULL OR invoices.due_date >= CURDATE() THEN invoices.balance ELSE 0 END) as current_amount,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN invoices.balance ELSE 0 END) as age_0_30,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_SUB(CURDATE(), INTERVAL 31 DAY) THEN invoices.balance ELSE 0 END) as age_31_60,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND DATE_SUB(CURDATE(), INTERVAL 61 DAY) THEN invoices.balance ELSE 0 END) as age_61_90,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 120 DAY) AND DATE_SUB(CURDATE(), INTERVAL 91 DAY) THEN invoices.balance ELSE 0 END) as age_91_120,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date < DATE_SUB(CURDATE(), INTERVAL 120 DAY) THEN invoices.balance ELSE 0 END) as age_120_plus,
+                SUM(CASE WHEN invoices.due_date IS NULL OR invoices.due_date >= :today THEN invoices.balance ELSE 0 END) as current_amount,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_30 AND :today_sub_1 THEN invoices.balance ELSE 0 END) as age_0_30,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_60 AND :today_sub_31 THEN invoices.balance ELSE 0 END) as age_31_60,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_90 AND :today_sub_61 THEN invoices.balance ELSE 0 END) as age_61_90,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_120 AND :today_sub_91 THEN invoices.balance ELSE 0 END) as age_91_120,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date < :today_sub_120_plus THEN invoices.balance ELSE 0 END) as age_120_plus,
                 COUNT(*) as outstanding_count,
                 IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) AS currency_id
             FROM invoices
@@ -1173,10 +1205,10 @@ trait AnalyticsQueries
             AND invoices.balance > 0
             {$user_filter}
             GROUP BY currency_id
-        ", [
+        ", array_merge([
             'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
-        ]);
+        ], $this->agingBucketDates()));
     }
 
     /**
@@ -1193,12 +1225,12 @@ trait AnalyticsQueries
         return DB::select("
             SELECT
                 SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
-                SUM(CASE WHEN invoices.due_date IS NULL OR invoices.due_date >= CURDATE() THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as current_amount,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_0_30,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_SUB(CURDATE(), INTERVAL 31 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_31_60,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND DATE_SUB(CURDATE(), INTERVAL 61 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_61_90,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 120 DAY) AND DATE_SUB(CURDATE(), INTERVAL 91 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_91_120,
-                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date < DATE_SUB(CURDATE(), INTERVAL 120 DAY) THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_120_plus,
+                SUM(CASE WHEN invoices.due_date IS NULL OR invoices.due_date >= :today THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as current_amount,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_30 AND :today_sub_1 THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_0_30,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_60 AND :today_sub_31 THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_31_60,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_90 AND :today_sub_61 THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_61_90,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date BETWEEN :today_sub_120 AND :today_sub_91 THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_91_120,
+                SUM(CASE WHEN invoices.due_date IS NOT NULL AND invoices.due_date < :today_sub_120_plus THEN invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1) ELSE 0 END) as age_120_plus,
                 COUNT(*) as outstanding_count
             FROM invoices
             JOIN clients
@@ -1209,9 +1241,9 @@ trait AnalyticsQueries
             AND invoices.status_id IN (2, 3)
             AND invoices.balance > 0
             {$user_filter}
-        ", [
+        ", array_merge([
             'company_id' => $this->company->id,
-        ]);
+        ], $this->agingBucketDates()));
     }
 
     // ─── Recurring Expense Analytics ────────────────────────────────

@@ -484,7 +484,7 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
     }
 
     /**
-     * FI: primary routing/legal scheme FI:OVT plus tax scheme FI:VAT — two canonical Storecove lines when both values match formats.
+     * FI: primary routing/legal scheme FI:OVT2 plus tax scheme FI:VAT — two canonical Storecove lines when both values match formats.
      */
     public function testFinlandOvtAndVatProduceDualPublicIdentifierLines(): void
     {
@@ -519,7 +519,7 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
         $pairs = CountryFactory::make('FI')->storecoveCustomerPartyPublicIdentifiers($invoice->client, $invoice, $router);
 
         $this->assertCount(2, $pairs);
-        $this->assertSame('FI:OVT', $pairs[0]['scheme']);
+        $this->assertSame('FI:OVT2', $pairs[0]['scheme']);
         $this->assertSame('003712345678', $pairs[0]['id']);
         $this->assertSame('FI:VAT', $pairs[1]['scheme']);
         $this->assertSame('FI12345678', $pairs[1]['id']);
@@ -555,7 +555,7 @@ class StorecoveCustomerPartyIdentifiersTest extends TestCase
 
         $resolved = CountryFactory::make('FI')->resolveClientEndpointScheme($client, $router);
 
-        $this->assertSame('0037', $resolved['scheme']);
+        $this->assertSame('0216', $resolved['scheme']);
         $this->assertSame('003709824102', $resolved['id']);
     }
 

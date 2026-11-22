@@ -143,6 +143,8 @@ class ZugferdInvoicePeriodTest extends TestCase
 
     public function testInvoicePeriodArtifactPassesXsdAndXsltValidation(): void
     {
+        $this->requireSaxon();
+
         $de_country_id = Country::where('iso_3166_2', 'DE')->first()->id;
         $settings = $this->company->settings;
         $settings->name = 'Invoice Period Test Seller';
@@ -213,6 +215,15 @@ class ZugferdInvoicePeriodTest extends TestCase
         $validator->validate();
 
         $this->assertSame([], $validator->getErrors(), json_encode($validator->getErrors(), JSON_PRETTY_PRINT));
+    }
+
+    private function requireSaxon(): void
+    {
+        try {
+            new \Saxon\SaxonProcessor();
+        } catch (\Throwable $e) {
+            $this->markTestSkipped('Saxon processor not installed – skipping XSLT validation');
+        }
     }
 
     private function exportXpath(?string $xml = null): DOMXPath

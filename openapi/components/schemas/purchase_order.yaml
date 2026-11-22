@@ -25,10 +25,6 @@
           description: 'The unique alpha-numeric purchase order number per company'
           type: string
           example: PO_101
-        quote_number:
-          description: 'The quote number associated with this purchase order'
-          type: string
-          example: QUOTE_101
         terms:
           description: 'The terms and conditions for the purchase order'
           type: string
@@ -141,41 +137,28 @@
           format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the purchase order was sent to the vendor'
+          description: 'The last date the purchase order was sent to the vendor, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next scheduled date for sending a reminder for the purchase order'
+          description: 'Not used: no reminders are sent for purchase orders, so this is normally an empty string'
           type: string
-          format: date
           example: '1994-07-30'
         partial_due_date:
-          description: 'The due date for the partial or deposit amount'
+          description: 'The due date for the partial or deposit amount, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date for the total amount of the purchase order'
+          description: 'The due date for the total amount of the purchase order, an empty string when not set'
           type: string
-          format: date
           example: '1994-07-30'
-        settings:
-          $ref: '#/components/schemas/CompanySettings'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: 1434342123
         updated_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         archived_at:
           description: Timestamp
-          type: number
-          format: integer
+          type: integer
           example: 1434342123
         custom_surcharge1:
           description: 'First custom surcharge amount for the purchase order'
@@ -213,10 +196,6 @@
           description: 'Boolean flag indicating if taxes are charged on the fourth custom surcharge amount'
           type: boolean
           example: true
-        backup:
-          description: 'Backup data or file reference for this purchase order'
-          type: string
-          example: 'backup_data.json'
         client_id:
           description: 'The unique identifier of the client associated with this purchase order'
           type: string
@@ -254,30 +233,22 @@
           description: 'The unique identifier of the project associated with this purchase order'
           type: string
           example: Opnel5aKBz
-        recurring_id:
-          description: 'The unique identifier of the recurring schedule'
-          type: string
-          example: Opnel5aKBz
         reminder1_sent:
-          description: 'Timestamp when the first reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the first reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
+          type: string
+          example: '1994-07-30'
         reminder2_sent:
-          description: 'Timestamp when the second reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the second reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
+          type: string
+          example: '1994-07-30'
         reminder3_sent:
-          description: 'Timestamp when the third reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the third reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
+          type: string
+          example: '1994-07-30'
         reminder_last_sent:
-          description: 'Timestamp when the last reminder was sent'
-          type: number
-          format: integer
-          example: 1234567890
+          description: 'The date the most recent reminder was sent (YYYY-MM-DD). No reminders are sent for purchase orders, so this is normally an empty string'
+          type: string
+          example: '1994-07-30'
         tags:
           description: 'Tags assigned to this entity'
           type: array
@@ -310,9 +281,8 @@
           type: object
           additionalProperties: true
         created_at:
-          description: Timestamp
-          type: number
-          format: integer
+          description: 'When the purchase order was created, as a Unix timestamp in seconds'
+          type: integer
           example: 1434342123
           readOnly: true
         subscription_id:
@@ -323,4 +293,14 @@
           description: 'The expense created from this purchase order'
           type: string
           example: Opnel5aKBz
+        documents:
+          description: 'The documents attached to the purchase order'
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        invitations:
+          description: 'The invitations of the purchase order'
+          type: array
+          items:
+            type: object
       type: object

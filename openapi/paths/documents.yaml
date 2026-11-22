@@ -4,7 +4,7 @@
       tags:
         - documents
       summary: 'Show document metadata'
-      description: 'Requires view access to the document through its related entity.'
+      description: 'Returns a document. Requires view access to the document through its related entity.'
       operationId: showDocument
       parameters:
         -
@@ -20,7 +20,14 @@
             type: string
       responses:
         200:
-          description: 'Successful response.'
+          description: 'Show document'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
               schema:
@@ -34,11 +41,13 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
     put:
       tags:
         - documents
       summary: 'Update document metadata'
-      description: 'Requires edit access to the document. Updates metadata and touches its related entity.'
+      description: 'Updates a document and returns it. Requires edit access to the document. Updates metadata and touches its related entity.'
       operationId: updateDocument
       parameters:
         -
@@ -60,7 +69,14 @@
               $ref: '#/components/schemas/DocumentUpdateRequest'
       responses:
         200:
-          description: 'Successful response.'
+          description: 'Update document'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
               schema:
@@ -74,6 +90,52 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+    delete:
+      tags:
+        - documents
+      summary: 'Delete a document'
+      description: 'Deletes a document.'
+      operationId: deleteDocumentsDocument
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          name: document
+          in: path
+          description: 'The hashed id of the document'
+          required: true
+          schema:
+            type: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Delete document'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
   '/api/v1/documents/{document}/edit':
     get:
       tags:
@@ -143,11 +205,15 @@
                           $ref: '#/components/schemas/Document'
                       meta:
                         $ref: '#/components/schemas/Meta'
+                    required:
+                      - data
                   -
                     type: object
                     properties:
                       message:
                         type: string
+                    required:
+                      - message
         401:
           $ref: '#/components/responses/401'
         403:

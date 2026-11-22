@@ -479,7 +479,10 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function timezone(): Timezone
     {
-        return Timezone::find($this->getSetting('timezone_id'));
+        /** @var \Illuminate\Support\Collection<Timezone> $timezones */
+        $timezones = app('timezones');
+
+        return $timezones->firstWhere('id', $this->getSetting('timezone_id'));
     }
 
     public function language()
@@ -1144,6 +1147,10 @@ class Client extends BaseModel implements HasLocalePreference
             return "Client has no country set!";
         }
 
+        if (\App\Services\EDocument\Support\GlnIdentifier::isValid((string) $this->routing_id)) {
+            return null;
+        }
+        
         $country_code = $this->country->iso_3166_2;
 
         $router = new \App\Services\EDocument\Gateway\Storecove\StorecoveRouter();

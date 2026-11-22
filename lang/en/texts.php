@@ -610,6 +610,8 @@ $lang = array(
     'set_now' => 'Set to now',
     'dark_mode' => 'Dark Mode',
     'dark_mode_help' => 'Use a dark background for the sidebars',
+    'follow_device_theme' => 'Follow device theme',
+    'follow_device_theme_help' => 'Automatically match your device light or dark theme.',
     'add_to_invoice' => 'Add to invoice :invoice',
     'create_new_invoice' => 'Create new invoice',
     'task_errors' => 'Please correct any overlapping times',
@@ -2128,6 +2130,8 @@ $lang = array(
     'reply_to_email' => 'Reply-To Email',
     'reply_to_email_help' => 'Specify the reply-to address for client emails.',
     'bcc_email_help' => 'Privately include this address with client emails.',
+    'disposition_notification_to' => 'Read Receipt Email',
+    'disposition_notification_to_help' => 'Recipients\' email clients may send a read receipt to this address.',
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
@@ -6576,7 +6580,19 @@ $lang = array(
     'oidc_no_token' => 'No authentication token was returned. Please return to the login page and try again.',
     'back_to_login' => 'Back to login',
     'paid_in_full' => 'Paid in full',
-
+    'needs_your_attention' => 'Needs your attention',
+    'days_late' => ':count day/s late',
+    'attach_xml' => 'Attach XML',
+    'e_invoice_line_fields' => 'E-Invoice Line Fields',
+    'e_invoice_line_fields_help' => 'Choose which PEPPOL / UBL fields appear on each line item.',
+    'order_line_reference' => 'Line order reference',
+    'order_line_reference_help' => 'The buyer\'s reference for this order line.',
+    'buyer_item_identifier' => 'Buyer item identifier',
+    'buyer_item_identifier_help' => 'The buyer\'s identifier for this item.',
+    'seller_item_identifier' => 'Seller item identifier',
+    'seller_item_identifier_help' => 'The seller\'s identifier for this item.',
+    'order_reference' => 'Order reference',
+    'order_reference_help' => 'The buyer\'s reference for this order.',
 );
 
 return $lang;

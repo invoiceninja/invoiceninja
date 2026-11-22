@@ -24,6 +24,7 @@ use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Repositories\PaymentRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -410,6 +411,7 @@ class PaymentTest extends TestCase
 
     public function testNegativePaymentPaidToDate()
     {
+        config(['queue.default' => 'sync']);
 
         $c = Client::factory()->create([
            'user_id' => $this->user->id,
@@ -451,9 +453,9 @@ class PaymentTest extends TestCase
         $this->assertEquals(0, $c->balance);
         $this->assertEquals(-500, $c->paid_to_date);
         $this->assertEquals(0, $c->credit_balance);
-        $this->assertEquals(0, $c->payment_balance);
+        $this->assertEquals(-500, $c->payment_balance);
 
-        $p = $payment->service()->deletePayment()->save();
+        app(PaymentRepository::class)->delete($payment);
 
         $c = $c->fresh();
 

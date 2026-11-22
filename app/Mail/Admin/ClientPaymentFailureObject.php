@@ -39,9 +39,9 @@ class ClientPaymentFailureObject
      * Create a new job instance.
      *
      * @param $client
-     * @param $message
+     * @param $error
      * @param $company
-     * @param $amount
+     * @param $payment_hash
      */
     public function __construct($client, $error, $company, $payment_hash)
     {
@@ -74,9 +74,14 @@ class ClientPaymentFailureObject
         $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $data['subject'];
-        $mail_obj->data = $this->getData();
+        $mail_obj->data = $data;
 
-        $mail_obj->markdown = 'email.template.client';
+        $mail_obj->markdown = match ($data['settings']->email_style) {
+            'plain' => 'email.template.plain',
+            'premium' => 'email.template.client_premium',
+            'custom' => 'email.template.custom',
+            default => 'email.template.client',
+        };
         $mail_obj->tag = $this->company->company_key;
         $mail_obj->text_view = 'email.template.text';
 
@@ -120,6 +125,13 @@ class ClientPaymentFailureObject
             throw new \Exception('Unable to find invitation for reference');
         }
 
+        $settings = $this->client->getMergedSettings();
+        $content = $this->getBody();
+
+        if ($settings->email_style === 'custom') {
+            $content = str_replace('$body', $content, $settings->email_style_custom ?? '');
+        }
+
         $signature = $this->client->getSetting('email_signature');
         $html_variables = (new HtmlEngine($invitation))->makeValues();
 
@@ -128,21 +140,20 @@ class ClientPaymentFailureObject
 
         $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
         $subject = str_replace(array_keys($html_variables), array_values($html_variables), $this->getSubject());
-        $content = str_replace(array_keys($html_variables), array_values($html_variables), $this->getBody());
+        $content = str_replace(array_keys($html_variables), array_values($html_variables), $content);
 
         $data = [
             'subject' => $subject,
             'body' => $content,
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
-            'settings' => $this->client->getMergedSettings(),
+            'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'url' => $this->invoices->first()->invitations->first()->getPaymentLink(),
             'button' => ctrans('texts.pay_now'),
-            'additional_info' => false,
+            'additional_info' => $this->error ?? '',
             'company' => $this->company,
             'text_body' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(',', $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
-            'additional_info' => $this->error ?? '',
         ];
 
         return $data;

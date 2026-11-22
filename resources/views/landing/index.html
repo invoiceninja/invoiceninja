@@ -1,0 +1,367 @@
+<!doctype html>
+<!-- The invoicing.co landing page (docs/web-deploy.md § The landing page).
+     Source: tools/web_deploy/landing/landing.html in invoiceninja/app,
+     rendered by tools/web_deploy/render_landing.py from apps.json. Edit the
+     JSON for a link or a requirement, this file for the layout. The backend's
+     copy (resources/views/landing/index.html and public/landing/) is
+     generated: edit it here, then run tools/web_deploy/export_landing.sh. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Invoice Ninja</title>
+<meta name="description" content="Open Invoice Ninja in your browser, or get the apps for Mac, Windows, Linux, iPhone, iPad and Android.">
+<style>
+@font-face { font-family: "Inter Tight"; src: url("/landing/fonts/InterTight.ttf?v=b81b73dcb6"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("/landing/fonts/JetBrainsMono.ttf?v=48715a42ec"); font-weight: 100 900; font-display: swap; }
+
+/* Tokens: the app's Sand (light) and Carbon (dark) palettes, lib/app/design_tokens.dart */
+:root {
+  --bg: #F5F4F0; --surface: #FFFFFF; --surface-alt: #F5F4F0;
+  --border: #E4E1DA; --border-strong: #CFCBC2; --border-hover: #B9B4A9;
+  --ink: #1B1A17; --ink2: #55524C; --ink3: #6B6862; --ink4: #8A867E;
+  --link: #1F56C4; --link-hover: #163F94;
+  --btn: #1F56C4; --btn-hover: #163F94;
+  --accent-soft: #E9EEFA; --accent-line: #C9D6F3;
+  --panel-web: #E9EEFA; --panel-app: #EFEDE8;
+  --row-here: #F2F5FC;
+  --paid: #17694A; --paid-soft: #E3F3EA;
+  --warn: #8A5A12; --warn-soft: #F6EBD3;
+  --card-shadow: 0 1px 0 rgba(0,0,0,.02), 0 12px 32px -16px rgba(31,86,196,.35);
+  --shot-shadow-web: 0 -1px 0 #D3DCF2, 0 8px 24px rgba(20,40,90,.12);
+  --shot-shadow-app: 0 -1px 0 #E0DDD5, 0 8px 24px rgba(0,0,0,.08);
+  --logo: url("/landing/img/logo_light.png?v=f4fd11aced");
+  --flutter-shot: url("/landing/img/web-flutter-light.jpg?v=6a95e8bb12");
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --surface: #0E0E0E; --surface-alt: #161616;
+    --border: #1F1F1F; --border-strong: #2E2E2E; --border-hover: #3A3A3A;
+    --ink: #F2F2F2; --ink2: #B8B8B8; --ink3: #9A9A9A; --ink4: #7D7D7D;
+    --link: #7AB4E8; --link-hover: #A9CFF2;
+    --btn: #2369A8; --btn-hover: #2F7DC3;
+    --accent-soft: #152538; --accent-line: #24456B;
+    --panel-web: #0F1A2B; --panel-app: #161616;
+    --row-here: #0F1720;
+    --paid: #4CC38A; --paid-soft: #153028;
+    --warn: #E0B05A; --warn-soft: #2A2112;
+    --card-shadow: none; --shot-shadow-web: 0 8px 24px rgba(0,0,0,.5); --shot-shadow-app: 0 8px 24px rgba(0,0,0,.5);
+    --logo: url("/landing/img/logo_dark.png?v=c904ed152e");
+    --flutter-shot: url("/landing/img/web-flutter-dark.jpg?v=3df11171fe");
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --surface: #0E0E0E; --surface-alt: #161616;
+  --border: #1F1F1F; --border-strong: #2E2E2E; --border-hover: #3A3A3A;
+  --ink: #F2F2F2; --ink2: #B8B8B8; --ink3: #9A9A9A; --ink4: #7D7D7D;
+  --link: #7AB4E8; --link-hover: #A9CFF2;
+  --btn: #2369A8; --btn-hover: #2F7DC3;
+  --accent-soft: #152538; --accent-line: #24456B;
+  --panel-web: #0F1A2B; --panel-app: #161616;
+  --row-here: #0F1720;
+  --paid: #4CC38A; --paid-soft: #153028;
+  --warn: #E0B05A; --warn-soft: #2A2112;
+  --card-shadow: none; --shot-shadow-web: 0 8px 24px rgba(0,0,0,.5); --shot-shadow-app: 0 8px 24px rgba(0,0,0,.5);
+  --logo: url("/landing/img/logo_dark.png?v=c904ed152e");
+  --flutter-shot: url("/landing/img/web-flutter-dark.jpg?v=3df11171fe");
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--link-hover); }
+a:focus-visible { outline: 3px solid var(--btn); outline-offset: 2px; border-radius: 6px; }
+h1, h2, h3, p { margin: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+svg.b { width: 1em; height: 1em; fill: currentColor; flex: none; }
+.mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+.page { max-width: 1080px; margin: 0 auto; padding: 28px 24px 0; display: flex; flex-direction: column; gap: 72px; }
+
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.logo { display: block; width: 172px; height: 40px; background: var(--logo) left center / contain no-repeat; }
+
+.banner { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 14px 16px; border-radius: 10px; background: var(--warn-soft); border: 1px solid var(--border); margin-bottom: -40px; }
+.banner > svg { flex: none; color: var(--warn); }
+.banner .text { flex: 1; min-width: 240px; }
+.banner strong { display: block; }
+.banner p { margin-top: 2px; color: var(--ink2); }
+.banner .btn-sm { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 14px; }
+
+/* Hero */
+.hero { display: flex; flex-direction: column; gap: 36px; }
+.intro { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+h1 { font-size: clamp(40px, 6vw, 64px); line-height: 1; letter-spacing: -0.045em; font-weight: 700; }
+.lede { font-size: 19px; line-height: 1.5; color: var(--ink2); text-wrap: pretty; }
+.portal { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 14px; color: var(--ink2); padding: 8px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.portal b { color: var(--ink); font-weight: 500; }
+
+.web { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+.card.primary { border: 1.5px solid var(--btn); box-shadow: var(--card-shadow); }
+.panel { display: block; padding: 24px 24px 0; height: 260px; overflow: hidden; }
+.panel.web-p { background: var(--panel-web); }
+.panel.app-p { background: var(--panel-app); }
+.shot { width: 100%; height: 100%; border-radius: 8px 8px 0 0; background: var(--surface) left top / cover no-repeat; }
+.shot.react { background-image: url("/landing/img/web-react.jpg?v=64e6791221"); box-shadow: var(--shot-shadow-web); }
+.shot.flutter { background-image: var(--flutter-shot); box-shadow: var(--shot-shadow-app); }
+.body { padding: 26px 28px 28px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 27px; }
+.card h2 { font-size: 22px; letter-spacing: -0.02em; font-weight: 600; }
+.card h2 a { color: inherit; }
+.tag { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--link); }
+.tag.last { background: var(--paid-soft); color: var(--paid); }
+.card p { font-size: 15.5px; line-height: 1.6; color: var(--ink2); text-wrap: pretty; flex: 1; }
+.open { display: flex; justify-content: center; align-items: center; min-height: 52px; border-radius: 12px; font-weight: 600; font-size: 17px; margin-top: 6px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink); }
+.open:hover { background: var(--surface-alt); color: var(--ink); }
+.open.fill { background: var(--btn); border-color: var(--btn); color: #fff; }
+.open.fill:hover { background: var(--btn-hover); color: #fff; }
+.tech { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 28px; font-size: 12px; color: var(--ink4); }
+.tech a { display: inline-flex; align-items: center; gap: 6px; color: var(--ink4); }
+.tech a:hover { color: var(--ink); }
+.tech .gh { font-size: 13px; }
+.tech .react { color: #149ECA; font-size: 13px; } .tech .flutter { color: #027DFD; font-size: 13px; }
+
+/* Sections */
+.sec { display: flex; flex-direction: column; gap: 24px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+.sec-head h2 { font-size: 28px; letter-spacing: -0.03em; font-weight: 600; }
+.sec-note { font-size: 14.5px; color: var(--ink3); }
+.groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; align-items: start; }
+.group { display: flex; flex-direction: column; gap: 10px; }
+.group h3 { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink4); }
+.list { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.item { display: flex; align-items: center; gap: 16px; padding: 18px 20px; background: var(--surface); flex-wrap: wrap; }
+.item.here { background: var(--row-here); }
+.tile { width: 40px; height: 40px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border); display: grid; place-items: center; flex: none; font-size: 22px; }
+.item .meta { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 3px; }
+.item .name { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
+.here-tag { font-size: 11.5px; font-weight: 600; color: var(--link); background: var(--surface); border: 1px solid var(--accent-line); padding: 1px 7px; border-radius: 6px; }
+.item .req { font-size: 13.5px; color: var(--ink3); }
+.stores { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.stores .main { display: inline-flex; align-items: center; min-height: 32px; font-size: 14.5px; font-weight: 500; white-space: nowrap; }
+.stores .main.fill { min-height: 40px; padding: 0 16px; border-radius: 9px; background: var(--btn); color: #fff; font-size: 14px; font-weight: 600; }
+.stores .main.fill:hover { background: var(--btn-hover); color: #fff; }
+.stores .alt { font-size: 12.5px; color: var(--ink4); }
+.stores .alt a { color: var(--ink3); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 2px; }
+.stores .alt a:hover { color: var(--ink); }
+
+.rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+.row { display: flex; gap: 16px; align-items: flex-start; padding: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; color: var(--ink); }
+.row:hover { border-color: var(--border-hover); color: var(--ink); }
+.row .meta { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.row strong { font-size: 16px; font-weight: 600; }
+.row .desc { font-size: 14px; line-height: 1.5; color: var(--ink3); }
+.row .go { color: var(--ink4); font-size: 18px; }
+
+/* More from the team: a section like the others, its links left-aligned */
+.team-links { display: flex; gap: 40px; flex-wrap: wrap; }
+.team-links a { display: flex; align-items: center; gap: 12px; min-height: 44px; color: var(--ink); }
+.team-links a:hover { color: var(--link); }
+.team-links img { width: 36px; height: 36px; border-radius: 50%; flex: none; box-shadow: 0 0 0 1px var(--border-strong); }
+.team-links strong { display: block; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.team-links .desc { display: block; font-size: 14px; color: var(--ink3); line-height: 1.3; }
+
+footer { margin-top: -24px; border-top: 1px solid var(--border); padding: 20px 0 32px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--ink4); font-size: 13px; }
+footer nav { display: flex; gap: 8px 20px; flex-wrap: wrap; }
+footer a { color: var(--ink4); }
+footer a:hover { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .page { padding: 20px 16px 0; gap: 48px; }
+  .logo { width: 150px; height: 35px; }
+  .lede { font-size: 17px; }
+  .panel { height: 180px; padding: 16px 16px 0; }
+  .body { padding: 20px; }
+  .sec-head h2 { font-size: 24px; }
+  .item { padding: 14px 16px; }
+  .stores { flex-basis: 100%; align-items: flex-start; padding-left: 56px; }
+  .groups.mobile-first { display: flex; flex-direction: column-reverse; }
+  .portal { width: 100%; display: block; line-height: 1.5; }
+  footer { margin-top: -8px; }
+}
+</style>
+<script src="/landing/icons.js?v=7864c2fd42"></script>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <a class="logo" href="https://invoiceninja.com" aria-label="Invoice Ninja home"></a>
+    <!-- A client portal lives on its company's own subdomain or domain, so the only way in is the invoice email's link. -->
+    <p class="portal"><span>Paying an invoice?</span> <b>Open the link in the invoice email you received.</b></p>
+  </header>
+
+  <div id="banner-moved" class="banner" role="status" hidden>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+    <div class="text"><strong>The web app that used to be here has moved.</strong>
+      <p>Your data is unchanged. The closest match is Invoice Ninja App, or choose below.</p></div>
+    <a class="btn-sm" href="https://admin.invoicing.co">Open Invoice Ninja App →</a>
+  </div>
+  <div id="banner-installed" class="banner" role="status" hidden>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 17h6"/></svg>
+    <div class="text"><strong>This installed app is out of date.</strong>
+      <p>Open one of the web apps below and install it from your browser's address bar, then uninstall this one.</p></div>
+  </div>
+
+  <section class="hero" aria-labelledby="h1">
+    <div class="intro">
+      <h1 id="h1">Open Invoice Ninja</h1>
+      <p class="lede">Pick a web app for this browser, or get Invoice Ninja for your computer and phone.</p>
+    </div>
+    <div class="web">
+      <article class="card primary" id="card-web">
+        <a class="panel web-p" href="https://app.invoicing.co" tabindex="-1" aria-hidden="true"><div class="shot react"></div></a>
+        <div class="body">
+          <div class="title-row">
+            <h2><a href="https://app.invoicing.co" tabindex="-1">Invoice Ninja Web</a></h2>
+            <span class="tag">Recommended</span><span class="tag last" hidden>Last used</span>
+          </div>
+          <p>Designed for the browser from the ground up. The best fit if you mostly work on the web.</p>
+          <a class="open fill" href="https://app.invoicing.co">Open Invoice Ninja Web</a>
+          <div class="tech mono"><span data-icon="react" class="react"></span><span>React</span><span aria-hidden="true">·</span><a href="https://github.com/invoiceninja/web" title="View the source on GitHub"><span data-icon="github" class="gh"></span>invoiceninja/web</a></div>
+        </div>
+      </article>
+      <article class="card" id="card-app">
+        <a class="panel app-p" href="https://admin.invoicing.co" tabindex="-1" aria-hidden="true"><div class="shot flutter"></div></a>
+        <div class="body">
+          <div class="title-row">
+            <h2><a href="https://admin.invoicing.co" tabindex="-1">Invoice Ninja App</a></h2>
+            <span class="tag last" hidden>Last used</span>
+          </div>
+          <p>The same app as Invoice Ninja for Mac, Windows, Linux, iPhone and Android, so it looks and works the same on every device.</p>
+          <a class="open" href="https://admin.invoicing.co">Open Invoice Ninja App</a>
+          <div class="tech mono"><span data-icon="flutter" class="flutter"></span><span>Flutter</span><span aria-hidden="true">·</span><a href="https://github.com/invoiceninja/app" title="View the source on GitHub"><span data-icon="github" class="gh"></span>invoiceninja/app</a></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-apps">
+    <div class="sec-head"><h2 id="h-apps">Get the apps</h2><p class="sec-note">Free to download. Sign in with the same account.</p></div>
+    <div class="groups" id="groups">
+      <div class="group"><h3>Desktop</h3><div class="list" id="list-desktop"></div></div>
+      <div class="group"><h3>Mobile</h3><div class="list" id="list-mobile"></div></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-addons">
+    <div class="sec-head"><h2 id="h-addons">Add-ons</h2></div>
+    <div class="rows">
+      <a class="row" href="https://chromewebstore.google.com/detail/invoice-ninja-tasks/dlfcbfdpemfnjbjlladogijcchfmmaaf">
+        <span class="tile" style="color:#4285F4" data-icon="googlechrome"></span>
+        <span class="meta"><strong>Chrome Extension</strong><span class="desc">Start, stop and log task time from your browser toolbar.</span></span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
+      <a class="row" href="https://wordpress.org/plugins/invoiceninja/">
+        <span class="tile" style="color:var(--ink)" data-icon="wordpress"></span>
+        <span class="meta"><strong>WordPress Plugin</strong><span class="desc">Connect your WordPress site: sell your products, and every order becomes an invoice.</span></span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="h-team">
+    <div class="sec-head"><h2 id="h-team">More from the Invoice Ninja team</h2></div>
+    <div class="team-links">
+      <a href="https://docuninja.co"><img src="/landing/img/ninja-icon.png?v=e0a0e00b49" alt=""><span><strong>DocuNinja</strong><span class="desc">Document signing</span></span></a>
+      <a href="https://eventschedule.com"><img src="/landing/img/eventschedule.png?v=22bd28174c" alt=""><span><strong>Event Schedule</strong><span class="desc">Free event calendar and ticketing</span></span></a>
+    </div>
+  </section>
+
+  <footer>
+    <span>© Invoice Ninja</span>
+    <nav><a href="https://invoiceninja.com">invoiceninja.com</a><a href="https://invoiceninja.github.io">Documentation</a><a href="https://invoiceninja.com/privacy-policy/">Privacy</a><a href="https://invoiceninja.com/terms/">Terms</a></nav>
+  </footer>
+</div>
+
+<script>
+function icon(name) { return '<svg class="b" viewBox="0 0 24 24" aria-hidden="true"><path d="' + BRAND_PATHS[name] + '"/></svg>'; }
+
+// Every platform, from apps.json (min_os is pinned to the build files).
+var APPS = [{"id": "windows", "group": "desktop", "name": "Windows", "icon": "windows", "color": "#0078D4", "min_os": "Windows 10 or later", "store": ["Microsoft Store", "https://apps.microsoft.com/detail/9n3f2bbcfdr6"]}, {"id": "mac", "group": "desktop", "name": "Mac", "icon": "apple", "color": "ink", "min_os": "macOS 12 or later", "store": ["Mac App Store", "https://apps.apple.com/us/app/invoice-ninja/id1503970375?platform=mac"]}, {"id": "linux", "group": "desktop", "name": "Linux", "icon": "linux", "color": "ink", "min_os": "Most distributions", "store": ["Snap Store", "https://snapcraft.io/invoiceninja"], "alt": [["Flathub", "https://flathub.org/apps/com.invoiceninja.InvoiceNinja"], ["AppImage", "https://github.com/invoiceninja/app/releases/latest"]]}, {"id": "android", "group": "mobile", "name": "Android", "icon": "android", "color": "#3DDC84", "min_os": "Android 8.0 or later", "store": ["Google Play", "https://play.google.com/store/apps/details?id=com.invoiceninja.app"], "alt": [["F-Droid", "https://f-droid.org/packages/com.invoiceninja.admin/"]]}, {"id": "ios", "group": "mobile", "name": "iPhone & iPad", "icon": "apple", "color": "ink", "min_os": "iOS 15 or later", "store": ["App Store", "https://apps.apple.com/us/app/invoice-ninja/id1503970375"]}];
+
+var q = new URLSearchParams(location.search);
+// Preview switches, for screenshots: ?theme= ?device=mac|windows|linux|ios|android|none ?state=moved|installed ?last=web|app
+if (q.get('theme')) document.documentElement.dataset.theme = q.get('theme');
+function detectDevice() {
+  if (q.get('device')) return q.get('device') === 'none' ? null : q.get('device');
+  var ua = navigator.userAgent;
+  if (/Android/i.test(ua)) return 'android';
+  if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return 'ios';
+  if (/Macintosh/.test(ua)) return 'mac';
+  if (/Windows/.test(ua)) return 'windows';
+  if (/Linux/.test(ua)) return 'linux';
+  return null;
+}
+var device = detectDevice();
+
+function item(a) {
+  var here = a.id === device;
+  var color = a.color === 'ink' ? 'var(--ink)' : a.color;
+  var alt = a.alt ? '<span class="alt">or ' + a.alt.map(function (l) { return '<a href="' + l[1] + '">' + l[0] + '</a>'; }).join(' · ') + '</span>' : '';
+  return '<div class="item' + (here ? ' here' : '') + '">' +
+    '<span class="tile" style="color:' + color + '">' + icon(a.icon) + '</span>' +
+    '<div class="meta"><span class="name">' + a.name + (here ? '<span class="here-tag">This device</span>' : '') + '</span><span class="req">' + a.min_os + '</span></div>' +
+    '<div class="stores"><a class="main' + (here ? ' fill' : '') + '" href="' + a.store[1] + '">' + a.store[0] + ' →</a>' + alt + '</div></div>';
+}
+['desktop', 'mobile'].forEach(function (g) {
+  document.getElementById('list-' + g).innerHTML = APPS.filter(function (a) { return a.group === g; }).map(item).join('');
+});
+if (device === 'ios' || device === 'android') document.getElementById('groups').classList.add('mobile-first');
+document.querySelectorAll('[data-icon]').forEach(function (el) { el.innerHTML = icon(el.dataset.icon); });
+
+// The web app this browser opened last, set when either is opened from here.
+var LAST_KEY = 'invoiceninja.landing.last';
+function storageGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+var state = q.get('state');
+var last = q.get('last') || storageGet(LAST_KEY);
+// The old web app lived at this origin and left its flutter.* keys behind.
+var hadOldApp = false;
+try { hadOldApp = Object.keys(localStorage).some(function (k) { return k.indexOf('flutter.') === 0; }); } catch (e) {}
+if (state === 'moved' || (!state && hadOldApp)) document.getElementById('banner-moved').hidden = false;
+if (state === 'installed' || (!state && window.matchMedia('(display-mode: standalone)').matches)) document.getElementById('banner-installed').hidden = false;
+if (last === 'web' || last === 'app') document.querySelector((last === 'app' ? '#card-app' : '#card-web') + ' .tag.last').hidden = false;
+// What the visitor arrived with goes on to the app they pick: a sign-up link's
+// ?signup=true and ?rc= (React's route is #/register, this app's the query),
+// UTM tags, and an old bookmark's #/route (this app's own route table, which
+// maps admin-portal's; React's routes differ, so it opens at its start).
+var arrived = new URLSearchParams(location.search);
+var signup = arrived.get('signup') === 'true';
+var rc = arrived.get('rc') || '';
+var oldRoute = /^#\/./.test(location.hash) ? location.hash : '';
+function forward(url, which) {
+  var u = new URL(url);
+  arrived.forEach(function (value, key) {
+    if (key.indexOf('utm_') === 0) u.searchParams.append(key, value);
+  });
+  if (which === 'app') {
+    if (signup) u.searchParams.set('signup', 'true');
+    if (rc) u.searchParams.set('rc', rc);
+    if (oldRoute) u.hash = oldRoute;
+  } else if (signup || rc) {
+    u.hash = '/register' + (rc ? '?rc=' + encodeURIComponent(rc) : '');
+  }
+  return u.toString();
+}
+document.querySelectorAll('a[href="https://app.invoicing.co"], a[href="https://admin.invoicing.co"]').forEach(function (a) {
+  var which = a.getAttribute('href') === 'https://admin.invoicing.co' ? 'app' : 'web';
+  a.href = forward(a.getAttribute('href'), which === 'app' ? 'app' : 'react');
+  a.addEventListener('click', function () {
+    try { localStorage.setItem(LAST_KEY, which); } catch (e) {}
+  });
+});
+
+// Every link on this page opens in a new tab, the two web apps included.
+document.querySelectorAll('a[href^="http"]').forEach(function (a) {
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.insertAdjacentHTML('beforeend', '<span class="sr-only"> (opens in a new tab)</span>');
+});
+</script>
+</body>
+</html>

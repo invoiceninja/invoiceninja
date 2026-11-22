@@ -106,9 +106,11 @@ class ContactKeyLogin
 
                 return redirect($this->setRedirectPath());
             }
-        } elseif ($request->has('client_hash') && config('ninja.db.multi_db_enabled')) {
-            if (MultiDB::findAndSetDbByClientHash($request->input('client_hash'))) {
-                if ($client = Client::query()->where('client_hash', $request->input('client_hash'))->first()) {
+        } elseif ($this->stringInput($request, 'client_hash') && config('ninja.db.multi_db_enabled')) {
+            $clientHash = $request->input('client_hash');
+
+            if (MultiDB::findAndSetDbByClientHash($clientHash)) {
+                if ($client = Client::query()->where('client_hash', $clientHash)->first()) {
                     $primary_contact = $client->primary_contact()->first();
 
                     if (empty($primary_contact->email)) {
@@ -121,8 +123,8 @@ class ContactKeyLogin
                     return redirect($this->setRedirectPath());
                 }
             }
-        } elseif ($request->has('client_hash')) {
-            if ($client = Client::query()->where('client_hash', $request->input('client_hash'))->first()) {
+        } elseif ($clientHash = $this->stringInput($request, 'client_hash')) {
+            if ($client = Client::query()->where('client_hash', $clientHash)->first()) {
                 $primary_contact = $client->primary_contact()->first();
 
                 if (empty($primary_contact->email)) {
@@ -177,5 +179,12 @@ class ContactKeyLogin
         } elseif ((bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)) {
             return '/client/expenses';
         }
+    }
+
+    private function stringInput(Request $request, string $key): ?string
+    {
+        $value = $request->input($key);
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 }

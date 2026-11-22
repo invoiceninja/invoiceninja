@@ -384,7 +384,7 @@ trait MakesInvoiceValues
      */
     private function makeLineTaxes(): string
     {
-        $tax_map = $this->calc()->getTaxMap();
+        $tax_map = $this->calc()->getTaxMapForDisplay();
         $entity = $this->client ? $this->client : $this->vendor;
 
         $data = '';
@@ -453,7 +453,7 @@ trait MakesInvoiceValues
 
     private function lineTaxLabels(): string
     {
-        $tax_map = $this->calc()->getTaxMap();
+        $tax_map = $this->calc()->getTaxMapForDisplay();
 
         $data = '';
 
@@ -466,7 +466,7 @@ trait MakesInvoiceValues
 
     private function lineTaxValues(): string
     {
-        $tax_map = $this->calc()->getTaxMap();
+        $tax_map = $this->calc()->getTaxMapForDisplay();
         $entity = $this->client ? $this->client : $this->vendor;
 
         $data = '';

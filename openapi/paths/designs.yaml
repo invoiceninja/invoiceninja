@@ -4,7 +4,7 @@
       tags:
         - designs
       summary: 'Apply a default design'
-      description: 'Administrator only. Updates existing entities at company, group settings or client scope.'
+      description: 'Sets a design as the default for an entity at the company, group or client settings level. Administrator only. Updates existing entities at company, group settings or client scope.'
       operationId: setDefaultDesign
       parameters:
         -
@@ -19,7 +19,14 @@
               $ref: '#/components/schemas/DesignDefaultRequest'
       responses:
         200:
-          description: 'Successful response.'
+          description: 'Default design'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
               schema:
@@ -33,3 +40,5 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'

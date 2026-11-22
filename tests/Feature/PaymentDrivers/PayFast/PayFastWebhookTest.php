@@ -135,6 +135,13 @@ class PayFastWebhookTest extends TestCase
             'client_id' => $this->client->id,
         ]);
 
+        $ii = \App\Models\InvoiceInvitation::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_contact_id' => $this->client->contacts()->first()->id,
+            'invoice_id' => $invoice->id,
+        ]);
+
         $data = [
             'amount_with_fee' => $amount,
             'invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => $amount]],

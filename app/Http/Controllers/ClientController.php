@@ -98,11 +98,11 @@ class ClientController extends BaseController
      */
     public function index(ClientFilters $filters)
     {
-        set_time_limit(45);
+        return $this->withinTimeLimit(45, function () use ($filters) {
+            $clients = Client::filter($filters)->with('tags');
 
-        $clients = Client::filter($filters)->with('tags');
-
-        return $this->listResponse($clients);
+            return $this->listResponse($clients);
+        });
     }
 
     /**
@@ -185,6 +185,10 @@ class ClientController extends BaseController
         $user = auth()->user();
 
         $client = ClientFactory::create($user->company()->id, $user->id);
+
+        $settings = $client->settings;
+        $settings->currency_id = (string) $user->company()->settings->currency_id;
+        $client->settings = $settings;
 
         return $this->itemResponse($client);
     }

@@ -25,6 +25,7 @@ use App\Models\RecurringInvoice;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Services\Chart\ChartService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
@@ -1539,6 +1540,45 @@ class AnalyticsQueriesTest extends TestCase
         $this->assertEqualsWithDelta(1.0, (float) $results[0]->total, 0.0001);
     }
 
+    public function testLatePaymentRateChartUsesTheCompanyDate(): void
+    {
+        $settings = $this->test_company->settings;
+        $settings->timezone_id = (string) app('timezones')->firstWhere('name', 'Pacific/Auckland')->id;
+        $this->test_company->settings = $settings;
+        $this->test_company->save();
+
+        $date = now('Pacific/Auckland')->subDays(10)->format('Y-m-d');
+
+        // Overdue by one day in Auckland
+        Invoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 100.00,
+            'balance' => 100.00,
+            'paid_to_date' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => $date,
+            'due_date' => now('Pacific/Auckland')->subDay()->format('Y-m-d'),
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        // The database server's date is at least a day behind Auckland
+        DB::statement("SET time_zone = '-12:00'");
+
+        $cs = $this->getService();
+        $results = $cs->getLatePaymentRateChartQuery($date, $date, 1);
+        $aggregate = $cs->getAggregateLatePaymentRateChartQuery($date, $date);
+
+        DB::statement("SET time_zone = 'SYSTEM'");
+
+        $this->assertCount(1, $results);
+        $this->assertEqualsWithDelta(1.0, (float) $results[0]->total, 0.0001);
+        $this->assertCount(1, $aggregate);
+        $this->assertEqualsWithDelta(1.0, (float) $aggregate[0]->total, 0.0001);
+    }
+
     // ─── Chart Queries: AR Aging Buckets ────────────────────────────
 
     public function testAgingBucketTotalsDistributeCorrectly(): void
@@ -1655,6 +1695,43 @@ class AnalyticsQueriesTest extends TestCase
         $this->assertCount(1, $results);
         // 200 / 2 = 100 in company currency
         $this->assertEqualsWithDelta(100.00, $results[0]->current_amount, 0.01);
+    }
+
+    public function testAgingBucketsUseTheCompanyDate(): void
+    {
+        $settings = $this->test_company->settings;
+        $settings->timezone_id = (string) app('timezones')->firstWhere('name', 'Pacific/Auckland')->id;
+        $this->test_company->settings = $settings;
+        $this->test_company->save();
+
+        // Overdue by one day in Auckland
+        Invoice::factory()->create([
+            'client_id' => $this->test_client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->test_company->id,
+            'amount' => 100.00,
+            'balance' => 100.00,
+            'status_id' => Invoice::STATUS_SENT,
+            'date' => now('Pacific/Auckland')->subDays(10)->format('Y-m-d'),
+            'due_date' => now('Pacific/Auckland')->subDay()->format('Y-m-d'),
+            'is_deleted' => false,
+            'exchange_rate' => 1,
+        ]);
+
+        // The database server's date is at least a day behind Auckland
+        DB::statement("SET time_zone = '-12:00'");
+
+        $cs = $this->getService();
+        $results = $cs->getAgingBucketTotals();
+        $aggregate = $cs->getAggregateAgingBucketTotals();
+
+        DB::statement("SET time_zone = 'SYSTEM'");
+
+        $this->assertCount(1, $results);
+        $this->assertEqualsWithDelta(0, $results[0]->current_amount, 0.01);
+        $this->assertEqualsWithDelta(100.00, $results[0]->age_0_30, 0.01);
+        $this->assertEqualsWithDelta(0, $aggregate[0]->current_amount, 0.01);
+        $this->assertEqualsWithDelta(100.00, $aggregate[0]->age_0_30, 0.01);
     }
 
     // ─── Service Layer: analytics_summary / analytics_totals ────────
