@@ -555,7 +555,7 @@ class Hosted implements MethodInterface, LivewireMethodInterface
                 SystemLog::TYPE_CHIPINASIA,
                 $this->driver->client,
                 $this->driver->client->company,
-            );
+            )->afterCommit();
 
             return $payment;
         });

@@ -13,6 +13,7 @@
 namespace Tests\Unit\PaymentDrivers\ChipInAsia;
 
 use App\Exceptions\PaymentFailed;
+use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
 use App\Models\Gateway;
 use App\Models\GatewayType;
@@ -21,6 +22,7 @@ use App\Models\PaymentHash;
 use App\PaymentDrivers\ChipInAsia\Hosted;
 use App\PaymentDrivers\ChipInAsiaPaymentDriver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Bus;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -89,6 +91,33 @@ class CreatePaymentStatusHandlingTest extends TestCase
         $payment = $hosted->createPaymentFromCallback($purchase);
 
         $this->assertSame(Payment::STATUS_PENDING, $payment->status_id);
+    }
+
+    /**
+     * The gateway-success SystemLogger job is queued inside the transaction
+     * that creates the payment, so it must wait for that transaction to
+     * commit (#13320). With matching amounts, the amount-mismatch log does
+     * not fire, so this is the only SystemLogger dispatched.
+     */
+    public function testCreatePaymentFromCallbackQueuesSystemLoggerOnlyAfterCommit(): void
+    {
+        Bus::fake([SystemLogger::class]);
+
+        $hosted = $this->buildHosted(amountWithFee: 100.00);
+
+        $hosted->createPaymentFromCallback([
+            'id' => 'purchase_after_commit_001',
+            'status' => 'paid',
+            'purchase' => [
+                'total' => 10000,
+            ],
+        ]);
+
+        Bus::assertDispatchedTimes(SystemLogger::class, 1);
+        Bus::assertDispatched(
+            SystemLogger::class,
+            fn (SystemLogger $job): bool => $job->afterCommit === true
+        );
     }
 
     /**
