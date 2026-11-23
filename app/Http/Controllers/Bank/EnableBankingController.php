@@ -141,6 +141,12 @@ class EnableBankingController extends BaseController
             return $this->failed('not-available', $context, $company);
         }
 
+        // The bank reported an error, e.g. the user denied or cancelled the authorization
+        if (!empty($data['error'])) {
+            nlog("EnableBanking: Authorization returned an error: {$data['error']}" . (isset($data['error_description']) ? " ({$data['error_description']})" : ''));
+            return $this->failed('auth-failure', $context, $company, $data['error']);
+        }
+
         // Check if we have the authorization code
         if (!isset($data['code'])) {
             return $this->failed('auth-code-missing', $context, $company);

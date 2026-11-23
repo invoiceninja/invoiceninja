@@ -37,8 +37,12 @@ class ConfirmEnableBankingBankIntegrationRequest extends Request
     public function rules()
     {
         return [
-            'code' => 'required|string',
-            'state' => 'sometimes|string',
+            // A denied or cancelled authorization returns without a code (but with an
+            // error), so the controller decides how to handle an absent code.
+            'code' => 'sometimes|nullable|string',
+            'state' => 'sometimes|nullable|string',
+            'error' => 'sometimes|nullable|string|max:255',
+            'error_description' => 'sometimes|nullable|string',
         ];
     }
 

@@ -97,4 +97,23 @@ class EnableBankingCallbackTest extends TestCase
             ->assertOk()
             ->assertViewHas('failed_reason', 'ref-invalid');
     }
+
+    public function testProviderErrorWithoutCodeRendersAuthFailure()
+    {
+        $token = $this->cacheContext();
+
+        $this->get("/enablebanking/confirm?state={$token}&error=access_denied&error_description=User+cancelled")
+            ->assertOk()
+            ->assertViewHas('failed_reason', 'auth-failure')
+            ->assertViewHas('error_code', 'access_denied');
+    }
+
+    public function testMissingCodeRendersAuthCodeMissing()
+    {
+        $token = $this->cacheContext();
+
+        $this->get("/enablebanking/confirm?state={$token}")
+            ->assertOk()
+            ->assertViewHas('failed_reason', 'auth-code-missing');
+    }
 }
