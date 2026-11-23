@@ -593,10 +593,11 @@ class CompanyController extends BaseController
 
             $account->delete();
 
-            if ($apple_user_id && $request->filled('apple_authorization_code') && $request->header('X-API-OAUTH-PASSWORD')) {
-                $authorization_code = $request->input('apple_authorization_code');
+            $authorization_code = $request->input('apple_authorization_code');
+
+            if ($apple_user_id && is_string($authorization_code) && strlen($authorization_code) > 0 && $request->header('X-API-OAUTH-PASSWORD')) {
                 $id_token = $request->header('X-API-OAUTH-PASSWORD');
-                $redirect_uri = $request->input('apple_redirect_uri');
+                $redirect_uri = is_string($request->input('apple_redirect_uri')) ? $request->input('apple_redirect_uri') : null;
 
                 dispatch(function () use ($authorization_code, $id_token, $apple_user_id, $redirect_uri) {
                     OAuth::revokeAppleToken($authorization_code, $id_token, $apple_user_id, $redirect_uri);

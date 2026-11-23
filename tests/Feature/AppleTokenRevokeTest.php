@@ -98,24 +98,25 @@ class AppleTokenRevokeTest extends TestCase
     private function fakeApple(int $token_status = 200, int $revoke_status = 200, array $token = []): void
     {
         Http::fake([
-            'https://appleid.apple.com/auth/token' => Http::response(array_merge(['access_token' => 'access-token', 'refresh_token' => 'refresh-token', 'id_token' => $this->appleIdToken('com.invoiceninja.admin')], $token), $token_status),
+            'https://appleid.apple.com/auth/token' => Http::response(array_merge(['access_token' => 'access-token', 'refresh_token' => 'refresh-token', 'id_token' => $this->appleIdToken()], $token), $token_status),
             'https://appleid.apple.com/auth/revoke' => Http::response('', $revoke_status),
         ]);
     }
 
     /* The identity token Apple returns from the code exchange */
-    private function appleIdToken(string $aud, string $sub = 'apple-token-revoke-user', ?string $private_key = null): string
+    private function appleIdToken(array $claims = [], ?string $private_key = null): string
     {
-        return JWT::encode([
+        return JWT::encode(array_merge([
             'iss' => 'https://appleid.apple.com',
-            'aud' => $aud,
-            'sub' => $sub,
+            'aud' => 'com.invoiceninja.admin',
+            'sub' => 'apple-token-revoke-user',
             'iat' => time(),
             'exp' => time() + 600,
-        ], $private_key ?? $this->apple_private_key, 'RS256', 'APPLEJWK01');
+        ], $claims), $private_key ?? $this->apple_private_key, 'RS256', 'APPLEJWK01');
     }
 
-    private function idToken(string $aud): string
+    /* The identity token the user re-authenticated with, sent in X-API-OAUTH-PASSWORD */
+    private function reauthIdToken(string $aud): string
     {
         $part = fn (array $data) => rtrim(strtr(base64_encode(json_encode($data)), '+/', '-_'), '=');
 
@@ -127,7 +128,7 @@ class AppleTokenRevokeTest extends TestCase
         return $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-            'X-API-OAUTH-PASSWORD' => $this->idToken($aud),
+            'X-API-OAUTH-PASSWORD' => $this->reauthIdToken($aud),
         ])->deleteJson('/api/v1/companies/' . $company->hashed_id, $data);
     }
 
@@ -169,7 +170,7 @@ class AppleTokenRevokeTest extends TestCase
 
     public function testAWebCodeIsExchangedForTheServiceIdWithItsRedirectUri()
     {
-        $this->fakeApple(token: ['id_token' => $this->appleIdToken('com.invoiceninja.client')]);
+        $this->fakeApple(token: ['id_token' => $this->appleIdToken(['aud' => 'com.invoiceninja.client'])]);
 
         $this->deleteCompany($this->company, [
             'apple_authorization_code' => 'authorization-code',
@@ -223,7 +224,7 @@ class AppleTokenRevokeTest extends TestCase
 
     public function testACodeForADifferentAppleUserIsNotRevoked()
     {
-        $this->fakeApple(token: ['id_token' => $this->appleIdToken('com.invoiceninja.admin', 'another-apple-user')]);
+        $this->fakeApple(token: ['id_token' => $this->appleIdToken(['sub' => 'another-apple-user'])]);
 
         $account_id = $this->account->id;
 
@@ -253,7 +254,7 @@ class AppleTokenRevokeTest extends TestCase
         $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => 2048]);
         openssl_pkey_export($key, $other_private_key);
 
-        $this->fakeApple(token: ['id_token' => $this->appleIdToken('com.invoiceninja.admin', 'apple-token-revoke-user', $other_private_key)]);
+        $this->fakeApple(token: ['id_token' => $this->appleIdToken([], $other_private_key)]);
 
         $account_id = $this->account->id;
 
@@ -262,6 +263,80 @@ class AppleTokenRevokeTest extends TestCase
         $this->assertNull(Account::find($account_id));
 
         Http::assertNotSent(fn (Request $request) => $request->url() == 'https://appleid.apple.com/auth/revoke');
+    }
+
+    public static function untrustedIdentityTokens(): array
+    {
+        return [
+            'expired' => [['iat' => time() - 1200, 'exp' => time() - 600]],
+            'another issuer' => [['iss' => 'https://example.com']],
+            'another audience' => [['aud' => 'com.example.other']],
+        ];
+    }
+
+    #[DataProvider('untrustedIdentityTokens')]
+    public function testAnUntrustedIdentityTokenRevokesNothing(array $claims)
+    {
+        $this->fakeApple(token: ['id_token' => $this->appleIdToken($claims)]);
+
+        $account_id = $this->account->id;
+
+        $this->deleteCompany($this->company, ['apple_authorization_code' => 'authorization-code'])->assertStatus(200);
+
+        $this->assertNull(Account::find($account_id));
+
+        Http::assertNotSent(fn (Request $request) => $request->url() == 'https://appleid.apple.com/auth/revoke');
+    }
+
+    public static function nonStringCodes(): array
+    {
+        return [
+            'a number' => [12345],
+            'an array' => [['authorization-code']],
+        ];
+    }
+
+    #[DataProvider('nonStringCodes')]
+    public function testANonStringCodeStillDeletes(mixed $authorization_code)
+    {
+        $this->fakeApple();
+
+        $account_id = $this->account->id;
+
+        $this->deleteCompany($this->company, ['apple_authorization_code' => $authorization_code])->assertStatus(200);
+
+        $this->assertNull(Account::find($account_id));
+
+        Http::assertNothingSent();
+    }
+
+    public function testANonStringRedirectUriIsNotSent()
+    {
+        $this->fakeApple();
+
+        $this->deleteCompany($this->company, [
+            'apple_authorization_code' => 'authorization-code',
+            'apple_redirect_uri' => ['https://admin.invoicing.co'],
+        ])->assertStatus(200);
+
+        Http::assertSent(fn (Request $request) => $request->url() == 'https://appleid.apple.com/auth/token' && !isset($request['redirect_uri']));
+        Http::assertSentCount(2);
+    }
+
+    public function testAUserWhoDidNotSignInWithAppleRevokesNothing()
+    {
+        $this->fakeApple();
+
+        $this->user->oauth_provider_id = 'google';
+        $this->user->save();
+
+        $account_id = $this->account->id;
+
+        $this->deleteCompany($this->company, ['apple_authorization_code' => 'authorization-code'])->assertStatus(200);
+
+        $this->assertNull(Account::find($account_id));
+
+        Http::assertNothingSent();
     }
 
     public function testDeletingOneOfTheAccountsCompaniesRevokesNothing()
