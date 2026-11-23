@@ -564,6 +564,8 @@ class CompanyController extends BaseController
         $account_key = $account->key;
 
         if ($company_count == 1) {
+            $apple_user_id = auth()->user()->oauth_provider_id == 'apple' ? auth()->user()->oauth_user_id : null;
+
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
                 $company_user->forceDelete();
@@ -591,13 +593,13 @@ class CompanyController extends BaseController
 
             $account->delete();
 
-            if (auth()->user()->oauth_provider_id == 'apple' && $request->filled('apple_authorization_code') && $request->header('X-API-OAUTH-PASSWORD')) {
+            if ($apple_user_id && $request->filled('apple_authorization_code') && $request->header('X-API-OAUTH-PASSWORD')) {
                 $authorization_code = $request->input('apple_authorization_code');
                 $id_token = $request->header('X-API-OAUTH-PASSWORD');
                 $redirect_uri = $request->input('apple_redirect_uri');
 
-                dispatch(function () use ($authorization_code, $id_token, $redirect_uri) {
-                    OAuth::revokeAppleToken($authorization_code, $id_token, $redirect_uri);
+                dispatch(function () use ($authorization_code, $id_token, $apple_user_id, $redirect_uri) {
+                    OAuth::revokeAppleToken($authorization_code, $id_token, $apple_user_id, $redirect_uri);
                 })->afterResponse();
             }
 

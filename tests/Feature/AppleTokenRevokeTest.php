@@ -20,7 +20,9 @@ use Firebase\JWT\Key;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Client\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -34,6 +36,8 @@ class AppleTokenRevokeTest extends TestCase
     use MockAccountData;
 
     private string $public_key = '';
+
+    private string $apple_private_key = '';
 
     protected function setUp(): void
     {
@@ -61,6 +65,20 @@ class AppleTokenRevokeTest extends TestCase
             'services.apple.revoke.private_key' => $private_key,
         ]);
 
+        // Apple signs identity tokens with an RSA key from its published key set
+        $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => 2048]);
+        openssl_pkey_export($key, $this->apple_private_key);
+        $rsa = openssl_pkey_get_details($key)['rsa'];
+
+        Cache::put('socialite:Apple-JWKSet', ['keys' => [[
+            'kty' => 'RSA',
+            'kid' => 'APPLEJWK01',
+            'use' => 'sig',
+            'alg' => 'RS256',
+            'n' => rtrim(strtr(base64_encode($rsa['n']), '+/', '-_'), '='),
+            'e' => rtrim(strtr(base64_encode($rsa['e']), '+/', '-_'), '='),
+        ]]], 300);
+
         // An Apple user the company lets through without a password
         $this->user->oauth_provider_id = 'apple';
         $this->user->oauth_user_id = 'apple-token-revoke-user';
@@ -70,12 +88,31 @@ class AppleTokenRevokeTest extends TestCase
         $this->company->save();
     }
 
-    private function fakeApple(int $token_status = 200): void
+    protected function tearDown(): void
+    {
+        Cache::forget('socialite:Apple-JWKSet');
+
+        parent::tearDown();
+    }
+
+    private function fakeApple(int $token_status = 200, int $revoke_status = 200, array $token = []): void
     {
         Http::fake([
-            'https://appleid.apple.com/auth/token' => Http::response(['access_token' => 'access-token', 'refresh_token' => 'refresh-token', 'id_token' => 'id-token'], $token_status),
-            'https://appleid.apple.com/auth/revoke' => Http::response('', 200),
+            'https://appleid.apple.com/auth/token' => Http::response(array_merge(['access_token' => 'access-token', 'refresh_token' => 'refresh-token', 'id_token' => $this->appleIdToken('com.invoiceninja.admin')], $token), $token_status),
+            'https://appleid.apple.com/auth/revoke' => Http::response('', $revoke_status),
         ]);
+    }
+
+    /* The identity token Apple returns from the code exchange */
+    private function appleIdToken(string $aud, string $sub = 'apple-token-revoke-user', ?string $private_key = null): string
+    {
+        return JWT::encode([
+            'iss' => 'https://appleid.apple.com',
+            'aud' => $aud,
+            'sub' => $sub,
+            'iat' => time(),
+            'exp' => time() + 600,
+        ], $private_key ?? $this->apple_private_key, 'RS256', 'APPLEJWK01');
     }
 
     private function idToken(string $aud): string
@@ -132,7 +169,7 @@ class AppleTokenRevokeTest extends TestCase
 
     public function testAWebCodeIsExchangedForTheServiceIdWithItsRedirectUri()
     {
-        $this->fakeApple();
+        $this->fakeApple(token: ['id_token' => $this->appleIdToken('com.invoiceninja.client')]);
 
         $this->deleteCompany($this->company, [
             'apple_authorization_code' => 'authorization-code',
@@ -144,11 +181,49 @@ class AppleTokenRevokeTest extends TestCase
                 && $request['client_id'] == 'com.invoiceninja.client'
                 && $request['redirect_uri'] == 'https://admin.invoicing.co';
         });
+
+        Http::assertSent(fn (Request $request) => $request->url() == 'https://appleid.apple.com/auth/revoke' && $request['client_id'] == 'com.invoiceninja.client');
     }
 
-    public function testAnAppleFailureDoesNotBlockTheDeletion()
+    public static function appleFailures(): array
     {
-        $this->fakeApple(400);
+        return [
+            'the exchange is refused' => [400, 200, 1],
+            'the exchange is unavailable' => [503, 200, 1],
+            'the revoke is unavailable' => [200, 503, 2],
+        ];
+    }
+
+    #[DataProvider('appleFailures')]
+    public function testAnAppleFailureDoesNotBlockTheDeletion(int $token_status, int $revoke_status, int $sent_count)
+    {
+        $this->fakeApple($token_status, $revoke_status);
+
+        $account_id = $this->account->id;
+
+        $this->deleteCompany($this->company, ['apple_authorization_code' => 'authorization-code'])->assertStatus(200);
+
+        $this->assertNull(Account::find($account_id));
+
+        Http::assertSentCount($sent_count);
+    }
+
+    public function testAnUnreachableAppleDoesNotBlockTheDeletion()
+    {
+        Http::fake([
+            'https://appleid.apple.com/*' => Http::failedConnection(),
+        ]);
+
+        $account_id = $this->account->id;
+
+        $this->deleteCompany($this->company, ['apple_authorization_code' => 'authorization-code'])->assertStatus(200);
+
+        $this->assertNull(Account::find($account_id));
+    }
+
+    public function testACodeForADifferentAppleUserIsNotRevoked()
+    {
+        $this->fakeApple(token: ['id_token' => $this->appleIdToken('com.invoiceninja.admin', 'another-apple-user')]);
 
         $account_id = $this->account->id;
 
@@ -157,6 +232,36 @@ class AppleTokenRevokeTest extends TestCase
         $this->assertNull(Account::find($account_id));
 
         Http::assertSentCount(1);
+        Http::assertNotSent(fn (Request $request) => $request->url() == 'https://appleid.apple.com/auth/revoke');
+    }
+
+    public function testNothingIsRevokedWithoutAnIdentityTokenFromApple()
+    {
+        $this->fakeApple(token: ['id_token' => null]);
+
+        $account_id = $this->account->id;
+
+        $this->deleteCompany($this->company, ['apple_authorization_code' => 'authorization-code'])->assertStatus(200);
+
+        $this->assertNull(Account::find($account_id));
+
+        Http::assertNotSent(fn (Request $request) => $request->url() == 'https://appleid.apple.com/auth/revoke');
+    }
+
+    public function testAnIdentityTokenNotSignedByAppleIsNotTrusted()
+    {
+        $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => 2048]);
+        openssl_pkey_export($key, $other_private_key);
+
+        $this->fakeApple(token: ['id_token' => $this->appleIdToken('com.invoiceninja.admin', 'apple-token-revoke-user', $other_private_key)]);
+
+        $account_id = $this->account->id;
+
+        $this->deleteCompany($this->company, ['apple_authorization_code' => 'authorization-code'])->assertStatus(200);
+
+        $this->assertNull(Account::find($account_id));
+
+        Http::assertNotSent(fn (Request $request) => $request->url() == 'https://appleid.apple.com/auth/revoke');
     }
 
     public function testDeletingOneOfTheAccountsCompaniesRevokesNothing()

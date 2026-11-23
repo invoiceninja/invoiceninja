@@ -137,12 +137,14 @@ class OAuth
     /**
      * Revokes the user's Sign in with Apple tokens, as Apple requires when an account is deleted.
      *
-     * The authorization code is exchanged for a refresh token, which is then revoked.
+     * The authorization code is exchanged for a refresh token, which is revoked only when the
+     * identity token returned with it is for the Apple user ID the deleted user signed in with.
      * Best effort: a failure is logged, never thrown.
      */
-    public static function revokeAppleToken(string $authorization_code, string $id_token, ?string $redirect_uri = null): bool
+    public static function revokeAppleToken(string $authorization_code, string $id_token, string $apple_user_id, ?string $redirect_uri = null): bool
     {
         if (!config('services.apple.revoke.team_id') || !config('services.apple.revoke.key_id') || !config('services.apple.revoke.private_key')) {
+            nlog("OAuth::revokeAppleToken - the Sign in with Apple key is not configured, nothing was revoked");
             return false;
         }
 
@@ -163,6 +165,11 @@ class OAuth
                 return false;
             }
 
+            if (!$response->json('id_token') || self::appleUserFromToken($response->json('id_token'))->getId() !== $apple_user_id) {
+                nlog("OAuth::revokeAppleToken - Apple's identity token is missing or for another user, nothing was revoked");
+                return false;
+            }
+
             $response = Http::asForm()->timeout(10)->post('https://appleid.apple.com/auth/revoke', [
                 'client_id' => $client_id,
                 'client_secret' => $client_secret,
@@ -177,7 +184,7 @@ class OAuth
 
             return true;
         } catch (\Throwable $e) {
-            nlog("OAuth::revokeAppleToken - " . $e->getMessage());
+            nlog("OAuth::revokeAppleToken - could not revoke the token: " . $e->getMessage());
         }
 
         return false;
