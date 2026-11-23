@@ -571,7 +571,7 @@ class HelcimPaymentDriver extends BaseDriver
                     $client->company,
                     $client,
                     "Helcim ACH payment {$transaction->transactionId} failed with status {$transaction->statusDescription()}."
-                );
+                )->afterCommit();
 
                 return 'failed';
             }

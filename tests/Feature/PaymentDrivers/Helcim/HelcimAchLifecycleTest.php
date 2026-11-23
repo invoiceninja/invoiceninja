@@ -748,6 +748,28 @@ class HelcimAchLifecycleTest extends TestCase
         Bus::assertDispatched(PaymentFailedMailer::class, 1);
     }
 
+    /**
+     * The failure mailer is queued inside the transaction that deletes the
+     * payment and marks it failed. It must wait for that transaction to
+     * commit, or a rollback leaves the client with a "payment failed" email
+     * for a payment that is still pending (#13320).
+     */
+    public function testReturnedAchFailureMailerIsQueuedOnlyAfterTheTransactionCommits(): void
+    {
+        Bus::fake([PaymentFailedMailer::class]);
+
+        $payment = $this->makePayment('helcim-returned-after-commit', Payment::STATUS_PENDING);
+        $this->fakeTransaction($payment, statusAuth: 1, statusClearing: 'RETURNED');
+
+        $this->assertSame('failed', $this->driver()->reconcileAchPayment($payment));
+
+        Bus::assertDispatchedTimes(PaymentFailedMailer::class, 1);
+        Bus::assertDispatched(
+            PaymentFailedMailer::class,
+            fn (PaymentFailedMailer $job): bool => $job->afterCommit === true
+        );
+    }
+
     public function testReturnedCompletedAchRemainsCompletedForManualReversal(): void
     {
         Bus::fake();
