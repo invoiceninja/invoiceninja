@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Login\LoginRequest;
 use App\Http\Requests\Login\PrecheckLoginRequest;
+use App\Http\Requests\Account\CreateAccountRequest;
 use App\Services\Auth\Passkeys\PasskeyService;
 use App\Services\Company\CompanyTokenRotator;
 use App\Libraries\OAuth\Providers\Google;
@@ -535,6 +536,11 @@ class LoginController extends BaseController
             'email' => $user->email,
             'oauth_user_id' => $user->id,
             'oauth_provider_id' => $provider,
+            'user_agent' => request()->server('HTTP_USER_AGENT'),
+            'attribution' => CreateAccountRequest::attributionFrom(
+                request()->input('attribution'),
+                request()->cookie('ninja_attribution')
+            ),
         ];
 
         MultiDB::setDefaultDatabase();
