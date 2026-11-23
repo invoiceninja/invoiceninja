@@ -61,7 +61,13 @@ class ConfirmEnableBankingBankIntegrationRequest extends Request
         // dynamic property on the request (deprecated as of PHP 8.2).
         $token = $this->state ?: $this->token;
 
-        return Cache::get($token);
+        if (!is_string($token) || $token === '') {
+            return null;
+        }
+
+        $context = Cache::get($token);
+
+        return is_array($context) ? $context : null;
     }
 
     public function getCompany(): Company

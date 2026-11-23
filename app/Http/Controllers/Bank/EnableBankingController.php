@@ -118,18 +118,19 @@ class EnableBankingController extends BaseController
     public function confirm(ConfirmEnableBankingBankIntegrationRequest $request): View|RedirectResponse
     {
         $data = $request->all();
+        $context = $request->getTokenContent();
+
+        // An unknown, expired, replayed or malformed state has no usable context (and therefore
+        // no company), so validate it before anything dereferences it.
+        if (!$context || ($context['context'] ?? null) !== 'enablebanking' || !array_key_exists('state', $context)) {
+            return $this->failed('ref-invalid', ['lang' => $context['lang'] ?? 'en']);
+        }
+
         $company = $request->getCompany();
         $lang = substr($company->locale(), 0, 2);
 
-        /** @var array $context */
-        $context = $request->getTokenContent();
-
         if (!array_key_exists('lang', $data) && $context['lang'] != $lang) {
             return redirect()->route('enablebanking.confirm', array_merge(['lang' => $context['lang']], $request->query()));
-        }
-
-        if (!$context || $context['context'] != 'enablebanking' || !array_key_exists('state', $context)) {
-            return $this->failed('ref-invalid', $context);
         }
 
         if (!config('ninja.enablebanking.application_id') || !config('ninja.enablebanking.key_path')) {
