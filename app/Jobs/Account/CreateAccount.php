@@ -62,6 +62,7 @@ class CreateAccount
         Account::reguard();
         $sp794f3f = new Account();
         $sp794f3f->fill($this->request);
+        $sp794f3f->signup_ip = $this->client_ip;
 
         if (is_array($this->request['attribution'] ?? null)) {
             $this->applyAttribution($sp794f3f, $this->request['attribution']);
@@ -122,10 +123,14 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            (new \Modules\Admin\Jobs\Account\NinjaUser($sp035a66))->handle();
+            // The admin module ships separately, so self-host and CI run without it.
+            if (class_exists(\Modules\Admin\Jobs\Account\NinjaUser::class)) {
+                (new \Modules\Admin\Jobs\Account\NinjaUser($sp035a66))->handle();
+            }
 
-            app(Evaluator::class)->create($sp794f3f, $this->client_ip);
-
+            if (class_exists(Evaluator::class)) {
+                app(Evaluator::class)->create($sp794f3f, $this->client_ip);
+            }
         }
 
         VersionCheck::dispatch();
@@ -154,6 +159,11 @@ class CreateAccount
 
     public function applyAttribution(Account $account, array $attribution): void
     {
+        // Meta wants an fbc even when only the click id survived the handoff.
+        if (! isset($attribution['fbc']) && isset($attribution['fbclid'])) {
+            $attribution['fbc'] = 'fb.1.'.now()->getTimestampMs().'.'.$attribution['fbclid'];
+        }
+
         $account->attribution = $attribution;
 
         foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as $key) {

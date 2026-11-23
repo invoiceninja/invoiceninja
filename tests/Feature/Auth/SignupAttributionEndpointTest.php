@@ -82,18 +82,20 @@ class SignupAttributionEndpointTest extends TestCase
 
         $account = User::query()->where('email', $email)->firstOrFail()->account;
 
-        $this->assertSame([
-            'utm_source' => 'facebook',
-            'fbclid'     => 'abc123',
-            'gclid'      => 'def456',
-        ], $account->attribution);
+        $this->assertSame('facebook', $account->attribution['utm_source']);
+        $this->assertSame('abc123', $account->attribution['fbclid']);
+        $this->assertSame('def456', $account->attribution['gclid']);
+        $this->assertMatchesRegularExpression(
+            '/^fb\.1\.\d{13}\.abc123$/',
+            $account->attribution['fbc']
+        );
     }
 
     public function testOversizedAttributionDoesNotBlockSignup(): void
     {
         $email = $this->email();
 
-        $attribution = ['utm_source' => str_repeat('a', 500)];
+        $attribution = ['utm_source' => str_repeat('a', 501)];
 
         for ($i = 0; $i < 25; $i++) {
             $attribution['utm_key'.$i] = 'value';
@@ -107,6 +109,24 @@ class SignupAttributionEndpointTest extends TestCase
 
         $this->assertCount(20, $account->attribution);
         $this->assertArrayNotHasKey('utm_source', $account->attribution);
+    }
+
+    public function testAttributionValuesUpToFiveHundredCharactersAreKept(): void
+    {
+        $email = $this->email();
+
+        $this->postJson($this->signupUrl(), $this->payload($email, [
+            'attribution' => [
+                'utm_source' => str_repeat('a', 500),
+                'lp'         => '/lp/ads/inventory/',
+            ],
+        ]))->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertSame(str_repeat('a', 500), $account->attribution['utm_source']);
+        $this->assertSame('/lp/ads/inventory/', $account->attribution['lp']);
+        $this->assertSame('127.0.0.1', $account->signup_ip);
     }
 
     public function testOversizedLegacyUtmFieldsDoNotBlockSignup(): void

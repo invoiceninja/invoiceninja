@@ -32,7 +32,10 @@ class CreateAccountRequest extends Request
         'twclid',
         'oppref',
         'obref',
+        'lp',
     ];
+
+    private const MAX_ATTRIBUTION_LENGTH = 500;
 
     private const LEGACY_UTM_KEYS = [
         'utm_source',
@@ -279,7 +282,7 @@ class CreateAccountRequest extends Request
             $supported = in_array($key, self::ATTRIBUTION_KEYS, true)
                 || preg_match(self::ATTRIBUTION_KEY_PATTERN, $key);
 
-            if (! $supported || ! is_string($item) || strlen($item) > 191) {
+            if (! $supported || ! is_string($item) || strlen($item) > self::MAX_ATTRIBUTION_LENGTH) {
                 continue;
             }
 

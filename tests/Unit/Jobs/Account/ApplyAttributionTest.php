@@ -56,6 +56,33 @@ class ApplyAttributionTest extends TestCase
         $this->assertNull($account->utm_medium);
     }
 
+    public function testFbcIsBuiltFromFbclidWhenMetaDidNotPassOne(): void
+    {
+        $account = $this->apply(['fbclid' => 'abc123']);
+
+        $this->assertMatchesRegularExpression(
+            '/^fb\.1\.\d{13}\.abc123$/',
+            $account->attribution['fbc']
+        );
+    }
+
+    public function testExistingFbcIsNotOverwritten(): void
+    {
+        $account = $this->apply([
+            'fbclid' => 'abc123',
+            'fbc'    => 'fb.1.1700000000000.abc123',
+        ]);
+
+        $this->assertSame('fb.1.1700000000000.abc123', $account->attribution['fbc']);
+    }
+
+    public function testFbcIsNotInventedWithoutAnFbclid(): void
+    {
+        $account = $this->apply(['utm_source' => 'facebook']);
+
+        $this->assertArrayNotHasKey('fbc', $account->attribution);
+    }
+
     public function testMirrorsDoNotOverwriteValuesMissingFromAttribution(): void
     {
         $account = $this->apply(['utm_medium' => 'cpc'], new Account(['utm_source' => 'google']));

@@ -63,6 +63,14 @@ class AccountAttributionSanitizationTest extends TestCase
         );
     }
 
+    public function testLandingPageKeyIsKept(): void
+    {
+        $this->assertSame(
+            ['lp' => '/lp/ads/inventory/'],
+            CreateAccountRequest::sanitizeAttribution(['lp' => '/lp/ads/inventory/'])
+        );
+    }
+
     public function testAttributionIsOptional(): void
     {
         $this->assertNull(CreateAccountRequest::sanitizeAttribution(null));
@@ -94,13 +102,13 @@ class AccountAttributionSanitizationTest extends TestCase
         $this->assertCount(20, CreateAccountRequest::sanitizeAttribution($keys));
     }
 
-    public function testValueLongerThanColumnIsDropped(): void
+    public function testValueLongerThanFiveHundredCharactersIsDropped(): void
     {
         $this->assertSame(
-            ['utm_source' => str_repeat('a', 191)],
+            ['utm_source' => str_repeat('a', 500)],
             CreateAccountRequest::sanitizeAttribution([
-                'utm_source' => str_repeat('a', 191),
-                'utm_medium' => str_repeat('a', 192),
+                'utm_source' => str_repeat('a', 500),
+                'utm_medium' => str_repeat('a', 501),
             ])
         );
     }

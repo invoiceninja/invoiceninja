@@ -69,10 +69,10 @@ class AccountAttributionCookieTest extends TestCase
     public function testCookieValuesAndKeysAreCapped(): void
     {
         $this->assertSame(
-            ['utm_source' => str_repeat('a', 191)],
+            ['utm_source' => str_repeat('a', 500)],
             CreateAccountRequest::attributionFrom(null, json_encode([
-                'utm_source' => str_repeat('a', 191),
-                'utm_medium' => str_repeat('a', 192),
+                'utm_source' => str_repeat('a', 500),
+                'utm_medium' => str_repeat('a', 501),
                 'utm_'.str_repeat('a', 60) => 'value',
                 'utm_campaign' => ['nested'],
             ]))
