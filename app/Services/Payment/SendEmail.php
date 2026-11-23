@@ -28,7 +28,7 @@ class SendEmail
     {
         $this->payment->load('company', 'invoices');
 
-        EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact);
+        EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact)->afterCommit();
 
     }
 }
