@@ -14,6 +14,8 @@ namespace Tests\Feature\ClientPortal;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Http\ViewComposers\PortalComposer;
+use App\Livewire\DocumentsTable;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -25,6 +27,8 @@ use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class DocumentsTest extends TestCase
@@ -97,6 +101,92 @@ class DocumentsTest extends TestCase
         ]);
 
         $this->withoutMiddleware();
+    }
+
+    public static function documentModules(): array
+    {
+        return [
+            'credits' => ['credits', PortalComposer::MODULE_CREDITS],
+            'invoices' => ['invoices', PortalComposer::MODULE_INVOICES],
+            'projects' => ['projects', PortalComposer::MODULE_PROJECTS],
+            'quotes' => ['quotes', PortalComposer::MODULE_QUOTES],
+            'recurring invoices' => ['recurringInvoices', PortalComposer::MODULE_RECURRING_INVOICES],
+            'tasks' => ['tasks', PortalComposer::MODULE_TASKS],
+        ];
+    }
+
+    #[DataProvider('documentModules')]
+    public function testDisabledDocumentTabsCannotBeSelected(string $resource, int $module): void
+    {
+        $this->company->enabled_modules &= ~ $module;
+        $this->company->save();
+        $settings = $this->client->settings;
+        $settings->enable_client_portal_tasks = true;
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $document = Document::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'name' => 'my-client-document.txt',
+        ]);
+        $this->client->documents()->save($document);
+
+        $this->actingAs($this->contact->fresh(), 'contact');
+
+        Livewire::test(DocumentsTable::class, ['client_id' => $this->client->id, 'db' => $this->company->db])
+            ->call('updateResources', $resource)
+            ->assertSet('tab', 'documents')
+            ->assertSee($document->name)
+            ->assertDontSeeHtml("wire:click=\"updateResources('{$resource}')\"")
+            ->set('tab', $resource)
+            ->assertSet('tab', 'documents');
+
+        $this->get(route('client.documents.index', ['tab' => $resource]))
+            ->assertOk()
+            ->assertSee($document->name)
+            ->assertDontSeeHtml("wire:click=\"updateResources('{$resource}')\"");
+    }
+
+    #[DataProvider('documentModules')]
+    public function testEnabledDocumentTabsRemainSelectable(string $resource, int $module): void
+    {
+        $this->company->enabled_modules = $module;
+        $this->company->save();
+        $settings = $this->client->settings;
+        $settings->enable_client_portal_tasks = true;
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $this->actingAs($this->contact->fresh(), 'contact');
+
+        Livewire::test(DocumentsTable::class, ['client_id' => $this->client->id, 'db' => $this->company->db])
+            ->call('updateResources', $resource)
+            ->assertSet('tab', $resource)
+            ->assertSeeHtml("wire:click=\"updateResources('{$resource}')\"");
+    }
+
+    public function testTaskAndProjectDocumentsRespectPortalTaskVisibility(): void
+    {
+        $this->company->enabled_modules = PortalComposer::MODULE_TASKS | PortalComposer::MODULE_PROJECTS;
+        $this->company->save();
+        $settings = $this->client->settings;
+        $settings->enable_client_portal_tasks = false;
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $this->actingAs($this->contact->fresh(), 'contact');
+
+        foreach (['tasks', 'projects'] as $resource) {
+            Livewire::test(DocumentsTable::class, ['client_id' => $this->client->id, 'db' => $this->company->db])
+                ->call('updateResources', $resource)
+                ->assertSet('tab', 'documents')
+                ->assertDontSeeHtml("wire:click=\"updateResources('{$resource}')\"");
+
+            $this->get(route('client.documents.index', ['tab' => $resource]))
+                ->assertOk()
+                ->assertDontSeeHtml("wire:click=\"updateResources('{$resource}')\"");
+        }
     }
 
     public function testDownloadMultipleOwnClientDocuments(): void
