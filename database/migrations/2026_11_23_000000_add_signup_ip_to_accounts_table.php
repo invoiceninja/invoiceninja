@@ -21,5 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('accounts', function (Blueprint $table) {
+            $table->dropColumn('signup_ip');
+        });
     }
 };
