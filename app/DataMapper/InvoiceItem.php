@@ -31,6 +31,8 @@ class InvoiceItem
 
     public $is_amount_discount = false;
 
+    public $is_optional = false;
+
     public $tax_name1 = '';
 
     public $tax_rate1 = 0;
@@ -89,6 +91,7 @@ class InvoiceItem
         'notes' => 'string',
         'discount' => 'float',
         'is_amount_discount' => 'bool',
+        'is_optional' => 'bool',
         'tax_name1' => 'string',
         'tax_name2' => 'string',
         'tax_name3' => 'string',

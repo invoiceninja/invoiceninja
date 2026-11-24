@@ -19,6 +19,7 @@ use App\Utils\Gotenberg\GotenbergPdf;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\EDocument\ZugferdPdfMerger;
@@ -174,6 +175,7 @@ class PdfService
         if ($this->json_design_html !== null) {
             // JsonToSectionsAdapter already inlines logo/image blocks via ImageFetcher.
             $html = \App\Services\Pdf\Purify::clean($this->json_design_html);
+            $html = $this->renderQuoteItems($html);
 
             if (config('ninja.log_pdf_html')) {
                 nlog($html);
@@ -183,12 +185,31 @@ class PdfService
         }
 
         $html = \App\Services\Pdf\Purify::clean($this->builder->document->saveHTML(), false, $inline_pdf_images);
+        $html = $this->renderQuoteItems($html);
 
         if (config('ninja.log_pdf_html')) {
             nlog($html);
         }
 
         return $html;
+    }
+
+    public function getLineItems(): array
+    {
+        if ($this->config->entity instanceof Quote && $this->config->entity->hasOptions() && ! isset($this->options['quote_line_items'])) {
+            $this->options['quote_line_items'] = app(\App\Services\Quote\QuoteOptions::class)->displayItems($this->config->entity);
+        }
+
+        return $this->options['quote_line_items'] ?? $this->config->entity->line_items ?? [];
+    }
+
+    private function renderQuoteItems(string $html): string
+    {
+        if (! $this->config->entity instanceof Quote) {
+            return $html;
+        }
+
+        return (new QuoteItemTable())->render($html, $this->getLineItems(), $this->options['selected_options'] ?? null);
     }
 
     /**

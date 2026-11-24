@@ -14,6 +14,8 @@ namespace App\Repositories;
 
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Services\Quote\QuoteOptions;
+use Illuminate\Support\Facades\DB;
 
 /**
  * QuoteRepository.
@@ -22,6 +24,18 @@ class QuoteRepository extends BaseRepository
 {
     public function save($data, Quote $quote): ?Quote
     {
+        if ($quote->exists && ($quote->hasOptions() || $quote->hasOptionSelection())) {
+            return DB::transaction(function () use ($data, $quote) {
+                $quote = Quote::withTrashed()->where('company_id', $quote->company_id)->lockForUpdate()->findOrFail($quote->id);
+                $service = app(QuoteOptions::class);
+                $service->assertEditable($quote, $data);
+                $quote = $this->alternativeSave($data, $quote);
+                $service->assertConfirmed($quote->fresh());
+
+                return $quote;
+            });
+        }
+
         return $this->alternativeSave($data, $quote);
     }
 

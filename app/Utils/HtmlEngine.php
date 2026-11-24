@@ -974,7 +974,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
     {
         return collect($this->entity->line_items)
                     ->filter(function ($item) {
-                        return $item->type_id == '2';
+                        return $item->type_id == '2' && ! ($item->is_optional ?? false);
                     })
                     ->sum('quantity');
     }

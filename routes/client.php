@@ -91,6 +91,8 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
         ->where('request_hash', '[A-Za-z0-9]{64}')
         ->name('quotes.approval.continue');
     Route::get('quotes', [App\Http\Controllers\ClientPortal\QuoteController::class, 'index'])->name('quotes.index')->middleware('portal_enabled');
+    Route::get('quotes/{quote}/options', [App\Http\Controllers\ClientPortal\QuoteController::class, 'options'])->name('quote.options');
+    Route::post('quotes/{quote}/options/restart', [App\Http\Controllers\ClientPortal\QuoteController::class, 'restartOptions'])->name('quote.options.restart');
     Route::get('quotes/{quote}', [App\Http\Controllers\ClientPortal\QuoteController::class, 'show'])->name('quote.show');
     Route::get('quotes/{quote_invitation}', [App\Http\Controllers\ClientPortal\QuoteController::class, 'show'])->name('quote.show_invitation');
     Route::post('quotes/download', [App\Http\Controllers\ClientPortal\QuoteController::class, 'download'])->name('quotes.download');

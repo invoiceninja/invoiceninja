@@ -101,7 +101,7 @@ trait HarvestsSurchargeTaxCategories
      */
     private function collectTaxCategoriesFromFirstLineItem(): Collection
     {
-        $first = collect($this->invoice->line_items)->first();
+        $first = collect($this->invoice->line_items)->first(fn ($item) => ! ($item->is_optional ?? false));
 
         if (! $first) {
             return collect();

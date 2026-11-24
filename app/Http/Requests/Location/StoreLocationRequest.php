@@ -39,7 +39,7 @@ class StoreLocationRequest extends Request
 
         $rules = [];
 
-        $rules['name'] = 'required|unique:locations,name,null,null,company_id,' . $user->companyId();
+        $rules['name'] = 'required|unique:locations,name,null,null,client_id,' . $this->client_id;
 
         $rules['client_id'] = 'required_without:vendor_id|nullable|integer|bail|exists:clients,id,company_id,' . $user->companyId();
 

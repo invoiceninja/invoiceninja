@@ -184,6 +184,7 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | `client-portal-payments/rff-payments.spec.ts` | Non-PayPal gateways: empty-client RFF then checkout (Stripe payment when configured) |
 | `client-portal-entities.spec.ts` | Dashboard, payments, credits, projects, statement, pre-payments, payment methods |
 | `client-portal-quotes.spec.ts` | Approve/reject, signature, filters, bulk actions |
+| `client-portal-quote-options.spec.ts` | Optional quote items, both workflows. Without DocuNinja: selection/preview, no-addition review, resume, confirmed restart, stale-quote recovery, PO input, terms, canvas signature, reject, auto-convert of the selected scope. With DocuNinja: review → signing handoff, resume from the quote link, PO saved before signing, signed approval and auto-convert. The module flag is forced per group and restored afterwards |
 | `client-portal-recurring.spec.ts` | Auto-bill, cancellation, attachments |
 | `client-portal-subscriptions.spec.ts` | Purchase v1/v2 entry, plan-switch links |
 | `client-portal-documents.spec.ts` | Upload/download, entity tabs, bulk zip (opt-in), cross-client block |
@@ -210,6 +211,7 @@ Guest invitation tests must close their extra contexts in `finally` (use
 | PayPal Express-only company gateway | PayPal tests skip — Express driver was removed; seed PayPal REST (`80af24a6…065`) to cover PayPal |
 | `PLAYWRIGHT_ALLOW_BULK_ZIP` unset | Document bulk zip download (single-worker PHP HTTP self-fetch deadlock) |
 | DocuNinja inactive / signature pad replaced | Quote canvas signature may skip |
+| `Company::docuninjaActive()` false for the e2e company (needs `APP_ENV=local` or hosted, and an account with invoice settings) | `client-portal-quote-options.spec.ts` DocuNinja group skips. It does not call the remote service: the signed state is simulated with the `docuninja-signature-captured` event after seeding the signing-document record the loader would have written |
 | Cloudflare Turnstile on registration | Self-registration may skip |
 | Local artisan tinker cannot see remote API contacts | Password reset token + magic link may skip |
 | `APP_KEY` mismatch with remote | Invitation set-password hash may fail |

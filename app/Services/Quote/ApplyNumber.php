@@ -26,7 +26,7 @@ class ApplyNumber
     {
     }
 
-    public function run($quote)
+    public function run($quote, bool $for_approval = false)
     {
 
         if (trim((string)$quote->number) !== '') {
@@ -38,7 +38,7 @@ class ApplyNumber
                 $quote = $this->trySaving($quote);
                 break;
             case 'when_sent':
-                if (in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_APPROVED])) {
+                if ($for_approval || in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_APPROVED])) {
                     $quote = $this->trySaving($quote);
                 }
                 break;
