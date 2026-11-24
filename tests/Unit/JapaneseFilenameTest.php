@@ -13,6 +13,7 @@
 namespace Tests\Unit;
 
 use App\Models\Invoice;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Tests\TestCase;
 
 class JapaneseFilenameTest extends TestCase
@@ -33,6 +34,26 @@ class JapaneseFilenameTest extends TestCase
 
         $this->assertSame('請求書_0354', $invoice->numberFormatter());
         $this->assertSame('請求書_0354.pdf', $invoice->getFileName());
+        $this->assertSame('配達メモ_請求書_0354.pdf', $invoice->getDeliveryNoteName());
+    }
+
+    public function test_content_disposition_uses_utf8_filename(): void
+    {
+        app()->setLocale('ja');
+
+        $invoice = new Invoice();
+        $invoice->number = '0354';
+
+        $disposition = HeaderUtils::makeDisposition(
+            HeaderUtils::DISPOSITION_ATTACHMENT,
+            $invoice->getFileName(),
+            \Illuminate\Support\Str::ascii($invoice->getFileName())
+        );
+
+        $this->assertStringContainsString(
+            "filename*=utf-8''%E8%AB%8B%E6%B1%82%E6%9B%B8_0354.pdf",
+            $disposition
+        );
     }
 
     public function test_ascii_filename_is_unchanged(): void
