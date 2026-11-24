@@ -12,6 +12,7 @@
 
 namespace App\Import\Transformer\Invoicely;
 
+use App\DataMapper\ClientSettings;
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
 use Illuminate\Support\Str;
@@ -32,13 +33,15 @@ class ClientTransformer extends BaseTransformer
             throw new ImportException('Client already exists');
         }
 
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = $this->company->settings->currency_id;
+
         $transformed = [
             'company_id'     => $this->company->id,
             'name'           => $this->getString($data, 'Client Name'),
             'phone'     => $this->getString($data, 'Phone'),
             'country_id'     => isset($data['Country']) ? $this->getCountryIdBy2($data['Country']) : null,
             'credit_balance' => 0,
-            'settings'       => new \stdClass(),
             'client_hash'    => Str::random(40),
             'contacts'       => [
                 [
@@ -46,6 +49,7 @@ class ClientTransformer extends BaseTransformer
                     'phone'         => $this->getString($data, 'Phone'),
                 ],
             ],
+            'settings' => (array)$settings,
         ];
 
         return $transformed;
