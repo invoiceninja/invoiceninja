@@ -1,6 +1,19 @@
 <link rel="stylesheet" href="{{ asset('build/assets/builder2.0.standalone.css') }}">
 
-<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden px-4 py-5 bg-white sm:gap-4 sm:px-6">
+<div
+    x-data
+    x-on:builder:sign-cancelled.dot.window="
+        @js($allow_cancel)
+        && $event.detail?.document === @js($document)
+        && $event.detail?.invitation === @js($invitation)
+        && window.confirm(@js(ctrans('texts.quote_options_restart_confirmation')))
+        && $wire.dispatch('docuninja-signing-cancelled', {
+            document_id: $event.detail.document,
+            document_invitation_id: $event.detail.invitation,
+        })
+    "
+    class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden px-4 py-5 bg-white sm:gap-4 sm:px-6"
+>
     <div class="p-2">
         @if($errors->any())
         <div class="alert alert-error">
@@ -36,7 +49,11 @@
 
     const mount = document.getElementById("sign");
 
-    new DocuNinjaSign({ document: doc, invitation, sig, endpoint: '{{ config('ninja.docuninja_api_url') }}', company, translations }).mount(mount);
+    new DocuNinjaSign({
+        document: doc, invitation, sig,
+        endpoint: '{{ config('ninja.docuninja_api_url') }}',
+        company, translations, allowCancel: @js($allow_cancel),
+    }).mount(mount);
 
     // builder's standalone hardcodes the consent screen and attaches its
     // listener in a useEffect after mount, so auto-grant it (retry until attached).

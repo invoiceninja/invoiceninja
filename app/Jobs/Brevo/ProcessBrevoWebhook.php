@@ -90,6 +90,11 @@ class ProcessBrevoWebhook implements ShouldQueue
      */
     public function handle()
     {
+
+        if(!isset($this->request['tags'][0])){
+            return;
+        }
+        
         MultiDB::findAndSetDbByCompanyKey($this->request['tags'][0]);
 
         $this->company = Company::query()->where('company_key', $this->request['tags'][0])->first();

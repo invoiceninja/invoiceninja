@@ -77,7 +77,8 @@
                             @if($quote->hasOptionSelection())
                                 <div class="p-6">
                                     <p class="mb-4 text-sm text-gray-600">{{ ctrans('texts.quote_options_confirmed') }}</p>
-                                    @if($quote->hasPendingOptionSelection() && ! $quote->sync?->dn_completed)
+                                    @if($quote->hasPendingOptionSelection() && ! $quote->sync?->dn_completed
+                                        && ! ($quote->company->docuninjaActive() && $quote->client->getSetting('require_quote_signature')))
                                         <form action="{{ route('client.quote.options.restart', $quote->hashed_id) }}" method="post"
                                               onsubmit="return confirm(@js(ctrans('texts.quote_options_restart_confirmation')))">
                                             @csrf

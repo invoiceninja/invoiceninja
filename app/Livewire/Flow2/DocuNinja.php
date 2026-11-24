@@ -69,6 +69,7 @@ class DocuNinja extends Component
             'sig' => $this->sig,
             'company_key' => $this->company_key,
             '_key' => $this->_key,
+            'allow_cancel' => filled($this->getContext($this->_key)['selection_key'] ?? null),
         ]);
     }
 

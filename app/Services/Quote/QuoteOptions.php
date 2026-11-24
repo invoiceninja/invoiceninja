@@ -181,6 +181,11 @@ class QuoteOptions
                 'revision' => $this->revision($quote),
             ];
             $quote->backup = $backup;
+            $sync = $quote->sync;
+            if ($sync && $sync->invitations) {
+                $sync->dn_dirty = true;
+                $quote->sync = $sync;
+            }
             $quote->saveQuietly();
 
             return $quote->refresh();
@@ -225,15 +230,20 @@ class QuoteOptions
             $backup = $quote->backup;
             $backup->option_selection['revision'] = $this->revision($quote);
             $quote->backup = $backup;
+            $sync = $quote->sync;
+            if ($sync && $sync->invitations) {
+                $sync->dn_dirty = true;
+                $quote->sync = $sync;
+            }
             $quote->saveQuietly();
 
             return $quote->refresh();
         });
     }
 
-    public function restart(Quote $quote): Quote
+    public function restart(Quote $quote, ?string $selection_key = null): Quote
     {
-        return DB::transaction(function () use ($quote) {
+        return DB::transaction(function () use ($quote, $selection_key) {
             $quote = Quote::query()->where('company_id', $quote->company_id)->lockForUpdate()->findOrFail($quote->id);
             $contact = auth()->guard('contact')->user();
 
@@ -241,7 +251,8 @@ class QuoteOptions
                 $quote->company_id === $contact->company_id && $quote->client_id === $contact->client_id
                 && in_array($quote->status_id, [Quote::STATUS_DRAFT, Quote::STATUS_SENT])
                 && ! $quote->is_deleted && ! $quote->invoice_id && ! $quote->hasLapsedValidUntil()
-                && $quote->hasPendingOptionSelection() && ! $quote->sync?->dn_completed,
+                && $quote->hasPendingOptionSelection() && ! $quote->sync?->dn_completed
+                && ($selection_key === null || $quote->backup->option_selection['key'] === $selection_key),
                 409
             );
 
@@ -253,6 +264,11 @@ class QuoteOptions
             $quote->po_number = $selection['po_number'];
             $backup->option_selection = null;
             $quote->backup = $backup;
+            $sync = $quote->sync;
+            if ($sync && $sync->invitations) {
+                $sync->dn_dirty = true;
+                $quote->sync = $sync;
+            }
 
             return $quote->calc()->getInvoice()->refresh();
         });

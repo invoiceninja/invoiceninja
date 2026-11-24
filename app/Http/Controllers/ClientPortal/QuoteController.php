@@ -80,6 +80,11 @@ class QuoteController extends Controller
         }
 
         if ($quote->hasOptionSelection() && in_array($quote->status_id, [Quote::STATUS_DRAFT, Quote::STATUS_SENT]) && ! $quote->invoice_id && ! $quote->is_deleted) {
+            if ($invitation && $invitation->client_contact_id === auth()->guard('contact')->id()
+                && $this->hasActiveSigning($invitation)) {
+                return $this->signQuote($invitation);
+            }
+
             return $this->approve([$quote->id]);
         }
 
@@ -105,6 +110,10 @@ class QuoteController extends Controller
 
     public function restartOptions(ShowQuoteRequest $request, Quote $quote)
     {
+        if ($quote->company->docuninjaActive() && $quote->client->getSetting('require_quote_signature')) {
+            return redirect()->route('client.quote.show', $quote->hashed_id);
+        }
+
         $request->validate(['restart_confirmed' => ['required', 'accepted']]);
         app(QuoteOptions::class)->restart($quote);
 
@@ -142,6 +151,11 @@ class QuoteController extends Controller
                 ->whereIn('status_id', [Quote::STATUS_DRAFT, Quote::STATUS_SENT])
                 ->get();
             $quotes->each(fn ($quote) => app(QuoteOptions::class)->assertConfirmed($quote));
+            if ($quotes->count() === 1 && count($transformed_ids) === 1
+                && $quotes->first()->hasOptionSelection() && ! $request->filled('selection_key')) {
+                return redirect()->route('client.quote.show', $quotes->first()->hashed_id);
+            }
+
             if ($request->filled('selection_key') || $quotes->contains(fn ($quote) => $quote->hasOptionSelection())) {
                 abort_unless(
                     $quotes->count() === 1 && count($transformed_ids) === 1
@@ -153,6 +167,15 @@ class QuoteController extends Controller
             $option_quote = $quotes->first(fn ($quote) => $quote->hasOptions());
             if ($option_quote) {
                 return redirect()->route('client.quote.options', $option_quote->hashed_id);
+            }
+
+            if ($quotes->count() === 1 && $quotes->first()->hasPendingOptionSelection()) {
+                $invitation = $quotes->first()->invitations()
+                    ->where('client_contact_id', auth()->guard('contact')->id())->first();
+
+                if ($invitation && $this->hasActiveSigning($invitation)) {
+                    return $this->signQuote($invitation);
+                }
             }
 
             if ($request->has('process') && ! $request->has('request_hash')
@@ -177,32 +200,8 @@ class QuoteController extends Controller
 
                 if ($invitations->count() > 0) {
                     $invitation = $invitations->first();
-                    if ($invitation->quote->hasPendingOptionSelection()) {
-                        try {
-                            $invitation->quote->service()->refreshNinjaPdf($invitation);
-                        } catch (\Throwable $exception) {
-                            report($exception);
 
-                            return redirect()->route('client.quote.show', $invitation->quote->hashed_id)
-                                ->with('message', ctrans('texts.docuninja_unavailable'));
-                        }
-                    }
-                    $request_hash = \Illuminate\Support\Str::random(64);
-                    $request->merge(['entity_type' => 'invoice', 'db' => auth()->guard('contact')->user()->company->db, 'request_hash' => $request_hash]);
-
-                    Cache::put($request_hash, [
-                        'client_contact_id' => auth()->guard('contact')->id(),
-                        'request' => $request->except(['_token', 'request_hash']),
-                    ], 60 * 60 * 24);
-
-                    return $this->render('components.docuninja', [
-                        'invitation_id' => $invitation->id,
-                        'entity_type' => 'quote',
-                        'entity_number' => $invitation->quote->number,
-                        'db' => $invitation->company->db,
-                        'request_hash' => $request_hash,
-                        '_key' => $invitation->key,
-                    ]);
+                    return $this->signQuote($invitation, $request->except(['_token', 'request_hash']));
                 }
             }
 
@@ -218,6 +217,47 @@ class QuoteController extends Controller
         }
 
         return back();
+    }
+
+    private function hasActiveSigning(QuoteInvitation $invitation): bool
+    {
+        $quote = $invitation->quote;
+
+        if (! $quote->hasPendingOptionSelection() || $quote->sync?->dn_completed
+            || $quote->is_deleted || $quote->invoice_id || $quote->hasLapsedValidUntil()
+            || ! $quote->company->docuninjaActive() || ! $quote->client->getSetting('require_quote_signature')) {
+            return false;
+        }
+
+        $context = Cache::get($invitation->key, []);
+
+        return ($context['selection_key'] ?? null) === $quote->backup->option_selection['key']
+            || (! $quote->sync?->dn_dirty && filled($quote->sync?->getInvitation($invitation->key)['dn_id'] ?? null));
+    }
+
+    private function signQuote(QuoteInvitation $invitation, ?array $approval_request = null)
+    {
+        $quote = $invitation->quote;
+        $request_hash = \Illuminate\Support\Str::random(64);
+
+        Cache::put($request_hash, [
+            'client_contact_id' => auth()->guard('contact')->id(),
+            'request' => $approval_request ?? [
+                'quotes' => [$quote->hashed_id],
+                'action' => 'approve',
+                'process' => true,
+                'selection_key' => $quote->backup->option_selection['key'],
+            ],
+        ], 60 * 60 * 24);
+
+        return $this->render('components.docuninja', [
+            'invitation_id' => $invitation->id,
+            'entity_type' => 'quote',
+            'entity_number' => $quote->number,
+            'db' => $invitation->company->db,
+            'request_hash' => $request_hash,
+            '_key' => $invitation->key,
+        ]);
     }
 
     public function continueApproval(string $request_hash)
