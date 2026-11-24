@@ -116,4 +116,25 @@ class PaymentLinkRegistrationRequiredTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('billing-portal.purchase');
     }
+
+    public function test_v2_purchase_page_is_redirected_to_registration_when_required(): void
+    {
+        $subscription = $this->subscription(true);
+        $url = route('client.subscription.upgrade', ['subscription' => $subscription->hashed_id]);
+
+        $response = $this->get($url);
+
+        $response->assertRedirect(route('client.register', ['company_key' => $this->company->company_key]));
+        $response->assertSessionHas('url.intended', $url);
+    }
+
+    public function test_v2_purchase_page_is_shown_when_registration_is_not_required(): void
+    {
+        $subscription = $this->subscription(false);
+
+        $response = $this->get(route('client.subscription.upgrade', ['subscription' => $subscription->hashed_id]));
+
+        $response->assertOk();
+        $response->assertViewIs('billing-portal.purchasev2');
+    }
 }
