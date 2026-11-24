@@ -29,6 +29,57 @@ export function runArtisan(phpCode: string): string {
     ).trim();
 }
 
+/** Whether the company's DocuNinja module flag (`enable_modules`) is set. */
+export function docuNinjaModulesEnabled(companyHashedId: string): boolean {
+    return (
+        runArtisan(
+            `echo (int) \\App\\Models\\Company::on("db-ninja-01")->whereKey(${JSON.stringify(decodePrimaryKey(companyHashedId))})->value("enable_modules");`,
+        ) === '1'
+    );
+}
+
+/** Sets the company's DocuNinja module flag without firing model events. */
+export function setDocuNinjaModules(
+    companyHashedId: string,
+    enabled: boolean,
+): void {
+    runArtisan(
+        `\\App\\Models\\Company::on("db-ninja-01")->whereKey(${JSON.stringify(decodePrimaryKey(companyHashedId))})->update(["enable_modules" => ${enabled ? 1 : 0}]);` +
+            'echo "ok";',
+    );
+}
+
+/**
+ * `Company::docuninjaActive()` as the application evaluates it - the module flag,
+ * the account's invoice-settings feature, and a `local` or hosted environment.
+ */
+export function docuNinjaActive(companyHashedId: string): boolean {
+    return (
+        runArtisan(
+            `$company = \\App\\Models\\Company::on("db-ninja-01")->findOrFail(${JSON.stringify(decodePrimaryKey(companyHashedId))});` +
+                'echo $company->docuninjaActive() ? "1" : "0";',
+        ) === '1'
+    );
+}
+
+/**
+ * Records the signing document the DocuNinja loader would have registered for a
+ * quote, unless the loader already did. Completing a signature expects that
+ * record, and the remote service that creates it is not reachable from e2e.
+ */
+export function seedQuoteSigningDocument(quoteHashedId: string): void {
+    runArtisan(
+        `$quote = \\App\\Models\\Quote::on("db-ninja-01")->findOrFail(${JSON.stringify(decodePrimaryKey(quoteHashedId))});` +
+            'if (! $quote->sync) {' +
+            '$sync = new \\App\\DataMapper\\QuoteSync();' +
+            '$sync->addInvitation($quote->invitations()->firstOrFail()->key, "playwright-document", "playwright-invitation", "playwright-sig");' +
+            '$quote->sync = $sync;' +
+            '$quote->saveQuietly();' +
+            '}' +
+            'echo "ok";',
+    );
+}
+
 export interface LedgerRow {
     adjustment: number;
     notes: string;
