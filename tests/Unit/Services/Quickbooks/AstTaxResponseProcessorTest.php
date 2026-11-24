@@ -14,8 +14,12 @@ namespace Tests\Unit\Services\Quickbooks;
 
 use App\DataMapper\QuickbooksSettings;
 use App\Factory\InvoiceItemFactory;
+use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\Models\PaymentHash;
 use App\Models\TaxRate;
+use App\Services\ClientPortal\LivewireInstantPayment;
 use App\Services\Quickbooks\Invoice\AstTaxResponseProcessor;
 use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\QuickbooksService;
@@ -397,6 +401,140 @@ class AstTaxResponseProcessorTest extends TestCase
         $invoice = $invoice->fresh();
         $this->assertEqualsWithDelta($original_amount, (float) $invoice->amount, 0.001);
         $this->assertEqualsWithDelta($original_tax, (float) $invoice->total_taxes, 0.001);
+    }
+
+    public function testAstPreservesTotalWhenTaxComponentsHaveDifferentTaxableBases(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 100),
+            $this->lineItem('Second taxable item', 100),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        // Each jurisdiction taxes a different 100 of the 200 subtotal.
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 15,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(10, 10, 100)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX')],
+            total_amt: 215,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+
+        $this->assertEqualsWithDelta(215, (float) $invoice->amount, 0.001);
+        $this->assertEqualsWithDelta(15, (float) $invoice->total_taxes, 0.001);
+        $this->assertEqualsWithDelta(215, (float) $invoice->calc()->getTempEntity()->amount, 0.001);
+    }
+
+    public function testAstMismatchCannotMakeUnpaidBalanceExceedInvoiceAmount(): void
+    {
+        $invoice = $this->makeSentInvoiceForAstBalanceTest(initial_balance: 100, client_balance: 100);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 6,
+            tax_lines: [$this->taxLine(6, 10, 60)],
+            lines: [$this->salesLine('TAX')],
+            total_amt: 106,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+
+        $this->assertEqualsWithDelta((float) $invoice->amount, (float) $invoice->balance, 0.001,
+            'An unpaid invoice must not owe more than its own total after AST reconciliation.');
+        $this->assertEqualsWithDelta((float) $invoice->balance, (float) $this->client->fresh()->balance, 0.001);
+    }
+
+    public function testReplayingSameAstMismatchDoesNotIncreaseBalancesAgain(): void
+    {
+        $invoice = $this->makeSentInvoiceForAstBalanceTest(initial_balance: 100, client_balance: 100);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $qb_response = $this->qbResponseWithTax(
+            total_tax: 6,
+            tax_lines: [$this->taxLine(6, 10, 60)],
+            lines: [$this->salesLine('TAX')],
+            total_amt: 106,
+        );
+
+        $this->invokeProcessTax($qb_invoice, $qb_response, $invoice);
+        $invoice = $invoice->fresh();
+        $invoice_balance = (float) $invoice->balance;
+        $client_balance = (float) $this->client->fresh()->balance;
+
+        $this->invokeProcessTax($qb_invoice, $qb_response, $invoice);
+
+        $this->assertEqualsWithDelta($invoice_balance, (float) $invoice->fresh()->balance, 0.001);
+        $this->assertEqualsWithDelta($client_balance, (float) $this->client->fresh()->balance, 0.001);
+    }
+
+    public function testAstMismatchNeverCreatesPaymentHashAboveUnpaidInvoiceTotal(): void
+    {
+        $invoice = $this->makeSentInvoiceForAstBalanceTest(initial_balance: 100, client_balance: 100);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $settings = $this->client->settings;
+        $settings->client_portal_allow_under_payment = false;
+        $settings->client_portal_allow_over_payment = false;
+        $settings->use_credits_payment = 'off';
+        $this->client->settings = $settings;
+        $this->client->saveQuietly();
+        $this->actingAs($this->contact, 'contact');
+
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 6,
+            tax_lines: [$this->taxLine(6, 10, 60)],
+            lines: [$this->salesLine('TAX')],
+            total_amt: 106,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+        $hash_count = PaymentHash::count();
+        $response = (new LivewireInstantPayment([
+            'company_gateway_id' => CompanyGateway::GATEWAY_CREDIT,
+            'payment_method_id' => GatewayType::CREDIT_CARD,
+            'payable_invoices' => [['invoice_id' => $invoice->hashed_id, 'amount' => $invoice->balance]],
+            'pre_payment' => false,
+            'frequency_id' => false,
+            'remaining_cycles' => false,
+            'is_recurring' => false,
+        ]))->run();
+
+        // Either reconcile the invoice or reject checkout before creating a hash.
+        if (! $response['success']) {
+            $this->assertSame($hash_count, PaymentHash::count());
+
+            return;
+        }
+
+        $this->assertLessThanOrEqual((float) $invoice->amount,
+            (float) data_get($response, 'payload.ph.data.invoices.0.amount'),
+            'AST processing followed by checkout must never offer more than the unpaid invoice total.');
+    }
+
+    public function testAstZeroTaxResponseRecalculatesPreviouslyTaxedInvoice(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('Previously taxable item', 100, tax_rate: 6),
+        ]);
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->balance = 106;
+        $invoice->saveQuietly();
+        $this->client->balance = 106;
+        $this->client->saveQuietly();
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 0,
+            tax_lines: [],
+            lines: [$this->salesLine('NON')],
+            total_amt: 100,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+
+        $this->assertEqualsWithDelta(100, (float) $invoice->amount, 0.001);
+        $this->assertEqualsWithDelta(100, (float) $invoice->balance, 0.001);
+        $this->assertEqualsWithDelta(0, (float) $invoice->total_taxes, 0.001);
+        $this->assertEqualsWithDelta(100, (float) $this->client->fresh()->balance, 0.001);
     }
 
     private function makeQbInvoice(bool $automatic_taxes): QbInvoice

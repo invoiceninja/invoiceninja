@@ -36,6 +36,10 @@
           type: boolean
           example: false
           description: 'Indicates whether the discount applied to the product offered for this line item is a fixed amount or a percentage'
+        is_optional:
+          type: boolean
+          example: false
+          description: 'Indicates whether this line item is an optional quote item that the client may select or decline'
         tax_name1:
           type: string
           example: 'GST'
