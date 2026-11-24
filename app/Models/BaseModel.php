@@ -172,7 +172,7 @@ class BaseModel extends Model
 
         $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
 
-        return \Illuminate\Support\Str::ascii($formatted_number);
+        return $formatted_number;
 
     }
 
@@ -225,7 +225,10 @@ class BaseModel extends Model
 
         $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
 
-        return \Illuminate\Support\Str::ascii($formatted_number);
+        // Keep Unicode letters (e.g. the Japanese invoice prefix) so downloads
+        // and attachments keep their localized name. Laravel's streamDownload()
+        // supplies the ASCII fallback and the RFC 5987 filename* parameter.
+        return $formatted_number;
     }
 
     public function translate_entity()
