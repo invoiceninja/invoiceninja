@@ -30,6 +30,7 @@ class InvoiceItemFactory
         $item->notes = '';
         $item->discount = 0;
         $item->is_amount_discount = true;
+        $item->is_optional = false;
         $item->tax_name1 = '';
         $item->tax_rate1 = 0;
         $item->tax_name2 = '';

@@ -165,6 +165,16 @@ class InvoiceItemSumInclusive
     private function calcLineItems()
     {
         foreach ($this->invoice->line_items as $this->item) {
+            if ($this->item->is_optional ?? false) {
+                $this->item->line_total = 0;
+                $this->item->gross_line_total = 0;
+                $this->item->tax_amount = 0;
+                $this->item->net_cost = 0;
+                $this->line_items[] = $this->item;
+
+                continue;
+            }
+
             $this->sumLineItem()
                 ->setDiscount()
                 ->calcTaxes()
@@ -509,6 +519,10 @@ class InvoiceItemSumInclusive
         $this->setGroupedReverseTaxes(collect([]));
 
         foreach ($this->line_items as $this->item) {
+            if ($this->item->is_optional ?? false) {
+                continue;
+            }
+
             if ($this->sub_total == 0) {
                 $amount = $this->item->line_total;
             } else {

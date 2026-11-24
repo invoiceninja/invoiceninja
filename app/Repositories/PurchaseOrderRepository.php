@@ -37,17 +37,13 @@ class PurchaseOrderRepository extends BaseRepository
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            $purchase_order->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-                $invitation = PurchaseOrderInvitation::query()->where('key', $invitation)->first();
-
-                if ($invitation) {
-                    $invitation->delete();
-                }
+            $purchase_order->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($key) use ($purchase_order) {
+                $purchase_order->invitations()->where('key', $key)->first()?->delete();
             });
 
             foreach ($data['invitations'] as $invitation) {
                 //if no invitations are present - create one.
-                if ($invite = $this->getInvitation($invitation, 'PurchaseOrder')) {
+                if ($invite = $this->getInvitation($invitation, $purchase_order)) {
                     if ($dn_enabled) {
                         $invite->can_sign = $invitation['can_sign'] ?? false;
                         $invite->saveQuietly();
@@ -113,14 +109,4 @@ class PurchaseOrderRepository extends BaseRepository
         return PurchaseOrderInvitation::query()->where('key', $key)->first();
     }
 
-    public function getInvitation($invitation, $resource = null)
-    {
-        if (is_array($invitation) && ! array_key_exists('key', $invitation)) {
-            return false;
-        }
-
-        $invitation = PurchaseOrderInvitation::query()->where('key', $invitation['key'])->first();
-
-        return $invitation;
-    }
 }

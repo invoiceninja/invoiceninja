@@ -209,7 +209,7 @@ class StorePaymentRequest extends Request
             $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
 
-        if (! isset($input['idempotency_key'])) {
+        if (! isset($input['idempotency_key']) && is_numeric($input['amount'])) {
             $input['idempotency_key'] = substr(time() . "{$input['date']}{$input['amount']}{$credits_total}{$this->client_id}{$user->company()->company_key}", 0, 64);
         }
 

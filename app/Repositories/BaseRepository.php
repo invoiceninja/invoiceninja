@@ -125,18 +125,14 @@ class BaseRepository
         }
     }
 
-    /* Returns an invoice if defined as a key in the $resource array*/
-    public function getInvitation($invitation, $resource)
+    /** Returns this entity's invitation when the payload includes its key. */
+    protected function getInvitation(array $invitation, $model)
     {
-        if (is_array($invitation) && !array_key_exists('key', $invitation)) {
+        if (! array_key_exists('key', $invitation)) {
             return false;
         }
 
-        $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-
-        $invitation = $invitation_class::with('company')->where('key', $invitation['key'])->first();
-
-        return $invitation;
+        return $model->invitations()->where('key', $invitation['key'])->first();
     }
 
     /* Clean return of a key rather than butchering the model*/
@@ -255,18 +251,13 @@ class BaseRepository
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
-                $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-                $invitation = $invitation_class::query()->where('key', $invitation)->first();
-
-                if ($invitation) {
-                    $invitation->delete();
-                }
+            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($key) use ($model) {
+                $model->invitations()->where('key', $key)->first()?->delete();
             });
 
             foreach ($data['invitations'] as $invitation) {
                 //if no invitations are present - create one.
-                if ($invite = $this->getInvitation($invitation, $resource)) {
+                if ($invite = $this->getInvitation($invitation, $model)) {
                     if ($dn_enabled) {
                         $invite->can_sign = $invitation['can_sign'] ?? false;
                         $invite->saveQuietly();

@@ -880,7 +880,7 @@ class PdfBuilder
     /**
      * Generate the structure of table body. (<tbody/>)
      *
-     * @param string $type "$product" or "$task"
+     * @param string $type "$product", "$task", or "$optional"
      * @return array
      *
      */
@@ -889,7 +889,7 @@ class PdfBuilder
 
         $elements = [];
 
-        $items = $this->transformLineItems($this->service->config->entity->line_items, $type);
+        $items = $this->transformLineItems($this->service->getLineItems(), $type);
 
         $this->processNewLines($items);
 
@@ -899,7 +899,12 @@ class PdfBuilder
 
         $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
 
-        $column_visibility = $this->getColumnVisibility($this->service->config->entity->line_items, $_type);
+        $column_visibility = $this->getColumnVisibility($this->service->getLineItems(), $_type);
+
+        if ($_type === 'optional') {
+            $_type = 'product';
+            $type = '$product';
+        }
 
         if ($type == PdfService::DELIVERY_NOTE) {
             $product_customs = [false, false, false, false];
@@ -940,8 +945,11 @@ class PdfBuilder
             $table_type = "product_quote_columns";
         }
 
-        foreach ($items as $row) {
+        foreach ($items as $index => $row) {
             $element = ['element' => 'tr', 'elements' => []];
+            if ($this->service->config->entity instanceof Quote) {
+                $element['properties']['data-quote-item-index'] = (string) $index;
+            }
             //checks if we have custom columns in the options array with key $product/$task - looks like unused functionality
             if (isset($this->service->options[$type]) && !empty($this->service->options[$type])) {
 
@@ -1025,17 +1033,26 @@ class PdfBuilder
         $data = [];
 
         $locale_info = localeconv();
+        $item_group = $table_type;
+        $table_type = $table_type === '$optional' ? '$product' : $table_type;
+        $split_options = $this->usesOptionalProductTable();
 
         foreach ($items as $key => $item) {
             /** @var \App\DataMapper\InvoiceItem $item */
 
-            if ($table_type == '$product' && $item->type_id != 1) {
-                if ($item->type_id != 4 && $item->type_id != 6 && $item->type_id != 5) {
-                    continue;
-                }
+            $is_optional = (bool) ($item->is_optional ?? false);
+            $item_type = (string) $item->type_id;
+
+            if ($item_group === '$product' && ! in_array($item_type, ['1', '4', '5', '6'], true)) {
+                continue;
             }
 
-            if ($table_type == '$task' && $item->type_id != 2) {
+            if ($item_group === '$task' && $item_type !== '2') {
+                continue;
+            }
+
+            if (($item_group === '$optional' && ! $is_optional)
+                || ($split_options && in_array($item_group, ['$product', '$task'], true) && $is_optional)) {
                 continue;
             }
 
@@ -1138,26 +1155,15 @@ class PdfBuilder
      * Filters the visible columns for a table row.
      *
      * @param  array $items
-     * @param  string $type_id
+     * @param  string $table_type
      *
      * @return array
      */
-    private function getColumnVisibility(array $items, string $type_id): array
+    private function getColumnVisibility(array $items, string $table_type): array
     {
-
-        // Convert type_id to numeric
-        $type_id = $type_id === 'product' ? '1' : '2';
-
-        // Filter items by type_id
-        $filtered_items = collect($items)->filter(function ($item) use ($type_id) {
-            return $item->type_id == $type_id
-                || ($type_id == '1' && ($item->type_id == '4' || $item->type_id == '5' || $item->type_id == '6'));
-        });
-
-        // Transform the items first
         $transformed_items = $this->transformLineItems(
-            $filtered_items->toArray(),
-            $type_id === '1' ? '$product' : '$task'
+            $items,
+            in_array($table_type, ['product', 'optional'], true) ? '$' . $table_type : '$task'
         );
 
         $columns = [];
@@ -1186,7 +1192,7 @@ class PdfBuilder
     /**
     * Generate the structure of table headers. (<thead/>)
     *
-    * @param string $type "product" or "task"
+    * @param string $type "product", "task", or "optional"
     * @return array
     *
     */
@@ -1194,6 +1200,8 @@ class PdfBuilder
     {
 
         $elements = [];
+        $column_visibility = $this->getColumnVisibility($this->service->getLineItems(), $type);
+        $type = $type === 'optional' ? 'product' : $type;
 
         // Some of column can be aliased. This is simple workaround for these.
         $aliases = [
@@ -1212,8 +1220,6 @@ class PdfBuilder
         }
 
         $this->processTaxColumns($column_type);
-
-        $column_visibility = $this->getColumnVisibility($this->service->config->entity->line_items, $type);
 
         foreach ($this->service->config->pdf_variables[$table_type] as $column) {
 
@@ -1261,6 +1267,15 @@ class PdfBuilder
             } else {
                 $elements[$last_visible]['properties']['class'] .= ' right-radius';
             }
+        }
+
+        if ($this->service->config->entity instanceof Quote) {
+            $columns = array_values($this->service->config->pdf_variables[$table_type]);
+            foreach ($elements as $index => &$element) {
+                // Keep PDF variable substitution from changing the field metadata.
+                $element['properties']['data-quote-field'] = base64_encode($columns[$index]);
+            }
+            unset($element);
         }
 
         $elements = array_map(function ($element) {
@@ -1330,13 +1345,14 @@ class PdfBuilder
         // evaluating the variable.
 
         if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->service->config->pdf_variables["{$column_type}_columns"])) {
-            $line_items = collect($this->service->config->entity->line_items)->filter(function ($item) use ($type_id) {
-                return $item->type_id == $type_id; // = != == bad comparison operator fix 2023-11-12
+            $line_items = collect($this->service->getLineItems())->filter(function ($item) use ($type_id) {
+                return $item->type_id == $type_id
+                    || ($type_id === 1 && $this->usesOptionalProductTable() && ($item->is_optional ?? false));
             });
 
-            $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', $type_id)->count();
-            $tax2 = $line_items->where('tax_name2', '<>', '')->where('type_id', $type_id)->count();
-            $tax3 = $line_items->where('tax_name3', '<>', '')->where('type_id', $type_id)->count();
+            $tax1 = $line_items->where('tax_name1', '<>', '')->count();
+            $tax2 = $line_items->where('tax_name2', '<>', '')->count();
+            $tax3 = $line_items->where('tax_name3', '<>', '')->count();
 
             $taxes = [];
 
@@ -1645,7 +1661,32 @@ class PdfBuilder
             ],
         ]);
 
+        if ($this->usesOptionalProductTable()) {
+            $this->mergeSections([
+                // Normal quotes reuse the otherwise empty delivery-note placeholder.
+                'delivery-note-table' => [
+                    'id' => 'delivery-note-table',
+                    'properties' => ['data-quote-group' => 'optional'],
+                    'elements' => $this->optionalProductTable(),
+                ],
+            ]);
+
+            $this->sections['product-table']['properties']['data-quote-group'] = 'required';
+            $this->sections['task-table']['properties']['data-quote-group'] = 'required';
+        }
+
         return $this;
+    }
+
+    private function usesOptionalProductTable(): bool
+    {
+        if (! $this->service->config->entity instanceof Quote || $this->service->document_type !== PdfService::PRODUCT || ! isset($this->document)) {
+            return false;
+        }
+
+        $table = $this->document->getElementById('delivery-note-table');
+
+        return $table && $table->childElementCount === 0 && trim($table->textContent) === '';
     }
 
     /**
@@ -1677,8 +1718,10 @@ class PdfBuilder
      */
     public function productTable(): array
     {
-        $product_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
-            return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5 || $item->type_id == 4;
+        $split_options = $this->usesOptionalProductTable();
+        $product_items = collect($this->service->getLineItems())->filter(function ($item) use ($split_options) {
+            return in_array((string) $item->type_id, ['1', '4', '5', '6'], true)
+                && (! $split_options || ! ($item->is_optional ?? false));
         });
 
         if (count($product_items) == 0) {
@@ -1694,6 +1737,28 @@ class PdfBuilder
     }
 
     /**
+     * Generates optional quote items using the product table's columns and formatting.
+     */
+    public function optionalProductTable(): array
+    {
+        $optional_items = collect($this->service->getLineItems())->filter(fn ($item) => $item->is_optional ?? false);
+
+        if (count($optional_items) == 0) {
+            return [];
+        }
+
+        return [
+            ['element' => 'caption', 'content' => ctrans('texts.optional_items'), 'properties' => [
+                'style' => 'text-align: start; font-weight: bold; padding: 12px 0; caption-side: top;',
+            ]],
+            ['element' => 'thead', 'properties' => [], 'elements' => [
+                ['element' => 'tr', 'elements' => $this->buildTableHeader('optional')],
+            ]],
+            ['element' => 'tbody', 'elements' => $this->buildTableBody('$optional')],
+        ];
+    }
+
+    /**
      * Generates the task table
      *
      * @return array
@@ -1705,8 +1770,9 @@ class PdfBuilder
             return [];
         }
 
-        $task_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
-            return $item->type_id == 2;
+        $split_options = $this->usesOptionalProductTable();
+        $task_items = collect($this->service->getLineItems())->filter(function ($item) use ($split_options) {
+            return $item->type_id == 2 && (! $split_options || ! ($item->is_optional ?? false));
         });
 
         if (count($task_items) == 0) {
@@ -1982,7 +2048,7 @@ class PdfBuilder
             ['element' => 'th', 'content' => '$product.quantity_label', 'properties' => ['data-ref' => 'delivery_note-product.quantity_label']],
         ];
 
-        $items = $this->transformLineItems($this->service->config->entity->line_items, $this->service->document_type);
+        $items = $this->transformLineItems($this->service->getLineItems(), $this->service->document_type);
 
         $this->processNewLines($items);
 

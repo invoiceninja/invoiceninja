@@ -767,6 +767,9 @@ class JsonToSectionsAdapter
                     'visi' => true, // Mark as visible for border-radius logic
                 ],
             ];
+            if ($this->service->config->entity instanceof \App\Models\Quote) {
+                $headerElements[array_key_last($headerElements)]['properties']['data-quote-field'] = base64_encode($column['field']);
+            }
         }
 
         // Build table body rows with only visible columns
@@ -922,7 +925,7 @@ class JsonToSectionsAdapter
         $rowIndex = 0;
 
         // Build rows
-        foreach ($filteredItems as $item) {
+        foreach ($filteredItems as $item_index => $item) {
             $rowElements = [];
             $isFirstRow = $rowIndex === 0;
             $rowBackground = $this->resolveRowBackground($props, $rowIndex);
@@ -958,6 +961,9 @@ class JsonToSectionsAdapter
                 if ($rowBackground !== null) {
                     $tr['properties'] = ['style' => 'background: ' . $rowBackground . ';'];
                 }
+                if ($this->service->config->entity instanceof \App\Models\Quote) {
+                    $tr['properties']['data-quote-item-index'] = (string) $item_index;
+                }
                 $rows[] = $tr;
                 $rowIndex++;
             }
@@ -974,21 +980,21 @@ class JsonToSectionsAdapter
      */
     private function getFilteredLineItems(string $tableType): array
     {
-        $lineItems = $this->service->config->entity->line_items ?? [];
+        $lineItems = $this->service->getLineItems();
         $filteredItems = [];
 
-        foreach ($lineItems as $item) {
+        foreach ($lineItems as $item_index => $item) {
             $itemTypeId = (string) ($item->type_id ?? '1');
 
             if ($tableType === 'product') {
                 // Include products (1) and related types (4, 5, 6)
                 if (in_array($itemTypeId, ['1', '4', '5', '6'])) {
-                    $filteredItems[] = $item;
+                    $filteredItems[$item_index] = $item;
                 }
             } elseif ($tableType === 'task') {
                 // Include only tasks (2)
                 if ($itemTypeId === '2') {
-                    $filteredItems[] = $item;
+                    $filteredItems[$item_index] = $item;
                 }
             }
         }
@@ -1218,6 +1224,10 @@ class JsonToSectionsAdapter
                 ],
                 'elements' => $cells,
             ];
+
+            if ($this->service->config->entity instanceof \App\Models\Quote) {
+                $rowElement['properties']['data-quote-field'] = base64_encode($field);
+            }
 
             $rowElements[] = $this->withRowEmptyCheck($rowElement, !$hideIfEmpty, $field);
         }

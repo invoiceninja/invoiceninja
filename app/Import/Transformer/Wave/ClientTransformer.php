@@ -53,7 +53,7 @@ class ClientTransformer extends BaseTransformer
             'city'           => $this->getString($data, 'city'),
             'postal_code'    => $this->getString($data, 'postal_code/zip_code'),
 
-            'shipping_country_id'     => ! empty($data['ship-to_country']) ? $this->getCountryId($data['country']) : null,
+            'shipping_country_id'     => ! empty($data['ship-to_country']) ? $this->getCountryId($data['ship-to_country']) : null,
             'shipping_state'          => $this->getString($data, 'ship-to_province/state'),
             'shipping_address1'       => $this->getString($data, 'ship-to_address_line_1'),
             'shipping_address2'       => $this->getString($data, 'ship-to_address_line_2'),

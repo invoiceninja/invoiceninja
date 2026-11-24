@@ -102,6 +102,46 @@ class StorePaymentValidationTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function testZapierArrayAmountReturnsValidationError()
+    {
+        $second_invoice = $this->invoice->replicate();
+        $second_invoice->number = 'DUMMY-ZAPIER-002';
+        $second_invoice->save();
+
+        $data = [
+            'amount' => [42.5, 17.5],
+            'client_id' => $this->client->hashed_id,
+            'date' => '2026-01-15T00:00:00+00:00',
+            'invoice_id' => [$this->invoice->hashed_id, $second_invoice->hashed_id],
+            'invoices' => [
+                [
+                    'amount' => 42.5,
+                    'invoice_id' => $this->invoice->hashed_id,
+                ],
+                [
+                    'amount' => 17.5,
+                    'invoice_id' => $second_invoice->hashed_id,
+                ],
+            ],
+            'private_notes' => 'Dummy bank statement payment',
+            'transaction_reference' => 'dummy-zapier-payment',
+            'type_id' => '1',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'User-Agent' => 'Zapier',
+        ])->postJson('/api/v1/payments', $data);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('amount');
+        $this->assertDatabaseMissing('payments', [
+            'company_id' => $this->company->id,
+            'transaction_reference' => 'dummy-zapier-payment',
+        ]);
+    }
+
     public function testValidPayment()
     {
         $data = [

@@ -92,6 +92,10 @@ trait CleanLineItems
         $total = 0;
 
         foreach ($items as $item) {
+            if ($item['is_optional'] ?? false) {
+                continue;
+            }
+
             $total += ($item['cost'] * $item['quantity']);
         }
 

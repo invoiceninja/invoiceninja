@@ -51,7 +51,7 @@ class ConvertQuote
         //invitations for ALL contacts
         $invites = $this->createConversionInvitations($invoice, $quote);
         $invoice_array = $invoice->toArray();
-        $invoice_array['invitations'] = $invites;
+        $invoice_array['invitations'] = array_map(fn ($invitation) => $invitation->toArray(), $invites);
 
         //try and convert the invoice number to a quote number here.
         if ($this->client->getSetting('shared_invoice_quote_counter')) {

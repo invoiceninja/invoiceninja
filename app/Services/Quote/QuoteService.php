@@ -14,6 +14,7 @@ namespace App\Services\Quote;
 
 use App\Utils\Ninja;
 use App\Models\Quote;
+use App\DataMapper\QuoteBackup;
 use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\QuoteConversion;
@@ -127,9 +128,20 @@ class QuoteService
         return $this;
     }
 
+    private function acceptOptionSelection(): self
+    {
+        if ($this->quote->hasOptionSelection()) {
+            $backup = $this->quote->backup;
+            $backup->option_selection['state'] = QuoteBackup::STATE_ACCEPTED;
+            $this->quote->backup = $backup;
+        }
+
+        return $this;
+    }
+
     public function approve($contact = null): self
     {
-        $this->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
+        $this->acceptOptionSelection()->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
 
         if (! $contact) {
             $contact = $this->quote->invitations->first()->contact;
@@ -184,7 +196,7 @@ class QuoteService
 
     public function approveWithNoCoversion($contact = null): self
     {
-        $this->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
+        $this->acceptOptionSelection()->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
 
         if (! $contact) {
             $contact = $this->quote->invitations->first()->contact;
@@ -344,6 +356,37 @@ class QuoteService
         }
 
         return $this;
+    }
+
+    public function refreshNinjaPdf(\App\Models\QuoteInvitation $invitation): void
+    {
+        if (! class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class)) {
+            return;
+        }
+
+        $quote = $this->quote->fresh();
+        abort_unless($invitation->quote_id === $quote->id && $invitation->company_id === $quote->company_id, 409);
+        abort_unless($quote->hasPendingOptionSelection() && ! $quote->sync?->dn_completed, 409);
+        app(QuoteOptions::class)->assertConfirmed($quote);
+        $documents = collect($quote->sync->invitations ?? [])
+            ->filter(fn ($document) => filled($document['dn_id'] ?? null))->unique('dn_id');
+        if ($documents->isEmpty()) {
+            return;
+        }
+
+        $document = (new \InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja())->document;
+        foreach ($documents as $sync_invitation) {
+            $document_invitation = ($sync_invitation['invitation_key'] ?? null) === $invitation->key
+                ? $invitation
+                : $quote->invitations()->where('key', $sync_invitation['invitation_key'] ?? '')->firstOrFail();
+            $document->refreshNinjaPdf([
+                'company_key' => $quote->company->company_key,
+                'entity_type' => 'quote',
+                'entity_id' => $quote->hashed_id,
+                'document_id' => $sync_invitation['dn_id'],
+                'file' => base64_encode($quote->service()->getQuotePdf($document_invitation->contact)),
+            ]);
+        }
     }
 
     public function getDocuNinjaSignable(?\App\Models\QuoteInvitation $invite = null)

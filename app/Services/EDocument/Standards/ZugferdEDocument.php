@@ -23,6 +23,7 @@ use App\DataMapper\InvoiceItem;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InclusiveTax;
 use App\Helpers\Invoice\InvoiceSum;
+use Illuminate\Validation\ValidationException;
 use horstoeko\zugferd\ZugferdProfiles;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
@@ -127,7 +128,7 @@ class ZugferdEDocument extends AbstractService
                 true,
                 $tax_category,
                 "VAT",
-                $tax_rate,
+                $tax_category === ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX ? null : $tax_rate,
                 null,
                 null,
                 null,
@@ -259,7 +260,7 @@ class ZugferdEDocument extends AbstractService
         foreach ($tax_groups as $group) {
             $base_amount = round($group['base_amount'], 2);
 
-            if ($base_amount <= 0) {
+            if ($base_amount < 0 || ($base_amount == 0 && $group['tax_category'] !== ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX)) {
                 continue;
             }
 
@@ -292,7 +293,7 @@ class ZugferdEDocument extends AbstractService
                     false,
                     $group['tax_category'],
                     "VAT",
-                    $group['tax_rate'],
+                    $group['tax_category'] === ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX ? null : $group['tax_rate'],
                     null,
                     null,
                     null,
@@ -373,8 +374,67 @@ class ZugferdEDocument extends AbstractService
             $this->exemption_reason_code = "VATEX-EU-O";
         }
 
-        return $this;
+        return $this->resolveOutsideScopeTax($eu_states);
 
+    }
+
+    private function resolveOutsideScopeTax(array $eu_states): self
+    {
+        if (!in_array($this->company->country()->iso_3166_2, $eu_states, true)
+            || in_array($this->client->country->iso_3166_2, $eu_states, true)) {
+            return $this;
+        }
+
+        $service_types = [(string) Product::PRODUCT_TYPE_SERVICE, (string) Product::PRODUCT_TYPE_DIGITAL];
+        $service_items = array_filter(
+            $this->document->line_items,
+            static fn ($item): bool => in_array((string) ($item->tax_id ?? ''), $service_types, true)
+        );
+
+        if (empty($service_items)) {
+            return $this;
+        }
+
+        $additional_tax_rates = [];
+        foreach ([1, 2, 3] as $index) {
+            if (strlen($this->document->{"tax_name{$index}"} ?? '') > 1) {
+                $additional_tax_rates[] = (float) $this->document->{"tax_rate{$index}"};
+            }
+        }
+        $outside_scope_count = 0;
+
+        foreach ($service_items as $item) {
+            $additional_tax_rates[] = (float) $item->tax_rate2;
+            $additional_tax_rates[] = (float) $item->tax_rate3;
+            $outside_scope_count += (float) $item->tax_rate1 === 0.0 ? 1 : 0;
+        }
+
+        if (array_filter($additional_tax_rates)) {
+            throw ValidationException::withMessages([
+                'line_items.tax_id' => 'This ZUGFeRD service export cannot represent additional line taxes or document-level taxes. Select a supported tax configuration.',
+            ]);
+        }
+
+        if ($outside_scope_count === 0) {
+            return $this;
+        }
+
+        if ($this->client->classification !== 'business') {
+            throw ValidationException::withMessages([
+                'line_items.tax_id' => 'Automatic outside-scope classification requires a business customer. Select an explicit tax treatment for these services.',
+            ]);
+        }
+
+        if ($outside_scope_count !== count($this->document->line_items) || (float) $this->calc->getTotalTaxes() !== 0.0) {
+            throw ValidationException::withMessages([
+                'line_items.tax_id' => 'Outside-scope services cannot be combined with other VAT treatments or unclassified lines. Issue separate invoices.',
+            ]);
+        }
+
+        $this->tax_code = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
+        $this->exemption_reason_code = 'VATEX-EU-O';
+
+        return $this;
     }
 
     private function setDocumentSummation(): self
@@ -446,7 +506,7 @@ class ZugferdEDocument extends AbstractService
             $this->xdocument->addDocumentPositionTax(
                 $duty_category,
                 'VAT',
-                $rate_percent
+                $duty_category === ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX ? null : $rate_percent
             );
 
             // 3. Add allowances/charges (discounts) if any
@@ -637,17 +697,20 @@ class ZugferdEDocument extends AbstractService
             ->setDocumentSellerAddress($this->company->getSetting("address1"), $this->company->getSetting("address2"), "", $this->company->getSetting("postal_code"), $this->company->getSetting("city"), $this->company->country()->iso_3166_2, $this->company->getSetting("state"))
             ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $user_or_company_phone, "", $this->document->user->email)
             ->setDocumentSellerCommunication("EM", $this->document->user->email)
-            ->addDocumentSellerTaxRegistration($company_tax_registration[0], $company_tax_registration[1])
             ->setDocumentBuyer($this->client->present()->name(), $this->client->number)
             ->setDocumentBuyerAddress($this->client->address1, "", "", $this->client->postal_code, $this->client->city, $this->client->country->iso_3166_2, $this->client->state)
             ->setDocumentBuyerContact($this->client->present()->primary_contact_name_or_null(), "", $this->client->present()->phone(), "", $this->client->present()->email())
             ->setDocumentBuyerCommunication("EM", $this->client->present()->email());
 
+        if ($this->tax_code !== ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX || $company_tax_registration[0] !== 'VA') {
+            $this->xdocument->addDocumentSellerTaxRegistration($company_tax_registration[0], $company_tax_registration[1]);
+        }
+
         if (!empty($this->document->public_notes)) {
             $this->xdocument->addDocumentNote($this->document->public_notes);
         }
 
-        if (strlen($this->client->vat_number ?? '') > 1) {
+        if ($this->tax_code !== ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX && strlen($this->client->vat_number ?? '') > 1) {
             $buyer_vat = $this->addVatCountryPrefix($this->client->vat_number, $this->client->country->iso_3166_2);
             $this->xdocument->addDocumentBuyerTaxRegistration($this->getDocumentLevelTaxRegistration(), $buyer_vat);
         }
@@ -677,13 +740,25 @@ class ZugferdEDocument extends AbstractService
 
     private function setIdNumber(): self
     {
-        $id_number = $this->company->getSetting('id_number');
+        $id_number = $this->getIdNumber();
+
+        if ($this->tax_code === ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX) {
+            if (empty($id_number)) {
+                throw ValidationException::withMessages([
+                    'settings.id_number' => 'Set a seller identifier or legal registration number for an outside-scope invoice.',
+                ]);
+            }
+
+            $this->xdocument->addDocumentSellerId($id_number);
+        }
 
         if (!empty($id_number) && str_contains($id_number, "/")) {
             $id_number = trim($id_number);
 
             // BT-29: Seller identifier
-            $this->xdocument->addDocumentSellerGlobalId($id_number, "0088");
+            if ($this->tax_code !== ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX) {
+                $this->xdocument->addDocumentSellerGlobalId($id_number, "0088");
+            }
 
             // BT-32: Tax registration identifier
             $this->xdocument->addDocumentSellerTaxRegistration("FC", $id_number);
@@ -872,6 +947,10 @@ class ZugferdEDocument extends AbstractService
      */
     private function invoiceLineTradeTaxClassification(object $item): array
     {
+        if ($this->tax_code === ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX) {
+            return [$this->tax_code, 0.0];
+        }
+
         $tax_id = (string) ($item->tax_id ?? '');
         $has_explicit_tax_category = in_array($tax_id, [
             (string) Product::PRODUCT_TYPE_EXEMPT,
@@ -978,6 +1057,10 @@ class ZugferdEDocument extends AbstractService
      */
     private function documentSurchargeTaxClassification(int $index, array $tax_groups): array
     {
+        if ($this->tax_code === ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX) {
+            return [$this->tax_code, 0.0];
+        }
+
         if (! (bool) $this->document->{"custom_surcharge_tax{$index}"}) {
             return [ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX, 0.0];
         }
@@ -1102,7 +1185,7 @@ class ZugferdEDocument extends AbstractService
             ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE => 'VATEX-EU-AE',
             ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES => 'VATEX-EU-IC',
             ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX => 'VATEX-EU-O',
-            ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX => $this->exemption_reason_code,
+            ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX => $this->exemption_reason_code === 'VATEX-EU-G' ? null : $this->exemption_reason_code,
             default => null,
         };
     }

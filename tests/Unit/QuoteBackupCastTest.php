@@ -76,17 +76,16 @@ class QuoteBackupCastTest extends TestCase
         }
     }
 
-    public function testPreservesLegacyKeysWhenUpdatingConfiguration(): void
+    public function testHydratesExistingGuidWithoutWorkflowConfiguration(): void
     {
         $quote = new Quote();
-        $quote->setRawAttributes(['backup' => '{"legacy_key":"preserve me","guid":"legacy-guid"}']);
+        $quote->setRawAttributes(['backup' => '{"guid":"legacy-guid"}']);
 
         $this->assertSame('legacy-guid', $quote->backup->guid);
 
         $quote->backup->steps = ['acceptance'];
 
         $this->assertSame([
-            'legacy_key' => 'preserve me',
             'schema_version' => 1,
             'rules' => [],
             'steps' => ['acceptance'],
@@ -100,8 +99,17 @@ class QuoteBackupCastTest extends TestCase
         $quote->setRawAttributes([
             'amount' => 1000,
             'line_items' => '[]',
-            'backup' => '{"schema_version":1,"rules":{"deposit":{"amount":200}},"steps":["acceptance"],"guid":"source-guid","legacy_key":"source only"}',
+            'backup' => '{"schema_version":1,"rules":{"deposit":{"amount":200}},"steps":["acceptance"],"guid":"source-guid"}',
         ]);
+        $quote->backup->option_selection = [
+            'state' => QuoteBackup::STATE_PENDING_ACCEPTANCE,
+            'line_items' => [['product_key' => 'Original optional work', 'is_optional' => true]],
+            'partial' => 200,
+            'selected_options' => [],
+            'contact_id' => 1,
+            'confirmed_at' => '2026-11-09T00:00:00+00:00',
+            'revision' => 'confirmed-scope',
+        ];
 
         $clone_quote = CloneQuoteFactory::create($quote, 1);
 
@@ -116,8 +124,47 @@ class QuoteBackupCastTest extends TestCase
         $clone_quote->backup->rules['deposit']['amount'] = 300;
 
         $this->assertSame(200, $quote->backup->rules['deposit']['amount']);
-        $this->assertSame('source only', $quote->backup->toArray()['legacy_key']);
         $this->assertSame('source-guid', $quote->backup->guid);
+        $this->assertNull($clone_quote->backup->option_selection);
+    }
+
+    public function testConfirmedOptionSelectionSurvivesHydration(): void
+    {
+        $selection = [
+            'state' => QuoteBackup::STATE_PENDING_ACCEPTANCE,
+            'line_items' => [['product_key' => 'Chimney repairs', 'is_optional' => true]],
+            'partial' => 200,
+            'selected_options' => [],
+            'contact_id' => 1,
+            'confirmed_at' => '2026-11-09T00:00:00+00:00',
+            'revision' => 'confirmed-scope',
+        ];
+        $quote = new Quote();
+        $quote->backup = new QuoteBackup(guid: 'reserved-guid', option_selection: $selection);
+
+        $restored_quote = new Quote();
+        $restored_quote->setRawAttributes($quote->getAttributes(), true);
+
+        $this->assertTrue($restored_quote->hasOptionSelection());
+        $this->assertSame($selection, $restored_quote->backup->option_selection);
+        $this->assertSame('reserved-guid', $restored_quote->backup->guid);
+    }
+
+    public function testLegacySelectionRemainsReadableAndQuoteStatusControlsResumption(): void
+    {
+        $quote = new Quote();
+        $quote->backup = new QuoteBackup(option_selection: ['confirmed_at' => '2026-11-09T00:00:00+00:00']);
+        $quote->status_id = Quote::STATUS_SENT;
+
+        $this->assertTrue($quote->hasPendingOptionSelection());
+
+        $quote->status_id = Quote::STATUS_REJECTED;
+        $this->assertFalse($quote->hasPendingOptionSelection());
+        $this->assertTrue($quote->hasOptionSelection());
+
+        $quote->status_id = Quote::STATUS_SENT;
+        $quote->backup->option_selection['state'] = QuoteBackup::STATE_ACCEPTED;
+        $this->assertFalse($quote->hasPendingOptionSelection());
     }
 
     public function testRejectsMalformedJsonWithoutReplacingItWithDefaults(): void

@@ -416,22 +416,25 @@ test.describe('Client portal quotes', () => {
         await expect(page.locator('[data-ref="meta-title"]')).toHaveText(
             'View Invoice',
         );
-        await expect(page.getByRole('button', { name: /\$120\.00/ })).toBeVisible();
+        await expect(page.getByText('Amount due').locator('..')).toContainText(
+            '$120.00',
+        );
     });
 
-    test('shows an expired quote status on the detail page', async ({
+    test('keeps a quote with a future valid-until date approvable', async ({
         api,
         page,
     }) => {
         const client = await createAndLogInClient(api, page);
         const quote = await createSentQuote(api, client, {
-            label: uniqueName('quote-expired'),
-            dueInDays: -30,
+            label: uniqueName('quote-valid-until'),
+            dueInDays: 30,
         });
 
         await page.goto(`/client/quotes/${quote.id}`);
-        await expect(page.getByRole('heading', { name: 'Expired' })).toBeVisible();
-        await expect(page.locator('#approve-button')).toHaveCount(0);
+        await expect(page.getByRole('heading', { name: /Approve \/ Reject/i })).toBeVisible();
+        await expect(page.locator('#approve-button')).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Expired' })).toHaveCount(0);
     });
 
     test('shows a custom message on pending quotes', async ({ api, page }) => {
@@ -488,28 +491,35 @@ test.describe('Client portal quotes', () => {
         await expect(page.getByRole('heading', { name: /Approve \/ Reject/i })).toBeVisible();
     });
 
-    test('filters the quote list to expired quotes', async ({ api, page }) => {
+    test('leaves future-dated quotes out of the expired filter', async ({ api, page }) => {
         const client = await createAndLogInClient(api, page);
-        const current = await createSentQuote(api, client, {
-            label: uniqueName('quote-filter-current'),
-            dueInDays: 30,
+        const sooner = await createSentQuote(api, client, {
+            label: uniqueName('quote-filter-sooner'),
+            dueInDays: 14,
         });
-        const expired = await createSentQuote(api, client, {
-            label: uniqueName('quote-filter-expired'),
-            dueInDays: -30,
+        const later = await createSentQuote(api, client, {
+            label: uniqueName('quote-filter-later'),
+            dueInDays: 30,
         });
 
         await page.goto('/client/quotes');
+        await expect(
+            page.locator('.quotes-table').getByText(sooner.number ?? ''),
+        ).toBeVisible();
+        await expect(
+            page.locator('.quotes-table').getByText(later.number ?? ''),
+        ).toBeVisible();
+
         await page.locator('#sent-checkbox').uncheck();
         await page.locator('#approved-checkbox').uncheck();
         await page.locator('#rejected-checkbox').uncheck();
         await page.locator('#expired-checkbox').check();
 
         await expect(
-            page.locator('.quotes-table').getByText(expired.number ?? ''),
-        ).toBeVisible();
+            page.locator('.quotes-table').getByText(sooner.number ?? ''),
+        ).toHaveCount(0);
         await expect(
-            page.locator('.quotes-table').getByText(current.number ?? ''),
+            page.locator('.quotes-table').getByText(later.number ?? ''),
         ).toHaveCount(0);
     });
 

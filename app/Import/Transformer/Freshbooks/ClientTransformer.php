@@ -12,6 +12,7 @@
 
 namespace App\Import\Transformer\Freshbooks;
 
+use App\DataMapper\ClientSettings;
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
 use Illuminate\Support\Str;
@@ -34,6 +35,8 @@ class ClientTransformer extends BaseTransformer
             throw new ImportException('Client already exists');
         }
 
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = $this->company->settings->currency_id;
         $address1 = data_get($data, 'Street', data_get($data, 'Address Line 1', ''));
         $address2 = data_get($data, 'Address Line 2', '');
 
@@ -49,7 +52,7 @@ class ClientTransformer extends BaseTransformer
             'country_id'     => isset($data['Country']) ? $this->getCountryId($data['Country']) : null,
             'private_notes'   => $this->getString($data, 'Notes'),
             'credit_balance' => 0,
-            'settings'       => new \stdClass(),
+            'settings'       => (array)$settings,
             'client_hash'    => Str::random(40),
         ];
 
