@@ -13,6 +13,8 @@
 namespace Tests\Feature\PaymentLink;
 
 use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Subscription;
 use App\Models\User;
@@ -88,6 +90,28 @@ class PaymentLinkRegistrationRequiredTest extends TestCase
         $subscription = $this->subscription(false);
 
         $response = $this->get(route('client.subscription.purchase', ['subscription' => $subscription->hashed_id]));
+
+        $response->assertOk();
+        $response->assertViewIs('billing-portal.purchase');
+    }
+
+    public function test_logged_in_contact_sees_the_purchase_page(): void
+    {
+        $subscription = $this->subscription(true);
+
+        $client = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $contact = ClientContact::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->actingAs($contact, 'contact')
+            ->get(route('client.subscription.purchase', ['subscription' => $subscription->hashed_id]));
 
         $response->assertOk();
         $response->assertViewIs('billing-portal.purchase');
