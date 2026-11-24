@@ -1,4 +1,4 @@
-<div class="mx-auto flex max-w-6xl flex-col gap-6">
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
     @include('portal.ninja2020.quotes.includes.financials', ['interactive' => true])
 
     @error('selected_options')

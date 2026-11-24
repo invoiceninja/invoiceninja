@@ -37,7 +37,10 @@ class QuoteOptions
 
     public function financials(Quote $quote, array $line_items): array
     {
-        return (new QuoteFinancials())->extract($this->documentHtml($quote, $line_items), $line_items);
+        $financials = (new QuoteFinancials())->extract($this->documentHtml($quote, $line_items), $line_items);
+        $financials['totals'] = array_values(array_filter($financials['totals'], fn ($total) => $total['key'] !== 'paid_to_date'));
+
+        return $financials;
     }
 
     public function displayItems(Quote $quote, array $selected_options = []): array
