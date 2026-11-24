@@ -75,7 +75,7 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         $settings = new \stdClass();
-        $settings->currency_id = $this->getCurrencyByCode($invoice_data, 'Currency');
+        (string)$settings->currency_id = $this->getCurrencyByCode($invoice_data, 'Currency');
 
         $transformed['client'] = [
             'name'              => $this->getString($invoice_data, 'Name'),
