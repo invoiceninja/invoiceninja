@@ -12,6 +12,7 @@
 
 namespace Tests\Feature\PaymentLink;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -25,8 +26,6 @@ class PaymentLinkRegistrationRequiredTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private Account $account;
-
     private User $user;
 
     private Company $company;
@@ -37,19 +36,20 @@ class PaymentLinkRegistrationRequiredTest extends TestCase
 
         $this->withoutVite();
 
-        $this->account = Account::factory()->create();
+        $account = Account::factory()->create();
 
         $this->user = User::factory()->create([
-            'account_id' => $this->account->id,
+            'account_id' => $account->id,
         ]);
+
+        $settings = CompanySettings::defaults();
+        $settings->language_id = '1';
 
         $this->company = Company::factory()->create([
-            'account_id' => $this->account->id,
+            'account_id' => $account->id,
             'client_can_register' => true,
+            'settings' => $settings,
         ]);
-
-        $this->company->settings->language_id = '1';
-        $this->company->save();
     }
 
     private function subscription(bool $registrationRequired): Subscription
