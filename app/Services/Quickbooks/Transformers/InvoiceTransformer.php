@@ -113,23 +113,23 @@ class InvoiceTransformer extends BaseTransformer
                 $product_qb_id = $qb_service->product->findOrCreateProduct($line_item);
 
                 if (empty($product_qb_id)) {
-                    nlog('QuickBooks: ninjaToQb skipped line — findOrCreateProduct returned empty QuickBooks item Id', [
-                        'invoice_id' => $invoice->id,
-                        'product_key' => $line_item->product_key ?? null,
-                    ]);
-                    continue;
+                    throw new \RuntimeException("QuickBooks returned no product ID for '{$line_item->product_key}'.");
                 }
 
                 $product_qb_ids[$index] = $product_qb_id;
             } catch (QuickbooksMissingTaxCode $e) {
                 throw $e;
             } catch (\Throwable $e) {
-                nlog('QuickBooks: ninjaToQb skipped line — product find/create or line build failed', [
+                nlog('QuickBooks: Invoice product resolution failed', [
+                    'company_id' => $invoice->company_id,
                     'invoice_id' => $invoice->id,
                     'product_key' => $line_item->product_key ?? null,
+                    'line_index' => $index,
                     'exception' => $e::class,
                     'message' => $e->getMessage(),
                 ]);
+
+                throw $e;
             }
         }
 

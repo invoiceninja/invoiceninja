@@ -68,6 +68,10 @@ class QbProduct implements SyncInterface
             $ninja_data = $this->product_transformer->qbToNinja($record, $this->service);
 
             if ($product = $this->findProduct($ninja_data['id'], $ninja_data['product_key'])) {
+                if ($product->exists && $ninja_data['product_key'] === $this->fallbackProductName($product->product_key ?? '')) {
+                    unset($ninja_data['product_key']);
+                }
+
                 $product->fill($ninja_data);
                 $product->save();
             }
@@ -159,6 +163,10 @@ class QbProduct implements SyncInterface
 
             if (Carbon::parse($last_updated) > Carbon::parse($ninja_record->updated_at)) {
                 $ninja_data = $this->product_transformer->qbToNinja($qb_record, $this->service);
+
+                if ($ninja_record->exists && $ninja_data['product_key'] === $this->fallbackProductName($ninja_record->product_key ?? '')) {
+                    unset($ninja_data['product_key']);
+                }
 
                 $ninja_record->fill($ninja_data);
                 $ninja_record->save();
@@ -295,6 +303,12 @@ class QbProduct implements SyncInterface
                 throw $exception;
             }
 
+            $existing_name = data_get($existing_item, 'Name');
+
+            if ($existing_name === $this->fallbackProductName($product->product_key ?? '')) {
+                $product_data['Name'] = $existing_name;
+            }
+
             $product_data['SyncToken'] = data_get($existing_item, 'SyncToken', '0');
             $product_data['Id'] = $product->sync->qb_id;
             $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
@@ -310,11 +324,19 @@ class QbProduct implements SyncInterface
             return $product->sync->qb_id;
         }
 
-        $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
+        $product ??= Product::where('company_id', $this->service->company->id)
+            ->where('product_key', $line_item->product_key)
+            ->first();
 
         try {
-            $result = $this->service->sdk()->add($qb_item);
+            $result = $this->addProduct($product_data, $line_item->product_key ?? '');
         } catch (\Throwable $exception) {
+            nlog('QuickBooks: Product creation failed', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $line_item->product_key,
+                'message' => $exception->getMessage(),
+            ]);
+
             if ($product) {
                 $this->markPushFailure($product, $exception, 'creating the product');
             }
@@ -334,15 +356,54 @@ class QbProduct implements SyncInterface
             throw $exception;
         }
 
-        $product ??= Product::where('company_id', $this->service->company->id)
-            ->where('product_key', $line_item->product_key)
-            ->first();
-
         if ($product) {
             $this->linkProduct($product, (string) $qb_id);
         }
 
         return (string) $qb_id;
+    }
+
+    private function addProduct(array $product_data, string $product_key): mixed
+    {
+        try {
+            return $this->service->sdk()->add(\QuickBooksOnline\API\Facades\Item::create($product_data));
+        } catch (\Throwable $exception) {
+            if (!(new QuickbooksFaultParser())->parse($exception)->isDuplicateName()) {
+                throw $exception;
+            }
+
+            $fallback_name = $this->fallbackProductName($product_key);
+
+            nlog('QuickBooks: Recovering product name collision', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $product_key,
+                'fallback_name' => $fallback_name,
+                'message' => $exception->getMessage(),
+            ]);
+
+            // A truncated name must not resolve a different Ninja product.
+            $qb_id = mb_strlen($product_key) <= 100
+                ? $this->findExistingProductId($product_key)
+                : null;
+
+            $qb_id ??= $this->findExistingProductId($fallback_name);
+
+            if ($qb_id !== null) {
+                return (object) ['Id' => $qb_id];
+            }
+
+            $product_data['Name'] = $fallback_name;
+
+            return $this->service->sdk()->add(\QuickBooksOnline\API\Facades\Item::create($product_data));
+        }
+    }
+
+    private function fallbackProductName(string $product_key): string
+    {
+        $hash = substr(hash('sha256', $this->service->company->id . ':' . $product_key), 0, 12);
+        $suffix = " [IN-{$hash}]";
+
+        return mb_substr($product_key, 0, 100 - mb_strlen($suffix)) . $suffix;
     }
 
     private function markPushFailure(Product $product, \Throwable $e, string $operation): void

@@ -45,8 +45,8 @@ final class QuickbooksInvoiceMapper
         $line_num = 1;
 
         foreach ($invoice->line_items as $index => $line_item) {
-            if (!isset($product_qb_ids[$index])) {
-                continue;
+            if (empty($product_qb_ids[$index])) {
+                throw new \RuntimeException("QuickBooks: Invoice {$invoice->id} has no product mapping for line {$index}.");
             }
 
             $line_item = $this->tax_code_resolver->mergeInvoiceLevelTaxes($line_item, $invoice_level_taxes);
