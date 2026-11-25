@@ -309,6 +309,38 @@ class QuoteOptionsTest extends TestCase
             ->assertSee(\App\Utils\Number::formatMoney($base_total, $this->quote->client));
     }
 
+    public function testToggleSelectedOptionUpdatesTotalsWithoutLiveModelBinding(): void
+    {
+        $base_total = \App\Utils\Number::formatMoney(110, $this->quote->client);
+        $selected_total = \App\Utils\Number::formatMoney(154, $this->quote->client);
+
+        $component = Livewire::test(QuoteOptions::class, ['quote_id' => $this->quote->hashed_id])
+            ->assertDontSeeHtml('wire:model.live="selected_options"')
+            ->assertSeeHtml('wire:change="toggleSelectedOption(1)"')
+            ->assertSee('Add to quote')
+            ->assertSee($base_total);
+
+        $component->call('toggleSelectedOption', 1)
+            ->assertSet('selected_options', [1])
+            ->assertSee('Included in total')
+            ->assertSee('1 of 2 additions selected')
+            ->assertSee($selected_total)
+            ->assertSeeHtml('wire:key="quote-option-checkbox-1-selected"');
+
+        $this->assertEquals(110, $this->quote->fresh()->amount);
+
+        $component->call('toggleSelectedOption', 1)
+            ->assertSet('selected_options', [])
+            ->assertDontSee('Included in total')
+            ->assertSee('0 of 2 additions selected')
+            ->assertSee($base_total)
+            ->assertSeeHtml('wire:key="quote-option-checkbox-1-unselected"');
+
+        $component->call('toggleSelectedOption', 0)
+            ->assertSet('selected_options', [])
+            ->assertHasErrors('selected_options.*');
+    }
+
     #[DataProvider('calculatorModes')]
     public function testBaseTotalsExcludeOptionalLinesAndRetainTheirConfiguration(bool $inclusive, bool $amount_discount): void
     {

@@ -83,6 +83,19 @@ class QuoteOptions extends Component
         $this->skipRender();
     }
 
+    public function toggleSelectedOption(int $index): void
+    {
+        $selected_options = array_map('intval', $this->selected_options);
+
+        if (in_array($index, $selected_options, true)) {
+            $this->selected_options = array_values(array_diff($selected_options, [$index]));
+        } else {
+            $this->selected_options = [...$selected_options, $index];
+        }
+
+        $this->updatedSelectedOptions();
+    }
+
     public function updatedSelectedOptions(): void
     {
         $this->resetValidation();
