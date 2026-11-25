@@ -229,11 +229,11 @@ class CreateAccountRequest extends Request
             'email'             => ['bail', 'required', 'max:255', 'email:rfc,dns', 'indisposable:mx', new NewUniqueUserRule(), new BlackListRule(), new EmailBlackListRule()],
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
-            'utm_source'        => 'sometimes|nullable|string|max:191',
-            'utm_medium'        => 'sometimes|nullable|string|max:191',
-            'utm_campaign'      => 'sometimes|nullable|string|max:191',
-            'utm_term'          => 'sometimes|nullable|string|max:191',
-            'utm_content'       => 'sometimes|nullable|string|max:191',
+            'utm_source'        => 'sometimes|nullable|string',
+            'utm_medium'        => 'sometimes|nullable|string',
+            'utm_campaign'      => 'sometimes|nullable|string',
+            'utm_term'          => 'sometimes|nullable|string',
+            'utm_content'       => 'sometimes|nullable|string',
             // 'cf-turnstile'      => 'required_if:token_name,web_client|string',
         ];
     }
