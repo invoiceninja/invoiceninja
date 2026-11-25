@@ -124,7 +124,6 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            // The admin module ships separately, so self-host and CI run without it.
             if (class_exists(\Modules\Admin\Jobs\Account\NinjaUser::class)) {
                 (new \Modules\Admin\Jobs\Account\NinjaUser($sp035a66))->handle();
             }
