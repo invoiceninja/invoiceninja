@@ -94,6 +94,7 @@ class ZugferdEDocument extends AbstractService
             ->setBaseDocument()
             ->setDocumentInformation()
             ->setPoNumber()
+            ->setProjectReference()
             ->setRoutingNumber()
             ->setIdNumber()
             ->setDeliveryAddress()
@@ -795,6 +796,25 @@ class ZugferdEDocument extends AbstractService
         if (isset($this->document->po_number) && strlen($this->document->po_number) > 1) {
             $this->xdocument->setDocumentBuyerOrderReferencedDocument($this->document->po_number);
         }
+
+        return $this;
+    }
+
+    private function setProjectReference(): self
+    {
+        $project = $this->document->project;
+        $project_reference = trim((string) ($project?->number ?? ''));
+
+        if ($project_reference === '') {
+            return $this;
+        }
+
+        $project_name = trim((string) ($project->name ?? ''));
+
+        $this->xdocument->setDocumentProcuringProject(
+            $project_reference,
+            $project_name !== '' ? $project_name : 'Project Reference'
+        );
 
         return $this;
     }
