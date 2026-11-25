@@ -537,6 +537,47 @@ class AstTaxResponseProcessorTest extends TestCase
         $this->assertEqualsWithDelta(100, (float) $this->client->fresh()->balance, 0.001);
     }
 
+    public function testIncompleteProjectResponseCannotInflateOriginalInvoiceBalanceOnReplay(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('Hardware', 1659, tax_rate: 8.25),
+            $this->lineItem('Project', 5260, tax_id: '2'),
+        ]);
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->balance = 7055.87;
+        $invoice->paid_to_date = 0;
+        $invoice->saveQuietly();
+        $this->client->balance = 7055.87;
+        $this->client->saveQuietly();
+
+        $project_line = $this->salesLine('TAX');
+        $project_line['Amount'] = 5260;
+        $project_line['SalesItemLineDetail']['ItemRef'] = '29';
+        $project_line['SalesItemLineDetail']['Qty'] = 1;
+        $project_line['SalesItemLineDetail']['UnitPrice'] = 5260;
+        $qb_response = $this->qbResponseWithTax(
+            total_tax: 433.95,
+            tax_lines: [
+                $this->taxLine(328.74, 6.25, 5260),
+                $this->taxLine(59.18, 1.125, 5260),
+                $this->taxLine(19.73, 0.375, 5260),
+                $this->taxLine(26.30, 0.5, 5260),
+            ],
+            lines: [$project_line, ['DetailType' => 'SubTotalLineDetail', 'Amount' => 5260]],
+            total_amt: 5693.95,
+        );
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        $this->invokeProcessTax($qb_invoice, $qb_response, $invoice);
+        $this->invokeProcessTax($qb_invoice, $qb_response, $invoice->fresh());
+
+        $invoice = $invoice->fresh();
+        $this->assertEqualsWithDelta(7055.87, (float) $invoice->amount, 0.001);
+        $this->assertEqualsWithDelta(7055.87, (float) $invoice->balance, 0.001,
+            'An incomplete QuickBooks response must not add the total difference to the balance on each replay.');
+        $this->assertEqualsWithDelta(7055.87, (float) $this->client->fresh()->balance, 0.001);
+    }
+
     private function makeQbInvoice(bool $automatic_taxes): QbInvoice
     {
         $this->company->quickbooks = new QuickbooksSettings([

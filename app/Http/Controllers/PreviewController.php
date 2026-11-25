@@ -236,7 +236,8 @@ class PreviewController extends BaseController
         try {
 
             if (isset($request_data['settings']) && is_array($request_data['settings'])) {
-                $ts->setSettings(json_decode(json_encode($request_data['settings'])));
+                $settings = array_merge((array) $company->settings, $request_data['settings']);
+                $ts->setSettings(json_decode(json_encode($settings)));
             }
 
             $ts->setCompany($company)

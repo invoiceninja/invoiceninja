@@ -6593,6 +6593,8 @@ $lang = array(
     'seller_item_identifier_help' => 'The seller\'s identifier for this item.',
     'order_reference' => 'Order reference',
     'order_reference_help' => 'The buyer\'s reference for this order.',
+    'payment_types' => 'Payment Types',
+    'payment_types_help' => 'Choose which payment types are selectable in the UI',
 );
 
 return $lang;
