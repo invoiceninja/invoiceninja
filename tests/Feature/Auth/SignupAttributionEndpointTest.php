@@ -19,6 +19,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Tests\TestCase;
 
 class SignupAttributionEndpointTest extends TestCase
@@ -142,6 +144,30 @@ class SignupAttributionEndpointTest extends TestCase
 
         $this->assertSame(str_repeat('a', 191), $account->utm_source);
         $this->assertNull($account->utm_medium);
+    }
+
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testGoogleSignupStoresAttribution(): void
+    {
+        $email = $this->email();
+
+        $google = \Mockery::mock('overload:App\Libraries\OAuth\Providers\Google');
+        $google->shouldReceive('getTokenResponse')->andReturn(['email' => $email]);
+        $google->shouldReceive('harvestEmail')->andReturn($email);
+        $google->shouldReceive('harvestSubField')->andReturn(Str::random(20));
+        $google->shouldReceive('harvestName')->andReturn('Attribution Test');
+
+        $this->withHeader('User-Agent', 'Mozilla/5.0')
+            ->postJson('/api/v1/oauth_login?provider=google&id_token=token&create=true', [
+                'attribution' => ['gclid' => 'def456', 'rc' => 'friend'],
+            ])
+            ->assertSuccessful();
+
+        $account = User::query()->where('email', $email)->firstOrFail()->account;
+
+        $this->assertSame(['gclid' => 'def456'], $account->attribution);
+        $this->assertSame('Mozilla/5.0', $account->user_agent);
     }
 
     private function signupUrl(): string

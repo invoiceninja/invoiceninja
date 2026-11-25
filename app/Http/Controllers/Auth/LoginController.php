@@ -813,6 +813,9 @@ class LoginController extends BaseController
     {
         MultiDB::setDefaultDatabase();
 
+        $new_account['user_agent'] = request()->server('HTTP_USER_AGENT');
+        $new_account['attribution'] = CreateAccountRequest::sanitizeAttribution(request()->input('attribution'));
+
         $account = (new CreateAccount($new_account, request()->getClientIp()))->handle();
         if (!$account instanceof Account) {
             return $account;
