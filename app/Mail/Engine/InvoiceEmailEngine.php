@@ -129,14 +129,26 @@ class InvoiceEmailEngine extends BaseEmailEngine
             ->setInvitation($invitation)
             ->setTextBody($text_body);
 
+        $signed_document_id = null;
+
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $pdf = ((new CreateRawPdf($this->invitation))->handle());
 
-            // if ($this->client->getSetting('embed_documents') && ($this->invoice->documents()->where('is_public', true)->count() > 0 || $this->invoice->company->documents()->where('is_public', true)->count() > 0)) {
-            //     $pdf = $this->invoice->documentMerge($pdf);
-            // }
-
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter() . '.pdf']]);
+
+            if ($this->invoice->sync?->dn_completed) {
+                $document = $this->invoice->getSignedPdfDocument();
+                $signed_pdf = $document?->getFile();
+
+                if ($signed_pdf) {
+                    $this->setAttachments([[
+                        'file' => base64_encode($signed_pdf),
+                        'name' => $this->invoice->numberFormatter() . '-signed.pdf',
+                    ]]);
+
+                    $signed_document_id = $document->id;
+                }
+            }
         }
 
         //attach third party documents
@@ -154,7 +166,11 @@ class InvoiceEmailEngine extends BaseEmailEngine
             }
 
             // Storage::url
-            $this->invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
+            $this->invoice->documents()->where('is_public', true)
+            ->when(
+                $signed_document_id,
+                fn ($query, $document_id) => $query->where('id', '!=', $document_id)
+            )->cursor()->each(function ($document) {
                 if ($document->size > $this->max_attachment_size) {
 
                     $hash = Str::random(64);
@@ -193,6 +209,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->cursor()
                                        ->each(function ($expense) {
                                            $expense->documents()->where('is_public', true)->cursor()->each(function ($document) {
+                                               /** @var \App\Models\Document $document */
                                                if ($document->size > $this->max_attachment_size) {
 
                                                    $hash = Str::random(64);

@@ -168,7 +168,7 @@ class EmailDefaults
 
         if (strlen($this->email->email_object->body ?? '') > 3) {
             // A Custom Message has been set in the email screen.
-        } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body} ?? '') > 3) {
+        } elseif (strlen($this->email->email_object->settings->{$this->email->email_object->email_template_body} ?? '') > 3) {
             // A body has been saved in the settings.
             $this->email->email_object->body = $this->email->email_object->settings?->{$this->email->email_object->email_template_body};
         } else {
@@ -336,6 +336,7 @@ class EmailDefaults
     private function setAttachments(): self
     {
         $documents = [];
+        $signed_document_id = null;
 
         /* Return early if the user cannot attach documents */
         if (!$this->email->email_object->invitation || !$this->email->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT) || $this->email->email_object->email_template_subject == 'email_subject_statement') {
@@ -344,9 +345,33 @@ class EmailDefaults
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
         if ($this->email->email_object->settings->pdf_email_attachment) {
-            $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
+            $entity = $this->email->email_object->entity;
 
-            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter() . '.pdf']]);
+            $pdf = (new CreateRawPdf(
+                $this->email->email_object->invitation
+            ))->handle();
+
+            $this->email->email_object->attachments[] = [
+                'file' => base64_encode($pdf),
+                'name' => $entity->numberFormatter() . '.pdf',
+            ];
+
+            if ($entity instanceof Invoice && $entity->sync?->dn_completed) {
+                $document = $entity->getSignedPdfDocument();
+                $signed_pdf = $document?->getFile();
+
+                if ($signed_pdf) {
+                    $this->email->email_object->attachments[] = [
+                        'file' => base64_encode($signed_pdf),
+                        'name' => $entity->numberFormatter() . '-signed.pdf',
+                    ];
+                
+                    $signed_document_id = $document->id;
+
+                }
+
+                
+            }
         }
 
         /** UBL xml file */
@@ -383,7 +408,20 @@ class EmailDefaults
 
         /** Entity Documents */
         if ($this->email->email_object->entity?->documents) {
-            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->documents()->where('is_public', true)->pluck('id')->toArray());
+            $document_ids = $this->email->email_object->entity
+                ->documents()
+                ->where('is_public', true)
+                ->when(
+                    $signed_document_id,
+                    fn ($query, $document_id) => $query->where('id', '!=', $document_id)
+                )
+                ->pluck('id')
+                ->toArray();
+        
+            $this->email->email_object->documents = array_merge(
+                $this->email->email_object->documents,
+                $document_ids
+            );
         }
 
         /** Recurring Invoice Documents */

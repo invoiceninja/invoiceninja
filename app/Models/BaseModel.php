@@ -38,8 +38,9 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property int $user_id
  * @property int $assigned_user_id
- * @method BaseModel service()
+ * @property \App\DataMapper\InvoiceSync|\App\DataMapper\QuoteSync|\App\DataMapper\PurchaseOrderSync|null $sync
  * @property \App\Models\Company $company
+ * @method BaseModel service()
  * @method static BaseModel find($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel<static> company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|\Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
@@ -243,7 +244,8 @@ class BaseModel extends Model
      */
     public function sendEvent(int $event_id, string $additional_data = ""): void
     {
-        $subscriptions = Webhook::where('company_id', $this->company_id)
+        $subscriptions = Webhook::query()
+                                 ->where('company_id', $this->company_id)
                                  ->where('event_id', $event_id)
                                  ->where('is_deleted', false)
                                  ->whereNull('deleted_at')
@@ -347,7 +349,6 @@ class BaseModel extends Model
      */
     public function getSignedPdfDocument(): ?\App\Models\Document
     {
-        /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote | \App\Models\PurchaseOrder $this */
         if (!$this->sync?->dn_document_hashed_id) {
             return null;
         }
@@ -369,12 +370,22 @@ class BaseModel extends Model
     {
         $files = collect([$pdf]);
 
+        $signed_document_id = $this->sync?->dn_document_hashed_id
+            ? $this->decodePrimaryKey($this->sync->dn_document_hashed_id)
+            : null;
+            
         $entity_docs = $this->documents()
         ->where('is_public', true)
+        ->when(
+            $signed_document_id,
+            fn ($query, $document_id) => $query->where('id', '!=', $document_id)
+        )
         ->get()
         ->filter(function ($document) {
+            /** @var \App\Models\Document $document */
             return $document->size < $this->max_attachment_size && stripos($document->name, ".pdf") !== false;
         })->map(function ($d) {
+            /** @var \App\Models\Document $d */
             return $d->getFile();
         });
 
@@ -384,8 +395,10 @@ class BaseModel extends Model
         ->where('is_public', true)
         ->get()
         ->filter(function ($document) {
+            /** @var \App\Models\Document $document */
             return $document->size < $this->max_attachment_size && stripos($document->name, ".pdf") !== false;
         })->map(function ($d) {
+            /** @var \App\Models\Document $d */
             return $d->getFile();
         });
 
