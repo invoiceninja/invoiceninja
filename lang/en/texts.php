@@ -6600,7 +6600,6 @@ $lang = array(
     'delete_file_confirmation' => 'Are you sure you want to delete this file? This cannot be undone.',
     'upload_documents' => 'Upload documents',
     'save_changes' => 'Save changes',
-    'create_new_client_or_user' => 'Create new client or user',
 );
 
 return $lang;
