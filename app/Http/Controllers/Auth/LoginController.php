@@ -537,10 +537,7 @@ class LoginController extends BaseController
             'oauth_user_id' => $user->id,
             'oauth_provider_id' => $provider,
             'user_agent' => request()->server('HTTP_USER_AGENT'),
-            'attribution' => CreateAccountRequest::attributionFrom(
-                request()->input('attribution'),
-                request()->cookie('ninja_attribution')
-            ),
+            'attribution' => CreateAccountRequest::sanitizeAttribution(request()->input('attribution')),
         ];
 
         MultiDB::setDefaultDatabase();

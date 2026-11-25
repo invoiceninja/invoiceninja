@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Utils\Ninja;
-use App\Http\Requests\Account\CreateAccountRequest;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Design;
@@ -42,7 +41,6 @@ use App\Models\ExpenseCategory;
 use League\Fractal\Resource\Item;
 use App\Models\BankTransactionRule;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cookie;
 use App\Transformers\ArraySerializer;
 use Illuminate\Support\Facades\Schema as DbSchema;
 use App\Transformers\EntityTransformer;
@@ -1111,36 +1109,6 @@ class BaseController extends Controller
     }
 
     /**
-     * First touch wins: keep the ad tags around for signups that pass
-     * through the ?signup=true redirect below, which drops the query string.
-     */
-    private function rememberAttribution(): void
-    {
-        if (! Ninja::isHosted()) {
-            return;
-        }
-
-        if (request()->hasCookie('ninja_attribution')) {
-            return;
-        }
-
-        $attribution = CreateAccountRequest::sanitizeAttribution(request()->query());
-
-        if ($attribution === null) {
-            return;
-        }
-
-        Cookie::queue(Cookie::make(
-            name: 'ninja_attribution',
-            value: json_encode($attribution),
-            minutes: 60 * 24 * 30,
-            path: '/',
-            secure: request()->isSecure(),
-            sameSite: 'lax',
-        ));
-    }
-
-    /**
      * Main entrypoint for the default /  route.
      *
      * @return mixed
@@ -1160,8 +1128,6 @@ class BaseController extends Controller
             if (config('ninja.require_https') && ! request()->isSecure()) {
                 return redirect()->secure(request()->getRequestUri());
             }
-
-            $this->rememberAttribution();
 
             /* Hosted: the landing page, before the redirects below drop ?signup, ?rc and UTM tags */
             if (Ninja::isHosted() && config('ninja.hosted_landing') && ! request()->has('build') && $landing = Ninja::flutterWebFile('landing/index.html')) {

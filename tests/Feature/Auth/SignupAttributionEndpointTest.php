@@ -144,26 +144,6 @@ class SignupAttributionEndpointTest extends TestCase
         $this->assertNull($account->utm_medium);
     }
 
-    public function testAttributionCookieIsUsedWhenThePayloadHasNone(): void
-    {        $email = $this->email();
-
-        $this->withCredentials()->withUnencryptedCookie('ninja_attribution', json_encode([
-            'utm_source' => 'google',
-            'utm_medium' => 'cpc',
-        ]));
-
-        $this->postJson($this->signupUrl(), $this->payload($email))->assertSuccessful();
-
-        $account = User::query()->where('email', $email)->firstOrFail()->account;
-
-        $this->assertSame([
-            'utm_source' => 'google',
-            'utm_medium' => 'cpc',
-        ], $account->attribution);
-
-        $this->assertSame('google', $account->utm_source);
-    }
-
     private function signupUrl(): string
     {
         return '/api/v1/signup?include=token,user.company_user,company,account';

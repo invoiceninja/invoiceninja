@@ -292,16 +292,6 @@ class CreateAccountRequest extends Request
         return array_slice($attribution, 0, 20, true) ?: null;
     }
 
-    /**
-     * First touch wins: an explicit attribution payload wins, otherwise fall
-     * back to the attribution cookie set before the signup redirect.
-     */
-    public static function attributionFrom(mixed $attribution, ?string $cookie): ?array
-    {
-        return self::sanitizeAttribution($attribution)
-            ?? self::sanitizeAttribution(json_decode((string) $cookie, true));
-    }
-
     public function prepareForValidation()
     {
 
@@ -311,7 +301,7 @@ class CreateAccountRequest extends Request
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');
 
-        $input['attribution'] = self::attributionFrom($input['attribution'] ?? null, request()->cookie('ninja_attribution'));
+        $input['attribution'] = self::sanitizeAttribution($input['attribution'] ?? null);
 
         // The deployed web app still posts the five utm fields; clamp them so a
         // value the visitor doesn't control can neither 422 nor hit the column.
