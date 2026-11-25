@@ -168,7 +168,7 @@ class CreateAccount
 
         foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as $key) {
             if (isset($attribution[$key])) {
-                $account->{$key} = $attribution[$key];
+                $account->{$key} = mb_substr($attribution[$key], 0, 191, 'UTF-8');
             }
         }
     }

@@ -17,14 +17,23 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tests\TestCase;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 class SignupAttributionTest extends TestCase
 {
     use DatabaseTransactions;
 
     protected function setUp(): void
     {
+        \Mockery::mock('overload:' . \Modules\Admin\Jobs\Account\NinjaUser::class)
+            ->shouldReceive('handle')
+            ->once()
+            ->andReturnNull();
+
         parent::setUp();
 
         Http::fake();

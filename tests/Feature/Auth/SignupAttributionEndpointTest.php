@@ -20,9 +20,11 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tests\TestCase;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 class SignupAttributionEndpointTest extends TestCase
 {
     use DatabaseTransactions;
@@ -31,6 +33,11 @@ class SignupAttributionEndpointTest extends TestCase
 
     protected function setUp(): void
     {
+        \Mockery::mock('overload:' . \Modules\Admin\Jobs\Account\NinjaUser::class)
+            ->shouldReceive('handle')
+            ->once()
+            ->andReturnNull();
+
         parent::setUp();
 
         config(['database.default' => 'db-ninja-01']);
@@ -147,8 +154,6 @@ class SignupAttributionEndpointTest extends TestCase
         $this->assertNull($account->utm_medium);
     }
 
-    #[RunInSeparateProcess]
-    #[PreserveGlobalState(false)]
     public function testGoogleSignupStoresAttribution(): void
     {
         $email = $this->email();
