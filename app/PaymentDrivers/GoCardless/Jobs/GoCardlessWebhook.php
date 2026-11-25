@@ -38,9 +38,16 @@ class GoCardlessWebhook implements ShouldQueue
     use SerializesModels;
     use Utilities;
 
-    public $tries = 3;
+    public $maxExceptions = 3;
+
+    public $backoff = 60;
 
     public function __construct(private array $events, private string $company_key, private int $company_gateway_id) {}
+
+    public function retryUntil(): \DateTimeInterface
+    {
+        return now()->addMinutes(30);
+    }
 
     public function handle(): void
     {
@@ -217,9 +224,18 @@ class GoCardlessWebhook implements ShouldQueue
 
     public function middleware(): array
     {
-        return [(new WithoutOverlapping("gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}"))
-        ->releaseAfter(15)
-        ->expireAfter(60)];
+        $release_delays = [15, 30, 60, 90, 120];
+        $release_delay = $release_delays[
+            min(max($this->attempts() - 1, 0), count($release_delays) - 1)
+        ];
+    
+        return [
+            (new WithoutOverlapping(
+                "gocardless-webhook-{$this->company_key}-{$this->company_gateway_id}"
+            ))
+                ->releaseAfter($release_delay)
+                ->expireAfter(60),
+        ];
     }
 
     protected function syncMandate(CompanyGateway $company_gateway, Client $client, string $mandate_id): void
