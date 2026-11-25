@@ -128,6 +128,7 @@ class SignupAttributionEndpointTest extends TestCase
 
         $this->assertSame(str_repeat('a', 500), $account->attribution['utm_source']);
         $this->assertSame('/lp/ads/inventory/', $account->attribution['lp']);
+        $this->assertNotNull($account->first_touch_at);
         $this->assertSame('127.0.0.1', $account->signup_ip);
     }
 
