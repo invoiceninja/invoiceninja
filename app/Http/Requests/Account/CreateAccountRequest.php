@@ -286,6 +286,11 @@ class CreateAccountRequest extends Request
                 continue;
             }
 
+            // Malformed UTF-8 cannot be json encoded and would fail the signup.
+            if (! mb_check_encoding($item, 'UTF-8')) {
+                continue;
+            }
+
             $attribution[$key] = $item;
         }
 

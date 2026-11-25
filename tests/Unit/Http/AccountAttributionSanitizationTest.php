@@ -130,4 +130,12 @@ class AccountAttributionSanitizationTest extends TestCase
             'utm_source' => ['nested'],
         ]));
     }
+
+    public function testMalformedUtf8IsDropped(): void
+    {
+        $this->assertSame(
+            ['gclid' => 'abc'],
+            CreateAccountRequest::sanitizeAttribution(['utm_campaign' => "x\xFF", 'gclid' => 'abc'])
+        );
+    }
 }
