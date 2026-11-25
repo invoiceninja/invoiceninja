@@ -43,6 +43,7 @@ return [
     'minimum_client_version' => '5.0.203',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
+    'webhook_url_allowlist' => preg_split('/\s+/', (string) env('WEBHOOK_URL_ALLOWLIST', ''), -1, PREG_SPLIT_NO_EMPTY),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
     'google_analytics_url' => env('GOOGLE_ANALYTICS_URL', 'https://www.google-analytics.com/collect'),
     'key_length' => 32,
