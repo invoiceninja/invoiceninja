@@ -108,7 +108,7 @@ class RecurringInvoiceController extends BaseController
      */
     public function index(RecurringInvoiceFilters $filters)
     {
-        $recurring_invoices = RecurringInvoice::filter($filters)->with('tags');
+        $recurring_invoices = RecurringInvoice::filter($filters)->with(['tags', 'client.locations']);
 
         return $this->listResponse($recurring_invoices);
     }
