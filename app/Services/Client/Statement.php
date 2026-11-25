@@ -94,11 +94,11 @@ class Statement
                 // 'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
                 // '$product' => $this->getDesign()->design->product,
                 // 'variables' => $variables,
-                'invoices' => $this->getInvoices()->cursor(),
-                'payments' => $this->getPayments()->cursor(),
-                'credits' => $this->getCredits()->cursor(),
+                'invoices' => $this->getInvoices()->lazy(100),
+                'payments' => $this->getPayments()->lazy(100),
+                'credits' => $this->getCredits()->lazy(100),
                 'aging' => $this->getAging(),
-                'unapplied' => $this->getUnapplied()->cursor(),
+                'unapplied' => $this->getUnapplied()->lazy(100),
             ];
 
             $ps = new \App\Services\Pdf\PdfService($invitation, 'statement', array_merge($options, $this->options));
