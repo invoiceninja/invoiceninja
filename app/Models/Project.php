@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $assigned_user_id
  * @property int $company_id
  * @property int|null $client_id
- * @property string $name
+ * @property string|null $name
  * @property float $task_rate
  * @property float $budgeted_amount
  * @property string|null $due_date

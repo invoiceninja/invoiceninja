@@ -140,7 +140,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
             }
 
-            $this->payment->invoices->each(function ($invoice) {
+            $this->payment->invoices->unique('id')->each(function ($invoice) {
                 $signed_document_id = null;
 
                 $pdf = (new CreateRawPdf($invoice->invitations->first()))->handle();

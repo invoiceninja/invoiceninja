@@ -803,7 +803,7 @@ class ZugferdEDocument extends AbstractService
     private function setProjectReference(): self
     {
         $project = $this->document->project;
-        $project_reference = trim((string) $project->number ?? '');
+        $project_reference = trim((string) ($project->number ?? ''));
 
         if ($project_reference === '') {
             return $this;
