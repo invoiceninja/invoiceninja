@@ -6593,6 +6593,13 @@ $lang = array(
     'seller_item_identifier_help' => 'The seller\'s identifier for this item.',
     'order_reference' => 'Order reference',
     'order_reference_help' => 'The buyer\'s reference for this order.',
+    'success_description' => 'Done! You’ve successfully signed the document!',
+    'success_description_body' => 'You’ll receive an email once the document is finalized—immediately for self-signed, or after all parties have signed.',
+    'success_description_body_2' => 'This page is now safe to close.',
+    'send_confirmation_description' => 'Are you sure you want to send this document?',
+    'delete_file_confirmation' => 'Are you sure you want to delete this file? This cannot be undone.',
+    'upload_documents' => 'Upload documents',
+    'save_changes' => 'Save changes',
 );
 
 return $lang;
