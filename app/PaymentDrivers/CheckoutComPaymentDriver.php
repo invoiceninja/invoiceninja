@@ -751,10 +751,10 @@ class CheckoutComPaymentDriver extends BaseDriver
         header('Content-Type: text/plain');
         $webhook_payload = file_get_contents('php://input');
 
-        if ($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key)) {
+        if ($request->header('cko-signature') == hash_hmac('sha256', $webhook_payload, $this->company_gateway->getConfigField('webhookSecret'))) {
             CheckoutWebhook::dispatch($request->all(), $this->company_gateway->company->company_key, $this->company_gateway->id)->delay(10);
         } else {
-            nlog("Hash Mismatch = {$request->header('cko-signature')} " . hash_hmac('sha256', $webhook_payload, $this->company_gateway->company->company_key));
+            nlog("Hash Mismatch = {$request->header('cko-signature')} " . hash_hmac('sha256', $webhook_payload, $this->company_gateway->getConfigField('webhookSecret')));
             nlog($request->all());
         }
 

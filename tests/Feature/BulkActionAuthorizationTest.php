@@ -14,6 +14,7 @@ namespace Tests\Feature;
 
 use App\Exceptions\BatchPdfException;
 use App\Factory\CompanyUserFactory;
+use App\Factory\DesignFactory;
 use App\Helpers\Cache\Atomic;
 use App\Jobs\Entity\ZipEntity;
 use App\Models\Account;
@@ -353,10 +354,15 @@ class BulkActionAuthorizationTest extends TestCase
             'status_id' => Invoice::STATUS_SENT,
         ]);
 
+        $design = DesignFactory::create($this->company->id, $this->adminUser->id);
+        $design->is_template = true;
+        $design->name = 'Test Template';
+        $design->save();
+
         $response = $this->withHeaders($this->apiHeaders($this->restrictedToken))
             ->postJson('/api/v1/invoices/bulk', [
                 'action' => 'template',
-                'template_id' => 'free_text',
+                'template_id' => $design->hashed_id,
                 'ids' => [$invoice1->hashed_id],
             ]);
 

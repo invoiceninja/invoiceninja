@@ -109,8 +109,18 @@ class CheckoutSetupWebhook implements ShouldQueue
     public function createAuthenticationWorkflow()
     {
 
+        $cg = $this->checkout->company_gateway;
+
+        if(strlen($cg->getConfigField('webhookSecret') ?? '') == 0) {
+
+            $hash = bin2hex(random_bytes(32));
+            $cg->setConfigField('webhookSecret', $hash);
+            $cg->refresh();
+
+        }
+
         $signature = new WebhookSignature();
-        $signature->key = $this->checkout->company_gateway->company->company_key;
+        $signature->key = $cg->getConfigField('webhookSecret');
         $signature->method = "HMACSHA256";
 
         $actionRequest = new WebhookWorkflowActionRequest();
