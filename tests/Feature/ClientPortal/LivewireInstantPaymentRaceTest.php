@@ -205,6 +205,12 @@ class LivewireInstantPaymentRaceTest extends TestCase
         $cg->require_shipping_address = false;
         $cg->save();
 
+        $settings = $this->client->settings;
+        $settings->client_portal_allow_under_payment = true;
+        $settings->client_portal_under_payment_minimum = 1;
+        $this->client->settings = $settings;
+        $this->client->saveQuietly();
+
         $invitation = $this->invoice->invitations()->first();
         $payable_amount = Number::roundValue($this->invoice->balance / 2, $this->client->currency()->precision);
 

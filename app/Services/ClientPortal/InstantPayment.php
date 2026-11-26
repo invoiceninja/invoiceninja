@@ -119,50 +119,17 @@ class InstantPayment
                 return $payable_invoice['invoice_id'] == $inv->hashed_id;
             });
 
-            /*
-             * Check if company supports over & under payments.
-             * Determine the payable amount and the max payable. ie either partial or invoice balance
-             */
+            $error = PaymentAmountValidator::validate(
+                $invoice,
+                $payable_invoice['amount'],
+                $settings,
+                $client->currency()->precision,
+            );
 
-            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), $client->currency()->precision);
-            $invoice_balance = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
-
-            /*If we don't allow under/over payments force the payable amount - prevents inspect element adjustments in JS*/
-
-            if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
-                $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
-            }
-
-            if (! $settings->client_portal_allow_under_payment && $payable_amount < $invoice_balance) {
+            if ($error !== null) {
                 return redirect()
                     ->route('client.invoices.index')
-                    ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $invoice_balance]));
-            }
-
-            if ($settings->client_portal_allow_under_payment) {
-                if ($invoice_balance < $settings->client_portal_under_payment_minimum && $payable_amount < $invoice_balance) {
-                    return redirect()
-                        ->route('client.invoices.index')
-                        ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $invoice_balance]));
-                }
-
-                if ($invoice_balance < $settings->client_portal_under_payment_minimum) {
-                    // Skip the under payment rule.
-                }
-
-                if ($invoice_balance >= $settings->client_portal_under_payment_minimum && $payable_amount < $settings->client_portal_under_payment_minimum) {
-                    return redirect()
-                        ->route('client.invoices.index')
-                        ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]));
-                }
-            }
-
-            /* If we don't allow over payments and the amount exceeds the balance */
-
-            if (! $settings->client_portal_allow_over_payment && $payable_amount > $invoice_balance) {
-                return redirect()
-                    ->route('client.invoices.index')
-                    ->with('message', ctrans('texts.over_payments_disabled'));
+                    ->with('message', $error);
             }
         }
 

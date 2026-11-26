@@ -112,6 +112,7 @@ class LivewireInstantPayment
         }
         
         $client = $invoices->first()->client;
+        $settings = $client->getMergedSettings();
 
         /* pop non payable invoice from the $payable_invoices array */
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) { // @phpstan-ignore-line
@@ -127,8 +128,16 @@ class LivewireInstantPayment
                 return $payable_invoice['invoice_id'] == $inv->hashed_id;
             });
 
-            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), $client->currency()->precision);
-            $invoice_balance = Number::roundValue($invoice->balance, $client->currency()->precision);
+            $error = PaymentAmountValidator::validate(
+                $invoice,
+                $payable_invoice['amount'],
+                $settings,
+                $client->currency()->precision,
+            );
+
+            if ($error !== null) {
+                return ['success' => false, 'error' => $error];
+            }
 
             $payable_invoice['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             $payable_invoice['invoice_number'] = $invoice->number;
