@@ -98,6 +98,8 @@ class GatewayType extends StaticModel
 
     public const PROMPTPAY = 31;
 
+    public const CARD_PRESENT = 32;
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
@@ -171,6 +173,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.mobile_payment');
             case self::PROMPTPAY:
                 return ctrans('texts.promptpay');
+            case self::CARD_PRESENT:
+                return ctrans('texts.card_present');
 
             default:
                 return ' ';

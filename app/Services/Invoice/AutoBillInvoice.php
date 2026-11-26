@@ -39,6 +39,7 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\PaymentDrivers\Stripe\CardPresent;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -62,6 +63,11 @@ class AutoBillInvoice extends AbstractService
     public function run()
     {
         MultiDB::setDb($this->db);
+
+        /* An in-person card payment is settled first, and while one is still being taken nothing else is charged */
+        if (CardPresent::settle($this->invoice, $this->db)) {
+            return $this->invoice;
+        }
 
         /* @var \App\Modesl\Client $client */
 

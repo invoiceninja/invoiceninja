@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Stripe\Jobs;
 
+use App\PaymentDrivers\Stripe\CardPresent;
 use App\Jobs\Mail\PaymentFailedMailer;
 use App\Libraries\MultiDB;
 use App\Models\Company;
@@ -54,6 +55,11 @@ class PaymentIntentFailureWebhook implements ShouldQueue
 
     public function handle()
     {
+        /* In-person (Stripe Terminal): the device handles a decline, and nothing is logged */
+        if (CardPresent::isCardPresent($this->stripe_request['object'] ?? [])) {
+            return;
+        }
+
         nlog("payment intent failed");
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
