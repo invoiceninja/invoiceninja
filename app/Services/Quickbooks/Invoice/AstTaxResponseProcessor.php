@@ -346,11 +346,29 @@ class AstTaxResponseProcessor
         }
 
         $scale = $qb_total_tax / $ninja_total_tax;
+        $original_rates = [];
+
+        foreach ($invoice->line_items as $index => $line_item) {
+            $original_rates[$index] = (float) $line_item->tax_rate1;
+        }
+
+        // Prefer a tidy 3dp rate, but only keep it when the total still matches QB to the cent
+        $invoice = $this->applyBlendedRates($invoice, $original_rates, $scale, 3);
+
+        if (abs((float) $invoice->total_taxes - $qb_total_tax) > 0.005) {
+            $invoice = $this->applyBlendedRates($invoice, $original_rates, $scale, 6);
+        }
+
+        return $invoice;
+    }
+
+    private function applyBlendedRates(Invoice $invoice, array $original_rates, float $scale, int $precision): Invoice
+    {
         $line_items = $invoice->line_items;
 
-        foreach ($line_items as $line_item) {
-            if ((float) $line_item->tax_rate1 > 0) {
-                $line_item->tax_rate1 = round((float) $line_item->tax_rate1 * $scale, 6);
+        foreach ($line_items as $index => $line_item) {
+            if ($original_rates[$index] > 0) {
+                $line_item->tax_rate1 = round($original_rates[$index] * $scale, $precision);
             }
         }
 

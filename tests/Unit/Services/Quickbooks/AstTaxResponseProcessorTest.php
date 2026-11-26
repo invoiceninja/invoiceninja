@@ -449,9 +449,34 @@ class AstTaxResponseProcessorTest extends TestCase
         $this->assertEqualsWithDelta(25, (float) $invoice->total_taxes, 0.001);
         $this->assertEqualsWithDelta(325, (float) $invoice->calc()->getTempEntity()->amount, 0.001);
 
-        // One blended rate (25 / 300), not the 15% sum of the components.
-        $this->assertEqualsWithDelta(8.3333, (float) $lines[0]->tax_rate1, 0.0001);
-        $this->assertEqualsWithDelta(8.3333, (float) $lines[1]->tax_rate1, 0.0001);
+        // One blended rate (25 / 300), not the 15% sum of the components. 3dp keeps the total matching QB to the cent.
+        $this->assertSame(8.333, $lines[0]->tax_rate1);
+        $this->assertSame(8.333, $lines[1]->tax_rate1);
+    }
+
+    public function testAstBlendedRateFallsBackToSixDecimalsWhenThreeDecimalsDriftFromQb(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 1000),
+            $this->lineItem('Second taxable item', 2000),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        // 5% on the first 1000 and 10% on the second 2000: 50 + 200 = 250, blended over 3000 = 8.3333%.
+        // At 8.333% the total would be 249.99, so the 6dp rate must be kept to match QB to the cent.
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 250,
+            tax_lines: [$this->taxLine(50, 5, 1000), $this->taxLine(200, 10, 2000)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX')],
+            total_amt: 3250,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+        $lines = $invoice->line_items;
+
+        $this->assertEqualsWithDelta(250, (float) $invoice->total_taxes, 0.001);
+        $this->assertSame(8.333333, $lines[0]->tax_rate1);
+        $this->assertSame(8.333333, $lines[1]->tax_rate1);
     }
 
     public function testAstBlendedRateCreatesTaxRateAtFinalRate(): void
