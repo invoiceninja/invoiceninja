@@ -150,6 +150,69 @@ class UpdateCompanyUserTest extends TestCase
         $this->assertSame(['v' => 2], $response->json()['data']['company_user']['flutter_settings']['welcome']);
     }
 
+    public function testAnUnrelatedFlutterSettingsPatchKeepsObjectsAndLists()
+    {
+        $this->putCompanyUserFlutterSettings([
+            'flutter_settings' => [
+                'filters' => new \stdClass(),
+                'order' => (object) ['0' => 'a', '1' => 'b'],
+                'columns' => ['number', 'date'],
+            ],
+        ])->assertStatus(200);
+
+        $response = $this->putCompanyUserFlutterSettings([
+            'flutter_settings' => ['welcome' => 1, 'order.2' => 'c'],
+        ]);
+
+        $response->assertStatus(200);
+
+        // Decoded without assoc, so {} and [] stay apart.
+        $returned = json_decode($response->getContent())->data->company_user->flutter_settings;
+        $stored = json_decode(CompanyUser::whereUserId($this->user->id)
+            ->whereCompanyId($this->company->id)
+            ->first()
+            ->getRawOriginal('flutter_settings'));
+
+        foreach ([$returned, $stored] as $flutter_settings) {
+            $this->assertInstanceOf(\stdClass::class, $flutter_settings->filters);
+            $this->assertSame([], get_object_vars($flutter_settings->filters));
+            $this->assertInstanceOf(\stdClass::class, $flutter_settings->order);
+            $this->assertEquals(['0' => 'a', '1' => 'b', '2' => 'c'], get_object_vars($flutter_settings->order));
+            $this->assertSame(['number', 'date'], $flutter_settings->columns);
+            $this->assertSame(1, $flutter_settings->welcome);
+        }
+    }
+
+    public function testAnEmptyStringFlutterSettingIsKeptAndOnlyNullRemovesAPath()
+    {
+        $this->putCompanyUserFlutterSettings([
+            'flutter_settings' => ['search' => 'acme', 'view' => ['name' => 'Overdue']],
+        ])->assertStatus(200);
+
+        // Through the HTTP middleware, which turns "" into null in the parsed input.
+        $response = $this->putCompanyUserFlutterSettings([
+            'flutter_settings' => ['search' => '', 'view.name' => ''],
+        ]);
+
+        $response->assertStatus(200);
+
+        $flutter_settings = json_decode($response->getContent())->data->company_user->flutter_settings;
+
+        $this->assertSame('', $flutter_settings->search);
+        $this->assertSame('', $flutter_settings->view->name);
+
+        $response = $this->putCompanyUserFlutterSettings([
+            'flutter_settings' => ['search' => null],
+        ]);
+
+        $response->assertStatus(200);
+
+        $flutter_settings = json_decode($response->getContent())->data->company_user->flutter_settings;
+
+        $this->assertObjectNotHasProperty('search', $flutter_settings);
+        $this->assertSame('', $flutter_settings->view->name);
+    }
+
     public function testFlutterSettingsMustBeAnObjectOfValidPaths()
     {
         $this->putCompanyUserFlutterSettings([
