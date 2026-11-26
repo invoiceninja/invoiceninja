@@ -25,7 +25,11 @@ final class PaymentAmountValidator
     ): ?string {
         $amount = Number::roundValue(Number::parseFloat($amount), $precision);
         $payable = Number::roundValue(
-            $invoice->partial > 0 ? $invoice->partial : $invoice->balance,
+            $invoice->partial > 0
+                ? $invoice->partial
+                : ($invoice->status_id === Invoice::STATUS_DRAFT
+                    ? $invoice->amount
+                    : $invoice->balance),
             $precision,
         );
 

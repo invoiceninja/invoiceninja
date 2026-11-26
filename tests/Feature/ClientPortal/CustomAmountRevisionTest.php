@@ -19,17 +19,10 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * Under/over limits are applied in two different places.
- *
- * Smooth checkout (single invoice and bulk) asks UnderOverPayment::checkValue
- * to compare the typed amount with payable_invoices[].amount. A successful
- * check writes the typed amount back into that same field.
- *
- * Default checkout (single invoice and bulk) posts to InstantPayment, which
- * compares every request with the invoice partial, or the balance when no
- * partial is set.
- *
- * The smooth charge step, LivewireInstantPayment, does not apply either limit.
+ * Both checkout flows validate each selected amount against the persisted
+ * invoice partial, or its balance when no partial is set. Drafts without a
+ * partial use the invoice amount until they are marked sent.
+ * Successful revisions update the cached selection without changing the invoice.
  */
 class CustomAmountRevisionTest extends TestCase
 {
@@ -45,7 +38,7 @@ class CustomAmountRevisionTest extends TestCase
         $this->allowCustomAmounts(under: true, over: false);
     }
 
-    public function testSmoothAmountStepComparesASecondSubmitToThePreviousCustomAmount(): void
+    public function testSmoothAmountStepComparesEverySubmitWithTheInvoicePayable(): void
     {
         $invoice = $this->prepareInvoice(amount: 1000, balance: 1000);
         $context_key = $invoice->invitations()->first()->key;
@@ -59,9 +52,24 @@ class CustomAmountRevisionTest extends TestCase
 
         $component
             ->call('checkValue', [$this->submittedRow($invoice, 500)])
+            ->assertSet('errors', '');
+
+        $this->assertEquals(500, Cache::get($context_key)['payable_invoices'][0]['amount']);
+
+        $component
+            ->call('checkValue', [$this->submittedRow($invoice, 1250)])
             ->assertSet('errors', ctrans('texts.over_payments_disabled'));
 
-        $this->assertEquals(250, Cache::get($context_key)['payable_invoices'][0]['amount']);
+        $this->assertEquals(500, Cache::get($context_key)['payable_invoices'][0]['amount']);
+
+        $component
+            ->call('checkValue', [[
+                'invoice_id' => $invoice->hashed_id,
+                'formatted_amount' => '0.00001',
+            ]])
+            ->assertSet('errors', ctrans('texts.minimum_required_payment', ['amount' => 1]));
+
+        $this->assertEquals(500, Cache::get($context_key)['payable_invoices'][0]['amount']);
     }
 
     public function testSmoothBulkAmountStepKeepsASeparateCeilingForEachInvoice(): void
@@ -84,14 +92,14 @@ class CustomAmountRevisionTest extends TestCase
                 $this->submittedRow($first, 500),
                 $this->submittedRow($second, 300),
             ])
-            ->assertSet('errors', ctrans('texts.over_payments_disabled'));
+            ->assertSet('errors', '');
 
         $stored = collect(Cache::get($context_key)['payable_invoices'])->keyBy('invoice_id');
-        $this->assertEquals(250, $stored[$first->hashed_id]['amount']);
+        $this->assertEquals(500, $stored[$first->hashed_id]['amount']);
         $this->assertEquals(300, $stored[$second->hashed_id]['amount']);
     }
 
-    public function testSmoothDepositStepUsesThePartialUntilTheCustomAmountReplacesIt(): void
+    public function testSmoothDepositStepRetainsThePartialAsTheValidationBaseline(): void
     {
         $invoice = $this->prepareInvoice(amount: 1000, balance: 1000, partial: 400);
         $context_key = $invoice->invitations()->first()->key;
@@ -101,9 +109,9 @@ class CustomAmountRevisionTest extends TestCase
             ->call('checkValue', [$this->submittedRow($invoice, 200)])
             ->assertSet('errors', '')
             ->call('checkValue', [$this->submittedRow($invoice, 350)])
-            ->assertSet('errors', ctrans('texts.over_payments_disabled'));
+            ->assertSet('errors', '');
 
-        $this->assertEquals(200, Cache::get($context_key)['payable_invoices'][0]['amount']);
+        $this->assertEquals(350, Cache::get($context_key)['payable_invoices'][0]['amount']);
         $this->assertEquals(400, (float) $invoice->fresh()->partial);
     }
 
