@@ -426,6 +426,208 @@ class AstTaxResponseProcessorTest extends TestCase
         $this->assertEqualsWithDelta(215, (float) $invoice->calc()->getTempEntity()->amount, 0.001);
     }
 
+    public function testAstBlendedRateReconcilesUnequalLinesWithDifferentTaxableBases(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 100),
+            $this->lineItem('Second taxable item', 200),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        // 5% applies to the first 100 only, 10% applies to the second 200 only: 5 + 20 = 25.
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 25,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(20, 10, 200)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX')],
+            total_amt: 325,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+        $lines = $invoice->line_items;
+
+        $this->assertEqualsWithDelta(325, (float) $invoice->amount, 0.001);
+        $this->assertEqualsWithDelta(25, (float) $invoice->total_taxes, 0.001);
+        $this->assertEqualsWithDelta(325, (float) $invoice->calc()->getTempEntity()->amount, 0.001);
+
+        // One blended rate (25 / 300), not the 15% sum of the components.
+        $this->assertEqualsWithDelta(8.3333, (float) $lines[0]->tax_rate1, 0.0001);
+        $this->assertEqualsWithDelta(8.3333, (float) $lines[1]->tax_rate1, 0.0001);
+    }
+
+    public function testAstBlendedRateCreatesTaxRateAtFinalRate(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 100),
+            $this->lineItem('Second taxable item', 100),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 15,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(10, 10, 100)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX')],
+            total_amt: 215,
+        ), $invoice);
+
+        $line = $invoice->fresh()->line_items[0];
+        $tax_rates = TaxRate::query()
+            ->where('company_id', $this->company->id)
+            ->where('name', $line->tax_name1);
+
+        $this->assertTrue((clone $tax_rates)->where('rate', 7.5)->exists());
+        $this->assertFalse((clone $tax_rates)->where('rate', 15)->exists());
+    }
+
+    public function testAstBlendedRateLeavesExemptLinesUntaxed(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 100),
+            $this->lineItem('Second taxable item', 100),
+            $this->lineItem('Exempt item', 50, tax_id: '5'),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 15,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(10, 10, 100)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX'), $this->salesLine('NON')],
+            total_amt: 265,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+        $lines = $invoice->line_items;
+
+        $this->assertEqualsWithDelta(265, (float) $invoice->amount, 0.001);
+        $this->assertEqualsWithDelta(15, (float) $invoice->total_taxes, 0.001);
+        $this->assertEqualsWithDelta(7.5, (float) $lines[0]->tax_rate1, 0.0001);
+        $this->assertEqualsWithDelta(7.5, (float) $lines[1]->tax_rate1, 0.0001);
+        $this->assertEquals(0.0, (float) $lines[2]->tax_rate1);
+        $this->assertSame('', $lines[2]->tax_name1);
+    }
+
+    public function testAstEqualBaseComponentsKeepSummedRateUnscaled(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('Widget', 100),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 8.25,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(3.25, 3.25, 100)],
+            lines: [$this->salesLine('TAX')],
+            total_amt: 108.25,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+
+        $this->assertSame(8.25, $invoice->line_items[0]->tax_rate1);
+        $this->assertEqualsWithDelta(108.25, (float) $invoice->amount, 0.001);
+    }
+
+    public function testAstBlendedRateReconcilesWithInvoiceLevelDiscount(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 100),
+            $this->lineItem('Second taxable item', 100),
+        ]);
+        $invoice->discount = 20;
+        $invoice->is_amount_discount = true;
+        $invoice->saveQuietly();
+        $invoice = $invoice->calc()->getInvoice();
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        // Net 180 after discount; each component taxes a different 90.
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 13.5,
+            tax_lines: [$this->taxLine(4.5, 5, 90), $this->taxLine(9, 10, 90)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX')],
+            total_amt: 193.5,
+        ), $invoice);
+
+        $invoice = $invoice->fresh();
+
+        $this->assertEqualsWithDelta(193.5, (float) $invoice->amount, 0.001);
+        $this->assertEqualsWithDelta(13.5, (float) $invoice->total_taxes, 0.001);
+        $this->assertEqualsWithDelta(193.5, (float) $invoice->calc()->getTempEntity()->amount, 0.001);
+    }
+
+    public function testAstBlendedRateReplayDoesNotChangeBalances(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 100),
+            $this->lineItem('Second taxable item', 100),
+        ]);
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->amount = 200;
+        $invoice->balance = 200;
+        $invoice->saveQuietly();
+        $this->client->balance = 200;
+        $this->client->saveQuietly();
+
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+        $qb_response = $this->qbResponseWithTax(
+            total_tax: 15,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(10, 10, 100)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX')],
+            total_amt: 215,
+        );
+
+        $this->invokeProcessTax($qb_invoice, $qb_response, $invoice->fresh());
+
+        $this->assertEqualsWithDelta(215, (float) $invoice->fresh()->amount, 0.001);
+        $this->assertEqualsWithDelta(215, (float) $invoice->fresh()->balance, 0.001);
+        $this->assertEqualsWithDelta(215, (float) $this->client->fresh()->balance, 0.001);
+
+        $this->invokeProcessTax($qb_invoice, $qb_response, $invoice->fresh());
+
+        $this->assertEqualsWithDelta(215, (float) $invoice->fresh()->amount, 0.001);
+        $this->assertEqualsWithDelta(215, (float) $invoice->fresh()->balance, 0.001);
+        $this->assertEqualsWithDelta(215, (float) $this->client->fresh()->balance, 0.001);
+    }
+
+    public function testAstDoesNotBlendRatesWhenQbPreTaxAmountDisagrees(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('First taxable item', 100),
+            $this->lineItem('Second taxable item', 200),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        // QB pre-tax amount is 100, Ninja's is 300: the response does not describe this invoice.
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 25,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(20, 10, 200)],
+            lines: [$this->salesLine('TAX'), $this->salesLine('TAX')],
+            total_amt: 125,
+        ), $invoice);
+
+        $lines = $invoice->fresh()->line_items;
+
+        $this->assertEqualsWithDelta(15, (float) $lines[0]->tax_rate1, 0.0001);
+        $this->assertEqualsWithDelta(15, (float) $lines[1]->tax_rate1, 0.0001);
+    }
+
+    public function testAstDoesNotInventTaxWhenNoLineIsTaxable(): void
+    {
+        $invoice = $this->makeInvoiceWithLines([
+            $this->lineItem('Exempt item', 100, tax_id: '5'),
+        ]);
+        $qb_invoice = $this->makeQbInvoice(automatic_taxes: true);
+
+        $this->invokeProcessTax($qb_invoice, $this->qbResponseWithTax(
+            total_tax: 15,
+            tax_lines: [$this->taxLine(5, 5, 100), $this->taxLine(10, 10, 100)],
+            lines: [$this->salesLine('NON')],
+            total_amt: 115,
+        ), $invoice);
+
+        $line = $invoice->fresh()->line_items[0];
+
+        $this->assertEquals(0.0, (float) $line->tax_rate1);
+        $this->assertSame('', $line->tax_name1);
+    }
+
     public function testAstMismatchCannotMakeUnpaidBalanceExceedInvoiceAmount(): void
     {
         $invoice = $this->makeSentInvoiceForAstBalanceTest(initial_balance: 100, client_balance: 100);

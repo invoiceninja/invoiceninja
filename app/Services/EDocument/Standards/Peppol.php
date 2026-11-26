@@ -448,7 +448,8 @@ class Peppol extends AbstractService implements MutatorInterface
             $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         }
 
-        $this->setInvoiceDefaults();
+        // $this->setInvoiceDefaults(); // enable this when we are ready to merge e_invoice line items into the document.
+        $this->setInvoiceDefaultsLegacy();
 
         return $this;
     }

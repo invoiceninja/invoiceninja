@@ -310,6 +310,18 @@ class ClientFilters extends QueryFilters
         return $this->builder->orderBy($sort_col[0], $dir);
     }
 
+
+    /**
+     * Early return here prevents the parent 
+     * from attempting to apply this to the Client Model.
+     * 
+     * @return Builder
+     */
+    public function without_deleted_clients(): Builder
+    {
+        return $this->builder;
+    }
+    
     /**
      * Filters the query by the users company ID.
      *
