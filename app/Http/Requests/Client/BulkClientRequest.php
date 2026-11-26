@@ -13,8 +13,10 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
+use App\Models\Design;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class BulkClientRequest extends Request
 {
@@ -46,6 +48,22 @@ class BulkClientRequest extends Request
             'new_value' => ['required_if:action,bulk_update|string'],
         ];
 
+    }
+
+    public function withValidator(Validator $validator)
+    {
+        if ($validator->errors()->isNotEmpty() || $this->action != 'template') {
+            return;
+        }
+
+        $validator->after(function ($validator) {
+            $user = auth()->user();
+
+            if (Design::withTrashed()->where('company_id', $user->company()->id)->where('id', $this->decodePrimaryKey($this->template_id))->doesntExist()) {
+                $validator->errors()->add('template_id', 'Template not found');
+            }
+            
+        });
     }
 
     public function prepareForValidation()

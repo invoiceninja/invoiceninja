@@ -88,7 +88,7 @@ class TemplateAction implements ShouldQueue
 
         $resource = $this->entity::query();
 
-        $template = Design::withTrashed()->find($this->decodePrimaryKey($this->template));
+        $template = Design::withTrashed()->where('company_id', $this->company->id)->where('id', $this->decodePrimaryKey($this->template))->firstOrFail();
 
         $template_service = new \App\Services\Template\TemplateService($template);
 
