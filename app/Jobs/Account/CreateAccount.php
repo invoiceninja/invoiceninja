@@ -62,8 +62,6 @@ class CreateAccount
         Account::reguard();
         $sp794f3f = new Account();
         $sp794f3f->fill($this->request);
-        $sp794f3f->signup_ip = $this->client_ip;
-        $sp794f3f->first_touch_at = now();
 
         if (is_array($this->request['attribution'] ?? null)) {
             $this->applyAttribution($sp794f3f, $this->request['attribution']);

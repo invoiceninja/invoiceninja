@@ -15,14 +15,4 @@ return new class extends Migration
             $table->json('attribution')->nullable();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('accounts', function (Blueprint $table) {
-            $table->dropColumn('attribution');
-        });
-    }
 };

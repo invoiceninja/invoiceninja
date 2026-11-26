@@ -55,8 +55,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $utm_term
  * @property string|null $utm_content
  * @property array|null $attribution
- * @property string|null $signup_ip
- * @property string|null $first_touch_at
  * @property string $latest_version
  * @property int $report_errors
  * @property string|null $referral_code
