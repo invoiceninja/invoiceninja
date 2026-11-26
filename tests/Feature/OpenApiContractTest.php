@@ -219,6 +219,7 @@ class OpenApiContractTest extends TestCase
         'download document' => ['get', '/api/v1/documents/{document}/download', ['document' => '{uploaded.documents.0.id}']],
         'delete document' => ['delete', '/api/v1/documents/{document}', ['document' => '{uploaded.documents.0.id}']],
         'update company user' => ['put', '/api/v1/company_users/{user}', ['user' => '{me.hashed_id}'], ['company_user' => ['notifications' => ['email' => ['invoice_sent']]]]],
+        'update flutter settings' => ['put', '/api/v1/company_users/{user}/flutter_settings', ['user' => '{me.hashed_id}'], ['flutter_settings' => ['theme' => 'dark']]],
     ];
 
     /**
