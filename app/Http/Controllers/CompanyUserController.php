@@ -179,38 +179,35 @@ class CompanyUserController extends BaseController
         $auth_user = auth()->user();
         $company = $auth_user->company();
 
-        DB::transaction(function () use ($request, $user, $company) {
-            $company_user = CompanyUser::query()
-                ->where('user_id', $user->id)
-                ->where('company_id', $company->id)
-                ->lockForUpdate()
-                ->first();
+        $company_user = CompanyUser::query()
+            ->where('user_id', $user->id)
+            ->where('company_id', $company->id)
+            ->first();
 
-            if (! $company_user) {
-                throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
+        if (! $company_user) {
+            throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
+        }
+
+        // Objects stay objects: decoding to arrays turned {} into [] and an
+        // object with sequential numeric keys into a list on the way back.
+        $flutter_settings = json_decode(json_encode($company_user->flutter_settings ?? new \stdClass()));
+
+        if (! $flutter_settings instanceof \stdClass) {
+            $flutter_settings = new \stdClass();
+        }
+
+        foreach (get_object_vars($this->flutterSettingsPatch($request)) as $path => $value) {
+            $segments = explode('.', (string) $path);
+
+            if (is_null($value)) {
+                $this->forgetFlutterSetting($flutter_settings, $segments);
+            } else {
+                $this->setFlutterSetting($flutter_settings, $segments, $value);
             }
+        }
 
-            // Objects stay objects: decoding to arrays turned {} into [] and an
-            // object with sequential numeric keys into a list on the way back.
-            $flutter_settings = json_decode(json_encode($company_user->flutter_settings ?? new \stdClass()));
-
-            if (! $flutter_settings instanceof \stdClass) {
-                $flutter_settings = new \stdClass();
-            }
-
-            foreach ($this->flutterSettingsPatch($request) as $path => $value) {
-                $segments = explode('.', (string) $path);
-
-                if (is_null($value)) {
-                    $this->forgetFlutterSetting($flutter_settings, $segments);
-                } else {
-                    $this->setFlutterSetting($flutter_settings, $segments, $value);
-                }
-            }
-
-            $company_user->flutter_settings = $flutter_settings;
-            $company_user->save();
-        });
+        $company_user->flutter_settings = $flutter_settings;
+        $company_user->save();
 
         $this->entity_type = User::class;
 
