@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\CompanyUser;
 use Illuminate\Http\Response;
+use App\Libraries\OAuth\OAuth;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\Uploadable;
@@ -563,6 +564,8 @@ class CompanyController extends BaseController
         $account_key = $account->key;
 
         if ($company_count == 1) {
+            $apple_user_id = auth()->user()->oauth_provider_id == 'apple' ? auth()->user()->oauth_user_id : null;
+
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
                 $company_user->forceDelete();
@@ -590,8 +593,19 @@ class CompanyController extends BaseController
 
             $account->delete();
 
+            $authorization_code = $request->input('apple_authorization_code');
+
+            if ($apple_user_id && is_string($authorization_code) && strlen($authorization_code) > 0 && $request->header('X-API-OAUTH-PASSWORD')) {
+                $id_token = $request->header('X-API-OAUTH-PASSWORD');
+                $redirect_uri = is_string($request->input('apple_redirect_uri')) ? $request->input('apple_redirect_uri') : null;
+
+                dispatch(function () use ($authorization_code, $id_token, $apple_user_id, $redirect_uri) {
+                    OAuth::revokeAppleToken($authorization_code, $id_token, $apple_user_id, $redirect_uri);
+                })->afterResponse();
+            }
+
             if (Ninja::isHosted()) {
-                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->all(), auth()->user()->email);
+                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->except(['apple_authorization_code', 'apple_redirect_uri']), auth()->user()->email);
 
                 $ip = $request->ip();
                 $email = auth()->user()->email;

@@ -71,6 +71,11 @@ return [
         'client_secret' => env('APPLE_CLIENT_SECRET'),
         'redirect' => env('APPLE_REDIRECT_URI'),
         'client_ids' => explode(',', env('APPLE_CLIENT_IDS', '')),
+        'revoke' => [
+            'team_id' => env('APPLE_TEAM_ID'),
+            'key_id' => env('APPLE_SIGN_IN_KEY_ID'),
+            'private_key' => env('APPLE_SIGN_IN_PRIVATE_KEY'),
+        ],
     ],
 
     'oidc' => [

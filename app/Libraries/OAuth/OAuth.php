@@ -14,6 +14,8 @@ namespace App\Libraries\OAuth;
 
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\Providers\Google;
+use Firebase\JWT\JWT;
+use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
@@ -121,19 +123,92 @@ class OAuth
         }
     }
 
-    /* iOS/macOS tokens are issued for the bundle ID, web/Android tokens for the service ID */
     public static function appleUserFromToken(string $token)
     {
-        $payload = json_decode(base64_decode(strtr(explode('.', $token)[1] ?? '', '-_', '+/')), true);
-        $client_id = in_array($payload['aud'] ?? null, config('services.apple.client_ids'), true)
-            ? $payload['aud']
-            : config('services.apple.client_id');
+        $client_id = self::appleClientId($token);
 
         /** @var \SocialiteProviders\Apple\Provider $driver */
         $driver = Socialite::driver('apple');
         $driver->setConfig(new \SocialiteProviders\Manager\Config($client_id, config('services.apple.client_secret'), config('services.apple.redirect')));
 
         return $driver->userFromToken($token);
+    }
+
+    /**
+     * Revokes the user's Sign in with Apple tokens, as Apple requires when an account is deleted.
+     *
+     * The authorization code is exchanged for a refresh token, which is revoked only when the
+     * identity token returned with it is for the Apple user ID the deleted user signed in with.
+     * Best effort: a failure is logged, never thrown.
+     */
+    public static function revokeAppleToken(#[\SensitiveParameter] string $authorization_code, #[\SensitiveParameter] string $id_token, string $apple_user_id, ?string $redirect_uri = null): void
+    {
+        if (!config('services.apple.revoke.team_id') || !config('services.apple.revoke.key_id') || !config('services.apple.revoke.private_key')) {
+            nlog("OAuth::revokeAppleToken - the Sign in with Apple key is not configured, nothing was revoked");
+            return;
+        }
+
+        try {
+            $client_id = self::appleClientId($id_token);
+            $client_secret = self::appleClientSecret($client_id);
+
+            $response = Http::asForm()->timeout(10)->post('https://appleid.apple.com/auth/token', array_filter([
+                'client_id' => $client_id,
+                'client_secret' => $client_secret,
+                'code' => $authorization_code,
+                'grant_type' => 'authorization_code',
+                'redirect_uri' => $redirect_uri,
+            ]));
+
+            if ($response->failed() || !$response->json('refresh_token')) {
+                nlog("OAuth::revokeAppleToken - could not exchange the authorization code: " . $response->status() . " " . $response->json('error'));
+                return;
+            }
+
+            if (!$response->json('id_token') || self::appleUserFromToken($response->json('id_token'))->getId() !== $apple_user_id) {
+                nlog("OAuth::revokeAppleToken - Apple's identity token is missing or for another user, nothing was revoked");
+                return;
+            }
+
+            $response = Http::asForm()->timeout(10)->post('https://appleid.apple.com/auth/revoke', [
+                'client_id' => $client_id,
+                'client_secret' => $client_secret,
+                'token' => $response->json('refresh_token'),
+                'token_type_hint' => 'refresh_token',
+            ]);
+
+            if ($response->failed()) {
+                nlog("OAuth::revokeAppleToken - could not revoke the token: " . $response->status() . " " . $response->json('error'));
+            }
+        } catch (\Throwable $e) {
+            nlog("OAuth::revokeAppleToken - could not revoke the token: " . $e->getMessage());
+        }
+    }
+
+    /* iOS/macOS tokens are issued for the bundle ID, web/Android tokens for the service ID */
+    private static function appleClientId(string $token): string
+    {
+        $payload = json_decode(base64_decode(strtr(explode('.', $token)[1] ?? '', '-_', '+/')), true);
+
+        return in_array($payload['aud'] ?? null, config('services.apple.client_ids'), true)
+            ? $payload['aud']
+            : config('services.apple.client_id');
+    }
+
+    /* Apple's client secret is a JWT signed with the Sign in with Apple key, for the client ID the code was issued to */
+    private static function appleClientSecret(string $client_id): string
+    {
+        $issue_time = time();
+
+        $payload = [
+            'iss' => config('services.apple.revoke.team_id'),
+            'iat' => $issue_time,
+            'exp' => $issue_time + 60 * 5,
+            'aud' => 'https://appleid.apple.com',
+            'sub' => $client_id,
+        ];
+
+        return JWT::encode($payload, config('services.apple.revoke.private_key'), 'ES256', config('services.apple.revoke.key_id'));
     }
 
     public function getProvider($provider)
