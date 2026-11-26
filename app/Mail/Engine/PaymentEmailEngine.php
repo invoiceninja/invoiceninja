@@ -144,7 +144,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
                 if (!$template_in_use) {
                     $pdf = ((new CreateRawPdf($invoice->invitations->first()))->handle());
-                    $file_name = $invoice->numberFormatter() . '.pdf';
+                    $file_name = $invoice->getDownloadFileName();
                     $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
                 }
 

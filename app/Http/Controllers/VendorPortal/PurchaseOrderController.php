@@ -30,6 +30,7 @@ use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
+use App\Utils\FileNamePattern;
 
 class PurchaseOrderController extends Controller
 {
@@ -229,7 +230,7 @@ class PurchaseOrderController extends Controller
     public function downloadPurchaseOrders($ids)
     {
         $purchase_order_invitations = PurchaseOrderInvitation::query()
-                            ->with('purchase_order', 'company')
+                            ->with(['purchase_order', 'company', ...FileNamePattern::relations(PurchaseOrder::class, 'purchase_order.')])
                             ->whereIn('purchase_order_id', $ids)
                             ->where('vendor_contact_id', auth()->guard('vendor')->user()->id)
                             ->withTrashed()
@@ -246,7 +247,7 @@ class PurchaseOrderController extends Controller
 
             return response()->streamDownload(function () use ($file) {
                 echo $file;
-            }, $invitation->purchase_order->numberFormatter() . ".pdf", ['Content-Type' => 'application/pdf']);
+            }, $invitation->purchase_order->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
         }
 
         return $this->buildZip($purchase_order_invitations);
@@ -260,7 +261,7 @@ class PurchaseOrderController extends Controller
             foreach ($invitations as $invitation) {
 
                 $file = (new CreateRawPdf($invitation))->handle();
-                $zipFile->addFromString($invitation->purchase_order->numberFormatter() . ".pdf", $file);
+                $zipFile->addFromString($invitation->purchase_order->getDownloadFileName(), $file);
             }
 
             $filename = date('Y-m-d-h-i-s') . '_' . str_replace(' ', '_', trans('texts.purchase_orders')) . '.zip';

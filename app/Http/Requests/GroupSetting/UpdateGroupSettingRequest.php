@@ -35,9 +35,13 @@ class UpdateGroupSettingRequest extends Request
     public function rules()
     {
 
-        return [
-            'settings' => [new ValidClientGroupSettingsRule()],
-        ];
+        $rules['settings'] = [new ValidClientGroupSettingsRule()];
+        $rules['settings.invoice_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.quote_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.credit_filename_pattern'] = 'sometimes|nullable|string|max:150';
+        $rules['settings.purchase_order_filename_pattern'] = 'sometimes|nullable|string|max:150';
+
+        return $rules;
 
     }
 

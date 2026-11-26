@@ -167,7 +167,7 @@ class TemplateEmail extends Mailable
             $ubl_string = (new CreateUbl($this->invitation->invoice))->handle();
 
             if ($ubl_string) {
-                $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
+                $this->attachData($ubl_string, $this->invitation->invoice->getDownloadFileName('xml'));
             }
 
         }
@@ -177,7 +177,7 @@ class TemplateEmail extends Mailable
                 $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
 
                 if ($xml_string) {
-                    $this->attachData($xml_string, $this->invitation->invoice->getEFileName("xml"));
+                    $this->attachData($xml_string, $this->invitation->invoice->customFileName('xml') ?? $this->invitation->invoice->getEFileName("xml"));
                 }
 
             }
@@ -186,7 +186,7 @@ class TemplateEmail extends Mailable
                 $xml_string = $this->invitation->credit->service()->getECredit($this->invitation->contact);
 
                 if ($xml_string) {
-                    $this->attachData($xml_string, $this->invitation->credit->getEFileName("xml"));
+                    $this->attachData($xml_string, $this->invitation->credit->customFileName('xml') ?? $this->invitation->credit->getEFileName("xml"));
                 }
 
             }
@@ -195,7 +195,7 @@ class TemplateEmail extends Mailable
                 $xml_string = $this->invitation->quote->service()->getEQuote($this->invitation->contact);
 
                 if ($xml_string) {
-                    $this->attachData($xml_string, $this->invitation->quote->getEFileName("xml"));
+                    $this->attachData($xml_string, $this->invitation->quote->customFileName('xml') ?? $this->invitation->quote->getEFileName("xml"));
                 }
 
             }
@@ -204,7 +204,7 @@ class TemplateEmail extends Mailable
                 $xml_string = $this->invitation->purchase_order->service()->getEPurchaseOrder($this->invitation->contact);
 
                 if ($xml_string) {
-                    $this->attachData($xml_string, $this->invitation->purchase_order->getEFileName("xml"));
+                    $this->attachData($xml_string, $this->invitation->purchase_order->customFileName('xml') ?? $this->invitation->purchase_order->getEFileName("xml"));
                 }
 
             }

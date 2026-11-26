@@ -805,7 +805,7 @@ class QuoteController extends BaseController
 
                 return response()->streamDownload(function () use ($quote) {
                     echo $quote->service()->getQuotePdf();
-                }, $quote->getFileName(), ['Content-Type' => 'application/pdf']);
+                }, $quote->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->quote_repo->restore($quote);
@@ -915,7 +915,7 @@ class QuoteController extends BaseController
 
         return response()->streamDownload(function () use ($quote, $contact) {
             echo $quote->service()->getQuotePdf($contact);
-        }, $quote->getFileName(), $headers);
+        }, $quote->getDownloadFileName(), $headers);
 
     }
 
@@ -974,7 +974,7 @@ class QuoteController extends BaseController
         $quote = $invitation->quote;
 
         $file = $quote->service()->getEQuote($contact);
-        $file_name = $quote->getFileName("xml");
+        $file_name = $quote->getDownloadFileName('xml');
 
         $headers = ['Content-Type' => 'application/xml'];
 

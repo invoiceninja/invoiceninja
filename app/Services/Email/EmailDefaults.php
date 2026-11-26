@@ -346,7 +346,7 @@ class EmailDefaults
         if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
 
-            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter() . '.pdf']]);
+            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->getDownloadFileName()]]);
         }
 
         /** UBL xml file */
@@ -354,7 +354,7 @@ class EmailDefaults
             $ubl_string = (new CreateUbl($this->email->email_object->entity))->handle();
 
             if ($ubl_string) {
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($ubl_string), 'name' => $this->email->email_object->entity->getFileName('xml')]]);
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($ubl_string), 'name' => $this->email->email_object->entity->getDownloadFileName('xml')]]);
             }
         }
         /** E-Invoice xml file */
@@ -369,7 +369,7 @@ class EmailDefaults
             }
 
             if ($xml_string) {
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0] . "-e_invoice.xml"]]);
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => $this->email->email_object->entity->customFileName('xml') ?? pathinfo($this->email->email_object->entity->getFileName('xml'), PATHINFO_FILENAME) . "-e_invoice.xml"]]);
             }
 
         }

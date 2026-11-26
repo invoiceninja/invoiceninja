@@ -96,7 +96,7 @@ class InvoiceSummary extends Component
 
         $invite = \App\Models\InvoiceInvitation::on($db)->withTrashed()->find($invitation_id);
 
-        $file_name = $invite->invoice->numberFormatter() . '.pdf';
+        $file_name = $invite->invoice->getDownloadFileName();
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invite))->handle();
 

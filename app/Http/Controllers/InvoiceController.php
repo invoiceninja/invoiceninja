@@ -588,7 +588,7 @@ class InvoiceController extends BaseController
 
         if ($action == 'download' && $invoices->isNotEmpty() && $user->can('view', $invoices->first())) {
 
-            $filename = $invoices->first()->getFileName();
+            $filename = $invoices->first()->getDownloadFileName();
 
             Atomic::del($request->lock_key);
 
@@ -833,7 +833,7 @@ class InvoiceController extends BaseController
 
                 return response()->streamDownload(function () use ($invoice) {
                     echo $invoice->service()->getInvoicePdf();
-                }, $invoice->getFileName(), ['Content-Type' => 'application/pdf']);
+                }, $invoice->getDownloadFileName(), ['Content-Type' => 'application/pdf']);
 
             case 'restore':
                 $this->invoice_repo->restore($invoice);
@@ -924,7 +924,7 @@ class InvoiceController extends BaseController
 
         App::setLocale($invitation->contact->preferredLocale());
 
-        $file_name = $invoice->numberFormatter() . '.pdf';
+        $file_name = $invoice->getDownloadFileName();
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
@@ -995,7 +995,7 @@ class InvoiceController extends BaseController
         $invoice = $invitation->invoice;
 
         $file = $invoice->service()->getEInvoice($contact);
-        $file_name = $invoice->getFileName("xml");
+        $file_name = $invoice->getDownloadFileName('xml');
 
         $headers = ['Content-Type' => 'application/xml'];
 

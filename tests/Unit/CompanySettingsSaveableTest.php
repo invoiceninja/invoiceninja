@@ -85,6 +85,24 @@ class CompanySettingsSaveableTest extends TestCase
         $this->assertSame('3,25', $filtered->hidden_payment_types);
     }
 
+    public function testFreePlanKeepsFileNamePatterns(): void
+    {
+        $settings = CompanySettings::defaults();
+        $settings->invoice_filename_pattern = '$number';
+        $settings->quote_filename_pattern = '$number';
+        $settings->credit_filename_pattern = '$number';
+        $settings->purchase_order_filename_pattern = '$number';
+        $settings->filename_slug = true;
+
+        $filtered = $this->filterSaver($settings);
+
+        $this->assertSame('$number', $filtered->invoice_filename_pattern);
+        $this->assertSame('$number', $filtered->quote_filename_pattern);
+        $this->assertSame('$number', $filtered->credit_filename_pattern);
+        $this->assertSame('$number', $filtered->purchase_order_filename_pattern);
+        $this->assertTrue($filtered->filename_slug);
+    }
+
     private function filterSaver($settings)
     {
         $saveable_cast = CompanySettings::$free_plan_casts;

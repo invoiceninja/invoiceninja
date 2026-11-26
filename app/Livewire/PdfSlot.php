@@ -192,7 +192,7 @@ class PdfSlot extends Component
         $entity = $this->resolveEntity();
         $invitation = $this->resolveInvitation();
 
-        $file_name = $entity->numberFormatter() . '.pdf';
+        $file_name = $entity->getDownloadFileName();
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
 
@@ -210,7 +210,7 @@ class PdfSlot extends Component
 
         abort_unless($entity instanceof Invoice || $entity instanceof Quote || $entity instanceof Credit, 404);
 
-        $file_name = $entity->numberFormatter() . '.xml';
+        $file_name = $entity->getDownloadFileName('xml');
 
         $file = (new CreateEDocument($entity))->handle();
 

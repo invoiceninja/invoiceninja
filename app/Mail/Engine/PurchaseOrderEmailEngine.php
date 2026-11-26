@@ -128,7 +128,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             //     $pdf = $this->purchase_order->documentMerge($pdf);
             // }
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter() . '.pdf']]);
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->getDownloadFileName()]]);
         }
 
         //attach third party documents
