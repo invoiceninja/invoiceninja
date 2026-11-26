@@ -85,4 +85,57 @@ class InvoicePayAmountTest extends TestCase
             'full payment' => [0, 1000],
         ];
     }
+
+    #[DataProvider('revisedCustomAmounts')]
+    public function testCustomAmountCanBeRevisedAgainstOriginalPayable(
+        bool $allow_under_payment,
+        bool $allow_over_payment,
+        float $first_amount,
+        float $revised_amount,
+    ): void {
+        $this->invoice->forceFill([
+            'amount' => 1000,
+            'balance' => 1000,
+            'partial' => 0,
+            'status_id' => Invoice::STATUS_SENT,
+        ])->saveQuietly();
+
+        $invitation = $this->invoice->invitations()->first();
+        $settings = $this->client->getMergedSettings();
+        $settings->client_portal_allow_under_payment = $allow_under_payment;
+        $settings->client_portal_allow_over_payment = $allow_over_payment;
+        $settings->client_portal_under_payment_minimum = 1;
+
+        Cache::put($invitation->key, [
+            'contact' => $this->contact,
+            'settings' => $settings,
+            'payable_invoices' => [[
+                'invoice_id' => $this->invoice->hashed_id,
+                'amount' => 1000,
+                'formatted_amount' => '1000.00',
+            ]],
+        ], now()->addHour());
+
+        Livewire::test(UnderOverPayment::class, ['_key' => $invitation->key])
+            ->call('checkValue', [[
+                'invoice_id' => $this->invoice->hashed_id,
+                'formatted_amount' => (string) $first_amount,
+            ]])
+            ->assertSet('errors', '')
+            ->call('checkValue', [[
+                'invoice_id' => $this->invoice->hashed_id,
+                'formatted_amount' => (string) $revised_amount,
+            ]])
+            ->assertSet('errors', '');
+
+        $this->assertEquals($revised_amount, Cache::get($invitation->key)['payable_invoices'][0]['amount']);
+    }
+
+    public static function revisedCustomAmounts(): array
+    {
+        return [
+            'raise an underpayment while remaining below balance' => [true, false, 250, 500],
+            'reduce an overpayment back to full balance' => [false, true, 1250, 1000],
+        ];
+    }
 }

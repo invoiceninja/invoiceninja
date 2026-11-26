@@ -1,0 +1,49 @@
+    Gateway:
+      description: 'Payment gateway provider details'
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        key:
+          type: string
+        provider:
+          type: string
+        visible:
+          type: boolean
+        sort_order:
+          type: integer
+        default_gateway_type_id:
+          type: string
+        site_url:
+          type: string
+        is_offsite:
+          type: boolean
+        is_secure:
+          type: boolean
+        fields:
+          type: string
+        updated_at:
+          type: integer
+        created_at:
+          type: integer
+        options:
+          description: 'Capabilities keyed by gateway type id; an empty array when none are defined'
+          anyOf:
+            - type: object
+              additionalProperties:
+                type: object
+                properties:
+                  refund:
+                    type: boolean
+                  token_billing:
+                    type: boolean
+                  webhooks:
+                    type: array
+                    items:
+                      type: string
+            - type: array
+              maxItems: 0
+              items:
+                type: object

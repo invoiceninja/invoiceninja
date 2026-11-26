@@ -68,6 +68,10 @@ class QbProduct implements SyncInterface
             $ninja_data = $this->product_transformer->qbToNinja($record, $this->service);
 
             if ($product = $this->findProduct($ninja_data['id'], $ninja_data['product_key'])) {
+                if ($product->exists && $ninja_data['product_key'] === $this->fallbackProductName($product->product_key ?? '')) {
+                    unset($ninja_data['product_key']);
+                }
+
                 $product->fill($ninja_data);
                 $product->save();
             }
@@ -85,14 +89,10 @@ class QbProduct implements SyncInterface
      */
     public function syncToForeign(array $records): void
     {
-
         foreach ($records as $product) {
-            if (!$product instanceof Product) {
-                continue;
+            if ($product instanceof Product) {
+                $this->createQbProduct($product);
             }
-
-            $this->createQbProduct($product);
-
         }
     }
 
@@ -164,6 +164,10 @@ class QbProduct implements SyncInterface
             if (Carbon::parse($last_updated) > Carbon::parse($ninja_record->updated_at)) {
                 $ninja_data = $this->product_transformer->qbToNinja($qb_record, $this->service);
 
+                if ($ninja_record->exists && $ninja_data['product_key'] === $this->fallbackProductName($ninja_record->product_key ?? '')) {
+                    unset($ninja_data['product_key']);
+                }
+
                 $ninja_record->fill($ninja_data);
                 $ninja_record->save();
 
@@ -183,38 +187,66 @@ class QbProduct implements SyncInterface
     */
     public function findOrCreateProduct(object $line_item): string
     {
-        $product = \App\Models\Product::where('company_id', $this->service->company->id)
-                                          ->where('product_key', $line_item->product_key)
-                                          ->first();
+        $product = $line_item instanceof Product
+            ? $line_item
+            : Product::where('company_id', $this->service->company->id)
+                ->where('product_key', $line_item->product_key)
+                ->first();
 
-        if ($product && isset($product->sync->qb_id)) {
+        if (!empty($product->sync->qb_id)) {
             return $product->sync->qb_id;
         }
 
-        $item_name = strlen($line_item->product_key ?? '') > 0 ? $line_item->product_key : 'Product ' . uniqid();
+        $qb_id = $this->findExistingProductId($line_item->product_key ?? '');
+
+        if ($qb_id === null) {
+            return $this->createQbProduct($line_item);
+        }
+
+        if ($product) {
+            $this->linkProduct($product, $qb_id);
+        }
+
+        return $qb_id;
+    }
+
+
+    private function findExistingProductId(string $item_name): ?string
+    {
+        if (trim($item_name) === '') {
+            return null;
+        }
 
         $escaped_name = str_replace("'", "\\'", $item_name);
-        // Only match items that can be used as line items (exclude Category/Group types)
-        // QB doesn't support != operator, so we use IN with valid types
-        $query = "SELECT * FROM Item WHERE Name = '{$escaped_name}' AND Active = true AND Type IN ('Service', 'NonInventory', 'Inventory') MAXRESULTS 1";
+        $query = "SELECT * FROM Item WHERE Name = '{$escaped_name}' AND Active = true AND Type IN ('Service', 'NonInventory', 'Inventory') MAXRESULTS 2";
+        $items = $this->service->sdk()->query($query);
 
-        /** @var object|array|null $existing_items */
-        $existing_items = $this->service->sdk()->query($query);
-
-        // QB SDK can return a single object or an array; normalize to array
-        if (!empty($existing_items) && !is_array($existing_items)) {
-            $existing_items = [$existing_items];
-        }
-        if (!empty($existing_items) && isset($existing_items[0])) {
-            $existing_item = $existing_items[0];
-            $existing_id = data_get($existing_item, 'Id') ?? data_get($existing_item, 'Id.value');
-            if ($existing_id) {
-                return $existing_id;
-            }
+        if (empty($items)) {
+            return null;
         }
 
-        return $this->createQbProduct($line_item);
+        $items = is_array($items) && array_is_list($items) ? $items : [$items];
 
+        if (count($items) !== 1) {
+            throw new \RuntimeException("Multiple QuickBooks items match '{$item_name}'. Link the correct item before retrying.");
+        }
+
+        $qb_id = data_get($items[0], 'Id.value') ?? data_get($items[0], 'Id');
+
+        if (empty($qb_id) || !is_scalar($qb_id)) {
+            throw new \RuntimeException("QuickBooks returned an invalid item ID for '{$item_name}'.");
+        }
+
+        return (string) $qb_id;
+    }
+
+    private function linkProduct(Product $product, string $qb_id): void
+    {
+        $sync = $product->sync ? clone $product->sync : new ProductSync();
+        $sync->qb_id = $qb_id;
+        $sync->qb_status_message = '';
+        $product->sync = $sync;
+        $product->saveQuietly();
     }
 
     /**
@@ -227,109 +259,151 @@ class QbProduct implements SyncInterface
      */
     private function createQbProduct(mixed $line_item): string
     {
+        $product = $line_item instanceof Product ? $line_item : null;
 
-        $product = null;
+        if ($product) {
+            if (empty($product->sync->qb_id)) {
+                $qb_id = $this->findExistingProductId($product->product_key);
 
-        if ($line_item instanceof Product) {
-
-            $product = $line_item;
+                if ($qb_id !== null) {
+                    $this->linkProduct($product, $qb_id);
+                }
+            }
 
             $item = new \App\DataMapper\InvoiceItem();
-            $item->product_key = $line_item->product_key;
-            $item->notes = $line_item->notes;
+            $item->product_key = $product->product_key;
+            $item->notes = $product->notes;
             $item->quantity = 1;
-            $item->cost = $line_item->price; // UnitPrice in QuickBooks
-            $item->product_cost = $line_item->cost ?? 0; // PurchaseCost in QuickBooks
-            $item->line_total = $line_item->price;
-            $item->type_id = $line_item->tax_id == Product::PRODUCT_TYPE_SERVICE ? '2' : '1';
-            $item->income_account_id = $line_item->income_account_id ? (string) $line_item->income_account_id : '';
-
+            $item->cost = $product->price;
+            $item->product_cost = $product->cost ?? 0;
+            $item->line_total = $product->price;
+            $item->type_id = $product->tax_id == Product::PRODUCT_TYPE_SERVICE ? '2' : '1';
+            $item->tax_id = (string) $product->tax_id;
+            $item->income_account_id = $product->income_account_id ? (string) $product->income_account_id : '';
             $line_item = $item;
-
         }
 
         $product_data = $this->product_transformer->qbTransform($line_item, $this->service->getIncomeAccountId());
 
-        if (isset($product->sync->qb_id) && !empty($product->sync->qb_id)) {
-            $existing_qb_product = $this->find($product->sync->qb_id);
-            if ($existing_qb_product) {
-                // Safety check: Don't try to update Category or Group items
-                $existing_type = data_get($existing_qb_product, 'Type');
-                if ($existing_type === 'Category' || $existing_type === 'Group') {
-                    nlog("WARNING: Attempted to update Category/Group item in QB. Product: {$product->product_key}, QB ID: {$product->sync->qb_id}, Type: {$existing_type}. Clearing sync to allow new item creation.");
-                    // Clear the QB sync so it creates a new item instead
-                    $product->sync->qb_id = null;
-                    $product->save();
-                    // Fall through to create new item
-                } else {
-                    $product_data['SyncToken'] = $existing_qb_product->SyncToken ?? '0';
-                    $product_data['Id'] = $product->sync->qb_id;
+        if (!empty($product->sync->qb_id)) {
+            $existing_item = $this->find($product->sync->qb_id);
 
-                    $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
-                    try {
-                        $this->service->sdk()->update($qb_item);
-                        $this->clearPushFailure($product);
-                    } catch (\Throwable $e) {
-                        $this->markPushFailure($product, $e, 'updating the product');
-                        nlog('QuickBooks: Item Update failed', [
-                            'company_id' => $this->service->company->id,
-                            'product_key' => $line_item->product_key ?? null,
-                            'qb_item_id' => $product->sync->qb_id,
-                            'exception' => $e::class,
-                            'message' => $e->getMessage(),
-                            'payload' => $product_data,
-                        ]);
-                        throw $e;
-                    }
-
-                    return $product->sync->qb_id;
-                }
+            if (!$existing_item) {
+                $exception = new \RuntimeException("Mapped QuickBooks item {$product->sync->qb_id} could not be loaded. The mapping has been preserved.");
+                $this->markPushFailure($product, $exception, 'resolving the product');
+                throw $exception;
             }
+
+            $existing_type = data_get($existing_item, 'Type.value') ?? data_get($existing_item, 'Type');
+
+            if (!filter_var(data_get($existing_item, 'Active', true), FILTER_VALIDATE_BOOLEAN)
+                || !in_array($existing_type, ['Service', 'NonInventory', 'Inventory'], true)) {
+                $exception = new \RuntimeException("QuickBooks item {$product->sync->qb_id} is inactive or has an unsupported type. The mapping has been preserved.");
+                $this->markPushFailure($product, $exception, 'resolving the product');
+                throw $exception;
+            }
+
+            $existing_name = data_get($existing_item, 'Name');
+
+            if ($existing_name === $this->fallbackProductName($product->product_key ?? '')) {
+                $product_data['Name'] = $existing_name;
+            }
+
+            $product_data['SyncToken'] = data_get($existing_item, 'SyncToken', '0');
+            $product_data['Id'] = $product->sync->qb_id;
+            $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
+
+            try {
+                $this->service->sdk()->update($qb_item);
+                $this->clearPushFailure($product);
+            } catch (\Throwable $exception) {
+                $this->markPushFailure($product, $exception, 'updating the product');
+                throw $exception;
+            }
+
+            return $product->sync->qb_id;
         }
 
-        $qb_item = \QuickBooksOnline\API\Facades\Item::create($product_data);
+        $product ??= Product::where('company_id', $this->service->company->id)
+            ->where('product_key', $line_item->product_key)
+            ->first();
 
         try {
-            $result = $this->service->sdk()->add($qb_item);
-        } catch (\Throwable $e) {
+            $result = $this->addProduct($product_data, $line_item->product_key ?? '');
+        } catch (\Throwable $exception) {
+            nlog('QuickBooks: Product creation failed', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $line_item->product_key,
+                'message' => $exception->getMessage(),
+            ]);
+
             if ($product) {
-                $this->markPushFailure($product, $e, 'creating the product');
+                $this->markPushFailure($product, $exception, 'creating the product');
             }
 
-            nlog('QuickBooks: Item Add failed', [
-                'company_id' => $this->service->company->id,
-                'product_key' => $line_item->product_key ?? null,
-                'exception' => $e::class,
-                'message' => $e->getMessage(),
-                'payload' => $product_data,
-            ]);
-            throw $e;
+            throw $exception;
         }
 
-        $qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
+        $qb_id = data_get($result, 'Id.value') ?? data_get($result, 'Id');
 
-        // Validate that we got a valid QB ID
-        if (empty($qb_id)) {
-            nlog('QuickBooks: Item Add returned no Id — create product failed', [
-                'company_id' => $this->service->company->id,
-                'product_key' => $line_item->product_key ?? null,
-                'payload' => $product_data,
-            ]);
-            throw new \RuntimeException("Failed to create product in QuickBooks - no ID returned");
+        if (empty($qb_id) || !is_scalar($qb_id)) {
+            $exception = new \RuntimeException('QuickBooks did not return a valid product ID.');
+
+            if ($product) {
+                $this->markPushFailure($product, $exception, 'creating the product');
+            }
+
+            throw $exception;
         }
-
-        $product = \App\Models\Product::where('company_id', $this->service->company->id)
-        ->where('product_key', $line_item->product_key)
-        ->first();
 
         if ($product) {
-            $sync = new ProductSync();
-            $sync->qb_id = $qb_id;
-            $product->sync = $sync;
-            $product->save();
+            $this->linkProduct($product, (string) $qb_id);
         }
 
-        return $qb_id;
+        return (string) $qb_id;
+    }
+
+    private function addProduct(array $product_data, string $product_key): mixed
+    {
+        try {
+            return $this->service->sdk()->add(\QuickBooksOnline\API\Facades\Item::create($product_data));
+        } catch (\Throwable $exception) {
+            if (!(new QuickbooksFaultParser())->parse($exception)->isDuplicateName()) {
+                throw $exception;
+            }
+
+            $fallback_name = $this->fallbackProductName($product_key);
+
+            nlog('QuickBooks: Recovering product name collision', [
+                'company_id' => $this->service->company->id,
+                'product_key' => $product_key,
+                'fallback_name' => $fallback_name,
+                'message' => $exception->getMessage(),
+            ]);
+
+            // A truncated name must not resolve a different Ninja product.
+            $qb_id = mb_strlen($product_key) <= 100
+                ? $this->findExistingProductId($product_key)
+                : null;
+
+            $qb_id ??= $this->findExistingProductId($fallback_name);
+
+            if ($qb_id !== null) {
+                return (object) ['Id' => $qb_id];
+            }
+
+            $product_data['Name'] = $fallback_name;
+
+            return $this->service->sdk()->add(\QuickBooksOnline\API\Facades\Item::create($product_data));
+        }
+    }
+
+    private function fallbackProductName(string $product_key): string
+    {
+        $hash = substr(hash('sha256', $this->service->company->id . ':' . $product_key), 0, 12);
+        $suffix = " [IN-{$hash}]";
+
+        return mb_substr($product_key, 0, 100 - mb_strlen($suffix)) . $suffix;
     }
 
     private function markPushFailure(Product $product, \Throwable $e, string $operation): void

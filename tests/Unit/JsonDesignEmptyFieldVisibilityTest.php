@@ -13,8 +13,10 @@
 namespace Tests\Unit;
 
 use App\Models\Company;
+use App\Models\Invoice;
 use Tests\TestCase;
 use App\Services\Pdf\PdfBuilder;
+use App\Services\Pdf\PdfConfiguration;
 use App\Services\Pdf\PdfService;
 use App\Services\Pdf\JsonToSectionsAdapter;
 
@@ -112,6 +114,8 @@ class JsonDesignEmptyFieldVisibilityTest extends TestCase
         $company = new Company();
         $company->company_key = 'test-company';
         $service->company = $company;
+        $service->config = new PdfConfiguration($service);
+        $service->config->entity = new Invoice();
         $service->html_variables = [
             'labels' => [],
             'values' => $values,

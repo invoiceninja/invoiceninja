@@ -39,6 +39,18 @@ class LivewireCheckboxBindingTest extends TestCase
         );
     }
 
+    public function testQuoteOptionCheckboxesUseChangeHandlers(): void
+    {
+        $path = 'resources/views/portal/ninja2020/quotes/includes/financials.blade.php';
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/' . $path);
+
+        $this->assertIsString($contents);
+        $this->assertStringContainsString('wire:change="toggleSelectedOption({{ $index }})"', $contents);
+        $this->assertStringContainsString('@checked($is_selected)', $contents);
+        $this->assertStringContainsString('wire:key="quote-option-checkbox-{{ $index }}-{{ $is_selected ? \'selected\' : \'unselected\' }}"', $contents);
+        $this->assertStringNotContainsString('wire:model.live="selected_options"', $contents);
+    }
+
     public function testPortalBulkActionButtonsWaitForPaginationRequests(): void
     {
         $target = 'wire:target="toggleSelected, toggleSelectAll, toggleStatus, per_page, sortBy, previousPage, gotoPage, nextPage"';

@@ -128,7 +128,7 @@ class BaseRepository
     /** Returns this entity's invitation when the payload includes its key. */
     protected function getInvitation(array $invitation, $model)
     {
-        if (! array_key_exists('key', $invitation)) {
+        if (! isset($invitation['key']) || $invitation['key'] === '') {
             return false;
         }
 

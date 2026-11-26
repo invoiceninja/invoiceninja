@@ -91,6 +91,46 @@ class ZugferdOutsideScopeServicesTest extends TestCase
         yield 'XRechnung service' => [[2], '', 'US', false, false, 'XInvoice_3_0'];
     }
 
+    #[DataProvider('lineMetadataDocuments')]
+    public function testLineMetadataSurvivesPublicExportAndProfileValidation(bool $is_credit, string $profile): void
+    {
+        $this->requireSaxon();
+
+        $source_root = $is_credit ? 'CreditNote' : 'Invoice';
+        $line_property = $is_credit ? 'CreditNoteLine' : 'InvoiceLine';
+        $document = $this->makeDocument(
+            [$this->lineItem()],
+            is_credit: $is_credit,
+            document_attributes: [
+                'po_number' => 'PO-001',
+                'e_invoice' => [$source_root => [$line_property => [[
+                    'Item' => [
+                        'SellersItemIdentification' => ['ID' => ['value' => '00042']],
+                        'BuyersItemIdentification' => ['ID' => ['value' => '0']],
+                    ],
+                    'OrderLineReference' => [['LineID' => ['value' => '003']]],
+                ]]]],
+            ],
+            company_settings: ['e_invoice_type' => $profile],
+        );
+        $xml = $this->exportXml($document);
+        $xpath = $this->xpath($xml);
+        $line_path = '//ram:IncludedSupplyChainTradeLineItem';
+
+        $this->assertSame(['00042'], $this->values($xpath, $line_path . '/ram:SpecifiedTradeProduct/ram:SellerAssignedID'));
+        $this->assertSame(['0'], $this->values($xpath, $line_path . '/ram:SpecifiedTradeProduct/ram:BuyerAssignedID'));
+        $this->assertSame(['003'], $this->values($xpath, $line_path . '/ram:SpecifiedLineTradeAgreement/ram:BuyerOrderReferencedDocument/ram:LineID'));
+        $this->assertSame([], $this->values($xpath, $line_path . '/ram:SpecifiedLineTradeAgreement/ram:BuyerOrderReferencedDocument/ram:IssuerAssignedID'));
+        $this->assertXmlValid($xml, $profile);
+    }
+
+    public static function lineMetadataDocuments(): iterable
+    {
+        yield 'invoice' => [false, 'EN16931'];
+        yield 'credit' => [true, 'EN16931'];
+        yield 'XRechnung invoice' => [false, 'XInvoice_3_0'];
+    }
+
     public function testOutsideScopeLineOmitsVatRateInsteadOfSerializingZero(): void
     {
         $xpath = $this->xpath($this->exportXml($this->makeDocument([$this->lineItem()])));

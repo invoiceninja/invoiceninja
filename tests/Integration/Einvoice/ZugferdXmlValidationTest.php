@@ -24,6 +24,7 @@ use App\DataMapper\CompanySettings;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ZugferdXmlValidationTest extends TestCase
 {
@@ -87,6 +88,88 @@ class ZugferdXmlValidationTest extends TestCase
         }
 
         $this->assertCount(0, $flat_errors, "XML validation failed for: {$context}\n" . implode("\n", $flat_errors));
+    }
+
+    #[DataProvider('projectReferences')]
+    public function testProjectReferencePassesXsdAndXsltValidation(
+        ?array $project_data,
+        ?string $expected_reference,
+        ?string $expected_name,
+        string $profile = 'EN16931'
+    ): void {
+        $this->requireSaxon();
+
+        $data = $this->setupTestData([
+            'client_vat' => 'DE923356488',
+            'classification' => 'business',
+            'has_valid_vat' => true,
+            'e_invoice_type' => $profile,
+        ]);
+        $client = $data['client'];
+        $client->routing_id = '04011000-12345-03';
+        $client->save();
+
+        $invoice = $data['invoice'];
+        $invoice->setRelation('client', $client);
+        $invoice->po_number = 'PO-2026-456';
+        $invoice->line_items = $this->createTaxedLineItems([
+            'tax_name1' => 'MwSt',
+            'tax_rate1' => 19,
+            'tax_id' => (string) Product::PRODUCT_TYPE_PHYSICAL,
+        ]);
+        $invoice = $invoice->calc()->getInvoice();
+
+        if ($project_data !== null) {
+            $this->project->fill($project_data)->saveQuietly();
+            $invoice->project_id = $this->project->id;
+        } else {
+            $invoice->project_id = null;
+        }
+        $invoice->saveQuietly();
+        $invoice->unsetRelation('project');
+
+        $xml = $invoice->service()->getEInvoice();
+        $dom = new \DOMDocument();
+        $this->assertTrue($dom->loadXML($xml));
+        $xpath = new \DOMXPath($dom);
+        $xpath->registerNamespace('ram', 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
+        $header = '//ram:ApplicableHeaderTradeAgreement';
+        $project_path = $header . '/ram:SpecifiedProcuringProject';
+
+        $this->assertSame($expected_reference === null ? 0 : 1, $xpath->query($project_path)->length);
+        $this->assertSame($expected_reference ?? '', $xpath->evaluate('string(' . $project_path . '/ram:ID)'));
+        $this->assertSame($expected_name ?? '', $xpath->evaluate('string(' . $project_path . '/ram:Name)'));
+        $this->assertSame($client->routing_id, $this->singleXPathValue($xpath, $header . '/ram:BuyerReference'));
+        $this->assertSame($invoice->po_number, $this->singleXPathValue($xpath, $header . '/ram:BuyerOrderReferencedDocument/ram:IssuerAssignedID'));
+
+        $stylesheet = $profile === 'XInvoice-Extended' ? $this->zf_extended : $this->zug_16931;
+        $this->assertXmlValid($xml, $stylesheet, 'project reference: ' . $profile);
+
+        if ($profile === 'XInvoice_3_0') {
+            $this->assertXmlValid($xml, $this->xrechnung_cii, 'project reference: XRechnung');
+        }
+    }
+
+    public static function projectReferences(): iterable
+    {
+        foreach (['EN16931', 'XInvoice_3_0', 'XInvoice-Extended'] as $profile) {
+            yield $profile => [
+                ['number' => ' PROJECT-2026-123 ', 'name' => ' Administration Building & Renovation '],
+                'PROJECT-2026-123', 'Administration Building & Renovation', $profile,
+            ];
+        }
+
+        yield 'no linked project' => [null, null, null];
+        yield 'missing project number' => [['number' => null, 'name' => 'Renovation'], null, null];
+        yield 'empty project number' => [['number' => '', 'name' => 'Renovation'], null, null];
+        yield 'blank project number' => [['number' => '  ', 'name' => 'Renovation'], null, null];
+        yield 'empty project name' => [
+            ['number' => 'PROJECT-2026-123', 'name' => ''], 'PROJECT-2026-123', 'Project Reference',
+        ];
+        yield 'blank project name' => [
+            ['number' => 'PROJECT-2026-123', 'name' => '  '], 'PROJECT-2026-123', 'Project Reference',
+        ];
+        yield 'zero project number' => [['number' => '0', 'name' => 'Renovation'], '0', 'Renovation'];
     }
 
     private function assertLineAllowance(

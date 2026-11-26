@@ -51,11 +51,6 @@ class AstTaxResponseProcessor
                 }
             }
 
-            if (empty($tax_lines) || $total_tax <= 0) {
-                $this->clearAllTaxes($invoice);
-                return;
-            }
-
             $qb_line_items = data_get($qb_response, 'Line', []);
             if (!empty($qb_line_items)) {
                 if (!is_array($qb_line_items)) {
@@ -65,8 +60,12 @@ class AstTaxResponseProcessor
                 }
             }
 
-            if (!empty($qb_line_items)) {
-                $this->processLineItemTaxes($qb_line_items, $invoice, $tax_lines);
+            $taxed_line_indexes = [];
+
+            if (empty($tax_lines) || $total_tax <= 0) {
+                $this->clearAllTaxes($invoice);
+            } elseif (!empty($qb_line_items)) {
+                $taxed_line_indexes = $this->processLineItemTaxes($qb_line_items, $invoice, $tax_lines);
             } else {
                 $invoice->tax_name1 = '';
                 $invoice->tax_rate1 = 0;
@@ -78,6 +77,8 @@ class AstTaxResponseProcessor
 
             $invoice->saveQuietly();
             $invoice = $invoice->calc()->getInvoice();
+            $invoice = $this->reconcileTaxRatesToQbTotal($qb_response, $invoice);
+            $this->createLineItemTaxRates($invoice, $taxed_line_indexes);
 
             $this->validateAndSyncAmounts($qb_response, $invoice);
             $this->applyAstClientBalanceAdjustment($invoice, $balance_before);
@@ -115,14 +116,16 @@ class AstTaxResponseProcessor
     /**
      * @param  array<int, mixed>  $qb_line_items
      * @param  array<int, mixed>  $tax_lines
+     * @return array<int, int>
      */
-    private function processLineItemTaxes(array $qb_line_items, Invoice $invoice, array $tax_lines): void
+    private function processLineItemTaxes(array $qb_line_items, Invoice $invoice, array $tax_lines): array
     {
         $tax_rate_map = $this->service->company->quickbooks->settings->tax_rate_map ?? [];
         $tax_rate_map_by_id = collect($tax_rate_map)->keyBy('id')->toArray();
         $line_items = $invoice->line_items;
         $line_item_index = 0;
         $line_items_modified = false;
+        $taxed_line_indexes = [];
 
         foreach ($qb_line_items as $qb_line_item) {
             if (data_get($qb_line_item, 'DetailType') !== 'SalesItemLineDetail') {
@@ -156,9 +159,11 @@ class AstTaxResponseProcessor
             if ($line_tax_detail) {
                 $this->assignTaxesToLineItem($line_item, [$line_tax_detail], $tax_rate_map_by_id, $invoice);
                 $line_items_modified = true;
+                $taxed_line_indexes[] = $line_item_index;
             } elseif (!empty($tax_lines)) {
                 $this->assignTaxesToLineItem($line_item, $tax_lines, $tax_rate_map_by_id, $invoice);
                 $line_items_modified = true;
+                $taxed_line_indexes[] = $line_item_index;
             }
 
             $line_item_index++;
@@ -174,6 +179,22 @@ class AstTaxResponseProcessor
         $invoice->tax_rate2 = 0;
         $invoice->tax_name3 = '';
         $invoice->tax_rate3 = 0;
+
+        return $taxed_line_indexes;
+    }
+
+    /**
+     * @param  array<int, int>  $taxed_line_indexes
+     */
+    private function createLineItemTaxRates(Invoice $invoice, array $taxed_line_indexes): void
+    {
+        $line_items = $invoice->line_items;
+
+        foreach ($taxed_line_indexes as $index) {
+            if (isset($line_items[$index])) {
+                $this->createTaxRateIfNeeded((string) $line_items[$index]->tax_name1, (float) $line_items[$index]->tax_rate1);
+            }
+        }
     }
 
     /**
@@ -202,7 +223,6 @@ class AstTaxResponseProcessor
         $aggregated_rate = $this->calculateAggregatedTaxRate($tax_details, true);
         $tax_name = $this->formatTaxName($aggregated_rate, $invoice);
 
-        $this->createTaxRateIfNeeded($tax_name, $aggregated_rate);
         $this->assignTaxToEntity($line_item, $tax_name, $aggregated_rate);
     }
 
@@ -309,6 +329,54 @@ class AstTaxResponseProcessor
         $invoice->saveQuietly();
     }
 
+    private function reconcileTaxRatesToQbTotal(mixed $qb_response, Invoice $invoice): Invoice
+    {
+        $qb_total_tax = (float) data_get($qb_response, 'TxnTaxDetail.TotalTax', 0);
+        $qb_subtotal = (float) data_get($qb_response, 'TotalAmt', 0) - $qb_total_tax;
+        $ninja_total_tax = (float) $invoice->total_taxes;
+        $tolerance = 0.01;
+
+        if ($ninja_total_tax <= 0 || abs($qb_total_tax - $ninja_total_tax) <= $tolerance) {
+            return $invoice;
+        }
+
+        // Only blend rates when QB and Ninja agree on the pre-tax amount
+        if (abs($qb_subtotal - ((float) $invoice->amount - $ninja_total_tax)) > ($tolerance * 2)) {
+            return $invoice;
+        }
+
+        $scale = $qb_total_tax / $ninja_total_tax;
+        $original_rates = [];
+
+        foreach ($invoice->line_items as $index => $line_item) {
+            $original_rates[$index] = (float) $line_item->tax_rate1;
+        }
+
+        // Prefer a tidy 3dp rate, but only keep it when the total still matches QB to the cent
+        $invoice = $this->applyBlendedRates($invoice, $original_rates, $scale, 3);
+
+        if (abs((float) $invoice->total_taxes - $qb_total_tax) > 0.005) {
+            $invoice = $this->applyBlendedRates($invoice, $original_rates, $scale, 6);
+        }
+
+        return $invoice;
+    }
+
+    private function applyBlendedRates(Invoice $invoice, array $original_rates, float $scale, int $precision): Invoice
+    {
+        $line_items = $invoice->line_items;
+
+        foreach ($line_items as $index => $line_item) {
+            if ($original_rates[$index] > 0) {
+                $line_item->tax_rate1 = round($original_rates[$index] * $scale, $precision);
+            }
+        }
+
+        $invoice->line_items = $line_items;
+
+        return $invoice->calc()->getInvoice();
+    }
+
     private function validateAndSyncAmounts(mixed $qb_response, Invoice $invoice): void
     {
         $qb_total_tax = (float) data_get($qb_response, 'TxnTaxDetail.TotalTax', 0);
@@ -352,18 +420,7 @@ class AstTaxResponseProcessor
         }
 
         if (!empty($mismatches)) {
-            nlog("QuickBooks: Syncing Invoice {$invoice->id} amounts to match QuickBooks. Mismatches: " . json_encode($mismatches));
-
-            if (abs($qb_total_tax - $ninja_total_tax) > $tolerance) {
-                $invoice->total_taxes = round($qb_total_tax, 2);
-            }
-
-            if (abs($qb_total_amt - $ninja_total_amt) > $tolerance) {
-                $invoice->amount = round($qb_total_amt, 2);
-                $invoice = $invoice->calc()->getInvoice();
-            }
-
-            nlog("QuickBooks: Invoice {$invoice->id} amounts synced - Tax: {$invoice->total_taxes}, Amount: {$invoice->amount}, Balance: {$invoice->balance}");
+            nlog("QuickBooks: Invoice {$invoice->id} totals differ from QuickBooks after AST recalculation. Mismatches: " . json_encode($mismatches));
         } else {
             nlog("QuickBooks: Invoice {$invoice->id} amounts validated - all match QuickBooks");
         }

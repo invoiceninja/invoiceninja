@@ -102,7 +102,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
-            $template_in_use = false;
+            // $template_in_use = false;
 
             if ($this->is_refund && \App\Models\Design::where('id', $this->decodePrimaryKey($this->payment->client->getSetting('payment_refund_design_id')))->where('is_template', true)->exists()) {
                 $pdf = (new TemplateAction(
@@ -119,7 +119,7 @@ class PaymentEmailEngine extends BaseEmailEngine
                 $file_name = ctrans('texts.payment_refund_receipt', ['number' => $this->payment->number ]) . '.pdf';
                 $file_name = str_replace(' ', '_', $file_name);
                 $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
-                $template_in_use = true;
+                // $template_in_use = true;
 
             } elseif (!$this->is_refund && \App\Models\Design::where('id', $this->decodePrimaryKey($this->payment->client->getSetting('payment_receipt_design_id')))->where('is_template', true)->exists()) {
                 $pdf = (new TemplateAction(
@@ -140,26 +140,52 @@ class PaymentEmailEngine extends BaseEmailEngine
 
             }
 
-            $this->payment->invoices->each(function ($invoice) use ($template_in_use) {
+            $this->payment->invoices->unique('id')->each(function ($invoice) {
+                $signed_document_id = null;
 
-                if (!$template_in_use) {
-                    $pdf = ((new CreateRawPdf($invoice->invitations->first()))->handle());
-                    $file_name = $invoice->numberFormatter() . '.pdf';
-                    $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
+                $pdf = (new CreateRawPdf($invoice->invitations->first()))->handle();
+
+                $this->setAttachments([[
+                    'file' => base64_encode($pdf),
+                    'name' => $invoice->numberFormatter() . '.pdf',
+                ]]);
+
+                if ($invoice->sync?->dn_completed) {
+                    $document = $invoice->getSignedPdfDocument();
+                    $signed_pdf = $document?->getFile();
+
+                    if ($signed_pdf) {
+
+                        $this->setAttachments([[
+                            'file' => base64_encode($signed_pdf),
+                            'name' => $invoice->numberFormatter() . '-signed.pdf',
+                        ]]);
+                            
+                        $signed_document_id = $document->id;
+                    }
+
                 }
 
                 //attach invoice documents also to payments
                 if ($this->client->getSetting('document_email_attachment') !== false) {
-                    $invoice->documents()->where('is_public', true)->cursor()->each(function ($document) {
-                        if ($document->size > $this->max_attachment_size) {
+                    $invoice->documents()
+                            ->where('is_public', true)
+                            ->when(
+                                $signed_document_id,
+                                fn ($query, $document_id) => $query->where('id', '!=', $document_id)
+                            )
+                            ->cursor()
+                            ->each(function ($document) {
+                                /** @var \App\Models\Document $document */
+                                if ($document->size > $this->max_attachment_size) {
 
-                            $hash = Str::random(64);
-                            Cache::put($hash, ['db' => $this->payment->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
+                                    $hash = Str::random(64);
+                                    Cache::put($hash, ['db' => $this->payment->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
-                            $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) . "'>" . $document->name . "</a>"]);
-                        } else {
-                            $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
-                        }
+                                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) . "'>" . $document->name . "</a>"]);
+                                } else {
+                                    $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                                }
                     });
                 }
 

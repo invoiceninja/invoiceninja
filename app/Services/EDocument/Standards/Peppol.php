@@ -448,7 +448,8 @@ class Peppol extends AbstractService implements MutatorInterface
             $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         }
 
-        $this->setInvoiceDefaults();
+        // $this->setInvoiceDefaults(); // enable this when we are ready to merge e_invoice line items into the document.
+        $this->setInvoiceDefaultsLegacy();
 
         return $this;
     }
@@ -825,12 +826,83 @@ class Peppol extends AbstractService implements MutatorInterface
     }
 
     /**
+     * Hydrate saved document properties over the company and client defaults.
+     */
+    public function setInvoiceDefaults(): self
+    {
+        $this->mergeSettingsInto($this->_company_settings);
+        $this->mergeSettingsInto($this->_client_settings);
+
+        $existing_data = $this->documentKind->isCreditNote()
+            ? ($this->invoice->e_invoice->CreditNote ?? null)
+            : ($this->invoice->e_invoice->Invoice ?? null);
+
+        if ($existing_data !== null) {
+            $payload = json_decode(
+                json_encode($existing_data, JSON_THROW_ON_ERROR),
+                true,
+                512,
+                JSON_THROW_ON_ERROR,
+            );
+
+            $hydrated_invoice = $this->e->denormalize(
+                $payload,
+                get_class($this->p_invoice),
+            );
+
+            // Only supplied properties override defaults; ignore model nulls.
+            foreach (array_intersect_key(
+                get_object_vars($hydrated_invoice),
+                $payload,
+            ) as $property => $value) {
+                $this->p_invoice->{$property} = $value;
+            }
+        }
+
+        $settings = [
+            'AccountingCostCode' => 7,
+            'AccountingCost' => 7,
+            'BuyerReference' => 6,
+            'AccountingSupplierParty' => 1,
+            'AccountingCustomerParty' => 2,
+            'PayeeParty' => 1,
+            'BuyerCustomerParty' => 2,
+            'SellerSupplierParty' => 1,
+            'TaxRepresentativeParty' => 1,
+            'Delivery' => 1,
+            'DeliveryTerms' => 7,
+            'PaymentMeans' => 7,
+            'PaymentTerms' => 7,
+        ];
+
+        foreach ($settings as $property => $visibility) {
+            if ($property_value = $this->getSetting($property)) {
+                $this->p_invoice->{$property} = $property_value;
+            }
+        }
+
+        if (isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0])
+            && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate)
+            && isset($this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate)) {
+            $start_date = $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate->date ?? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate;
+            $end_date = $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate->date ?? $this->invoice->e_invoice->Invoice->InvoicePeriod[0]->EndDate;
+
+            $ip = new \InvoiceNinja\EInvoice\Models\Peppol\PeriodType\InvoicePeriod();
+            $ip->StartDate = new \DateTime($start_date);
+            $ip->EndDate = new \DateTime($end_date);
+            $this->p_invoice->InvoicePeriod = [$ip];
+        }
+
+        return $this;
+    }
+
+    /**
      * setInvoiceDefaults
      *
      * Stubs a default einvoice
      * @return self
      */
-    public function setInvoiceDefaults(): self
+    public function setInvoiceDefaultsLegacy(): self
     {
         // Merge company settings, then client settings (client wins), then existing e_invoice data
         $this->mergeSettingsInto($this->_company_settings);

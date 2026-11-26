@@ -23,6 +23,9 @@ use App\DataMapper\InvoiceItem;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InclusiveTax;
 use App\Helpers\Invoice\InvoiceSum;
+use InvoiceNinja\EInvoice\EInvoice;
+use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
+use InvoiceNinja\EInvoice\Models\Peppol\CreditNoteLineType\CreditNoteLine;
 use Illuminate\Validation\ValidationException;
 use horstoeko\zugferd\ZugferdProfiles;
 use App\Helpers\Invoice\InvoiceSumInclusive;
@@ -91,6 +94,7 @@ class ZugferdEDocument extends AbstractService
             ->setBaseDocument()
             ->setDocumentInformation()
             ->setPoNumber()
+            ->setProjectReference()
             ->setRoutingNumber()
             ->setIdNumber()
             ->setDeliveryAddress()
@@ -475,20 +479,74 @@ class ZugferdEDocument extends AbstractService
         return $this;
     }
 
+    /** Combine calculated items with their positionally aligned, typed metadata. */
+    private function prepareLineItems(): array
+    {
+        $is_credit = $this->document instanceof Credit;
+        $source_root = $is_credit ? 'CreditNote' : 'Invoice';
+        $line_property = $is_credit ? 'CreditNoteLine' : 'InvoiceLine';
+        $line_class = $is_credit ? CreditNoteLine::class : InvoiceLine::class;
+        $payload = $this->document->e_invoice->{$source_root}->{$line_property} ?? [];
+
+        $saved_lines = (new EInvoice())->denormalize(
+            json_decode(json_encode($payload, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR),
+            $line_class . '[]',
+        );
+
+        $items = [];
+
+        foreach ($this->document->line_items as $source_index => $item) {
+            $combined_item = clone $item;
+            $combined_item->e_invoice = $saved_lines[$source_index] ?? null;
+            $items[$source_index] = $combined_item;
+        }
+
+        return $items;
+    }
+
     private function setLineItems(): self
     {
-        foreach ($this->document->line_items as $index => $item) {
+        foreach ($this->prepareLineItems() as $index => $item) {
             /** @var InvoiceItem $item **/
 
             $position_id = (string) ($index + 1);
             $unit_code = $item->type_id == 2 ? "HUR" : "H87";
             $pricing = $this->resolveLinePricing($item);
+            $seller_id = (string) ($item->e_invoice->Item->SellersItemIdentification->ID->value ?? '');
+            $buyer_id = (string) ($item->e_invoice->Item->BuyersItemIdentification->ID->value ?? '');
+            $order_references = $item->e_invoice->OrderLineReference ?? [];
+            $order_line_id = (string) ($order_references[0]->LineID->value ?? '');
+
+            if (count($order_references) > 1) {
+                throw ValidationException::withMessages([
+                    'e_invoice' => 'ZUGFeRD supports one purchase order line reference per line.',
+                ]);
+            }
+
+            if (($seller_id !== '' || $buyer_id !== '' || $order_line_id !== '') && in_array($this->xdocument->getProfileId(), [
+                ZugferdProfiles::PROFILE_BASIC,
+                ZugferdProfiles::PROFILE_BASICWL,
+                ZugferdProfiles::PROFILE_MINIMUM,
+            ], true)) {
+                throw ValidationException::withMessages([
+                    'e_invoice' => 'The selected ZUGFeRD profile cannot represent these line properties.',
+                ]);
+            }
+
+            // Match setPoNumber(): BT-132 requires an emitted header purchase order.
+            if ($order_line_id !== '' && strlen($this->document->po_number ?? '') <= 1) {
+                throw ValidationException::withMessages([
+                    'e_invoice' => 'Purchase order line references require a header purchase order reference.',
+                ]);
+            }
 
             // 1. Start new position and set basic details
             $this->xdocument->addNewPosition($position_id)
                 ->setDocumentPositionProductDetails(
                     strlen($item->product_key ?? '') >= 1 ? $item->product_key : "no product name defined",
-                    $item->notes
+                    $item->notes,
+                    $seller_id !== '' ? $seller_id : null,
+                    $buyer_id !== '' ? $buyer_id : null,
                 )
                 ->setDocumentPositionQuantity(
                     $item->quantity,
@@ -499,6 +557,10 @@ class ZugferdEDocument extends AbstractService
                     $pricing['price_base_quantity'],
                     $pricing['price_base_quantity'] ? $unit_code : null
                 );
+
+            if ($order_line_id !== '') {
+                $this->xdocument->setDocumentPositionBuyerOrderReferencedDocument('', $order_line_id);
+            }
 
             // 2. ALWAYS add tax information (even if zero)
             [$duty_category, $rate_percent] = $this->invoiceLineTradeTaxClassification($item);
@@ -734,6 +796,25 @@ class ZugferdEDocument extends AbstractService
         if (isset($this->document->po_number) && strlen($this->document->po_number) > 1) {
             $this->xdocument->setDocumentBuyerOrderReferencedDocument($this->document->po_number);
         }
+
+        return $this;
+    }
+
+    private function setProjectReference(): self
+    {
+        $project = $this->document->project;
+        $project_reference = trim((string) ($project->number ?? ''));
+
+        if ($project_reference === '') {
+            return $this;
+        }
+
+        $project_name = trim((string) ($project->name ?? ''));
+
+        $this->xdocument->setDocumentProcuringProject(
+            $project_reference,
+            $project_name !== '' ? $project_name : 'Project Reference'
+        );
 
         return $this;
     }

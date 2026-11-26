@@ -105,7 +105,7 @@ class CreateRawPdf
     {
 
         /** Serve DocuNinja signed PDF if signing is complete */
-        if (in_array($this->entity_string, ['invoice', 'quote', 'purchase_order'])
+        if (in_array($this->entity_string, ['quote', 'purchase_order'])
            && $this->company->docuninjaActive()
            && $this->entity->sync?->dn_completed
         ) {

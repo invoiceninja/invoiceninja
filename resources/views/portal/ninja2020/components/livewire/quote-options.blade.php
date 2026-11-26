@@ -12,7 +12,7 @@
         <div class="flex flex-col gap-1">
             <span class="text-xs text-gray-600">{{ ctrans('texts.quote_total') }}</span>
             <strong class="text-xl tabular-nums" data-testid="quote-options-sticky-total">{{ App\Utils\Number::formatMoney($quote->amount, $client) }}</strong>
-            <span wire:loading wire:target="selected_options" role="status" class="text-xs text-gray-600">{{ ctrans('texts.updating_total') }}</span>
+            <span wire:loading wire:target="toggleSelectedOption" role="status" class="text-xs text-gray-600">{{ ctrans('texts.updating_total') }}</span>
         </div>
         <button type="button" wire:click="continueApproval" wire:loading.attr="disabled" class="button button-primary bg-primary shrink-0">
             {{ ctrans('texts.review_quote') }}

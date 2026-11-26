@@ -51,7 +51,7 @@
                                 @endif
                                 @if($interactive && $group === 'optional')
                                     <label @class(['inline-flex min-h-11 cursor-pointer items-center gap-2 self-start rounded-md border px-3 py-2 text-sm font-medium', 'border-blue-300 bg-blue-50 text-blue-900' => $is_selected, 'border-gray-300 bg-white text-gray-900' => ! $is_selected])>
-                                        <input type="checkbox" wire:model.live="selected_options" value="{{ $index }}" wire:loading.attr="disabled" wire:target="selected_options" class="h-5 w-5 shrink-0 rounded border-gray-400 text-primary focus:ring-2 focus:ring-blue-500" aria-label="{{ $item['label'] }}">
+                                        <input type="checkbox" wire:key="quote-option-checkbox-{{ $index }}-{{ $is_selected ? 'selected' : 'unselected' }}" wire:change="toggleSelectedOption({{ $index }})" @checked($is_selected) value="{{ $index }}" wire:loading.attr="disabled" wire:target="toggleSelectedOption" class="h-5 w-5 shrink-0 rounded border-gray-400 text-primary focus:ring-2 focus:ring-blue-500" aria-label="{{ $item['label'] }}">
                                         <span data-testid="quote-option-status-{{ $index }}">{{ ctrans($is_selected ? 'texts.included_in_total' : 'texts.add_to_quote') }}</span>
                                     </label>
                                 @endif
@@ -66,7 +66,7 @@
     @if($financials['totals'])
         <aside @class(['min-w-0 rounded-lg border border-gray-200 bg-white p-5 shadow-sm', 'xl:sticky xl:top-4' => $interactive, 'w-full self-end sm:max-w-sm' => ! $interactive])>
             <h2 class="pb-5 text-base font-semibold text-gray-900">{{ ctrans('texts.quote_total') }}</h2>
-            <dl class="flex flex-col gap-4 text-sm" aria-live="polite" aria-atomic="true" @if($interactive) wire:loading.class="opacity-50" wire:target="selected_options" @endif>
+            <dl class="flex flex-col gap-4 text-sm" aria-live="polite" aria-atomic="true" @if($interactive) wire:loading.class="opacity-50" wire:target="toggleSelectedOption" @endif>
                 @foreach($financials['totals'] as $total)
                     <div @class(['flex justify-between gap-4', 'border-t border-gray-200 pt-4 text-xl font-semibold text-gray-900' => $total['is_total']])>
                         <dt class="min-w-0 break-words text-gray-600">{!! $total['label'] !!}</dt>

@@ -16,19 +16,29 @@ use App\DataMapper\ClientSync;
 use App\DataMapper\InvoiceSync;
 use App\DataMapper\QuickbooksSettings;
 use App\Exceptions\QuickbooksMissingTaxCode;
+use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\Location;
+use App\Models\Product;
+use App\Repositories\InvoiceRepository;
 use App\Services\Quickbooks\Helpers\Helper;
+use App\Services\Quickbooks\Mapping\InvoiceTaxCodeResolver;
+use App\Services\Quickbooks\Mapping\QuickbooksInvoiceMapper;
+use App\Services\Quickbooks\Mapping\TaxExportContext;
+use App\Services\Quickbooks\Mapping\TxnTaxDetailBuilder;
 use App\Services\Quickbooks\Models\QbClient;
+use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\Models\QbProduct;
 use App\Services\Quickbooks\Models\QbTaxRate;
 use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\SdkWrapper;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -305,7 +315,7 @@ class InvoiceTransformerMappingCharacterizationTest extends TestCase
         $this->assertSame(37.5, $qb_data['Line'][0]['Amount']);
     }
 
-    public function test_ninja_to_qb_skips_empty_product_ids_and_rethrows_missing_tax_code(): void
+    public function testNinjaToQbRejectsEmptyProductIds(): void
     {
         $kept = $this->lineItem();
         $kept->product_key = 'Keep';
@@ -316,17 +326,16 @@ class InvoiceTransformerMappingCharacterizationTest extends TestCase
 
         $product = Mockery::mock(QbProduct::class);
         $product->shouldReceive('findOrCreateProduct')
-            ->twice()
-            ->andReturn('', 'ITEM-KEEP');
+            ->once()
+            ->andReturn('');
 
-        $qb_data = $this->ninjaToQb($invoice, product: $product);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("no product ID for 'Skip'");
 
-        $this->assertCount(1, $qb_data['Line']);
-        $this->assertSame('ITEM-KEEP', $qb_data['Line'][0]['SalesItemLineDetail']['ItemRef']['value']);
-        $this->assertSame(1, $qb_data['Line'][0]['LineNum']);
+        $this->ninjaToQb($invoice, product: $product);
     }
 
-    public function test_ninja_to_qb_skips_line_when_product_lookup_throws_generic_exception(): void
+    public function testNinjaToQbPropagatesProductFailureWithoutDroppingLine(): void
     {
         $kept = $this->lineItem();
         $kept->product_key = 'Keep';
@@ -336,20 +345,15 @@ class InvoiceTransformerMappingCharacterizationTest extends TestCase
         $invoice = $this->makeInvoice([], [$broken, $kept]);
 
         $product = Mockery::mock(QbProduct::class);
-        $product->shouldReceive('findOrCreateProduct')
-            ->twice()
-            ->andReturnUsing(function (object $line_item): string {
-                if (($line_item->product_key ?? '') === 'Broken') {
-                    throw new RuntimeException('item create failed');
-                }
+        $failure = new RuntimeException('item create failed');
+        $product->shouldReceive('findOrCreateProduct')->once()->andThrow($failure);
 
-                return 'ITEM-KEEP';
-            });
-
-        $qb_data = $this->ninjaToQb($invoice, product: $product);
-
-        $this->assertCount(1, $qb_data['Line']);
-        $this->assertSame('ITEM-KEEP', $qb_data['Line'][0]['SalesItemLineDetail']['ItemRef']['value']);
+        try {
+            $this->ninjaToQb($invoice, product: $product);
+            $this->fail('Product failure must stop invoice export.');
+        } catch (RuntimeException $exception) {
+            $this->assertSame($failure, $exception);
+        }
     }
 
     public function test_ninja_to_qb_rethrows_missing_tax_code_from_line_build(): void
@@ -376,17 +380,129 @@ class InvoiceTransformerMappingCharacterizationTest extends TestCase
         ]);
     }
 
-    public function test_ninja_to_qb_empty_lines_throws_when_every_product_is_skipped(): void
+    public function testNinjaToQbRejectsInvoiceWithNoResolvedProducts(): void
     {
         $invoice = $this->makeInvoice([], [$this->lineItem()]);
 
         $product = Mockery::mock(QbProduct::class);
-        $product->shouldReceive('findOrCreateProduct')->once()->andReturn(null);
+        $product->shouldReceive('findOrCreateProduct')->once()->andReturn('');
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('no valid line items could be processed');
+        $this->expectExceptionMessage("no product ID for 'Widget'");
 
         $this->ninjaToQb($invoice, product: $product);
+    }
+
+    public function testMapperRejectsMissingProductMapping(): void
+    {
+        $invoice = $this->makeInvoice([], [$this->lineItem()]);
+        $resolver = new InvoiceTaxCodeResolver();
+        $mapper = new QuickbooksInvoiceMapper($resolver, new TxnTaxDetailBuilder($resolver));
+        $context = new TaxExportContext('US', false, 'TAX', 'NON', [], []);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('has no product mapping for line 0');
+
+        $mapper->map($invoice, $context, [], null, 0, 0, [], '', '', '');
+    }
+
+    public function testFailedProductRecoveryRecordsInvoiceFailureBeforeInvoiceRequest(): void
+    {
+        $invoice = $this->makeInvoice([
+            'sync' => new InvoiceSync(qb_id: 'QB-INVOICE'),
+        ], [$this->lineItem()]);
+        $original_attributes = $invoice->getRawOriginal();
+        $product = Product::factory()->make([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'product_key' => 'Widget',
+        ]);
+        $product->saveQuietly();
+        $failure = new RuntimeException('<IntuitResponse><Fault type="ValidationFault"><Error code="2500"><Message>Invalid reference</Message><Detail>Income account missing</Detail></Error></Fault></IntuitResponse>');
+        $duplicate = new RuntimeException('<IntuitResponse><Fault type="ValidationFault"><Error code="6240"><Message>Duplicate name</Message></Error></Fault></IntuitResponse>');
+        $sdk = Mockery::mock(SdkWrapper::class);
+        $sdk->shouldReceive('query')->times(3)->andReturn([]);
+        $attempt = 0;
+        $sdk->shouldReceive('add')->twice()
+            ->with(Mockery::type(\QuickBooksOnline\API\Data\IPPItem::class))
+            ->andReturnUsing(function () use (&$attempt, $duplicate, $failure): never {
+                throw ++$attempt === 1 ? $duplicate : $failure;
+            });
+        $sdk->shouldNotReceive('update');
+        $sdk->shouldNotReceive('findById');
+        $service = $this->makeService();
+        $service->shouldReceive('sdk')->andReturn($sdk);
+        $service->shouldReceive('getIncomeAccountId')->andReturn('6');
+        $service->shouldNotReceive('companySync');
+        $service->product = new QbProduct($service);
+
+        try {
+            (new QbInvoice($service))->syncToForeign([$invoice]);
+            $this->fail('Product recovery failure must stop the invoice request.');
+        } catch (RuntimeException $exception) {
+            $this->assertSame($failure, $exception);
+            $invoice->refresh();
+            $this->assertStringContainsString('2500', $invoice->sync->qb_status_message);
+            $this->assertStringContainsString('2500', $product->fresh()->sync->qb_status_message);
+            $this->assertNotSame('synced', $invoice->sync->qb_status);
+            foreach (['amount', 'balance', 'paid_to_date', 'line_items'] as $field) {
+                $this->assertSame($original_attributes[$field], $invoice->getRawOriginal($field));
+            }
+        }
+    }
+
+    #[DataProvider('invoiceSaveOperations')]
+    public function testSynchronousProductFailureDoesNotInterruptNinjaInvoiceSave(bool $new_invoice): void
+    {
+        $invoice = $this->makeInvoice([
+            'status_id' => Invoice::STATUS_SENT,
+            'sync' => new InvoiceSync(qb_id: 'QB-INVOICE'),
+        ], [$this->lineItem(cost: 100)]);
+        $invoice = $invoice->calc()->getInvoice();
+        $product = Mockery::mock(QbProduct::class);
+        $product->shouldReceive('findOrCreateProduct')->once()->andReturn('');
+        $service = $this->makeService([
+            'automatic_taxes' => true,
+            'invoice' => ['direction' => 'push'],
+        ], product: $product);
+        if ($new_invoice) {
+            $client_id = $invoice->client_id;
+            $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+            $invoice->client_id = $client_id;
+            $sdk = Mockery::mock(SdkWrapper::class);
+            $sdk->shouldReceive('query')->once()->andReturn([]);
+            $sdk->shouldNotReceive('add');
+            $sdk->shouldNotReceive('update');
+            $service->shouldReceive('sdk')->andReturn($sdk);
+        } else {
+            $service->shouldNotReceive('sdk');
+        }
+        $service->shouldNotReceive('companySync');
+
+        // Exercise the repository's inline boundary with the real exporter failure.
+        // Let it escape the job double: the repository must still finish saving.
+        $push_job = Mockery::mock('overload:App\\Jobs\\Quickbooks\\PushToQuickbooks');
+        $push_job->shouldReceive('handle')->once()->andReturnUsing(function () use ($service, $invoice): void {
+            (new QbInvoice($service))->syncToForeign([$invoice->fresh()]);
+        });
+
+        $saved_invoice = (new InvoiceRepository())->save([
+            'line_items' => [$this->lineItem(cost: 150)],
+            'public_notes' => 'Ninja update completed despite QB failure',
+        ], $new_invoice ? $invoice : $invoice->fresh());
+
+        $this->assertNotNull($saved_invoice);
+        $saved_invoice->refresh();
+        $this->assertSame('Ninja update completed despite QB failure', $saved_invoice->public_notes);
+        $this->assertEquals(150, $saved_invoice->amount);
+        $this->assertEquals($new_invoice ? 0 : 150, $saved_invoice->balance);
+        $this->assertEquals(150, $saved_invoice->line_items[0]->cost);
+        $this->assertSame($new_invoice ? '' : 'QB-INVOICE', $saved_invoice->sync->qb_id);
+        $this->assertStringContainsString("no product ID for 'Widget'", $saved_invoice->sync->qb_status_message);
+    }
+
+    public static function invoiceSaveOperations(): array
+    {
+        return ['create' => [true], 'update' => [false]];
     }
 
     public function test_ninja_to_qb_amount_discount_line_uses_zero_percent_and_account_ref(): void

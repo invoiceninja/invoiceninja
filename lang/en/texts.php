@@ -5824,7 +5824,7 @@ $lang = array(
     'delete_subscription' => 'Delete Subscription',
     'disable_docuninja' => 'Disable DocuNinja',
     'document_not_found' => 'Document not found',
-    'docuninja_access_grant_failed' => '',
+    'docuninja_access_grant_failed' => 'There was a problem granting DocuNinja access.',
     'docuninja_access_granted_successfully' => 'DocuNinja access granted successfully',
     'download_signed_document' => 'Download Signed Document',
     'e_expense_created' => 'E-Expense created',
@@ -6593,6 +6593,8 @@ $lang = array(
     'seller_item_identifier_help' => 'The seller\'s identifier for this item.',
     'order_reference' => 'Order reference',
     'order_reference_help' => 'The buyer\'s reference for this order.',
+    'payment_types' => 'Payment Types',
+    'payment_types_help' => 'Choose which payment types are selectable in the UI',
 );
 
 return $lang;
