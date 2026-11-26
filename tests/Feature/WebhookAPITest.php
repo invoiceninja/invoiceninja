@@ -16,6 +16,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -28,6 +29,10 @@ class WebhookAPITest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    private const PRIVATE_URL = 'http://10.20.30.40:8080/hooks/invoice?version=1';
+    private const PUBLIC_URL = 'https://1.1.1.1/hooks/invoice';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,6 +43,65 @@ class WebhookAPITest extends TestCase
         $this->makeTestData();
 
         $this->withoutExceptionHandling();
+    }
+
+    public function testSelfHostedWebhookAcceptsExactlyListedPrivateUrlOnCreateAndUpdate(): void
+    {
+        config(['ninja.environment' => 'selfhost', 'ninja.webhook_url_allowlist' => [self::PRIVATE_URL]]);
+        $this->authenticateWebhookRequests();
+
+        $payload = ['target_url' => self::PRIVATE_URL, 'event_id' => 1, 'format' => 'JSON'];
+        $this->postJson('/api/v1/webhooks', $payload)->assertOk()->assertJsonPath('data.target_url', self::PRIVATE_URL);
+
+        $public = $this->postJson('/api/v1/webhooks', ['target_url' => self::PUBLIC_URL] + $payload)->assertOk();
+        $this->putJson('/api/v1/webhooks/'.$public->json('data.id'), $payload)
+            ->assertOk()->assertJsonPath('data.target_url', self::PRIVATE_URL);
+    }
+
+    #[DataProvider('rejectedWebhookTargets')]
+    public function testWebhookRejectsTargetOnCreateAndUpdate(string $environment, array $allowlist, string $target): void
+    {
+        config(['ninja.environment' => $environment, 'ninja.webhook_url_allowlist' => $allowlist]);
+        $this->authenticateWebhookRequests();
+
+        $payload = ['target_url' => self::PUBLIC_URL, 'event_id' => 1, 'format' => 'JSON'];
+        $public = $this->postJson('/api/v1/webhooks', $payload)->assertOk();
+
+        $payload['target_url'] = $target;
+        $this->postJson('/api/v1/webhooks', $payload)->assertUnprocessable()->assertJsonValidationErrors('target_url');
+        $this->putJson('/api/v1/webhooks/'.$public->json('data.id'), $payload)
+            ->assertUnprocessable()->assertJsonValidationErrors('target_url');
+    }
+
+    public static function rejectedWebhookTargets(): array
+    {
+        $approved = [self::PRIVATE_URL];
+        $malformed = 'not a URL';
+        $unsupported = 'ftp://10.20.30.40/hook';
+        $unresolved = 'https://webhook.invalid/hook';
+        $reserved = 'http://127.0.0.1/hook';
+
+        return [
+            'different scheme' => ['selfhost', $approved, 'https://10.20.30.40:8080/hooks/invoice?version=1'],
+            'different port' => ['selfhost', $approved, 'http://10.20.30.40:8081/hooks/invoice?version=1'],
+            'different path' => ['selfhost', $approved, 'http://10.20.30.40:8080/hooks/client?version=1'],
+            'different query' => ['selfhost', $approved, 'http://10.20.30.40:8080/hooks/invoice?version=2'],
+            'hosted' => ['hosted', $approved, self::PRIVATE_URL],
+            'empty allowlist' => ['selfhost', [], self::PRIVATE_URL],
+            'malformed URL' => ['selfhost', [$malformed], $malformed],
+            'unsupported scheme' => ['selfhost', [$unsupported], $unsupported],
+            'unresolved host' => ['selfhost', [$unresolved], $unresolved],
+            'reserved address' => ['selfhost', [$reserved], $reserved],
+        ];
+    }
+
+    private function authenticateWebhookRequests(): void
+    {
+        $this->withExceptionHandling();
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ]);
     }
 
     public function testWebhookRetry()

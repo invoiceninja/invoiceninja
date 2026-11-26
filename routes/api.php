@@ -254,6 +254,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::put('company_users/{user}', [CompanyUserController::class, 'update']);
     Route::put('company_users/{user}/preferences', [CompanyUserController::class, 'updatePreferences']);
+    Route::put('company_users/{user}/flutter_settings', [CompanyUserController::class, 'updateFlutterSettings']);
 
     Route::resource('credits', CreditController::class); // name = (credits. index / create / show / update / destroy / edit
     Route::put('credits/{credit}/upload', [CreditController::class, 'upload'])->name('credits.upload');

@@ -88,6 +88,7 @@ class CompanyTraversalTest extends TestCase
             $cases['membership '.$include] = ['PUT', 'company_users/{user}', $include, ['company_user' => ['permissions' => '']]];
         }
         $cases['preferences'] = ['PUT', 'company_users/{user}/preferences', 'company_user.company.invoices', ['react_settings' => ['theme' => 'light']]];
+        $cases['flutter settings'] = ['PUT', 'company_users/{user}/flutter_settings', 'company_user.company.invoices', ['flutter_settings' => ['theme' => 'light']]];
         $cases['account'] = ['PUT', 'accounts/{account}', 'default_company.invoices,company_users.company.invoices', ['set_react_as_default_ap' => false]];
         foreach (['company_a', 'company_b', 'company_c'] as $company) {
             $cases['default '.$company] = ['POST', 'companies/{'.$company.'}/default', 'invoices', []];

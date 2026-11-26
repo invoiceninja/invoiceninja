@@ -577,7 +577,7 @@ class CompanyResponseScopeTest extends TestCase
     {
         $cases = [];
         foreach (['company item', 'company users', 'current company', 'membership update',
-            'preferences', 'disable two factor', 'connected account', 'gmail'] as $endpoint) {
+            'preferences', 'flutter settings', 'disable two factor', 'connected account', 'gmail'] as $endpoint) {
             foreach ([false, true] as $is_admin) {
                 $cases[$endpoint.' '.($is_admin ? 'admin' : 'restricted')] = [$endpoint, $is_admin];
             }
@@ -645,6 +645,9 @@ class CompanyResponseScopeTest extends TestCase
             ]),
             'preferences' => $this->putJson('/api/v1/company_users/'.$this->user->hashed_id.'/preferences'.$parameters, [
                 'react_settings' => ['theme' => 'dark'],
+            ]),
+            'flutter settings' => $this->putJson('/api/v1/company_users/'.$this->user->hashed_id.'/flutter_settings'.$parameters, [
+                'flutter_settings' => ['theme' => 'dark'],
             ]),
             'disable two factor' => $this->postJson('/api/v1/settings/disable_two_factor'.$parameters),
             'connected account', 'gmail' => $this->postJson('/api/v1/connected_account'.($endpoint === 'gmail' ? '/gmail' : '').$parameters, [

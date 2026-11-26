@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CompanyUser\UpdateCompanyUserFlutterSettingsRequest;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserPreferencesRequest;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Models\CompanyUser;
@@ -20,6 +21,7 @@ use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class CompanyUserController extends BaseController
 {
@@ -162,6 +164,134 @@ class CompanyUserController extends BaseController
         return $this->itemResponse($user->fresh());
     }
 
+    /**
+     * Applies a patch to the flutter_settings of the user in the current company.
+     *
+     * Each key of flutter_settings is a dot separated path, a null value removes
+     * the path along with any parent it leaves empty, and setting a path through
+     * a value that is not an object replaces that value. The settings are merged
+     * rather than replaced so that one device can not overwrite the changes
+     * another device made since it last loaded them.
+     */
+    public function updateFlutterSettings(UpdateCompanyUserFlutterSettingsRequest $request, User $user)
+    {
+        /** @var \App\Models\User $auth_user */
+        $auth_user = auth()->user();
+        $company = $auth_user->company();
+
+        DB::transaction(function () use ($request, $user, $company) {
+            $company_user = CompanyUser::query()
+                ->where('user_id', $user->id)
+                ->where('company_id', $company->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $company_user) {
+                throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
+            }
+
+            // Objects stay objects: decoding to arrays turned {} into [] and an
+            // object with sequential numeric keys into a list on the way back.
+            $flutter_settings = json_decode(json_encode($company_user->flutter_settings ?? new \stdClass()));
+
+            if (! $flutter_settings instanceof \stdClass) {
+                $flutter_settings = new \stdClass();
+            }
+
+            foreach ($this->flutterSettingsPatch($request) as $path => $value) {
+                $segments = explode('.', (string) $path);
+
+                if (is_null($value)) {
+                    $this->forgetFlutterSetting($flutter_settings, $segments);
+                } else {
+                    $this->setFlutterSetting($flutter_settings, $segments, $value);
+                }
+            }
+
+            $company_user->flutter_settings = $flutter_settings;
+            $company_user->save();
+        });
+
+        $this->entity_type = User::class;
+
+        $this->entity_transformer = UserTransformer::class;
+
+        return $this->itemResponse($user->fresh());
+    }
+
+
+    /**
+     * The patch as the client sent it. The global ConvertEmptyStringsToNull
+     * middleware turns {"search":""} into {"search":null}, which here would
+     * delete the setting, and decoding to arrays loses the difference between
+     * an object and a list, so the patch is read from the raw JSON body. Only
+     * an explicit JSON null deletes a path.
+     */
+    private function flutterSettingsPatch(UpdateCompanyUserFlutterSettingsRequest $request): \stdClass
+    {
+        $body = json_decode($request->getContent());
+
+        if ($body instanceof \stdClass && ($body->flutter_settings ?? null) instanceof \stdClass) {
+            return $body->flutter_settings;
+        }
+
+        // Not a JSON body: the validated input, already checked to be an object of paths.
+        return json_decode(json_encode((object) $request->input('flutter_settings', [])));
+    }
+
+    /**
+     * Sets the value at the path, creating objects along the way and replacing
+     * any value on the path that is not an object.
+     */
+    private function setFlutterSetting(\stdClass $settings, array $segments, mixed $value): void
+    {
+        $node = $settings;
+        $last = array_pop($segments);
+
+        foreach ($segments as $segment) {
+            if (! (($node->{$segment} ?? null) instanceof \stdClass)) {
+                $node->{$segment} = new \stdClass();
+            }
+
+            $node = $node->{$segment};
+        }
+
+        $node->{$last} = $value;
+    }
+
+    /**
+     * Removes the value at the path, along with each parent object the removal
+     * leaves empty. A path that does not exist is left alone.
+     */
+    private function forgetFlutterSetting(\stdClass $settings, array $segments): void
+    {
+        $chain = [$settings];
+        $last = array_pop($segments);
+
+        foreach ($segments as $segment) {
+            $next = end($chain)->{$segment} ?? null;
+
+            if (! $next instanceof \stdClass) {
+                return;
+            }
+
+            $chain[] = $next;
+        }
+
+        $node = array_pop($chain);
+
+        if (! property_exists($node, $last)) {
+            return;
+        }
+
+        unset($node->{$last});
+
+        while ($chain !== [] && count(get_object_vars($node)) === 0) {
+            $parent = array_pop($chain);
+            unset($parent->{array_pop($segments)});
+            $node = $parent;
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
