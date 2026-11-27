@@ -48,6 +48,7 @@ class StoreCompanyRequest extends Request
 
         $rules['name'] = new ValidCompanyQuantity();
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
+        $rules['company_logo_dark'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
         $rules['settings'] = new ValidSettingsRule();
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {

@@ -37,4 +37,22 @@ trait Uploadable
             }
         }
     }
+
+    public function removeLogoDark($company)
+    {
+        (new UnlinkFile(config('filesystems.default'), $company?->settings?->company_logo_dark))->handle();
+    }
+
+    public function uploadLogoDark($file, $company, $entity)
+    {
+        if ($file) {
+            $path = (new UploadAvatar($file, $company->company_key))->handle();
+            if ($path) {
+                $settings = $entity->settings;
+                $settings->company_logo_dark = $path;
+                $entity->settings = $settings;
+                $entity->save();
+            }
+        }
+    }
 }
