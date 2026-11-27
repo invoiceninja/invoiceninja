@@ -164,17 +164,9 @@ class BaseModel extends Model
 
     public function getDeliveryNoteName($extension = 'pdf')
     {
+        $number = ctrans("texts.delivery_note") . "_" . $this->numberFormatter() . '.' . $extension;
 
-        $number =  ctrans("texts.delivery_note") . "_" . $this->numberFormatter() . '.' . $extension;
-
-        $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
-
-        $formatted_number = mb_ereg_replace("([\.]{2,})", '', $formatted_number);
-
-        $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
-
-        return \Illuminate\Support\Str::ascii($formatted_number);
-
+        return $this->sanitizeFilename($number);
     }
 
     /**
@@ -220,13 +212,19 @@ class BaseModel extends Model
     {
         $number = strlen($this->number ?? '') >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5);
 
-        $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
+        // Keep Unicode letters (e.g. the Japanese invoice prefix) so downloads
+        // and attachments keep their localized name. Laravel's streamDownload()
+        // supplies the ASCII fallback and the RFC 5987 filename* parameter.
+        return $this->sanitizeFilename($number);
+    }
 
-        $formatted_number = mb_ereg_replace("([\.]{2,})", '', $formatted_number);
+    private function sanitizeFilename(string $name): string
+    {
+        $formatted = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\)\.])", '', $name);
 
-        $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
+        $formatted = mb_ereg_replace("([\.]{2,})", '', $formatted);
 
-        return \Illuminate\Support\Str::ascii($formatted_number);
+        return preg_replace('/\s+/', '_', $formatted);
     }
 
     public function translate_entity()
