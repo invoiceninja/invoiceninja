@@ -12,13 +12,14 @@
 
 namespace App\Http\Requests\Invoice;
 
-use App\Utils\Ninja;
-use App\Models\Invoice;
-use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Exceptions\DuplicatePaymentException;
 use App\Helpers\Cache\Atomic;
+use App\Http\Requests\Request;
+use App\Models\Design;
+use App\Models\Invoice;
+use App\Utils\Ninja;
+use App\Utils\Traits\Invoice\ActionsInvoice;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Validator;
 
 class BulkInvoiceRequest extends Request
@@ -81,6 +82,16 @@ class BulkInvoiceRequest extends Request
                     }
                 });
         });
+
+        if($this->input('action') == 'template') {
+            $validator->after(function (Validator $validator) {
+                $user = auth()->user();
+                $template = Design::withTrashed()->where('company_id', $user->company()->id)->where('id', $this->decodePrimaryKey($this->input('template_id')))->first();
+                if (!$template) {
+                    $validator->errors()->add('template_id', 'Template not found');
+                }
+            });
+        }
     }
 
     public function prepareForValidation()

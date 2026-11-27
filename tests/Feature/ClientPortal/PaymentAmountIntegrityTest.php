@@ -49,40 +49,44 @@ class PaymentAmountIntegrityTest extends TestCase
         ];
     }
 
-    public function testZeroFeeCheckoutPreservesStoredPayableWithoutRecalculatingTaxes(): void
+    public function testZeroFeeCheckoutPreservesTaxedInvoice(): void
     {
-        $invoice = $this->prepareTaxMismatch(106);
+        $invoice = $this->prepareTaxedInvoice(10);
         $company_gateway = $this->makeGateway();
         $original_attributes = $invoice->getRawOriginal();
 
-        $response = (new LivewireInstantPayment($this->paymentData($invoice, $company_gateway, 106)))->run();
+        $response = (new LivewireInstantPayment($this->paymentData($invoice, $company_gateway, 110)))->run();
 
         $this->assertTrue($response['success']);
         $this->assertEqualsWithDelta(0, (float) data_get($response, 'payload.total.fee_total'), 0.001);
-        $this->assertEqualsWithDelta(106, (float) data_get($response, 'payload.total.amount_with_fee'), 0.001);
+        $this->assertEqualsWithDelta(110, (float) data_get($response, 'payload.total.amount_with_fee'), 0.001);
         $this->assertSame($original_attributes, $invoice->fresh()->getRawOriginal());
     }
 
-    #[DataProvider('storedTaxTotals')]
-    public function testGatewayFeeQuoteExcludesExistingTaxDiscrepancy(float $stored_amount): void
+    #[DataProvider('invoiceTaxRates')]
+    public function testGatewayFeeQuoteExcludesInvoiceTaxes(float $tax_rate, float $expected_amount): void
     {
-        $invoice = $this->prepareTaxMismatch($stored_amount);
+        $invoice = $this->prepareTaxedInvoice($tax_rate);
         $company_gateway = $this->makeGateway(fee_amount: 5);
         $original_attributes = $invoice->getRawOriginal();
 
-        $quote = $invoice->service()->quoteGatewayFee($company_gateway, GatewayType::CREDIT_CARD, $stored_amount);
+        $this->assertEqualsWithDelta($expected_amount, (float) $invoice->amount, 0.001);
+        $this->assertEqualsWithDelta($expected_amount, (float) $invoice->balance, 0.001);
+        $this->assertEqualsWithDelta($expected_amount - 100, (float) $invoice->total_taxes, 0.001);
+
+        $quote = $invoice->service()->quoteGatewayFee($company_gateway, GatewayType::CREDIT_CARD, $expected_amount);
 
         $this->assertSame($original_attributes, $invoice->fresh()->getRawOriginal(), 'Quoting a fee must not change the invoice.');
         $this->assertEqualsWithDelta(5, $quote['net'], 0.001);
         $this->assertEqualsWithDelta(5, $quote['gross'], 0.001,
-            'An untaxed fixed fee must not include a pre-existing difference between stored and calculated taxes.');
+            'Invoice taxes must not be counted as part of an untaxed gateway fee.');
     }
 
-    public static function storedTaxTotals(): array
+    public static function invoiceTaxRates(): array
     {
         return [
-            'calculated taxes exceed stored taxes' => [106],
-            'stored taxes exceed calculated taxes' => [114],
+            '6% invoice tax' => [6, 106],
+            '14% invoice tax' => [14, 114],
         ];
     }
 
@@ -124,9 +128,6 @@ class PaymentAmountIntegrityTest extends TestCase
     ): void {
         $this->setPaymentSettings($allow_under_payment, $allow_over_payment);
         $invoice = $this->prepareInvoice(100, $balance, $partial);
-        $invoice->paid_to_date = 100 - $balance;
-        $invoice->status_id = $balance < 100 ? Invoice::STATUS_PARTIAL : Invoice::STATUS_SENT;
-        $invoice->saveQuietly();
         $company_gateway = $this->makeGateway();
 
         $response = (new LivewireInstantPayment($this->paymentData($invoice, $company_gateway, $submitted_amount)))->run();
@@ -138,6 +139,8 @@ class PaymentAmountIntegrityTest extends TestCase
         $this->assertEqualsWithDelta(0, (float) $payment_hash->fee_total, 0.001);
         $this->assertEqualsWithDelta(100, (float) $invoice->fresh()->amount, 0.001);
         $this->assertEqualsWithDelta($balance, (float) $invoice->fresh()->balance, 0.001);
+        $this->assertEqualsWithDelta(100 - $balance, (float) $invoice->fresh()->paid_to_date, 0.001);
+        $this->assertEqualsWithDelta($partial, (float) $invoice->fresh()->partial, 0.001);
     }
 
     public static function validPaymentAmounts(): array
@@ -173,7 +176,7 @@ class PaymentAmountIntegrityTest extends TestCase
             'amount' => $amount,
             'balance' => $balance,
             'partial' => $partial,
-            'paid_to_date' => 0,
+            'paid_to_date' => $amount - $balance,
             'total_taxes' => 0,
             'discount' => 0,
             'tax_name1' => '',
@@ -183,24 +186,21 @@ class PaymentAmountIntegrityTest extends TestCase
             'tax_name3' => '',
             'tax_rate3' => 0,
             'uses_inclusive_taxes' => false,
-            'status_id' => Invoice::STATUS_SENT,
-        ])->saveQuietly();
+            'status_id' => $balance < $amount ? Invoice::STATUS_PARTIAL : Invoice::STATUS_SENT,
+        ]);
 
-        return $this->invoice->fresh();
+        return $this->invoice->calc()->getInvoice()->fresh();
     }
 
-    private function prepareTaxMismatch(float $stored_amount): Invoice
+    private function prepareTaxedInvoice(float $tax_rate): Invoice
     {
-        $invoice = $this->prepareInvoice($stored_amount, $stored_amount);
+        $invoice = $this->prepareInvoice(100, 100);
         $line_items = $invoice->line_items;
-        $line_items[0]->cost = 100;
         $line_items[0]->tax_name1 = 'Sales tax';
-        $line_items[0]->tax_rate1 = 10;
+        $line_items[0]->tax_rate1 = $tax_rate;
         $invoice->line_items = $line_items;
-        $invoice->total_taxes = $stored_amount - 100;
-        $invoice->saveQuietly();
 
-        return $invoice->fresh();
+        return $invoice->calc()->getInvoice()->fresh();
     }
 
     private function makeGateway(float $fee_amount = 0): CompanyGateway

@@ -480,7 +480,12 @@ class ProductController extends BaseController
 
             $tax_id = $request->input('tax_id');
 
-            $products->update(['tax_id' => $tax_id]);
+            $editable_ids = $products->lazyById(100)
+                ->filter(fn ($product) => $user->can('edit', $product))
+                ->pluck('id')
+                ->all();
+
+            $products->whereIn('id', $editable_ids)->update(['tax_id' => $tax_id]);
 
             return $this->listResponse(Product::withTrashed()->company()->whereIn('id', $ids));
         }

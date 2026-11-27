@@ -12,12 +12,16 @@
 
 namespace App\Livewire\Flow2;
 
+use App\Models\Invoice;
+use App\Services\ClientPortal\PaymentAmountValidator;
 use App\Utils\Number;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\WithSecureContext;
 use Livewire\Component;
 
 class UnderOverPayment extends Component
 {
+    use MakesHash;
     use WithSecureContext;
 
     public $payableAmount;
@@ -67,41 +71,42 @@ class UnderOverPayment extends Component
 
             return;
         }
-        /** Ensure the checkValue is comparing against the same list of invoices as the context */
+
+        $invoices = Invoice::on($_context['db'] ?? $contact->getConnectionName())
+            ->withTrashed()
+            ->where('client_id', $contact->client_id)
+            ->where('is_deleted', 0)
+            ->whereIn('id', $this->transformKeys($context_payable_invoices->keys()->all()))
+            ->get()
+            ->filter(fn (Invoice $invoice): bool => $invoice->isPayable())
+            ->keyBy('hashed_id');
+
+        if ($invoices->count() !== $context_payable_invoices->count()) {
+            $this->setError(ctrans('texts.no_payable_invoices_selected'));
+
+            return;
+        }
 
         $submitted_payable_invoices = $submitted_payable_invoices->keyBy('invoice_id');
         $payable_invoices = [];
 
         foreach ($context_payable_invoices as $invoice_id => $context_payable_invoice) {
             $submitted_payable_invoice = $submitted_payable_invoices->get($invoice_id, []);
-            $amount = Number::parseFloat($submitted_payable_invoice['formatted_amount'] ?? $context_payable_invoice['formatted_amount']);
-            $input_amount = Number::roundValue($amount, $currency->precision);
-            $invoice_amount = Number::roundValue((float) $context_payable_invoice['amount'], $currency->precision);
+            $formatted_amount = $submitted_payable_invoice['formatted_amount'] ?? $context_payable_invoice['formatted_amount'];
+            $error = PaymentAmountValidator::validate(
+                $invoices->get($invoice_id),
+                $formatted_amount,
+                $settings,
+                $currency->precision,
+            );
 
-            if (! $settings->client_portal_allow_under_payment && $input_amount < $invoice_amount) {
-                $this->setError(ctrans('texts.minimum_required_payment', ['amount' => $invoice_amount]));
-
-                return;
-            }
-
-            if ($settings->client_portal_allow_under_payment) {
-                if ($invoice_amount < $settings->client_portal_under_payment_minimum && $input_amount < $invoice_amount) {
-                    $this->setError(ctrans('texts.minimum_required_payment', ['amount' => $invoice_amount]));
-
-                    return;
-                } elseif ($invoice_amount >= $settings->client_portal_under_payment_minimum && $input_amount < $settings->client_portal_under_payment_minimum) {
-                    $this->setError(ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]));
-
-                    return;
-                }
-            }
-
-            if (! $settings->client_portal_allow_over_payment && $input_amount > $invoice_amount) {
-                $this->setError(ctrans('texts.over_payments_disabled'));
+            if ($error !== null) {
+                $this->setError($error);
 
                 return;
             }
 
+            $amount = Number::parseFloat($formatted_amount);
             $payable_invoices[] = array_merge($context_payable_invoice, [
                 'amount' => $amount,
                 'formatted_amount' => Number::formatValue($amount, $currency),
