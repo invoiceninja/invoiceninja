@@ -66,7 +66,7 @@ class Number
         $currency = $entity->currency();
 
         $thousand = $currency->thousand_separator;
-        $decimal = $currency->decimal_separator;
+        $decimal = $currency->decimal_separator ?? '.';
         // $precision = $currency->precision;
 
         if ($entity instanceof Company) {
