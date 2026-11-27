@@ -20,6 +20,31 @@ use App\Utils\Ninja;
 
 class CreateAccountRequest extends Request
 {
+    private const ATTRIBUTION_KEY_PATTERN = '/^utm_[a-z0-9_]{1,59}$/';
+
+    private const ATTRIBUTION_KEYS = [
+        'gclid',
+        'gbraid',
+        'wbraid',
+        'fbclid',
+        'fbc',
+        'fbp',
+        'twclid',
+        'oppref',
+        'obref',
+        'lp',
+    ];
+
+    private const MAX_ATTRIBUTION_LENGTH = 500;
+
+    private const LEGACY_UTM_KEYS = [
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
+        'utm_term',
+        'utm_content',
+    ];
+
     private array $fake_domains = [
         'generator.email',
         'emailfake.com',
@@ -239,6 +264,39 @@ class CreateAccountRequest extends Request
         });
     }
 
+    /**
+     * Attribution is marketing metadata nobody signing up controls, so drop
+     * anything unexpected instead of failing the signup.
+     */
+    public static function sanitizeAttribution(mixed $value): ?array
+    {
+        if (! is_array($value)) {
+            return null;
+        }
+
+        $attribution = [];
+
+        foreach ($value as $key => $item) {
+            $key = (string) $key;
+
+            $supported = in_array($key, self::ATTRIBUTION_KEYS, true)
+                || preg_match(self::ATTRIBUTION_KEY_PATTERN, $key);
+
+            if (! $supported || ! is_string($item) || strlen($item) > self::MAX_ATTRIBUTION_LENGTH) {
+                continue;
+            }
+
+            // Malformed UTF-8 cannot be json encoded and would fail the signup.
+            if (! mb_check_encoding($item, 'UTF-8')) {
+                continue;
+            }
+
+            $attribution[$key] = $item;
+        }
+
+        return array_slice($attribution, 0, 20, true) ?: null;
+    }
+
     public function prepareForValidation()
     {
 
@@ -247,6 +305,24 @@ class CreateAccountRequest extends Request
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');
+
+        $input['attribution'] = self::sanitizeAttribution($input['attribution'] ?? null);
+
+        // The deployed web app still posts the five utm fields; clamp them so a
+        // value the visitor doesn't control can neither 422 nor hit the column.
+        foreach (self::LEGACY_UTM_KEYS as $key) {
+            if (! array_key_exists($key, $input)) {
+                continue;
+            }
+
+            if (! is_string($input[$key])) {
+                unset($input[$key]);
+
+                continue;
+            }
+
+            $input[$key] = mb_substr($input[$key], 0, 191);
+        }
 
         $this->replace($input);
     }
