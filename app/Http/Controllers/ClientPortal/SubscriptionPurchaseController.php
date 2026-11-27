@@ -39,6 +39,10 @@ class SubscriptionPurchaseController extends Controller
             $this->setLocale($request->query('locale'));
         }
 
+        if ($response = $this->registrationGuard($subscription, $request)) {
+            return $response;
+        }
+
         return view('billing-portal.purchase', [
             'subscription' => $subscription,
             'hash' => Str::uuid()->toString(),
@@ -60,12 +64,8 @@ class SubscriptionPurchaseController extends Controller
             $this->setLocale($request->query('locale'));
         }
 
-        if (!auth()->guard('contact')->check() && $subscription->registration_required && $subscription->company->client_can_register) {
-            session()->put('url.intended', route('client.subscription.upgrade', ['subscription' => $subscription->hashed_id]));
-
-            return redirect()->route('client.register', ['company_key' => $subscription->company->company_key]);
-        } elseif (!auth()->guard('contact')->check() && $subscription->registration_required && ! $subscription->company->client_can_register) {
-            return render('generic.subscription_blocked', ['account' => $subscription->company->account, 'company' => $subscription->company]);
+        if ($response = $this->registrationGuard($subscription, $request)) {
+            return $response;
         }
 
         return view('billing-portal.purchasev2', [
@@ -73,6 +73,23 @@ class SubscriptionPurchaseController extends Controller
             'hash' => Str::uuid()->toString(),
             'request_data' => $request->all(),
         ]);
+    }
+
+    private function registrationGuard(Subscription $subscription, Request $request): \Illuminate\Http\RedirectResponse|\Illuminate\Contracts\View\View|null
+    {
+        if (auth()->guard('contact')->check() || ! $subscription->registration_required) {
+            return null;
+        }
+
+        $company = $subscription->company;
+
+        if ($company->client_can_register) {
+            session()->put('url.intended', $request->fullUrl());
+
+            return redirect()->route('client.register', ['company_key' => $company->company_key]);
+        }
+
+        return render('generic.subscription_blocked', ['account' => $company->account, 'company' => $company]);
     }
 
     public function v3(Subscription $subscription, Request $request)
