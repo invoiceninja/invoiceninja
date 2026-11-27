@@ -41,6 +41,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Invoice\InvoiceCheckOverdue;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
+use App\PaymentDrivers\DeluxePaymentPlatform\Jobs\ReconcilePayments;
 use App\PaymentDrivers\Rotessa\Jobs\TransactionReport;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -101,6 +102,9 @@ class Kernel extends ConsoleKernel
 
         /* Checks Rotessa Transactions */
         $schedule->job(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();
+
+        /* Detects Deluxe voids and ACH results, which Deluxe does not send as webhooks */
+        $schedule->job(new ReconcilePayments())->hourlyAt(20)->withoutOverlapping()->name('deluxe-reconcile-payments')->onOneServer();
 
         /* Stale Invoice Cleanup*/
         $schedule->job(new CleanStaleInvoiceOrder())->hourlyAt('30')->withoutOverlapping()->name('stale-invoice-job')->onOneServer();

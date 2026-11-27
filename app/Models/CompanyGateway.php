@@ -164,6 +164,7 @@ class CompanyGateway extends BaseModel
         'f4lafbnygsmkflagbqp7zqnfpgeoekdn' => 328, //LawPay
         'c7a8e2f1b4d90635a3f8e1c9b2d4a6e0' => 330, //CHIP
         'ca3b3f7e4be811c96a8a1f4cafe2a97f' => 331, //Helcim
+        '26e7aed2062f96138650d6e0e133be8b' => 332, //Deluxe Payment Platform
     ];
 
     protected $touches = [];
